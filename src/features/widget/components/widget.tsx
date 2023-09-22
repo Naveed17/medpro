@@ -30,8 +30,7 @@ import {useTranslation} from "next-i18next";
 import TeethPreview from "@features/widget/components/teethPreview";
 import ReactDOM from "react-dom/client";
 import {useRouter} from "next/router";
-import {useRequestMutation} from "@lib/axios";
-import {useSWRConfig} from "swr";
+import {useRequestQueryMutation} from "@lib/axios";
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -98,9 +97,9 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                         method: "PUT",
                         url,
                         data: form
-                    }).then(() => {
-                        mutateSheetData()
-                    })
+                    }, {
+                        onSuccess: () => mutateSheetData()
+                    });
                 }}
                 // @ts-ignore
                 submission={{
@@ -133,9 +132,10 @@ function Widget({...props}) {
         handleClosePanel,
         previousData,
         acts, setActs, selectedModel,
-        url,mutateSheetData
+        url, mutateSheetData
     } = props;
     const router = useRouter();
+    const theme = useTheme();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "widget"});
 
@@ -154,17 +154,15 @@ function Widget({...props}) {
         uuid: "",
     });
 
-    const theme = useTheme();
 
-    const {trigger} = useRequestMutation(null, "appointment/edit");
-
-
+    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
     useEffect(() => {
         if (modal) {
             setDefaultModal(modal.default_modal);
         }
     }, [modal]);
+
     useEffect(() => {
         if (ready) {
             checkTeethWidget()
@@ -352,7 +350,7 @@ function Widget({...props}) {
                                             setActs,
                                             previousData,
                                             selectedModel,
-                                            trigger,
+                                            trigger: triggerAppointmentEdit,
                                             mutateSheetData,
                                             url
                                         }}

@@ -1,308 +1,352 @@
-import React, { ReactElement, useState } from "react";
-import { DashLayout, configSelector } from "@features/base";
-import { GetStaticProps } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useTranslation } from "next-i18next";
+import React, {ReactElement, useState, useEffect} from "react";
+import {DashLayout, configSelector} from "@features/base";
+import {GetStaticProps} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import {useTranslation} from "next-i18next";
 import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Drawer,
-  Stack,
-  Theme,
-  Typography,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Drawer,
+    Stack,
+    Theme,
+    Typography,
 } from "@mui/material";
-import { DesktopContainer } from "@themes/desktopConainter";
-import { Otable } from "@features/table";
-import { SubHeader } from "@features/subHeader";
-import { DefaultCountry } from "@lib/constants";
-import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
-import { useAppSelector } from "@lib/redux/hooks";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {Otable} from "@features/table";
+import {SubHeader} from "@features/subHeader";
+import {DefaultCountry} from "@lib/constants";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {useAppSelector} from "@lib/redux/hooks";
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
-import { InventoryDrawer } from "@features/drawer";
-import { InventoryMobileCard, NoDataCard } from "@features/card";
-import { MobileContainer } from "@themes/mobileContainer";
+import {InventoryDrawer} from "@features/drawer";
+import {InventoryMobileCard, NoDataCard} from "@features/card";
+import {MobileContainer} from "@themes/mobileContainer";
+import {DrawerBottom} from "@features/drawerBottom";
+import {InventoryFilter, leftActionBarSelector} from "@features/leftActionBar";
+import {useRouter} from "next/router";
+
 const data = [
-  {
-    uuid: "1",
-    name: "Product-1",
-    qte: 10,
-    before_amount: 100,
-    after_amount: 100,
-  },
+    {
+        uuid: "1",
+        name: "Product-1",
+        qte: 10,
+        before_amount: 100,
+        after_amount: 100,
+    },
 ];
+
 interface HeadCell {
-  disablePadding: boolean;
-  id: string;
-  label: string;
-  numeric: boolean;
-  sortable: boolean;
-  align: "left" | "right" | "center";
+    disablePadding: boolean;
+    id: string;
+    label: string;
+    numeric: boolean;
+    sortable: boolean;
+    align: "left" | "right" | "center";
 }
+
 const headCells: readonly HeadCell[] = [
-  {
-    id: "select",
-    numeric: false,
-    disablePadding: true,
-    label: "#",
-    sortable: false,
-    align: "left",
-  },
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: true,
-    label: "name",
-    sortable: true,
-    align: "center",
-  },
-  {
-    id: "qte",
-    numeric: true,
-    disablePadding: true,
-    label: "quality",
-    sortable: true,
-    align: "center",
-  },
-  {
-    id: "before_amount",
-    numeric: true,
-    disablePadding: false,
-    label: "before_amount",
-    sortable: true,
-    align: "center",
-  },
-  {
-    id: "after_amount",
-    numeric: true,
-    disablePadding: false,
-    label: "after_amount",
-    sortable: true,
-    align: "center",
-  },
-  {
-    id: "total",
-    numeric: true,
-    disablePadding: false,
-    label: "total",
-    sortable: false,
-    align: "center",
-  },
-  {
-    id: "actions",
-    numeric: false,
-    disablePadding: false,
-    label: "actions",
-    sortable: false,
-    align: "center",
-  },
+    {
+        id: "select",
+        numeric: false,
+        disablePadding: true,
+        label: "#",
+        sortable: false,
+        align: "left",
+    },
+    {
+        id: "name",
+        numeric: false,
+        disablePadding: true,
+        label: "name",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "qte",
+        numeric: true,
+        disablePadding: true,
+        label: "quality",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "before_amount",
+        numeric: true,
+        disablePadding: false,
+        label: "before_amount",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "after_amount",
+        numeric: true,
+        disablePadding: false,
+        label: "after_amount",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "total",
+        numeric: true,
+        disablePadding: false,
+        label: "total",
+        sortable: false,
+        align: "center",
+    },
+    {
+        id: "actions",
+        numeric: false,
+        disablePadding: false,
+        label: "actions",
+        sortable: false,
+        align: "center",
+    },
 ];
-function Inventory() {
-  const [openViewDrawer, setOpenViewDrawer] = useState<boolean>(false);
-  const [selectedRow, setSelected] = useState<any>("");
-  const [open, setOpen] = useState<boolean>(false);
-  const [rows, setRows] = useState<any[]>(data);
-  const { direction } = useAppSelector(configSelector);
-  const { t } = useTranslation("inventory");
-  const { data: session } = useSession();
-  const { data: user } = session as Session;
-  const medical_entity = (user as UserDataResponse)
-    ?.medical_entity as MedicalEntityModel;
-  const doctor_country = medical_entity.country
-    ? medical_entity.country
-    : DefaultCountry;
-  const devise = doctor_country.currency?.name;
-  const editProduct = (row: any, from: any) => {
-    if (from === "edit") {
-      setOpenViewDrawer(true);
-      setSelected(row);
-    }
-    if (from === "change") {
-      const updated = rows.map((item: any) => {
-        if (item.uuid === row.uuid) {
-          item = row;
-        }
-        return item;
-      });
-      setRows(updated);
-    }
-    if (from === "delete") {
-      setOpen(true);
-      setSelected(row);
-    }
-  };
 
-  const handleClose = () => {
-    setOpen(false);
-    setSelected("");
-  };
-  const handleDelete = () => {
-    setRows(rows.filter((item: any) => item.uuid !== selectedRow.uuid));
-    setOpen(false);
-    setSelected("");
-  };
-  return (
-    <>
-      <SubHeader>
-        <Stack
-          width={1}
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography>{t("title")}</Typography>
-          <Button
-            startIcon={<AddIcon />}
-            variant="contained"
-            color="success"
-            onClick={() => {
-              setOpenViewDrawer(true);
-              setSelected("");
-            }}
-          >
-            {t("add")}
-          </Button>
-        </Stack>
-      </SubHeader>
-      <Stack className="container">
-        {rows.length > 0 ? (
-          <>
-            <DesktopContainer>
-              <Otable
-                headers={headCells}
-                rows={rows}
-                from={"inventory"}
-                t={t}
-                edit={editProduct}
-                devise={devise}
-              />
-            </DesktopContainer>
-            <MobileContainer>
-              <Stack spacing={1}>
-                {rows.map((item: any, index: number) => (
-                  <React.Fragment key={index}>
-                    <InventoryMobileCard
-                      {...{
-                        t,
-                        data: item,
-                        edit: editProduct,
-                        devise,
-                      }}
+function Inventory() {
+    const [openViewDrawer, setOpenViewDrawer] = useState<boolean>(false);
+    const router = useRouter();
+    const {data: session} = useSession();
+
+    const {direction} = useAppSelector(configSelector);
+    const {t} = useTranslation(["inventory", "common"]);
+    const {query: filterData} = useAppSelector(leftActionBarSelector);
+
+    const [selectedRow, setSelected] = useState<any>("");
+    const [filter, setFilter] = useState<any>(false);
+    const [open, setOpen] = useState<boolean>(false);
+    const [rows, setRows] = useState<any[]>(data);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const devise = doctor_country.currency?.name;
+    const filtered = (router?.query?.params as any)
+        ?.split("&")
+        .filter((item: any) => item.length > 0) as any;
+
+    const editProduct = (row: any, from: any) => {
+        if (from === "edit") {
+            setOpenViewDrawer(true);
+            setSelected(row);
+        }
+        if (from === "change") {
+            const updated = rows.map((item: any) => {
+                if (item.uuid === row.uuid) {
+                    item = row;
+                }
+                return item;
+            });
+            setRows(updated);
+        }
+        if (from === "delete") {
+            setOpen(true);
+            setSelected(row);
+        }
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelected("");
+    }
+
+    const handleDelete = () => {
+        setRows(rows.filter((item: any) => item.uuid !== selectedRow.uuid));
+        setOpen(false);
+        setSelected("");
+    }
+
+    useEffect(() => {
+        console.log("filter", filterData);
+    }, [filterData]);
+
+    return (
+        <>
+            <SubHeader>
+                <Stack
+                    width={1}
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                >
+                    <Typography>{t("title")}</Typography>
+                    <Button
+                        startIcon={<AddIcon/>}
+                        variant="contained"
+                        color="success"
+                        onClick={() => {
+                            setOpenViewDrawer(true);
+                            setSelected("");
+                        }}
+                    >
+                        {t("add")}
+                    </Button>
+                </Stack>
+            </SubHeader>
+            <Stack className="container">
+                {rows.length > 0 ? (
+                    <>
+                        <DesktopContainer>
+                            <Otable
+                                headers={headCells}
+                                rows={rows}
+                                from={"inventory"}
+                                t={t}
+                                edit={editProduct}
+                                devise={devise}
+                            />
+                        </DesktopContainer>
+                        <MobileContainer>
+                            <Stack spacing={1}>
+                                {rows.map((item: any, index: number) => (
+                                    <React.Fragment key={index}>
+                                        <InventoryMobileCard
+                                            {...{
+                                                t,
+                                                data: item,
+                                                edit: editProduct,
+                                                devise,
+                                            }}
+                                        />
+                                    </React.Fragment>
+                                ))}
+                            </Stack>
+                        </MobileContainer>
+                    </>
+                ) : (
+                    <NoDataCard
+                        t={t}
+                        ns={"inventory"}
+                        data={{
+                            mainIcon: "ic-agenda-+",
+                            title: "no-data.title",
+                            description: "no-data.description",
+                        }}
                     />
-                  </React.Fragment>
-                ))}
-              </Stack>
+                )}
+            </Stack>
+            <Drawer
+                anchor={"right"}
+                open={openViewDrawer}
+                dir={direction}
+                onClose={() => {
+                    setOpenViewDrawer(false);
+                    setSelected("");
+                }}
+                PaperProps={{
+                    sx: {
+                        width: "100%",
+                        maxWidth: "30rem",
+                    },
+                }}
+            >
+                <InventoryDrawer
+                    {...{
+                        t,
+                        handleClose: () => setOpenViewDrawer(false),
+                        setSelected,
+                        data: selectedRow,
+                        devise,
+                        setRows,
+                        edit: editProduct,
+                    }}
+                />
+            </Drawer>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                maxWidth="sm"
+                PaperProps={{
+                    sx: {
+                        width: "100%",
+                    },
+                }}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle
+                    id="alert-dialog-title"
+                    sx={{
+                        bgcolor: (theme: Theme) => theme.palette.error.main,
+                        mb: 3,
+                    }}
+                >
+                    {t("dialog.title")}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        {t("dialog.description")}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        variant="text-black"
+                        startIcon={<CloseIcon/>}
+                        onClick={handleClose}
+                    >
+                        {t("dialog.cancel")}
+                    </Button>
+                    <Button
+                        startIcon={<IconUrl path="setting/icdelete" color="white"/>}
+                        variant="contained"
+                        color="error"
+                        onClick={handleDelete}
+                        autoFocus
+                    >
+                        {t("dialog.delete")}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <MobileContainer>
+                <Button
+                    startIcon={<IconUrl path="ic-filter"/>}
+                    variant="filter"
+                    onClick={() => setFilter(true)}
+                    sx={{
+                        position: "fixed",
+                        bottom: 50,
+                        transform: "translateX(-50%)",
+                        left: "50%",
+                        zIndex: 999,
+                    }}
+                >
+                    {t("filter.title", {ns: "common"})} (
+                    {filtered ? filtered.length : 0})
+                </Button>
             </MobileContainer>
-          </>
-        ) : (
-          <NoDataCard
-            t={t}
-            ns={"inventory"}
-            data={{
-              mainIcon: "ic-agenda-+",
-              title: "no-data.title",
-              description: "no-data.description",
-            }}
-          />
-        )}
-      </Stack>
-      <Drawer
-        anchor={"right"}
-        open={openViewDrawer}
-        dir={direction}
-        onClose={() => {
-          setOpenViewDrawer(false);
-          setSelected("");
-        }}
-        PaperProps={{
-          sx: {
-            width: "100%",
-            maxWidth: "30rem",
-          },
-        }}
-      >
-        <InventoryDrawer
-          {...{
-            t,
-            handleClose: () => setOpenViewDrawer(false),
-            setSelected,
-            data: selectedRow,
-            devise,
-            setRows,
-            edit: editProduct,
-          }}
-        />
-      </Drawer>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        maxWidth="sm"
-        PaperProps={{
-          sx: {
-            width: "100%",
-          },
-        }}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle
-          id="alert-dialog-title"
-          sx={{
-            bgcolor: (theme: Theme) => theme.palette.error.main,
-            mb: 3,
-          }}
-        >
-          {t("dialog.title")}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {t("dialog.description")}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            variant="text-black"
-            startIcon={<CloseIcon />}
-            onClick={handleClose}
-          >
-            {t("dialog.cancel")}
-          </Button>
-          <Button
-            startIcon={<IconUrl path="setting/icdelete" color="white" />}
-            variant="contained"
-            color="error"
-            onClick={handleDelete}
-            autoFocus
-          >
-            {t("dialog.delete")}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  );
+            <DrawerBottom
+                handleClose={() => setFilter(false)}
+                open={filter}
+                title={t("filter.title", {ns: "common"})}
+            >
+                <InventoryFilter/>
+            </DrawerBottom>
+        </>
+    );
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-  props: {
-    fallback: false,
-    ...(await serverSideTranslations(locale as string, [
-      "common",
-      "menu",
-      "inventory",
-    ])),
-  },
+export const getStaticProps: GetStaticProps = async ({locale}) => ({
+    props: {
+        fallback: false,
+        ...(await serverSideTranslations(locale as string, [
+            "common",
+            "menu",
+            "inventory",
+        ])),
+    },
 });
 
 Inventory.auth = true;
 
 Inventory.getLayout = function getLayout(page: ReactElement) {
-  return <DashLayout>{page}</DashLayout>;
+    return <DashLayout>{page}</DashLayout>;
 };
 
 export default Inventory;

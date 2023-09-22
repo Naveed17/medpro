@@ -21,7 +21,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CashBoxMobileCard, NoDataCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -30,14 +30,13 @@ import {DefaultCountry, TransactionStatus, TransactionType,} from "@lib/constant
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {CashboxFilter, cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {useSnackbar} from "notistack";
 import {generateFilter} from "@lib/hooks/generateFilter";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import CloseIcon from "@mui/icons-material/Close";
 import {PaymentDrawer} from "@features/drawer";
 import {DrawerBottom} from "@features/drawerBottom";
 import moment from "moment/moment";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -137,17 +136,17 @@ function Cashbox() {
         theme.breakpoints.down("md")
     );
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {enqueueSnackbar} = useSnackbar();
+    const {insurances} = useInsurances();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {t} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
-
     // ******** States ********
     const [filter, setFilter] = useState<boolean>(false)
     const [txtFilter, setTxtFilter] = useState("")
-    const [patientDetailDrawer, setPatientDetailDrawer] =
-        useState<boolean>(false);
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const isAddAppointment = false;
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [actionDialog, setActionDialog] = useState("");
@@ -158,7 +157,6 @@ function Cashbox() {
     const [totalCheck, setTotalCheck] = useState(0);
     const [toReceive, setToReceive] = useState(0);
     const [collected, setCollected] = useState(0);
-    const [pmList, setPmList] = useState([]);
     const [action, setAction] = useState("");
     const [loading, setLoading] = useState(true);
     let [checksToCashout, setChecksToCashout] = useState<any[]>([]);
@@ -166,56 +164,32 @@ function Cashbox() {
     const [selectedCashBox, setCashbox] = useState<any>(null);
     let [collectedCash, setCollectedCash] = useState(0);
 
-    const {enqueueSnackbar} = useSnackbar();
-    const {insurances} = useInsurances();
-
-
     const {data: user} = session as Session;
-
     const roles = (user as UserDataResponse).general_information.roles as Array<string>
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const filterQuery: string = generateFilter({filterCB});
 
-    const {trigger: triggerPostTransaction} = useRequestMutation(
-        null,
-        "/payment/cashbox/post"
-    );
+    const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox/post");
 
-    const {data: paymentMeansHttp} = useRequest(
-        {
-            method: "GET",
-            url: `/api/public/payment-means/${router.locale}`
-        },
-        SWRNoValidateConfig
-    );
+    const {data: paymentMeansHttp} = useRequestQuery({
+        method: "GET",
+        url: `/api/public/payment-means/${router.locale}`
+    }, ReactQueryNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransctions} =
-        useRequest(
-            filterQuery
-                ? {
-                    method: "GET",
-                    url: `${urlMedicalEntitySuffix}/transactions/${router.locale}${filterQuery}`
-                }
-                : null
-        );
+    const {data: httpTransactionsResponse, mutate: mutateTransactions} = useRequestQuery(filterQuery ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`
+    } : null, {
+        ...(filterQuery && {variables: {query: filterQuery}})
+    });
 
     useEffect(() => {
         if (httpTransactionsResponse) {
             getData(httpTransactionsResponse);
         }
     }, [httpTransactionsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (paymentMeansHttp) {
-            const pList = (paymentMeansHttp as HttpResponse).data;
-            setPmList(pList);
-        }
-    }, [paymentMeansHttp]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const txtGenerator = () => {
         let txt = ''
@@ -242,7 +216,8 @@ function Cashbox() {
         if (data.transactions) setRows(data.transactions.reverse());
         else setRows([]);
         if (filterQuery.includes("cashboxes")) setLoading(false);
-    };
+    }
+
     const handleTableActions = (data: any) => {
         switch (data.action) {
             case "PATIENT_DETAILS":
@@ -256,7 +231,8 @@ function Cashbox() {
                 setCashbox(data.row);
                 break;
         }
-    };
+    }
+
     const openPop = (ev: string) => {
         setAction(ev);
         setSelectedPayment({
@@ -268,12 +244,14 @@ function Cashbox() {
         });
         setActionDialog("payment_dialog");
         setOpenPaymentDialog(true);
-    };
+    }
+
     const resetDialog = () => {
         setChecksToCashout([]);
         setCollectedCash(0)
         setOpenPaymentDialog(false);
-    };
+    }
+
     const handleSubmit = () => {
         if (actionDialog === "payment_dialog") {
             let amount = 0;
@@ -311,10 +289,12 @@ function Cashbox() {
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
                 data: form
-            }).then(() => {
-                enqueueSnackbar(`${t("transactionAdded")}`, {variant: "success"});
-                mutateTransctions().then(() => {
-                });
+            }, {
+                onSuccess: () => {
+                    console.log("mutateTransactions");
+                    enqueueSnackbar(`${t("transactionAdded")}`, {variant: "success"});
+                    mutateTransactions();
+                }
             });
         } else {
             let cheques = '';
@@ -361,16 +341,20 @@ function Cashbox() {
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/transactions/encashment/${router.locale}`,
                 data: form
-            }).then(() => {
-                mutateTransctions().then(() => {
-                    enqueueSnackbar(`${totalChequeAmount} ${devise} ${t('encaissed')}`, {variant: "success"})
-                    setChecksToCashout([]);
-                    setCollectedCash(0);
-                });
+            }, {
+                onSuccess: () => {
+                    mutateTransactions().then(() => {
+                        enqueueSnackbar(`${totalChequeAmount} ${devise} ${t('encaissed')}`, {variant: "success"})
+                        setChecksToCashout([]);
+                        setCollectedCash(0);
+                    });
+                }
             });
         }
         setOpenPaymentDialog(false);
-    };
+    }
+
+    const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
 
     return (
         <>
@@ -380,16 +364,14 @@ function Cashbox() {
                     width={1}
                     justifyContent="space-between"
                     py={1}
-                    alignItems={{xs: "flex-start", md: "center"}}
-                >
+                    alignItems={{xs: "flex-start", md: "center"}}>
                     <Typography>
                         <b>{txtFilter}</b>
                     </Typography>
                     <Stack
                         direction={{xs: "column", md: "row"}}
                         spacing={{xs: 1, md: 3}}
-                        alignItems={{xs: "flex-start", md: "center"}}
-                    >
+                        alignItems={{xs: "flex-start", md: "center"}}>
                         <Stack direction="row" spacing={2} alignItems="center">
                             {toReceive > 0 && <>
                                 <Typography>{t("receive")}</Typography>
@@ -483,7 +465,7 @@ function Cashbox() {
                         <DesktopContainer>
                             {!loading && (
                                 <Otable
-                                    {...{rows, t, insurances, pmList, mutateTransctions}}
+                                    {...{rows, t, insurances, pmList, mutateTransactions}}
                                     headers={headCells}
                                     from={"cashbox"}
                                     handleEvent={handleTableActions}
@@ -500,9 +482,7 @@ function Cashbox() {
                                             t={t}
                                             insurances={insurances}
                                             pmList={pmList}
-                                            mutateTransctions={mutateTransctions}
-
-
+                                            mutateTransactions={mutateTransactions}
                                         />
                                     </React.Fragment>
                                 ))}
@@ -552,8 +532,7 @@ function Cashbox() {
                     sx: {
                         width: {xs: "100% !important", sm: "368px !important"},
                     },
-                }}
-            >
+                }}>
                 <PaymentDrawer
                     handleClose={() => setPaymentDrawer(false)}
                     data={selectedCashBox}

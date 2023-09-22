@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
+import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {SubHeader} from "@features/subHeader";
 import {
@@ -36,14 +36,14 @@ import readXlsxFile from "read-excel-file";
 import {useAppSelector} from "@lib/redux/hooks";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {agendaSelector} from "@features/calendar";
 import {tableActionSelector} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {DefaultCountry} from "@lib/constants";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 
 const RootStyled = styled(Box)(({theme}: { theme: Theme }) => ({
     ".tab-item": {
@@ -81,6 +81,7 @@ function ImportData() {
     const {data: session} = useSession();
     const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -96,7 +97,6 @@ function ImportData() {
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
     const {data: user} = session as Session;
@@ -144,12 +144,9 @@ function ImportData() {
     const [errorsImport, setErrorsImport] = useState<any[]>([]);
     const [fileLength, setFileLength] = useState(0);
 
-    const {trigger: triggerImportData} = useRequestMutation(
-        null,
-        "/import/data"
-    );
+    const {trigger: triggerImportData} = useRequestQueryMutation("/import/data");
 
-    const {data: httpFileResponse} = useRequest({
+    const {data: httpFileResponse} = useRequestQuery({
         method: "GET",
         url: `/api/public/med-link/patient/file/${router.locale}`
     });
@@ -211,11 +208,11 @@ function ImportData() {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`,
             data: params
-        }).then(
-            (value: any) => {
+        }, {
+            onSuccess: (value: any) => {
                 if (value?.data.status === "success") {
                     // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                    mutateOnGoing();
                     setLoading(false);
                     setCancelDialog(false);
                     localStorage.setItem("import-data", "true");
@@ -224,7 +221,7 @@ function ImportData() {
                     router.push("/dashboard/settings/data");
                 }
             },
-            (reason) => {
+            onError: (reason: any) => {
                 if (reason?.response.status === 400) {
                     const errors = Object.entries(reason?.response.data.data).map(
                         ([key, value]: [string, any]) => ({
@@ -236,7 +233,7 @@ function ImportData() {
                 }
                 setLoading(false);
             }
-        );
+        });
     };
 
     const {values, handleSubmit, getFieldProps, setFieldValue} = formik;

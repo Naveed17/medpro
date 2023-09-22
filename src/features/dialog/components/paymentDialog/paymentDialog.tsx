@@ -38,7 +38,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {DatePicker} from "@features/datepicker";
 import {useInsurances} from "@lib/hooks/rest";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
@@ -186,24 +186,11 @@ function PaymentDialog({...props}) {
 
     const {values, errors, touched, getFieldProps, setFieldValue, resetForm} = formik;
 
-    const {data: httpPatientWallet} = useRequest(medicalEntityHasUser && appointment ? {
+    const {data: httpPatientWallet} = useRequestQuery(medicalEntityHasUser && appointment ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
-    useEffect(() => {
-        setSelectedPayment({
-            ...selectedPayment,
-            payments
-        });
-    }, [payments]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (httpPatientWallet) {
-            const w = (httpPatientWallet as HttpResponse).data.wallet
-            setWallet(w)
-        }
-    }, [httpPatientWallet]); // eslint-disable-line react-hooks/exhaustive-deps
     const handleAddStep = () => {
         const step = [...values.check, {
             amount: "",
@@ -214,11 +201,13 @@ function PaymentDialog({...props}) {
             expiry_date: new Date(),
         }];
         setFieldValue("check", step);
-    };
+    }
+
     const handleDeleteStep = (props: any) => {
         const filter = values.check.filter((item: any) => item !== props)
         setFieldValue("check", filter);
     }
+
     const calculInsurance = () => {
         let total = 0
         payments.map((pay: { insurance: string; amount: number; }) => {
@@ -226,6 +215,7 @@ function PaymentDialog({...props}) {
         })
         return total
     }
+
     const checkCheques = () => {
         if (selectedPayment.uuid !== "") {
             let total = 0;
@@ -248,11 +238,27 @@ function PaymentDialog({...props}) {
         }
 
     }
+
     const calculRest = () => {
         let paymentTotal = 0
         selectedPayment.payments.map((pay: { amount: number; }) => paymentTotal += pay.amount)
         return selectedPayment.total - paymentTotal
     }
+
+    useEffect(() => {
+        setSelectedPayment({
+            ...selectedPayment,
+            payments
+        });
+    }, [payments]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (httpPatientWallet) {
+            const w = (httpPatientWallet as HttpResponse).data.wallet
+            setWallet(w)
+        }
+    }, [httpPatientWallet]); // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -590,11 +596,11 @@ function PaymentDialog({...props}) {
                                                                         value={values[`check[${idx}].bank`]}
                                                                         onChange={(e, newValue: any) => {
                                                                             e.stopPropagation();
-                                                                            let res = ''
+                                                                            let res: string
                                                                             if (newValue.inputValue)
                                                                                 res = newValue.inputValue
                                                                             else res = newValue.name
-                                                                            setFieldValue(`check[${idx}].bank`,res)
+                                                                            setFieldValue(`check[${idx}].bank`, res)
                                                                         }}
                                                                         filterOptions={(options, params) => filterReasonOptions(options, params, t)}
                                                                         sx={{color: "text.secondary"}}

@@ -21,20 +21,16 @@ import {Dialog, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
-import {useRequest} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 
 function RDVRow({...props}) {
     const {data: {patient, translate}} = props;
     const router = useRouter();
     const matches = useMediaQuery("(min-width:900px)");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {data: session} = useSession();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {model} = useAppSelector(preConsultationSelector);
@@ -44,12 +40,12 @@ function RDVRow({...props}) {
 
     const [appointmentData, setAppointmentData] = useState<any>(null);
 
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
 
     const {
         data: httpPatientHistoryResponse,
         isLoading
-    } = useRequest(medicalEntityHasUser && patient ? {
+    } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/list/${router.locale}`
     } : null);
@@ -87,10 +83,12 @@ function RDVRow({...props}) {
                 "modal_uuid": model,
                 "modal_data": localStorage.getItem(`Modeldata${appointmentData?.uuid}`) as string
             }
-        } as any).then(() => {
-            setLoadingReq(false);
-            localStorage.removeItem(`Modeldata${appointmentData?.uuid}`);
-            setOpenPreConsultationDialog(false)
+        }, {
+            onSuccess: () => {
+                setLoadingReq(false);
+                localStorage.removeItem(`Modeldata${appointmentData?.uuid}`);
+                setOpenPreConsultationDialog(false)
+            }
         });
     }
 

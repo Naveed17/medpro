@@ -7,13 +7,13 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import PaymentDialogStyled from "@features/dialog/components/paymentDialog/overrides/paymentDialogStyle";
 import {Otable} from "@features/table";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import { DesktopContainer } from '@themes/desktopConainter';
-import { MobileContainer } from '@themes/mobileContainer';
+import {DesktopContainer} from '@themes/desktopConainter';
+import {MobileContainer} from '@themes/mobileContainer';
 import {CashOutMobileCard} from "@features/card";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
@@ -87,35 +87,40 @@ const headCheques: readonly HeadCell[] = [
 ];
 
 function CashOutDialog({...props}) {
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
     const {data} = props;
+    const {checksToCashout, setChecksToCashout, collectedCash, setCollectedCash} = data;
+    const {data: session} = useSession();
+    const router = useRouter();
+    const theme = useTheme();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("payment");
-
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {
-        selectedBoxes
-    } = useAppSelector(cashBoxSelector);
-
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
 
     const [totalCash, setTotalCash] = useState(0);
     const [totalCheck, setTotalCheck] = useState(0);
     const [cheques, setCheques] = useState<ChequeModel[]>([]);
 
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
-    const router = useRouter();
-    const theme = useTheme();
-
-    const {checksToCashout, setChecksToCashout,collectedCash, setCollectedCash} = data;
-
-    const {data: httpCollectResponse} = useRequest({
+    const {data: httpCollectResponse} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/collect/${router.locale}`
     });
+
+    const handleCheques = (props: ChequeModel) => {
+        if (checksToCashout.indexOf(props) != -1) {
+            checksToCashout.splice(checksToCashout.indexOf(props), 1);
+        } else {
+            checksToCashout.push(props);
+        }
+        setChecksToCashout([...checksToCashout]);
+        const total = checksToCashout.reduce((acc: number, curr: ChequeModel) => acc + curr.amount, 0);
+        setTotalCheck(total);
+    };
 
     useEffect(() => {
         if (httpCollectResponse) {
@@ -124,16 +129,6 @@ function CashOutDialog({...props}) {
             setCheques(res.list)
         }
     }, [httpCollectResponse])
-    const handleCheques = (props: ChequeModel) => {
-        if (checksToCashout.indexOf(props) != -1) {
-            checksToCashout.splice(checksToCashout.indexOf(props), 1);
-        } else {
-            checksToCashout.push(props);
-        }
-        setChecksToCashout([...checksToCashout]);
-        const total = checksToCashout.reduce((acc:number, curr:ChequeModel) => acc + curr.amount, 0);
-        setTotalCheck(total);
-    };
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -170,50 +165,50 @@ function CashOutDialog({...props}) {
                 <Stack
                     className={"tab-panel"}
                     direction={{xs: "column", sm: "row"}}
-                    spacing={{xs:1,sm:3}}
-                    alignItems={{xs:"flex-start",sm:"center"}}
+                    spacing={{xs: 1, sm: 3}}
+                    alignItems={{xs: "flex-start", sm: "center"}}
                     padding={2}>
                     <Typography variant={"body1"}>{t("somme")} <Typography fontSize={12}
                                                                            color={theme.palette.grey[700]}>(
                         Max: {totalCash} {devise} )</Typography></Typography>
-                         <Stack direction={"row"} spacing={1} alignItems={"center"} width={{xs:'100%',sm:'auto'}}>
-                            <TextField
-                        fullWidth
-                        value={collectedCash}
-                        onChange={(ev) => {
-                            if (Number(ev.target.value) <= totalCash) {
-                                setCollectedCash(Number(ev.target.value));
-                            }
-                        }}
-                        InputProps={{
-                            sx: {
-                                width: {xs:"100%",sm:"150px"},
-                                textAlign: "center",
-                            },
-                        }}
-                        placeholder={t("---")}
-                    />
-                    <Typography variant={"body1"} color={theme.palette.grey[700]}>
-                        {devise}
-                    </Typography>
-                    </Stack>                                                            
-                    
+                    <Stack direction={"row"} spacing={1} alignItems={"center"} width={{xs: '100%', sm: 'auto'}}>
+                        <TextField
+                            fullWidth
+                            value={collectedCash}
+                            onChange={(ev) => {
+                                if (Number(ev.target.value) <= totalCash) {
+                                    setCollectedCash(Number(ev.target.value));
+                                }
+                            }}
+                            InputProps={{
+                                sx: {
+                                    width: {xs: "100%", sm: "150px"},
+                                    textAlign: "center",
+                                },
+                            }}
+                            placeholder={t("---")}
+                        />
+                        <Typography variant={"body1"} color={theme.palette.grey[700]}>
+                            {devise}
+                        </Typography>
+                    </Stack>
+
 
                 </Stack>
             </PaymentDialogStyled>
             <DesktopContainer>
-            <Otable
-                headers={headCheques}
-                rows={cheques}
-                from={"chequesList"}
-                t={t}
-                select={checksToCashout}
-                edit={handleCheques}
-            />
+                <Otable
+                    headers={headCheques}
+                    rows={cheques}
+                    from={"chequesList"}
+                    t={t}
+                    select={checksToCashout}
+                    edit={handleCheques}
+                />
             </DesktopContainer>
             <MobileContainer>
                 <Stack spacing={2}>
-                    {(httpCollectResponse ? cheques : Array.from({length:5})).map((card, idx) => (
+                    {(httpCollectResponse ? cheques : Array.from({length: 5})).map((card, idx) => (
                         <React.Fragment key={idx}>
                             <CashOutMobileCard
                                 data={card}
@@ -221,11 +216,11 @@ function CashOutDialog({...props}) {
                                 t={t}
                                 selected={checksToCashout}
                                 devise={devise}
-                            
+
                             />
                         </React.Fragment>
                     ))}
-                
+
                 </Stack>
             </MobileContainer>
         </Box>

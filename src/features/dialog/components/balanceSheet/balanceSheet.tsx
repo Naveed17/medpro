@@ -24,7 +24,7 @@ import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
 import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -46,6 +46,7 @@ function BalanceSheetDialog({...props}) {
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const router = useRouter();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
@@ -67,12 +68,25 @@ function BalanceSheetDialog({...props}) {
     const openPopover = Boolean(anchorElPopover);
     const open = Boolean(anchorEl);
 
-    const {trigger} = useRequestMutation(null, "/balanceSheet");
-    const {enqueueSnackbar} = useSnackbar();
+    const {trigger: triggerBalanceSheetCreate} = useRequestQueryMutation("/balanceSheet/create");
+    const {trigger: triggerBalanceSheetUpdate} = useRequestQueryMutation("/balanceSheet/update");
+    const {trigger: triggerBalanceSheetDelete} = useRequestQueryMutation("/balanceSheet/delete");
+    const {trigger: triggerBalanceSheetGet} = useRequestQueryMutation("/balanceSheet/get");
+
+    const {data: httpAnalysisResponse} = useRequestQuery({
+        method: "GET",
+        url: `/api/private/analysis/${router.locale}`
+    });
+
+    const {data: httpModelResponse, mutate} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`
+    } : null);
 
     const handleClickPopover = useCallback(() => {
         setAnchorElPopover(textFieldRef.current);
     }, [textFieldRef]);
+
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     }
@@ -100,16 +114,6 @@ function BalanceSheetDialog({...props}) {
 
     const initialData = Array.from(new Array(10));
 
-    const {data: httpAnalysisResponse} = useRequest({
-        method: "GET",
-        url: `/api/private/analysis/${router.locale}`
-    });
-
-    const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
-        method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`
-    } : null);
-
     const {handleSubmit} = formik;
 
     const addAnalysis = (value: AnalysisModel) => {
@@ -130,28 +134,32 @@ function BalanceSheetDialog({...props}) {
         form.append('globalNote', "");
         form.append('name', model);
         form.append('analyses', JSON.stringify(analysis));
-        trigger({
+        triggerBalanceSheetCreate({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
             data: form
-        }).then(() => {
-            setOpenDialog(false);
-            setModel("")
-            mutate().then(() =>
-                enqueueSnackbar(t("created"), {variant: 'success'})
-            );
-        })
+        }, {
+            onSuccess: () => {
+                setOpenDialog(false);
+                setModel("")
+                mutate().then(() =>
+                    enqueueSnackbar(t("created"), {variant: 'success'})
+                );
+            }
+        });
     }
 
     const searchInAnalysis = (analysisName: string) => {
         setName(analysisName);
         if (analysisName.length >= 2) {
-            trigger({
+            triggerBalanceSheetGet({
                 method: "GET",
                 url: `/api/private/analysis/${router.locale}?name=${analysisName}`
-            }).then((r) => {
-                const res = (r?.data as HttpResponse).data;
-                setSearchAnalysis(res.length > 0 ? res : analysisList);
+            }, {
+                onSuccess: (r: any) => {
+                    const res = (r?.data as HttpResponse).data;
+                    setSearchAnalysis(res.length > 0 ? res : analysisList);
+                }
             });
         } else {
             setSearchAnalysis(analysisList);
@@ -159,15 +167,17 @@ function BalanceSheetDialog({...props}) {
     }
 
     const deleteModel = () => {
-        trigger({
+        triggerBalanceSheetDelete({
             method: "DELETE",
             url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${selectedModel.uuid}/${router.locale}`
-        }).then(() => {
-            mutate().then(() => {
-                setSelectedModel(null)
-                setAnalysis([]);
-                enqueueSnackbar(t("removed"), {variant: 'success'})
-            });
+        }, {
+            onSuccess: () => {
+                mutate().then(() => {
+                    setSelectedModel(null)
+                    setAnalysis([]);
+                    enqueueSnackbar(t("removed"), {variant: 'success'})
+                });
+            }
         })
     }
 
@@ -176,15 +186,17 @@ function BalanceSheetDialog({...props}) {
         form.append('globalNote', "");
         form.append('name', selectedModel.name);
         form.append('analyses', JSON.stringify(analysis));
-        trigger({
+        triggerBalanceSheetUpdate({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${selectedModel.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            mutate().then(() => {
-                enqueueSnackbar(t("updated"), {variant: 'success'})
-            });
-        })
+        }, {
+            onSuccess: () => {
+                mutate().then(() => {
+                    enqueueSnackbar(t("updated"), {variant: 'success'})
+                });
+            }
+        });
     }
 
     const handleOnChange = (event: any, newValue: any) => {

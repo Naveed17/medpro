@@ -4,8 +4,10 @@ import {
     Avatar,
     Box,
     Button,
+    Checkbox,
     DialogActions,
     Divider,
+    FormControlLabel,
     Grid,
     IconButton,
     List,
@@ -22,7 +24,7 @@ import {
 import dynamic from "next/dynamic";
 import {ModelDot} from "@features/modelDot";
 import AddIcon from "@mui/icons-material/Add";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
 import IconUrl from "@themes/urlIcon";
@@ -62,6 +64,9 @@ function CertifDialog({...props}) {
     const [selected, setSelected] = useState<any>();
     const [selectedModel, setSelectedModel] = useState<any>(null);
     let [oldNote, setOldNote] = useState('');
+    const [templates, setTemplates] = useState([]);
+    const [selectedTemplate, setSelectedTemplate] = useState("");
+
     const {enqueueSnackbar} = useSnackbar();
 
     const contentBtns = [
@@ -72,38 +77,49 @@ function CertifDialog({...props}) {
         {name: '{cin}', title: 'cin', show: data.state.cin},
     ];
 
-    const {trigger} = useRequestMutation(null, "/certif-models");
+    const {trigger: triggerModelsCreate} = useRequestQueryMutation("/certif-models/create");
+    const {trigger: triggerModelsUpdate} = useRequestQueryMutation("/certif-models/update");
 
-    const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse, mutate} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
     } : null);
+
+    const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
+    } : null);
+
     const selectModel = (model: CertifModel) => {
         setValue(model.content);
         data.state.content = model.content;
         data.state.title = model.title;
+        data.state.documentHeader = model.documentHeader
         data.setState(data.state)
         setTitle(model.title)
+        setSelectedTemplate(model.documentHeader)
         setSelectedColor([model.color])
         setSelectedModel(model);
     }
+
     const saveModel = () => {
         const form = new FormData();
         form.append('content', value);
         form.append('color', selectedColor[0]);
         form.append('title', title);
-        trigger({
+        form.append('header', selectedTemplate);
+
+        triggerModelsCreate({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
             data: form
         }, {
-            revalidate: true,
-            populateCache: true
-        }).then(() => {
-            mutate();
-        })
-
+            onSuccess: () => mutate().then(() => {
+                setSelectedTemplate('')
+            })
+        });
     }
+
     const startStopRec = () => {
         if (listening && isStarted) {
             SpeechRecognition.stopListening();
@@ -114,6 +130,7 @@ function CertifDialog({...props}) {
             startListening();
         }
     }
+
     const startListening = () => {
         resetTranscript();
         SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
@@ -121,30 +138,37 @@ function CertifDialog({...props}) {
             setOldNote(value)
         })
     }
+
     const dialogSave = () => {
-        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
-            mutate().then(() => {
-                setOpenRemove(false);
-            })
+        triggerModelsUpdate(selected.request, {
+            onSuccess: () => {
+                mutate().then(() => {
+                    setOpenRemove(false);
+                })
+            }
         });
     }
+
     const addVal = (val: string) => {
         (window as any).tinymce.execCommand('mceInsertContent', false, val);
     }
+
     const saveChanges = () => {
         const form = new FormData();
         form.append('content', value);
         form.append('color', selectedColor[0]);
         form.append('title', title);
-        trigger({
+        triggerModelsUpdate({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${selectedModel.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            mutate().then(() => {
-                enqueueSnackbar(t("consultationIP.updated"), {variant: 'success'})
-            });
-        })
+        }, {
+            onSuccess: () => {
+                mutate().then(() => {
+                    enqueueSnackbar(t("consultationIP.updated"), {variant: 'success'})
+                });
+            }
+        });
     }
 
     useEffect(() => {
@@ -159,6 +183,7 @@ function CertifDialog({...props}) {
                     title: model.title ? model.title : 'Sans titre',
                     name: model.title ? model.title : 'Sans titre',
                     content: model.content,
+                    documentHeader: model.documentHeader,
                     preview: (stringToHTML as HTMLElement)?.innerHTML
                 });
             });
@@ -176,6 +201,13 @@ function CertifDialog({...props}) {
             setValue(oldNote + ' ' + transcript)
         }
     }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (httpDocumentHeader) {
+            const docInfo = (httpDocumentHeader as HttpResponse).data
+            setTemplates(docInfo)
+        }
+    }, [httpDocumentHeader])
 
     const {t, ready} = useTranslation("consultation");
 
@@ -219,6 +251,25 @@ function CertifDialog({...props}) {
                                     </ModelDot>
                                 ))}
                             </Stack>
+                            <div style={{display: "flex"}}>
+                                <Typography style={{color: "gray"}} fontSize={12} mt={1}
+                                            mb={1}>{t('consultationIP.alertTitle')}</Typography>
+                                <div style={{marginLeft: 15}}>
+                                    {templates.map((doc: any) => (<FormControlLabel
+                                        key={doc.uuid}
+                                        control={
+                                            <Checkbox checked={selectedTemplate === doc.uuid}
+                                                      onChange={() => {
+                                                          setSelectedTemplate(doc.uuid)
+                                                          data.state.documentHeader = doc.uuid
+                                                          data.setState(data.state)
+                                                      }} name={doc.uuid}/>
+                                        }
+                                        label={doc.title}
+                                    />))}
+                                </div>
+                            </div>
+
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
                                 <Stack direction={"row"} alignItems={"center"} spacing={1}>
                                     <Typography style={{color: "gray"}} fontSize={12} mt={1}
@@ -249,19 +300,10 @@ function CertifDialog({...props}) {
                                     branding: false,
                                     statusbar: false,
                                     menubar: false,
-                                    plugins: [
-                                        'advlist autolink lists link image charmap print preview anchor',
-                                        'searchreplace visualblocks code fullscreen textcolor',
-                                        'insertdatetime media table paste code help wordcount'
-                                    ],
-                                    toolbar: 'undo redo | formatselect | ' +
-                                        'bold italic backcolor forecolor | alignleft aligncenter ' +
-                                        'alignright alignjustify | bullist numlist outdent indent | ' +
-                                        'removeformat | help',
+                                    plugins: " advlist anchor autolink autosave charmap codesample directionality  emoticons    help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount",
+                                    toolbar: "blocks fontfamily fontsize | bold italic underline forecolor backcolor | align lineheight checklist bullist numlist ",
                                     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-
-                                }}
-                            />
+                                }}/>
                         </Stack>
                     </List>
                 </Grid>
@@ -271,7 +313,9 @@ function CertifDialog({...props}) {
                         <Button sx={{ml: 'auto', height: 1}}
                                 size='small'
                                 disabled={title.length === 0 || value.length === 0}
-                                onClick={saveModel}
+                                onClick={() => {
+                                    saveModel()
+                                }}
                                 startIcon={<AddIcon/>}>
                             {t('consultationIP.createAsModel')}
                         </Button>

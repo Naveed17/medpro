@@ -10,7 +10,7 @@ import {Otable} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppSelector} from "@lib/redux/hooks";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {Theme} from "@mui/material/styles";
 import {MobileContainer} from "@themes/mobileContainer";
@@ -42,7 +42,7 @@ function Agenda() {
     const [open, setOpen] = useState(false);
     const [rows, setRows] = useState<any>([]);
 
-    const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
+    const {data: httpAgendasResponse} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
     } : null);
@@ -63,7 +63,7 @@ function Agenda() {
         setOpen(false);
     };
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     const headCells = [
         {
@@ -142,7 +142,8 @@ function Agenda() {
         } else props[e] = !props[e];
 
         setRows([...rows]);
-    };
+    }
+
     return (
         <>
             <SubHeader>

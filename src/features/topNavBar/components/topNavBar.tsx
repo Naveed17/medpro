@@ -12,7 +12,7 @@ import {
     Hidden,
     IconButton, Menu,
     MenuItem,
-    MenuList,
+    MenuList, Stack,
     Toolbar,
     useMediaQuery
 } from "@mui/material";
@@ -23,7 +23,7 @@ import dynamic from "next/dynamic";
 import {LangButton, NavbarStepperStyled, NavbarStyled} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import {CipCard, setTimer, timerSelector} from "@features/card";
+import {CipCard, resetTimer, setTimer, timerSelector} from "@features/card";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {AppointmentStatsPopover, NotificationPopover,} from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
@@ -34,23 +34,18 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import {onOpenPatientDrawer} from "@features/table";
 import {PatientDetail} from "@features/dialog";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useSWRConfig} from "swr";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
 import {WarningTooltip} from "./warningTooltip";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
+import {useMedicalEntitySuffix, useMutateOnGoing, useInvalidateQueries} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {MobileContainer} from "@lib/constants";
 
-const ProfilMenuIcon = dynamic(
-    () => import("@features/menu/components/profilMenu/components/profilMenu")
-);
+const ProfilMenuIcon = dynamic(() => import("@features/menu/components/profilMenu/components/profilMenu"));
 
 let deferredPrompt: any;
 
@@ -58,12 +53,13 @@ function TopNavBar({...props}) {
     const {dashboard} = props;
     const {topBar} = siteHeader;
 
-    const {mutate} = useSWRConfig();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t: commonTranslation} = useTranslation("common");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
@@ -80,8 +76,8 @@ function TopNavBar({...props}) {
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
-    const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: triggerAppointmentUpdate} = useRequestQueryMutation("/agenda/appointment/update");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
 
     const [patientId, setPatientId] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
@@ -96,10 +92,6 @@ function TopNavBar({...props}) {
     const settingHas = router.pathname.includes("settings/");
     const open = Boolean(anchorEl);
     const id = open ? "simple-popover" : undefined;
-
-    const mutateOnGoing = () => {
-        setTimeout(() => mutate(`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/ongoing/appointments/${router.locale}`));
-    }
 
     const popovers: { [key: string]: EmotionJSX.Element } = {
         "appointment-stats": <AppointmentStatsPopover/>,
@@ -143,16 +135,17 @@ function TopNavBar({...props}) {
         const form = new FormData();
         form.append('attribute', 'is_next');
         form.append('value', 'false');
-        updateTrigger({
+        triggerAppointmentUpdate({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            // refresh on going api
-            mutateOnGoing();
-            // refresh waiting room api
-            mutate(`${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}`)
-                .then(() => setLoading(false));
+        }, {
+            onSuccess: () => {
+                // refresh on going api
+                mutateOnGoing();
+                // invalidate waiting rooms query
+                invalidateQueries([`${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}`]).then(() => setLoading(false));
+            }
         });
     }
 
@@ -170,24 +163,26 @@ function TopNavBar({...props}) {
         };
         if (router.asPath !== slugConsultation) {
             router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
+                const form = new FormData();
+                form.append('status', '4');
+                form.append('start_date', moment().format("DD-MM-YYYY"));
+                form.append('start_time', moment().format("HH:mm"));
                 updateAppointmentStatus({
                     method: "PATCH",
-                    data: {
-                        status: "4",
-                        start_date: moment().format("DD-MM-YYYY"),
-                        start_time: moment().format("HH:mm")
-                    },
+                    data: form,
                     url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${nextPatient.uuid}/status/${router.locale}`
-                } as any).then(() => {
-                    dispatch(setTimer({
-                            isActive: true,
-                            isPaused: false,
-                            event,
-                            startTime: moment().utc().format("HH:mm")
-                        }
-                    ));
-                    // refresh on going api
-                    mutateOnGoing();
+                }, {
+                    onSuccess: () => {
+                        dispatch(setTimer({
+                                isActive: true,
+                                isPaused: false,
+                                event,
+                                startTime: moment().utc().format("HH:mm")
+                            }
+                        ));
+                        // refresh on going api
+                        mutateOnGoing();
+                    }
                 });
             });
         }
@@ -225,6 +220,8 @@ function TopNavBar({...props}) {
                     startTime: ongoing?.start_time,
                 })
             );
+        } else {
+            dispatch(resetTimer());
         }
     }, [dispatch, ongoing]);
 
@@ -356,13 +353,15 @@ function TopNavBar({...props}) {
                                     loadingPosition={"start"}
                                     startIcon={<IconUrl width={20} height={20} path={"ic-next-patient"}/>}
                                     variant={"contained"}>
-                                    {next.patient}
-                                    <CloseRoundedIcon
-                                        sx={{ml: 1}}
-                                        onClick={(event) => {
-                                            event.stopPropagation();
-                                            resetNextConsultation(next.uuid);
-                                        }}/>
+                                    <Stack direction={"row"}>
+                                        {next.patient}
+                                        <CloseRoundedIcon
+                                            sx={{ml: 1}}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                resetNextConsultation(next.uuid);
+                                            }}/>
+                                    </Stack>
                                 </LoadingButton>
                             }
                             {isActive &&

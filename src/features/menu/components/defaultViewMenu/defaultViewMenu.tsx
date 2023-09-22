@@ -17,7 +17,7 @@ import {setView} from "@features/calendar";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useTranslation} from "next-i18next";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -47,7 +47,7 @@ function DefaultViewMenu() {
     const general_information = (user as UserDataResponse).general_information;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
 
-    const {trigger: triggerViewChange} = useRequestMutation(null, "/agenda/set/default-view");
+    const {trigger: triggerViewChange} = useRequestQueryMutation("/agenda/set/default-view");
 
     const handleDefaultView = (view: string) => {
         dispatch(setView(view));
@@ -58,9 +58,8 @@ function DefaultViewMenu() {
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/users/edit/${router.locale}`,
             data: form
-        }).then(() => {
-            // update the session, without reloading the page
-            update({agenda_default_view: view});
+        }, {
+            onSuccess: () => update({agenda_default_view: view})
         });
     };
 

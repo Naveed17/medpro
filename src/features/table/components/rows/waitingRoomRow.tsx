@@ -276,40 +276,47 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
                         {!roles.includes("ROLE_SECRETARY") && <Tooltip title={t("start")}>
-                            <IconButton
-                                disabled={loading}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    setLoading(true);
-                                    handleEvent({action: "START_CONSULTATION", row, event});
-                                }}
-                                size="small">
-                                <PlayCircleIcon/>
-                            </IconButton></Tooltip>}
+                            <span>
+                                <IconButton
+                                    disabled={loading}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setLoading(true);
+                                        handleEvent({action: "START_CONSULTATION", row, event});
+                                    }}
+                                    size="small">
+                                    <PlayCircleIcon/>
+                                </IconButton>
+                            </span>
+                        </Tooltip>}
                         <Tooltip title={t(row.is_next ? "is_next" : "next")}>
-                            <IconButton
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    setLoading(true);
-                                    handleEvent({action: "NEXT_CONSULTATION", row, event});
-                                }}
-                                disabled={next !== null && !row.is_next}
-                                color={"primary"}
-                                size="small">
-                                {!row.is_next && <ArrowForwardRoundedIcon/>}
-                                {row.is_next && <CloseRoundedIcon/>}
-                            </IconButton>
+                            <span>
+                                <IconButton
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setLoading(true);
+                                        handleEvent({action: "NEXT_CONSULTATION", row, event});
+                                    }}
+                                    disabled={next !== null && !row.is_next}
+                                    color={"primary"}
+                                    size="small">
+                                    {!row.is_next && <ArrowForwardRoundedIcon/>}
+                                    {row.is_next && <CloseRoundedIcon/>}
+                                </IconButton>
+                            </span>
                         </Tooltip>
                         <Tooltip title={t('more')}>
-                            <IconButton
-                                disabled={loading}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleEvent({action: "OPEN-POPOVER", row, event});
-                                }}
-                                size="small">
-                                <MoreVertIcon/>
-                            </IconButton>
+                            <span>
+                                <IconButton
+                                    disabled={loading}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleEvent({action: "OPEN-POPOVER", row, event});
+                                    }}
+                                    size="small">
+                                    <MoreVertIcon/>
+                                </IconButton>
+                            </span>
                         </Tooltip>
                     </Stack>
                 </TableCell>

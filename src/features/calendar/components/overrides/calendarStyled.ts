@@ -64,6 +64,9 @@ const CalendarStyled = styled('div')(({theme}) => ({
             zIndex: 7,
             opacity: 0.24,
             backgroundColor: 'currentColor'
+        },
+        "& > div": {
+            height: "100%"
         }
     },
     '& .fc .fc-event .fc-event-main-frame': {

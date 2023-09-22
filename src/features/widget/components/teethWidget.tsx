@@ -30,7 +30,7 @@ import childTeeth from "@features/widget/components/child";
 import IconUrl from "@themes/urlIcon";
 import ExpandLessRoundedIcon from '@mui/icons-material/ExpandLessRounded';
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {agendaSelector} from "@features/calendar";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -70,6 +70,11 @@ function PaperComponent(props: PaperProps) {
 export default function TeethWidget({...props}) {
     let {acts, setActs, t, of, appuuid, previousData, local} = props
     const theme = useTheme();
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {config: agenda} = useAppSelector(agendaSelector);
+
     let [traitements, setTraitements] = useState<TraitementTeeth[]>([{
         id: 1,
         name: 'Traitement 1',
@@ -85,11 +90,7 @@ export default function TeethWidget({...props}) {
     const teeth = of === 'adult' ? adultTeeth : childTeeth;
     const colors = ['#B80000', '#FCCB00', '#008B02', '#006B76', '#1273DE', '#004DCF', '#5300EB', '#EB9694', '#FAD0C3', '#FEF3BD', '#C1E1C5', '#BEDADC']
 
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {trigger} = useRequestMutation(null, "consultation/end");
-    const router = useRouter();
-    const {config: agenda} = useAppSelector(agendaSelector);
-
+    const {trigger: triggerConsultationEnd} = useRequestQueryMutation("consultation/end");
 
     useEffect(() => {
         const data = localStorage.getItem(`Modeldata${appuuid}`)
@@ -189,7 +190,7 @@ export default function TeethWidget({...props}) {
                 act.selected = false
             }
         });
-        traitements.map(_traitment =>{
+        traitements.map(_traitment => {
             Array.isArray(_traitment.acts) && _traitment.acts.forEach(act => {
                 _acts.find(a => a.uuid === act).selected = true
                 _acts.find(a => a.uuid === act).teeth = true
@@ -217,7 +218,7 @@ export default function TeethWidget({...props}) {
 
         const form = new FormData();
         form.append("acts", JSON.stringify(res));
-        trigger({
+        triggerConsultationEnd({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appuuid}/data/${router.locale}`,
             data: form

@@ -3,6 +3,7 @@ interface AppointmentModel {
     type: AppointmentTypeModel;
     dayDate: string;
     startTime: string;
+    time?: string;
     createdAt: string;
     updatedAt: string;
     globalInstructions: string;

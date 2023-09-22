@@ -3,7 +3,7 @@ import {Label} from "@features/label";
 import {Box, Collapse, Drawer, Stack, Typography,} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
 import {AppointmentDetail, dialogSelector, openDrawer as DialogOpenDrawer,} from "@features/dialog";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import HistoryStyled
     from "@features/tabPanel/components/consultationTabs/historyTab/components/overrides/historyStyled";
 import {dashLayoutSelector} from "@features/base";
@@ -38,11 +38,9 @@ function HistoryTab({...props}) {
 
     const {drawer} = useAppSelector(dialogSelector);
     const {selectedApp} = useAppSelector(consultationSelector);
-
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-
-    const {data: httpPatientHistory, mutate} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpPatientHistory, mutate} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history-list/${router.locale}`
     } : null);

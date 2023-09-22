@@ -8,7 +8,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import ErrorIcon from "@mui/icons-material/Error";
 import HelpIcon from "@mui/icons-material/Help";
 import IconUrl from "@themes/urlIcon";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
@@ -32,16 +32,18 @@ function ImportDataMobileCard({...props}) {
     const [expanded, setExpanded] = useState(false);
     const [expandData, setExpandData] = useState([]);
 
-    const {trigger: triggerImportDataDetail} = useRequestMutation(null, "/import/data/detail");
+    const {trigger: triggerImportDataDetail} = useRequestQueryMutation("/import/data/detail");
 
     const getDetailImportData = (uuid: string, type: string) => {
         triggerImportDataDetail({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`
-        }).then((value: any) => {
-            const {data} = value?.data;
-            if (value?.data.status === "success") {
-                setExpandData(data.list);
+        }, {
+            onSuccess: (value: any) => {
+                const {data} = value?.data;
+                if (value?.data.status === "success") {
+                    setExpandData(data.list);
+                }
             }
         });
     };

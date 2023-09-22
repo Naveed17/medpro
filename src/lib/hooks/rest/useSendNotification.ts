@@ -1,12 +1,12 @@
 import {useCallback} from "react";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 
 const useSendNotification = () => {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
-    const {trigger: triggerNotificationPush} = useRequestMutation(null, "notification/push");
+    const {trigger: triggerNotificationPush} = useRequestQueryMutation("notification/push");
 
     const trigger = useCallback((data: any) => {
         const form = new FormData();

@@ -21,7 +21,7 @@ import Add from "@mui/icons-material/Add";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {pxToRem} from "@themes/formatFontSize";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -35,9 +35,8 @@ import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {useSWRConfig} from "swr";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 import {useAntecedentTypes} from "@lib/hooks/rest";
 
@@ -49,12 +48,13 @@ const Content = ({...props}) => {
     const {data: session, status} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {allAntecedents} = useAntecedentTypes();
+    const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {mutate} = useSWRConfig();
-    const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState("");
@@ -68,61 +68,53 @@ const Content = ({...props}) => {
     const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
     const [treatements, setTreatements] = useState([]);
     const [ordonnaces, setOrdonnaces] = useState([]);
-    const [analyses, setAnalyses] = useState([]);
-    const [mi, setMi] = useState([]);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {trigger} = useRequestMutation(null, "/antecedent");
-    const {allAntecedents} = useAntecedentTypes();
+    const {trigger: triggerAntecedentCreate} = useRequestQueryMutation("/antecedent/create");
+    const {trigger: triggerAntecedentUpdate} = useRequestQueryMutation("/antecedent/update");
 
     const {
         data: httpAntecedents,
         mutate: mutateAntecedents
-    } = useRequest([4, 6, 7].includes(id) && medicalEntityHasUser ? {
+    } = useRequestQuery([4, 6, 7].includes(id) && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`
     } : null);
-    const patientAntecedents = (httpAntecedents as HttpResponse)?.data;
 
-    const {data: httpPatientAnalyses, mutate: mutateAnalyses} = useRequest(id === 9 && medicalEntityHasUser ? {
+    const {data: httpPatientAnalyses, mutate: mutateAnalyses} = useRequestQuery(id === 9 && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`
     } : null);
 
-    const {data: httpPatientMI,mutate: mutateMi} = useRequest(id === 5 && medicalEntityHasUser ? {
+    const {data: httpPatientMI, mutate: mutateMi} = useRequestQuery(id === 5 && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`
     } : null);
 
-    const {data: httpTreatment, mutate: mutateTreatment} = useRequest(id === 1 && medicalEntityHasUser ? {
+    const {data: httpTreatment, mutate: mutateTreatment} = useRequestQuery(id === 1 && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/treatments/${router.locale}`
     } : null);
 
-    useEffect(() => {
-        if (httpPatientAnalyses)
-            setAnalyses((httpPatientAnalyses as HttpResponse).data)
-    }, [httpPatientAnalyses])
-
-    useEffect(() => {
-        if (httpPatientMI)
-            setMi((httpPatientMI as HttpResponse).data)
-    }, [httpPatientMI])
+    const patientAntecedents = (httpAntecedents as HttpResponse)?.data;
+    const analyses = (httpPatientAnalyses as HttpResponse)?.data ?? [];
+    const mi = (httpPatientMI as HttpResponse)?.data ?? [];
 
     useEffect(() => {
         if (httpTreatment) {
             const res = (httpTreatment as HttpResponse).data
-            setTreatements(res.filter((traitment:{isOtherProfessional:boolean}) => traitment.isOtherProfessional))
-            setOrdonnaces(res.filter((traitment:{isOtherProfessional:boolean}) => !traitment.isOtherProfessional))
+            setTreatements(res.filter((traitment: { isOtherProfessional: boolean }) => traitment.isOtherProfessional))
+            setOrdonnaces(res.filter((traitment: { isOtherProfessional: boolean }) => !traitment.isOtherProfessional))
         }
 
     }, [httpTreatment])
 
     const mutatePatient = () => {
-        mutate(url)
+        invalidateQueries([url]);
     }
+
     const getTitle = () => {
         const info = allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic);
 
@@ -145,44 +137,47 @@ const Content = ({...props}) => {
         if (allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)) {
             form.append("antecedents", JSON.stringify(state));
             form.append("patient_uuid", patient.uuid);
-            medicalEntityHasUser && trigger({
+            medicalEntityHasUser && triggerAntecedentCreate({
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
                     slug: any;
                 }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
                 data: form
-            }).then(() => {
-                mutatePatient();
-                medicalEntityHasUser && mutateAntecedents()
+            }, {
+                onSuccess: () => {
+                    mutatePatient();
+                    medicalEntityHasUser && mutateAntecedents()
+                }
             });
         } else if (info === "add_treatment") {
             form.append("globalNote", "");
             form.append("isOtherProfessional", "true");
             form.append("drugs", JSON.stringify(state));
-            trigger(
-                {
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
-                    data: form
-                }).then(() => {
-                mutatePatient();
-                medicalEntityHasUser && mutateTreatment()
-                setState([]);
+            triggerAntecedentCreate({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
+                data: form
+            }, {
+                onSuccess: () => {
+                    mutatePatient();
+                    medicalEntityHasUser && mutateTreatment()
+                    setState([]);
+                }
             });
         } else if (info === "balance_sheet_pending") {
             form.append("analysesResult", JSON.stringify((state as any).hasAnalysis));
-
-            trigger(
-                {
-                    method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/appointments/${
-                        router.query["uuid-consultation"]
-                    }/requested-analysis/${(state as any).uuid}/${router.locale}`,
-                    data: form
-                }).then(() => {
-                mutatePatient();
-                if (medicalEntityHasUser) {
-                    mutateAnalyses()
+            triggerAntecedentUpdate({
+                method: "PUT",
+                url: `${urlMedicalEntitySuffix}/appointments/${
+                    router.query["uuid-consultation"]
+                }/requested-analysis/${(state as any).uuid}/${router.locale}`,
+                data: form
+            }, {
+                onSuccess: () => {
+                    mutatePatient();
+                    if (medicalEntityHasUser) {
+                        mutateAnalyses()
+                    }
                 }
             });
         } else if (info === "medical_imaging_pending") {
@@ -196,14 +191,14 @@ const Content = ({...props}) => {
     };
 
     const dialogSave = () => {
-        trigger(selected.request, {revalidate: true, populateCache: true}).then(
-            () => {
+        triggerAntecedentUpdate(selected.request, {
+            onSuccess: () => {
                 mutatePatient();
                 if (medicalEntityHasUser) {
                     mutateTreatment()
                 }
             }
-        );
+        });
         setOpenRemove(false);
     };
 
@@ -223,7 +218,7 @@ const Content = ({...props}) => {
             setSize("sm");
         setSize("sm");
         handleClickDialog();
-    };
+    }
 
     const handleOpenDynamic = (action: string) => {
         if (patientAntecedents && Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
@@ -294,7 +289,7 @@ const Content = ({...props}) => {
             });
             setOpenDialogDoc(true);
         }
-    };
+    }
 
     /*    const treatements = patient?.treatment.filter((trait: {
             isOtherProfessional: boolean;
@@ -652,7 +647,7 @@ const Content = ({...props}) => {
                             patientAntecedents,
                             t,
                             patient,
-                            trigger,
+                            trigger: triggerAntecedentUpdate,
                             mutate: mutatePatient,
                             session,
                             setSelected,
@@ -670,7 +665,7 @@ const Content = ({...props}) => {
                             patientAntecedents,
                             t,
                             patient,
-                            trigger,
+                            trigger: triggerAntecedentUpdate,
                             mutate: mutatePatient,
                             session,
                             setSelected,
@@ -817,7 +812,7 @@ const Content = ({...props}) => {
                                     allAntecedents,
                                     t,
                                     patient,
-                                    trigger,
+                                    trigger: triggerAntecedentUpdate,
                                     index,
                                     mutate: mutatePatient,
                                     session,

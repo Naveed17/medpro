@@ -29,17 +29,16 @@ import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
 import dynamic from "next/dynamic";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import Zoom from "react-medium-image-zoom";
 import {useSpeechRecognition} from "react-speech-recognition";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
-import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
 import {useInsurances, useProfilePhoto} from "@lib/hooks/rest";
-import {useSWRConfig} from "swr";
 import {ImageHandler} from "@features/image";
 import Content from "@features/leftActionBar/components/consultation/content";
 import {DefaultCountry} from "@lib/constants";
@@ -58,8 +57,7 @@ function Consultation() {
     const {transcript, listening, resetTranscript} = useSpeechRecognition();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances: allInsurances} = useInsurances();
-
-    const {cache} = useSWRConfig();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {patient} = useAppSelector(consultationSelector);
@@ -69,7 +67,6 @@ function Consultation() {
 
 
     const [loading, setLoading] = useState<boolean>(true);
-
     const [note, setNote] = useState("");
     const [isNote, setIsNote] = useState(false);
     const [moreNote, setMoreNote] = useState(false);
@@ -78,7 +75,8 @@ function Consultation() {
     const [collapse, setCollapse] = useState<any>(-1);
     const [isStarted, setIsStarted] = useState(false);
     const [oldNote, setOldNote] = useState("");
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -98,8 +96,8 @@ function Consultation() {
                 method: "PATCH",
                 url,
                 data: params,
-            }).then(() => {
-                cache.delete(url)
+            }, {
+                onSuccess: () => invalidateQueries([url])
             });
         }
 
@@ -289,10 +287,11 @@ function Consultation() {
                             </Box>
                         )}
 
-                        {patient?.rest_amount !== undefined && patient?.rest_amount < 0 && <Chip label={`${patient?.rest_amount} ${devise}`}
-                               color={"error"}
-                               icon={<WarningRoundedIcon/>}
-                               size={"small"}/>}
+                        {patient?.rest_amount !== undefined && patient?.rest_amount < 0 &&
+                            <Chip label={`${patient?.rest_amount} ${devise}`}
+                                  color={"error"}
+                                  icon={<WarningRoundedIcon/>}
+                                  size={"small"}/>}
                     </Box>
 
                     <Box

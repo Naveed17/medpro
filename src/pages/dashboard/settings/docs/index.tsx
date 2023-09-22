@@ -23,7 +23,7 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
@@ -35,7 +35,6 @@ import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded
 import {UploadFile} from "@features/uploadFile";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {FileuploadProgress} from "@features/progressUI";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import Zoom from "@mui/material/Zoom";
 import PreviewA4 from "@features/files/components/previewA4";
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
@@ -44,6 +43,7 @@ import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 import {Editor} from '@tinymce/tinymce-react';
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function DocsConfig() {
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
@@ -76,12 +76,12 @@ function DocsConfig() {
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
-    const {trigger} = useRequestMutation(null, "/MP/header");
+    const {trigger: triggerMPHeader} = useRequestQueryMutation("/MP/header");
 
-    const {data: httpData, mutate: mutateDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpData, mutate: mutateDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
@@ -156,15 +156,16 @@ function DocsConfig() {
         const form = new FormData();
         data.background.content = "";
         form.append('document_header', JSON.stringify({header: values, data}));
-        trigger({
+        triggerMPHeader({
             method: "PATCH",
             url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
             data: form
-        }, TriggerWithoutValidation).then(() => {
-            mutateDocumentHeader();
-        })
-        enqueueSnackbar(t("updated"), {variant: 'success'})
-
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t("updated"), {variant: 'success'});
+                mutateDocumentHeader();
+            }
+        });
     }
 
     useEffect(() => {
@@ -199,7 +200,7 @@ function DocsConfig() {
         }
     }, [httpData, setFieldValue])
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

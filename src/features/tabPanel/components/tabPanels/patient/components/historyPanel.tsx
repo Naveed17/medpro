@@ -10,14 +10,13 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {consultationSelector, SetSelectedDialog} from "@features/toolbar";
 import {useRouter} from "next/router";
-import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import {useAppointmentHistory} from "@lib/hooks/rest";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRequestQueryMutation} from "@lib/axios";
 
 function HistoryPanel({...props}) {
     const {
         patient,
-        triggerPrevious,
         closePatientDialog
     } = props;
 
@@ -48,6 +47,8 @@ function HistoryPanel({...props}) {
     const [totalPagesLa, setTotalPagesLa] = useState(0);
     const [selectedAppointment, setSelectedAppointment] = useState<string>("");
     const [pagesLa, setPagesLa] = useState(1);
+
+    const {trigger: triggerConsultationPrevious} = useRequestQueryMutation("consultation/previous");
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
@@ -162,13 +163,15 @@ function HistoryPanel({...props}) {
                     </Stack>
                     {totalPagesLa > pagesLa && <Button style={{width: "fit-content"}} size={"small"} onClick={() => {
                         if (medicalEntityHasUser) {
-                            triggerPrevious({
+                            triggerConsultationPrevious({
                                 method: "GET",
                                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`
-                            }).then((r: any) => {
-                                const res = r?.data.data;
-                                setApps([...apps, ...res.list])
-                            })
+                            }, {
+                                onSuccess: (r: any) => {
+                                    const res = r?.data.data;
+                                    setApps([...apps, ...res.list])
+                                }
+                            });
                             setPagesLa(pagesLa + 1)
                         }
                     }}>{t('consultationIP.more')}</Button>}

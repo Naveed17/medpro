@@ -4,12 +4,12 @@ import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {useTranslation} from "next-i18next";
 import {FileuploadProgress} from "@features/progressUI";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import IconUrl from "@themes/urlIcon";
 import Resizer from "react-image-file-resizer";
 import dynamic from "next/dynamic";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -22,10 +22,12 @@ function AddDocumentDialog({...props}) {
     const router = useRouter();
     const theme = useTheme() as Theme;
 
-    const {data: httpTypeResponse} = useRequest({
+    const {t, ready} = useTranslation("common");
+
+    const {data: httpTypeResponse} = useRequestQuery({
         method: "GET",
         url: `/api/private/document/types/${router.locale}`
-    }, SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
 
     useEffect(() => {
         if (httpTypeResponse) {
@@ -80,18 +82,17 @@ function AddDocumentDialog({...props}) {
         }, 1500);
 
     }
-    const {t, ready} = useTranslation("common");
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <AddDocumentDialogStyled>
-            <Grid container spacing={2}>
+            <Grid container>
                 <Grid item xs={12} md={3}>
                     <Typography fontWeight={600} mb={2} variant="subtitle2">
                         {t("type_of_document")}
                     </Typography>
-                    <Grid container spacing={1} mt={6} margin={"auto"}>
+                    <Grid container mt={6} margin={"auto"}>
                         {loading
                             ? Array.from(new Array(6)).map((val, idx) => (
                                 <Grid key={"loading-card-" + idx} item xs={6} md={6}>
@@ -130,7 +131,7 @@ function AddDocumentDialog({...props}) {
                     </Grid>
                 </Grid>
                 <Grid item xs={12} md={9}>
-                    {files.length === 0 && <Stack width={{xs:"100%",md:"80%"}}
+                    {files.length === 0 && <Stack width={{xs: "100%", md: "80%"}}
                                                   margin={"auto"}
                                                   mt={6}
                                                   spacing={2}
@@ -149,7 +150,7 @@ function AddDocumentDialog({...props}) {
 
                     </Stack>}
                     <Stack spacing={2} maxWidth="90%" width={1} mx="auto" mt={3}>
-                        <Grid container spacing={{lg: 2, xs: 1}} alignItems="flex-start">
+                        <Grid container alignItems="flex-start">
                             <Grid item xs={12} lg={12}>
                                 {files.length > 0 && <Typography
                                     mt={1}

@@ -2,10 +2,10 @@ import {CardContent, Stack, TextField, Typography, useTheme} from "@mui/material
 import React, {memo, useEffect, useState} from "react";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import moment from "moment/moment";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -23,10 +23,10 @@ function ObservationHistoryDialog({...props}) {
 
     const [stateHistory, setStateHistory] = useState<any[]>([]);
 
-    const {data: httpAppointmentDataResponse} = useRequest({
+    const {data: httpAppointmentDataResponse} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/patients/${patient_uuid}/appointment-data/${router.locale}`
-    }, SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
 
     useEffect(() => {
         if (httpAppointmentDataResponse) {

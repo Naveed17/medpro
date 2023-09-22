@@ -1,31 +1,27 @@
-import {Avatar, Box, Chip, Popover, Typography} from "@mui/material";
+import {Avatar, Box, Typography} from "@mui/material";
 import React, {useEffect} from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
-import {AppointmentPopoverCard} from "@features/card";
 import EventStyled from './overrides/eventStyled';
 import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
 import {convertHexToRGBA, useMedicalEntitySuffix} from "@lib/hooks";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
 
 function Event({...props}) {
-    const {event, view, t, isMobile} = props;
+    const {event, view, isMobile, open, setAppointmentData, setAnchorEl, isEventDragging} = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {config: agenda, openViewDrawer} = useAppSelector(agendaSelector);
 
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
-    const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
+    const {trigger: triggerAppointmentTooltip} = useRequestQueryMutation("/agenda/appointment/tooltip");
 
-    const open = Boolean(anchorEl);
     let timeoutId: any;
     const appointment = event.event._def.extendedProps;
     const appointmentUuid = event.event._def.publicId;
-    const {trigger: triggerAppointmentTooltip} = useRequestMutation(null, "/agenda/appointment/tooltip");
 
     const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
         if (timeoutId !== undefined) {
@@ -34,14 +30,17 @@ function Event({...props}) {
 
         timeoutId = setTimeout(() => {
             setAnchorEl(event.target as any);
+            setAppointmentData(null);
             const query = `?mode=tooltip&appointment=${appointmentUuid}&start_date=${moment(appointment.time).format("DD-MM-YYYY")}&end_date=${moment(appointment.time).format("DD-MM-YYYY")}&format=week`
             triggerAppointmentTooltip({
                 method: "GET",
                 url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
-            }).then((result) => {
-                const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
-                if (appointmentData.length > 0) {
-                    setAppointmentData(appointmentData[0]);
+            }, {
+                onSuccess: (result) => {
+                    const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
+                    if (appointmentData.length > 0) {
+                        setAppointmentData(appointmentData[0]);
+                    }
                 }
             })
         }, 800);
@@ -50,14 +49,6 @@ function Event({...props}) {
     const handlePopoverClose = () => {
         setAnchorEl(null);
         clearTimeout(timeoutId);
-    }
-
-    const isHorizontal = () => {
-        if (view === "timeGridDay")
-            return 'left';
-        else if (moment(appointment.time).weekday() > 4)
-            return -305;
-        else return 'right';
     }
 
     useEffect(() => {
@@ -75,8 +66,8 @@ function Event({...props}) {
                 }}
                 aria-owns={open ? 'mouse-over-popover' : undefined}
                 aria-haspopup="true"
-                {...(!isMobile && {onMouseEnter: handlePopoverOpen})}
-                {...(!isMobile && {onMouseLeave: handlePopoverClose})}
+                {...((!isMobile && !isEventDragging) && {onMouseEnter: handlePopoverOpen})}
+                {...((!isMobile && !isEventDragging) && {onMouseLeave: handlePopoverClose})}
                 className="fc-event-main-box">
                 {appointment.new && <Box className="badge"/>}
                 <Typography variant="body2"
@@ -121,37 +112,6 @@ function Event({...props}) {
                     src="/static/icons/Med-logo_.svg"
                 />}
             </EventStyled>
-            <Popover
-                id="mouse-over-popover"
-                sx={{
-                    pointerEvents: 'none',
-                    zIndex: 900
-                }}
-                open={open}
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                    vertical: view === "timeGridDay" ? 'bottom' : 'top',
-                    horizontal: isHorizontal()
-                }}
-                onClose={handlePopoverClose}
-                disableRestoreFocus>
-                <>
-                    {appointment.new &&
-                        <Chip label={t("event.new", {ns: 'common'})}
-                              sx={{
-                                  position: "absolute",
-                                  right: 4,
-                                  top: 4,
-                                  fontSize: 10
-                              }}
-                              size="small"
-                              color={"primary"}/>}
-                    <AppointmentPopoverCard
-                        {...{t}}
-                        style={{width: "300px", border: "none"}}
-                        data={appointmentData}/>
-                </>
-            </Popover>
         </>
     )
 }

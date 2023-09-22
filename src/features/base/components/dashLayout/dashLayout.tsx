@@ -2,8 +2,7 @@ import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -18,7 +17,6 @@ import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
 import {checkNotification, useMedicalEntitySuffix} from "@lib/hooks";
 import {isAppleDevise} from "@lib/hooks/isAppleDevise";
-import {useSWRConfig} from 'swr';
 import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -26,14 +24,10 @@ import {setSelectedRows} from "@features/table";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {setCashBoxes, setPaymentTypesList, setSelectedBoxes} from "@features/leftActionBar/components/cashbox";
 import {batch} from "react-redux";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
-const variants = {
-    hidden: {opacity: 0},
-    enter: {opacity: 1},
-    exit: {opacity: 0},
-}
 type PageTransitionRef = React.ForwardedRef<HTMLDivElement>
 
 function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
@@ -42,7 +36,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {closeSnackbar} = useSnackbar();
-    const {cache} = useSWRConfig();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -59,50 +52,51 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const [loading, setLoading] = useState(false);
     const [mergeDialog, setMergeDialog] = useState(false);
     const [medicalEntityHasUser, setMedicalEntityHasUser] = useState<MedicalEntityHasUsersModel[] | null>(null);
-    const [agendasData, setAgendasData] = useState<AgendaConfigurationModel[]>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`)?.data?.data?.data) ?? null);
     const [agenda, setAgenda] = useState<AgendaConfigurationModel | null>(null);
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
     const permission = !isAppleDevise() ? checkNotification() : false; // Check notification permission
 
-    const {trigger: mergeDuplicationsTrigger} = useRequestMutation(null, "/duplications/merge");
-    const {trigger: noDuplicationsTrigger} = useRequestMutation(null, "/duplications/unMerge");
+    const {trigger: mergeDuplicationsTrigger} = useRequestQueryMutation("/duplications/merge");
+    const {trigger: noDuplicationsTrigger} = useRequestQueryMutation("/duplications/unMerge");
 
-    const {data: httpUserResponse} = useRequest({
+    const {data: httpUserResponse} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professional/user/${router.locale}`
-    }, SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
 
-    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequest(medicalEntityHasUser ? {
+    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequest(agenda ? {
+    const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpOngoingResponse, mutate} = useRequest(agenda ? {
+    const {data: httpOngoingResponse, mutate} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpProfessionalsResponse} = useRequest({
+    const {data: httpProfessionalsResponse} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`
-    }, SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
 
-    const {data: httpAppointmentTypesResponse} = useRequest(medicalEntityHasUser && medicalEntityHasUser.length > 0 ? {
+    const {data: httpAppointmentTypesResponse} = useRequestQuery(medicalEntityHasUser && medicalEntityHasUser.length > 0 ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpBoxesResponse} = useRequest(httpOngoingResponse ? {
+    const {data: httpBoxesResponse} = useRequestQuery(httpOngoingResponse ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
+
+    const agendasData = ((httpAgendasResponse as HttpResponse)?.data ?? []) as AgendaConfigurationModel[];
 
     const renderNoDataCard = <NoDataCard
         {...{t}}
@@ -148,12 +142,14 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/no-duplications/${router.locale}`,
             data: params
-        }).then(() => {
-            setLoading(false);
-            dispatch(setDuplicated({openDialog: false}));
-            dispatch(resetDuplicated());
-            mutateDuplicationSource && mutateDuplicationSource();
-        })
+        }, {
+            onSuccess: () => {
+                setLoading(false);
+                dispatch(setDuplicated({openDialog: false}));
+                dispatch(resetDuplicated());
+                mutateDuplicationSource && mutateDuplicationSource();
+            }
+        });
     }
 
     const getPatientParamsKey = (param: string) => {
@@ -218,25 +214,26 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${duplicationSrc?.uuid}/merge-duplications/${router.locale}`,
             data: params
-        }).then(() => {
-            setLoading(false);
-            batch(() => {
-                dispatch(setSelectedRows([]));
-                dispatch(setDuplicated({openDialog: false}));
-                dispatch(resetDuplicated());
-            });
-            setTimeout(() => setMergeDialog(false));
-            mutateDuplicationSource && mutateDuplicationSource();
+        }, {
+            onSuccess: () => {
+                setLoading(false);
+                batch(() => {
+                    dispatch(setSelectedRows([]));
+                    dispatch(setDuplicated({openDialog: false}));
+                    dispatch(resetDuplicated());
+                });
+                setTimeout(() => setMergeDialog(false));
+                mutateDuplicationSource && mutateDuplicationSource();
+            }
         })
     }
 
     useEffect(() => {
         if (httpAgendasResponse) {
             const localAgendasData = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
-            setAgendasData(localAgendasData);
             const agendaUser = localAgendasData?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
             setAgenda(agendaUser);
-            dispatch(setConfig({...agendaUser, mutate: [mutateAgenda, mutatePendingAppointment]}));
+            dispatch(setConfig({...agendaUser}));
             dispatch(setAgendas(agendasData));
         }
     }, [httpAgendasResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -273,7 +270,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                 demo = localStorage.getItem('newCashbox') === "1";
 
             dispatch(setOngoing({
-                mutate,
                 waiting_room: calendarData.waiting_room,
                 import_data: calendarData.import_data,
                 newCashBox: demo,

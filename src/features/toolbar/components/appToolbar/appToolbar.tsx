@@ -12,12 +12,11 @@ import IconUrl from "@themes/urlIcon";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {consultationSelector, SetRecord, SetSelectedDialog, SetTimer} from "@features/toolbar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {useRequestMutation} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
 import StopCircleIcon from "@mui/icons-material/StopCircle";
-import {useSWRConfig} from "swr";
 import moment from "moment-timezone";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
@@ -30,7 +29,6 @@ import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-
 
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({
@@ -56,19 +54,23 @@ function AppToolbar({...props}) {
         mutatePatient,
         setAnchorEl,
         setPatientShow,
-        dialog,setDialog
+        dialog, setDialog
     } = props;
-
-    const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
-    const {record} = useAppSelector(consultationSelector);
-    const dispatch = useAppDispatch();
-    const {data: session} = useSession();
-    const {trigger} = useRequestMutation(null, "/drugs");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
+    const dispatch = useAppDispatch();
+    const {data: session} = useSession();
+    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+
+    const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+    const {record} = useAppSelector(consultationSelector);
+
+    const {trigger: triggerDrugsCreate} = useRequestQueryMutation("/drugs/create");
+    const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
+    const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
+
     const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/documents/${router.locale}`;
-    const {mutate}= useSWRConfig()
     const open = Boolean(anchorEl);
 
     const {data: user} = session as Session;
@@ -82,9 +84,14 @@ function AppToolbar({...props}) {
     const [action, setActions] = useState<boolean>(false);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
 
+    const mutateDoc = () => {
+        invalidateQueries([docUrl])
+    }
+
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
-    };
+    }
+
     const startRecord = () => {
         recorder.start().then(() => {
             dispatch(SetRecord(true))
@@ -92,6 +99,7 @@ function AppToolbar({...props}) {
             console.log(e);
         });
     }
+
     const stopRec = () => {
         const res = recorder.stop();
         // @ts-ignore
@@ -104,38 +112,42 @@ function AppToolbar({...props}) {
 
             dispatch(SetRecord(false))
             dispatch(SetTimer('00:00'))
-            mutate(docUrl);
+            mutateDoc();
 
         }).catch((e: any) => {
             alert('We could not retrieve your message');
             console.log(e);
         });
     }
+
     const uploadRecord = (file: File) => {
-        trigger({
+        triggerDrugsGet({
             method: "GET",
             url: `/api/private/document/types/${router.locale}`
-        }).then((res) => {
-            const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
-            if (audios.length > 0) {
-                const form = new FormData();
-                form.append(`files[${audios[0].uuid}][]`, file, file.name);
-                trigger({
-                    method: "POST",
-                    url: docUrl,
-                    data: form
-                }).then(() => {
-                    mutate(docUrl);
-                });
+        }, {
+            onSuccess: (res: any) => {
+                const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
+                if (audios.length > 0) {
+                    const form = new FormData();
+                    form.append(`files[${audios[0].uuid}][]`, file, file.name);
+                    triggerDrugsCreate({
+                        method: "POST",
+                        url: docUrl,
+                        data: form
+                    }, {
+                        onSuccess: () => mutateDoc()
+                    });
+                }
             }
         });
     }
-    const mutateDoc = () =>{mutate(docUrl)}
+
     const handleOpen = () => {
         dispatch(resetAppointment());
         dispatch(setAppointmentPatient(patient));
         dispatch(openDrawer({type: "add", open: true}));
-    };
+    }
+
     const handleSwitchUI = () => {
         //close the current dialog
         setOpenDialog(false);
@@ -146,6 +158,7 @@ function AppToolbar({...props}) {
         setOpenDialog(true);
         setActions(true);
     }
+
     const handleSaveDialog = () => {
         const form = new FormData();
         let method = "";
@@ -163,37 +176,39 @@ function AppToolbar({...props}) {
                     url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
                 }
 
-                trigger({
+                triggerDrugsUpdate({
                     method: method,
                     url: url,
                     data: form
-                }).then((r: any) => {
-                    mutate(docUrl);
-                    mutatePatient();
-                    setInfo("document_detail");
-                    const res = r.data.data;
-                    let type = "";
-                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+                }, {
+                    onSuccess: (r: any) => {
+                        mutateDoc();
+                        mutatePatient();
+                        setInfo("document_detail");
+                        const res = r.data.data;
+                        let type = "";
+                        if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                            type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
 
-                    setState({
-                        uri: res[1],
-                        name: "prescription",
-                        type: "prescription",
-                        info: res[0].prescription_has_drugs,
-                        uuid: res[0].uuid,
-                        uuidDoc: res[0].uuid,
-                        createdAt: moment().format('DD/MM/YYYY'),
-                        description: "",
-                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
-                    });
-                    setOpenDialog(true);
-                    setActions(false);
-                    setPrescription([]);
+                        setState({
+                            uri: res[1],
+                            name: "prescription",
+                            type: "prescription",
+                            info: res[0].prescription_has_drugs,
+                            uuid: res[0].uuid,
+                            uuidDoc: res[0].uuid,
+                            createdAt: moment().format('DD/MM/YYYY'),
+                            description: "",
+                            patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                        });
+                        setOpenDialog(true);
+                        setActions(false);
+                        setPrescription([]);
 
-                    let pdoc = [...pendingDocuments];
-                    pdoc = pdoc.filter((obj) => obj.id !== 2);
-                    setPendingDocuments(pdoc);
+                        let pdoc = [...pendingDocuments];
+                        pdoc = pdoc.filter((obj) => obj.id !== 2);
+                        setPendingDocuments(pdoc);
+                    }
                 });
                 break;
             case "balance_sheet_request":
@@ -205,37 +220,39 @@ function AppToolbar({...props}) {
                     url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/requested-analysis/${selectedDialog.uuid}/edit/${router.locale}`;
                 }
 
-                trigger({
+                triggerDrugsUpdate({
                     method: method,
                     url: url,
                     data: form
-                }).then((r: any) => {
-                    mutateDoc();
-                    mutatePatient();
-                    //mutatePatientAnalyses();
-                    setCheckUp([]);
-                    setInfo("document_detail");
-                    const res = r.data.data;
-                    let type = "";
-                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+                }, {
+                    onSuccess: (r: any) => {
+                        mutateDoc();
+                        mutatePatient();
+                        //mutatePatientAnalyses();
+                        setCheckUp([]);
+                        setInfo("document_detail");
+                        const res = r.data.data;
+                        let type = "";
+                        if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                            type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
 
-                    setState({
-                        uuid: res[0].uuid,
-                        uri: res[1],
-                        name: "requested-analysis",
-                        type: "requested-analysis",
-                        createdAt: moment().format('DD/MM/YYYY'),
-                        description: "",
-                        info: res[0].analyses,
-                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
-                    });
-                    setOpenDialog(true);
-                    setActions(false);
+                        setState({
+                            uuid: res[0].uuid,
+                            uri: res[1],
+                            name: "requested-analysis",
+                            type: "requested-analysis",
+                            createdAt: moment().format('DD/MM/YYYY'),
+                            description: "",
+                            info: res[0].analyses,
+                            patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                        });
+                        setOpenDialog(true);
+                        setActions(false);
 
-                    let pdoc = [...pendingDocuments];
-                    pdoc = pdoc.filter((obj) => obj.id !== 1);
-                    setPendingDocuments(pdoc);
+                        let pdoc = [...pendingDocuments];
+                        pdoc = pdoc.filter((obj) => obj.id !== 1);
+                        setPendingDocuments(pdoc);
+                    }
                 });
                 break;
             case "medical_imagery":
@@ -248,36 +265,38 @@ function AppToolbar({...props}) {
                     url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/medical-imaging/${selectedDialog.uuid}/edit/${router.locale}`;
                 }
 
-                trigger({
+                triggerDrugsUpdate({
                     method,
                     url,
                     data: form
-                }).then((r: any) => {
-                    mutate(docUrl);
-                    mutatePatient();
-                    setImagery([]);
-                    setInfo("document_detail");
-                    const res = r.data.data;
-                    let type = "";
-                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
-                    setState({
-                        uuid: res[0].uuid,
-                        uri: res[1],
-                        name: "requested-medical-imaging",
-                        type: "requested-medical-imaging",
-                        info: res[0]["medical-imaging"],
-                        createdAt: moment().format('DD/MM/YYYY'),
-                        description: "",
-                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
-                        mutate: mutateDoc
-                    });
-                    setOpenDialog(true);
-                    setActions(false);
+                }, {
+                    onSuccess: (r: any) => {
+                        mutateDoc();
+                        mutatePatient();
+                        setImagery([]);
+                        setInfo("document_detail");
+                        const res = r.data.data;
+                        let type = "";
+                        if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                            type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+                        setState({
+                            uuid: res[0].uuid,
+                            uri: res[1],
+                            name: "requested-medical-imaging",
+                            type: "requested-medical-imaging",
+                            info: res[0]["medical-imaging"],
+                            createdAt: moment().format('DD/MM/YYYY'),
+                            description: "",
+                            patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                            mutate: mutateDoc
+                        });
+                        setOpenDialog(true);
+                        setActions(false);
 
-                    let pdoc = [...pendingDocuments];
-                    pdoc = pdoc.filter((obj) => obj.id !== 1);
-                    setPendingDocuments(pdoc);
+                        let pdoc = [...pendingDocuments];
+                        pdoc = pdoc.filter((obj) => obj.id !== 1);
+                        setPendingDocuments(pdoc);
+                    }
                 });
                 break;
             case "add_a_document":
@@ -287,12 +306,12 @@ function AppToolbar({...props}) {
                     form.append(`files[${file.type}][]`, file?.file as any, file?.name);
                 });
 
-                trigger({
+                triggerDrugsUpdate({
                     method: "POST",
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/documents/${router.locale}`,
                     data: form
-                }).then(() => {
-                    mutateDoc();
+                }, {
+                    onSuccess: () => mutateDoc()
                 });
                 setOpenDialog(true);
                 setActions(true);
@@ -300,6 +319,7 @@ function AppToolbar({...props}) {
             case "write_certif":
                 form.append("content", state.content);
                 form.append("title", state.title);
+                form.append("header", state.documentHeader);
 
                 method = "POST"
                 url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/certificates/${router.locale}`;
@@ -308,30 +328,32 @@ function AppToolbar({...props}) {
                     url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/certificates/${selectedDialog.state.certifUuid}/${router.locale}`;
                 }
 
-                trigger({
+                triggerDrugsUpdate({
                     method: method,
                     url: url,
                     data: form
-                }).then(() => {
-                    mutateDoc();
-                    setInfo("document_detail");
-                    setState({
-                        content: state.content,
-                        doctor: state.name,
-                        patient: state.patient,
-                        birthdate: patient?.birthdate,
-                        cin: patient?.idCard,
-                        createdAt: moment().format('DD/MM/YYYY'),
-                        description: "",
-                        title: state.title,
-                        days: state.days,
-                        name: "certif",
-                        type: "write_certif",
-                    });
-                    setOpenDialog(true);
-                    setActions(false);
+                }, {
+                    onSuccess: () => {
+                        mutateDoc();
+                        setInfo("document_detail");
+                        setState({
+                            content: state.content,
+                            doctor: state.name,
+                            patient: state.patient,
+                            birthdate: patient?.birthdate,
+                            cin: patient?.idCard,
+                            createdAt: moment().format('DD/MM/YYYY'),
+                            description: "",
+                            title: state.title,
+                            days: state.days,
+                            name: "certif",
+                            type: "write_certif",
+                            documentHeader:state.documentHeader
+                        });
+                        setOpenDialog(true);
+                        setActions(false);
+                    }
                 });
-
                 break;
         }
 
@@ -409,7 +431,7 @@ function AppToolbar({...props}) {
                     title: 'Rapport médical',
                     patient: `${patient.firstName} ${patient.lastName}`,
                     brithdate: `${patient.birthdate}`,
-                    cin: patient.idCard ?`${patient.idCard}`:""
+                    cin: patient.idCard ? `${patient.idCard}` : ""
                 });
                 break;
             case "upload_document":
@@ -680,7 +702,7 @@ function AppToolbar({...props}) {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{appuuid:app_uuid, state, setState, t, setOpenDialog}}
+                    data={{appuuid: app_uuid, state, setState, t, setOpenDialog}}
                     size={info === "add_vaccin" ? "sm" : "xl"}
                     direction={"ltr"}
                     sx={{height: 400}}
@@ -699,15 +721,16 @@ function AppToolbar({...props}) {
                                     position: "relative",
                                 }}
                                 id="scroll-dialog-title">
-                                <Stack direction={{xs:'column',sm:'row'}} justifyContent={"space-between"} alignItems={{xs:'flex-start',sm:'center'}}>
+                                <Stack direction={{xs: 'column', sm: 'row'}} justifyContent={"space-between"}
+                                       alignItems={{xs: 'flex-start', sm: 'center'}}>
                                     {t(info)}
                                     <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
                                 </Stack>
                             </DialogTitle>
                         ),
-                        sx:{
-                            p:1.5,
-                            overflowX:'hidden'
+                        sx: {
+                            p: 1.5,
+                            overflowX: 'hidden'
                         }
 
                     })}
@@ -716,19 +739,20 @@ function AppToolbar({...props}) {
                             <Stack sx={{width: "100%"}}
                                    direction={"row"}
                                    {...(info === "medical_prescription_cycle" && {
-                                       direction: {xs:'column',sm:'row'},
+                                       direction: {xs: 'column', sm: 'row'},
 
                                    })}
                                    justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
                                 {info === "medical_prescription_cycle" &&
-                                    <Button sx={{alignSelf:'flex-start'}} startIcon={<AddIcon/>} onClick={() => {
+                                    <Button sx={{alignSelf: 'flex-start'}} startIcon={<AddIcon/>} onClick={() => {
                                         dispatch(handleDrawerAction("addDrug"));
                                     }}>
                                         {t("add_drug")}
                                     </Button>}
-                                <Stack direction={"row"}  justifyContent={{xs:'space-between',sm:'flex-start'}} spacing={1.2}
+                                <Stack direction={"row"} justifyContent={{xs: 'space-between', sm: 'flex-start'}}
+                                       spacing={1.2}
                                        {...(info === "medical_prescription_cycle" && {
-                                           mt:{xs:1,md:0}
+                                           mt: {xs: 1, md: 0}
                                        })}
                                 >
                                     <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>

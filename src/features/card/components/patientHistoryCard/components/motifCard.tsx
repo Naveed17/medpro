@@ -64,7 +64,7 @@ function MotifCard({...props}) {
                                     </Typography>
                                     <List style={{marginLeft: 20}}>
                                         <ListItem>
-                                            {data.value ? data.value : '-'}
+                                            {data.value ? <div dangerouslySetInnerHTML={{__html:data.value}}></div> : '-'}
                                         </ListItem>
                                     </List>
                                 </Box>

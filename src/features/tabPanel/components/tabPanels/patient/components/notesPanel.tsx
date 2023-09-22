@@ -6,7 +6,7 @@ import IconUrl from "@themes/urlIcon";
 import React, {useState} from "react";
 import PanelCardStyled from "./overrides/panelCardStyled";
 import {useRouter} from "next/router";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -22,7 +22,7 @@ function NotesPanel({...props}) {
     const [requestLoading, setRequestLoading] = useState(false);
     const [notes, setNotes] = useState(patient && patient.note ? patient.note : "");
 
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update/notes");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/notes/update");
 
     const uploadPatientNotes = () => {
         setRequestLoading(true);
@@ -35,9 +35,11 @@ function NotesPanel({...props}) {
                 method: "PATCH",
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
                 data: params,
-            }).then(() => {
-                setRequestLoading(false);
-                mutatePatientDetails();
+            }, {
+                onSuccess: () => {
+                    setRequestLoading(false);
+                    mutatePatientDetails();
+                }
             });
         }
     }

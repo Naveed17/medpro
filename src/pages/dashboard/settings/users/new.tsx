@@ -33,7 +33,7 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {useRequestMutation, useRequest} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DatePicker} from "@features/datepicker";
@@ -74,31 +74,20 @@ function NewUser() {
     const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
 
-    const {trigger} = useRequestMutation(null, "/users");
-
-    const {data: httpProfilesResponse,} = useRequest({
+    const {trigger: triggerUserAdd} = useRequestQueryMutation("/users/add");
+    const {data: httpProfilesResponse} = useRequestQuery({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/profile`
     });
 
     const validationSchema = Yup.object().shape({
-        name: Yup.string()
-            .min(3, t("users.ntc"))
-            .max(50, t("users.ntl"))
-            .required(t("users.nameReq")),
-        email: Yup.string()
-            .email(t("users.mailInvalid"))
-            .required(t("users.mailReq")),
-        consultation_fees: Yup.string()
-            .required(),
-        birthdate: Yup.string()
-            .required(),
-        firstname: Yup.string()
-            .required(),
-        lastname: Yup.string()
-            .required(),
-        password: Yup.string()
-            .required(),
+        name: Yup.string().min(3, t("users.ntc")).max(50, t("users.ntl")).required(t("users.nameReq")),
+        email: Yup.string().email(t("users.mailInvalid")).required(t("users.mailReq")),
+        consultation_fees: Yup.string().required(),
+        birthdate: Yup.string().required(),
+        firstname: Yup.string().required(),
+        lastname: Yup.string().required(),
+        password: Yup.string().required(),
         phones: Yup.array().of(
             Yup.object().shape({
                 dial: Yup.object().shape({
@@ -119,8 +108,7 @@ function NewUser() {
         ),
         confirmPassword: Yup.string().when('password', (password, field) =>
             password ? field.required().oneOf([Yup.ref('password')]) : field),
-        profile: Yup.string()
-            .required(),
+        profile: Yup.string().required(),
     });
 
     const formik = useFormik({
@@ -172,23 +160,21 @@ function NewUser() {
             }))));
             form.append('password', values.password);
             form.append('profile', values.profile);
-            trigger({
+            triggerUserAdd({
                 method: "POST",
                 url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
                 data: form
-            }).then(() => {
-                enqueueSnackbar(t("users.alert.success"), {variant: "success"});
-                setLoading(false)
-                dispatch(addUser({...values}));
-                router.push("/dashboard/settings/users");
-            }).catch(() => {
-                setLoading(false);
-                enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
-            })
+            }, {
+                onSuccess: () => {
+                    enqueueSnackbar(t("users.alert.success"), {variant: "success"});
+                    setLoading(false)
+                    dispatch(addUser({...values}));
+                    router.push("/dashboard/settings/users");
+                }
+            });
 
         },
     });
-
 
     useEffect(() => {
         if (httpProfilesResponse) {

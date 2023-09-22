@@ -8,11 +8,10 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import fileDownload from 'js-file-download';
 import axios from "axios";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function DocumentsTab({...props}) {
-
     const {
         medical_professional_uuid,
         agenda,
@@ -22,8 +21,6 @@ function DocumentsTab({...props}) {
         router,
         t,
     } = props;
-
-    const {trigger} = useRequestMutation(null, "/document/remove");
 
     const noCardData = {
         mainIcon: "ic-doc",
@@ -37,25 +34,28 @@ function DocumentsTab({...props}) {
     const [documents, setDocuments] = useState<MedicalDocuments[]>([]);
     const [loadingDocs, setLoadingDocs] = useState(true);
 
-    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequest(medical_professional_uuid && agenda ? {
+    const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/document/delete");
+    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequestQuery(medical_professional_uuid && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
-    useEffect(()=>{
+    const removeDoc = () => {
+        triggerDocumentDelete({
+            method: "DELETE",
+            url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => mutateDoc().then(() => setSelectedAudio(null))
+        });
+    }
+
+    useEffect(() => {
         if (httpDocumentResponse) {
             setDocuments((httpDocumentResponse as HttpResponse).data)
             setLoadingDocs(false)
         }
-    },[httpDocumentResponse])
-    const removeDoc = () => {
-        trigger({
-            method: "DELETE",
-            url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`
-        }).then(() => {
-            mutateDoc().then(() => setSelectedAudio(null))
-        });
-    }
+    }, [httpDocumentResponse])
+
     return (
         <>
             {loadingDocs && <Stack direction={"row"} justifyContent={"center"}><CircularProgress/></Stack>}

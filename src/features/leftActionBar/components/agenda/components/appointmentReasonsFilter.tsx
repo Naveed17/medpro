@@ -1,4 +1,4 @@
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -11,7 +11,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import FormControl from "@mui/material/FormControl";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function AppointmentReasonsFilter({...props}) {
     const {OnSearch} = props;
@@ -24,10 +24,10 @@ function AppointmentReasonsFilter({...props}) {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
 
-    const {data: httpConsultReasonResponse, isLoading} = useRequest(medicalEntityHasUser ? {
+    const {data: httpConsultReasonResponse, isLoading} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const handleOnSearch = useCallback((value: any) => {
         OnSearch(value);

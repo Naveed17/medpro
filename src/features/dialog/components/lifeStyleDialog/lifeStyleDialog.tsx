@@ -18,7 +18,7 @@ import {
     useMediaQuery,
     Theme
 } from '@mui/material'
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
@@ -29,25 +29,24 @@ import SearchIcon from "@mui/icons-material/Search";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function LifeStyleDialog({...props}) {
-    const isMobile = useMediaQuery((theme:Theme) => theme.breakpoints.down('sm'));
+    const router = useRouter();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
     const action = props.data.action;
     const allAntecedents = props.data.antecedents;
     const initalData = Array.from(new Array(20));
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: AntecedentsModel[] = props.data.state;
     const setState = props.data.setState;
-    
+
     const [value, setValue] = useState("");
     const [antecedents, setAntecedents] = useState<AntecedentsTypeModel[]>([]);
     const [loading, setLoading] = useState(true);
-    const {trigger} = useRequestMutation(null, "/antecedent");
 
-    const router = useRouter();
-
-    const {data: httpAntecedentsResponse} = useRequest({
+    const {trigger: triggerAntecedentCreate} = useRequestQueryMutation("/antecedent/create");
+    const {data: httpAntecedentsResponse} = useRequestQuery({
         method: "GET",
         url: `/api/private/antecedents/${allAntecedents?.find((ant: {
-            slug: any;
+            slug: any
         }) => ant.slug === action).uuid}/${router.locale}`
     });
 
@@ -267,18 +266,18 @@ function LifeStyleDialog({...props}) {
                                                     <Typography fontSize={10} mt={2}
                                                                 ml={1}>{t('selectPlz')} <span
                                                         style={{color: "red"}}> *</span></Typography>
-                                                    <Stack direction={'row'} spacing={{xs:0,sm:1}} mb={1} ml={1}
-                                                    {...(isMobile && {
-                                                        sx:{
-                                                            display:'grid',
-                                                            gridTemplateColumns:'repeat(auto-fit, minmax(88px, 1fr))',
-                                                            gap:1,
-                                                            width:1,
-                                                            "label":{
-                                                                margin:0
-                                                            }
-                                                        }
-                                                    })}
+                                                    <Stack direction={'row'} spacing={{xs: 0, sm: 1}} mb={1} ml={1}
+                                                           {...(isMobile && {
+                                                               sx: {
+                                                                   display: 'grid',
+                                                                   gridTemplateColumns: 'repeat(auto-fit, minmax(88px, 1fr))',
+                                                                   gap: 1,
+                                                                   width: 1,
+                                                                   "label": {
+                                                                       margin: 0
+                                                                   }
+                                                               }
+                                                           })}
                                                     >
                                                         {list.values.map((val: { uuid: string; value: string }) => (
                                                             <FormControlLabel
@@ -327,26 +326,30 @@ function LifeStyleDialog({...props}) {
                                     slug: any;
                                 }) => ant.slug === action).uuid);
                                 form.append('name', value);
-                                trigger({
+                                triggerAntecedentCreate({
                                     method: "POST",
                                     url: `/api/private/antecedents/${router.locale}`,
                                     data: form
-                                }).then((data) => {
-                                    const res = (data?.data as HttpResponse).data;
-                                    antecedents.push({
-                                        name: value,
-                                        type: allAntecedents?.find((ant: { slug: any; }) => ant.slug === action).uuid,
-                                        uuid: res.uuid,
-                                        value_type: -1
-                                    })
-                                    setState([...state, {
-                                        endDate: "",
-                                        name: res.name,
-                                        res: "",
-                                        startDate: "",
-                                        uuid: res.uuid,
-                                    }])
-                                    setAntecedents([...antecedents])
+                                }, {
+                                    onSuccess: (data: any) => {
+                                        const res = (data?.data as HttpResponse).data;
+                                        antecedents.push({
+                                            name: value,
+                                            type: allAntecedents?.find((ant: {
+                                                slug: any;
+                                            }) => ant.slug === action).uuid,
+                                            uuid: res.uuid,
+                                            value_type: -1
+                                        })
+                                        setState([...state, {
+                                            endDate: "",
+                                            name: res.name,
+                                            res: "",
+                                            startDate: "",
+                                            uuid: res.uuid,
+                                        }])
+                                        setAntecedents([...antecedents])
+                                    }
                                 });
                             }}
                             startIcon={<AddIcon/>}>

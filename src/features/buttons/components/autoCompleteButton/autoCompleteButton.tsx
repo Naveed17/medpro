@@ -7,7 +7,7 @@ import {PatientAppointmentCard} from "@features/card";
 import {AutoComplete} from "@features/autoComplete";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -22,7 +22,7 @@ function AutoCompleteButton({...props}) {
     const {patient: initData} = useAppSelector(appointmentSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {trigger: PatientDetailsTrigger} = useRequestMutation(null, "patient/data");
+    const {trigger: PatientDetailsTrigger} = useRequestQueryMutation("patient/data");
 
     const [focus, setFocus] = useState(true);
     const [patient, setPatient] = useState<PatientWithNextAndLatestAppointment | null>(initData);
@@ -35,15 +35,17 @@ function AutoCompleteButton({...props}) {
         medicalEntityHasUser && PatientDetailsTrigger({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`
-        }).then((result: any) => {
-            const {status} = result?.data;
-            const patient = (result?.data as HttpResponse)?.data;
-            if (status === "success") {
-                dispatch(setAppointmentPatient(patient as any));
-                OnClickAction(true);
-            }
+        }, {
+            onSuccess: (result: any) => {
+                const {status} = result?.data;
+                const patient = (result?.data as HttpResponse)?.data;
+                if (status === "success") {
+                    dispatch(setAppointmentPatient(patient as any));
+                    OnClickAction(true);
+                }
 
-        })
+            }
+        });
     }
 
     useEffect(() => {
