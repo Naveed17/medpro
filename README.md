@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cdn.med.tn/img/logo_med.svg" width="100" alt="Med.tn">
+  <img src="public/android-chrome-192x192.png" width="100" alt="Med.tn">
 </p>
 
 # Med Link
