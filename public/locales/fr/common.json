@@ -411,6 +411,7 @@
     "ON_GOING": "En consultation",
     "FINISHED": "Effectué",
     "CANCELED": "Annulé",
+    "PATIENT_CANCELED": "Annulé par le patient",
     "EXPIRED": "Expiré",
     "PAUSED": "Pausé",
     "NOSHOW": "Patient ne s'est pas présenté",
