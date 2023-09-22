@@ -22,14 +22,21 @@ import {NoDataCard, NoteCardCollapse} from "@features/card";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import {debounce} from "lodash";
-import {arrayUniqueByKey} from "@lib/hooks";
+import {arrayUniqueByKey, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import RemoveCircleRoundedIcon from '@mui/icons-material/RemoveCircleRounded';
+import {useSnackbar} from "notistack";
 
 function MedicalImageryDialog({...props}) {
     const {data} = props;
     const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [miList, setMiList] = useState<MIModel[]>([]);
     const [miListLocal, setMiListLocal] = useState<MIModel[]>([]);
@@ -56,14 +63,21 @@ function MedicalImageryDialog({...props}) {
     const initialData = Array.from(new Array(10));
 
     const {trigger: triggerMedicalImagery} = useRequestQueryMutation("/medicalImagery/get");
-    const {data: httpAnalysisResponse} = useRequestQuery({
+    const {trigger: triggerFavoriteAdd} = useRequestQueryMutation("/medicalImagery/favorite/create");
+    const {trigger: triggerFavoriteDelete} = useRequestQueryMutation("/medicalImagery/favorite/delete");
+    const {data: httpImagingResponse} = useRequestQuery({
         method: "GET",
         url: `/api/private/medical-imaging/${router.locale}`
     }, ReactQueryNoValidateConfig);
 
+    const {data: httpAnalysisFavoritesResponse, mutate: mutateAnalysisFavorites} = useRequestQuery(medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/imaging/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
+
     const addImage = (value: MIModel) => {
         setName('')
-        setMiList((httpAnalysisResponse as HttpResponse)?.data);
+        setMiList((httpImagingResponse as HttpResponse)?.data);
         mi.unshift({...value, note: ""})
         setMi([...mi])
         const recent = localStorage.getItem("medical-imagery-recent") ?
@@ -97,6 +111,7 @@ function MedicalImageryDialog({...props}) {
     }
 
     const handleOnChangeImagery = (event: any, newValue: any) => {
+        console.log("handleOnChangeImagery", newValue)
         if (typeof newValue === 'string' && newValue.length > 0) {
             addImage({
                 name: newValue,
@@ -109,14 +124,23 @@ function MedicalImageryDialog({...props}) {
         } else {
             const medicalImagery = (newValue as MIModel);
             if (!mi.find(item => item.uuid === medicalImagery.uuid)) {
-                addImage(newValue as MIModel);
+                addImage(medicalImagery);
+                const form = new FormData();
+                medicalImagery?.uuid && form.append('imaging', medicalImagery.uuid);
+                medicalEntityHasUser && triggerFavoriteAdd({
+                    method: "POST",
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/imaging/${router.locale}`,
+                    data: form,
+                }, {
+                    onSuccess: () => mutateAnalysisFavorites()
+                });
             }
         }
     }
 
     useEffect(() => {
-        if (httpAnalysisResponse) {
-            const res = (httpAnalysisResponse as HttpResponse)?.data;
+        if (httpImagingResponse) {
+            const res = (httpImagingResponse as HttpResponse)?.data;
             const recent = localStorage.getItem("medical-imagery-recent") ? JSON.parse(localStorage.getItem("medical-imagery-recent") as string) : [] as AnalysisModel[];
             setDefaultMiList(res)
             setMiList([
@@ -127,10 +151,12 @@ function MedicalImageryDialog({...props}) {
             setMiListLocal(recent.length > 0 ? recent : res);
             setLoading(false);
         }
-    }, [httpAnalysisResponse]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpImagingResponse]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const {handleSubmit} = formik;
     const debouncedOnChange = debounce(handleOnChangeImagery, 500);
+
+    const analysisFavorites = (httpAnalysisFavoritesResponse as HttpResponse)?.data ?? [];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -220,20 +246,30 @@ function MedicalImageryDialog({...props}) {
                             </Typography>
 
                             <Box>
-                                {!loading ? miListLocal?.slice(0, 20).map((item, index) => (
+                                {!loading ? analysisFavorites?.slice(0, 20).map((item: any, index: number) => (
                                         <Chip
                                             className={"chip-item"}
                                             key={index}
                                             id={item.uuid}
                                             onClick={() => addImage(item)}
                                             onDragStart={(event) => event.dataTransfer.setData("Text", (event.target as any).id)}
-                                            onDelete={() => console.log("delete")}
+                                            onDelete={() => {
+                                                medicalEntityHasUser && triggerFavoriteDelete({
+                                                    method: "DELETE",
+                                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/imaging/${item.uuid}/${router.locale}`,
+                                                }, {
+                                                    onSuccess: () => {
+                                                        enqueueSnackbar(t(`alerts.favorite.delete`), {variant: "success"});
+                                                        mutateAnalysisFavorites();
+                                                    }
+                                                });
+                                            }}
                                             disabled={!!mi.find(an => an.uuid === item.uuid)}
                                             label={item.name}
                                             color="default"
                                             clickable
                                             draggable="true"
-                                            deleteIcon={<AddIcon/>}
+                                            deleteIcon={<RemoveCircleRoundedIcon/>}
                                         />
                                     ))
                                     :
