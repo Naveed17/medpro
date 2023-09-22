@@ -63,7 +63,6 @@ function CalendarRowDetail({...props}) {
         }
     }, [spinner]);
 
-    console.log("loading", loading);
     return (
         <>
             <TableRowStyled
