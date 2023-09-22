@@ -1,14 +1,14 @@
 import * as Yup from "yup";
 import {FormikProvider, useFormik} from "formik";
 import {Box, Button, Card, CardContent, Stack, TextField, Tooltip, Typography, useTheme,} from "@mui/material";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from '@tinymce/tinymce-react';
-import {useRequestQueryMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import PreviewA4 from "@features/files/components/previewA4";
 import AddIcon from "@mui/icons-material/Add";
 import {useSnackbar} from "notistack";
@@ -36,7 +36,6 @@ function CertifModelDrawer({...props}) {
 
     const [modelColor, setModelColor] = useState(data ? data.color : "#FEBD15");
     const [selectedSugg, setSelectedSugg] = useState(-1);
-    const [suggestions, setSuggestions] = useState<{ title: string, color: string, content: string }[]>([]);
     const loading = false;
 
     const contentBtns = [
@@ -49,7 +48,6 @@ function CertifModelDrawer({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/default-document`
     }, ReactQueryNoValidateConfig);
-
 
     const validationSchema = Yup.object().shape({
         title: Yup.string()
@@ -101,10 +99,7 @@ function CertifModelDrawer({...props}) {
         (window as any).tinymce.execCommand('mceInsertContent', false, val);
     }
 
-    useEffect(() => {
-        if (httpSuggestions)
-            setSuggestions((httpSuggestions as HttpResponse).data)
-    }, [httpSuggestions])
+    const suggestions = (httpSuggestions as HttpResponse)?.data ?? [];
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -150,7 +145,7 @@ function CertifModelDrawer({...props}) {
 
                     <Box style={{overflowX: "auto", marginBottom: 10, maxWidth: 570}}>
                         <Stack direction={"row"} spacing={1} mt={2} mb={2} alignItems={"center"}>
-                            {suggestions.map((sug, index) => (
+                            {suggestions.map((sug: any, index: number) => (
                                 <div key={`sug${index}`}>
                                     <Card style={{
                                         width: "fit-content",
@@ -196,7 +191,10 @@ function CertifModelDrawer({...props}) {
                                     setModelColor("")
                                     setFieldValue('content', "")
                                 }}
-                                   style={{color: theme.palette.primary.main,cursor:"pointer"}}>{` ${suggestions[selectedSugg]?.title}`} (x)</span>}
+                                                        style={{
+                                                            color: theme.palette.primary.main,
+                                                            cursor: "pointer"
+                                                        }}>{` ${suggestions[selectedSugg]?.title}`} (x)</span>}
                         </Typography>
                     </Box></>}
                 <Card style={{margin: 20, marginBottom: 60, maxWidth: 650}}>

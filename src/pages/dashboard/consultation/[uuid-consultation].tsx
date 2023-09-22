@@ -534,7 +534,6 @@ function ConsultationInProgress() {
 
     useEffect(() => {
         if (inProgress) {
-            console.log("inProgress");
             const form = new FormData();
             form.append('status', '4');
             form.append('start_date', moment().format("DD-MM-YYYY"));
