@@ -63,6 +63,7 @@ function CalendarRowDetail({...props}) {
         }
     }, [spinner]);
 
+    console.log("loading", loading);
     return (
         <>
             <TableRowStyled
@@ -286,23 +287,24 @@ function CalendarRowDetail({...props}) {
                             <>
                                 {data?.status.key !== "WAITING_ROOM" ?
                                     <Tooltip title={t("enter-waiting-room")}>
-                                        <LoadingButton
-                                            variant="text"
-                                            color="primary"
-                                            {...{loading}}
-                                            size="small"
-                                            sx={{mr: 1}}
-                                            {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
-                                            onClick={() => {
-                                                setLoading(true);
-                                                handleEventClick("waitingRoom", data)
-                                            }}
-                                        >
-                                            <IconUrl color={spinner ? "white" : theme.palette.primary.main}
-                                                     path="ic-salle"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
-                                            <span
-                                                style={{marginLeft: "5px"}}>{t("enter-waiting-room")}</span>}
-                                        </LoadingButton>
+                                        <span>
+                                            <LoadingButton
+                                                variant="text"
+                                                color="primary"
+                                                {...{loading}}
+                                                size="small"
+                                                sx={{mr: 1}}
+                                                {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
+                                                onClick={() => {
+                                                    setLoading(true);
+                                                    handleEventClick("waitingRoom", data)
+                                                }}>
+                                                <IconUrl color={spinner ? "white" : theme.palette.primary.main}
+                                                         path="ic-salle"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
+                                                <span
+                                                    style={{marginLeft: "5px"}}>{t("enter-waiting-room")}</span>}
+                                            </LoadingButton>
+                                        </span>
                                     </Tooltip>
                                     :
                                     <LoadingButton
@@ -315,8 +317,7 @@ function CalendarRowDetail({...props}) {
                                         onClick={() => {
                                             setLoading(true);
                                             handleEventClick("leaveWaitingRoom", data)
-                                        }}
-                                    >
+                                        }}>
                                         <IconUrl color={theme.palette.primary.main}
                                                  path="ic-salle-leave"/> {!sideBarOpened &&
                                         <span
@@ -325,17 +326,19 @@ function CalendarRowDetail({...props}) {
                             </>
                         }
                         <Tooltip title={t("view")}>
-                            <LoadingButton
-                                loading={spinner}
-                                onClick={() => handleEventClick("showEvent", data)}
-                                {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
-                                variant="text"
-                                color="primary"
-                                size="small">
+                            <span>
+                                <LoadingButton
+                                    loading={spinner}
+                                    onClick={() => handleEventClick("showEvent", data)}
+                                    {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
+                                    variant="text"
+                                    color="primary"
+                                    size="small">
                                 <IconUrl
                                     path="setting/edit"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
-                                <span style={{marginLeft: "5px"}}>{t("view")}</span>}
+                                    <span style={{marginLeft: "5px"}}>{t("view")}</span>}
                             </LoadingButton>
+                            </span>
                         </Tooltip>
                     </Stack>
                 </TableCell>

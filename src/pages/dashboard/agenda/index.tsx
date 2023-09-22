@@ -557,6 +557,7 @@ function Agenda() {
                 break;
             case "onLeaveWaitingRoom":
                 setEvent(event);
+                setLoading(true);
                 const form = new FormData();
                 form.append("status", "1");
                 updateAppointmentStatus({
@@ -565,10 +566,11 @@ function Agenda() {
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
                 }, {
                     onSuccess: () => {
-                        refreshData();
+                        refreshData().then(() => setLoading(false));
                         enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
                         // refresh on going api
                         mutateOnGoing();
+
                     }
                 });
                 break;
@@ -641,7 +643,7 @@ function Agenda() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
         }, {
             onSuccess: () => {
-                refreshData();
+                refreshData().then(() => setLoading(false));
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
                 // refresh on going api
                 mutateOnGoing();
@@ -697,7 +699,10 @@ function Agenda() {
     const onConsultationStart = (event: EventDef) => {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-            router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale})
+            router.push({
+                pathname: slugConsultation,
+                query: {inProgress: true}
+            }, slugConsultation, {locale: router.locale})
         } else {
             dispatch(openDrawer({type: "view", open: false}));
             setError(true);
@@ -923,11 +928,7 @@ function Agenda() {
     }
 
     const refreshData = () => {
-        if (view === 'listWeek') {
-            getAppointments(`format=list&page=1&limit=50`, view);
-        } else {
-            mutateAppointmentsData();
-        }
+        return invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`]);
     }
 
     const handleAddAppointment = (action: string) => {
