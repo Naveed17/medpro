@@ -442,6 +442,11 @@
       "youropinion": "Que pensez-vous?",
       "wait": "MedAI est en train d'écrire...",
       "asDoc": "Créer document"
+    },
+    "alerts": {
+      "favorite": {
+        "delete": "le favori a été supprimé avec succès"
+      }
     }
   },
   "table": {

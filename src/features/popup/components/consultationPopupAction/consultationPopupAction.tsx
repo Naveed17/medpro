@@ -84,13 +84,13 @@ function ConsultationPopupAction({...props}) {
                                     <Typography fontWeight={700} gutterBottom>
                                         {data.name}
                                     </Typography>
-                                    <Stack spacing={0.2} direction='row' alignItems="center">
+                                    {/*<Stack spacing={0.2} direction='row' alignItems="center">
                                         <IconUrl path='ic-tel' className="ic-tel"/>
                                         <Link underline="none" href={`tel:`} sx={{ml: 1, fontSize: 12}}
                                               color="text.primary" fontWeight={400}>
                                             {data.phone}
                                         </Link>
-                                    </Stack>
+                                    </Stack>*/}
                                 </Box>
                             </Stack>
                         </ListItem>
