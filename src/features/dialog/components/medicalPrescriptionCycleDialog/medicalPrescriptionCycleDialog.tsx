@@ -67,7 +67,6 @@ import {MedicalFormUnit, PrescriptionMultiUnits} from "@lib/constants";
 import ModelSwitchButton from "./modelSwitchButton";
 import {search} from "fast-fuzzy";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import {useSession} from "next-auth/react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
@@ -82,7 +81,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {lastPrescriptions} = useLastPrescription();
-    const {data: session} = useSession();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
     const {direction} = useAppSelector(configSelector);
