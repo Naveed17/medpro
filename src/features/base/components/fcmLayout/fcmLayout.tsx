@@ -324,7 +324,6 @@ function FcmLayout({...props}) {
                                     id: notificationData?.patient.uuid,
                                     appUuid: notificationData?.appUuid,
                                     name: `${notificationData?.patient.firstName} ${notificationData?.patient.lastName}`,
-                                    phone: `${notificationData?.patient.contact[0]?.code} ${notificationData?.patient.contact[0]?.value}`,
                                     fees: notificationData?.fees,
                                     instruction: notificationData?.instruction,
                                     devise,
