@@ -8,10 +8,9 @@ import {
   useTheme,
 } from "@mui/material";
 import { RootStyled } from "@features/loadingScreen";
-import { motion, AnimatePresence, useAnimation } from "framer-motion";
-import IconUrl from "@themes/urlIcon";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "next-i18next";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import MedProIcon from "@themes/overrides/icons/MedProIcon";
 import { useRouter } from "next/router";
 import { PaletteColor } from "@mui/material/styles";
