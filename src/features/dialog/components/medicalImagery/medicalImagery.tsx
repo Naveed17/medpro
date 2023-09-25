@@ -70,10 +70,15 @@ function MedicalImageryDialog({...props}) {
         url: `/api/private/medical-imaging/${router.locale}`
     }, ReactQueryNoValidateConfig);
 
-    const {data: httpAnalysisFavoritesResponse, mutate: mutateAnalysisFavorites} = useRequestQuery(medicalEntityHasUser ? {
+    const {
+        data: httpImagingFavoritesResponse,
+        mutate: mutateImagingFavorites
+    } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/imaging/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
+
+    const imagingFavorites = ((httpImagingFavoritesResponse as HttpResponse)?.data ?? []) as MIModel[];
 
     const addImage = (value: MIModel) => {
         setName('')
@@ -110,8 +115,19 @@ function MedicalImageryDialog({...props}) {
         }
     }
 
+    const addImagingFavorite = (medicalImagery: MIModel) => {
+        const form = new FormData();
+        medicalImagery?.uuid && form.append('imaging', medicalImagery.uuid);
+        medicalEntityHasUser && triggerFavoriteAdd({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/imaging/${router.locale}`,
+            data: form,
+        }, {
+            onSuccess: () => mutateImagingFavorites()
+        });
+    }
+
     const handleOnChangeImagery = (event: any, newValue: any) => {
-        console.log("handleOnChangeImagery", newValue)
         if (typeof newValue === 'string' && newValue.length > 0) {
             addImage({
                 name: newValue,
@@ -125,15 +141,9 @@ function MedicalImageryDialog({...props}) {
             const medicalImagery = (newValue as MIModel);
             if (!mi.find(item => item.uuid === medicalImagery.uuid)) {
                 addImage(medicalImagery);
-                const form = new FormData();
-                medicalImagery?.uuid && form.append('imaging', medicalImagery.uuid);
-                medicalEntityHasUser && triggerFavoriteAdd({
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/imaging/${router.locale}`,
-                    data: form,
-                }, {
-                    onSuccess: () => mutateAnalysisFavorites()
-                });
+                if (!imagingFavorites.find((item: MIModel) => item.uuid === medicalImagery.uuid)) {
+                    addImagingFavorite(medicalImagery);
+                }
             }
         }
     }
@@ -156,7 +166,6 @@ function MedicalImageryDialog({...props}) {
     const {handleSubmit} = formik;
     const debouncedOnChange = debounce(handleOnChangeImagery, 500);
 
-    const analysisFavorites = (httpAnalysisFavoritesResponse as HttpResponse)?.data ?? [];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -246,7 +255,7 @@ function MedicalImageryDialog({...props}) {
                             </Typography>
 
                             <Box>
-                                {!loading ? analysisFavorites?.slice(0, 20).map((item: any, index: number) => (
+                                {(!loading && imagingFavorites.length > 0) ? imagingFavorites?.slice(0, 20).map((item: any, index: number) => (
                                         <Chip
                                             className={"chip-item"}
                                             key={index}
@@ -260,7 +269,7 @@ function MedicalImageryDialog({...props}) {
                                                 }, {
                                                     onSuccess: () => {
                                                         enqueueSnackbar(t(`alerts.favorite.delete`), {variant: "success"});
-                                                        mutateAnalysisFavorites();
+                                                        mutateImagingFavorites();
                                                     }
                                                 });
                                             }}

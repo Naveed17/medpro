@@ -5,7 +5,7 @@ import Icon from "@themes/urlIcon";
 import React from "react";
 
 function NoteCardCollapse({...props}) {
-    const {item, t, onExpandHandler, onDeleteItem , onNoteChange} = props;
+    const {item, t, onExpandHandler, onDeleteItem, onNoteChange} = props;
     return (
         <Card>
             <Stack p={2} pt={1} pb={1} direction='row' alignItems="center"
@@ -23,7 +23,7 @@ function NoteCardCollapse({...props}) {
                 </IconButton>
             </Stack>
             <Collapse in={item.expanded} timeout="auto" unmountOnExit>
-                <Box padding={1} pt={0}>
+                <Box p={1} m={1}>
                     <TextField
                         fullWidth
                         placeholder={t("note")}

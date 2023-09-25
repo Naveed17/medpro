@@ -1328,10 +1328,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         secondary={
                                                             <React.Fragment>
                                                                 <span style={{display: "grid"}}>
-                                  {drug.cycles.map((
-                                          cycle: PrescriptionCycleModel,
-                                          indexCycle: number
-                                      ) => (
+                                  {drug.cycles.map((cycle: PrescriptionCycleModel, indexCycle: number) => (
                                           <span
                                               key={`cycle-${indexCycle}`}
                                               style={{display: "grid"}}>
