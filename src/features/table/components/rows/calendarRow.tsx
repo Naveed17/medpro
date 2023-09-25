@@ -29,8 +29,7 @@ function CalendarRow({...props}) {
                 onClick={() => handleMobileGroupClick(moment(row.date, "DD-MM-YYYY").toDate())}
                 component="tr"
                 color="text.primary"
-                pt={2}
-            >
+                pt={2}>
                 {moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY")) ? (
                     "Today"
                 ) : moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY").add(1, 'days')) ? (
