@@ -17,43 +17,60 @@ import TreeStyled from "./overrides/treeStyled";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useInvalidateQueries, useMedicalProfessionalSuffix} from "@lib/hooks";
-import {Dialog} from "@features/dialog";
+import {Dialog, prescriptionSelector, setParentModel} from "@features/dialog";
 import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
-import {useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
+import IconUrl from "@themes/urlIcon";
+import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 
 function ModelPrescriptionList({...props}) {
-    const {models, t, initialOpenData, switchPrescriptionModel, editPrescriptionModel} = props;
+    const {models, t, initialOpenData, switchPrescriptionModel, editPrescriptionModel, setOpenAddParentDialog} = props;
     const router = useRouter();
+    const dispatch = useAppDispatch();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const theme = useTheme();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {direction} = useAppSelector(configSelector);
+    const {parent: modelParent} = useAppSelector(prescriptionSelector);
 
     const [treeData, setTreeData] = useState<any[]>([]);
     const [deleteModelDialog, setDeleteModelDialog] = useState<boolean>(false);
     const [dialogAction, setDialogAction] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedModel, setSelectedModel] = useState<any | null>(null);
+    const [openPrescriptionModelDialog, setPrescriptionModelOpenDialog] = useState(false);
+
     const {trigger: triggerPrescriptionEdit} = useRequestQueryMutation("/prescription/model/edit");
     const {trigger: triggerDeleteModel} = useRequestQueryMutation("/prescription/model/delete");
 
-    const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
+    const handleMoveModelRequest = (ModelSourceId: string, parentTargetId: string, loading?: boolean) => {
         const form = new FormData();
-        form.append("parent", dropTargetId);
+        form.append("parent", parentTargetId);
         triggerPrescriptionEdit({
             method: "PATCH",
-            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${dragSourceId}/parent/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${ModelSourceId}/parent/${router.locale}`,
             data: form
         }, {
-            onSuccess: () => invalidateQueries([`${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`])
+            onSuccess: () => invalidateQueries([`${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`]),
+            ...(loading && {
+                onSettled: () => {
+                    setPrescriptionModelOpenDialog(false);
+                    setLoading(false);
+                }
+            })
         });
+    }
+
+    const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
+        handleMoveModelRequest(dragSourceId, dropTargetId);
         setTreeData(newTree);
     }
+
 
     const handleDeleteModel = (props: any) => {
         setSelectedModel(props.node);
@@ -64,6 +81,12 @@ function ModelPrescriptionList({...props}) {
     const handleEditModel = (props: any) => {
         switchPrescriptionModel(props.node.data.drugs);
         editPrescriptionModel(props);
+    }
+
+    const handleMoveModel = (props: any) => {
+        dispatch(setParentModel(props.node.parent));
+        setSelectedModel(props.node);
+        setTimeout(() => setPrescriptionModelOpenDialog(true));
     }
 
     const handleDeleteAction = (e: React.MouseEvent) => {
@@ -125,6 +148,7 @@ function ModelPrescriptionList({...props}) {
                                     onToggle,
                                     switchPrescriptionModel,
                                     handleEditModel,
+                                    handleMoveModel,
                                     handleDeleteModel
                                 }}
                             />
@@ -192,8 +216,7 @@ function ModelPrescriptionList({...props}) {
                         <Button
                             variant="text-primary"
                             onClick={() => setDeleteModelDialog(false)}
-                            startIcon={<CloseIcon/>}
-                        >
+                            startIcon={<CloseIcon/>}>
                             {t(`dialogs.delete-${dialogAction}-dialog.cancel`)}
                         </Button>
                         <LoadingButton
@@ -202,13 +225,47 @@ function ModelPrescriptionList({...props}) {
                             variant="contained"
                             color={"error"}
                             onClick={handleDeleteAction}
-                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
-                        >
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}>
                             {t(`dialogs.delete-${dialogAction}-dialog.confirm`)}
                         </LoadingButton>
                     </>
                 }
             />
+
+            <Dialog
+                {...{direction}}
+                color={theme.palette.warning.main}
+                contrastText={theme.palette.warning.contrastText}
+                action={"medical_prescription_model"}
+                open={openPrescriptionModelDialog}
+                data={{t, models, selectedModel, color: "warning", setOpenAddParentDialog}}
+                dialogClose={() => setPrescriptionModelOpenDialog(false)}
+                size="md"
+                title={`${t("move_the_template_in_folder", {ns: "consultation"})} "${selectedModel?.text}"`}
+                actionDialog={(
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                        <Button
+                            variant="text-black"
+                            onClick={() => {
+                                setPrescriptionModelOpenDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel", {ns: "consultation"})}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition={"start"}
+                            color={"warning"}
+                            startIcon={<DriveFileMoveOutlinedIcon/>}
+                            onClick={() => {
+                                setLoading(true);
+                                handleMoveModelRequest(selectedModel?.id, modelParent, true);
+                            }}
+                            variant="contained">
+                            {t("save", {ns: "consultation"})}
+                        </LoadingButton>
+                    </Stack>
+                )}/>
         </>
     );
 }
