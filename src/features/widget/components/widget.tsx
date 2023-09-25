@@ -31,6 +31,7 @@ import TeethPreview from "@features/widget/components/teethPreview";
 import ReactDOM from "react-dom/client";
 import {useRouter} from "next/router";
 import {useRequestQueryMutation} from "@lib/axios";
+import OphtPreview from "@features/widget/components/ophtPreview";
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -202,8 +203,14 @@ function Widget({...props}) {
                     local: router.locale
                 }}/>)
             }
-        }, 1000)
 
+            const ophtalmo = document.getElementById('xxx');
+            if (ophtalmo) {
+                const root = ReactDOM.createRoot(ophtalmo);
+                console.log(root)
+                root.render(<OphtPreview/>)
+            }
+        }, 1000)
     }
     const handleClickAway = () => {
         setOpen(!open);
