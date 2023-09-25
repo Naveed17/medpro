@@ -5,11 +5,13 @@ import {TypeIcon} from "@features/treeView";
 import CustomNodeStyled from "./overrides/customNodeStyled";
 import {IconButton, Stack} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
+import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 
 export const CustomNode = ({...props}) => {
     const {
         switchPrescriptionModel,
         handleDeleteModel,
+        handleMoveModel,
         handleEditModel,
         node: {droppable, data},
         depth: {indent}
@@ -30,13 +32,11 @@ export const CustomNode = ({...props}) => {
                     }
                 })}
                 className={`tree-node`}
-                style={{paddingInlineStart: indent}}
-            >
+                style={{paddingInlineStart: indent}}>
                 <div
                     className={`expandIconWrapper ${
                         props.isOpen ? "isOpen" : ""
-                    }`}
-                >
+                    }`}>
                     {props.node.droppable && (
                         <div onClick={handleToggle}>
                             <ArrowRightIcon/>
@@ -50,7 +50,17 @@ export const CustomNode = ({...props}) => {
                     <Typography {...(props.node.parent !== 0 && {color: "primary", sx: {cursor: "pointer"}})}
                                 variant="body2">{props.node.text}</Typography>
                 </div>
-                <Stack direction={"row"}>
+                <Stack direction={"row"} alignItems={"center"}>
+                    {props.node.parent !== 0 && <IconButton
+                        disableRipple
+                        sx={{mt: "-2px"}}
+                        className="btn-del"
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            handleMoveModel(props);
+                        }}>
+                        <DriveFileMoveOutlinedIcon sx={{width: 16, height: 16}}/>
+                    </IconButton>}
                     {props.node.parent !== 0 && <IconButton
                         disableRipple
                         sx={{mt: "-6px"}}

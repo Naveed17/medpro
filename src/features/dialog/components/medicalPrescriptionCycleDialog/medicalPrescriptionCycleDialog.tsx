@@ -1406,6 +1406,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 initialOpenData,
                                                 switchPrescriptionModel,
                                                 editPrescriptionModel,
+                                                setOpenAddParentDialog
                                             }}
                                         />
                                         <Button
