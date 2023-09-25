@@ -17,6 +17,7 @@ import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import moment from "moment/moment";
 
 const headCells = [
     {
@@ -127,7 +128,8 @@ function TransactionPanel({...props}) {
                 amount: sp.amount,
                 status_transaction: TransactionStatus[0].value,
                 type_transaction: TransactionType[4].value,
-                payment_date: sp.date,
+                payment_date: moment().format('DD-MM-YYYY'),
+                payment_time: moment().format('HH:mm'),
                 data: {label: sp.designation, ...sp.data},
             });
             amount += sp.amount;
