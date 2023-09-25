@@ -4,6 +4,7 @@ import {Otable} from "@features/table";
 import SearchIcon from "@mui/icons-material/Search";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useRouter} from "next/router";
 
 function FeesTab({...props}) {
 
@@ -73,9 +74,10 @@ function FeesTab({...props}) {
         app_uuid,
         devise,
         t,
-        router,
         isQuoteRequest
     } = props;
+
+    const router = useRouter();
 
     const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
     const {data: httpAppointmentFees, mutate} = useRequestQuery({
