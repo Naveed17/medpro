@@ -1038,7 +1038,7 @@ function Agenda() {
         );
     }
 
-    if (ready) return (<LoadingScreen button text={"loading"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <div>
