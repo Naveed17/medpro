@@ -14,9 +14,10 @@ interface EventModal {
     motif: ConsultationReasonModel[];
     type: AppointmentTypeModel;
     instruction: string;
-    fees: string;
+    payed: boolean;
     id: string;
     dur: number;
+    restAmount: number;
     filtered: boolean;
     new: boolean;
     isOnline: boolean;

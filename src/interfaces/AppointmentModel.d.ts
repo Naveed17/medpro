@@ -9,10 +9,11 @@ interface AppointmentModel {
     globalInstructions: string;
     instruction: string;
     reminder: any[];
-    fees: string;
+    payed: boolean;
     endTime: string;
     status: number;
     duration: number;
+    restAmount: number;
     isVip: boolean;
     isOnline: boolean;
     PatientHasAgendaAppointment: boolean | null;

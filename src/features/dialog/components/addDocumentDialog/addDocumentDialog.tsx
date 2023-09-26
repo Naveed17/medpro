@@ -87,7 +87,7 @@ function AddDocumentDialog({...props}) {
 
     return (
         <AddDocumentDialogStyled>
-            <Grid container>
+            <Grid container spacing={1}>
                 <Grid item xs={12} md={3}>
                     <Typography fontWeight={600} mb={2} variant="subtitle2">
                         {t("type_of_document")}
@@ -150,7 +150,7 @@ function AddDocumentDialog({...props}) {
 
                     </Stack>}
                     <Stack spacing={2} maxWidth="90%" width={1} mx="auto" mt={3}>
-                        <Grid container alignItems="flex-start">
+                        <Grid container spacing={1} alignItems="flex-start">
                             <Grid item xs={12} lg={12}>
                                 {files.length > 0 && <Typography
                                     mt={1}
