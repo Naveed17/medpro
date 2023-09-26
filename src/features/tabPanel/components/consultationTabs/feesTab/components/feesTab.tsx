@@ -66,13 +66,14 @@ function FeesTab({...props}) {
     const {
         acts,
         setActs,
-        mpActs,
+        mpActs = [],
         setTotal,
         status = null,
         agenda,
         urlMedicalEntitySuffix,
         app_uuid,
         devise,
+        editAct = null,
         t,
         isQuoteRequest
     } = props;
@@ -80,10 +81,10 @@ function FeesTab({...props}) {
     const router = useRouter();
 
     const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
-    const {data: httpAppointmentFees, mutate} = useRequestQuery({
+    const {data: httpAppointmentFees, mutate} = useRequestQuery(app_uuid ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/acts/${router.locale}`
-    }, ReactQueryNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const res = (httpAppointmentFees as HttpResponse)?.data;
 
@@ -113,7 +114,6 @@ function FeesTab({...props}) {
             setActs(_acts)
         }
     }, [res]) // eslint-disable-line react-hooks/exhaustive-deps
-
 
     const saveChanges = (actsList: any[]) => {
         const _acts: { act_uuid: string; name: string; qte: number; price: number; }[] = [];
@@ -157,7 +157,7 @@ function FeesTab({...props}) {
         if (!isFree)
             form.append("consultation_fees", consultationFees ? consultationFees.toString() : '0');
 
-        triggerFeesEdit({
+        app_uuid && triggerFeesEdit({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
             data: form
@@ -165,7 +165,8 @@ function FeesTab({...props}) {
             onSuccess: () => mutate()
         });
     }
-    const editAct = (row: any, from: any) => {
+
+    const editActConsult = (row: any, from: any) => {
         const act_index = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid)
         if (from === 'check')
             acts[act_index].selected = !acts[act_index].selected
@@ -204,7 +205,7 @@ function FeesTab({...props}) {
                     })}
                     from={"CIP-medical-procedures"}
                     t={t}
-                    edit={editAct}
+                    edit={editAct ? editAct : editActConsult}
                     devise={devise}
                     handleChange={setTotal}/>
 

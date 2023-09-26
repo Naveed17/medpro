@@ -60,9 +60,10 @@ function AddRequestQuoteDialog({...props}) {
             </Stack>
             <FeesTab {...{
                 acts,
-                editAct,
-                setTotal,
+                setActs,
                 total,
+                setTotal,
+                editAct,
                 devise,
                 t
             }}
