@@ -183,7 +183,6 @@ function Consultation() {
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
-    console.log("patient", patient);
     return (
         <ConsultationStyled>
             <Box className="header">
