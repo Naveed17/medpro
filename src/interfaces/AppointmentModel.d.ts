@@ -13,7 +13,7 @@ interface AppointmentModel {
     endTime: string;
     status: number;
     duration: number;
-    restAmount?: number;
+    restAmount: number;
     isVip: boolean;
     isOnline: boolean;
     PatientHasAgendaAppointment: boolean | null;
