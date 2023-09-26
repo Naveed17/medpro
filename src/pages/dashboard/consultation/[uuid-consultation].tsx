@@ -394,6 +394,12 @@ function ConsultationInProgress() {
         setIsViewerOpen("");
     }
 
+    const getTransactionAmountPayed = (): number => {
+        let payed_amount = 0;
+        (transactions as any)?.transaction_data.forEach((td: { amount: number }) => payed_amount += td.amount);
+        return payed_amount;
+    }
+
     const sendNotification = () => {
         triggerUsers({
             method: "GET",
@@ -403,14 +409,14 @@ function ConsultationInProgress() {
                 const secretary = (r?.data as HttpResponse).data;
                 if (secretary.length > 0 && patient) {
                     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
+                    const restAmount = getTransactionAmountPayed();
                     const form = new FormData();
                     form.append("action", "end_consultation");
                     form.append("root", "agenda");
-                    form.append(
-                        "content",
+                    form.append("content",
                         JSON.stringify({
                             fees: total,
-                            restAmount: restAmount,
+                            restAmount: total - restAmount,
                             instruction: localInstr ? localInstr : "",
                             control: checkedNext,
                             edited: false,
@@ -547,7 +553,6 @@ function ConsultationInProgress() {
             });
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
-
 
     return (
         <>
@@ -738,7 +743,6 @@ function ConsultationInProgress() {
                             app_uuid,
                             total,
                             setTotal,
-                            router,
                             devise,
                             t
                         }}/>

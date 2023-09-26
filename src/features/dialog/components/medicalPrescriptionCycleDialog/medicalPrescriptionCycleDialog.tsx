@@ -67,7 +67,6 @@ import {MedicalFormUnit, PrescriptionMultiUnits} from "@lib/constants";
 import ModelSwitchButton from "./modelSwitchButton";
 import {search} from "fast-fuzzy";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import {useSession} from "next-auth/react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
@@ -82,7 +81,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {lastPrescriptions} = useLastPrescription();
-    const {data: session} = useSession();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
     const {direction} = useAppSelector(configSelector);
@@ -161,17 +159,13 @@ function MedicalPrescriptionCycleDialog({...props}) {
     });
 
     const getMedicForm = (drug: any) => {
-        const [first, ...rest] = (
-            drug.cycles?.length > 0 ? drug.cycles[0].dosage.split(",")[0] : ""
-        )?.split(" ");
+        const [first, ...rest] = (drug.cycles?.length > 0 ? drug.cycles[0].dosage.split(",")[0] : "")?.split(" ");
         const unit = rest.join(" ");
         const hasMultiValues = PrescriptionMultiUnits.includes(unit);
         const hasMedicalFormUnit = MedicalFormUnit.find(
             (item) => item.unit === unit
         );
-        return drug.cycles.length > 0 &&
-        drug.cycles[0].dosage.split(",")[0] &&
-        hasMedicalFormUnit
+        return (drug.cycles?.length > 0 && drug.cycles[0].dosage.split(",")[0] && hasMedicalFormUnit)
             ? `${hasMedicalFormUnit.forms[0].form}${hasMultiValues ? `_${unit}` : ""}`
             : unit;
     };
@@ -198,67 +192,64 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     isVerified: true,
                 } as any,
                 unit: getMedicForm(drug),
-                cycles:
-                    drug.cycles.length === 0 &&
-                    (drug.duration === "" || drug.duration === null) &&
-                    drug.durationType === ""
-                        ? []
-                        : drug.cycles.map((cycle: PrescriptionCycleModel) => ({
-                            count: cycle.dosage.split(" ")[0]
-                                ? cycle.dosage.split(" ")[0] === fractions[0]
-                                    ? 0
-                                    : cycle.dosage.split(" ")[0] === fractions[1]
-                                        ? 1
-                                        : parseInt(cycle.dosage.split(" ")[0]) + 1
-                                : 2,
-                            dosageQty: cycle.dosage.split(" ")[0]
-                                ? cycle.dosage.split(" ")[0]
-                                : "1",
-                            dosageDuration: cycle.duration ? cycle.duration : 1,
-                            dosageMealValue:
-                                cycle.dosage !== "" &&
-                                cycle.dosage.split(",")[2] &&
-                                cycle.dosage.split(",")[2].length > 0
-                                    ? dosageMeal.find((meal) =>
-                                        cycle.dosage.split(",")[2].includes(t(meal.label))
-                                    )?.label
-                                    : "",
-                            durationValue: cycle.durationType ? cycle.durationType : "",
-                            dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
-                            cautionaryNoteInput: cycle.note?.length > 0,
-                            dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
-                            cautionaryNote: cycle.note !== "" ? cycle.note : "",
-                            dosageTime: [
-                                {
-                                    label: "morning",
-                                    value: cycle.dosage.split(",")[1]
-                                        ? cycle.dosage.split(",")[1].includes(t("morning"))
-                                        : false,
-                                },
-                                {
-                                    label: "mid_day",
-                                    value: cycle.dosage.split(",")[1]
-                                        ? cycle.dosage.split(",")[1].includes(t("mid_day"))
-                                        : false,
-                                },
-                                {
-                                    label: "evening",
-                                    value: cycle.dosage.split(",")[1]
-                                        ? cycle.dosage.split(",")[1].includes(t("evening"))
-                                        : false,
-                                },
-                                {
-                                    label: "before_sleeping",
-                                    value: cycle.dosage.split(",")[1]
-                                        ? cycle.dosage
-                                            .split(",")[1]
-                                            .includes(t("before_sleeping"))
-                                        : false,
-                                },
-                            ],
-                            dosageMeal,
-                            duration,
-                        })),
+                cycles: (drug.cycles?.length === 0 && (drug.duration === "" || drug.duration === null) && drug.durationType === "")
+                    ? []
+                    : drug.cycles.map((cycle: PrescriptionCycleModel) => ({
+                        count: cycle.dosage.split(" ")[0]
+                            ? cycle.dosage.split(" ")[0] === fractions[0]
+                                ? 0
+                                : cycle.dosage.split(" ")[0] === fractions[1]
+                                    ? 1
+                                    : parseInt(cycle.dosage.split(" ")[0]) + 1
+                            : 2,
+                        dosageQty: cycle.dosage.split(" ")[0]
+                            ? cycle.dosage.split(" ")[0]
+                            : "1",
+                        dosageDuration: cycle.duration ? cycle.duration : 1,
+                        dosageMealValue:
+                            cycle.dosage !== "" &&
+                            cycle.dosage.split(",")[2] &&
+                            cycle.dosage.split(",")[2].length > 0
+                                ? dosageMeal.find((meal) =>
+                                    cycle.dosage.split(",")[2].includes(t(meal.label))
+                                )?.label
+                                : "",
+                        durationValue: cycle.durationType ? cycle.durationType : "",
+                        dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
+                        cautionaryNoteInput: cycle.note?.length > 0,
+                        dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
+                        cautionaryNote: cycle.note !== "" ? cycle.note : "",
+                        dosageTime: [
+                            {
+                                label: "morning",
+                                value: cycle.dosage.split(",")[1]
+                                    ? cycle.dosage.split(",")[1].includes(t("morning"))
+                                    : false,
+                            },
+                            {
+                                label: "mid_day",
+                                value: cycle.dosage.split(",")[1]
+                                    ? cycle.dosage.split(",")[1].includes(t("mid_day"))
+                                    : false,
+                            },
+                            {
+                                label: "evening",
+                                value: cycle.dosage.split(",")[1]
+                                    ? cycle.dosage.split(",")[1].includes(t("evening"))
+                                    : false,
+                            },
+                            {
+                                label: "before_sleeping",
+                                value: cycle.dosage.split(",")[1]
+                                    ? cycle.dosage
+                                        .split(",")[1]
+                                        .includes(t("before_sleeping"))
+                                    : false,
+                            },
+                        ],
+                        dosageMeal,
+                        duration,
+                    })),
             });
         });
 
@@ -1328,10 +1319,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         secondary={
                                                             <React.Fragment>
                                                                 <span style={{display: "grid"}}>
-                                  {drug.cycles.map((
-                                          cycle: PrescriptionCycleModel,
-                                          indexCycle: number
-                                      ) => (
+                                  {drug.cycles.map((cycle: PrescriptionCycleModel, indexCycle: number) => (
                                           <span
                                               key={`cycle-${indexCycle}`}
                                               style={{display: "grid"}}>
@@ -1354,7 +1342,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                             {cycle.note?.length > 0 &&
                                                 `(${cycle.note})`}
                                         </span>
-                                              {indexCycle < drug.cycles.length - 1 &&
+                                              {indexCycle < drug.cycles?.length - 1 &&
                                                   !(
                                                       errors.data &&
                                                       ((errors.data as any)[index]
@@ -1418,6 +1406,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 initialOpenData,
                                                 switchPrescriptionModel,
                                                 editPrescriptionModel,
+                                                setOpenAddParentDialog
                                             }}
                                         />
                                         <Button

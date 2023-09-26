@@ -92,7 +92,7 @@ function AddDocumentDialog({...props}) {
                     <Typography fontWeight={600} mb={2} variant="subtitle2">
                         {t("type_of_document")}
                     </Typography>
-                    <Grid container mt={6} margin={"auto"}>
+                    <Grid container spacing={1} mt={6} margin={"auto"}>
                         {loading
                             ? Array.from(new Array(6)).map((val, idx) => (
                                 <Grid key={"loading-card-" + idx} item xs={6} md={6}>

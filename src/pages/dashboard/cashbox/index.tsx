@@ -266,7 +266,8 @@ function Cashbox() {
                         action === "btn_header_2"
                             ? TransactionType[0].value
                             : TransactionType[1].value,
-                    payment_date: sp.date,
+                    payment_date: moment(sp.payment_date).format('DD-MM-YYYY'),
+                    payment_time:moment(sp.payment_date).format('HH:mm'),
                     data: {label: sp.designation, ...sp.data},
                 });
                 amount += sp.amount;
@@ -306,6 +307,7 @@ function Cashbox() {
                 status_transaction: TransactionStatus[2].value.toString(),
                 type_transaction: TransactionType[3].value.toString(),
                 payment_date: moment().format('DD-MM-YYYY'),
+                payment_time: moment().format('HH:mm'),
                 transaction_data_uuid: "",
                 data: {label: t('encashment')}
             }];
@@ -320,6 +322,7 @@ function Cashbox() {
                     status_transaction: TransactionStatus[2].value.toString(),
                     type_transaction: TransactionType[3].value.toString(),
                     payment_date: moment(chq.payment_date, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY'),
+                    payment_time: moment(chq.payment_date, 'YYYY-MM-DD HH:mm').format('HH:mm'),
                     data: {
                         label: t('encashment'),
                         ...chq

@@ -253,6 +253,7 @@
     "new_file": "Nouveau dossier",
     "talk_to_create_your_order": "Parlez pour créer votre ordonnace",
     "save_the_template_in_folder": "Enregistrer le modèle dans un dossier",
+    "move_the_template_in_folder": "Déplacer le modèle",
     "cautionary_note": "Mise en garde",
     "cautionary_note_placeholder": "Veuillez saisir la mise en garde",
     "add_a_drug": "Ajouter à la liste",
@@ -442,6 +443,11 @@
       "youropinion": "Que pensez-vous?",
       "wait": "MedAI est en train d'écrire...",
       "asDoc": "Créer document"
+    },
+    "alerts": {
+      "favorite": {
+        "delete": "le favori a été supprimé avec succès"
+      }
     }
   },
   "table": {

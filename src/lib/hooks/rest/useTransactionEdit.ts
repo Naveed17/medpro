@@ -5,6 +5,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
+import moment from "moment";
 
 function useTransactionEdit() {
     const router = useRouter();
@@ -28,6 +29,8 @@ function useTransactionEdit() {
                     insurance: pay.insurance ? pay.insurance : "",
                     status_transaction: pay.status_transaction,
                     type_transaction: pay.type_transaction,
+                    payment_date: moment(pay.payment_date,'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                    payment_time: moment(pay.payment_date,'DD-MM-YYYY HH:mm').format('HH:mm'),
                     data: {
                         rest: selectedPayment.total - selectedPayment.payed_amount - payed_amount,
                         total: selectedPayment.total,

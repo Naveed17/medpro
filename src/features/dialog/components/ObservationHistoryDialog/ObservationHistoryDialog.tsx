@@ -68,10 +68,8 @@ function ObservationHistoryDialog({...props}) {
                                 fontWeight: "bold"
                             }}>{moment(act.data, 'DD-MM-YYYY').format('DD/MM/YYYY')}</Typography>
                         </Stack>
-                        <Typography
-                            fontSize={12}>{t("consultationIP.notes")} : {act.note ? act.note.map((item: any) => item.value).join(",") : '-'}</Typography>
-                        <Typography
-                            fontSize={12}>{t("consultationIP.diagnosis")} : {act.diagnostics ? act.diagnostics.map((item: any) => item.value).join(",") : '-'}</Typography>
+                        <div dangerouslySetInnerHTML={{__html:`${t("consultationIP.notes")} : ${act.note ? act.note.map((item: any) => item.value).join(",") : '-'}`}}></div>
+                        <div dangerouslySetInnerHTML={{__html:`${t("consultationIP.diagnosis")} : ${act.diagnostics ? act.diagnostics.map((item: any) => item.value).join(",") : '-'}`}}></div>
                     </Stack>
                 </CardContent>
             ))}

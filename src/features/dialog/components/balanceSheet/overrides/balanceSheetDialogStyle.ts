@@ -32,7 +32,7 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
     },
     '.loading-card': {
         border: 'none',
-        background: "#EEF2F6",
+        background: "white",
         p: {
             paddingTop: theme.spacing(4),
             paddingBottom: theme.spacing(2),
@@ -43,6 +43,7 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
         maxHeight: 360,
         paddingTop: 8,
         paddingBottom: 8,
+        paddingRight: 8,
         overflowY: 'scroll'
     },
     "& .MuiOutlinedInput-root": {
