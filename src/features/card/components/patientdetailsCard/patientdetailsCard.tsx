@@ -3,7 +3,6 @@ import {
     Avatar,
     Box,
     Button,
-    Chip,
     IconButton,
     InputBase,
     Skeleton,
@@ -36,7 +35,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 import dynamic from "next/dynamic";
-import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
+import {Label} from "@features/label";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -74,8 +73,9 @@ function PatientDetailsCard({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
+    const {t: commonTranslation} = useTranslation("common");
+    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {values, getFieldProps, setFieldValue} = formik;
@@ -174,7 +174,7 @@ function PatientDetailsCard({...props}) {
         <FormikProvider value={formik}>
             <Form autoComplete="off" noValidate>
                 <RootStyled direction={"row"} justifyContent={"space-between"}>
-                    <Box sx={{display: "inline-flex"}}>
+                    <Box sx={{display: "inline-flex", width: "100%"}}>
                         {loading ? (
                             <Skeleton
                                 variant="rectangular"
@@ -211,11 +211,15 @@ function PatientDetailsCard({...props}) {
                             </label>
                         )}
 
-                        <Box mx={1}>
+                        <Box mx={1} sx={{width: "100%"}}>
                             {loading ? (
                                 <Skeleton variant="text" width={150}/>
                             ) : (
-                                <Stack direction={"row"} alignItems={"center"} justifyContent={"flex-start"}>
+                                <Stack
+                                    sx={{width: "100%"}}
+                                    direction={"row"}
+                                    alignItems={"center"}
+                                    justifyContent="space-between">
                                     <InputBase
                                         readOnly
                                         {...(patient?.nationality && {
@@ -235,11 +239,23 @@ function PatientDetailsCard({...props}) {
                                         }}
                                         {...getFieldProps("name")}
                                     />
-                                    {rest > 0 && <Chip size="small"
-                                                       label={`- ${rest} ${devise}`}
-                                                       color={"error"}
-                                                       icon={<WarningRoundedIcon/>}/>}
-
+                                    {rest > 0 && <Label
+                                        variant='filled'
+                                        sx={{
+                                            "& .MuiSvgIcon-root": {
+                                                width: 16,
+                                                height: 16,
+                                                pl: 0
+                                            }
+                                        }}
+                                        color={rest > 0 ? "expire" : "success"}>
+                                        <Typography
+                                            fontWeight={700} component='strong'
+                                            sx={{
+                                                fontSize: 12,
+                                            }}>
+                                            {commonTranslation(rest > 0 ? "credit" : "wallet")} {`${rest > 0 ? '-' : '+'} ${rest}`} {devise}</Typography>
+                                    </Label>}
                                 </Stack>
                             )}
 

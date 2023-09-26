@@ -1,38 +1,32 @@
 import {TableRowStyled} from "@features/table";
 import {alpha, Theme} from "@mui/material/styles";
 import TableCell from "@mui/material/TableCell";
-import {Box, IconButton, Stack, Tooltip, Typography, useTheme} from "@mui/material";
+import {Box, Stack, Tooltip, Typography, useTheme} from "@mui/material";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import TimeIcon from "@themes/overrides/icons/time";
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import {differenceInMinutes} from "date-fns";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import React, {useEffect, useState} from "react";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {sideBarSelector} from "@features/menu";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {useSession} from "next-auth/react";
-import {useDuplicatedDetect} from "@lib/hooks/rest";
-import {setDuplicated} from "@features/duplicateDetected";
-import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import {SmallAvatar} from "@features/avatar";
 import Zoom from "@mui/material/Zoom";
 
 function CalendarRowDetail({...props}) {
     const {
         index, data, pendingData,
-        spinner, t, handleEvent, mutateAgenda
+        spinner, t, handleEvent
     } = props;
 
     const {data: session} = useSession();
     const theme = useTheme();
-    const dispatch = useAppDispatch();
-    //const {duplications} = useDuplicatedDetect({patientId: data?.patient?.uuid});
 
     const {config} = useAppSelector(agendaSelector);
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
@@ -236,7 +230,7 @@ function CalendarRowDetail({...props}) {
                 </TableCell>
                 <TableCell align="center">{config?.name}</TableCell>
                 <TableCell align="right">
-                    {data?.restAmount > 0 && data?.status?.key !== "PENDING" ? <Box>
+                    {(data?.restAmount > 0 || data?.restAmount < 0) && data?.status?.key !== "PENDING" ? <Box>
                         <Label
                             variant='filled'
                             sx={{
@@ -246,12 +240,12 @@ function CalendarRowDetail({...props}) {
                                     pl: 0
                                 }
                             }}
-                            color={"expire"}>
+                            color={data.restAmount > 0 ? "expire" : "success"}>
                             <Typography
                                 sx={{
                                     fontSize: 10,
                                 }}>
-                                {t("credit", {ns: "common"})} {data.restAmount} {devise}</Typography>
+                                {t(data.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${data.restAmount > 0 ? '-' : '+'} ${data.restAmount}`} {devise}</Typography>
                         </Label>
                     </Box> : "--"}
                 </TableCell>
