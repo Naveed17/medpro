@@ -14,7 +14,7 @@ export const appointmentPrepareEvent = (appointment: AppointmentModel, horsWork:
         droppable: !["ON_GOING"].includes(AppointmentStatus[appointment.status].key),
         borderColor: appointment.type?.color,
         patient: appointment.patient,
-        fees: appointment.fees,
+        payed: (appointment?.restAmount ?? 0) === 0,
         isOnline: appointment.isOnline,
         overlapEvent: appointment.overlapEvent ? appointment.overlapEvent : false,
         motif: appointment.consultationReasons,
