@@ -29,8 +29,8 @@ function useTransactionEdit() {
                     insurance: pay.insurance ? pay.insurance : "",
                     status_transaction: pay.status_transaction,
                     type_transaction: pay.type_transaction,
-                    payment_date: moment().format('DD-MM-YYYY'),
-                    payment_time: moment().format('HH:mm'),
+                    payment_date: moment(pay.payment_date,'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                    payment_time: moment(pay.payment_date,'DD-MM-YYYY HH:mm').format('HH:mm'),
                     data: {
                         rest: selectedPayment.total - selectedPayment.payed_amount - payed_amount,
                         total: selectedPayment.total,

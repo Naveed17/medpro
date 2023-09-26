@@ -150,6 +150,7 @@ function PaymentRow({...props}) {
                 uuid: td.uuid,
                 amount: td.amount,
                 payment_date: td.payment_date,
+                payment_time: td.payment_time,
                 status_transaction: td.status_transaction_data,
                 type_transaction: td.type_transaction_data,
                 data: td.data

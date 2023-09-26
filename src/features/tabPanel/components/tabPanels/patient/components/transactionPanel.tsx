@@ -128,8 +128,8 @@ function TransactionPanel({...props}) {
                 amount: sp.amount,
                 status_transaction: TransactionStatus[0].value,
                 type_transaction: TransactionType[4].value,
-                payment_date: moment().format('DD-MM-YYYY'),
-                payment_time: moment().format('HH:mm'),
+                payment_date: moment(sp.payment_date).format('DD-MM-YYYY'),
+                payment_time: moment(sp.payment_date).format('HH:mm'),
                 data: {label: sp.designation, ...sp.data},
             });
             amount += sp.amount;
