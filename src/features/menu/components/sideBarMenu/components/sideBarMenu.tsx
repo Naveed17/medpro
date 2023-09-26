@@ -9,7 +9,9 @@ import {
     Hidden,
     Toolbar,
     useMediaQuery,
-    Badge
+    Badge,
+    Theme,
+    useTheme,
 } from "@mui/material";
 // utils
 import Icon from "@themes/icon";
@@ -50,11 +52,14 @@ import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
 import {MobileContainer} from "@lib/constants";
+import { AnimatePresence, motion } from "framer-motion";
 
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+    const [currentIndex,setCurrentIndex] = useState<number | null>(null);
     const router = useRouter();
+    const theme = useTheme<Theme>();
     const dispatch = useAppDispatch();
 
     const {data: user} = session as Session;
@@ -97,6 +102,10 @@ function SideBarMenu({children}: LayoutProps) {
             );
         dispatch(toggleMobileBar(true));
     }
+    const iconBackgroundVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+};
 
     const drawer = (
         <div>
@@ -112,16 +121,27 @@ function SideBarMenu({children}: LayoutProps) {
                 </Box>
             </Link>
 
-            <List>
-                {menuItems?.map((item) => (
+            <List component={motion.ul} layout onMouseLeave={() => setCurrentIndex(null)}>
+                {menuItems?.map((item,i) => (
                     <Hidden key={item.name} smUp={item.name === "wallet"}>
-                        <a onClick={() => handleRouting(item.href)}>
+                        <a onClick={(e) => handleRouting(item.href)}>
                             <ListItem
+                            
                                 sx={{
                                     margin: "0.5rem 0",
+                                    
+                                    ...(i === currentIndex && {
+                                      "& svg": {
+                                         transition: "all ease-in 2s",
+                                        "& path": {
+                                            fill: theme.palette.grey[50],
+                                           
+                                        },
+                    },
+                                })
                                 }}
-                                disableRipple
-                                button
+                                
+                                
                                 className={router.pathname === item.href ? "active" : ""}>
                                 <Badge
                                     anchorOrigin={{
@@ -131,7 +151,15 @@ function SideBarMenu({children}: LayoutProps) {
                                     invisible={item.badge === undefined || isMobile}
                                     color="warning"
                                     badgeContent={item.badge}>
-                                    <ListItemIcon>
+                                    <ListItemIcon onMouseEnter={(e) => {
+                                        
+                                        if(router.pathname === item.href){
+                                            e.stopPropagation()
+                                            setCurrentIndex(null)
+                                            return;
+                                        }
+                        
+                                        setCurrentIndex(i)}}>
                                         <Icon path={item.icon}/>
                                     </ListItemIcon>
                                 </Badge>
@@ -147,10 +175,24 @@ function SideBarMenu({children}: LayoutProps) {
                                         }}
                                     />
                                 )}
+                                 <AnimatePresence>
+                           {i === currentIndex && (
+                    <motion.div
+                        className="icon-background"
+                        layoutId="social"
+                        key="social"
+                        variants={iconBackgroundVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="hidden"
+                    />
+                )}
+            </AnimatePresence>
                             </ListItem>
                         </a>
                     </Hidden>
                 ))}
+                
             </List>
             <List className="list-bottom">
                 <ListItem
