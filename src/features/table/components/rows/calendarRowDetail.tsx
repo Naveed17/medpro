@@ -1,5 +1,5 @@
 import {TableRowStyled} from "@features/table";
-import {Theme} from "@mui/material/styles";
+import {alpha, Theme} from "@mui/material/styles";
 import TableCell from "@mui/material/TableCell";
 import {Box, IconButton, Stack, Tooltip, Typography, useTheme} from "@mui/material";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
@@ -68,7 +68,7 @@ function CalendarRowDetail({...props}) {
             <TableRowStyled
                 key={`${index}-${data.id}`}
                 sx={{
-                    bgcolor: (theme: Theme) => theme.palette.background.paper,
+                    bgcolor: (theme: Theme) => data?.payed ? theme.palette.background.paper : alpha(theme.palette.expire.main, 0.2),
                     "&:last-child td, &:last-child th": {borderWidth: 0},
                     "& .first-child": {
                         borderWidth: 0,
@@ -236,24 +236,23 @@ function CalendarRowDetail({...props}) {
                 </TableCell>
                 <TableCell align="center">{config?.name}</TableCell>
                 <TableCell align="right">
-                    {data?.fees && data?.status?.key !== "PENDING" ? <Box>
-                        <Stack direction={"row"}
-                               justifyContent={"flex-end"}
-                               sx={{
-                                   textAlign: "right"
-                               }}
-                               alignItems="center">
-                            <PointOfSaleIcon color="success"/>
-
-                            <Stack direction={"row"}>
-                                {data?.fees === "0" ? "Gratuite" :
-                                    <>
-                                        <Typography variant="body2">{data?.fees}</Typography>
-                                        <Typography ml={.5} variant="body2">{devise}</Typography>
-                                    </>
+                    {data?.restAmount > 0 && data?.status?.key !== "PENDING" ? <Box>
+                        <Label
+                            variant='filled'
+                            sx={{
+                                "& .MuiSvgIcon-root": {
+                                    width: 16,
+                                    height: 16,
+                                    pl: 0
                                 }
-                            </Stack>
-                        </Stack>
+                            }}
+                            color={"expire"}>
+                            <Typography
+                                sx={{
+                                    fontSize: 10,
+                                }}>
+                                {t("credit", {ns: "common"})} {data.restAmount} {devise}</Typography>
+                        </Label>
                     </Box> : "--"}
                 </TableCell>
                 <TableCell align="right" sx={{p: "0px 12px!important"}}>

@@ -9,7 +9,7 @@ interface AppointmentModel {
     globalInstructions: string;
     instruction: string;
     reminder: any[];
-    fees: string;
+    payed: boolean;
     endTime: string;
     status: number;
     duration: number;
