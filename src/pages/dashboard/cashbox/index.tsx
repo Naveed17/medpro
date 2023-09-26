@@ -266,8 +266,8 @@ function Cashbox() {
                         action === "btn_header_2"
                             ? TransactionType[0].value
                             : TransactionType[1].value,
-                    payment_date: sp.date,
-                    payment_time:moment().format('HH:mm'),
+                    payment_date: moment(sp.payment_date).format('DD-MM-YYYY'),
+                    payment_time:moment(sp.payment_date).format('HH:mm'),
                     data: {label: sp.designation, ...sp.data},
                 });
                 amount += sp.amount;

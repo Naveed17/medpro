@@ -170,7 +170,7 @@ function ConsultationInProgress() {
     const {data: httpSheetResponse, mutate: mutateSheetData} = useRequestQuery(agenda && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
+    } : null);
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
@@ -184,7 +184,7 @@ function ConsultationInProgress() {
     const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${sheet?.patient}/preview/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
+    } : null);
 
     const {data: httpPreviousResponse} = useRequestQuery(sheet?.hasHistory && agenda ? {
         method: "GET",
@@ -554,7 +554,6 @@ function ConsultationInProgress() {
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
 
-
     return (
         <>
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
@@ -744,7 +743,6 @@ function ConsultationInProgress() {
                             app_uuid,
                             total,
                             setTotal,
-                            router,
                             devise,
                             t
                         }}/>

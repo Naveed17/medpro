@@ -195,8 +195,6 @@ function CIPPatientHistoryCard({...props}) {
         })
     }
 
-    const debouncedOnChange = debounce(handleOnChange, 2000);
-
     useEffect(() => {
         setHide(closed && !isClose)
     }, [isClose, closed])
@@ -459,7 +457,7 @@ function CIPPatientHistoryCard({...props}) {
                                 onChange={(e, newValue: any) => {
                                     e.stopPropagation();
                                     //handleDiseasesChange(newValue)
-                                    debouncedOnChange("disease", newValue)
+                                    handleOnChange("disease", newValue)
                                 }}
                                 filterOptions={(options, params) => {
                                     const {inputValue} = params;
