@@ -14,7 +14,6 @@ interface PatientPreview {
   requestedImaging: number
   treatments: number
   rest_amount:number
-
   birthdate:string
   gender:string
   idCard:string

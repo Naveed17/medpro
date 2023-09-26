@@ -45,6 +45,7 @@ import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
+import {Label} from "@features/label";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -60,6 +61,7 @@ function Consultation() {
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
+    const {t: commonTranslation} = useTranslation("common");
     const {patient} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);
@@ -181,6 +183,7 @@ function Consultation() {
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
+    console.log("patient", patient);
     return (
         <ConsultationStyled>
             <Box className="header">
@@ -284,6 +287,21 @@ function Consultation() {
                                         {patient?.email}
                                     </Typography>
                                 )}
+
+                                {(patient && (patient?.rest_amount ?? 0) > 0) && <Label
+                                    variant='filled'
+                                    sx={{
+                                        "& .MuiSvgIcon-root": {
+                                            width: 16,
+                                            height: 16,
+                                            pl: 0
+                                        }
+                                    }}
+                                    color={patient.rest_amount > 0 ? "expire" : "success"}>
+                                    <Typography
+                                        sx={{fontSize: 12}}>
+                                        {commonTranslation(patient.rest_amount > 0 ? "credit" : "wallet")} {`${patient.rest_amount > 0 ? '-' : '+'} ${patient.rest_amount}`} {devise}</Typography>
+                                </Label>}
                             </Box>
                         )}
 

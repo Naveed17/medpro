@@ -236,7 +236,7 @@ function CalendarRowDetail({...props}) {
                 </TableCell>
                 <TableCell align="center">{config?.name}</TableCell>
                 <TableCell align="right">
-                    {data?.restAmount > 0 && data?.status?.key !== "PENDING" ? <Box>
+                    {(data?.restAmount > 0 || data?.restAmount < 0) && data?.status?.key !== "PENDING" ? <Box>
                         <Label
                             variant='filled'
                             sx={{
@@ -246,12 +246,12 @@ function CalendarRowDetail({...props}) {
                                     pl: 0
                                 }
                             }}
-                            color={"expire"}>
+                            color={data.restAmount > 0 ? "expire" : "success"}>
                             <Typography
                                 sx={{
                                     fontSize: 10,
                                 }}>
-                                {t("credit", {ns: "common"})} {data.restAmount} {devise}</Typography>
+                                {t(data.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${data.restAmount > 0 ? '-' : '+'} ${data.restAmount}`} {devise}</Typography>
                         </Label>
                     </Box> : "--"}
                 </TableCell>
