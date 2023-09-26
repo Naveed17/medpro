@@ -22,6 +22,7 @@ function AppointmentPopoverCard({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const [height, setHeight] = useState(0)
     const componentRef = useRef<null | HTMLDivElement>(null);
@@ -99,7 +100,7 @@ function AppointmentPopoverCard({...props}) {
                 />
                 <Typography ml={.5} variant={"caption"}>{t("event.online-appointment", {ns: "common"})}</Typography>
             </Stack>}
-            <Stack pl={4} direction="row" alignItems='center'>
+            <Stack pl={4} direction="row" alignItems='center' spacing={.8}>
                 <Label variant='filled'
                        sx={{
                            "& .MuiSvgIcon-root": {
@@ -118,6 +119,22 @@ function AppointmentPopoverCard({...props}) {
                         {AppointmentStatus[data?.status] ? t(`appointment-status.${AppointmentStatus[data.status].key}`, {ns: "common"}) :
                             <Skeleton variant="text" width={100}/>}</Typography>
                 </Label>
+                {data?.restAmount > 0 && <Label
+                    variant='filled'
+                    sx={{
+                        "& .MuiSvgIcon-root": {
+                            width: 16,
+                            height: 16,
+                            pl: 0
+                        }
+                    }}
+                    color={"expire"}>
+                    <Typography
+                        sx={{
+                            fontSize: 10,
+                        }}>
+                        {t("credit", {ns: "common"})} {data.restAmount} {devise}</Typography>
+                </Label>}
             </Stack>
 
             <Stack

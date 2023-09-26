@@ -58,6 +58,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         previousData,
         selectedModel,
         trigger,
+        autoUpdate,
         mutateSheetData,
         url
     } = props;
@@ -90,18 +91,20 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                         setChanges([...changes]);
                     }
                 }}
-                onBlur={(ev: { data: any; }) => {
-                    const form = new FormData();
-                    form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string), ...ev.data}));
-                    form.append("modal_uuid", selectedModel?.default_modal.uuid);
-                    trigger({
-                        method: "PUT",
-                        url,
-                        data: form
-                    }, {
-                        onSuccess: () => mutateSheetData()
-                    });
-                }}
+                {...(autoUpdate && {
+                    onBlur: (ev: { data: any; }) => {
+                        const form = new FormData();
+                        form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string), ...ev.data}));
+                        form.append("modal_uuid", selectedModel?.default_modal.uuid);
+                        trigger({
+                            method: "PUT",
+                            url,
+                            data: form
+                        }, {
+                            onSuccess: () => mutateSheetData()
+                        });
+                    }
+                })}
                 // @ts-ignore
                 submission={{
                     data
@@ -129,6 +132,7 @@ function Widget({...props}) {
         changes,
         expandButton = true,
         setChanges,
+        autoUpdate,
         isClose,
         handleClosePanel,
         previousData,
@@ -354,6 +358,7 @@ function Widget({...props}) {
                                             setChanges,
                                             data,
                                             acts,
+                                            autoUpdate,
                                             setActs,
                                             previousData,
                                             selectedModel,
