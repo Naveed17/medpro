@@ -3,7 +3,6 @@ import {
     Avatar,
     Box,
     Button,
-    Chip,
     IconButton,
     InputBase,
     Skeleton,
@@ -36,7 +35,6 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 import dynamic from "next/dynamic";
-import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import {Label} from "@features/label";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));

@@ -1,13 +1,12 @@
 import {TableRowStyled} from "@features/table";
 import {alpha, Theme} from "@mui/material/styles";
 import TableCell from "@mui/material/TableCell";
-import {Box, IconButton, Stack, Tooltip, Typography, useTheme} from "@mui/material";
+import {Box, Stack, Tooltip, Typography, useTheme} from "@mui/material";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import TimeIcon from "@themes/overrides/icons/time";
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import {differenceInMinutes} from "date-fns";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import React, {useEffect, useState} from "react";
@@ -17,16 +16,13 @@ import {sideBarSelector} from "@features/menu";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {useSession} from "next-auth/react";
-import {useDuplicatedDetect} from "@lib/hooks/rest";
-import {setDuplicated} from "@features/duplicateDetected";
-import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import {SmallAvatar} from "@features/avatar";
 import Zoom from "@mui/material/Zoom";
 
 function CalendarRowDetail({...props}) {
     const {
         index, data, pendingData,
-        spinner, t, handleEvent, mutateAgenda
+        spinner, t, handleEvent
     } = props;
 
     const {data: session} = useSession();

@@ -410,7 +410,6 @@
     "ON_GOING": "On going",
     "FINISHED": "Finished",
     "CANCELED": "Canceled",
-    "PATIENT_CANCELED": "Canceled by patient",
     "EXPIRED": "Expired",
     "PAUSED": "Paused",
     "NOSHOW": "Patient did not show up",
