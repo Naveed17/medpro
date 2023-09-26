@@ -10,7 +10,7 @@ import {differenceInMinutes} from "date-fns";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import React, {useEffect, useState} from "react";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {sideBarSelector} from "@features/menu";
 import {Session} from "next-auth";
@@ -27,8 +27,6 @@ function CalendarRowDetail({...props}) {
 
     const {data: session} = useSession();
     const theme = useTheme();
-    const dispatch = useAppDispatch();
-    //const {duplications} = useDuplicatedDetect({patientId: data?.patient?.uuid});
 
     const {config} = useAppSelector(agendaSelector);
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
