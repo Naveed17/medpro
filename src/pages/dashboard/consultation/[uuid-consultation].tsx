@@ -193,11 +193,11 @@ function ConsultationInProgress() {
 
     // ********** Requests ********** \\
     const getWidgetSize = () => {
-        return isClose ? 1 : closeExam ? 11 : 5
+        return isClose ? 1 : closeExam ? 11 : 6
     }
 
     const getExamSize = () => {
-        return isClose ? 11 : closeExam ? 1 : 7;
+        return isClose ? 11 : closeExam ? 1 : 6;
     }
 
     const showDoc = (card: any) => {
