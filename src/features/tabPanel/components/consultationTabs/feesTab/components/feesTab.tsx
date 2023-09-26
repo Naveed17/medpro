@@ -165,6 +165,7 @@ function FeesTab({...props}) {
             onSuccess: () => mutate()
         });
     }
+
     const editAct = (row: any, from: any) => {
         const act_index = acts.findIndex((act: { uuid: any; }) => act.uuid === row.uuid)
         if (from === 'check')

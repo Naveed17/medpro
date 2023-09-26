@@ -343,12 +343,13 @@ function PaymentRow({...props}) {
                 </TableCell>
                 <TableCell align="center">
                     <Stack direction={"row"} alignItems={"center"} spacing={1} justifyContent={"center"}>
-                        <Typography onClick={(event) => {
-                            event.stopPropagation();
-                            openFeesPopover(event)
-                        }}
-                                    color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
-                                    fontWeight={700}>
+                        <Typography
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                openFeesPopover(event)
+                            }}
+                            color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
+                            fontWeight={700}>
                             {row.rest_amount != 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount}
                             <span
                                 style={{fontSize: 10}}>{devise}</span>
@@ -371,7 +372,7 @@ function PaymentRow({...props}) {
                                 vertical: "top",
                                 horizontal: "right",
                             }}>
-                            <PaymentFeesPopover uuid={row?.appointment.uuid}/>
+                            <PaymentFeesPopover {...{row, t}}/>
                         </Menu>}
 
                         <Stack direction={"row"}>
