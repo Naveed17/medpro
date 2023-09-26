@@ -100,7 +100,7 @@ function AppointmentPopoverCard({...props}) {
                 />
                 <Typography ml={.5} variant={"caption"}>{t("event.online-appointment", {ns: "common"})}</Typography>
             </Stack>}
-            <Stack pl={4} direction="row" alignItems='center' spacing={1}>
+            <Stack pl={4} direction="row" alignItems='center' spacing={.8}>
                 <Label variant='filled'
                        sx={{
                            "& .MuiSvgIcon-root": {
@@ -128,7 +128,7 @@ function AppointmentPopoverCard({...props}) {
                             pl: 0
                         }
                     }}
-                    color={"error"}>
+                    color={"expire"}>
                     <Typography
                         sx={{
                             fontSize: 10,
