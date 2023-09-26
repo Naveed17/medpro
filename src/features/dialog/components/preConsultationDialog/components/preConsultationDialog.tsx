@@ -172,11 +172,12 @@ function PreConsultationDialog({...props}) {
                 </Box>
             </Stack>
 
-            {(models && sheetModal && !loading) && <WidgetForm
+            {(models && Array.isArray(models) && sheetModal && !loading && selectedModel) && <WidgetForm
                 {...{models, changes, setChanges, isClose}}
                 expandButton={false}
                 modal={selectedModel}
                 data={sheetModal.data}
+                autoUpdate={false}
                 appuuid={uuid}
                 setSM={setSelectedModel}
                 handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>}
