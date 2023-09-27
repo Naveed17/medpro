@@ -105,10 +105,10 @@ function SideBarMenu({children}: LayoutProps) {
     }
     const iconBackgroundVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-    transition:{
+    visible: { opacity: 1,transition:{
         duration: 0.1,
-    }
+    } },
+    
 };
 
     const drawer = (
@@ -133,11 +133,7 @@ function SideBarMenu({children}: LayoutProps) {
                                 sx={{
                                     margin: "0.5rem 0",
                                     ...(i === currentIndex && {
-                                      "& svg": {
-                                        "& path": {
-                                            fill: theme.palette.grey[50],      
-                                        },
-                                      },
+                                     
                                 })
                                 }}
                                 
@@ -162,9 +158,9 @@ function SideBarMenu({children}: LayoutProps) {
                                            
                                             {
                                                 i === currentIndex ?  <Fade  in={true} timeout={1000}>
-                                                <div style={{lineHeight:'80%',overflow:'hidden'}}>
+                                                <Box sx={{lineHeight:'80%',overflow:'hidden',}}>
                                                     <Icon path={item.icon} />
-                                                </div>
+                                                </Box>
                                             </Fade> :<Icon path={item.icon} />
                                             }
                                             
