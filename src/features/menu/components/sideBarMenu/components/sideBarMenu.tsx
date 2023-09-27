@@ -12,6 +12,7 @@ import {
     Badge,
     Theme,
     useTheme,
+    Fade,
 } from "@mui/material";
 // utils
 import Icon from "@themes/icon";
@@ -105,6 +106,9 @@ function SideBarMenu({children}: LayoutProps) {
     const iconBackgroundVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1 },
+    transition:{
+        duration: 0.1,
+    }
 };
 
     const drawer = (
@@ -126,18 +130,14 @@ function SideBarMenu({children}: LayoutProps) {
                     <Hidden key={item.name} smUp={item.name === "wallet"}>
                         <a onClick={(e) => handleRouting(item.href)}>
                             <ListItem
-                            
                                 sx={{
                                     margin: "0.5rem 0",
-                                    
                                     ...(i === currentIndex && {
                                       "& svg": {
-                                         transition: "all ease-in 2s",
                                         "& path": {
-                                            fill: theme.palette.grey[50],
-                                           
+                                            fill: theme.palette.grey[50],      
                                         },
-                    },
+                                      },
                                 })
                                 }}
                                 
@@ -151,8 +151,7 @@ function SideBarMenu({children}: LayoutProps) {
                                     invisible={item.badge === undefined || isMobile}
                                     color="warning"
                                     badgeContent={item.badge}>
-                                    <ListItemIcon onMouseEnter={(e) => {
-                                        
+                                    <ListItemIcon  onMouseEnter={(e) => {
                                         if(router.pathname === item.href){
                                             e.stopPropagation()
                                             setCurrentIndex(null)
@@ -160,7 +159,16 @@ function SideBarMenu({children}: LayoutProps) {
                                         }
                         
                                         setCurrentIndex(i)}}>
-                                        <Icon path={item.icon}/>
+                                           
+                                            {
+                                                i === currentIndex ?  <Fade  in={true} timeout={1000}>
+                                                <div style={{lineHeight:'80%',overflow:'hidden'}}>
+                                                    <Icon path={item.icon} />
+                                                </div>
+                                            </Fade> :<Icon path={item.icon} />
+                                            }
+                                            
+                                       
                                     </ListItemIcon>
                                 </Badge>
                                 <ListItemTextStyled primary={t("main-menu." + item.name)}/>
@@ -177,7 +185,7 @@ function SideBarMenu({children}: LayoutProps) {
                                 )}
                                  <AnimatePresence>
                            {i === currentIndex && (
-                    <motion.div
+                        <motion.div
                         className="icon-background"
                         layoutId="social"
                         key="social"

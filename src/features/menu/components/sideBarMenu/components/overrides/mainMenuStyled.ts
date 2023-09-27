@@ -48,6 +48,22 @@ const MainMenuStyled = styled(Box)(({theme}) => ({
             "& .MuiListItem-root": {
                 flexDirection: "column",
                 zIndex:10,
+                "& .MuiListItemIcon-root": {
+                    borderRadius: 10,
+                    maxWidth:37,
+                    maxHeight:39,
+                    overflow:'hidden',
+                    border: "1px solid transparent",
+                    padding: 7,
+                    "& svg": {
+                        width: 22,
+                        "path":{
+                            transition: 'all .5s ease-in-out .2s',
+                            
+                        }
+                    },
+                    
+                },
                 "&.active": {
                     "& .MuiListItemIcon-root": {
                         backgroundColor: theme.palette.primary.main,
@@ -59,15 +75,7 @@ const MainMenuStyled = styled(Box)(({theme}) => ({
                         },
                     },
                 },
-                "& .MuiListItemIcon-root": {
-                    borderRadius: 10,
-                    border: "1px solid transparent",
-                    transition: "all ease-in 0.2s",
-                    padding: 7,
-                    "& svg": {
-                        width: 22,
-                    },
-                },
+                
                 "& .MuiListItemText-root": {
                     "& span": {
                         fontSize: 12,
