@@ -132,9 +132,6 @@ function SideBarMenu({children}: LayoutProps) {
                             <ListItem
                                 sx={{
                                     margin: "0.5rem 0",
-                                    ...(i === currentIndex && {
-                                     
-                                })
                                 }}
                                 
                                 
@@ -158,7 +155,11 @@ function SideBarMenu({children}: LayoutProps) {
                                            
                                             {
                                                 i === currentIndex ?  <Fade  in={true} timeout={1000}>
-                                                <Box sx={{lineHeight:'80%',overflow:'hidden',}}>
+                                                <Box sx={{lineHeight:'80%',overflow:'hidden', "& svg": {
+                                        "& path": {
+                                            fill: theme.palette.grey[50],      
+                                        },
+                                      },}}>
                                                     <Icon path={item.icon} />
                                                 </Box>
                                             </Fade> :<Icon path={item.icon} />
