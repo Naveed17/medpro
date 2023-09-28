@@ -118,17 +118,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             }]
         }}/>
 
-    const justNumbers = (str: string) => {
-        const res = str.match(/\d+$/); // Find the last numeric digit
-        if (str && res) {
-            let numStr = res[0];
-            let num = parseInt(numStr);
-            num++;
-            str = str.replace(/\d+$/, num.toString());
-        }
-        return str;
-    }
-
     const getCheckedDuplications = () => {
         return duplications ? duplications.filter(duplication => (duplication?.checked === undefined || (duplication.hasOwnProperty('checked') && duplication.checked))) : [];
     }
