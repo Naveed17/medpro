@@ -103,7 +103,6 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                         }, {
                             onSuccess: () => {
                                 mutateSheetData()
-                                console.log(mutateSheetData())
                             }
                         });
                     }
@@ -140,7 +139,7 @@ function Widget({...props}) {
         handleClosePanel,
         previousData,
         acts, setActs, selectedModel,
-        url, mutateSheetData
+        url, mutateSheetData,printGlasses
     } = props;
     const router = useRouter();
     const theme = useTheme();
@@ -214,8 +213,7 @@ function Widget({...props}) {
             const ophtalmo = document.getElementById('xxx');
             if (ophtalmo) {
                 const root = ReactDOM.createRoot(ophtalmo);
-                console.log(root)
-                root.render(<OphtPreview/>)
+                root.render(<OphtPreview {...{t,printGlasses}}/>)
             }
         }, 1000)
     }
