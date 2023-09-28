@@ -242,7 +242,6 @@ function PreviewDialog({...props}) {
                             setTitle(state.type == "fees" ? "Note d'honoraires" : "Devis");
                             break;
                         case "glasses":
-                            console.log(el)
                             const prescLine = document.createElement('p');
                             const subTitle = ['sphere', 'cylindre', 'axe']
 
