@@ -94,7 +94,7 @@ function EditMotifDialog({...props}) {
         name: Yup.string()
             .min(3, t("users.new.ntc"))
             .max(50, t("users.new.ntl"))
-            .required(t("users.new.nameReq")),
+            .required(t("users.nameReq")),
     });
 
     const formik = useFormik({
@@ -403,7 +403,12 @@ function EditMotifDialog({...props}) {
                     spacing={2}
                     direction={"row"}>
                     <Button onClick={props.closeDraw}>{t("motif.dialog.cancel")}</Button>
-                    <LoadingButton {...{loading}} type="submit" variant="contained" color="primary">
+                    <LoadingButton
+                        {...{loading}}
+                        disabled={values.name?.length === 0}
+                        type="submit"
+                        variant="contained"
+                        color="primary">
                         {t("motif.dialog.save")}
                     </LoadingButton>
                 </Stack>
