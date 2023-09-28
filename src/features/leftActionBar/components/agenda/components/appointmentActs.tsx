@@ -37,7 +37,7 @@ function AppointmentActs({...props}) {
     }], []) as any[];
 
     return (
-        <FormControl component="form" fullWidth>
+        <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
             <Autocomplete
                 id={"select-act"}
                 disabled={!acts}

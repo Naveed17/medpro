@@ -179,7 +179,10 @@ function PatientFilter({...props}) {
                                     <InputLabel shrink sx={{mt: 2}}>
                                         {t(`${keyPrefix}${lab.label}`)}
                                     </InputLabel>
-                                    <FormControl component="form" fullWidth>
+                                    <FormControl
+                                        component="form"
+                                        fullWidth
+                                        onSubmit={e => e.preventDefault()}>
                                         <TextField
                                             defaultValue={queryState.name}
                                             onChange={(e) => debouncedOnChange(e, lab)}
@@ -248,7 +251,7 @@ function PatientFilter({...props}) {
                                                 }
                                             }}
                                             renderInput={(params) =>
-                                                <FormControl component="form" fullWidth>
+                                                <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
                                                     <TextField {...params} fullWidth/>
                                                 </FormControl>}
                                         />
