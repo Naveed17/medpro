@@ -40,7 +40,7 @@ function AppointmentDisease({...props}) {
     })) as any[] ?? [];
 
     return (
-        <FormControl component="form" fullWidth>
+        <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
             <Autocomplete
                 id={"diseases"}
                 autoHighlight

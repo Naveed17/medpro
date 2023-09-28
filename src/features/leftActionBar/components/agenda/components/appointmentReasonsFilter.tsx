@@ -36,7 +36,7 @@ function AppointmentReasonsFilter({...props}) {
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
 
     return (
-        <FormControl component="form" fullWidth>
+        <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
             <Autocomplete
                 id={"select-reason"}
                 disabled={!reasons}

@@ -89,7 +89,7 @@ function InsuranceFilter({...props}) {
                                 sx={{ml: 1}}>{option.name}</Typography>
                         </MenuItem>)}
                     renderInput={(params) => (
-                        <FormControl component="form" fullWidth>
+                        <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
                             <TextField color={"info"}
                                        {...params}
                                        sx={{paddingLeft: 0}}
