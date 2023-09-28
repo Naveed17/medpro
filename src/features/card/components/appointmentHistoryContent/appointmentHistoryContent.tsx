@@ -18,7 +18,7 @@ function AppointmentHistoryContent({...props}) {
         showDoc,
         mutate,
         appID,
-        appuuid,
+        historyUUID,
         setInfo,
         setState,
         setOpenDialog,
@@ -38,7 +38,7 @@ function AppointmentHistoryContent({...props}) {
     const {trigger: triggerRaEdit} = useRequestQueryMutation("/RA/edit");
     const {data: httpPatientHistory} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/${appuuid}/data/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/${historyUUID}/data/${router.locale}`
     } : null);
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;

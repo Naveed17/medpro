@@ -498,11 +498,12 @@ function AppToolbar({...props}) {
                     setInfo("write_certif");
                     setState({
                         name: `${general_information.firstName} ${general_information.lastName}`,
-                        days: '',
+                        days: 'x',
                         uuid: selectedDialog.state.uuid,
                         content: selectedDialog.state.content,
                         title: selectedDialog.state.title,
-                        patient: `${selectedDialog.state.patient}`
+                        patient: `${selectedDialog.state.patient}`,
+                        documentHeader: selectedDialog.state.documentHeader,
                     });
                     setAnchorEl(null);
                     setOpenDialog(true);

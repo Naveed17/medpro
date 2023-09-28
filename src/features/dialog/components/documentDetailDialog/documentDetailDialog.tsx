@@ -278,6 +278,7 @@ function DocumentDetailDialog({...props}) {
                         break;
                     case "write_certif":
                         setOpenDialog(false);
+
                         dispatch(SetSelectedDialog({
                             action: 'write_certif',
                             state: state,

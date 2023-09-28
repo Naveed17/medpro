@@ -65,7 +65,7 @@ function CertifDialog({...props}) {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     let [oldNote, setOldNote] = useState('');
     const [templates, setTemplates] = useState([]);
-    const [selectedTemplate, setSelectedTemplate] = useState("");
+    const [selectedTemplate, setSelectedTemplate] = useState(data.state.documentHeader ? data.state.documentHeader : "");
 
     const {enqueueSnackbar} = useSnackbar();
 
