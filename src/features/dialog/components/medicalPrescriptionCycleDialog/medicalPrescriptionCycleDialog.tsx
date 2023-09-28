@@ -1215,7 +1215,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 switch (action) {
                                                     case "last-prescription":
                                                         const last: any[] = [];
-                                                        lastPrescriptions[0].prescription[0].prescription_has_drugs.map(
+                                                        lastPrescriptions[0].prescription_has_drugs.map(
                                                             (drug: any) => {
                                                                 last.push({
                                                                     cycles: drug.cycles,
