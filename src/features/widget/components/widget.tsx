@@ -101,10 +101,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                             url,
                             data: form
                         }, {
-                            onSuccess: () => {
-                                mutateSheetData()
-                                console.log(mutateSheetData())
-                            }
+                            onSuccess: () => mutateSheetData()
                         });
                     }
                 })}
@@ -214,7 +211,6 @@ function Widget({...props}) {
             const ophtalmo = document.getElementById('xxx');
             if (ophtalmo) {
                 const root = ReactDOM.createRoot(ophtalmo);
-                console.log(root)
                 root.render(<OphtPreview/>)
             }
         }, 1000)
