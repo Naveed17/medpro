@@ -299,7 +299,7 @@ function Consultation() {
                                     color={patient.rest_amount > 0 ? "expire" : "success"}>
                                     <Typography
                                         sx={{fontSize: 12}}>
-                                        {commonTranslation(patient.rest_amount > 0 ? "credit" : "wallet")} {`${patient.rest_amount > 0 ? '-' : '+'} ${patient.rest_amount}`} {devise}</Typography>
+                                        {commonTranslation(patient.rest_amount > 0 ? "credit" : "wallet")} {`${patient.rest_amount > 0 ? '-' : '+'} ${Math.abs(patient.rest_amount)}`} {devise}</Typography>
                                 </Label>}
                             </Box>
                         )}

@@ -245,7 +245,7 @@ function CalendarRowDetail({...props}) {
                                 sx={{
                                     fontSize: 10,
                                 }}>
-                                {t(data.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${data.restAmount > 0 ? '-' : '+'} ${data.restAmount}`} {devise}</Typography>
+                                {t(data.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${data.restAmount > 0 ? '-' : '+'} ${Math.abs(data.restAmount)}`} {devise}</Typography>
                         </Label>
                     </Box> : "--"}
                 </TableCell>
