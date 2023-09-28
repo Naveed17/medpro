@@ -16,7 +16,7 @@ function useLastPrescription() {
         url: `${urlMedicalEntitySuffix}/patients/${patient?.uuid}/last-prescription/${router.locale}`,
     } : null, {keepPreviousData: true});
 
-    return {lastPrescriptions: [(httpLastPrescriptionsResponse as HttpResponse)?.data] ?? []};
+    return {lastPrescriptions: (httpLastPrescriptionsResponse as HttpResponse)?.data && !Array.isArray((httpLastPrescriptionsResponse as HttpResponse).data) ? [(httpLastPrescriptionsResponse as HttpResponse).data] : []};
 }
 
 export default useLastPrescription;
