@@ -128,6 +128,8 @@ function FcmLayout({...props}) {
                             } else if (data.body.action === "update") {
                                 // update pending notifications status
                                 invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
+                                // refresh on going api
+                                mutateOnGoing();
                             }
                             break;
                         case "waiting-room":

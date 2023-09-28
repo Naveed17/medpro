@@ -15,7 +15,7 @@ import {NoDataCard} from "@features/card";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {setProgress} from "@features/progressUI";
-import {checkNotification, useMedicalEntitySuffix} from "@lib/hooks";
+import {checkNotification, increaseNumberInString, useMedicalEntitySuffix} from "@lib/hooks";
 import {isAppleDevise} from "@lib/hooks/isAppleDevise";
 import {DuplicateDetected, duplicatedSelector, resetDuplicated, setDuplicated} from "@features/duplicateDetected";
 import CloseIcon from "@mui/icons-material/Close";
@@ -117,17 +117,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                 color: "white"
             }]
         }}/>
-
-    const justNumbers = (str: string) => {
-        const res = str.match(/\d+$/); // Find the last numeric digit
-        if (str && res) {
-            let numStr = res[0];
-            let num = parseInt(numStr);
-            num++;
-            str = str.replace(/\d+$/, num.toString());
-        }
-        return str;
-    }
 
     const getCheckedDuplications = () => {
         return duplications ? duplications.filter(duplication => (duplication?.checked === undefined || (duplication.hasOwnProperty('checked') && duplication.checked))) : [];
@@ -274,7 +263,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                 import_data: calendarData.import_data,
                 newCashBox: demo,
                 next: calendarData.next ? calendarData.next : null,
-                last_fiche_id: justNumbers(calendarData.last_fiche_id ? calendarData.last_fiche_id : '0'),
+                last_fiche_id: increaseNumberInString(calendarData.last_fiche_id ? calendarData.last_fiche_id : '0'),
                 ongoing: calendarData.ongoing ? calendarData.ongoing : null
             }));
         }

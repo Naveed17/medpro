@@ -454,12 +454,11 @@ function OnStepPatient({...props}) {
                                     fullWidth
                                     {...getFieldProps("firstName")}
                                     error={Boolean(touched.firstName && errors.firstName)}
-                                    helperText={
-                                        Boolean(touched.firstName && errors.firstName)
-                                            ? String(errors.firstName)
-                                            : undefined
-                                    }
                                 />
+                                {Boolean(touched.firstName && errors.firstName) &&
+                                    <FormHelperText error sx={{maxWidth: "280px"}}>
+                                        {String(errors.firstName)}
+                                    </FormHelperText>}
                             </Grid>
                             <Grid item md={6} xs={12}>
                                 <Typography
@@ -479,12 +478,11 @@ function OnStepPatient({...props}) {
                                     fullWidth
                                     {...getFieldProps("lastName")}
                                     error={Boolean(touched.lastName && errors.lastName)}
-                                    helperText={
-                                        Boolean(touched.lastName && errors.lastName)
-                                            ? String(errors.lastName)
-                                            : undefined
-                                    }
                                 />
+                                {Boolean(touched.lastName && errors.lastName) &&
+                                    <FormHelperText error sx={{maxWidth: "280px"}}>
+                                        {String(errors.lastName)}
+                                    </FormHelperText>}
                             </Grid>
                         </Grid>
                     </Box>
@@ -495,8 +493,7 @@ function OnStepPatient({...props}) {
                                     variant="body2"
                                     color="text.secondary"
                                     gutterBottom
-                                    component="span"
-                                >
+                                    component="span">
                                     {t("telephone")}{" "}
                                     <Typography component="span" color="error">
                                         *
@@ -1205,8 +1202,7 @@ function OnStepPatient({...props}) {
                     pt={1}
                     direction="row"
                     justifyContent="flex-end"
-                    className="action"
-                >
+                    className="action">
                     <Button
                         onClick={() => onClose()}
                         variant="text-black"

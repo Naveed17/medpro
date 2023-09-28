@@ -183,13 +183,13 @@ function AppointmentCard({...props}) {
                             {t(`appointment-status.${data?.status?.key}`)}
                         </Typography>
                     </Label>
-                    <IconButton
-
-                        size="small"
-                        onClick={onEditConsultation}
-                        className="btn-toggle">
-                        <IconUrl path={editConsultation ? "ic-check" : "ic-duotone"}/>
-                    </IconButton>
+                    {(!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && data?.status?.key !== "ON_GOING")) &&
+                        <IconButton
+                            size="small"
+                            onClick={onEditConsultation}
+                            className="btn-toggle">
+                            <IconUrl path={editConsultation ? "ic-check" : "ic-duotone"}/>
+                        </IconButton>}
                 </Stack>
                 <Stack
                     spacing={2}

@@ -254,7 +254,7 @@ function PatientDetailsCard({...props}) {
                                             sx={{
                                                 fontSize: 12,
                                             }}>
-                                            {commonTranslation(rest > 0 ? "credit" : "wallet")} {`${rest > 0 ? '-' : '+'} ${rest}`} {devise}</Typography>
+                                            {commonTranslation(rest > 0 ? "credit" : "wallet")} {`${rest > 0 ? '-' : '+'} ${Math.abs(rest)}`} {devise}</Typography>
                                     </Label>}
                                 </Stack>
                             )}
