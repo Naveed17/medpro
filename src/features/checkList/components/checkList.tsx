@@ -33,7 +33,6 @@ function CheckList({...props}) {
         } else {
             const updatedState = [...state];
             updatedState.splice(index, 1);
-            console.log("updatedState", updatedState);
             setstate(updatedState);
         }
     };
