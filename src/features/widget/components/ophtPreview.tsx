@@ -1,10 +1,11 @@
 import {Autocomplete, Dialog, DialogContent, DialogTitle, Stack, TextField, Typography} from "@mui/material";
 import React, {useState} from "react";
 import OphtTableStyled from "@features/widget/components/overrides/ophtTable";
+import DialogTableStyled from "@features/widget/components/overrides/dialogTableStyle";
 
 export default function OphtPreview({...props}) {
     const subTitle = ['av', 'sphere', 'cylindre', 'axe']
-    const acuiteVisuelle = [
+    const acuiteVisuelle: any = [
         {
             name: "Réfraction subjective",
             lignes: 1,
@@ -47,7 +48,9 @@ export default function OphtPreview({...props}) {
 
     return (
         <Stack spacing={1} direction={"row"}>
-            <OphtTableStyled style={{width: "100%"}} onClick={()=>{setOpen(true)}}>
+            <OphtTableStyled style={{width: "100%"}} onClick={() => {
+                setOpen(true)
+            }}>
                 <tbody>
                 <tr>
                     <td className={"col"}></td>
@@ -57,14 +60,14 @@ export default function OphtPreview({...props}) {
                 <tr>
                     <td className={"col"}></td>
                     {subTitle.map(st => (
-                        <td  className={"subtitle col"} key={`od-${st}`}>{st}</td>
+                        <td className={"subtitle col"} key={`od-${st}`}>{st}</td>
                     ))}
                     {subTitle.map(st => (
                         <td className={"subtitle col"} key={`og-${st}`}>{st}</td>
                     ))}
                 </tr>
 
-                {acuiteVisuelle.map(av => (
+                {acuiteVisuelle.map((av: any) => (
                     <tr key={av.name}>
                         {av.name && <td rowSpan={av.lignes} className={"title col"}>{av.name}</td>}
                         {subTitle.map((od, index) => (
@@ -86,7 +89,7 @@ export default function OphtPreview({...props}) {
             <Dialog
                 open={open}
                 fullWidth
-                onClose={()=>setOpen(false)}
+                onClose={() => setOpen(false)}
                 scroll={"paper"}
                 maxWidth={"lg"}>
                 <DialogTitle style={{
@@ -99,7 +102,7 @@ export default function OphtPreview({...props}) {
                 </DialogTitle>
                 <DialogContent style={{overflow: "hidden"}}>
 
-                    <table style={{width: "100%"}}>
+                    <DialogTableStyled style={{width: "100%"}}>
                         <tbody>
                         <tr>
                             <td className={"col"}></td>
@@ -109,48 +112,54 @@ export default function OphtPreview({...props}) {
                         <tr>
                             <td className={"col"}></td>
                             {subTitle.map(st => (
-                                <td  className={"subtitle col"} key={`od-${st}`}>{st}</td>
+                                <td className={"subtitle col"} key={`od-${st}`}>{st}</td>
                             ))}
                             {subTitle.map(st => (
                                 <td className={"subtitle col"} key={`og-${st}`}>{st}</td>
                             ))}
                         </tr>
 
-                        {acuiteVisuelle.map(av => (
+                        {acuiteVisuelle.map((av: any) => (
                             <tr key={av.name}>
                                 {av.name && <td rowSpan={av.lignes} className={"title col"}>{av.name}</td>}
                                 {subTitle.map((od, index) => (
                                     <td className={"col"} key={`od-${index}`}>
-                                        <Autocomplete
+                                        {av.od[od] !== 'x' ? <Autocomplete
                                             disablePortal
-                                            size={"small"}
+                                            value={av.od[od]}
+                                            placeholder={"-"}
                                             id="combo-box-demo"
-                                            options={["1","2","3"]}
-                                            sx={{ width: 100 }}
-                                            renderInput={(params) => <TextField {...params} label="Movie" />}
-                                        />
+                                            size={"small"}
+                                            freeSolo={true}
+                                            disableClearable={true}
+                                            options={["1", "2", "3"]}
+                                            sx={{width: 70, margin: "5px auto", backgroundColor: "white"}}
+                                            renderInput={(params) => <TextField {...params}/>}
+                                        /> : <Typography className={"center"}>-</Typography>}
                                     </td>
                                 ))}
 
                                 {subTitle.map((og, index) => (
                                     <td className={"col"} key={`og-${index}`}>
-                                        <Autocomplete
-                                            disablePortal
-                                            value={av.og[og]}
-                                            placeholder={"-"}
-                                            id="combo-box-demo"
-                                            size={"small"}
-                                            freeSolo={true}
-                                            options={["1","2","3"]}
-                                            sx={{ width: 100 }}
-                                            renderInput={(params) => <TextField {...params} />}
-                                        />
+                                        {
+                                            av.og[og] !== 'x' ? <Autocomplete
+                                                disablePortal
+                                                value={av.og[og]}
+                                                placeholder={"-"}
+                                                id="combo-box-demo"
+                                                size={"small"}
+                                                freeSolo={true}
+                                                disableClearable={true}
+                                                options={["1", "2", "3"]}
+                                                sx={{width: 70, margin: "5px auto", backgroundColor: "white"}}
+                                                renderInput={(params) => <TextField {...params}/>}
+                                            /> : <Typography className={"center"}>-</Typography>}
                                     </td>
                                 ))}
                             </tr>
                         ))}
                         </tbody>
-                    </table>
+                    </DialogTableStyled>
 
                 </DialogContent>
             </Dialog>

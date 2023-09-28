@@ -23,14 +23,14 @@
     "years": "Ans",
     "months": "Mois",
     "days": "Jours",
-    "reason": "Motif de consultation",
+    "reason": "Motif",
     "date": "Date du RDV",
     "register": "Enregistrer",
     "cancel": "Annuler"
   },
   "add-appointment": {
     "book-a-slot": "Réservez un créneau",
-    "reason-consultation": "Motif de consultation",
+    "reason-consultation": "Motif",
     "practitioner": "Praticien",
     "affect-des": "Choose the practitioner who affects this consultation",
     "time-slot": "Créneau horaire",
@@ -51,7 +51,7 @@
     "description": ""
   },
   "config": {
-    "reason_for_consultation": "Motif de consultation",
+    "reason_for_consultation": "Motif",
     "acts": "Acte",
     "disease": "Maladie",
     "insurance": "Assurances",
@@ -75,7 +75,7 @@
       "delete_patient_data": "Supprimer le patient"
     },
     "tabs": {
-      "personal-info": "Informations personnelles",
+      "personal-info": "Informations",
       "additional-information": "Informations supplémentaires",
       "notes": "Notes",
       "fin": "Fin",
@@ -98,7 +98,7 @@
       "photo": "Photo",
       "video": "video",
       "audio": "Audio",
-      "history": "Fiche d'historique",
+      "history": "Historique",
       "quotes": "Devis"
     },
     "no-data": {
@@ -158,7 +158,7 @@
       "created-by": "créé par"
     },
     "add-patient": {
-      "personal-info": "Informations personnelles",
+      "personal-info": "Informations",
       "additional-information": "Informations supplémentaires",
       "fin": "Fin",
       "group": "Groupe",
@@ -337,7 +337,7 @@
       "type": "Type",
       "next-appointment": "Prochain rendez-vous",
       "last-appointment": "Dernier rendez-vous",
-      "reasons": "Motif de consultation",
+      "reasons": "Motif",
       "status": "Statut",
       "fiche_id": "Fiche patient",
       "fiche": "Numéro fiche",
