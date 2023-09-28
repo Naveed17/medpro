@@ -348,7 +348,7 @@ function AppToolbar({...props}) {
                             days: state.days,
                             name: "certif",
                             type: "write_certif",
-                            documentHeader:state.documentHeader
+                            documentHeader: state.documentHeader
                         });
                         setOpenDialog(true);
                         setActions(false);
@@ -438,6 +438,10 @@ function AppToolbar({...props}) {
                 setInfo("add_a_document");
                 setState({name: "", description: "", type: "", files: []});
                 break;
+            case "insurance_document_print":
+                setInfo("insurance_document_print");
+                setState(patient);
+                break;
             case "record":
                 startRecord()
                 break;
@@ -450,7 +454,7 @@ function AppToolbar({...props}) {
         }
         setAnchorEl(null);
         setOpenDialog(true);
-        setActions(true);
+        setActions(action !== "insurance_document_print");
     };
 
     useEffect(() => {
@@ -516,9 +520,7 @@ function AppToolbar({...props}) {
 
     return (
         <>
-
             <AppToolbarStyled minHeight="inherit" width={1}>
-
                 {isMobile && <Stack direction={"row"} mt={2} justifyContent={"space-between"} alignItems={"center"}>
                     {patient && <Stack onClick={() => setPatientShow()} direction={"row"} alignItems={"center"} mb={1}>
                         <Zoom>
@@ -663,6 +665,7 @@ function AppToolbar({...props}) {
                             }
                         </Button>
                         <StyledMenu
+                            {...{open, anchorEl}}
                             id="basic-menu"
                             elevation={0}
                             anchorOrigin={{
@@ -673,8 +676,34 @@ function AppToolbar({...props}) {
                                 vertical: "top",
                                 horizontal: "right",
                             }}
-                            anchorEl={anchorEl}
-                            open={open}
+                            slotProps={{
+                                paper: {
+                                    elevation: 0,
+                                    sx: {
+                                        overflow: 'visible',
+                                        filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
+                                        mt: 1.5,
+                                        '& .MuiAvatar-root': {
+                                            width: 32,
+                                            height: 32,
+                                            ml: -0.5,
+                                            mr: 1,
+                                        },
+                                        '&:before': {
+                                            content: '""',
+                                            display: 'block',
+                                            position: 'absolute',
+                                            top: 0,
+                                            right: 14,
+                                            width: 10,
+                                            height: 10,
+                                            bgcolor: 'text.primary',
+                                            transform: 'translateY(-50%) rotate(45deg)',
+                                            zIndex: 0,
+                                        },
+                                    },
+                                }
+                            }}
                             onClose={handleClose}
                             MenuListProps={{
                                 "aria-labelledby": "basic-button",
@@ -704,7 +733,7 @@ function AppToolbar({...props}) {
                     action={info}
                     open={openDialog}
                     data={{appuuid: app_uuid, state, setState, t, setOpenDialog}}
-                    size={info === "add_vaccin" ? "sm" : "xl"}
+                    size={["add_vaccin", "insurance_document_print"].includes(info) ? "sm" : "xl"}
                     direction={"ltr"}
                     sx={{height: 400}}
                     {...(info === "document_detail" && {

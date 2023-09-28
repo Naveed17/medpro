@@ -16,6 +16,10 @@ export const documentButtonList = [
         label: "balance_sheet_request",
     },
     {
+        icon: "ic-export",
+        label: "insurance_document_print",
+    },
+    {
         icon: "ic-dowlaodfile",
         label: "upload_document",
     },

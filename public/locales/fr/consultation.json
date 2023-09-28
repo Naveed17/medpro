@@ -110,6 +110,7 @@
   "requestedAnalyses": "Demande bilan",
   "requestedPrescription": "Ordonnance médicale",
   "balance_sheet_request": "Analyse",
+  "insurance_document_print": "Documents assurance",
   "imMedAI": "Bonjour, je suis MedAI, vous voulez mon avis ?",
   "yes": "Oui",
   "wait": "quelques instants...",
