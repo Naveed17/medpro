@@ -101,9 +101,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                             url,
                             data: form
                         }, {
-                            onSuccess: () => {
-                                mutateSheetData()
-                            }
+                            onSuccess: () => mutateSheetData()
                         });
                     }
                 })}

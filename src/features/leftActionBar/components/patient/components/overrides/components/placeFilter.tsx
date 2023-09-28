@@ -146,7 +146,7 @@ function PlaceFilter({...props}) {
                     </Box>
                 )}
                 renderInput={(params) => (
-                    <FormControl component="form" fullWidth>
+                    <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
                         <TextField
                             {...params}
                             placeholder={t(`${keyPrefix}country-placeholder`)}
@@ -182,7 +182,7 @@ function PlaceFilter({...props}) {
                     </Box>
                 )}
                 renderInput={(params) => (
-                    <FormControl component="form" fullWidth>
+                    <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
                         <TextField
                             {...params}
                             placeholder={t(`${keyPrefix}city-placeholder`)}

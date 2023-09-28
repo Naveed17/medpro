@@ -95,6 +95,7 @@
       "name-error": "Le nom doit contenir au moins 3 caractères, sans caractères spéciaux.",
       "first-name": "Prénom",
       "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
+      "special-text-error": "Seuement les alphabets sont autorisés pour ce champ.",
       "first-name-placeholder": "Tapez le prénom du patient",
       "last-name": "Nom",
       "last-name-error": "Le nom de famille doit contenir au moins 3 caractères, sans caractères spéciaux.",
