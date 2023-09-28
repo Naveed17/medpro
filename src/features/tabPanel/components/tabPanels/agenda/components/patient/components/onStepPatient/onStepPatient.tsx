@@ -121,7 +121,7 @@ function OnStepPatient({...props}) {
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
     const {last_fiche_id} = useAppSelector(dashLayoutSelector);
-
+    console.log("last_fiche_id", last_fiche_id);
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
             .min(3, t("first-name-error"))
@@ -1202,8 +1202,7 @@ function OnStepPatient({...props}) {
                     pt={1}
                     direction="row"
                     justifyContent="flex-end"
-                    className="action"
-                >
+                    className="action">
                     <Button
                         onClick={() => onClose()}
                         variant="text-black"

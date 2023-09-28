@@ -11,8 +11,8 @@ import {AutoCompleteButton} from "@features/buttons";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
+import {dashLayoutSelector, setOngoing} from "@features/base";
+import {useMedicalEntitySuffix, prepareInsurancesData, increaseNumberInString} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
@@ -105,6 +105,8 @@ function Patient({...props}) {
                 if (status === "success") {
                     if (!selectedPatient) {
                         dispatch(setAppointmentPatient(patientData.data));
+                        // mutate last id after creation
+                        dispatch(setOngoing({last_fiche_id: increaseNumberInString(patientData.data.fiche_id)}));
                     }
                     setAddPatient(false);
                     handleAddPatient && handleAddPatient(false);
