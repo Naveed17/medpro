@@ -7,9 +7,9 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ChatMsg} from "@features/ChatMsg";
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import moment from "moment-timezone";
 import {Player} from "@lottiefiles/react-lottie-player";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {Session} from "next-auth";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -19,12 +19,16 @@ function ChatDiscussionDialog({...props}) {
     const {
         app_uuid,
         setOpenChat,
+        setOpenDialog,
+        session,
         setInfo,
         setState,
-        patient,
-        router,
-        setOpenDialog
+        patient
     } = data
+
+    const {data: user} = session as Session;
+    const general_information = (user as UserDataResponse).general_information;
+
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const listRef = useRef<any>();
 
@@ -45,82 +49,11 @@ function ChatDiscussionDialog({...props}) {
     ]
 
     const {trigger: triggerChat} = useRequestQueryMutation("/chat/ai");
-    const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
     const {data: httpChatResponse} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/patients/${patient}/chat`
+        url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/chat`
     }, ReactQueryNoValidateConfig);
-    /*
-        const msgGenerator = (todo: string) => {
-            let msg = '';
-            if (medicalProfessionalData) {
-                const name = medicalProfessionalData[0].medical_professional.publicName;
-                msg = `${name}, ${t('chat.im')} ${medicalProfessionalData[0]?.medical_professional.specialities[0].speciality.name}, ${t('chat.mypatient')} ${appointment.patient.firstName} ${appointment.patient.lastName}`;
-                if (appointment.patient.birthdate)
-                    msg += ` ${getBirthdayFormat(appointment.patient, t).trim()} `;
-                if (appointment.patient.gender)
-                    msg += ` ${t('chat.sexe')} ${appointment.patient.gender === 'F' ? t('chat.feminine') : t('chat.male')}`;
 
-                msg += ` ${t('chat.date')} ${appointment.day_date}`
-                if (exam.motif.length > 0) {
-                    msg += ` ${t('chat.reason')} ${reasons.find((reason: {
-                        uuid: any;
-                    }) => reason.uuid === exam.motif[0]).name}` //UUID
-                }
-                if (localStorage.getItem("Modeldata" + app_uuid) !== null) {
-                    let txtModel = ''
-                    const models = JSON.parse(localStorage.getItem("Modeldata" + app_uuid) as string);
-                    Object.keys(models).forEach(key => {
-                        if (models[key])
-                            txtModel += ` ${key}=${models[key]}`;
-                    })
-                    if (txtModel.length > 0) msg += ` ${t('chat.with')} ${txtModel}`
-                }
-
-                if (exam.notes)
-                    msg += `. ${t('chat.observation')}: ${exam.notes}`
-                if (exam.diagnosis)
-                    msg += `. ${t('chat.diagnostic')}: ${exam.diagnosis}`
-                if (exam.disease && exam.disease.length > 0) {
-                    msg += ` ${t('chat.disease')}:`
-                    exam.disease.forEach(((disease: string) => msg += ` ${disease},`))
-                }
-                if (Object.keys(patientAntecedent).length > 0) {
-                    msg += ` .${t('chat.antecedents')}`
-                    Object.keys(patientAntecedent).forEach(antecedent => {
-                        msg += `-${antecedent}: (`
-                        patientAntecedent[antecedent].forEach((pa: { name: any; }) => {
-                            msg += ` ${pa.name},`
-                        })
-                        msg = msg.replace(/.$/, ")")
-                    })
-                }
-                if (appointment.patient.treatment.length > 0) {
-                    msg += ` ${t('chat.treatment')}:`
-                    appointment.patient.treatment.forEach((treatment: { name: any; }) => msg += ` -${treatment.name}`)
-                }
-                if (appointment.patient.requestedAnalyses.length > 0) {
-                    msg += `. ${t('chat.analyses')}:`
-                    appointment.patient.requestedAnalyses.forEach((analyse: { hasAnalysis: any[]; }) => {
-                        analyse.hasAnalysis.forEach(ha => {
-                            msg += ` -${ha.analysis.name}`
-                        })
-                    })
-                }
-                if (appointment.patient.requestedImaging.length > 0) {
-                    msg += `. ${t('chat.mi')}:`
-                    appointment.patient.requestedImaging?.forEach((ri: { [x: string]: any[]; }) => {
-                        ri['medical-imaging']?.forEach(mi => {
-                            msg += ` - ${mi['medical-imaging'].name}`
-                        })
-                    })
-                }
-                msg += `.${todo} (sachant que, Votre réponse en Html dont chaque phrase dans une balise p et le contenu ne doit contient aucune information sur le patient ne sera divulguée pour respecter sa confidentialité et avec la langue francaises seulement. )`
-            }
-
-            return msg;
-        }
-    */
     const sendToAI = (todo: string, short: string, msg: {
         from: string,
         to: string,
@@ -154,37 +87,18 @@ function ChatDiscussionDialog({...props}) {
         setText('');
     }
     const saveDoc = (msg: { text: string; short: string; }) => {
-        const form = new FormData();
-
-        form.append("content", msg.text);
-        form.append("title", msg.short);
-
-        triggerDocumentChat({
-            method: "POST",
-            url: `${urlMedicalEntitySuffix}/appointments/${app_uuid}/certificates/${router.locale}`,
-            data: form
-        }, {
-            onSuccess: (r: any) => {
-                const res = (r?.data as HttpResponse).data;
-                setInfo("document_detail");
-                setState({
-                    certifUuid: res.uuid,
-                    uuid: res.uuid,
-                    content: msg.text,
-                    doctor: '',
-                    patient: null,
-                    birthdate: '',
-                    cin: '',
-                    createdAt: moment().format('DD/MM/YYYY'),
-                    description: "",
-                    title: msg.short,
-                    days: '',
-                    name: "certif",
-                    type: "write_certif",
-                });
-                setOpenDialog(true);
-            }
+        setOpenDialog(true)
+        setInfo("write_certif");
+        setState({
+            name: `${general_information.firstName} ${general_information.lastName}`,
+            days: '',
+            content: msg.text,
+            title: msg.short,
+            patient: `${patient.firstName} ${patient.lastName}`,
+            brithdate: `${patient.birthdate}`,
+            cin: patient.idCard ? `${patient.idCard}` : ""
         });
+
     }
 
     useEffect(() => {

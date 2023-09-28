@@ -180,6 +180,7 @@ function HistoryTab({...props}) {
                                         setOpenDialog,
                                         session,
                                         patient,
+                                        historyUUID: app.uuid,
                                         t
                                     }}/>
                                 </Collapse>}

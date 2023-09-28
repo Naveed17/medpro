@@ -134,7 +134,7 @@ function PatientFile({...props}) {
                         <Text style={styles.info}>{patientData?.contact[0].code} {patientData?.contact[0].value}</Text>}
 
                     <View style={styles.separator}></View>
-                    <Text style={styles.subtitle}>Informations personnelles</Text>
+                    <Text style={styles.subtitle}>Informations</Text>
                     {
                         patientData?.address && patientData?.address.length > 0 && <View>
                             <Text style={styles.header}>Adresse</Text>

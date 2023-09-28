@@ -21,7 +21,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ConsultationDetailCard, PendingDocumentCard, resetTimer, timerSelector} from "@features/card";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
-import {useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {tabs} from "@features/toolbar/components/appToolbar/config";
 import {alpha, Theme} from "@mui/material/styles";
@@ -56,6 +56,8 @@ import {Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useWidgetModels} from "@lib/hooks/rest";
 import {batch} from "react-redux";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 
 function ConsultationInProgress() {
     const theme = useTheme();
@@ -90,6 +92,8 @@ function ConsultationInProgress() {
     const {trigger: triggerNotificationPush} = useRequestQueryMutation("notification/push");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
     const {trigger: triggerUsers} = useRequestQueryMutation("users/get");
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -166,11 +170,16 @@ function ConsultationInProgress() {
         setSelectedTab(newValue)
     }
 
+    useLeavePageConfirm(() => {
+        mutateSheetData()
+        mutatePatient()
+    });
+
     // ********** Requests ********** \\
     const {data: httpSheetResponse, mutate: mutateSheetData} = useRequestQuery(agenda && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
-    } : null);
+    } : null, ReactQueryNoValidateConfig);
 
     const sheet = (httpSheetResponse as HttpResponse)?.data;
     const sheetExam = sheet?.exam;
@@ -184,7 +193,7 @@ function ConsultationInProgress() {
     const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${sheet?.patient}/preview/${router.locale}`
-    } : null);
+    } : null, ReactQueryNoValidateConfig);
 
     const {data: httpPreviousResponse} = useRequestQuery(sheet?.hasHistory && agenda ? {
         method: "GET",
@@ -193,11 +202,16 @@ function ConsultationInProgress() {
 
     // ********** Requests ********** \\
     const getWidgetSize = () => {
-        return isClose ? 1 : closeExam ? 11 : 5
+        return isClose ? 1 : closeExam ? 11 : 6
     }
 
     const getExamSize = () => {
-        return isClose ? 11 : closeExam ? 1 : 7;
+        return isClose ? 11 : closeExam ? 1 : 6;
+    }
+
+    const mutateDoc = () => {
+        const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
+        invalidateQueries([docUrl])
     }
 
     const showDoc = (card: any) => {
@@ -206,6 +220,7 @@ function ConsultationInProgress() {
             type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
         if (card.documentType === "medical-certificate") {
             setInfo("document_detail");
+
             setState({
                 uuid: card.uuid,
                 certifUuid: card.certificate[0].uuid,
@@ -223,9 +238,9 @@ function ConsultationInProgress() {
                 detectedType: card.type,
                 name: "certif",
                 type: "write_certif",
-                documentHeader: card.certificate[0].documentHeader
-                /*mutate: mutateDoc,
-                mutateDetails: mutate*/
+                documentHeader: card.certificate[0].documentHeader,
+                mutate: mutateDoc,
+                mutateDetails: mutatePatient
             });
             setOpenDialog(true);
         } else {
@@ -259,8 +274,8 @@ function ConsultationInProgress() {
                 patient: `${type} ${
                     patient?.firstName
                 } ${patient?.lastName}`,
-                /*mutate: mutateDoc,
-                mutateDetails: mutate*/
+                mutate: mutateDoc,
+                mutateDetails: mutatePatient
             });
             setOpenDialog(true);
         }
@@ -492,6 +507,45 @@ function ConsultationInProgress() {
         setActions(true);
     }
 
+    const handleSaveCertif = () => {
+
+        const form = new FormData();
+
+        form.append("content", state.content);
+        form.append("title", state.title);
+
+        triggerDocumentChat({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/appointments/${app_uuid}/certificates/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: (r: any) => {
+                mutateDoc()
+                const res = (r?.data as HttpResponse).data;
+                setInfo("document_detail");
+                setState({
+                    certifUuid: res.uuid,
+                    uuid: res.uuid,
+                    content: state.content,
+                    doctor: '',
+                    patient: state.patient,
+                    birthdate: state.birthdate,
+                    cin: '',
+                    createdAt: moment().format('DD/MM/YYYY'),
+                    description: "",
+                    title: state.title,
+                    days: '',
+                    name: "certif",
+                    type: "write_certif",
+                    documentHeader: state.documentHeader,
+
+                });
+                setOpenDialog(true);
+            }
+        });
+
+    }
+
     useEffect(() => {
         if (httpPreviousResponse) {
             const data = (httpPreviousResponse as HttpResponse).data;
@@ -533,7 +587,7 @@ function ConsultationInProgress() {
     }, [tableState.patientId]);
 
     useEffect(() => {
-        if (switchTab && selectedTab === "consultation_form")
+        if (switchTab)
             mutateSheetData()
         setSwitchTab(true)
     }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -812,8 +866,8 @@ function ConsultationInProgress() {
                         setOpenChat(false)
                     }}>
                     <ChatDiscussionDialog data={{
-                        session, app_uuid, setOpenChat, patient: sheet?.patient,
-                        setInfo, setOpenDialog, router, setState
+                        session, app_uuid, setOpenChat, patient: {...patient, uuid: sheet?.patient},
+                        setInfo, setOpenDialog, router, setState, mutateDoc
                     }}/>
                 </Drawer>
 
@@ -946,6 +1000,22 @@ function ConsultationInProgress() {
                     {...(info !== "secretary_consultation_alert" && {dialogClose: handleCloseDialog})}
                     {...(actions && {
                         actionDialog: <DialogAction/>,
+                    })}
+                    {...(info === 'write_certif' && {
+                        actionDialog: (
+                            <Stack sx={{width: "100%"}} direction={"row"} justifyContent={"flex-end"}>
+                                <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
+                                    {t("cancel")}
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    onClick={handleSaveCertif}
+                                    disabled={info.includes("medical_prescription") && state.length === 0}
+                                    startIcon={<SaveRoundedIcon/>}>
+                                    {t("save")}
+                                </Button>
+                            </Stack>
+                        )
                     })}
                 />
             )}
