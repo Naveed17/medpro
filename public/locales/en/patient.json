@@ -182,6 +182,7 @@
       "name-error": "The name must contain at least 3 characters, without special characters.",
       "first-name": "First Name",
       "first-name-error": "The first name must contain at least 3 characters, without special characters.",
+      "special-text-error": "Only alphabets are allowed for this field.",
       "first-name-placeholder": "Enter the patient's first name",
       "last-name": "Last Name",
       "last-name-error": "The last name must contain at least 3 characters, without special characters.",

@@ -12,6 +12,7 @@ interface Qualifications {
             month: string;
             year: string;
         };
+        old: string;
         phones: [{
             phone: string;
             dial: {

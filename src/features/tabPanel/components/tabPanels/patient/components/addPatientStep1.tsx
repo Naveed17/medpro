@@ -86,10 +86,12 @@ function AddPatientStep1({...props}) {
         first_name: Yup.string()
             .min(3, t("first-name-error"))
             .max(50, t("first-name-error"))
+            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
             .required(t("first-name-error")),
         last_name: Yup.string()
             .min(3, t("last-name-error"))
             .max(50, t("last-name-error"))
+            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
             .required(t("last-name-error")),
         phones: Yup.array().of(
             Yup.object().shape({
@@ -119,6 +121,7 @@ function AddPatientStep1({...props}) {
     });
 
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
             picture: selectedPatient
                 ? {url: selectedPatient.photo, file: ""}
@@ -130,25 +133,25 @@ function AddPatientStep1({...props}) {
             last_name: selectedPatient
                 ? selectedPatient.lastName
                 : stepsData.step1.last_name,
-            old: "",
-            birthdate: selectedPatient?.birthdate && {
+            old: stepsData.step1.old,
+            birthdate: selectedPatient?.birthdate ? {
                 day: selectedPatient.birthdate.split("-")[0] as string,
                 month: selectedPatient.birthdate.split("-")[1] as string,
                 year: selectedPatient.birthdate.split("-")[2] as string,
+            } : stepsData.step1.birthdate.day !== "" && {
+                day: stepsData.step1.birthdate.day,
+                month: stepsData.step1.birthdate.month,
+                year: stepsData.step1.birthdate.year
             },
             phones: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
                 [
                     {
                         phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone").value,
                         dial: doctor_country,
-                    },
+                    }
                 ]
-                : [
-                    {
-                        phone: "",
-                        dial: doctor_country,
-                    },
-                ],
+                : stepsData.step1.phones
+            ,
             gender: selectedPatient
                 ? selectedPatient.gender === "M"
                     ? "1"
