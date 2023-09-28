@@ -119,7 +119,7 @@ function AppointmentPopoverCard({...props}) {
                         {AppointmentStatus[data?.status] ? t(`appointment-status.${AppointmentStatus[data.status].key}`, {ns: "common"}) :
                             <Skeleton variant="text" width={100}/>}</Typography>
                 </Label>
-                {data?.restAmount > 0 && <Label
+                {(data?.restAmount > 0 || data?.restAmount < 0) && <Label
                     variant='filled'
                     sx={{
                         "& .MuiSvgIcon-root": {
@@ -128,12 +128,12 @@ function AppointmentPopoverCard({...props}) {
                             pl: 0
                         }
                     }}
-                    color={"expire"}>
+                    color={data.restAmount > 0 ? "expire" : "success"}>
                     <Typography
                         sx={{
                             fontSize: 10,
                         }}>
-                        {t("credit", {ns: "common"})} {data.restAmount} {devise}</Typography>
+                        {t(data.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${data.restAmount > 0 ? '-' : '+'} ${Math.abs(data.restAmount)}`} {devise}</Typography>
                 </Label>}
             </Stack>
 

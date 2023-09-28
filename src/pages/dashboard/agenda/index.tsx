@@ -1196,7 +1196,7 @@ function Agenda() {
                     }}
                     PaperProps={{
                         sx: {
-                            minWidth: "29vw",
+                            minWidth: "35vw",
                             maxWidth: "30rem",
                         }
                     }}>

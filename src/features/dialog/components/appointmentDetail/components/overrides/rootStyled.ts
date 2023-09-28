@@ -11,6 +11,9 @@ const RootStyled = styled(Paper)(({theme}) => ({
         color: theme.palette.primary.main,
         fontSize: 16,
     },
+    "& .edit-button": {
+        marginLeft: 4
+    },
     "& .MuiAppBar-root": {
         border: "none",
         borderBottom: `1px solid ${theme.palette.divider}`,
