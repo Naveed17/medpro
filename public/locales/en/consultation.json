@@ -553,6 +553,22 @@
     "save": "Save",
     "title": "Tooth Treatment",
     "subtitle": "Click on the desired tooth and select the acts",
-    "note": "Note"
+    "note": "Note",
+
+    "rightEye": "Right eye",
+    "leftEye": "Left eye",
+    "av": "Av",
+    "sphere": "Sphere",
+    "cylindre": "Cylinder",
+    "axe": "Axis",
+    "refSub": "Subjective refraction",
+    "cl": "Correction from afar",
+    "cp": "Correction of meadows",
+    "pf": "Final prescription",
+    "len": "Lenses",
+    "ac": "Visual acuity",
+    "pg": "Prescription glasses"
+
+
   }
 }

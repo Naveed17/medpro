@@ -17,7 +17,7 @@ const WidgetForm: any = memo(
             expandButton, previousData, selectedModel,
             url,
             autoUpdate = true,
-            acts, setActs, setSelectedAct, selectedAct, setSelectedUuid, mutateSheetData
+            acts, setActs, setSelectedAct, selectedAct, setSelectedUuid, mutateSheetData,printGlasses
         } = props;
 
         return (
@@ -40,7 +40,7 @@ const WidgetForm: any = memo(
                     previousData,
                     closed,
                     selectedModel,
-                    url
+                    url,printGlasses
                 }}
                 setModal={setSM}
                 mutateSheetData={mutateSheetData}

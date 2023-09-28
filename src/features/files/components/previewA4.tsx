@@ -241,6 +241,62 @@ function PreviewDialog({...props}) {
                             pageX.appendChild(FeesLine)
                             setTitle(state.type == "fees" ? "Note d'honoraires" : "Devis");
                             break;
+                        case "glasses":
+                            const prescLine = document.createElement('p');
+                            const subTitle = ['sphere', 'cylindre', 'axe']
+
+                            let od = ""; let og = ""
+                            let odp = ""; let ogp = ""
+
+                            subTitle.map(key => {
+                                od += `${key} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
+                                og += `${key} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
+                                odp += `${key} : ${el.pfp[0].od[key] ? el.pfp[0].od[key] : ' - '}  `;
+                                ogp += `${key} : ${el.pfp[0].og[key] ? el.pfp[0].og[key] : ' - '}   `
+                            })
+
+                            rows = [
+                                {
+                                    value: `Vision de loin`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0}
+                                },
+                                {
+                                    value: `• OD : ${od}`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0, marginLeft:30}
+                                },
+                                {
+                                    value: `• OG : ${og}`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0}
+                                },
+
+                                {
+                                    value: `Vision de près`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0}
+                                },
+                                {
+                                    value: `• OD : ${odp}`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0}
+                                },
+                                {
+                                    value: `• OG : ${ogp}`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0}
+                                }
+                            ]
+                            pageX.appendChild(prescLine)
+
+                            setTitle("Ordonnance lunette");
                     }
                 } else {
                     const elx = document.createElement('p');
@@ -324,15 +380,15 @@ function PreviewDialog({...props}) {
             }
             updatedPages.push({page: i, content: el})
         }
-/*
-        for(let i = 0; i < nbPages; i++){
-            let p = document.getElementById(`page${i}`)
-            if(p) {
-                p.style.height = "0";
-                document.body.removeChild(p)
-            }
-        }
-*/
+        /*
+                for(let i = 0; i < nbPages; i++){
+                    let p = document.getElementById(`page${i}`)
+                    if(p) {
+                        p.style.height = "0";
+                        document.body.removeChild(p)
+                    }
+                }
+        */
         setPages(updatedPages);
     }
 
