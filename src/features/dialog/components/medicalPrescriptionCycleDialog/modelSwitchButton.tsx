@@ -44,8 +44,7 @@ function ModelSwitchButton({...props}) {
                 variant="contained"
                 disableElevation
                 onClick={handleClick}
-                endIcon={<KeyboardArrowDownIcon/>}
-            >
+                endIcon={<KeyboardArrowDownIcon/>}>
                 <Typography>{t('model_prescription')}</Typography>
             </Button>
             <StyledMenu
