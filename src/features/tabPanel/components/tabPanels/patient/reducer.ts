@@ -4,7 +4,7 @@ import AddPatient from "@interfaces/AddPatient";
 import {DefaultCountry} from "@lib/constants";
 
 export type MenuState = {
-    openUploadDialog:boolean;
+    openUploadDialog: boolean;
     stepsData: AddPatient;
 };
 
@@ -21,6 +21,7 @@ export const initialPatientState: MenuState = {
                 month: "",
                 year: "",
             },
+            old: "",
             phones: [{
                 phone: "",
                 dial: DefaultCountry
