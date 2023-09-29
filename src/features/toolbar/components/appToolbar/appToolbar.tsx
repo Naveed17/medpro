@@ -454,7 +454,7 @@ function AppToolbar({...props}) {
         }
         setAnchorEl(null);
         setOpenDialog(true);
-        setActions(action !== "insurance_document_print");
+        setActions(true);
     };
 
     useEffect(() => {
@@ -783,18 +783,17 @@ function AppToolbar({...props}) {
                                        spacing={1.2}
                                        {...(info === "medical_prescription_cycle" && {
                                            mt: {xs: 1, md: 0}
-                                       })}
-                                >
+                                       })}>
                                     <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                         {t("cancel")}
                                     </Button>
-                                    <Button
+                                    {info !== "insurance_document_print" && <Button
                                         variant="contained"
                                         onClick={handleSaveDialog}
                                         disabled={info.includes("medical_prescription") && state.length === 0}
                                         startIcon={<SaveRoundedIcon/>}>
                                         {t("save")}
-                                    </Button>
+                                    </Button>}
                                 </Stack>
                             </Stack>
                         ) : null

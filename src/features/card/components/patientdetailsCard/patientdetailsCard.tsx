@@ -249,11 +249,7 @@ function PatientDetailsCard({...props}) {
                                             }
                                         }}
                                         color={rest > 0 ? "expire" : "success"}>
-                                        <Typography
-                                            fontWeight={700} component='strong'
-                                            sx={{
-                                                fontSize: 12,
-                                            }}>
+                                        <Typography sx={{fontSize: 12}}>
                                             {commonTranslation(rest > 0 ? "credit" : "wallet")} {`${rest > 0 ? '-' : '+'} ${Math.abs(rest)}`} {devise}</Typography>
                                     </Label>}
                                 </Stack>
