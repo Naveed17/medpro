@@ -1,6 +1,9 @@
 import {styled} from "@mui/material";
 
 const TreeStyled = styled('div')(({theme}) => ({
+    height: "100%",
+    overflow: "scroll",
+    maxHeight: "350px",
     ul: {
         listStyle: "none"
     },
@@ -9,10 +12,6 @@ const TreeStyled = styled('div')(({theme}) => ({
     },
     "& .root": {
         padding: 0
-    },
-    "& .app": {
-        height: "100%",
-
     },
     "& .treeRoot": {
         height: "100%"
