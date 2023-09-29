@@ -249,15 +249,15 @@ function PreviewDialog({...props}) {
                             let odp = ""; let ogp = ""
 
                             subTitle.map(key => {
-                                od += `${key} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
-                                og += `${key} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
-                                odp += `${key} : ${el.pfp[0].od[key] ? el.pfp[0].od[key] : ' - '}  `;
-                                ogp += `${key} : ${el.pfp[0].og[key] ? el.pfp[0].og[key] : ' - '}   `
+                                od += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
+                                og += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
+                                odp += `${t(key)} : ${el.pfp[0].od[key] ? el.pfp[0].od[key] : ' - '}  `;
+                                ogp += `${t(key)} : ${el.pfp[0].og[key] ? el.pfp[0].og[key] : ' - '}   `
                             })
 
                             rows = [
                                 {
-                                    value: `Vision de loin`,
+                                    value: t('farvision'),
                                     name: "name",
                                     element: "p",
                                     style: {marginBottom: 0}
@@ -276,7 +276,7 @@ function PreviewDialog({...props}) {
                                 },
 
                                 {
-                                    value: `Vision de près`,
+                                    value: t('nearvision'),
                                     name: "name",
                                     element: "p",
                                     style: {marginBottom: 0}
