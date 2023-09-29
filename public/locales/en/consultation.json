@@ -567,8 +567,14 @@
     "pf": "Final prescription",
     "len": "Lenses",
     "ac": "Visual acuity",
-    "pg": "Prescription glasses"
-
-
+    "pg": "Prescription glasses",
+    "ophtalmologiqueExam": "Ophthalmological Examination",
+    "pachymetry": "Pachymetry  ( 445->645 )",
+    "measuredTO": "Measured TO ( 0->70)",
+    "annexes": "Annexes",
+    "sa": "SA",
+    "fluo": "Fluo",
+    "fo": "FO",
+    "tocorrected": "TO corrected"
   }
 }
