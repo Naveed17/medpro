@@ -57,7 +57,6 @@ function CertifDialog({...props}) {
     const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
-    const [models, setModels] = useState<CertifModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
     const [openRemove, setOpenRemove] = useState(false);
     const [selected, setSelected] = useState<any>();
@@ -203,7 +202,6 @@ function CertifDialog({...props}) {
                     data: model
                 });
             });
-            setModels(template.reverse())
             setTreeData([...ParentModels.map((model: any) => ({
                 id: "1",
                 isDefault: model.parent === null,
