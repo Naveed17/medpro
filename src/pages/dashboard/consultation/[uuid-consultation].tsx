@@ -58,6 +58,7 @@ import {useWidgetModels} from "@lib/hooks/rest";
 import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import {sideBarSelector} from "@features/menu";
 
 function ConsultationInProgress() {
     const theme = useTheme();
@@ -82,6 +83,7 @@ function ConsultationInProgress() {
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
+    const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
 
     const {data: user} = session as Session;
     const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData[0].medical_professional.uuid;
@@ -202,11 +204,11 @@ function ConsultationInProgress() {
 
     // ********** Requests ********** \\
     const getWidgetSize = () => {
-        return isClose ? 0.9 : closeExam ? 11.1 : 6
+        return isClose ? 0.9 : closeExam ? (sideBarOpened ? 11.1 : 11.3) : 6
     }
 
     const getExamSize = () => {
-        return isClose ? 11.1 : closeExam ? 0.9 : 6;
+        return isClose ? 11.1 : closeExam ? (sideBarOpened ? 0.9 : 0.7) : 6;
     }
 
     const mutateDoc = () => {
@@ -545,7 +547,7 @@ function ConsultationInProgress() {
         });
     }
 
-    const printGlasses = (info: any) =>{
+    const printGlasses = (info: any) => {
         setInfo("document_detail");
         setState({
             type: "glasses",
