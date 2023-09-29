@@ -2,7 +2,7 @@ import PaperStyled from "./overrides/paperStyled";
 import React from "react";
 import PatientHistoryCardStyled
     from "@features/card/components/patientHistoryCard/components/overrides/PatientHistoryCardStyle";
-import {CardContent, IconButton, Stack, Typography, useMediaQuery} from "@mui/material";
+import {CardContent, Chip, IconButton, Stack, Typography, useMediaQuery} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {capitalize} from "lodash";
 import moment from "moment";
@@ -12,7 +12,7 @@ import {Theme} from "@mui/material/styles";
 import {useRouter} from "next/router";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useAppSelector} from "@lib/redux/hooks";
-
+import CircleIcon from '@mui/icons-material/Circle';
 function AppointmentHistoryPreview({...props}) {
     const {children,app, appuuid,dispatch, t} = props;
 
@@ -59,6 +59,7 @@ function AppointmentHistoryPreview({...props}) {
                         )}
                     </Typography>}
                     <Stack ml="auto" direction={"row"} spacing={1} alignItems={"center"}>
+                        <Chip icon={<CircleIcon style={{color:`${app.type.color}`}}/>} size={"small"} label={app.type.name} color={"info"}/>
                         <Typography
                             variant="body2"
                             color="text.secondary"

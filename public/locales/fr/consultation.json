@@ -564,6 +564,20 @@
     "save": "Enregistrer",
     "title": "Traitement des dents",
     "subtitle": "Cliquez sur la dent souhaitée et sélectionnez les actes",
-    "note": "Note"
+    "note": "Note",
+
+    "rightEye": "Oeil droite",
+    "leftEye": "Oeil gauche",
+    "av": "Av",
+    "sphere": "Sphère",
+    "cylindre": "Cylindre",
+    "axe": "Axe",
+    "refSub": "Réfraction subjective",
+    "cl": "Correction de loin",
+    "cp": "Correction de prés",
+    "pf": "Prescription finale",
+    "len": "Lentille",
+    "ac": "Acuité visuelle",
+    "pg": "Ordonnance lunette"
   }
 }

@@ -1,6 +1,8 @@
 import {styled} from "@mui/material/styles";
 
 const DialogTableStyled = styled("table")(({theme}) => ({
+    tableLayout: "fixed",
+    width: "100%",
     "& .MuiAutocomplete-root": {
         "& .MuiOutlinedInput-root.MuiInputBase-sizeSmall": {
             padding: 0
@@ -10,11 +12,17 @@ const DialogTableStyled = styled("table")(({theme}) => ({
         }
     },
     "& tr": {
-         background: "#eeeff2"
+        // background: "#eeeff2"
     },
     "& .title": {
+        fontSize: 11,
+        fontWeight: "bold",
+        margin: 5
+    },
+    "& .tt": {
         fontSize: 14,
-        fontWeight: "bold"
+        textAlign: "center",
+        margin: 5,
     },
     "& .center": {
         textAlign: "center"
@@ -28,10 +36,10 @@ const DialogTableStyled = styled("table")(({theme}) => ({
         fontSize: 12,
         textAlign: "center"
     },
-    /*"& .col": {
-        border: "1px dashed black",
+    "& .col": {
+        border: "1px solid #80808030",
     },
-    borderCollapse: "collapse"*/
+    borderCollapse: "collapse"
 
 }));
 export default DialogTableStyled;

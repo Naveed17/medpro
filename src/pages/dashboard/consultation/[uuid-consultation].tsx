@@ -543,7 +543,18 @@ function ConsultationInProgress() {
                 setOpenDialog(true);
             }
         });
+    }
 
+    const printGlasses = (info: any) =>{
+        setInfo("document_detail");
+        setState({
+            type: "glasses",
+            name: "glasses",
+            info,
+            createdAt: moment().format("DD/MM/YYYY"),
+            patient: ` ${patient?.firstName} ${patient?.lastName}`,
+        });
+        setOpenDialog(true);
     }
 
     useEffect(() => {
@@ -722,7 +733,8 @@ function ConsultationInProgress() {
                                             closed: closeExam,
                                             setSM: setSelectedModel,
                                             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
-                                            mutateSheetData
+                                            mutateSheetData,
+                                            printGlasses
                                         }}
                                         handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
                                 )}
