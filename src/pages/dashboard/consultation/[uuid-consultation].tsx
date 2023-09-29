@@ -716,7 +716,7 @@ function ConsultationInProgress() {
                                     <Skeleton variant="rounded" width={"100%"}
                                               sx={{height: {xs: "30vh", md: "40.3rem"}}}/>
                                 </CardContent>}
-                                {!loading && models && Array.isArray(models) && models.length > 0 && selectedModel && (
+                                {!loading && models && Array.isArray(models) && models.length > 0 && selectedModel && patient && (
                                     <WidgetForm
                                         {...{
                                             models,

@@ -9,15 +9,16 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import OphtTableStyled from "@features/widget/components/overrides/ophtTable";
 import DialogTableStyled from "@features/widget/components/overrides/dialogTableStyle";
-import {defaultValues} from "@features/widget/components/overrides/defaultValues";
+import {defaultValues, impact} from "@features/widget/components/overrides/defaultValues";
 import IconUrl from "@themes/urlIcon";
+import SaveIcon from '@mui/icons-material/Save';
 
 export default function OphtPreview({...props}) {
 
-    let {t, printGlasses} = props
+    let {t, printGlasses, appuuid, url, triggerAppointmentEdit} = props
     const subTitle = ['av', 'sphere', 'cylindre', 'axe']
 
     const [acuiteVisuelle, setAcuiteVisuelle] = useState([
@@ -64,8 +65,28 @@ export default function OphtPreview({...props}) {
             og: {av: "x", sphere: "", cylindre: "", axe: ""},
         },
     ]);
+    const [examination, setExamination] = useState([
+        {name: "sa", od: "", og: ""},
+        {name: "fluo", od: "", og: ""},
+        {name: "fo", od: "", og: ""},
+        {name: "annexes", od: "", og: ""},
+        {name: "measuredTO", od: "", og: ""},
+        {name: "pachymetry", od: "", og: ""},
+        {name: "tocorrected", od: "", og: ""},
+    ]);
+
     const [open, setOpen] = useState(false);
     const [selectedEl, setSelectedEl] = useState<any>(null);
+    const [selectedExam, setSelectedExam] = useState<any>(null);
+
+    useEffect(() => {
+        const local = localStorage.getItem(`Modeldata${appuuid}`);
+        const res = local ? JSON.parse(local) : null;
+        if (res && res.eyes) {
+            res.eyes.acuiteVisuelle && setAcuiteVisuelle(res.eyes.acuiteVisuelle);
+            res.eyes.examination && setExamination(res.eyes.examination);
+        }
+    }, [localStorage.getItem(`Modeldata${appuuid}`)])
 
     const getOptions = (el: string, from: string) => {
         let res = []
@@ -77,7 +98,34 @@ export default function OphtPreview({...props}) {
     }
 
     return (
-        <Stack spacing={1} direction={"row"}>
+        <Stack spacing={1}>
+            <Typography color={"primary"}
+                        fontSize={13}
+                        textAlign={"center"}>{t('ophtalmologiqueExam')}</Typography>
+
+            <OphtTableStyled style={{width: "100%"}} onClick={() => {
+                setOpen(true)
+            }}>
+                <tbody>
+                <tr>
+                    <td className={"col"}></td>
+                    <td className={"title center col"}>{t('rightEye')}</td>
+                    <td className={"title center col"}>{t('leftEye')}</td>
+                </tr>
+                {examination.map((ex: any) => (
+                    <tr key={ex.name}>
+                        <td className={"title col"}>{t(ex.name)}</td>
+                        <td className={"center"}>{ex.od ? ex.od : "-"}</td>
+                        <td className={"center"}>{ex.og ? ex.og : "-"}</td>
+                    </tr>
+                ))}
+                </tbody>
+            </OphtTableStyled>
+
+            <Typography color={"primary"}
+                        fontSize={13}
+                        textAlign={"center"}>{t('ac')}</Typography>
+
             <OphtTableStyled style={{width: "100%"}} onClick={() => {
                 setOpen(true)
             }}>
@@ -116,6 +164,21 @@ export default function OphtPreview({...props}) {
                 </tbody>
             </OphtTableStyled>
 
+            <Stack direction={"row"} marginBottom={5} justifyContent={"flex-end"}>
+                <Button size={"small"} color={"primary"}
+                        onClick={() => {
+                            printGlasses([{
+                                    pfl: acuiteVisuelle.filter(av => av.ref === "pf"),
+                                    pfp: acuiteVisuelle.filter(av => av.ref === "pfp")
+                                }]
+                            )
+                        }}
+                        startIcon={<IconUrl path="ic-imprime"/>}>
+                    <Typography
+                        style={{textTransform: "initial", color: "#0796d6", fontSize: 12}}>{t('pg')}</Typography>
+                </Button>
+            </Stack>
+
             <Dialog
                 open={open}
                 fullWidth
@@ -130,9 +193,73 @@ export default function OphtPreview({...props}) {
                     {'title'}
                     <Typography fontSize={12} style={{color: "rgb(115, 119, 128)"}}>{'subtitle'}</Typography>
                 </DialogTitle>
-                <DialogContent style={{overflow: "hidden"}}>
+                <DialogContent>
 
-                    <Typography style={{marginBottom: 8}}>{t('ac')}</Typography>
+                    <Typography color={"primary"} style={{marginBottom: 8}}>{t('ophtalmologiqueExam')}</Typography>
+
+                    <DialogTableStyled style={{width: "100%"}}
+                                       onClick={() => {
+                                           setOpen(true)
+                                       }}>
+                        <tbody>
+                        <tr>
+                            <td className={"col"}></td>
+                            <td className={"col"}><Typography className={"tt"}>{t('rightEye')}</Typography></td>
+                            <td className={"col"}><Typography className={"tt"}>{t('leftEye')}</Typography></td>
+                        </tr>
+                        {examination.map((ex: any, index) => (
+                            <tr key={ex.name}>
+                                <td className={"col"}><Typography className={"title"}>{t(ex.name)}</Typography></td>
+                                <td className={"center col"}>
+                                    <TextField size={"small"}
+                                               style={{width: "95%", margin: 5}}
+                                               placeholder={'-'}
+                                               inputProps={{
+                                                   style: {
+                                                       textAlign: 'center',
+                                                       padding: 5,
+                                                       background: "white"
+                                                   }
+                                               }}
+                                               onChange={(e) => {
+                                                   let _examination = [...examination]
+                                                   _examination[index].od = e.target.value;
+
+                                                   if (index === 4 || index === 5)
+                                                       if (_examination[4].od && _examination[5].od) {
+                                                           const res = impact.find(i => i.pachymetry === _examination[5].od);
+                                                           if (res && res.correction)
+                                                               _examination[6].od = (parseInt(_examination[4].od) + res.correction).toString()
+                                                       }
+
+                                                   setExamination([..._examination])
+                                               }}
+                                               value={ex.od}/>
+                                </td>
+                                <td className={"center col"}>
+                                    <TextField size={"small"}
+                                               style={{width: "95%", margin: 5}}
+                                               placeholder={'-'}
+                                               inputProps={{
+                                                   style: {
+                                                       textAlign: 'center',
+                                                       padding: 5,
+                                                       background: "white"
+                                                   }
+                                               }}
+                                               onChange={(e) => {
+                                                   let _examination = [...examination]
+                                                   _examination[index].og = e.target.value;
+                                                   setExamination([..._examination])
+                                               }}
+                                               value={ex.og}/>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </DialogTableStyled>
+
+                    <Typography color={"primary"} style={{marginBottom: 8, marginTop: 20}}>{t('ac')}</Typography>
                     <DialogTableStyled style={{width: "100%"}}>
                         <tbody>
                         <tr>
@@ -217,25 +344,47 @@ export default function OphtPreview({...props}) {
                         </tbody>
                     </DialogTableStyled>
                     <Stack direction={"row"} marginTop={1} justifyContent={"flex-end"}>
-                        <Button size={"small"}
-                                onClick={() => {
-                                    printGlasses([{
-                                            pfl: acuiteVisuelle.filter(av => av.ref === "pf"),
-                                            pfp: acuiteVisuelle.filter(av => av.ref === "pfp")
-                                        }]
-                                    )
-                                }}
-                                startIcon={<IconUrl path="ic-imprime"/>}>
-                            <Typography color={theme => theme.palette.primary.main}>{t('pg')}</Typography>
-                        </Button>
+
                     </Stack>
                 </DialogContent>
-
                 <DialogActions style={{borderTop: "1px solid #eeeff1"}}>
-                    <Button onClick={() => {
-                        setOpen(false)
-                    }
-                    }>{t('save')}</Button>
+
+                    <Button size={"small"} color={"primary"}
+                            onClick={() => {
+                                printGlasses([{
+                                        pfl: acuiteVisuelle.filter(av => av.ref === "pf"),
+                                        pfp: acuiteVisuelle.filter(av => av.ref === "pfp")
+                                    }]
+                                )
+                            }}
+                            startIcon={<IconUrl path="ic-imprime"/>}>
+                        <Typography>{t('pg')}</Typography>
+                    </Button>
+
+                    <Button variant="contained"
+                            onClick={() => {
+                                setOpen(false)
+                                const data = localStorage.getItem(`Modeldata${appuuid}`)
+                                let res = data ? JSON.parse(data) : {};
+                                res = {
+                                    ...res, eyes: {
+                                        acuiteVisuelle,
+                                        examination
+                                    }
+                                }
+
+                                localStorage.setItem("Modeldata" + appuuid, JSON.stringify(res));
+
+                                const form = new FormData();
+                                form.append("modal_data", JSON.stringify(res));
+                                triggerAppointmentEdit({
+                                    method: "PUT",
+                                    url,
+                                    data: form
+                                })
+
+                            }}
+                            startIcon={<SaveIcon/>}>{t('save')}</Button>
                 </DialogActions>
             </Dialog>
         </Stack>
