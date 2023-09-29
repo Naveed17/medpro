@@ -5,18 +5,15 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import LocalPrintshopOutlinedIcon from '@mui/icons-material/LocalPrintshopOutlined';
-import {Avatar, Button, IconButton, ListSubheader, Stack, Typography} from "@mui/material";
+import {Avatar, IconButton, ListSubheader, Typography} from "@mui/material";
 import {ImageHandler} from "@features/image";
 import React, {useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
-import {configSelector, dashLayoutSelector} from "@features/base";
-import CloseIcon from "@mui/icons-material/Close";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {Dialog} from "@features/dialog";
-import {Document} from "react-pdf";
+import {dashLayoutSelector} from "@features/base";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function InsuranceDocumentPrint({...props}) {
     const {data: {appuuid, state: patient}} = props;
@@ -25,9 +22,9 @@ function InsuranceDocumentPrint({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {direction} = useAppSelector(configSelector);
 
     const [file, setFile] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     const {trigger: triggerInsuranceDocs} = useRequestQueryMutation("consultation/insurances/document");
 
     const docInsurances = insurances?.filter(insurance => (insurance?.documents ?? []).length > 0) ?? [];
@@ -38,6 +35,7 @@ function InsuranceDocumentPrint({...props}) {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/${appuuid}/insurance-document/${insuranceDocument}/${router.locale}`,
         }, {
             onSuccess: (result: any) => {
+                setLoading(false);
                 const document = result?.data as any;
                 setFile(`data:application/pdf;base64,${document}`);
             }
@@ -63,11 +61,17 @@ function InsuranceDocumentPrint({...props}) {
                             primary={<Typography fontWeight={700} component='strong'>{insurance.name}</Typography>}/>
                         <ListItemIcon sx={{display: "contents"}}>
                             <IconButton
+                                disabled={loading}
                                 onClick={e => {
+                                    setLoading(true);
                                     e.stopPropagation();
                                     insurance.documents && generateInsuranceDoc(insurance.documents[0]?.uuid);
                                 }} size="small">
-                                <LocalPrintshopOutlinedIcon/>
+                                {loading ?
+                                    <CircularProgress
+                                        size={20}
+                                        color="inherit"/> :
+                                    <LocalPrintshopOutlinedIcon/>}
                             </IconButton>
                         </ListItemIcon>
                     </ListItemButton>
