@@ -266,6 +266,11 @@
     "preview": "Aperçu",
     "models": "Modeles",
     "after": "puis",
+    "sphere": "Sphère",
+    "cylindre": "Cylindre",
+    "axe": "Axe",
+    "farvision": "Vision de loin",
+    "nearvision": "Vision de près",
     "name_of_drug": "Nom du médicament",
     "switch_ui_classic": "Revenir à l'interface utilisateur classique",
     "ui_classic": "IU classique",
@@ -578,6 +583,15 @@
     "pf": "Prescription finale",
     "len": "Lentille",
     "ac": "Acuité visuelle",
-    "pg": "Ordonnance lunette"
+    "pg": "Génerer ordonnance lunette",
+    "ophtalmologiqueExam": "Examen Ophtalmologique",
+
+    "pachymetry": "Pachymétrie  ( 445->645 )",
+    "measuredTO": "TO mesurée ( 0->70)",
+    "annexes": "Annexes",
+    "sa": "SA",
+    "fluo": "Fluo",
+    "fo": "FO",
+    "tocorrected": "TO corrigée"
   }
 }

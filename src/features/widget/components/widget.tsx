@@ -208,10 +208,10 @@ function Widget({...props}) {
                 }}/>)
             }
 
-            const ophtalmo = document.getElementById('xxx');
+            const ophtalmo = document.getElementById('opht');
             if (ophtalmo) {
                 const root = ReactDOM.createRoot(ophtalmo);
-                root.render(<OphtPreview {...{t,printGlasses}}/>)
+                root.render(<OphtPreview {...{t,printGlasses,appuuid,url,triggerAppointmentEdit}}/>)
             }
         }, 1000)
     }
@@ -221,7 +221,18 @@ function Widget({...props}) {
     const handleClick = (prop: ModalModel) => {
         modal.default_modal = prop;
         setModal(modal);
+
         setDefaultModal(prop);
+
+        const form = new FormData();
+        form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string)}));
+        form.append("modal_uuid", modal?.default_modal.uuid);
+        triggerAppointmentEdit({
+            method: "PUT",
+            url,
+            data: form
+        })
+
         localStorage.setItem(
             `Model-${appuuid}`,
             JSON.stringify({
