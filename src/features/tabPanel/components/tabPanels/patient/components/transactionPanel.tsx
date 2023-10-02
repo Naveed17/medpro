@@ -160,7 +160,7 @@ function TransactionPanel({...props}) {
         });
     }
 
-    const rows = (httpTransactionsResponse as HttpResponse)?.data?.transactions?.reverse() ?? [];
+    const rows = (httpTransactionsResponse as HttpResponse)?.data?.transactions ?? [];
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
 
     return (
@@ -189,10 +189,10 @@ function TransactionPanel({...props}) {
                     </Button>
                     <Button size='small'
                             variant='contained'
-                            color={"error"}>
+                            color={-1 * rest > 0 ? "success" : "error"}>
                         {t("credit")}
                         <Typography fontWeight={700} component='strong'
-                                    mx={1}>- {rest}</Typography>
+                                    mx={1}> {-1 * rest}</Typography>
                         {devise}
                     </Button>
 
