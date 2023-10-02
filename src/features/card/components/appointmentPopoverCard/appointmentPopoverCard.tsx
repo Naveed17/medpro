@@ -5,7 +5,7 @@ import RootStyled from "./overrides/rootStyled";
 // utils
 import CallIcon from "@mui/icons-material/Call";
 import IconUrl from "@themes/urlIcon";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState,useLayoutEffect} from "react";
 import {Label} from "@features/label";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -24,29 +24,33 @@ function AppointmentPopoverCard({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
-    const [height, setHeight] = useState(0)
+    const [height, setHeight] = useState(120)
     const componentRef = useRef<null | HTMLDivElement>(null);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (componentRef.current) {
             setHeight(componentRef.current.clientHeight)
         }
-    }, []);
-
+    }, [data]);
     return (
         <RootStyled sx={style} ref={componentRef}>
             <Box className={"badge"}
                  sx={{
                      background: data?.type?.color,
-                     width: height - 9
+                     width: height - 10
                  }}>
                 <Typography
                     color="text.primary"
                     fontWeight={400}
                     textAlign="center"
                     noWrap
+                     {...(!data as any && {
+                            sx:{
+                               width: height - 18
+                            }
+                        })}
                     fontSize={12}>
-                    {data?.type?.name ?? <Skeleton variant="rectangular" width={height + 9}/>}
+                    {data?.type?.name ?? <Skeleton variant="rectangular" width={height}/>}
                 </Typography>
             </Box>
             {data?.hasErrors?.map((error: string, index: number) => (
