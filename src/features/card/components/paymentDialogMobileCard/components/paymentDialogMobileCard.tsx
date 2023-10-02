@@ -33,7 +33,7 @@ function PaymentMobileCard({ ...props }) {
                         <Stack className="date-time" direction='row' spacing={.5} alignItems="center">
                             <Icon path="ic-agenda"/>
                             <Typography variant="body2">
-                                {moment(data.payment_date,'DD-MM-YYYY HH:mm').format('DD-MM-YYYY')}
+                                {data.payment_date}
                             </Typography>
                         </Stack>
                         <Typography
