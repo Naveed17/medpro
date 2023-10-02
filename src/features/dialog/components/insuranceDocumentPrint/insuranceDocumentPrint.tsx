@@ -14,6 +14,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import CircularProgress from "@mui/material/CircularProgress";
+import {PDFDocument} from 'pdf-lib';
 
 function InsuranceDocumentPrint({...props}) {
     const {data: {appuuid, state: patient}} = props;
@@ -34,10 +35,36 @@ function InsuranceDocumentPrint({...props}) {
             method: "GET",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/${appuuid}/insurance-document/${insuranceDocument}/${router.locale}`,
         }, {
-            onSuccess: (result: any) => {
+            onSuccess: async (result: any) => {
                 setLoading(false);
+                //const merger = new PDFMerger();
+                const pdfDoc = await PDFDocument.create();
                 const document = result?.data as any;
-                setFile(`data:application/pdf;base64,${document}`);
+                //const generatedDoc = new Blob([atob(document)], {type: 'application/pdf'}); // Create a BLOB object
+                const docUpdated = await fetch(`data:application/pdf;base64,${document}`).then((res) => res.arrayBuffer());
+                const cnam = await fetch('/static/files/cnam.pdf').then((res) => res.arrayBuffer());
+                const firstDonorPdfDoc = await PDFDocument.load(cnam)
+                const [CNAMDocP1] = await pdfDoc.copyPages(firstDonorPdfDoc, [0]);
+                const [CNAMDocP2] = await pdfDoc.copyPages(firstDonorPdfDoc, [1]);
+                const [cnamPatientInfoP1] = await pdfDoc.embedPdf(docUpdated, [0]);
+                const [cnamPatientInfoP2] = await pdfDoc.embedPdf(docUpdated, [1]);
+                const page1 = pdfDoc.addPage(CNAMDocP1);
+                page1.drawPage(cnamPatientInfoP1, {x: 0, y: 0, width: 841, height: 595});
+                const page2 = pdfDoc.addPage(CNAMDocP2);
+                page2.drawPage(cnamPatientInfoP2, {x: 0, y: 0, width: 841, height: 595});
+                const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
+                setFile(mergedPdf);
+
+                /*fetch('/static/files/cnam.pdf').then(response => {
+                    response.blob().then(async blob => {
+                        // Creating new object of PDF file
+                        await merger.add(blob);
+                        await merger.add(generatedDoc);
+                        const mergedPdf = await merger.saveAsBlob();
+                        setFile(URL.createObjectURL(mergedPdf));
+                    })
+                })*/
+
             }
         });
     }

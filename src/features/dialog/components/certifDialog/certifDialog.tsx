@@ -3,8 +3,8 @@ import React, {useEffect, useState} from "react";
 import {
     Box,
     Button,
-    Checkbox,
-    DialogActions,
+    Checkbox, Dialog,
+    DialogActions, DialogContent, DialogTitle,
     FormControlLabel,
     Grid,
     List,
@@ -23,7 +23,7 @@ import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition"
 import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
-import {Dialog as CustomDialog} from "@features/dialog";
+import {Dialog as CustomDialog, setParentModel} from "@features/dialog";
 import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
@@ -35,6 +35,8 @@ import TreeStyled from "@features/dialog/components/medicalPrescriptionCycleDial
 import {CustomDragPreview, CustomNode} from "@features/treeView";
 import {DndProvider} from "react-dnd";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import IconUrl from "@themes/urlIcon";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -66,6 +68,9 @@ function CertifDialog({...props}) {
     const [selectedTemplate, setSelectedTemplate] = useState(data.state.documentHeader ? data.state.documentHeader : "");
     const [initialOpenData, setInitialOpenData] = useState<any[]>([]);
     const [treeData, setTreeData] = useState<any[]>([]);
+    const [openAddParentDialog, setOpenAddParentDialog] = useState(false);
+    const [parentModelName, setParentModelName] = useState<string>("");
+    const [loading, setLoading] = useState(false);
 
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
@@ -77,13 +82,17 @@ function CertifDialog({...props}) {
 
     const {trigger: triggerModelsCreate} = useRequestQueryMutation("/certif-models/create");
     const {trigger: triggerModelsUpdate} = useRequestQueryMutation("/certif-models/update");
+    const {trigger: triggerModelParent} = useRequestQueryMutation("consultation/certif-models/parent");
 
     const {data: httpModelResponse, mutate: mutateModel} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpParentModelResponse, mutate: mutateParentModel} = useRequestQuery(httpModelResponse && urlMedicalProfessionalSuffix ? {
+    const {
+        data: httpParentModelResponse,
+        mutate: mutateParentModel
+    } = useRequestQuery(httpModelResponse && urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modal-folders/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -175,6 +184,25 @@ function CertifDialog({...props}) {
         });
     }
 
+    const handleAddParentModel = () => {
+        setLoading(true);
+        const form = new FormData();
+        form.append("name", parentModelName);
+        triggerModelParent({
+            method: "POST",
+            url: `${urlMedicalProfessionalSuffix}/certificate-modal-folders/${router.locale}`,
+            data: form,
+        }, {
+            onSuccess: () => {
+                mutateParentModel().then((result: any) => {
+                    setOpenAddParentDialog(false);
+                    setParentModelName("");
+                });
+            },
+            onSettled: () => setLoading(false)
+        });
+    }
+
     const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
 
     }
@@ -202,12 +230,12 @@ function CertifDialog({...props}) {
                     data: model
                 });
             });
-            setTreeData([...ParentModels.map((model: any) => ({
-                id: "1",
-                isDefault: model.parent === null,
+            setTreeData([...ParentModels.map((model: any, index: number) => ({
+                id: (++index).toString(),
+                isDefault: model.name === "Default",
                 parent: 0,
                 droppable: true,
-                text: model.parent === null ? "Répertoire par défaut" : model.name
+                text: model.name === "Default" ? "Répertoire par défaut" : model.name
             })), ...template.reverse()])
         }
     }, [httpParentModelResponse, httpModelResponse]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -371,109 +399,93 @@ function CertifDialog({...props}) {
                             />
                         </TreeStyled>
                     </DndProvider>
-                    {/*<List sx={{
-                        width: '100%',
-                        maxWidth: 360,
-                        bgcolor: 'background.paper',
-                        overflowX: "scroll",
-                        height: '21rem'
-                    }}>
-                        {models.map((item, index) => (
-                            <Box key={`models-${index}`}
-                                 style={{opacity: selectedModel ? selectedModel.uuid === item.uuid ? 1 : .7 : 1}}>
-                                <ListItem alignItems="flex-start">
-                                    <ListItemAvatar>
-                                        <Avatar sx={{
-                                            bgcolor: item.color,
-                                            color: "white",
-                                            textTransform: "uppercase"
-                                        }}>{item.title[0]}</Avatar>
-                                    </ListItemAvatar>
-                                    <ListItemText
-                                        onClick={() => {
-                                            selectModel(item)
-                                        }}
-                                        primary={item.title}
-                                        className={"resume3Lines"}
-                                    />
 
-                                    <Stack>
-                                        {selectedModel && selectedModel.uuid === item.uuid &&
-                                            <Tooltip title={t("consultationIP.edit_template")}>
-                                                <IconButton size="small" onClick={saveChanges}>
-                                                    <IconUrl path="setting/edit"/>
-                                                </IconButton>
-                                            </Tooltip>}
-                                        <Tooltip title={t("consultationIP.delete_template")}>
-                                            <IconButton size="small"
-                                                        onClick={() => {
-                                                            setSelected({
-                                                                title: t('consultationIP.askRemovemodel'),
-                                                                subtitle: t('consultationIP.subtitleRemovemodel'),
-                                                                icon: "/static/icons/ic-text.svg",
-                                                                name1: item.title,
-                                                                name2: t('consultationIP.model'),
-                                                                request: {
-                                                                    method: "DELETE",
-                                                                    url: `${urlMedicalProfessionalSuffix}/certificate-modals/${item.uuid}`
-                                                                }
-                                                            })
-                                                            setOpenRemove(true);
-                                                        }}>
-                                                <IconUrl path="setting/icdelete"/>
-                                            </IconButton>
-                                        </Tooltip>
-                                    </Stack>
-                                </ListItem>
-                                <Divider variant="inset" component="li"/>
-                            </Box>
-                        ))}
-
-                        {models.length === 0 &&
-                            <Stack spacing={2}>
-                                <Typography textAlign={"center"} color={"gray"} fontSize={12}>
-                                    ( {t("consultationIP.list_empty")} )
-                                </Typography>
-                                <List>
-                                    {
-                                        Array.from({length: 3}).map((_, idx) =>
-                                            idx === 0 ? <ListItem key={idx} sx={{py: .5}}>
-                                                    <Skeleton width={300} height={8} variant="rectangular"/>
-                                                </ListItem> :
-                                                <ListItem key={idx} sx={{py: .5}}>
-                                                    <Skeleton width={10} height={8} variant="rectangular"/>
-                                                    <Skeleton sx={{ml: 1}} width={130} height={8}
-                                                              variant="rectangular"/>
-                                                </ListItem>
-                                        )
-                                    }
-
-                                </List>
-                            </Stack>
-                        }
-                    </List>*/}
+                    <Button
+                        size={"small"}
+                        onClick={() => setOpenAddParentDialog(true)}
+                        sx={{alignSelf: "flex-start", mb: 1, ml: 1}}
+                        color={"primary"}
+                        startIcon={<AddRoundedIcon/>}>
+                        {t("consultationIP.new_file")}
+                    </Button>
                 </Grid>
             </Grid>
 
-            <CustomDialog action={"remove"}
-                          direction={direction}
-                          open={openRemove}
-                          data={selected}
-                          color={(theme: Theme) => theme.palette.error.main}
-                          title={t('consultationIP.removedoc')}
-                          t={t}
-                          actionDialog={
-                              <DialogActions>
-                                  <Button onClick={() => {
-                                      setOpenRemove(false);
-                                  }}
-                                          startIcon={<CloseIcon/>}>{t('consultationIP.cancel')}</Button>
-                                  <LoadingButton variant="contained"
-                                                 sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
-                                                 onClick={dialogSave}>{t('consultationIP.remove')}</LoadingButton>
-                              </DialogActions>
-                          }
+            <CustomDialog
+                action={"remove"}
+                direction={direction}
+                open={openRemove}
+                data={selected}
+                color={(theme: Theme) => theme.palette.error.main}
+                title={t('consultationIP.removedoc')}
+                t={t}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => {
+                            setOpenRemove(false);
+                        }}
+                                startIcon={<CloseIcon/>}>{t('consultationIP.cancel')}</Button>
+                        <LoadingButton variant="contained"
+                                       sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                       onClick={dialogSave}>{t('consultationIP.remove')}</LoadingButton>
+                    </DialogActions>
+                }
             />
+
+            <Dialog
+                maxWidth="xs"
+                PaperProps={{
+                    sx: {
+                        width: "100%",
+                    },
+                }}
+                onClose={() => setOpenAddParentDialog(false)}
+                open={openAddParentDialog}>
+                <DialogTitle
+                    sx={{
+                        bgcolor: (theme: Theme) => theme.palette.primary.main,
+                        mb: 2,
+                    }}>
+                    {t("consultationIP.add_group_model")}
+                </DialogTitle>
+                <DialogContent>
+                    <Typography gutterBottom>
+                        {t("consultationIP.group_model_name")}
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        value={parentModelName}
+                        onChange={(e) => {
+                            setParentModelName(e.target.value);
+                        }}
+                        placeholder={t("consultationIP.group_model_name_placeholder")}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Stack
+                        width={1}
+                        spacing={2}
+                        direction="row"
+                        justifyContent="flex-end">
+                        <Button
+                            variant="text-black"
+                            onClick={() => {
+                                setOpenAddParentDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("consultationIP.cancel")}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            disabled={parentModelName.length === 0}
+                            onClick={handleAddParentModel}
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}
+                            variant="contained">
+                            {t("consultationIP.save")}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
+            </Dialog>
         </Box>
     )
 }
