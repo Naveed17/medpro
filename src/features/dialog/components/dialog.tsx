@@ -83,7 +83,7 @@ function Dialogs({...props}) {
                 <DialogContent dividers={true} sx={{...sx}}
                                style={{overflow: action === 'write_certif' ? 'hidden' : ''}}>
                     <DialogContentText id="scroll-dialog-description" tabIndex={-1}/>
-                    <Component data={data}/>
+                    <Component {...(data && {data})}/>
                 </DialogContent>
                 {actionDialog ? <DialogActions style={{width: '100%'}}>{actionDialog}</DialogActions> : null}
             </Dialog>

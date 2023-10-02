@@ -221,6 +221,8 @@
     "reportPlaceholder": "Rédiger votre rapport ici...",
     "medical_imagery": "Imagerie médicale",
     "print_documents": "Imprimer documents",
+    "print_document_background": "Imprimer avec le document en arrière-plan",
+    "print_document_result": "Imprimer le résultat du document",
     "medical_prescription": "Ordonnance médicale",
     "medical_prescription_cycle": "Ordonnance médicale",
     "seeking_to_name_the_drug": "Veuillez nommer le médicament ",
@@ -265,6 +267,7 @@
     "drug_list": "Liste des médicaments",
     "preview": "Aperçu",
     "models": "Modeles",
+    "dir": "Répertoires",
     "after": "puis",
     "sphere": "Sphère",
     "cylindre": "Cylindre",
@@ -570,7 +573,6 @@
     "title": "Traitement des dents",
     "subtitle": "Cliquez sur la dent souhaitée et sélectionnez les actes",
     "note": "Note",
-
     "rightEye": "Oeil droite",
     "leftEye": "Oeil gauche",
     "av": "Av",
@@ -585,7 +587,6 @@
     "ac": "Acuité visuelle",
     "pg": "Génerer ordonnance lunette",
     "ophtalmologiqueExam": "Examen Ophtalmologique",
-
     "pachymetry": "Pachymétrie  ( 445->645 )",
     "measuredTO": "TO mesurée ( 0->70)",
     "annexes": "Annexes",

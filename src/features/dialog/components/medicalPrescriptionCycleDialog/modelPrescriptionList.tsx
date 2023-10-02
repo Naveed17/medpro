@@ -121,6 +121,7 @@ function ModelPrescriptionList({...props}) {
                     ...model.prescriptionModels.map((prescription) => ({
                         id: prescription.uuid,
                         parent: model.uuid,
+                        color: theme.palette.text.primary,
                         text: prescription.name,
                         data: prescription.prescriptionModalHasDrugs
                     }))

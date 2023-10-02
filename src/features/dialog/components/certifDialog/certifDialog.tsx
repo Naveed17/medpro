@@ -3,11 +3,14 @@ import React, {useEffect, useState} from "react";
 import {
     Box,
     Button,
-    Checkbox, Dialog,
-    DialogActions, DialogContent, DialogTitle,
+    Checkbox,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Dialog as MuiDialog,
     FormControlLabel,
     Grid,
-    List,
+    List, MenuItem, Select,
     Stack,
     TextField,
     Tooltip,
@@ -23,7 +26,7 @@ import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition"
 import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
-import {Dialog as CustomDialog, setParentModel} from "@features/dialog";
+import {Dialog} from "@features/dialog";
 import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
@@ -59,6 +62,7 @@ function CertifDialog({...props}) {
     const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
+    const [folder, setFolder] = useState<string>("");
     const [isStarted, setIsStarted] = useState(false);
     const [openRemove, setOpenRemove] = useState(false);
     const [selected, setSelected] = useState<any>();
@@ -71,6 +75,8 @@ function CertifDialog({...props}) {
     const [openAddParentDialog, setOpenAddParentDialog] = useState(false);
     const [parentModelName, setParentModelName] = useState<string>("");
     const [loading, setLoading] = useState(false);
+    const [deleteModelDialog, setDeleteModelDialog] = useState<boolean>(false);
+    const [dialogAction, setDialogAction] = useState<string>("");
 
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
@@ -83,6 +89,8 @@ function CertifDialog({...props}) {
     const {trigger: triggerModelsCreate} = useRequestQueryMutation("/certif-models/create");
     const {trigger: triggerModelsUpdate} = useRequestQueryMutation("/certif-models/update");
     const {trigger: triggerModelParent} = useRequestQueryMutation("consultation/certif-models/parent");
+    const {trigger: triggerFolderSwitch} = useRequestQueryMutation("/certif-models/folder/edit");
+    const {trigger: triggerFolderDelete} = useRequestQueryMutation("/certif-models/delete");
 
     const {data: httpModelResponse, mutate: mutateModel} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -121,6 +129,7 @@ function CertifDialog({...props}) {
         form.append('color', selectedColor[0]);
         form.append('title', title);
         form.append('header', selectedTemplate);
+        folder && form.append('folder', folder);
 
         triggerModelsCreate({
             method: "POST",
@@ -128,6 +137,7 @@ function CertifDialog({...props}) {
             data: form
         }, {
             onSuccess: () => mutateModel().then(() => {
+                mutateParentModel();
                 setSelectedTemplate('')
             })
         });
@@ -203,17 +213,59 @@ function CertifDialog({...props}) {
         });
     }
 
-    const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
+    const handleMoveFolderRequest = (ModelSourceId: string, parentTargetId: string, loading?: boolean) => {
+        const form = new FormData();
+        form.append("attribute", "folder");
+        form.append("value", parentTargetId);
+        triggerFolderSwitch({
+            method: "PATCH",
+            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${ModelSourceId}/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => mutateParentModel(),
+            ...(loading && {
+                onSettled: () => {
+                    setLoading(false);
+                }
+            })
+        });
+    }
 
+    const handleDeleteFolder = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setLoading(true);
+        triggerFolderDelete({
+            method: "DELETE",
+            url: `${urlMedicalProfessionalSuffix}/${selectedModel.parent === 0 ? "/certificate-modal-folders/" : "certificate-modals/"}${selectedModel.id}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                setSelectedModel(null);
+                mutateModel();
+                mutateParentModel().then(() => setDeleteModelDialog(false));
+            },
+            onSettled: () => setLoading(false)
+        });
+    }
+
+    const handleDeleteModel = (props: any) => {
+        setSelectedModel(props.node);
+        setDialogAction(props.node.parent === 0 ? "parent" : "model");
+        setDeleteModelDialog(true);
+    }
+
+    const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
+        handleMoveFolderRequest(dragSourceId, dropTargetId);
+        setTreeData(newTree);
     }
 
     const switchModel = (data: any) => {
         selectModel(data);
     }
 
+    const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
+
     useEffect(() => {
         if (httpParentModelResponse && httpModelResponse) {
-            const ParentModels = (httpParentModelResponse as HttpResponse).data;
             const template: CertifModel[] = [];
             const modelsList = (httpModelResponse as HttpResponse).data;
             modelsList.map((model: CertifModel) => {
@@ -298,6 +350,17 @@ function CertifDialog({...props}) {
                                     </ModelDot>
                                 ))}
                             </Stack>
+                            <Stack>
+                                <Typography style={{color: "gray"}} fontSize={12}>{t('consultationIP.dir')}</Typography>
+                                <Select
+                                    size={"small"}
+                                    value={folder}
+                                    onChange={(e) => setFolder(e.target.value)}>
+                                    {ParentModels.map((folder: any, index: number) => <MenuItem
+                                        key={index}
+                                        value={folder.uuid}>{folder.name}</MenuItem>)}
+                                </Select>
+                            </Stack>
                             <div style={{display: "flex"}}>
                                 <Typography style={{color: "gray"}} fontSize={12} mt={1}
                                             mb={1}>{t('consultationIP.alertTitle')}</Typography>
@@ -378,6 +441,7 @@ function CertifDialog({...props}) {
                                         {...{
                                             node,
                                             switchModel,
+                                            handleDeleteModel,
                                             depth,
                                             isOpen,
                                             onToggle
@@ -411,11 +475,11 @@ function CertifDialog({...props}) {
                 </Grid>
             </Grid>
 
-            <CustomDialog
+            <Dialog
+                {...{direction}}
                 action={"remove"}
-                direction={direction}
                 open={openRemove}
-                data={selected}
+                data={{selected}}
                 color={(theme: Theme) => theme.palette.error.main}
                 title={t('consultationIP.removedoc')}
                 t={t}
@@ -432,12 +496,12 @@ function CertifDialog({...props}) {
                 }
             />
 
-            <Dialog
+            <MuiDialog
                 maxWidth="xs"
                 PaperProps={{
                     sx: {
-                        width: "100%",
-                    },
+                        width: "100%"
+                    }
                 }}
                 onClose={() => setOpenAddParentDialog(false)}
                 open={openAddParentDialog}>
@@ -485,7 +549,44 @@ function CertifDialog({...props}) {
                         </LoadingButton>
                     </Stack>
                 </DialogActions>
-            </Dialog>
+            </MuiDialog>
+
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setDeleteModelDialog(false)}
+                sx={{direction}}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t(`consultationIP.dialogs.delete-${dialogAction}-dialog.sub-title`)} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t(`consultationIP.dialogs.delete-${dialogAction}-dialog.description`)}</Typography>
+                        </Box>)
+                }}
+                open={deleteModelDialog}
+                title={t(`consultationIP.dialogs.delete-${dialogAction}-dialog.title`)}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => setDeleteModelDialog(false)}
+                            startIcon={<CloseIcon/>}>
+                            {t(`consultationIP.dialogs.delete-${dialogAction}-dialog.cancel`)}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition="start"
+                            variant="contained"
+                            color={"error"}
+                            onClick={handleDeleteFolder}
+                            startIcon={<IconUrl height={"18"} width={"18"} color={"white"} path="icdelete"/>}>
+                            {t(`consultationIP.dialogs.delete-${dialogAction}-dialog.confirm`)}
+                        </LoadingButton>
+                    </>
+                }
+            />
         </Box>
     )
 }
