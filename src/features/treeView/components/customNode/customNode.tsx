@@ -6,6 +6,7 @@ import CustomNodeStyled from "./overrides/customNodeStyled";
 import {IconButton, Stack} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
+import {ModelDot} from "@features/modelDot";
 
 export const CustomNode = ({...props}) => {
     const {
@@ -48,9 +49,18 @@ export const CustomNode = ({...props}) => {
                     )}
                 </div>
                 <div>
-                    <TypeIcon droppable={droppable} fileType={data?.fileType}/>
+                    {data?.color || props.node?.color ?
+                        <ModelDot
+                            size={20}
+                            sizedot={12}
+                            padding={3}
+                            marginRight={5}
+                            key={data?.color ?? props.node?.color}
+                            color={data?.color ?? props.node?.color}>
+                        </ModelDot> :
+                        <TypeIcon droppable={droppable} fileType={data?.fileType}/>}
                 </div>
-                <div className={"labelGridItem"}>
+                <div className={"labelGridItem"} {...(props.node.droppable && {onClick: handleToggle})}>
                     <Typography {...(props.node.parent !== 0 && {color: "primary", sx: {cursor: "pointer"}})}
                                 variant="body2">{props.node.text}</Typography>
                 </div>

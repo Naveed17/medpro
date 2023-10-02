@@ -5,9 +5,12 @@ import {
     Button,
     Checkbox,
     DialogActions,
+    DialogContent,
+    DialogTitle,
+    Dialog as MuiDialog,
     FormControlLabel,
     Grid,
-    List,
+    List, MenuItem, Select,
     Stack,
     TextField,
     Tooltip,
@@ -23,7 +26,7 @@ import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition"
 import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
-import {Dialog as CustomDialog} from "@features/dialog";
+import {Dialog} from "@features/dialog";
 import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
@@ -35,6 +38,8 @@ import TreeStyled from "@features/dialog/components/medicalPrescriptionCycleDial
 import {CustomDragPreview, CustomNode} from "@features/treeView";
 import {DndProvider} from "react-dnd";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import IconUrl from "@themes/urlIcon";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -57,6 +62,7 @@ function CertifDialog({...props}) {
     const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
+    const [folder, setFolder] = useState<string>("");
     const [isStarted, setIsStarted] = useState(false);
     const [openRemove, setOpenRemove] = useState(false);
     const [selected, setSelected] = useState<any>();
@@ -66,6 +72,11 @@ function CertifDialog({...props}) {
     const [selectedTemplate, setSelectedTemplate] = useState(data.state.documentHeader ? data.state.documentHeader : "");
     const [initialOpenData, setInitialOpenData] = useState<any[]>([]);
     const [treeData, setTreeData] = useState<any[]>([]);
+    const [openAddParentDialog, setOpenAddParentDialog] = useState(false);
+    const [parentModelName, setParentModelName] = useState<string>("");
+    const [loading, setLoading] = useState(false);
+    const [deleteModelDialog, setDeleteModelDialog] = useState<boolean>(false);
+    const [dialogAction, setDialogAction] = useState<string>("");
 
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
@@ -77,13 +88,19 @@ function CertifDialog({...props}) {
 
     const {trigger: triggerModelsCreate} = useRequestQueryMutation("/certif-models/create");
     const {trigger: triggerModelsUpdate} = useRequestQueryMutation("/certif-models/update");
+    const {trigger: triggerModelParent} = useRequestQueryMutation("consultation/certif-models/parent");
+    const {trigger: triggerFolderSwitch} = useRequestQueryMutation("/certif-models/folder/edit");
+    const {trigger: triggerFolderDelete} = useRequestQueryMutation("/certif-models/delete");
 
     const {data: httpModelResponse, mutate: mutateModel} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpParentModelResponse, mutate: mutateParentModel} = useRequestQuery(httpModelResponse && urlMedicalProfessionalSuffix ? {
+    const {
+        data: httpParentModelResponse,
+        mutate: mutateParentModel
+    } = useRequestQuery(httpModelResponse && urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modal-folders/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -112,6 +129,7 @@ function CertifDialog({...props}) {
         form.append('color', selectedColor[0]);
         form.append('title', title);
         form.append('header', selectedTemplate);
+        folder && form.append('folder', folder);
 
         triggerModelsCreate({
             method: "POST",
@@ -119,6 +137,7 @@ function CertifDialog({...props}) {
             data: form
         }, {
             onSuccess: () => mutateModel().then(() => {
+                mutateParentModel();
                 setSelectedTemplate('')
             })
         });
@@ -175,17 +194,78 @@ function CertifDialog({...props}) {
         });
     }
 
-    const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
+    const handleAddParentModel = () => {
+        setLoading(true);
+        const form = new FormData();
+        form.append("name", parentModelName);
+        triggerModelParent({
+            method: "POST",
+            url: `${urlMedicalProfessionalSuffix}/certificate-modal-folders/${router.locale}`,
+            data: form,
+        }, {
+            onSuccess: () => {
+                mutateParentModel().then((result: any) => {
+                    setOpenAddParentDialog(false);
+                    setParentModelName("");
+                });
+            },
+            onSettled: () => setLoading(false)
+        });
+    }
 
+    const handleMoveFolderRequest = (ModelSourceId: string, parentTargetId: string, loading?: boolean) => {
+        const form = new FormData();
+        form.append("attribute", "folder");
+        form.append("value", parentTargetId);
+        triggerFolderSwitch({
+            method: "PATCH",
+            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${ModelSourceId}/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => mutateParentModel(),
+            ...(loading && {
+                onSettled: () => {
+                    setLoading(false);
+                }
+            })
+        });
+    }
+
+    const handleDeleteFolder = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setLoading(true);
+        triggerFolderDelete({
+            method: "DELETE",
+            url: `${urlMedicalProfessionalSuffix}/${selectedModel.parent === 0 ? "/certificate-modal-folders/" : "certificate-modals/"}${selectedModel.id}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                setSelectedModel(null);
+                mutateModel();
+                mutateParentModel().then(() => setDeleteModelDialog(false));
+            },
+            onSettled: () => setLoading(false)
+        });
+    }
+
+    const handleDeleteModel = (props: any) => {
+        setSelectedModel(props.node);
+        setDialogAction(props.node.parent === 0 ? "parent" : "model");
+        setDeleteModelDialog(true);
+    }
+
+    const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
+        handleMoveFolderRequest(dragSourceId, dropTargetId);
+        setTreeData(newTree);
     }
 
     const switchModel = (data: any) => {
         selectModel(data);
     }
 
+    const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
+
     useEffect(() => {
         if (httpParentModelResponse && httpModelResponse) {
-            const ParentModels = (httpParentModelResponse as HttpResponse).data;
             const template: CertifModel[] = [];
             const modelsList = (httpModelResponse as HttpResponse).data;
             modelsList.map((model: CertifModel) => {
@@ -202,12 +282,12 @@ function CertifDialog({...props}) {
                     data: model
                 });
             });
-            setTreeData([...ParentModels.map((model: any) => ({
-                id: "1",
-                isDefault: model.parent === null,
+            setTreeData([...ParentModels.map((model: any, index: number) => ({
+                id: (++index).toString(),
+                isDefault: model.name === "Default",
                 parent: 0,
                 droppable: true,
-                text: model.parent === null ? "Répertoire par défaut" : model.name
+                text: model.name === "Default" ? "Répertoire par défaut" : model.name
             })), ...template.reverse()])
         }
     }, [httpParentModelResponse, httpModelResponse]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -269,6 +349,17 @@ function CertifDialog({...props}) {
                                         }}>
                                     </ModelDot>
                                 ))}
+                            </Stack>
+                            <Stack>
+                                <Typography style={{color: "gray"}} fontSize={12}>{t('consultationIP.dir')}</Typography>
+                                <Select
+                                    size={"small"}
+                                    value={folder}
+                                    onChange={(e) => setFolder(e.target.value)}>
+                                    {ParentModels.map((folder: any, index: number) => <MenuItem
+                                        key={index}
+                                        value={folder.uuid}>{folder.name}</MenuItem>)}
+                                </Select>
                             </Stack>
                             <div style={{display: "flex"}}>
                                 <Typography style={{color: "gray"}} fontSize={12} mt={1}
@@ -350,6 +441,7 @@ function CertifDialog({...props}) {
                                         {...{
                                             node,
                                             switchModel,
+                                            handleDeleteModel,
                                             depth,
                                             isOpen,
                                             onToggle
@@ -371,108 +463,129 @@ function CertifDialog({...props}) {
                             />
                         </TreeStyled>
                     </DndProvider>
-                    {/*<List sx={{
-                        width: '100%',
-                        maxWidth: 360,
-                        bgcolor: 'background.paper',
-                        overflowX: "scroll",
-                        height: '21rem'
-                    }}>
-                        {models.map((item, index) => (
-                            <Box key={`models-${index}`}
-                                 style={{opacity: selectedModel ? selectedModel.uuid === item.uuid ? 1 : .7 : 1}}>
-                                <ListItem alignItems="flex-start">
-                                    <ListItemAvatar>
-                                        <Avatar sx={{
-                                            bgcolor: item.color,
-                                            color: "white",
-                                            textTransform: "uppercase"
-                                        }}>{item.title[0]}</Avatar>
-                                    </ListItemAvatar>
-                                    <ListItemText
-                                        onClick={() => {
-                                            selectModel(item)
-                                        }}
-                                        primary={item.title}
-                                        className={"resume3Lines"}
-                                    />
 
-                                    <Stack>
-                                        {selectedModel && selectedModel.uuid === item.uuid &&
-                                            <Tooltip title={t("consultationIP.edit_template")}>
-                                                <IconButton size="small" onClick={saveChanges}>
-                                                    <IconUrl path="setting/edit"/>
-                                                </IconButton>
-                                            </Tooltip>}
-                                        <Tooltip title={t("consultationIP.delete_template")}>
-                                            <IconButton size="small"
-                                                        onClick={() => {
-                                                            setSelected({
-                                                                title: t('consultationIP.askRemovemodel'),
-                                                                subtitle: t('consultationIP.subtitleRemovemodel'),
-                                                                icon: "/static/icons/ic-text.svg",
-                                                                name1: item.title,
-                                                                name2: t('consultationIP.model'),
-                                                                request: {
-                                                                    method: "DELETE",
-                                                                    url: `${urlMedicalProfessionalSuffix}/certificate-modals/${item.uuid}`
-                                                                }
-                                                            })
-                                                            setOpenRemove(true);
-                                                        }}>
-                                                <IconUrl path="setting/icdelete"/>
-                                            </IconButton>
-                                        </Tooltip>
-                                    </Stack>
-                                </ListItem>
-                                <Divider variant="inset" component="li"/>
-                            </Box>
-                        ))}
-
-                        {models.length === 0 &&
-                            <Stack spacing={2}>
-                                <Typography textAlign={"center"} color={"gray"} fontSize={12}>
-                                    ( {t("consultationIP.list_empty")} )
-                                </Typography>
-                                <List>
-                                    {
-                                        Array.from({length: 3}).map((_, idx) =>
-                                            idx === 0 ? <ListItem key={idx} sx={{py: .5}}>
-                                                    <Skeleton width={300} height={8} variant="rectangular"/>
-                                                </ListItem> :
-                                                <ListItem key={idx} sx={{py: .5}}>
-                                                    <Skeleton width={10} height={8} variant="rectangular"/>
-                                                    <Skeleton sx={{ml: 1}} width={130} height={8}
-                                                              variant="rectangular"/>
-                                                </ListItem>
-                                        )
-                                    }
-
-                                </List>
-                            </Stack>
-                        }
-                    </List>*/}
+                    <Button
+                        size={"small"}
+                        onClick={() => setOpenAddParentDialog(true)}
+                        sx={{alignSelf: "flex-start", mb: 1, ml: 1}}
+                        color={"primary"}
+                        startIcon={<AddRoundedIcon/>}>
+                        {t("consultationIP.new_file")}
+                    </Button>
                 </Grid>
             </Grid>
 
-            <CustomDialog action={"remove"}
-                          direction={direction}
-                          open={openRemove}
-                          data={selected}
-                          color={(theme: Theme) => theme.palette.error.main}
-                          title={t('consultationIP.removedoc')}
-                          t={t}
-                          actionDialog={
-                              <DialogActions>
-                                  <Button onClick={() => {
-                                      setOpenRemove(false);
-                                  }}
-                                          startIcon={<CloseIcon/>}>{t('consultationIP.cancel')}</Button>
-                                  <LoadingButton variant="contained"
-                                                 sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
-                                                 onClick={dialogSave}>{t('consultationIP.remove')}</LoadingButton>
-                              </DialogActions>
-                          }
+            <Dialog
+                {...{direction}}
+                action={"remove"}
+                open={openRemove}
+                data={{selected}}
+                color={(theme: Theme) => theme.palette.error.main}
+                title={t('consultationIP.removedoc')}
+                t={t}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => {
+                            setOpenRemove(false);
+                        }}
+                                startIcon={<CloseIcon/>}>{t('consultationIP.cancel')}</Button>
+                        <LoadingButton variant="contained"
+                                       sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                       onClick={dialogSave}>{t('consultationIP.remove')}</LoadingButton>
+                    </DialogActions>
+                }
+            />
+
+            <MuiDialog
+                maxWidth="xs"
+                PaperProps={{
+                    sx: {
+                        width: "100%"
+                    }
+                }}
+                onClose={() => setOpenAddParentDialog(false)}
+                open={openAddParentDialog}>
+                <DialogTitle
+                    sx={{
+                        bgcolor: (theme: Theme) => theme.palette.primary.main,
+                        mb: 2,
+                    }}>
+                    {t("consultationIP.add_group_model")}
+                </DialogTitle>
+                <DialogContent>
+                    <Typography gutterBottom>
+                        {t("consultationIP.group_model_name")}
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        value={parentModelName}
+                        onChange={(e) => {
+                            setParentModelName(e.target.value);
+                        }}
+                        placeholder={t("consultationIP.group_model_name_placeholder")}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Stack
+                        width={1}
+                        spacing={2}
+                        direction="row"
+                        justifyContent="flex-end">
+                        <Button
+                            variant="text-black"
+                            onClick={() => {
+                                setOpenAddParentDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("consultationIP.cancel")}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            disabled={parentModelName.length === 0}
+                            onClick={handleAddParentModel}
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}
+                            variant="contained">
+                            {t("consultationIP.save")}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
+            </MuiDialog>
+
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                dialogClose={() => setDeleteModelDialog(false)}
+                sx={{direction}}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t(`consultationIP.dialogs.delete-${dialogAction}-dialog.sub-title`)} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t(`consultationIP.dialogs.delete-${dialogAction}-dialog.description`)}</Typography>
+                        </Box>)
+                }}
+                open={deleteModelDialog}
+                title={t(`consultationIP.dialogs.delete-${dialogAction}-dialog.title`)}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => setDeleteModelDialog(false)}
+                            startIcon={<CloseIcon/>}>
+                            {t(`consultationIP.dialogs.delete-${dialogAction}-dialog.cancel`)}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition="start"
+                            variant="contained"
+                            color={"error"}
+                            onClick={handleDeleteFolder}
+                            startIcon={<IconUrl height={"18"} width={"18"} color={"white"} path="icdelete"/>}>
+                            {t(`consultationIP.dialogs.delete-${dialogAction}-dialog.confirm`)}
+                        </LoadingButton>
+                    </>
+                }
             />
         </Box>
     )
