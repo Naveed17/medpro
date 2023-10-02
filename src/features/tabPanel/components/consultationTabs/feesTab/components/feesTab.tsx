@@ -68,7 +68,6 @@ function FeesTab({...props}) {
         setActs,
         mpActs = [],
         setTotal,
-        status = null,
         agenda,
         urlMedicalEntitySuffix,
         app_uuid,
@@ -99,9 +98,12 @@ function FeesTab({...props}) {
                 uuid: "consultation_type"
             }, ...mpActs]
 
-            res.acts && res.acts.map((act: { act_uuid: string; }) => {
+            res.acts && res.acts.map((act: { act_uuid: string,qte:number }) => {
                 const index = _acts.findIndex(mpact => mpact.uuid === act.act_uuid)
-                index > -1 ? _acts[index].selected = true : console.log(act)
+                if(index > -1) {
+                    _acts[index].selected = true
+                    _acts[index].qte = act.qte;
+                }
             })
 
             let _total = 0
