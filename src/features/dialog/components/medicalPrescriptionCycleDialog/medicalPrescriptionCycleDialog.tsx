@@ -292,7 +292,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         });
     }
 
-    const switchPrescriptionModel = (drugs: DrugModel[]) => {
+    const switchModel = (drugs: DrugModel[]) => {
         setDrugs(drugs);
         setFieldValue("data", setInitData(drugs));
     }
@@ -1224,7 +1224,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 });
                                                             }
                                                         );
-                                                        switchPrescriptionModel([...last]);
+                                                        switchModel([...last]);
                                                         break;
                                                     case "set-prescription":
                                                         setInfo("medical_prescription_model");
@@ -1404,7 +1404,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 models,
                                                 t,
                                                 initialOpenData,
-                                                switchPrescriptionModel,
+                                                switchModel,
                                                 editPrescriptionModel,
                                                 setOpenAddParentDialog
                                             }}

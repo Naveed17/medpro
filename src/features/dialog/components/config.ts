@@ -90,6 +90,14 @@ const dialogData = [
         ),
     },
     {
+        action: "insurance_document_print",
+        component: dynamic((): any =>
+            import("@features/dialog/components/insuranceDocumentPrint/insuranceDocumentPrint").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "medical_imagery",
         component: dynamic((): any =>
             import("@features/dialog/components/medicalImagery/medicalImagery").then(
