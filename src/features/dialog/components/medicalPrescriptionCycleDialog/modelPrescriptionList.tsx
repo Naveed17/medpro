@@ -24,11 +24,10 @@ import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
-import IconUrl from "@themes/urlIcon";
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 
 function ModelPrescriptionList({...props}) {
-    const {models, t, initialOpenData, switchPrescriptionModel, editPrescriptionModel, setOpenAddParentDialog} = props;
+    const {models, t, initialOpenData, switchModel, editPrescriptionModel, setOpenAddParentDialog} = props;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
@@ -79,7 +78,7 @@ function ModelPrescriptionList({...props}) {
     }
 
     const handleEditModel = (props: any) => {
-        switchPrescriptionModel(props.node.data.drugs);
+        switchModel(props.node.data);
         editPrescriptionModel(props);
     }
 
@@ -123,9 +122,7 @@ function ModelPrescriptionList({...props}) {
                         id: prescription.uuid,
                         parent: model.uuid,
                         text: prescription.name,
-                        data: {
-                            drugs: prescription.prescriptionModalHasDrugs
-                        }
+                        data: prescription.prescriptionModalHasDrugs
                     }))
                 ]);
             });
@@ -146,7 +143,7 @@ function ModelPrescriptionList({...props}) {
                                 {...{
                                     node, depth, isOpen,
                                     onToggle,
-                                    switchPrescriptionModel,
+                                    switchModel,
                                     handleEditModel,
                                     handleMoveModel,
                                     handleDeleteModel

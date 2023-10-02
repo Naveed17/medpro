@@ -1,20 +1,13 @@
 import {useTranslation} from "next-i18next";
 import React, {useEffect, useState} from "react";
 import {
-    Avatar,
     Box,
     Button,
     Checkbox,
     DialogActions,
-    Divider,
     FormControlLabel,
     Grid,
-    IconButton,
     List,
-    ListItem,
-    ListItemAvatar,
-    ListItemText,
-    Skeleton,
     Stack,
     TextField,
     Tooltip,
@@ -27,7 +20,6 @@ import AddIcon from "@mui/icons-material/Add";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition";
-import IconUrl from "@themes/urlIcon";
 import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -38,6 +30,11 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from "@tinymce/tinymce-react";
 import {RecButton} from "@features/buttons";
 import {useSnackbar} from "notistack";
+import {getBackendOptions, MultiBackend, Tree} from "@minoru/react-dnd-treeview";
+import TreeStyled from "@features/dialog/components/medicalPrescriptionCycleDialog/overrides/treeStyled";
+import {CustomDragPreview, CustomNode} from "@features/treeView";
+import {DndProvider} from "react-dnd";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -51,14 +48,15 @@ function CertifDialog({...props}) {
         listening,
         resetTranscript
     } = useSpeechRecognition();
+    const {enqueueSnackbar} = useSnackbar();
 
+    const {t, ready} = useTranslation("consultation");
     const {direction} = useAppSelector(configSelector);
 
     let [colors, setColors] = useState(["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"]);
     const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
-    const [models, setModels] = useState<CertifModel[]>([]);
     const [isStarted, setIsStarted] = useState(false);
     const [openRemove, setOpenRemove] = useState(false);
     const [selected, setSelected] = useState<any>();
@@ -66,8 +64,8 @@ function CertifDialog({...props}) {
     let [oldNote, setOldNote] = useState('');
     const [templates, setTemplates] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState(data.state.documentHeader ? data.state.documentHeader : "");
-
-    const {enqueueSnackbar} = useSnackbar();
+    const [initialOpenData, setInitialOpenData] = useState<any[]>([]);
+    const [treeData, setTreeData] = useState<any[]>([]);
 
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
@@ -80,15 +78,21 @@ function CertifDialog({...props}) {
     const {trigger: triggerModelsCreate} = useRequestQueryMutation("/certif-models/create");
     const {trigger: triggerModelsUpdate} = useRequestQueryMutation("/certif-models/update");
 
-    const {data: httpModelResponse, mutate} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse, mutate: mutateModel} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
-    } : null);
+    } : null, ReactQueryNoValidateConfig);
+
+    const {data: httpParentModelResponse, mutate: mutateParentModel} = useRequestQuery(httpModelResponse && urlMedicalProfessionalSuffix ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/certificate-modal-folders/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
+
 
     const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
-    } : null);
+    } : null, ReactQueryNoValidateConfig);
 
     const selectModel = (model: CertifModel) => {
         setValue(model.content);
@@ -96,7 +100,7 @@ function CertifDialog({...props}) {
         data.state.title = model.title;
         data.state.documentHeader = model.documentHeader
         data.setState(data.state)
-        setTitle(model.title)
+        setTitle(model?.title ?? "")
         setSelectedTemplate(model.documentHeader)
         setSelectedColor([model.color])
         setSelectedModel(model);
@@ -114,7 +118,7 @@ function CertifDialog({...props}) {
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`,
             data: form
         }, {
-            onSuccess: () => mutate().then(() => {
+            onSuccess: () => mutateModel().then(() => {
                 setSelectedTemplate('')
             })
         });
@@ -142,7 +146,7 @@ function CertifDialog({...props}) {
     const dialogSave = () => {
         triggerModelsUpdate(selected.request, {
             onSuccess: () => {
-                mutate().then(() => {
+                mutateModel().then(() => {
                     setOpenRemove(false);
                 })
             }
@@ -164,32 +168,49 @@ function CertifDialog({...props}) {
             data: form
         }, {
             onSuccess: () => {
-                mutate().then(() => {
+                mutateModel().then(() => {
                     enqueueSnackbar(t("consultationIP.updated"), {variant: 'success'})
                 });
             }
         });
     }
 
+    const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
+
+    }
+
+    const switchModel = (data: any) => {
+        selectModel(data);
+    }
+
     useEffect(() => {
-        if (httpModelResponse) {
+        if (httpParentModelResponse && httpModelResponse) {
+            const ParentModels = (httpParentModelResponse as HttpResponse).data;
             const template: CertifModel[] = [];
             const modelsList = (httpModelResponse as HttpResponse).data;
             modelsList.map((model: CertifModel) => {
                 const stringToHTML = new DOMParser().parseFromString(model.content, 'text/html').body.firstChild
                 template.push({
-                    uuid: model.uuid,
+                    id: model.uuid,
+                    parent: "1",
                     color: model.color ? model.color : '#0696D6',
-                    title: model.title ? model.title : 'Sans titre',
+                    text: model.title ? model.title : 'Sans titre',
                     name: model.title ? model.title : 'Sans titre',
                     content: model.content,
                     documentHeader: model.documentHeader,
-                    preview: (stringToHTML as HTMLElement)?.innerHTML
+                    preview: (stringToHTML as HTMLElement)?.innerHTML,
+                    data: model
                 });
             });
-            setModels(template.reverse())
+            setTreeData([...ParentModels.map((model: any) => ({
+                id: "1",
+                isDefault: model.parent === null,
+                parent: 0,
+                droppable: true,
+                text: model.parent === null ? "Répertoire par défaut" : model.name
+            })), ...template.reverse()])
         }
-    }, [httpModelResponse, selectedColor]);
+    }, [httpParentModelResponse, httpModelResponse]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (data)
@@ -208,8 +229,6 @@ function CertifDialog({...props}) {
             setTemplates(docInfo)
         }
     }, [httpDocumentHeader])
-
-    const {t, ready} = useTranslation("consultation");
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -320,7 +339,39 @@ function CertifDialog({...props}) {
                             {t('consultationIP.createAsModel')}
                         </Button>
                     </Stack>
-                    <List sx={{
+
+                    <DndProvider backend={MultiBackend} options={getBackendOptions()}>
+                        <TreeStyled className={"app"}>
+                            <Tree
+                                tree={treeData}
+                                rootId={0}
+                                render={(node, {depth, isOpen, onToggle}) => (
+                                    <CustomNode
+                                        {...{
+                                            node,
+                                            switchModel,
+                                            depth,
+                                            isOpen,
+                                            onToggle
+                                        }}
+                                    />
+                                )}
+                                sort={false}
+                                enableAnimateExpand={true}
+                                initialOpen={initialOpenData}
+                                dragPreviewRender={(monitorProps) => (
+                                    <CustomDragPreview monitorProps={monitorProps}/>
+                                )}
+                                onDrop={handleDrop}
+                                classes={{
+                                    root: "root",
+                                    draggingSource: "draggingSource",
+                                    dropTarget: "dropTarget"
+                                }}
+                            />
+                        </TreeStyled>
+                    </DndProvider>
+                    {/*<List sx={{
                         width: '100%',
                         maxWidth: 360,
                         bgcolor: 'background.paper',
@@ -344,11 +395,6 @@ function CertifDialog({...props}) {
                                         }}
                                         primary={item.title}
                                         className={"resume3Lines"}
-                                        secondary={
-                                            <React.Fragment>
-                                                {item.preview}
-                                            </React.Fragment>
-                                        }
                                     />
 
                                     <Stack>
@@ -405,7 +451,7 @@ function CertifDialog({...props}) {
                                 </List>
                             </Stack>
                         }
-                    </List>
+                    </List>*/}
                 </Grid>
             </Grid>
 

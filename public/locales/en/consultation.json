@@ -209,6 +209,7 @@
     "write_certif": "Medical Document",
     "medical-certificate": "Medical Document",
     "balance_sheet_request": "Balance Sheet Request",
+    "insurance_document_print": "Insurance documents",
     "write_report": "Write Report",
     "reportPlaceholder": "Write your report here...",
     "medical_imagery": "Medical Imaging",

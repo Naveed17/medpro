@@ -122,14 +122,15 @@ function TransactionPanel({...props}) {
         let amount = 0
         const data: TransactionDataModel[] = [];
         selectedPayment.payments.map((sp: any) => {
+            const payDate = moment(sp.payment_date, 'DD-MM-YYYY HH:mm');
             data.push({
                 payment_means: sp.payment_means.uuid,
                 insurance: "",
                 amount: sp.amount,
                 status_transaction: TransactionStatus[0].value,
                 type_transaction: TransactionType[4].value,
-                payment_date: moment(sp.payment_date).format('DD-MM-YYYY'),
-                payment_time: moment(sp.payment_date).format('HH:mm'),
+                payment_date: payDate.format('DD-MM-YYYY'),
+                payment_time: payDate.format('HH:mm'),
                 data: {label: sp.designation, ...sp.data},
             });
             amount += sp.amount;
@@ -153,9 +154,9 @@ function TransactionPanel({...props}) {
                 enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
                 mutateTransactions().then(() => {
                     walletMutate().then(() => setOpenPaymentDialog(false))
-                    setLoadingRequest(false);
                 });
-            }
+            },
+            onSettled: () => setLoadingRequest(false)
         });
     }
 
