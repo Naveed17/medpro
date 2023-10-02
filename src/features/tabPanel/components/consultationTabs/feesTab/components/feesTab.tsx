@@ -68,7 +68,6 @@ function FeesTab({...props}) {
         setActs,
         mpActs = [],
         setTotal,
-        status = null,
         agenda,
         urlMedicalEntitySuffix,
         app_uuid,
@@ -92,16 +91,19 @@ function FeesTab({...props}) {
         if (res) {
             let _acts = [{
                 act: {name: res.type.name},
-                fees: res.consultation_fees ? Number(res.consultation_fees) : res.type.price,
+                fees: res.consultation_fees && res.consultation_fees !== "null" ? Number(res.consultation_fees) : res.type.price,
                 isTopAct: false,
                 qte: 1,
-                selected: status && status === 5 ? res.consultation_fees !== null : !res.type.isFree,
+                selected: res.consultation_fees !== null && res.consultation_fees !== "null",
                 uuid: "consultation_type"
             }, ...mpActs]
 
-            res.acts && res.acts.map((act: { act_uuid: string; }) => {
+            res.acts && res.acts.map((act: { act_uuid: string,qte:number }) => {
                 const index = _acts.findIndex(mpact => mpact.uuid === act.act_uuid)
-                index > -1 ? _acts[index].selected = true : console.log(act)
+                if(index > -1) {
+                    _acts[index].selected = true
+                    _acts[index].qte = act.qte;
+                }
             })
 
             let _total = 0
@@ -143,23 +145,23 @@ function FeesTab({...props}) {
         })
 
         const app_type = actsList.find((act: { uuid: string; }) => act.uuid === 'consultation_type')
+        console.log(app_type)
         let isFree = true;
         let consultationFees = 0;
 
         if (app_type) {
             isFree = !app_type?.selected;
-            consultationFees = app_type?.fees
+            consultationFees = isFree ? null : app_type?.fees
         }
 
         const form = new FormData();
         form.append("acts", JSON.stringify(_acts));
         form.append("fees", _total.toString());
-        if (!isFree)
-            form.append("consultation_fees", consultationFees ? consultationFees.toString() : '0');
+        form.append("consultation_fees", consultationFees ? consultationFees.toString():"null");
 
         app_uuid && triggerFeesEdit({
             method: "PUT",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/data/${router.locale}`,
             data: form
         }, {
             onSuccess: () => mutate()
