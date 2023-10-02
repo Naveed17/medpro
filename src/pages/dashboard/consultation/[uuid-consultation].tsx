@@ -205,18 +205,16 @@ function ConsultationInProgress() {
 
     // ********** Requests ********** \\
     const getWidgetSize = () => {
-        return isClose ? 50 : closeExam ? (sideBarOpened ? "100%":"100%" ) : '50%'
+        return isClose ? 50 : closeExam ? '100%' : '50%'
     }
 
     const getExamSize = () => {
-        return isClose ? "100%" : closeExam ? (sideBarOpened ? 50 :50) : '50%';
+        return isClose ? "100%" : closeExam ? 50 : '50%';
     }
-
     const mutateDoc = () => {
         const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
         invalidateQueries([docUrl])
     }
-
     const showDoc = (card: any) => {
         let type = "";
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
@@ -621,7 +619,7 @@ function ConsultationInProgress() {
             });
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
-
+console.log(isClose)
     return (
         <>
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
@@ -704,11 +702,14 @@ function ConsultationInProgress() {
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
                         
                         <Stack direction={{xs:'column',md:'row'}} justifyContent='space-between' spacing={2}>
-                           <AnimatePresence mode="wait">
+                           <AnimatePresence mode="popLayout">
                             <motion.div 
+                            key={'modal'}
+                            layoutId="modal-1"
                              initial={false}
                                  animate={{
                           width: isMobile ? "100%" : getWidgetSize() 
+                          
     }}
     
                             >
@@ -799,6 +800,7 @@ function ConsultationInProgress() {
                                         trigger: triggerAppointmentEdit
                                     }}
                                     handleClosePanel={(v: boolean) => setCloseExam(v)}
+                                    
                                 />
                             </motion.div>
                            </AnimatePresence>

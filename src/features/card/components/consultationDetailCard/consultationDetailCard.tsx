@@ -255,6 +255,7 @@ function CIPPatientHistoryCard({...props}) {
                     onClick={() => {
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
+                       
                     }}
                     className="btn-collapse"
                     disableRipple>
@@ -271,6 +272,7 @@ function CIPPatientHistoryCard({...props}) {
                     onClick={() => {
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
+                        
                     }}
                     className="btn-collapse"
                     disableRipple>
