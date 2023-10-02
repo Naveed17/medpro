@@ -59,6 +59,7 @@ import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {sideBarSelector} from "@features/menu";
+import { AnimatePresence, motion } from "framer-motion";
 
 function ConsultationInProgress() {
     const theme = useTheme();
@@ -204,11 +205,11 @@ function ConsultationInProgress() {
 
     // ********** Requests ********** \\
     const getWidgetSize = () => {
-        return isClose ? 0.9 : closeExam ? (sideBarOpened ? 11.1 : 11.3) : 6
+        return isClose ? 50 : closeExam ? (sideBarOpened ? "100%":"100%" ) : '50%'
     }
 
     const getExamSize = () => {
-        return isClose ? 11.1 : closeExam ? (sideBarOpened ? 0.9 : 0.7) : 6;
+        return isClose ? "100%" : closeExam ? (sideBarOpened ? 50 :50) : '50%';
     }
 
     const mutateDoc = () => {
@@ -701,8 +702,16 @@ function ConsultationInProgress() {
                         />
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={12} md={getWidgetSize()}>
+                        
+                        <Stack direction={{xs:'column',md:'row'}} justifyContent='space-between' spacing={2}>
+                           <AnimatePresence mode="wait">
+                            <motion.div 
+                             initial={false}
+                                 animate={{
+                          width: isMobile ? "100%" : getWidgetSize() 
+    }}
+    
+                            >
                                 {loading && <CardContent
                                     sx={{
                                         bgcolor: alpha(theme.palette.primary.main, 0.1),
@@ -764,10 +773,17 @@ function ConsultationInProgress() {
                                         </Stack>
                                     </CardContent>
                                 )}
-                            </Grid>
-                            <Grid item xs={12}
-                                  md={getExamSize()}
-                                  style={{paddingLeft: isClose ? 0 : 10}}>
+                            </motion.div>
+                            <motion.div
+                                 
+                                  
+                                 
+                                  initial={false}
+                                 animate={{
+                         width: isMobile ? "100%" :getExamSize()
+    }}
+   
+                                  >
                                 <ConsultationDetailCard
                                     {...{
                                         changes,
@@ -784,8 +800,9 @@ function ConsultationInProgress() {
                                     }}
                                     handleClosePanel={(v: boolean) => setCloseExam(v)}
                                 />
-                            </Grid>
-                        </Grid>
+                            </motion.div>
+                           </AnimatePresence>
+                        </Stack>
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"documents"}>
                         <DocumentsTab
