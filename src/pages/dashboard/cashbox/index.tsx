@@ -307,7 +307,7 @@ function Cashbox() {
                 status_transaction: TransactionStatus[2].value.toString(),
                 type_transaction: TransactionType[3].value.toString(),
                 payment_date: moment().format('DD-MM-YYYY'),
-                payment_time: moment().format('HH:mm'),
+                payment_time: `${new Date().getHours()}:${new Date().getMinutes()}`,
                 transaction_data_uuid: "",
                 data: {label: t('encashment')}
             }];

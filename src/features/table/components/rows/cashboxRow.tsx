@@ -189,6 +189,12 @@ function PaymentRow({...props}) {
         );
     };
 
+    const getInsurances = () => {
+        let _res: string[] = [];
+        row.transaction_data.filter((td: any) => td.insurance).map((insc: any) => _res.push(insc.insurance.insurance.uuid))
+        return insurances.filter((insurance: { uuid: string; }) => _res.includes(insurance.uuid))
+    }
+
     useEffect(() => {
         dispatch(addBilling(selected));
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -286,20 +292,15 @@ function PaymentRow({...props}) {
                 <TableCell align={"center"}>
                     <Stack direction={"row"} justifyContent={"center"}>
                         {
-                            row.transaction_data.filter((td: any) => td.insurance).length > 0 ? row.transaction_data.filter((td: any) => td.insurance).map((td: any) => (
+                            row.transaction_data.filter((td: any) => td.insurance).length > 0 ? getInsurances().map((insurance: any) => (
                                 <Tooltip
-                                    key={td.insurance.insurance?.uuid}
-                                    title={td.insurance.insurance?.name}>
+                                    key={insurance?.uuid}
+                                    title={insurance?.name}>
                                     <Avatar variant={"circular"}>
-                                        {insurances?.find((insurance: any) => insurance.uuid === td.insurance?.insurance.uuid) &&
-                                            <ImageHandler
-                                                alt={td.insurance.insurance?.name}
-                                                src={insurances.find(
-                                                    (insurance: any) =>
-                                                        insurance.uuid ===
-                                                        td.insurance?.insurance.uuid
-                                                ).logoUrl.url}
-                                            />}
+                                        <ImageHandler
+                                            alt={insurance?.name}
+                                            src={insurance.logoUrl.url}
+                                        />
                                     </Avatar>
                                 </Tooltip>
                             )) : <Typography>--</Typography>
@@ -351,7 +352,7 @@ function PaymentRow({...props}) {
                             }}
                             color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
                             fontWeight={700}>
-                            {row.rest_amount != 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount}
+                            {row.rest_amount != 0 ? `${(row.amount - row.rest_amount).toFixed(3)} / ${row.amount}` : row.amount}
                             <span
                                 style={{fontSize: 10}}>{devise}</span>
                         </Typography>
@@ -498,7 +499,7 @@ function PaymentRow({...props}) {
                                                     }}>
                                                     <Icon path="ic-time"/>
                                                     <Typography
-                                                        variant="body2">{moment(col.time, 'HH:mm').add(1, "hour").format('HH:mm')}</Typography>
+                                                        variant="body2">{col.payment_time}</Typography>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell

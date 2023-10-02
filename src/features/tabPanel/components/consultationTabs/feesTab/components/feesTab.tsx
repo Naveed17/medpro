@@ -98,11 +98,13 @@ function FeesTab({...props}) {
                 uuid: "consultation_type"
             }, ...mpActs]
 
-            res.acts && res.acts.map((act: { act_uuid: string,qte:number }) => {
+            res.acts && res.acts.map((act: { act_uuid: string,qte:number,price:number }) => {
+                console.log(act)
                 const index = _acts.findIndex(mpact => mpact.uuid === act.act_uuid)
                 if(index > -1) {
                     _acts[index].selected = true
                     _acts[index].qte = act.qte;
+                    _acts[index].fees = act.price;
                 }
             })
 
