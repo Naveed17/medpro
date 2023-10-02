@@ -365,6 +365,8 @@ function DocumentDetailDialog({...props}) {
                     setOpenRemove(false);
                     setLoading(false);
                     (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
+                },
+                onSettled: ()=>{
                     setLoadingRequest && setLoadingRequest(false);
                     setOpenDialog && setOpenDialog(false);
                 }

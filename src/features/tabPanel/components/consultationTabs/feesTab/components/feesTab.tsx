@@ -145,7 +145,6 @@ function FeesTab({...props}) {
         })
 
         const app_type = actsList.find((act: { uuid: string; }) => act.uuid === 'consultation_type')
-        console.log(app_type)
         let isFree = true;
         let consultationFees = 0;
 

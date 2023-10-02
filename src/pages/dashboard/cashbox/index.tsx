@@ -213,7 +213,7 @@ function Cashbox() {
         setToReceive(data.total_insurance_amount);
         setCollected(data.total_collected);
         txtGenerator()
-        if (data.transactions) setRows(data.transactions.reverse());
+        if (data.transactions) setRows(data.transactions);
         else setRows([]);
         if (filterQuery.includes("cashboxes")) setLoading(false);
     }
