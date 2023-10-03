@@ -55,7 +55,8 @@ function AppToolbar({...props}) {
         mutatePatient,
         setAnchorEl,
         setPatientShow,
-        dialog, setDialog
+        dialog, setDialog,
+        mutateSheetData
     } = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
@@ -359,7 +360,7 @@ function AppToolbar({...props}) {
         }
 
         setSelectedTab("documents");
-
+        mutateSheetData()
         setOpenDialog(false);
         setInfo(null);
         dispatch(SetSelectedDialog(null))

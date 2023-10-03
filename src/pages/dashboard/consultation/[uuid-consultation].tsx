@@ -576,7 +576,12 @@ function ConsultationInProgress() {
             setActs(_acts);
             setMPActs(_acts);
 
-            console.log(sheet)
+            changes.map(change => {
+                if (sheet && sheet[change.name])
+                    change.checked = sheet[change.name] > 0
+            })
+            setChanges([...changes])
+
         }
     }, [medicalProfessionalData, sheet, sheetModal]);
 
@@ -670,6 +675,7 @@ function ConsultationInProgress() {
                         changes,
                         anchorEl,
                         mutatePatient,
+                        mutateSheetData,
                         setAnchorEl,
                         dialog, setDialog
                     }}
