@@ -51,6 +51,7 @@ function AppToolbar({...props}) {
         isMobile,
         changes,
         anchorEl,
+        loading,
         mutatePatient,
         setAnchorEl,
         setPatientShow,
@@ -620,6 +621,7 @@ function AppToolbar({...props}) {
                         allowScrollButtonsMobile={isMobile}
                         scrollButtons={true}
                         textColor="primary"
+                        disabled={loading}
                         indicatorColor="primary"
                         aria-label="patient_history">
                         {
@@ -628,6 +630,7 @@ function AppToolbar({...props}) {
                                     className="custom-tab"
                                     key={tab.label}
                                     value={tab.label}
+                                    disabled={loading}
                                     label={t(tab.label)}
                                 />
                             ))
