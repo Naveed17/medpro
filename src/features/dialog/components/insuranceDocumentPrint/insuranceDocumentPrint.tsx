@@ -48,23 +48,22 @@ function InsuranceDocumentPrint({...props}) {
                         method: "GET",
                         url: `/api/public/insurances/documents/${insuranceDocument}/${router.locale}`
                     }, {
-                        onSuccess: (result: any) => {
-                            const doc = (result?.data as HttpResponse)?.data;
-                            console.log("doc", doc);
+                        onSuccess: async (result: any) => {
+                            const data = (result?.data as HttpResponse)?.data;
+                            const docFile = await fetch(data.url).then((res) => res.arrayBuffer());
+                            const firstDonorPdfDoc = await PDFDocument.load(docFile)
+                            const [CNAMDocP1] = await pdfDoc.copyPages(firstDonorPdfDoc, [0]);
+                            const [CNAMDocP2] = await pdfDoc.copyPages(firstDonorPdfDoc, [1]);
+                            const [cnamPatientInfoP1] = await pdfDoc.embedPdf(docUpdated, [0]);
+                            const [cnamPatientInfoP2] = await pdfDoc.embedPdf(docUpdated, [1]);
+                            const page1 = pdfDoc.addPage(CNAMDocP1);
+                            page1.drawPage(cnamPatientInfoP1, {x: 0, y: 5});
+                            const page2 = pdfDoc.addPage(CNAMDocP2);
+                            page2.drawPage(cnamPatientInfoP2, {x: 0, y: 32});
+                            const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
+                            setFile(mergedPdf);
                         }
                     })
-                    const cnam = await fetch('/static/files/cnam.pdf').then((res) => res.arrayBuffer());
-                    const firstDonorPdfDoc = await PDFDocument.load(cnam)
-                    const [CNAMDocP1] = await pdfDoc.copyPages(firstDonorPdfDoc, [0]);
-                    const [CNAMDocP2] = await pdfDoc.copyPages(firstDonorPdfDoc, [1]);
-                    const [cnamPatientInfoP1] = await pdfDoc.embedPdf(docUpdated, [0]);
-                    const [cnamPatientInfoP2] = await pdfDoc.embedPdf(docUpdated, [1]);
-                    const page1 = pdfDoc.addPage(CNAMDocP1);
-                    page1.drawPage(cnamPatientInfoP1, {x: 0, y: 5});
-                    const page2 = pdfDoc.addPage(CNAMDocP2);
-                    page2.drawPage(cnamPatientInfoP2, {x: 0, y: 32});
-                    const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
-                    setFile(mergedPdf);
                 } else {
                     setFile(`data:application/pdf;base64,${document}`)
                 }
