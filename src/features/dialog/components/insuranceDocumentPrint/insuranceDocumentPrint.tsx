@@ -1,12 +1,11 @@
 import {useInsurances} from "@lib/hooks/rest";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import LocalPrintshopOutlinedIcon from '@mui/icons-material/LocalPrintshopOutlined';
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
-import {Avatar, ListSubheader, Stack, Typography} from "@mui/material";
+import {Avatar, Checkbox, FormControlLabel, ListSubheader, Stack, Typography} from "@mui/material";
 import {ImageHandler} from "@features/image";
 import React, {useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
@@ -28,20 +27,32 @@ function InsuranceDocumentPrint({...props}) {
 
     const [file, setFile] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [backgroundDoc, setBackgroundDoc] = useState(true);
     const {trigger: triggerInsuranceDocs} = useRequestQueryMutation("consultation/insurances/document");
+
+    const {trigger: triggerDocInsurance} = useRequestQueryMutation("insurance/document");
 
     const docInsurances = insurances?.filter(insurance => (insurance?.documents ?? []).length > 0) ?? [];
 
-    const generateInsuranceDoc = (insuranceDocument: string, background = false) => {
+    const generateInsuranceDoc = (insuranceDocument: string) => {
         medicalEntityHasUser && triggerInsuranceDocs({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/${appuuid}/insurance-document/${insuranceDocument}/${router.locale}`,
         }, {
             onSuccess: async (result: any) => {
                 const document = result?.data as any;
-                if (background) {
+                if (backgroundDoc) {
                     const pdfDoc = await PDFDocument.create();
                     const docUpdated = await fetch(`data:application/pdf;base64,${document}`).then((res) => res.arrayBuffer());
+                    triggerDocInsurance({
+                        method: "GET",
+                        url: `/api/public/insurances/documents/${insuranceDocument}/${router.locale}`
+                    }, {
+                        onSuccess: (result: any) => {
+                            const doc = (result?.data as HttpResponse)?.data;
+                            console.log("doc", doc);
+                        }
+                    })
                     const cnam = await fetch('/static/files/cnam.pdf').then((res) => res.arrayBuffer());
                     const firstDonorPdfDoc = await PDFDocument.load(cnam)
                     const [CNAMDocP1] = await pdfDoc.copyPages(firstDonorPdfDoc, [0]);
@@ -67,7 +78,7 @@ function InsuranceDocumentPrint({...props}) {
             <List
                 sx={{width: '100%', bgcolor: 'background.paper'}}
                 subheader={<ListSubheader>Demande de Prise en charge</ListSubheader>}>
-                {docInsurances.map(insurance => <ListItem sx={{px: 2}} key={insurance.uuid} disablePadding>
+                {docInsurances.map(insurance => <ListItem sx={{p: 2}} key={insurance.uuid} disablePadding>
                     <ListItemIcon>
                         <Avatar variant={"circular"}>
                             <ImageHandler
@@ -79,27 +90,22 @@ function InsuranceDocumentPrint({...props}) {
                     <ListItemText
                         primary={<Typography fontWeight={700} component='strong'>{insurance.name}</Typography>}/>
                     <Stack direction={"row"} spacing={1.2} sx={{display: "contents"}}>
+                        <FormControlLabel
+                            control={<Checkbox
+                                checked={backgroundDoc}
+                                onChange={e => setBackgroundDoc(e.target.checked)}/>}
+                            label={t("print_document_background")}/>
                         <LoadingButton
                             {...{loading}}
                             loadingPosition={"start"}
-                            startIcon={<LocalPrintshopOutlinedIcon/>}
+                            variant={"contained"}
+                            startIcon={backgroundDoc ? <LocalPrintshopRoundedIcon/> : <LocalPrintshopOutlinedIcon/>}
                             onClick={e => {
                                 e.stopPropagation();
                                 setLoading(true);
-                                insurance.documents && generateInsuranceDoc(insurance.documents[0]?.uuid, false);
+                                insurance.documents && generateInsuranceDoc(insurance.documents[0]?.uuid);
                             }} size="small">
                             <Typography>{t("print_document_result")}</Typography>
-                        </LoadingButton>
-                        <LoadingButton
-                            {...{loading}}
-                            loadingPosition={"start"}
-                            startIcon={<LocalPrintshopRoundedIcon/>}
-                            onClick={e => {
-                                e.stopPropagation();
-                                setLoading(true);
-                                insurance.documents && generateInsuranceDoc(insurance.documents[0]?.uuid, true);
-                            }} size="small">
-                            <Typography>{t("print_document_background")}</Typography>
                         </LoadingButton>
                     </Stack>
                 </ListItem>)}
