@@ -92,6 +92,7 @@ const MainMenuStyled = styled(Box)(({theme}) => ({
                         marginLeft:'auto',
                         marginRight:'auto',
                         zIndex:-1,
+                        
                 }
             },
 
