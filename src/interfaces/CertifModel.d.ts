@@ -7,6 +7,7 @@ interface CertifModel {
     content: string;
     color: string;
     parent: string;
+    folder?: string;
     preview: string;
     documentHeader: string;
     droppable?: boolean;
