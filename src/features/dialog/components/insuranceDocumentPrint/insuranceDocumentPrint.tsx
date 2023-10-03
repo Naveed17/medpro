@@ -13,7 +13,6 @@ import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-
 import {PDFDocument} from 'pdf-lib';
 import {LoadingButton} from "@mui/lab";
 
