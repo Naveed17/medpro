@@ -246,15 +246,19 @@ function CIPPatientHistoryCard({...props}) {
                        transform: hide ? "rotate(90deg)" : "rotate(0)",
                        transformOrigin: "left",
                        width: hide ? "44.5rem" : "auto",
-                       left: hide ? 32 : 23,
+                       left:  23,
                        top: -26,
                    }}
                    borderColor="divider">
                 {hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
+                        if(isClose){
+                            return
+                        }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
+                       
                     }}
                     className="btn-collapse"
                     disableRipple>
@@ -269,8 +273,12 @@ function CIPPatientHistoryCard({...props}) {
                 {!hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
+                        if(isClose){
+                            return
+                        }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
+                        
                     }}
                     className="btn-collapse"
                     disableRipple>
