@@ -57,7 +57,6 @@ import {useWidgetModels} from "@lib/hooks/rest";
 import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {sideBarSelector} from "@features/menu";
 import {AnimatePresence, motion} from "framer-motion";
 
 function ConsultationInProgress() {
@@ -83,7 +82,6 @@ function ConsultationInProgress() {
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
-    const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
 
     const {data: user} = session as Session;
     const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData[0].medical_professional.uuid;
@@ -583,7 +581,7 @@ function ConsultationInProgress() {
             setChanges([...changes])
 
         }
-    }, [medicalProfessionalData, sheet, sheetModal]);
+    }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (event && event.publicId !== app_uuid && isActive) {
@@ -606,11 +604,10 @@ function ConsultationInProgress() {
 
     useEffect(() => {
         if (switchTab) {
-            mutateSheetData()
             setLoading(true)
-            setTimeout(() => {
+            mutateSheetData().then(() => {
                 setLoading(false)
-            }, 1000)
+            })
         }
         setSwitchTab(true)
     }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -787,15 +784,10 @@ function ConsultationInProgress() {
                                         </CardContent>
                                     )}
                                 </motion.div>
-                                <motion.div
-
-
-                                    initial={false}
-                                    animate={{
-                                        width: isMobile ? "100%" : getExamSize()
-                                    }}
-
-                                >
+                                <motion.div initial={false}
+                                            animate={{
+                                                width: isMobile ? "100%" : getExamSize()
+                                            }}>
                                     <ConsultationDetailCard
                                         {...{
                                             changes,
