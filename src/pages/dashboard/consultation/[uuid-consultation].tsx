@@ -600,8 +600,11 @@ function ConsultationInProgress() {
     }, [tableState.patientId]);
 
     useEffect(() => {
-        if (switchTab)
+        if (switchTab) {
             mutateSheetData()
+            setLoading(true)
+            setTimeout(()=>{setLoading(false)},1000)
+        }
         setSwitchTab(true)
     }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
