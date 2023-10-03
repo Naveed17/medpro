@@ -125,7 +125,7 @@ export const CustomNode = ({...props}) => {
                                     display: 'block',
                                     position: 'absolute',
                                     top: 0,
-                                    right: 14,
+                                    right: 8,
                                     width: 10,
                                     height: 10,
                                     bgcolor: 'text.primary',
