@@ -139,6 +139,7 @@ function SideBarMenu({ children }: LayoutProps) {
               <ListItem
                 sx={{
                   margin: "0.5rem 0",
+                  cursor: 'pointer'
                 }}
                 className={router.pathname === item.href ? "active" : ""}
               >
