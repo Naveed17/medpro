@@ -32,6 +32,7 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {debounce} from "lodash";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {Editor} from "@tinymce/tinymce-react";
+import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -246,15 +247,19 @@ function CIPPatientHistoryCard({...props}) {
                        transform: hide ? "rotate(90deg)" : "rotate(0)",
                        transformOrigin: "left",
                        width: hide ? "44.5rem" : "auto",
-                       left: hide ? 32 : 23,
+                       left:  23,
                        top: -26,
                    }}
                    borderColor="divider">
                 {hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
+                        if(isClose){
+                            return
+                        }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
+                       
                     }}
                     className="btn-collapse"
                     disableRipple>
@@ -269,8 +274,12 @@ function CIPPatientHistoryCard({...props}) {
                 {!hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
+                        if(isClose){
+                            return
+                        }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
+                        
                     }}
                     className="btn-collapse"
                     disableRipple>
@@ -403,8 +412,8 @@ function CIPPatientHistoryCard({...props}) {
                                     menubar: false,
                                     height: 200,
                                     toolbar_mode: 'scrolling',
-                                    plugins: " advlist anchor autolink autosave charmap codesample directionality  emoticons    help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount",
-                                    toolbar: "bold italic underline forecolor backcolor  |fontsize fontfamily|  align lineheight checklist bullist numlist  ",
+                                    plugins: tinymcePlugins,
+                                    toolbar: tinymceToolbar,
                                     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                                 }}/>
                             }
@@ -436,8 +445,8 @@ function CIPPatientHistoryCard({...props}) {
                                         menubar: false,
                                         height: 200,
                                         toolbar_mode: 'scrolling',
-                                        plugins: " advlist anchor autolink autosave charmap codesample directionality  emoticons    help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount",
-                                        toolbar: "bold italic underline forecolor backcolor  |fontsize fontfamily|  align lineheight checklist bullist numlist  ",
+                                        plugins: tinymcePlugins,
+                                        toolbar: tinymceToolbar,
                                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                                     }}/>
                             }

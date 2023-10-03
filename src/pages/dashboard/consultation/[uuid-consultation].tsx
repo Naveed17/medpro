@@ -9,7 +9,6 @@ import {
     DialogActions,
     Drawer,
     Fab,
-    Grid,
     Skeleton,
     Stack,
     Toolbar,
@@ -58,7 +57,7 @@ import {useWidgetModels} from "@lib/hooks/rest";
 import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {sideBarSelector} from "@features/menu";
+import {AnimatePresence, motion} from "framer-motion";
 
 function ConsultationInProgress() {
     const theme = useTheme();
@@ -83,7 +82,6 @@ function ConsultationInProgress() {
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
-    const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
 
     const {data: user} = session as Session;
     const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData[0].medical_professional.uuid;
@@ -204,18 +202,16 @@ function ConsultationInProgress() {
 
     // ********** Requests ********** \\
     const getWidgetSize = () => {
-        return isClose ? 0.9 : closeExam ? (sideBarOpened ? 11.1 : 11.3) : 6
+        return isClose ? 50 : closeExam ? '100%' : '50%'
     }
 
     const getExamSize = () => {
-        return isClose ? 11.1 : closeExam ? (sideBarOpened ? 0.9 : 0.7) : 6;
+        return isClose ? "100%" : closeExam ? 50 : '50%';
     }
-
     const mutateDoc = () => {
         const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
         invalidateQueries([docUrl])
     }
-
     const showDoc = (card: any) => {
         let type = "";
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
@@ -577,8 +573,15 @@ function ConsultationInProgress() {
             })
             setActs(_acts);
             setMPActs(_acts);
+
+            changes.map(change => {
+                if (sheet && sheet[change.name])
+                    change.checked = sheet[change.name] > 0
+            })
+            setChanges([...changes])
+
         }
-    }, [medicalProfessionalData, sheet, sheetModal]);
+    }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (event && event.publicId !== app_uuid && isActive) {
@@ -600,8 +603,12 @@ function ConsultationInProgress() {
     }, [tableState.patientId]);
 
     useEffect(() => {
-        if (switchTab)
-            mutateSheetData()
+        if (switchTab) {
+            setLoading(true)
+            mutateSheetData().then(() => {
+                setLoading(false)
+            })
+        }
         setSwitchTab(true)
     }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -620,7 +627,6 @@ function ConsultationInProgress() {
             });
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
-
     return (
         <>
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
@@ -662,9 +668,11 @@ function ConsultationInProgress() {
                         patient,
                         handleChangeTab,
                         isMobile,
+                        loading,
                         changes,
                         anchorEl,
                         mutatePatient,
+                        mutateSheetData,
                         setAnchorEl,
                         dialog, setDialog
                     }}
@@ -701,46 +709,20 @@ function ConsultationInProgress() {
                         />
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={12} md={getWidgetSize()}>
-                                {loading && <CardContent
-                                    sx={{
-                                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                        border: `1px solid ${theme.palette.grey['A300']}`,
-                                        overflow: 'hidden',
-                                        borderRadius: 2,
-                                        height: {xs: "30vh", md: "40.3rem"},
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        padding: 0
-                                    }}>
-                                    <Skeleton variant="rounded" width={"100%"}
-                                              sx={{height: {xs: "30vh", md: "40.3rem"}}}/>
-                                </CardContent>}
-                                {!loading && models && Array.isArray(models) && models.length > 0 && selectedModel && patient && (
-                                    <WidgetForm
-                                        {...{
-                                            models,
-                                            changes,
-                                            setChanges,
-                                            isClose,
-                                            acts,
-                                            setActs,
-                                            previousData,
-                                            selectedModel,
-                                            appuuid: app_uuid,
-                                            modal: selectedModel,
-                                            data: sheetModal?.data,
-                                            closed: closeExam,
-                                            setSM: setSelectedModel,
-                                            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
-                                            mutateSheetData,
-                                            printGlasses
-                                        }}
-                                        handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
-                                )}
-                                {!loading && !selectedModel && (<CardContent
+
+                        <Stack direction={{xs: 'column', md: 'row'}} justifyContent='space-between' spacing={2}>
+                            <AnimatePresence mode="popLayout">
+                                <motion.div
+                                    key={'modal'}
+                                    layoutId="modal-1"
+                                    initial={false}
+                                    animate={{
+                                        width: isMobile ? "100%" : getWidgetSize()
+
+                                    }}
+
+                                >
+                                    {loading && <CardContent
                                         sx={{
                                             bgcolor: alpha(theme.palette.primary.main, 0.1),
                                             border: `1px solid ${theme.palette.grey['A300']}`,
@@ -749,43 +731,83 @@ function ConsultationInProgress() {
                                             height: {xs: "30vh", md: "40.3rem"},
                                             display: "flex",
                                             justifyContent: "center",
-                                            alignItems: "center"
+                                            alignItems: "center",
+                                            padding: 0
                                         }}>
+                                        <Skeleton variant="rounded" width={"100%"}
+                                                  sx={{height: {xs: "30vh", md: "40.3rem"}}}/>
+                                    </CardContent>}
+                                    {!loading && models && Array.isArray(models) && models.length > 0 && selectedModel && patient && (
+                                        <WidgetForm
+                                            {...{
+                                                models,
+                                                changes,
+                                                setChanges,
+                                                isClose,
+                                                acts,
+                                                setActs,
+                                                previousData,
+                                                selectedModel,
+                                                appuuid: app_uuid,
+                                                modal: selectedModel,
+                                                data: sheetModal?.data,
+                                                closed: closeExam,
+                                                setSM: setSelectedModel,
+                                                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+                                                mutateSheetData,
+                                                printGlasses
+                                            }}
+                                            handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
+                                    )}
+                                    {!loading && !selectedModel && (<CardContent
+                                            sx={{
+                                                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                                border: `1px solid ${theme.palette.grey['A300']}`,
+                                                overflow: 'hidden',
+                                                borderRadius: 2,
+                                                height: {xs: "30vh", md: "40.3rem"},
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center"
+                                            }}>
 
-                                        <Stack spacing={1} alignItems={"center"}>
-                                            <TuneRoundedIcon/>
-                                            <Typography fontSize={11}
-                                                        textAlign={"center"}>{t('consultationIP.noActiveFile')}</Typography>
-                                            <Typography fontSize={10} textAlign={"center"}
-                                                        style={{opacity: 0.5}}>{t('consultationIP.configure')}</Typography>
-                                            <Button size={"small"} onClick={() => {
-                                                router.replace("/dashboard/settings/patient-file-templates")
-                                            }}></Button>
-                                        </Stack>
-                                    </CardContent>
-                                )}
-                            </Grid>
-                            <Grid item xs={12}
-                                  md={getExamSize()}
-                                  style={{paddingLeft: isClose ? 0 : 10}}>
-                                <ConsultationDetailCard
-                                    {...{
-                                        changes,
-                                        setChanges,
-                                        app_uuid,
-                                        exam: sheetExam,
-                                        hasDataHistory,
-                                        seeHistory,
-                                        closed: closeExam,
-                                        setCloseExam,
-                                        isClose,
-                                        agenda,
-                                        trigger: triggerAppointmentEdit
-                                    }}
-                                    handleClosePanel={(v: boolean) => setCloseExam(v)}
-                                />
-                            </Grid>
-                        </Grid>
+                                            <Stack spacing={1} alignItems={"center"}>
+                                                <TuneRoundedIcon/>
+                                                <Typography fontSize={11}
+                                                            textAlign={"center"}>{t('consultationIP.noActiveFile')}</Typography>
+                                                <Typography fontSize={10} textAlign={"center"}
+                                                            style={{opacity: 0.5}}>{t('consultationIP.configure')}</Typography>
+                                                <Button size={"small"} onClick={() => {
+                                                    router.replace("/dashboard/settings/patient-file-templates")
+                                                }}></Button>
+                                            </Stack>
+                                        </CardContent>
+                                    )}
+                                </motion.div>
+                                <motion.div initial={false}
+                                            animate={{
+                                                width: isMobile ? "100%" : getExamSize()
+                                            }}>
+                                    <ConsultationDetailCard
+                                        {...{
+                                            changes,
+                                            setChanges,
+                                            app_uuid,
+                                            exam: sheetExam,
+                                            hasDataHistory,
+                                            seeHistory,
+                                            closed: closeExam,
+                                            setCloseExam,
+                                            isClose,
+                                            agenda,
+                                            trigger: triggerAppointmentEdit
+                                        }}
+                                        handleClosePanel={(v: boolean) => setCloseExam(v)}
+
+                                    />
+                                </motion.div>
+                            </AnimatePresence>
+                        </Stack>
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"documents"}>
                         <DocumentsTab

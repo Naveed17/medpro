@@ -199,8 +199,10 @@ function PreviewDialog({...props}) {
                             let txt = el.name.replaceAll('{patient}', state.patient)
                             txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
                             txt = txt.replaceAll('[date]', moment().format('DD/MM/YYYY'))
-                            if (state.birthdate)
+                            if (state.birthdate) {
                                 txt = txt.replaceAll('{age}', moment().diff(moment(state.birthdate, "DD-MM-YYYY"), "years") + " ans")
+                                txt = txt.replaceAll('{birthdate}', moment(state.birthdate, "DD-MM-YYYY").format('DD-MM-YYYY'))
+                            }
                             if (state.cin)
                                 txt = txt.replaceAll('{cin}', state.cin)
                             txt = txt.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
@@ -245,8 +247,10 @@ function PreviewDialog({...props}) {
                             const prescLine = document.createElement('p');
                             const subTitle = ['sphere', 'cylindre', 'axe']
 
-                            let od = ""; let og = ""
-                            let odp = ""; let ogp = ""
+                            let od = "";
+                            let og = ""
+                            let odp = "";
+                            let ogp = ""
 
                             subTitle.map(key => {
                                 od += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
@@ -266,7 +270,7 @@ function PreviewDialog({...props}) {
                                     value: `• OD : ${od}`,
                                     name: "name",
                                     element: "p",
-                                    style: {marginBottom: 0, marginLeft:30}
+                                    style: {marginBottom: 0, marginLeft: 30}
                                 },
                                 {
                                     value: `• OG : ${og}`,
