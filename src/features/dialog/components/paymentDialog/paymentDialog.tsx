@@ -245,6 +245,10 @@ function PaymentDialog({...props}) {
         return selectedPayment.total - paymentTotal
     }
 
+    const getHours = ()=>{
+        return `${new Date().getHours()}:${new Date().getMinutes()}`
+    }
+
     useEffect(() => {
         setSelectedPayment({
             ...selectedPayment,
@@ -328,7 +332,7 @@ function PaymentDialog({...props}) {
                                 <Typography
                                     fontWeight={700}
                                     component='strong'
-                                    mx={1}>{calculInsurance()}</Typography>
+                                    mx={1}>{(calculInsurance()).toFixed(3)}</Typography>
                                 {devise}
                             </Button>
 
@@ -340,7 +344,7 @@ function PaymentDialog({...props}) {
                                 <Typography
                                     fontWeight={700}
                                     component='strong'
-                                    mx={1}>{calculRest()}</Typography>
+                                    mx={1}>{(calculRest()).toFixed(3)}</Typography>
                                 {devise}
                             </Button>
 
@@ -526,7 +530,8 @@ function PaymentDialog({...props}) {
                                                                 const newPayment = [...payments, {
                                                                     amount: values.cash?.amount,
                                                                     designation: label,
-                                                                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                    payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                    payment_time: getHours(),
                                                                     status_transaction: TransactionStatus[1].value,
                                                                     type_transaction: TransactionType[2].value,
                                                                     payment_means: paymentTypesList.find((pt: {
@@ -710,7 +715,8 @@ function PaymentDialog({...props}) {
                                                                 let updatedPays: any[] = [];
                                                                 values.check?.map((ck: any) => {
                                                                     updatedPays.push({
-                                                                        payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                        payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                        payment_time: getHours(),
                                                                         designation: label,
                                                                         status_transaction: TransactionStatus[1].value,
                                                                         type_transaction: TransactionType[2].value,
@@ -756,7 +762,8 @@ function PaymentDialog({...props}) {
                                                                 const newPayment = [...payments, {
                                                                     amount: Number(values.cash?.amount),
                                                                     designation: label,
-                                                                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                    payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                    payment_time: getHours(),
                                                                     status_transaction: TransactionStatus[1].value,
                                                                     type_transaction: TransactionType[4].value,
                                                                     wallet: true
@@ -832,7 +839,8 @@ function PaymentDialog({...props}) {
                                                                 const newPayment = [...payments, {
                                                                     amount: Number(values.cash?.amount),
                                                                     designation: label,
-                                                                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                    payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                    payment_time: getHours(),
                                                                     status_transaction: TransactionStatus[1].value,
                                                                     type_transaction: TransactionType[2].value,
                                                                     insurance: deals.selected//insurances.find(i => i.uuid === deals.selected),

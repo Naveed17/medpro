@@ -1,19 +1,19 @@
-import React, {useState, useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import CardStyled from "./overrides/cardStyle";
 import {
-    CardContent,
     alpha,
-    Theme,
-    useTheme,
-    Link,
-    Stack,
-    Tooltip,
     Avatar,
-    Typography,
-    IconButton,
-    Menu,
     Button,
+    CardContent,
     DialogActions,
+    IconButton,
+    Link,
+    Menu,
+    Stack,
+    Theme,
+    Tooltip,
+    Typography,
+    useTheme,
 } from "@mui/material";
 import {ImageHandler} from "@features/image";
 import {useRouter} from "next/router";
@@ -61,7 +61,6 @@ function CashBoxMobileCard({...props}) {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const [selected, setSelected] = useState<any>([]);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
@@ -138,11 +137,6 @@ function CashBoxMobileCard({...props}) {
         );
     }
 
-    useEffect(() => {
-        dispatch(addBilling(selected));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selected]);
-
     const openPutTransactionDialog = () => {
         let payments: any[] = [];
         let payed_amount = 0;
@@ -152,7 +146,8 @@ function CashBoxMobileCard({...props}) {
             let pay: any = {
                 uuid: td.uuid,
                 amount: td.amount,
-                payment_date: moment().format("DD-MM-YYYY HH:mm"),
+                payment_date: moment().format("DD-MM-YYYY"),
+                payment_time: `${new Date().getHours()}:${new Date().getMinutes()}`,
                 status_transaction: td.status_transaction_data,
                 type_transaction: td.type_transaction_data,
                 data: td.data,
@@ -255,9 +250,9 @@ function CashBoxMobileCard({...props}) {
                                     .length > 0 ? (
                                     data.transaction_data
                                         .filter((td: any) => td.insurance)
-                                        .map((td: any) => (
+                                        .map((td: any, index: number) => (
                                             <Tooltip
-                                                key={td.insurance.insurance?.uuid}
+                                                key={td.insurance.insurance?.uuid + index}
                                                 title={td.insurance.insurance?.name}>
                                                 <Avatar variant={"circular"}>
                                                     {insurances?.find(

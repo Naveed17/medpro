@@ -107,7 +107,8 @@ function SecretaryConsultationDialog({...props}) {
                 let pay: any = {
                     uuid: td.uuid,
                     amount: td.amount,
-                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                    payment_date: moment().format('DD-MM-YYYY'),
+                    payment_time: `${new Date().getHours()}:${new Date().getMinutes()}`,
                     status_transaction: td.status_transaction_data,
                     type_transaction: td.type_transaction_data,
                     data: td.data

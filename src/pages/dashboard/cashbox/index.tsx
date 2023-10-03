@@ -213,7 +213,7 @@ function Cashbox() {
         setToReceive(data.total_insurance_amount);
         setCollected(data.total_collected);
         txtGenerator()
-        if (data.transactions) setRows(data.transactions.reverse());
+        if (data.transactions) setRows(data.transactions);
         else setRows([]);
         if (filterQuery.includes("cashboxes")) setLoading(false);
     }
@@ -307,7 +307,7 @@ function Cashbox() {
                 status_transaction: TransactionStatus[2].value.toString(),
                 type_transaction: TransactionType[3].value.toString(),
                 payment_date: moment().format('DD-MM-YYYY'),
-                payment_time: moment().format('HH:mm'),
+                payment_time: `${new Date().getHours()}:${new Date().getMinutes()}`,
                 transaction_data_uuid: "",
                 data: {label: t('encashment')}
             }];

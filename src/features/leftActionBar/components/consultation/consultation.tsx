@@ -8,7 +8,6 @@ import {
     Box,
     Button,
     CardContent,
-    Chip,
     Collapse,
     IconButton,
     List,
@@ -44,7 +43,6 @@ import Content from "@features/leftActionBar/components/consultation/content";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import {Label} from "@features/label";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
@@ -287,7 +285,7 @@ function Consultation() {
                                     </Typography>
                                 )}
 
-                                {(patient && (patient?.rest_amount ?? 0) > 0) && <Label
+                                {(patient && (patient?.rest_amount ?? 0) !== 0) && <Label
                                     variant='filled'
                                     sx={{
                                         "& .MuiSvgIcon-root": {
@@ -304,11 +302,6 @@ function Consultation() {
                             </Box>
                         )}
 
-                        {patient?.rest_amount !== undefined && patient?.rest_amount < 0 &&
-                            <Chip label={`${patient?.rest_amount} ${devise}`}
-                                  color={"error"}
-                                  icon={<WarningRoundedIcon/>}
-                                  size={"small"}/>}
                     </Box>
 
                     <Box

@@ -98,11 +98,12 @@ function FeesTab({...props}) {
                 uuid: "consultation_type"
             }, ...mpActs]
 
-            res.acts && res.acts.map((act: { act_uuid: string,qte:number }) => {
+            res.acts && res.acts.map((act: { act_uuid: string,qte:number,price:number }) => {
                 const index = _acts.findIndex(mpact => mpact.uuid === act.act_uuid)
                 if(index > -1) {
                     _acts[index].selected = true
                     _acts[index].qte = act.qte;
+                    _acts[index].fees = act.price;
                 }
             })
 
@@ -145,7 +146,6 @@ function FeesTab({...props}) {
         })
 
         const app_type = actsList.find((act: { uuid: string; }) => act.uuid === 'consultation_type')
-        console.log(app_type)
         let isFree = true;
         let consultationFees = 0;
 

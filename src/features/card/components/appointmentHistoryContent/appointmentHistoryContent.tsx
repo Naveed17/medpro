@@ -143,10 +143,10 @@ function AppointmentHistoryContent({...props}) {
                                                     isOtherProfessional: any;
                                                 }) => t.isOtherProfessional).length > 0 &&
                                                 <Typography fontSize={12}
-                                                            fontWeight={"bold"}>{t('treatement_in_progress')}</Typography>
+                                                            fontWeight={"bold"}>{t('consultationIP.treatement_in_progress')}</Typography>
                                             }
                                             {app.appointment.treatments.filter((t: {
-                                                isOtherProfessional: any;
+                                                isOtherProfessional: boolean;
                                             }) => t.isOtherProfessional).map((treatment: any, idx: number) => (
                                                     <Box
                                                         key={`list-treatement-${idx}`}
