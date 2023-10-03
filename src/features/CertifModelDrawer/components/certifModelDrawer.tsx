@@ -14,6 +14,7 @@ import AddIcon from "@mui/icons-material/Add";
 import {useSnackbar} from "notistack";
 import PaperStyled from "@features/CertifModelDrawer/components/overrides/paperStyled";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -257,8 +258,8 @@ function CertifModelDrawer({...props}) {
                                 branding: false,
                                 statusbar: false,
                                 menubar: false,
-                                plugins: " advlist anchor autolink autosave charmap codesample directionality  emoticons    help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount",
-                                toolbar: "blocks fontfamily fontsize | bold italic underline forecolor backcolor | align lineheight checklist bullist numlist ",
+                                plugins: tinymcePlugins,
+                                toolbar: tinymceToolbar,
                                 content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
 
                             }}

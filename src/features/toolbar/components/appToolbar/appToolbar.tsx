@@ -51,10 +51,12 @@ function AppToolbar({...props}) {
         isMobile,
         changes,
         anchorEl,
+        loading,
         mutatePatient,
         setAnchorEl,
         setPatientShow,
-        dialog, setDialog
+        dialog, setDialog,
+        mutateSheetData
     } = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
@@ -358,7 +360,7 @@ function AppToolbar({...props}) {
         }
 
         setSelectedTab("documents");
-
+        mutateSheetData()
         setOpenDialog(false);
         setInfo(null);
         dispatch(SetSelectedDialog(null))
@@ -620,6 +622,7 @@ function AppToolbar({...props}) {
                         allowScrollButtonsMobile={isMobile}
                         scrollButtons={true}
                         textColor="primary"
+                        disabled={loading}
                         indicatorColor="primary"
                         aria-label="patient_history">
                         {
@@ -628,6 +631,7 @@ function AppToolbar({...props}) {
                                     className="custom-tab"
                                     key={tab.label}
                                     value={tab.label}
+                                    disabled={loading}
                                     label={t(tab.label)}
                                 />
                             ))
