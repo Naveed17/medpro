@@ -131,6 +131,7 @@ function SideBarMenu({ children }: LayoutProps) {
         component={motion.ul}
         layout
         onMouseLeave={() => setCurrentIndex(null)}
+        sx={{overflow:'hidden',px:1.5}}
       >
         {menuItems?.map((item, i) => (
           <Hidden key={item.name} smUp={item.name === "wallet"}>
@@ -138,6 +139,7 @@ function SideBarMenu({ children }: LayoutProps) {
               <ListItem
                 sx={{
                   margin: "0.5rem 0",
+                  cursor: 'pointer'
                 }}
                 className={router.pathname === item.href ? "active" : ""}
               >
@@ -194,19 +196,17 @@ function SideBarMenu({ children }: LayoutProps) {
                     }}
                   />
                 )}
-                <AnimatePresence>
+                
                   {i === currentIndex && (
                     <motion.div
                       className="icon-background"
                       layoutId="social"
                       key="social"
-                      variants={iconBackgroundVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="hidden"
+                      initial={false}
+                    
                     />
                   )}
-                </AnimatePresence>
+               
               </ListItem>
             </a>
           </Hidden>
