@@ -253,6 +253,9 @@ function CIPPatientHistoryCard({...props}) {
                 {hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
+                        if(isClose){
+                            return
+                        }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
                        
@@ -270,6 +273,9 @@ function CIPPatientHistoryCard({...props}) {
                 {!hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
+                        if(isClose){
+                            return
+                        }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
                         

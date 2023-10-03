@@ -619,7 +619,6 @@ function ConsultationInProgress() {
             });
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
-console.log(isClose)
     return (
         <>
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
