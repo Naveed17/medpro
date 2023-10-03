@@ -40,6 +40,7 @@ import {DndProvider} from "react-dnd";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import IconUrl from "@themes/urlIcon";
+import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -411,8 +412,8 @@ function CertifDialog({...props}) {
                                     branding: false,
                                     statusbar: false,
                                     menubar: false,
-                                    plugins: " advlist anchor autolink autosave charmap codesample directionality  emoticons    help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount table",
-                                    toolbar: "blocks fontfamily fontsize | bold italic underline forecolor backcolor | align lineheight checklist bullist numlist | table tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol ",
+                                    plugins: tinymcePlugins,
+                                    toolbar: tinymceToolbar,
                                     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                                 }}/>
                         </Stack>
