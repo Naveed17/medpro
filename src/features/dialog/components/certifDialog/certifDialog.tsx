@@ -123,6 +123,7 @@ function CertifDialog({...props}) {
         setSelectedTemplate(model.documentHeader)
         setSelectedColor([model.color])
         setSelectedModel(model);
+        setFolder(model?.folder ?? "");
     }
 
     const saveModel = () => {
@@ -224,7 +225,6 @@ function CertifDialog({...props}) {
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${ModelSourceId}/${router.locale}`,
             data: form
         }, {
-            onSuccess: () => mutateParentModel(),
             ...(loading && {
                 onSettled: () => {
                     setLoading(false);
@@ -268,9 +268,35 @@ function CertifDialog({...props}) {
 
     useEffect(() => {
         if (httpParentModelResponse && httpModelResponse) {
-            const template: CertifModel[] = [];
+            const certifiesModel: any[] = [];
             const modelsList = (httpModelResponse as HttpResponse).data;
-            modelsList.map((model: CertifModel) => {
+
+            ParentModels.map((model: any) => {
+                certifiesModel.push(...[
+                    {
+                        id: model.uuid,
+                        isDefault: model.name === "Default",
+                        parent: 0,
+                        droppable: true,
+                        text: model.name === "Default" ? "Répertoire par défaut" : model.name
+                    },
+                    ...model.files.map((certifie: any) => ({
+                        id: certifie.uuid,
+                        parent: model.uuid,
+                        color: model.color ? model.color : theme.palette.text.primary,
+                        text: certifie.title,
+                        data: {...certifie, folder: model.uuid}
+                    }))
+                ]);
+            });
+            modelsList.length > 0 && certifiesModel.push(...modelsList.map((model: CertifModel) => ({
+                id: model.uuid,
+                parent: 0,
+                color: model.color ? model.color : '#0696D6',
+                text: model.title ? model.title : 'Sans titre',
+                data: model
+            })))
+            /*modelsList.map((model: CertifModel) => {
                 const stringToHTML = new DOMParser().parseFromString(model.content, 'text/html').body.firstChild
                 template.push({
                     id: model.uuid,
@@ -283,14 +309,8 @@ function CertifDialog({...props}) {
                     preview: (stringToHTML as HTMLElement)?.innerHTML,
                     data: model
                 });
-            });
-            setTreeData([...ParentModels.map((model: any, index: number) => ({
-                id: (++index).toString(),
-                isDefault: model.name === "Default",
-                parent: 0,
-                droppable: true,
-                text: model.name === "Default" ? "Répertoire par défaut" : model.name
-            })), ...template.reverse()])
+            });*/
+            setTreeData(certifiesModel);
         }
     }, [httpParentModelResponse, httpModelResponse]) // eslint-disable-line react-hooks/exhaustive-deps
 
