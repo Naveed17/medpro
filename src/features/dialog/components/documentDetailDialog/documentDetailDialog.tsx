@@ -239,6 +239,7 @@ function DocumentDetailDialog({...props}) {
             case "edit":
                 switch (state?.type) {
                     case "prescription":
+                        setOpenDialog(false);
                         dispatch(SetSelectedDialog({
                             action: 'medical_prescription_cycle',
                             state: state?.info.map((drug: any) => ({
