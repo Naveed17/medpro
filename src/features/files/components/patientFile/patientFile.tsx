@@ -2,7 +2,7 @@ import React from "react";
 
 import {Document, Font, Page, StyleSheet, Text, View} from '@react-pdf/renderer';
 import moment from "moment";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
@@ -100,7 +100,7 @@ function PatientFile({...props}) {
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {data: httpPatientDetailsResponse} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpPatientDetailsResponse} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`
     } : null);
@@ -134,7 +134,7 @@ function PatientFile({...props}) {
                         <Text style={styles.info}>{patientData?.contact[0].code} {patientData?.contact[0].value}</Text>}
 
                     <View style={styles.separator}></View>
-                    <Text style={styles.subtitle}>Informations personnelles</Text>
+                    <Text style={styles.subtitle}>Informations</Text>
                     {
                         patientData?.address && patientData?.address.length > 0 && <View>
                             <Text style={styles.header}>Adresse</Text>

@@ -26,7 +26,7 @@ import LabelStyled from "./overrides/labelStyled";
 import {CropImage} from "@features/image";
 import {InputStyled} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
@@ -81,12 +81,12 @@ function Info({...props}) {
         // handleSubmit();
     }, [onSubmit]);
 
-    const {data: httpResponse, error} = useRequest({
+    const {data: httpResponse, error} = useRequestQuery({
         method: "GET",
         url: `/api/public/specialties/${router.locale}`
     });
 
-    const {data: httpResponseLang, error: errorLang} = useRequest({
+    const {data: httpResponseLang, error: errorLang} = useRequestQuery({
         method: "GET",
         url: `/api/public/languages/${router.locale}`
     });
@@ -107,7 +107,6 @@ function Info({...props}) {
 
     const handleChangeFiled = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name: specialty, checked} = event.target;
-        console.log(specialty, checked);
         setFieldValue(
             "secondarySpecialties",
             checked

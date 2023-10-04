@@ -1,22 +1,19 @@
-import React, {useState, useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import CardStyled from "./overrides/cardStyle";
-import StyledList from "./overrides/listStyle";
 import {
-    CardContent,
     alpha,
-    Theme,
-    useTheme,
-    Link,
-    Stack,
-    Tooltip,
     Avatar,
-    Typography,
-    IconButton,
-    Collapse,
-    ListItem,
-    Menu,
     Button,
+    CardContent,
     DialogActions,
+    IconButton,
+    Link,
+    Menu,
+    Stack,
+    Theme,
+    Tooltip,
+    Typography,
+    useTheme,
 } from "@mui/material";
 import {ImageHandler} from "@features/image";
 import {useRouter} from "next/router";
@@ -26,24 +23,19 @@ import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {DefaultCountry, TransactionStatus} from "@lib/constants";
-
-import {Label} from "@features/label";
+import {DefaultCountry} from "@lib/constants";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {useSnackbar} from "notistack";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {PaymentFeesPopover} from "@features/popover";
-import {useSWRConfig} from "swr";
-import Image from "next/image";
+import {useTransactionEdit} from "@lib/hooks/rest";
 
 function CashBoxMobileCard({...props}) {
     const {
@@ -52,7 +44,7 @@ function CashBoxMobileCard({...props}) {
         handleEvent,
         insurances,
         t,
-        mutateTransctions,
+        mutateTransactions,
         pmList,
     } = props;
     const theme = useTheme<Theme>();
@@ -60,26 +52,20 @@ function CashBoxMobileCard({...props}) {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
-    const devise = doctor_country.currency?.name;
-
-    const {mutate} = useSWRConfig();
+    const {trigger: triggerTransactionEdit} = useTransactionEdit();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
     const {enqueueSnackbar} = useSnackbar();
 
-    const [selected, setSelected] = useState<any>([]);
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const devise = doctor_country.currency?.name;
+
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
-    const [loadingDeleteTransaction, setLoadingDeleteTransaction] =
-        useState(false);
-    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] =
-        useState(false);
+    const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
+    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
@@ -90,34 +76,24 @@ function CashBoxMobileCard({...props}) {
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {trigger: triggerPostTransaction} = useRequestMutation(
-        null,
-        "/payment/cashbox"
-    );
+    const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox");
 
-    
     const resetDialog = () => {
         setOpenPaymentDialog(false);
-    };
+    }
+
     const mutatePatientWallet = () => {
-        medicalEntityHasUser &&
-        mutate(
-            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.appointment.patient?.uuid}/wallet/${router.locale}`
-        );
-    };
+        medicalEntityHasUser && invalidateQueries(
+            [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.appointment.patient?.uuid}/wallet/${router.locale}`]);
+    }
+
     const handleSubmit = () => {
         setLoadingRequest(true);
-        OnTransactionEdit(
+        triggerTransactionEdit(
             selectedPayment,
-            selectedBoxes,
-            router.locale,
-            session,
-            medical_entity.uuid,
             data,
-            triggerPostTransaction,
-            urlMedicalEntitySuffix,
             () => {
-                mutateTransctions().then(() => {
+                mutateTransactions().then(() => {
                     mutatePatientWallet();
                     enqueueSnackbar(t("addsuccess"), {variant: "success"});
                     setOpenPaymentDialog(false);
@@ -125,7 +101,8 @@ function CashBoxMobileCard({...props}) {
                 });
             }
         );
-    };
+    }
+
     const deleteTransaction = () => {
         const form = new FormData();
         form.append("cash_box", selectedBoxes[0]?.uuid);
@@ -134,17 +111,20 @@ function CashBoxMobileCard({...props}) {
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/transactions/${data?.uuid}/${router.locale}`,
             data: form,
-        }).then(() => {
-            mutateTransctions();
-            mutatePatientWallet();
-            setLoadingDeleteTransaction(false);
-            setOpenDeleteTransactionDialog(false);
+        }, {
+            onSuccess: () => {
+                mutateTransactions();
+                mutatePatientWallet();
+                setLoadingDeleteTransaction(false);
+                setOpenDeleteTransactionDialog(false);
+            }
         });
-    };
+    }
 
     const handleClose = () => {
         setContextMenu(null);
-    };
+    }
+
     const openFeesPopover = (event: React.MouseEvent<any>) => {
         event.stopPropagation();
         setContextMenu(
@@ -155,12 +135,8 @@ function CashBoxMobileCard({...props}) {
                 }
                 : null
         );
-    };
+    }
 
-    useEffect(() => {
-        dispatch(addBilling(selected));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selected]);
     const openPutTransactionDialog = () => {
         let payments: any[] = [];
         let payed_amount = 0;
@@ -170,7 +146,8 @@ function CashBoxMobileCard({...props}) {
             let pay: any = {
                 uuid: td.uuid,
                 amount: td.amount,
-                payment_date: moment().format("DD-MM-YYYY HH:mm"),
+                payment_date: moment().format("DD-MM-YYYY"),
+                payment_time: `${new Date().getHours()}:${new Date().getMinutes()}`,
                 status_transaction: td.status_transaction_data,
                 type_transaction: td.type_transaction_data,
                 data: td.data,
@@ -193,7 +170,8 @@ function CashBoxMobileCard({...props}) {
             isNew: false,
         });
         setOpenPaymentDialog(true);
-    };
+    }
+
     return (
         <>
             <CardStyled
@@ -208,16 +186,14 @@ function CashBoxMobileCard({...props}) {
                             0.1
                         ),
                     cursor: data.collapse ? "pointer" : "default",
-                }}
-            >
+                }}>
                 <CardContent>
                     <Stack direction="row" alignItems="center">
-                        <Stack spacing={1.5} width={{xs:1,sm:'auto'}}>
+                        <Stack spacing={1.5} width={{xs: 1, sm: 'auto'}}>
                             <Stack
                                 direction="row"
                                 alignItems="center"
-                                spacing={{xs: 1, sm: 6}}
-                            >
+                                spacing={{xs: 1, sm: 6}}>
                                 {!hideName && data.appointment ? (
                                     <Link
                                         sx={{
@@ -235,8 +211,7 @@ function CashBoxMobileCard({...props}) {
                                                 event,
                                             });
                                         }}
-                                        underline="none"
-                                    >
+                                        underline="none">
                                         {`${data.appointment.patient.firstName} ${data.appointment.patient.lastName}`}
                                     </Link>
                                 ) : data.patient ? (
@@ -256,8 +231,7 @@ function CashBoxMobileCard({...props}) {
                                                 event,
                                             });
                                         }}
-                                        underline="none"
-                                    >
+                                        underline="none">
                                         {`${data.patient.firstName} ${data.patient.lastName}`}
                                     </Link>
                                 ) : (
@@ -268,8 +242,7 @@ function CashBoxMobileCard({...props}) {
                                             textOverflow: "ellipsis",
                                             whiteSpace: "nowrap",
                                         }}
-                                        underline="none"
-                                    >
+                                        underline="none">
                                         {data.transaction_data[0].data.label || "-"}
                                     </Link>
                                 )}
@@ -277,11 +250,10 @@ function CashBoxMobileCard({...props}) {
                                     .length > 0 ? (
                                     data.transaction_data
                                         .filter((td: any) => td.insurance)
-                                        .map((td: any) => (
+                                        .map((td: any, index: number) => (
                                             <Tooltip
-                                                key={td.insurance.insurance?.uuid}
-                                                title={td.insurance.insurance?.name}
-                                            >
+                                                key={td.insurance.insurance?.uuid + index}
+                                                title={td.insurance.insurance?.name}>
                                                 <Avatar variant={"circular"}>
                                                     {insurances?.find(
                                                         (insurance: any) =>
@@ -317,8 +289,7 @@ function CashBoxMobileCard({...props}) {
                                                     .then(() => {
                                                     });
                                             }}
-                                            underline="none"
-                                        >
+                                            underline="none">
                                             {data.appointment.type.name}
                                         </Link>
                                     ) : (
@@ -327,8 +298,7 @@ function CashBoxMobileCard({...props}) {
                                                 minWidth: {xs: 0, sm: 100},
                                             }}
                                             variant="body2"
-                                            color="text.primary"
-                                        >
+                                            color="text.primary">
                                             {t("table." + data.type_transaction)}
                                         </Typography>
                                     )
@@ -336,8 +306,7 @@ function CashBoxMobileCard({...props}) {
                                     <Typography
                                         sx={{
                                             minWidth: {xs: 0, sm: 100},
-                                        }}
-                                    >
+                                        }}>
                                         --
                                     </Typography>
                                 )}
@@ -345,10 +314,10 @@ function CashBoxMobileCard({...props}) {
                                 <Stack
                                     sx={{
                                         minWidth: {xs: 0, sm: 100},
-                                        '& > span':{
-                                             mr: '4px !important',
-                                            '&:last-child':{
-                                                m:'0 !important'
+                                        '& > span': {
+                                            mr: '4px !important',
+                                            '&:last-child': {
+                                                m: '0 !important'
 
                                             }
 
@@ -356,9 +325,7 @@ function CashBoxMobileCard({...props}) {
                                     }}
                                     direction="row"
                                     alignItems="center"
-                                    justifyContent="center"
-                                   
-                                    >
+                                    justifyContent="center">
                                     {data.transaction_data &&
                                         data.transaction_data.map(
                                             (td: TransactionDataModel) =>
@@ -380,8 +347,7 @@ function CashBoxMobileCard({...props}) {
                                     alignItems={"center"}
                                     spacing={1}
                                     justifyContent={"center"}
-                                    ml={{xs:'auto !important',sm:1}}
-                                >
+                                    ml={{xs: 'auto !important', sm: 1}}>
                                     <Typography
                                         onClick={(event) => {
                                             event.stopPropagation();
@@ -394,8 +360,7 @@ function CashBoxMobileCard({...props}) {
                                                     ? "expire.main"
                                                     : "success.main"
                                         }
-                                        fontWeight={700}
-                                    >
+                                        fontWeight={700}>
                                         {data.rest_amount > 0
                                             ? `${data.amount - data.rest_amount} / ${data.amount}`
                                             : data.amount}{" "}
@@ -422,8 +387,7 @@ function CashBoxMobileCard({...props}) {
                                             transformOrigin={{
                                                 vertical: "top",
                                                 horizontal: "right",
-                                            }}
-                                        >
+                                            }}>
                                             <PaymentFeesPopover uuid={data?.appointment.uuid}/>
                                         </Menu>
                                     )}
@@ -444,8 +408,7 @@ function CashBoxMobileCard({...props}) {
                                                 },
                                             },
                                         },
-                                    }}
-                                >
+                                    }}>
                                     <Icon path="ic-agenda"/>
                                     <Typography variant="body2">
                                         {moment(data.date_transaction).format("DD-MM-YYYY")}
@@ -465,8 +428,7 @@ function CashBoxMobileCard({...props}) {
                                                 },
                                             },
                                         },
-                                    }}
-                                >
+                                    }}>
                                     <Icon path="ic-time"/>
                                     <Typography variant="body2">
                                         {moment(data.date_transaction).format("HH:mm")}
@@ -481,56 +443,50 @@ function CashBoxMobileCard({...props}) {
                                 position: {xs: "absolute", sm: "static"},
                                 right: 2,
                                 bottom: 2,
-                            }}
-                        >
+                            }}>
                             {data.rest_amount > 0 && (
                                 <Tooltip title={t("settlement")}>
                                     <IconButton
-                                       
+
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             openPutTransactionDialog();
-                                        }}
-                                    >
+                                        }}>
                                         <Icon path={"ic-argent"}/>
                                     </IconButton>
                                 </Tooltip>
                             )}
                             <Tooltip title={t("more")}>
-                                    <IconButton
-                                       
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                             handleEvent({action: "PATIENT_PAYMENT", row: data, e});
-                                        }}
-                                    >
-                                        <Icon path={"setting/ic-voir"}/>
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title={t("edit")}>
-                                    <IconButton
-                                        size="small"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            openPutTransactionDialog();
-                                        }}
-                                    >
-                                        <IconUrl path="setting/edit"/>
-                                    </IconButton>
-                                </Tooltip>
-                            
-                            
-                                <Tooltip title={t("delete")}>
-                                    <IconButton
-                                        size="small"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setOpenDeleteTransactionDialog(true);
-                                        }}
-                                    >
-                                        <IconUrl path="setting/icdelete"/>
-                                    </IconButton>
-                                </Tooltip>
+                                <IconButton
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEvent({action: "PATIENT_PAYMENT", row: data, e});
+                                    }}>
+                                    <Icon path={"setting/ic-voir"}/>
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={t("edit")}>
+                                <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        openPutTransactionDialog();
+                                    }}>
+                                    <IconUrl path="setting/edit"/>
+                                </IconButton>
+                            </Tooltip>
+
+
+                            <Tooltip title={t("delete")}>
+                                <IconButton
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDeleteTransactionDialog(true);
+                                    }}>
+                                    <IconUrl path="setting/icdelete"/>
+                                </IconButton>
+                            </Tooltip>
                         </Stack>
                     </Stack>
                 </CardContent>
@@ -541,7 +497,7 @@ function CashBoxMobileCard({...props}) {
                     direction,
                     sx: {
                         minHeight: 380,
-                        padding:{xs:1,md:2}
+                        padding: {xs: 1, md: 2}
                     },
                 }}
                 open={openPaymentDialog}
@@ -572,8 +528,7 @@ function CashBoxMobileCard({...props}) {
                             loading={loadingRequest}
                             variant="contained"
                             onClick={handleSubmit}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}
-                        >
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                             {t("config.save", {ns: "common"})}
                         </LoadingButton>
                     </DialogActions>
@@ -594,8 +549,7 @@ function CashBoxMobileCard({...props}) {
                                 setLoadingDeleteTransaction(false);
                                 setOpenDeleteTransactionDialog(false);
                             }}
-                            startIcon={<CloseIcon/>}
-                        >
+                            startIcon={<CloseIcon/>}>
                             {t("cancel")}
                         </Button>
                         <LoadingButton
@@ -603,8 +557,7 @@ function CashBoxMobileCard({...props}) {
                             loading={loadingDeleteTransaction}
                             color="error"
                             onClick={deleteTransaction}
-                            startIcon={<Icon path="setting/icdelete" color="white"/>}
-                        >
+                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
                             {t("delete")}
                         </LoadingButton>
                     </Stack>

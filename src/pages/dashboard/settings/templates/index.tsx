@@ -21,7 +21,7 @@ import {RootStyled, SetSelectedDialog} from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
 import {SubHeader} from "@features/subHeader";
 import PreviewA4 from "@features/files/components/previewA4";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import CloseIcon from "@mui/icons-material/Close";
@@ -34,10 +34,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {useSession} from "next-auth/react";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -47,7 +44,6 @@ function TemplatesConfig() {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
-    const {data: session} = useSession();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
     const {t: tConsultation} = useTranslation("consultation");
@@ -68,25 +64,25 @@ function TemplatesConfig() {
     const [state, setState] = useState<any[]>([]);
     const [model, setModel] = useState<any>(null);
 
-    const {trigger} = useRequestMutation(null, "/settings/certifModel");
-    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: triggerModelDelete} = useRequestQueryMutation("/settings/certifModel/delete");
+    const {trigger: triggerEditPrescriptionModel} = useRequestQueryMutation("/consultation/prescription/model/edit");
 
-    const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
     } : null);
 
-    const {data: httpModelResponse, mutate: mutateCertif} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse, mutate: mutateCertif} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
     } : null);
 
-    const {data: httpPrescriptionResponse, mutate: mutatePrescription} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpPrescriptionResponse, mutate: mutatePrescription} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`
     } : null);
 
-    const {data: httpAnalysesResponse, mutate: mutateAnalyses} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpAnalysesResponse, mutate: mutateAnalyses} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`
     } : null);
@@ -108,45 +104,53 @@ function TemplatesConfig() {
         setData(res);
         setAction("editDoc")
     }
+
     const removeDoc = (res: CertifModel) => {
-        trigger({
+        triggerModelDelete({
             method: "DELETE",
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${res.uuid}/${router.locale}`
         }, {
-            revalidate: true,
-            populateCache: true
-        }).then(() => {
-            mutateCertif().then(() => {
-                enqueueSnackbar(t("removed"), {variant: "error"});
-            });
+            onSuccess: () => {
+                mutateCertif().then(() => {
+                    enqueueSnackbar(t("removed"), {variant: "error"});
+                });
+            }
         })
     }
+
     const removePrescription = (uuid: string) => {
-        trigger({
+        triggerModelDelete({
             method: "DELETE",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${uuid}/${router.locale}`
-        }).then(() => {
-            mutatePrescription().then(() => {
-                enqueueSnackbar(t("removed"), {variant: "error"});
-            });
+        }, {
+            onSuccess: () => {
+                mutatePrescription().then(() => {
+                    enqueueSnackbar(t("removed"), {variant: "error"});
+                });
+            }
         })
     }
+
     const removeAnalyses = (uuid: string) => {
-        trigger({
+        triggerModelDelete({
             method: "DELETE",
             url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${uuid}/${router.locale}`
-        }).then(() => {
-            mutateAnalyses().then(() => {
-                enqueueSnackbar(t("removed"), {variant: "error"});
-            });
+        }, {
+            onSuccess: () => {
+                mutateAnalyses().then(() => {
+                    enqueueSnackbar(t("removed"), {variant: "error"});
+                });
+            }
         })
     }
+
     const handleSwitchUI = () => {
         setOpenDialog(false);
         setInfo(null);
         setInfo(getPrescriptionUI());
         setOpenDialog(true);
     }
+
     const handleCloseDialog = () => {
         if (info === 'balance_sheet_request') {
             mutateAnalyses()
@@ -154,24 +158,27 @@ function TemplatesConfig() {
         setOpenDialog(false);
         setInfo(null);
         dispatch(SetSelectedDialog(null))
-    };
+    }
+
     const editPrescriptionModel = () => {
+        const form = new FormData();
+        form.append("drugs", JSON.stringify(state));
+        form.append("name", model?.name);
+        form.append("parent", model?.parent);
         triggerEditPrescriptionModel({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${model?.uuid}/${router.locale}`,
-            data: {
-                drugs: JSON.stringify(state),
-                name: model?.name,
-                parent: model?.parent
+            data: form
+        }, {
+            onSuccess: () => {
+                mutatePrescription().then(() => {
+                    enqueueSnackbar(t("updated"), {variant: "success"});
+                    setOpenDialog(false);
+                    setTimeout(() => setInfo(null));
+                    dispatch(SetSelectedDialog(null))
+                });
             }
-        } as any).then(() => {
-            mutatePrescription().then(() => {
-                enqueueSnackbar(t("updated"), {variant: "success"});
-                setOpenDialog(false);
-                setInfo(null);
-                dispatch(SetSelectedDialog(null))
-            });
-        })
+        });
     }
 
     useEffect(() => {

@@ -29,9 +29,8 @@ import {addPatientSelector, appointmentSelector, CustomInput} from "@features/ta
 import * as Yup from "yup";
 import {useTranslation} from "next-i18next";
 import Icon from "@themes/urlIcon";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dynamic from "next/dynamic";
@@ -52,6 +51,8 @@ import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {LoadingButton} from "@mui/lab";
 import {CountrySelect} from "@features/countrySelect";
+import {arrayUniqueByKey} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -125,10 +126,12 @@ function OnStepPatient({...props}) {
         firstName: Yup.string()
             .min(3, t("first-name-error"))
             .max(50, t("first-name-error"))
+            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
             .required(t("first-name-error")),
         lastName: Yup.string()
             .min(3, t("last-name-error"))
             .max(50, t("last-name-error"))
+            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
             .required(t("last-name-error")),
         phones: Yup.array().of(
             Yup.object().shape({
@@ -293,10 +296,10 @@ function OnStepPatient({...props}) {
     })));
     const [loading, setLoading] = useState<boolean>(false);
 
-    const {data: httpStatesResponse} = useRequest(values.country ? {
+    const {data: httpStatesResponse} = useRequestQuery(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[] ?? [];
 
@@ -364,7 +367,8 @@ function OnStepPatient({...props}) {
 
     useEffect(() => {
         if (countries) {
-            setCountriesData(countries.sort((country: CountryModel) =>
+            const uniqueCountries = arrayUniqueByKey("nationality", countries);
+            setCountriesData(uniqueCountries.sort((country: CountryModel) =>
                 dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -452,12 +456,11 @@ function OnStepPatient({...props}) {
                                     fullWidth
                                     {...getFieldProps("firstName")}
                                     error={Boolean(touched.firstName && errors.firstName)}
-                                    helperText={
-                                        Boolean(touched.firstName && errors.firstName)
-                                            ? String(errors.firstName)
-                                            : undefined
-                                    }
                                 />
+                                {Boolean(touched.firstName && errors.firstName) &&
+                                    <FormHelperText error sx={{maxWidth: "280px"}}>
+                                        {String(errors.firstName)}
+                                    </FormHelperText>}
                             </Grid>
                             <Grid item md={6} xs={12}>
                                 <Typography
@@ -477,12 +480,11 @@ function OnStepPatient({...props}) {
                                     fullWidth
                                     {...getFieldProps("lastName")}
                                     error={Boolean(touched.lastName && errors.lastName)}
-                                    helperText={
-                                        Boolean(touched.lastName && errors.lastName)
-                                            ? String(errors.lastName)
-                                            : undefined
-                                    }
                                 />
+                                {Boolean(touched.lastName && errors.lastName) &&
+                                    <FormHelperText error sx={{maxWidth: "280px"}}>
+                                        {String(errors.lastName)}
+                                    </FormHelperText>}
                             </Grid>
                         </Grid>
                     </Box>
@@ -493,8 +495,7 @@ function OnStepPatient({...props}) {
                                     variant="body2"
                                     color="text.secondary"
                                     gutterBottom
-                                    component="span"
-                                >
+                                    component="span">
                                     {t("telephone")}{" "}
                                     <Typography component="span" color="error">
                                         *
@@ -653,10 +654,7 @@ function OnStepPatient({...props}) {
                                     getOptionLabel={(option: any) => option?.nationality ?? ""}
                                     isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
                                     renderOption={(props, option) => (
-                                        <MenuItem
-                                            {...props}
-                                            key={`nationality-${option.uuid}`}
-                                            value={option.uuid}>
+                                        <MenuItem {...props}>
                                             {option?.code && <Avatar
                                                 sx={{
                                                     width: 26,
@@ -1160,7 +1158,7 @@ function OnStepPatient({...props}) {
                                 size="small"
                                 fullWidth
                                 {...getFieldProps("cin")}
-                                value={getFieldProps("cin") ? getFieldProps("cin").value : ""}
+                                value={getFieldProps("cin").value ?? ""}
                             />
                         </Box>
                         <Box>
@@ -1206,8 +1204,7 @@ function OnStepPatient({...props}) {
                     pt={1}
                     direction="row"
                     justifyContent="flex-end"
-                    className="action"
-                >
+                    className="action">
                     <Button
                         onClick={() => onClose()}
                         variant="text-black"

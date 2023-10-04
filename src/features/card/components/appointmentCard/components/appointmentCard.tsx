@@ -16,10 +16,8 @@ import {
 import RootStyled from "./overrides/rootStyled";
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
@@ -27,8 +25,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import CircularProgress from "@mui/material/CircularProgress";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {ConditionalWrapper, useMedicalEntitySuffix, filterReasonOptions} from "@lib/hooks";
-import {useSWRConfig} from "swr";
+import {ConditionalWrapper, useMedicalEntitySuffix, filterReasonOptions, useInvalidateQueries} from "@lib/hooks";
 import {debounce} from "lodash";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
@@ -37,13 +34,13 @@ import SortIcon from "@themes/overrides/icons/sortIcon";
 import moment from "moment-timezone";
 import {LocaleFnsProvider} from "@lib/localization";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function AppointmentCard({...props}) {
     const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {mutate} = useSWRConfig();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {appointmentTypes, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -52,13 +49,16 @@ function AppointmentCard({...props}) {
     const [editConsultation, setConsultation] = useState(false);
     const onEditConsultation = () => setConsultation(!editConsultation);
 
-    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest(medicalEntityHasUser ? {
+    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
-    } : null, SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
+    });
 
-    const {trigger: triggerAddReason} = useRequestMutation(null, "/agenda/motif/add");
-    const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment/detail");
+    const {trigger: triggerAddReason} = useRequestQueryMutation("/agenda/motif/add");
+    const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/agenda/update/appointment/detail");
 
     const [reason, setReason] = useState(data.motif);
     const [instruction, setInstruction] = useState(data.instruction);
@@ -85,14 +85,16 @@ function AppointmentCard({...props}) {
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data?.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            if (onDataUpdated) {
-                onDataUpdated();
-            } else {
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`);
+        }, {
+            onSuccess: () => {
+                if (onDataUpdated) {
+                    onDataUpdated();
+                } else {
+                    medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`]);
+                }
             }
         });
-    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, mutate, onDataUpdated, patientId, router.locale, updateAppointmentTrigger, urlMedicalEntitySuffix]);
+    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, invalidateQueries, onDataUpdated, patientId, router.locale, updateAppointmentTrigger, urlMedicalEntitySuffix]);
 
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
         updateDetails({attribute: "consultation_reason", value: reasons.map(reason => reason.uuid)});
@@ -114,14 +116,16 @@ function AppointmentCard({...props}) {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
             data: params
-        }).then(() => mutateConsultReason().then((result: any) => {
-            const {status} = result?.data;
-            const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
-            if (status === "success") {
-                handleReasonChange([...reason, reasonsUpdated[0]]);
-            }
-            setLoadingRequest(false);
-        }));
+        }, {
+            onSuccess: () => mutateConsultReason().then((result: any) => {
+                const {status} = result?.data;
+                const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
+                if (status === "success") {
+                    handleReasonChange([...reason, reasonsUpdated[0]]);
+                }
+                setLoadingRequest(false);
+            })
+        });
     }
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -179,13 +183,13 @@ function AppointmentCard({...props}) {
                             {t(`appointment-status.${data?.status?.key}`)}
                         </Typography>
                     </Label>
-                    <IconButton
-
-                        size="small"
-                        onClick={onEditConsultation}
-                        className="btn-toggle">
-                        <IconUrl path={editConsultation ? "ic-check" : "ic-duotone"}/>
-                    </IconButton>
+                    {(!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && data?.status?.key !== "ON_GOING")) &&
+                        <IconButton
+                            size="small"
+                            onClick={onEditConsultation}
+                            className="btn-toggle">
+                            <IconUrl path={editConsultation ? "ic-check" : "ic-duotone"}/>
+                        </IconButton>}
                 </Stack>
                 <Stack
                     spacing={2}

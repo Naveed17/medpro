@@ -8,11 +8,10 @@ import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function CalendarPickers({...props}) {
     const {disabled} = props;
@@ -28,10 +27,13 @@ function CalendarPickers({...props}) {
     const [startOfMonth, setStartOfMonth] = useState(moment(initData.date).startOf('month').format('DD-MM-YYYY'));
     const [endOfMonth, setEndOfMonth] = useState(moment(initData.date).endOf('month').format('DD-MM-YYYY'));
 
-    const {data: httpAppCountResponse} = useRequest(medicalEntityHasUser && agendaConfig ? {
+    const {data: httpAppCountResponse} = useRequestQuery(medicalEntityHasUser && agendaConfig ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`
-    } : null, SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...((medicalEntityHasUser && agendaConfig) && {variables: {query: `?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`}})
+    });
 
     const handleDateChange = (date: Date | null) => {
         if (date) {

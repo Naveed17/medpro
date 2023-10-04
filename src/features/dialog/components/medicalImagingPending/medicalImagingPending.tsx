@@ -3,7 +3,7 @@ import {useTranslation} from 'next-i18next'
 import React, {useEffect, useState} from 'react';
 import {Badge, Card, CircularProgress, Stack, Typography} from "@mui/material";
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 
@@ -14,10 +14,36 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 function MedicalImagingDialog({...props}) {
     const {data} = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const router = useRouter();
 
     const [images] = useState<any>(data.state);
     const [files, setFiles] = useState<any[]>([]);
     const [loading, setLoading] = useState('');
+
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+
+    const {trigger: triggerMedicalImagingUpdate} = useRequestQueryMutation("/medicalImaging/update");
+
+    const handleChange = (ev: any, uuid: string) => {
+        const filesUploaded = ev.target.files;
+
+        Object.keys(filesUploaded).forEach(fu => {
+            const form = new FormData();
+            form.append("files", filesUploaded[fu], filesUploaded[fu].name);
+            triggerMedicalImagingUpdate({
+                method: "PUT",
+                url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${images.uuid}/medical-imaging-request/${uuid}/${router.locale}`,
+                data: form
+            }, {
+                onSuccess: () => {
+                    let selectedFile = files.findIndex(f => f.uuid === uuid)
+                    files[selectedFile].nb += 1
+                    setFiles([...files])
+                    setLoading('')
+                }
+            });
+        })
+    };
 
     useEffect(() => {
         const file: React.SetStateAction<any[]> = [];
@@ -27,28 +53,6 @@ function MedicalImagingDialog({...props}) {
         setFiles(file)
     }, [images])
 
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-    const {trigger} = useRequestMutation(null, "/medicalImaging");
-    const router = useRouter();
-    const handleChange = (ev: any, uuid: string) => {
-        const filesUploaded = ev.target.files;
-
-        Object.keys(filesUploaded).forEach(fu => {
-            const form = new FormData();
-            form.append("files", filesUploaded[fu], filesUploaded[fu].name);
-            trigger(
-                {
-                    method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${images.uuid}/medical-imaging-request/${uuid}/${router.locale}`,
-                    data: form
-                }).then(() => {
-                let selectedFile = files.findIndex(f => f.uuid === uuid)
-                files[selectedFile].nb += 1
-                setFiles([...files])
-                setLoading('')
-            });
-        })
-    };
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (

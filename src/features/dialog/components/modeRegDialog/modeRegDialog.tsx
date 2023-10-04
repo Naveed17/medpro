@@ -1,5 +1,5 @@
 import {CheckList} from "@features/checkList";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
 
@@ -9,7 +9,7 @@ function ModeRegDialog(info: any) {
 
     const router = useRouter();
 
-    const {data} = useRequest({
+    const {data} = useRequestQuery({
         method: "GET",
         url: `/api/public/payment-means/${router.locale}`
     });

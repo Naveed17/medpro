@@ -31,19 +31,38 @@ const MainMenuStyled = styled(Box)(({theme}) => ({
                 position: "absolute",
                 bottom: 0,
                 left: 22,
+                 "& .MuiListItem-root":{
+                backgroundColor: "transparent",
+                  "&:not(.active):hover": {
+                    "& .MuiListItemIcon-root": {
+                        backgroundColor: theme.palette.info.main,
+                        boxShadow: theme.shadows[4],
+                        border: `1px solid ${theme.palette.grey["A100"]}`,
+                    },
+                    }
+                },
                 "& .mt-2": {
                     marginTop: 6,
                 },
             },
             "& .MuiListItem-root": {
                 flexDirection: "column",
-                "&:hover": {
-                    backgroundColor: "transparent",
-                    "& .MuiListItemIcon-root": {
-                        backgroundColor: theme.palette.info.main,
-                        boxShadow: theme.shadows[4],
-                        border: `1px solid ${theme.palette.grey["A100"]}`,
+                zIndex:10,
+                "& .MuiListItemIcon-root": {
+                    borderRadius: 10,
+                    maxWidth:37,
+                    maxHeight:39,
+                    overflow:'hidden',
+                    border: "1px solid transparent",
+                    padding: 7,
+                    "& svg": {
+                        width: 22,
+                        "path":{
+                            transition: 'all .5s ease-in-out .2s',
+                            
+                        }
                     },
+                    
                 },
                 "&.active": {
                     "& .MuiListItemIcon-root": {
@@ -56,20 +75,25 @@ const MainMenuStyled = styled(Box)(({theme}) => ({
                         },
                     },
                 },
-                "& .MuiListItemIcon-root": {
-                    borderRadius: 10,
-                    border: "1px solid transparent",
-                    transition: "all ease-in 0.2s",
-                    padding: 7,
-                    "& svg": {
-                        width: 22,
-                    },
-                },
+                
                 "& .MuiListItemText-root": {
                     "& span": {
                         fontSize: 12,
                     },
                 },
+                ".icon-background":{
+                       backgroundColor: theme.palette.primary.main,
+                        boxShadow: theme.shadows[4],
+                        border: `1px solid ${theme.palette.grey["A100"]}`,
+                        position:'absolute',
+                        width:39,
+                        height:40,
+                        borderRadius:10,
+                        marginLeft:'auto',
+                        marginRight:'auto',
+                        zIndex:-1,
+                        
+                }
             },
 
             "@media screen and (max-height: 600px)": {

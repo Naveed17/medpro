@@ -624,6 +624,7 @@
         "named": "Veuillez nommer le modèle",
         "select": "Veuillez choisir vos variables",
         "info": "Information du modèle",
+        "suggestions": "Suggestions",
         "patient": "Patient",
         "doctor": "Doctor",
         "today": "Aujourd'hui",

@@ -1,5 +1,5 @@
 // components
-import {ActionBarState, BoxStyled, DateRangeFilter, InsuranceFilter, setFilterPayment} from "@features/leftActionBar";
+import {ActionBarState, BoxStyled, DateRangeFilterCashbox, InsuranceFilterCashbox, setFilterPayment} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -26,7 +26,7 @@ function Payment() {
             },
             expanded: true,
             children: (
-                <InsuranceFilter
+                <InsuranceFilterCashbox
                     {...{t}}
                     OnSearch={(data: { query: ActionBarState }) => {
                         dispatch(setFilterPayment(data.query));
@@ -41,7 +41,7 @@ function Payment() {
             },
             expanded: true,
             children: (
-                <DateRangeFilter
+                <DateRangeFilterCashbox
                     {...{t}}
                     OnSearch={(data: { query: ActionBarState }) => {
                         dispatch(setFilterPayment(data.query));

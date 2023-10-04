@@ -15,14 +15,13 @@ import IconUrl from "@themes/urlIcon";
 import moment from "moment/moment";
 import {MotifCard, PatientHistoryCard, PatientHistoryStaticCard} from "@features/card";
 import Image from "next/image";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {DefaultCountry, SubMotifCard} from "@lib/constants";
 import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSWRConfig} from "swr";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 
 function HistoryContainer({...props}) {
@@ -45,7 +44,7 @@ function HistoryContainer({...props}) {
     } = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {mutate} = useSWRConfig();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -53,7 +52,7 @@ function HistoryContainer({...props}) {
     const [collapse, setCollapse] = useState<any>("");
     const [selected, setSelected] = useState<string>('')
 
-    const {trigger} = useRequestMutation(null, "/editRA");
+    const {trigger: triggerRaEdit} = useRequestQueryMutation("/RA/edit");
 
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
@@ -97,14 +96,17 @@ function HistoryContainer({...props}) {
         const selectedRA = apps[iid].appointment.requestedAnalyses[idx];
         const form = new FormData();
         form.append("analysesResult", JSON.stringify(selectedRA.hasAnalysis));
-        trigger({
+        triggerRaEdit({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
             data: form,
-        }).then(() => {
-            if (medicalEntityHasUser){
-                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
+        }, {
+            onSuccess: () => {
+                if (medicalEntityHasUser) {
+                    invalidateQueries([
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`]);
+                }
             }
         });
     }
@@ -121,7 +123,8 @@ function HistoryContainer({...props}) {
         capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis = [...capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis]
         capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis[sheetAnalysisID] = data
 
-        setApps(capps)
+        setApps && setApps(capps)
+        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history-list/${router.locale}`]);
     }
 
     return (

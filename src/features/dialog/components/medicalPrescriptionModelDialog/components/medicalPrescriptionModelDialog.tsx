@@ -18,7 +18,7 @@ import {prescriptionSelector, setModelName, setParentModel} from "@features/dial
 
 function MedicalPrescriptionModelDialog({...props}) {
     const {data: dialogData} = props;
-    const {t, models, setOpenAddParentDialog} = dialogData;
+    const {t, models, setOpenAddParentDialog, color = "primary"} = dialogData;
     const dispatch = useAppDispatch();
 
     const {parent} = useAppSelector(prescriptionSelector);
@@ -34,7 +34,7 @@ function MedicalPrescriptionModelDialog({...props}) {
 
     return (
         <>
-            <MedicalPrescriptionModelDialogStyled>
+            <MedicalPrescriptionModelDialogStyled {...{color}}>
                 {dialogData?.dose && (
                     <Stack>
                         <TextField
@@ -45,11 +45,11 @@ function MedicalPrescriptionModelDialog({...props}) {
                             }}
                             placeholder={t("new_model", {ns: "consultation"})}
                         />
-                        <Typography variant="body2" mt={2} fontWeight={600}>
-                            {dialogData?.t("file", {ns: "consultation"})}
-                        </Typography>
                     </Stack>
                 )}
+                <Typography variant="body2" {...(dialogData?.dose && {mt: 2})} fontWeight={600}>
+                    {dialogData?.t("file", {ns: "consultation"})}
+                </Typography>
                 <RadioGroup
                     aria-labelledby="prescription-group-label"
                     value={selectedParent}
@@ -71,7 +71,7 @@ function MedicalPrescriptionModelDialog({...props}) {
                                     label={
                                         <Typography>{item.isDefault ? "Répertoire par défaut" : item.name}</Typography>}
                                     control={<Radio icon={<FolderOpenRoundedIcon/>}
-                                                    checkedIcon={<FolderRoundedIcon color={"primary"}/>}/>}/>
+                                                    checkedIcon={<FolderRoundedIcon/>}/>}/>
                             </Stack>
                         </ListItem>
                     ))}
@@ -83,7 +83,9 @@ function MedicalPrescriptionModelDialog({...props}) {
                         onClick={() => setOpenAddParentDialog(true)}>
                         <Stack direction="row" alignItems="center">
                             <IconUrl path="ic-plus" className="ic-add"/>
-                            {t("new_file", {ns: "consultation"})}
+                            <Typography
+                                variant="body1"
+                                color={`${color}.main`}>{t("new_file", {ns: "consultation"})}</Typography>
                         </Stack>
                     </Link>
                 </ListItem>

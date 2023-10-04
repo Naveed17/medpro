@@ -1,21 +1,18 @@
 import FullCalendar from "@fullcalendar/react"; // => request placed at the top
 import {
     Backdrop,
-    Box,
+    Box, Chip,
     ClickAwayListener,
     IconButton,
     Menu,
-    MenuItem,
+    MenuItem, Popover,
     Theme,
     useMediaQuery,
     useTheme
 } from "@mui/material";
-
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
-
-import React, {useEffect, useRef, useState} from "react";
-
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";
@@ -35,7 +32,7 @@ import {
     TableHead
 } from "@features/calendar";
 import dynamic from "next/dynamic";
-import {NoDataCard} from "@features/card";
+import {AppointmentPopoverCard, NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {BusinessHoursInput} from "@fullcalendar/core";
 import {useSwipeable} from "react-swipeable";
@@ -44,6 +41,7 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
+import {motion} from "framer-motion";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -79,6 +77,8 @@ function Calendar({...props}) {
 
     const prevView = useRef(view);
 
+    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+    const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
     const [events, setEvents] = useState<EventModal[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<string>();
@@ -92,12 +92,18 @@ function Calendar({...props}) {
         mouseY: number;
     } | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isEventDragging, setIsEventDragging] = useState(false);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
     const openingHours = agendaConfig?.openingHours[0];
     const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
+    const open = Boolean(anchorEl);
+
+    const handleOnSelectEvent = useCallback((value: any) => {
+        OnSelectEvent(value);
+    }, [OnSelectEvent]);
 
     const getSlotsFormat = (slot: number) => {
         const duration = moment.duration(slot, "hours") as any;
@@ -135,7 +141,7 @@ function Calendar({...props}) {
     const handleTableEvent = (action: string, eventData: EventModal) => {
         switch (action) {
             case "showEvent":
-                OnSelectEvent(eventData);
+                handleOnSelectEvent(eventData);
                 break;
             case "waitingRoom":
                 OnWaitingRoom(eventData);
@@ -185,9 +191,9 @@ function Calendar({...props}) {
             action === "onLeaveWaitingRoom" &&
             eventMenu.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
-            (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "PATIENT_CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
+            ["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(eventMenu.status.key) ||
             action === "onDelete" &&
-            (eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
+            ["FINISHED", "ON_GOING"].includes(eventMenu.status.key) ||
             action === "onMove" &&
             (moment().isAfter(eventMenu.time) || ["FINISHED", "ON_GOING"].includes(eventMenu.status.key)) ||
             action === "onPatientNoShow" &&
@@ -209,6 +215,14 @@ function Calendar({...props}) {
         },
         preventScrollOnSwipe: true
     });
+
+    const isHorizontal = () => {
+        if (view === "timeGridDay")
+            return 'left';
+        else if (moment(appointmentData?.time).weekday() > 4)
+            return -305;
+        else return 'right';
+    }
 
     useEffect(() => {
         let days: BusinessHoursInput[] = [];
@@ -233,7 +247,7 @@ function Calendar({...props}) {
                 })
             });
             setDaysOfWeek(days);
-            setLoading(false);
+            setTimeout(() => setLoading(false));
         }
     }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -326,7 +340,20 @@ function Calendar({...props}) {
                                 }}
                                 moreLinkContent={(event) => `${event.shortText} plus`}
                                 eventContent={(event) =>
-                                    <Event {...{event, openingHours, view, isMobile}} t={translation}/>
+                                    <motion.div
+                                        initial={{opacity: 0}}
+                                        animate={{opacity: 1}}
+                                        transition={{ease: "easeOut", duration: .2}}>
+                                        <Event
+                                            {...{
+                                                open,
+                                                isEventDragging,
+                                                setAppointmentData,
+                                                event, openingHours,
+                                                view, isMobile, anchorEl, setAnchorEl
+                                            }}
+                                            t={translation}/>
+                                    </motion.div>
                                 }
                                 eventClassNames={(arg) => {
                                     if (arg.event._def.extendedProps.filtered) {
@@ -335,6 +362,8 @@ function Calendar({...props}) {
                                         return ['normal']
                                     }
                                 }}
+                                eventDragStart={() => setIsEventDragging(true)}
+                                eventDragStop={() => setIsEventDragging(false)}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         setEventMenu(mountArg.event._def.publicId);
@@ -361,7 +390,7 @@ function Calendar({...props}) {
                                         isMobile
                                     })
                                 }
-                                eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
+                                eventClick={(eventArg) => handleOnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);
@@ -372,7 +401,7 @@ function Calendar({...props}) {
                                     }, isMobile ? 100 : 0);*/
                                 }}
                                 showNonCurrentDates={true}
-                                rerenderDelay={8}
+                                //rerenderDelay={6}
                                 height={calendarHeight}
                                 initialDate={currentDate.date}
                                 slotMinTime={getSlotsFormat(slotMinTime)}
@@ -410,35 +439,36 @@ function Calendar({...props}) {
                                     vertical: 'top',
                                     horizontal: 'left',
                                 }}
-                                PaperProps={{
-                                    elevation: 0,
-                                    sx: {
-                                        overflow: 'visible',
-                                        filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
-                                        mt: 1.5,
-                                        '& .MuiAvatar-root': {
-                                            width: 32,
-                                            height: 32,
-                                            ml: -0.5,
-                                            mr: 1,
+                                slotProps={{
+                                    paper: {
+                                        elevation: 0,
+                                        sx: {
+                                            overflow: 'visible',
+                                            filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
+                                            mt: 1.5,
+                                            '& .MuiAvatar-root': {
+                                                width: 32,
+                                                height: 32,
+                                                ml: -0.5,
+                                                mr: 1,
+                                            },
+                                            ...!isMobile && {
+                                                '&:before': {
+                                                    content: '""',
+                                                    display: 'block',
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 14,
+                                                    width: 10,
+                                                    height: 10,
+                                                    bgcolor: 'background.paper',
+                                                    transform: 'translateY(-50%) rotate(45deg)',
+                                                    zIndex: 0,
+                                                }
+                                            },
                                         },
-                                        ...!isMobile && {
-                                            '&:before': {
-                                                content: '""',
-                                                display: 'block',
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 14,
-                                                width: 10,
-                                                height: 10,
-                                                bgcolor: 'background.paper',
-                                                transform: 'translateY(-50%) rotate(45deg)',
-                                                zIndex: 0,
-                                            }
-                                        },
-                                    },
-                                }}
-                            >
+                                    }
+                                }}>
                                 <MenuItem onClick={() => {
                                     setSlotInfoPopover(false);
                                     OnAddAppointment("add-quick");
@@ -512,6 +542,41 @@ function Calendar({...props}) {
                                     )
                                 )}
                             </Menu>
+
+                            <Popover
+                                id="mouse-over-popover"
+                                sx={{
+                                    pointerEvents: 'none',
+                                    zIndex: 900
+                                }}
+                                open={open}
+                                anchorEl={anchorEl}
+                                anchorOrigin={{
+                                    vertical: view === "timeGridDay" ? 'bottom' : 'top',
+                                    horizontal: isHorizontal()
+                                }}
+                                onClose={() => setAnchorEl(null)}
+                                disableRestoreFocus>
+                                <motion.div
+                                    initial={{opacity: 0}}
+                                    animate={{opacity: 1}}
+                                    transition={{ease: "linear", duration: .2}}>
+                                    {appointmentData?.new &&
+                                        <Chip label={translation("event.new", {ns: 'common'})}
+                                              sx={{
+                                                  position: "absolute",
+                                                  right: 4,
+                                                  top: 4,
+                                                  fontSize: 10
+                                              }}
+                                              size="small"
+                                              color={"primary"}/>}
+                                    <AppointmentPopoverCard
+                                        {...{t: translation}}
+                                        style={{width: "300px", border: "none"}}
+                                        data={appointmentData}/>
+                                </motion.div>
+                            </Popover>
                         </Box>
                     )}
                 </CalendarStyled>

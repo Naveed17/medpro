@@ -16,6 +16,8 @@
   "dashboard": "Dashboard",
   "search": "Search",
   "stats": "Statistics",
+  "wallet": "Wallet",
+  "credit": "Credit",
   "settings": "Settings",
   "loading": "Please wait a moment while loading",
   "noOption": "No results found",
@@ -91,6 +93,7 @@
       "name-error": "Name must be at least 3 characters long, without special characters.",
       "first-name": "First Name",
       "first-name-error": "First name must be at least 3 characters long, without special characters.",
+      "special-text-error": "Only alphabets are allowed for this field.",
       "first-name-placeholder": "Enter patient's first name",
       "last-name": "Last Name",
       "last-name-error": "Last name must be at least 3 characters long, without special characters.",
@@ -408,11 +411,11 @@
     "ON_GOING": "On going",
     "FINISHED": "Finished",
     "CANCELED": "Canceled",
-    "PATIENT_CANCELED": "Canceled by patient",
     "EXPIRED": "Expired",
     "PAUSED": "Paused",
     "NOSHOW": "Patient did not show up",
-    "ONLINE": "Appointment from the website"
+    "ONLINE": "Appointment from the website",
+    "PATIENT_CANCELED": "Canceled by patient"
   },
   "social_insured": {
     "socialInsured": "Social insurance",

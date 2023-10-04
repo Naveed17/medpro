@@ -9,12 +9,12 @@ import {useTranslation} from "next-i18next";
 export default function Pagination({...props}) {
     const {total, count} = props;
     const router = useRouter();
-    const {page: currentPage} = router.query;
-    const [page, setPage] = React.useState<number>(1);
+    const currentPage = parseInt((new URL(location.href)).searchParams.get("page") || "1");
+    const [page, setPage] = React.useState<number>(currentPage);
     const {t} = useTranslation('common');
 
     React.useEffect(() => {
-        setPage(parseInt((currentPage as any) || "1"));
+        setPage(currentPage);
     }, [currentPage]);
 
     return (
@@ -26,7 +26,7 @@ export default function Pagination({...props}) {
                 <BasicPagination
                     onChange={(e, v) => {
                         setPage(v);
-                        router.push({
+                        router.replace({
                             query: {page: v},
                         });
                     }}

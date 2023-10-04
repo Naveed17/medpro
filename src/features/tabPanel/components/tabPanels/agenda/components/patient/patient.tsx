@@ -8,11 +8,12 @@ import Button from "@mui/material/Button";
 import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {AutoCompleteButton} from "@features/buttons";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
+import {dashLayoutSelector, setOngoing} from "@features/base";
+import {useMedicalEntitySuffix, prepareInsurancesData, increaseNumberInString} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
@@ -32,16 +33,14 @@ function Patient({...props}) {
 
     const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
 
-    const {data: httpPatientResponse, isValidating, mutate} = useRequest(medicalEntityHasUser ? {
+    const {data: httpPatientResponse, mutate: mutatePatients, isLoading} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`
-    } : null);
+    } : null, ReactQueryNoValidateConfig);
 
-    const {trigger} = useRequestMutation(null, "agenda/add-patient");
+    const {trigger: triggerAddPatient} = useRequestQueryMutation("agenda/patient/add");
 
     const handleOnClick = () => {
-
-        console.log("handleOnClick")
         setAddPatient(true);
         handleAddPatient && handleAddPatient(true);
     }
@@ -95,26 +94,30 @@ function Patient({...props}) {
         patient.note && form.append('note', patient.note);
         form.append('profession', patient.profession);
 
-        medicalEntityHasUser && trigger({
+        medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
             data: form
-        }).then((res: any) => {
-            const {data: patient} = res;
-            const {status, data: patientData} = patient;
-            if (status === "success") {
-                if (!selectedPatient) {
-                    dispatch(setAppointmentPatient(patientData.data));
-                }
-                setAddPatient(false);
-                handleAddPatient && handleAddPatient(false);
-                mutate().then(value => {
-                    const {data} = value?.data as HttpResponse;
-                    if (selectedPatient) {
-                        dispatch(setAppointmentPatient(
-                            data.find((patient: PatientModel) => patient.uuid === selectedPatient.uuid)));
+        }, {
+            onSuccess: (res: any) => {
+                const {data: patient} = res;
+                const {status, data: patientData} = patient;
+                if (status === "success") {
+                    if (!selectedPatient) {
+                        dispatch(setAppointmentPatient(patientData.data));
+                        // mutate last id after creation
+                        dispatch(setOngoing({last_fiche_id: increaseNumberInString(patientData.data.fiche_id)}));
                     }
-                });
+                    setAddPatient(false);
+                    handleAddPatient && handleAddPatient(false);
+                    mutatePatients().then(result => {
+                        const data = (result?.data as any)?.data;
+                        if (selectedPatient) {
+                            dispatch(setAppointmentPatient(
+                                data.find((patient: PatientModel) => patient.uuid === selectedPatient.uuid)));
+                        }
+                    });
+                }
             }
         });
     }
@@ -138,7 +141,7 @@ function Patient({...props}) {
                             OnClickAction={handleOnClick}
                             OnOpenSelect={handlePatientSearch}
                             translation={t}
-                            loading={isValidating}
+                            loading={isLoading}
                             data={patients}/>
                     </Box>
                     {!select && <Paper

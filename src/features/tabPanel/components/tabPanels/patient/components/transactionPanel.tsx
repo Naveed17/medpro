@@ -2,10 +2,9 @@ import {Box, Button, DialogActions, LinearProgress, Stack, Typography} from '@mu
 import React, {useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useTranslation} from "next-i18next";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Otable} from "@features/table";
 import {useAppSelector} from "@lib/redux/hooks";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {TransactionStatus, TransactionType} from "@lib/constants";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useMedicalEntitySuffix} from '@lib/hooks';
@@ -17,6 +16,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import moment from "moment/moment";
 
 const headCells = [
     {
@@ -88,28 +89,32 @@ const headCells = [
 function TransactionPanel({...props}) {
     const {patient, wallet, rest, walletMutate, devise, router} = props;
 
-    const {trigger} = useRequestMutation(null, "/patient/wallet");
-
-    const {t} = useTranslation(["payment", "common"]);
     const {insurances} = useInsurances();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {t} = useTranslation(["payment", "common"]);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
-    const {direction} = useAppSelector(configSelector);
 
-    const {data: paymentMeansHttp} = useRequest({
+    const {trigger: triggerPatientWallet} = useRequestQueryMutation("/patient/wallet");
+
+    const {data: paymentMeansHttp} = useRequestQuery({
         method: "GET",
         url: `/api/public/payment-means/${router.locale}`
-    }, SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransctions, isLoading} = useRequest({
+    const {data: httpTransactionsResponse, mutate: mutateTransactions, isLoading} = useRequestQuery(patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`
+        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`
+    } : null, {
+        keepPreviousData: true,
+        ...(patient && {variables: {query: `?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`}})
     });
 
     const handleSubmit = () => {
@@ -117,13 +122,15 @@ function TransactionPanel({...props}) {
         let amount = 0
         const data: TransactionDataModel[] = [];
         selectedPayment.payments.map((sp: any) => {
+            const payDate = moment(sp.payment_date, 'DD-MM-YYYY HH:mm');
             data.push({
                 payment_means: sp.payment_means.uuid,
                 insurance: "",
                 amount: sp.amount,
                 status_transaction: TransactionStatus[0].value,
                 type_transaction: TransactionType[4].value,
-                payment_date: sp.date,
+                payment_date: payDate.format('DD-MM-YYYY'),
+                payment_time: payDate.format('HH:mm'),
                 data: {label: sp.designation, ...sp.data},
             });
             amount += sp.amount;
@@ -138,20 +145,22 @@ function TransactionPanel({...props}) {
         form.append("patient", patient.uuid);
         form.append("transaction_data", JSON.stringify(data));
 
-        trigger({
+        triggerPatientWallet({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
             data: form
-        }).then(() => {
-            enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
-            mutateTransctions().then(() => {
-                walletMutate().then(() => setOpenPaymentDialog(false))
-                setLoadingRequest(false);
-            });
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(`${t('transactionAdded')}`, {variant: "success"})
+                mutateTransactions().then(() => {
+                    walletMutate().then(() => setOpenPaymentDialog(false))
+                });
+            },
+            onSettled: () => setLoadingRequest(false)
         });
     }
 
-    const rows = (httpTransactionsResponse as HttpResponse)?.data?.transactions?.reverse() ?? [];
+    const rows = (httpTransactionsResponse as HttpResponse)?.data?.transactions ?? [];
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
 
     return (
@@ -180,17 +189,17 @@ function TransactionPanel({...props}) {
                     </Button>
                     <Button size='small'
                             variant='contained'
-                            color={"error"}>
+                            color={-1 * rest > 0 ? "success" : "error"}>
                         {t("credit")}
                         <Typography fontWeight={700} component='strong'
-                                    mx={1}>- {rest}</Typography>
+                                    mx={1}> {-1 * rest}</Typography>
                         {devise}
                     </Button>
 
                 </Stack>
                 <DesktopContainer>
                     {!isLoading && <Otable
-                        {...{rows, t, insurances, pmList, mutateTransctions, hideName: true}}
+                        {...{rows, t, insurances, pmList, mutateTransactions, hideName: true}}
                         headers={headCells}
                         from={"cashbox"}
                     />}

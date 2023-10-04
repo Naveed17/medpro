@@ -1,38 +1,32 @@
 import {TableRowStyled} from "@features/table";
-import {Theme} from "@mui/material/styles";
+import {alpha, Theme} from "@mui/material/styles";
 import TableCell from "@mui/material/TableCell";
-import {Box, IconButton, Stack, Tooltip, Typography, useTheme} from "@mui/material";
+import {Box, Stack, Tooltip, Typography, useTheme} from "@mui/material";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import TimeIcon from "@themes/overrides/icons/time";
 import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import {differenceInMinutes} from "date-fns";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import React, {useEffect, useState} from "react";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {sideBarSelector} from "@features/menu";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {useSession} from "next-auth/react";
-import {useDuplicatedDetect} from "@lib/hooks/rest";
-import {setDuplicated} from "@features/duplicateDetected";
-import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import {SmallAvatar} from "@features/avatar";
 import Zoom from "@mui/material/Zoom";
 
 function CalendarRowDetail({...props}) {
     const {
         index, data, pendingData,
-        spinner, t, handleEvent, mutateAgenda
+        spinner, t, handleEvent
     } = props;
 
     const {data: session} = useSession();
     const theme = useTheme();
-    const dispatch = useAppDispatch();
-    const {duplications} = useDuplicatedDetect({patientId: data?.patient?.uuid});
 
     const {config} = useAppSelector(agendaSelector);
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
@@ -48,6 +42,7 @@ function CalendarRowDetail({...props}) {
         let event = eventData;
         if (!eventData?.hasOwnProperty("extendedProps")) {
             event = Object.assign({...eventData}, {
+                publicId: eventData.id,
                 extendedProps: {
                     ...eventData
                 }
@@ -67,7 +62,7 @@ function CalendarRowDetail({...props}) {
             <TableRowStyled
                 key={`${index}-${data.id}`}
                 sx={{
-                    bgcolor: (theme: Theme) => theme.palette.background.paper,
+                    bgcolor: (theme: Theme) => data?.payed ? theme.palette.background.paper : alpha(theme.palette.expire.main, 0.2),
                     "&:last-child td, &:last-child th": {borderWidth: 0},
                     "& .first-child": {
                         borderWidth: 0,
@@ -202,7 +197,7 @@ function CalendarRowDetail({...props}) {
                 <TableCell align="center">
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
                         <Typography variant={"body2"} color="text.secondary">{data.title}</Typography>
-                        {duplications?.length > 0 &&
+                        {/* {duplications?.length > 0 &&
                             <Tooltip title={t("duplication")} TransitionComponent={Zoom}>
                                 <IconButton
                                     sx={{p: "0 8px", "& .MuiAvatar-root": {p: 1.5}}}
@@ -230,29 +225,28 @@ function CalendarRowDetail({...props}) {
                                             }}/>
                                     </SmallAvatar>
                                 </IconButton>
-                            </Tooltip>}
+                            </Tooltip>}*/}
                     </Stack>
                 </TableCell>
                 <TableCell align="center">{config?.name}</TableCell>
                 <TableCell align="right">
-                    {data?.fees && data?.status?.key !== "PENDING" ? <Box>
-                        <Stack direction={"row"}
-                               justifyContent={"flex-end"}
-                               sx={{
-                                   textAlign: "right"
-                               }}
-                               alignItems="center">
-                            <PointOfSaleIcon color="success"/>
-
-                            <Stack direction={"row"}>
-                                {data?.fees === "0" ? "Gratuite" :
-                                    <>
-                                        <Typography variant="body2">{data?.fees}</Typography>
-                                        <Typography ml={.5} variant="body2">{devise}</Typography>
-                                    </>
+                    {(data?.restAmount > 0 || data?.restAmount < 0) && data?.status?.key !== "PENDING" ? <Box>
+                        <Label
+                            variant='filled'
+                            sx={{
+                                "& .MuiSvgIcon-root": {
+                                    width: 16,
+                                    height: 16,
+                                    pl: 0
                                 }
-                            </Stack>
-                        </Stack>
+                            }}
+                            color={data.restAmount > 0 ? "expire" : "success"}>
+                            <Typography
+                                sx={{
+                                    fontSize: 10,
+                                }}>
+                                {t(data.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${data.restAmount > 0 ? '-' : '+'} ${Math.abs(data.restAmount)}`} {devise}</Typography>
+                        </Label>
                     </Box> : "--"}
                 </TableCell>
                 <TableCell align="right" sx={{p: "0px 12px!important"}}>
@@ -285,23 +279,24 @@ function CalendarRowDetail({...props}) {
                             <>
                                 {data?.status.key !== "WAITING_ROOM" ?
                                     <Tooltip title={t("enter-waiting-room")}>
-                                        <LoadingButton
-                                            variant="text"
-                                            color="primary"
-                                            {...{loading}}
-                                            size="small"
-                                            sx={{mr: 1}}
-                                            {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
-                                            onClick={() => {
-                                                setLoading(true);
-                                                handleEventClick("waitingRoom", data)
-                                            }}
-                                        >
-                                            <IconUrl color={spinner ? "white" : theme.palette.primary.main}
-                                                     path="ic-salle"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
-                                            <span
-                                                style={{marginLeft: "5px"}}>{t("enter-waiting-room")}</span>}
-                                        </LoadingButton>
+                                        <span>
+                                            <LoadingButton
+                                                variant="text"
+                                                color="primary"
+                                                {...{loading}}
+                                                size="small"
+                                                sx={{mr: 1}}
+                                                {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
+                                                onClick={() => {
+                                                    setLoading(true);
+                                                    handleEventClick("waitingRoom", data)
+                                                }}>
+                                                <IconUrl color={spinner ? "white" : theme.palette.primary.main}
+                                                         path="ic-salle"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
+                                                <span
+                                                    style={{marginLeft: "5px"}}>{t("enter-waiting-room")}</span>}
+                                            </LoadingButton>
+                                        </span>
                                     </Tooltip>
                                     :
                                     <LoadingButton
@@ -314,8 +309,7 @@ function CalendarRowDetail({...props}) {
                                         onClick={() => {
                                             setLoading(true);
                                             handleEventClick("leaveWaitingRoom", data)
-                                        }}
-                                    >
+                                        }}>
                                         <IconUrl color={theme.palette.primary.main}
                                                  path="ic-salle-leave"/> {!sideBarOpened &&
                                         <span
@@ -324,17 +318,19 @@ function CalendarRowDetail({...props}) {
                             </>
                         }
                         <Tooltip title={t("view")}>
-                            <LoadingButton
-                                loading={spinner}
-                                onClick={() => handleEventClick("showEvent", data)}
-                                {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
-                                variant="text"
-                                color="primary"
-                                size="small">
+                            <span>
+                                <LoadingButton
+                                    loading={spinner}
+                                    onClick={() => handleEventClick("showEvent", data)}
+                                    {...((sideBarOpened || data?.status?.key === "PENDING") && {sx: {minWidth: 40}})}
+                                    variant="text"
+                                    color="primary"
+                                    size="small">
                                 <IconUrl
                                     path="setting/edit"/> {(!sideBarOpened && data?.status?.key !== "PENDING") &&
-                                <span style={{marginLeft: "5px"}}>{t("view")}</span>}
+                                    <span style={{marginLeft: "5px"}}>{t("view")}</span>}
                             </LoadingButton>
+                            </span>
                         </Tooltip>
                     </Stack>
                 </TableCell>

@@ -1,6 +1,5 @@
 import {createReducer} from '@reduxjs/toolkit';
 import {setOngoing} from './actions';
-import {KeyedMutator} from "swr";
 
 export type dashLayoutState = {
     waiting_room?: number;
@@ -11,7 +10,6 @@ export type dashLayoutState = {
     medicalProfessionalData?: MedicalProfessionalDataModel[];
     appointmentTypes?: AppointmentTypeModel[];
     notifications?: any[];
-    mutate?: KeyedMutator<any> | null;
     last_fiche_id?: string;
     ongoing?: {
         "uuid": "string";
@@ -34,7 +32,6 @@ const initialState: dashLayoutState = {
     import_data: [],
     notifications: [],
     last_fiche_id: "0",
-    mutate: null,
     ongoing: null,
     newCashBox: false,
     next: null

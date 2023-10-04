@@ -10,7 +10,7 @@ import {useTranslation} from "next-i18next";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import Typography from "@mui/material/Typography";
 import Link from "next/link";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {appointmentGroupByDate, appointmentPrepareEvent, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -18,15 +18,12 @@ import {agendaSelector} from "@features/calendar";
 import {NoDataCard, TrashCard} from "@features/card";
 import {Otable} from "@features/table";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import {MobileContainer} from "@themes/mobileContainer";
 import moment from "moment-timezone";
-import {useSession} from "next-auth/react";
 
 const TableHead = [
     {
@@ -65,7 +62,6 @@ function Trash() {
     const router = useRouter();
     const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {data: session} = useSession();
 
     const {t} = useTranslation(['agenda', 'common']);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -76,23 +72,25 @@ function Trash() {
     const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const [event, setEvent] = useState<EventModal | null>();
 
-    const {trigger: restoreAppointment} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: deleteAppointment} = useSWRMutation(["/agenda/delete/appointment", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: restoreAppointment} = useRequestQueryMutation("/agenda/appointment/update/status");
+    const {trigger: deleteAppointment} = useRequestQueryMutation("/agenda/appointment/delete");
 
-    const {data: httpTrashAppointment, mutate: mutateTrashAppointment} = useRequest(agendaConfig ? {
+    const {data: httpTrashAppointment, mutate: mutateTrashAppointment} = useRequestQuery(agendaConfig ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/deleted/appointments/${router.locale}`
-    } : null, {revalidateOnFocus: false});
+    } : null, {refetchOnWindowFocus: false});
 
     const handleDeleteTrashAppointment = (uuid: string) => {
         setLoading(true);
         deleteAppointment({
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/deleted/appointments/${uuid}/${router.locale}`
-        } as any).then(() => {
-            setLoading(false);
-            setDeleteDialog(false);
-            mutateTrashAppointment();
+        }, {
+            onSuccess: () => {
+                setLoading(false);
+                setDeleteDialog(false);
+                mutateTrashAppointment();
+            }
         });
     }
 
@@ -101,15 +99,17 @@ function Trash() {
         switch (action) {
             case "restoreEvent":
                 setLoading(true);
+                const form = new FormData();
+                form.append('status', "1");
                 restoreAppointment({
                     method: "PATCH",
-                    data: {
-                        status: "1"
-                    },
+                    data: form,
                     url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${eventData.id}/status/${router.locale}`
-                } as any).then(() => {
-                    setLoading(false);
-                    mutateTrashAppointment();
+                }, {
+                    onSuccess: () => {
+                        setLoading(false);
+                        mutateTrashAppointment();
+                    }
                 });
                 break;
             case "deleteEvent":

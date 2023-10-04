@@ -22,15 +22,11 @@ import {
     DialogActions, Checkbox, FormControlLabel, Card,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
 import {Otable} from "@features/table";
-import {
-    SWRNoValidateConfig,
-    TriggerWithoutValidation,
-} from "@lib/swr/swrProvider";
 import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
 
@@ -43,9 +39,9 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {useSWRConfig} from "swr";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -94,8 +90,8 @@ function ActFees() {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medical_professional} = useMedicalProfessionalSuffix();
-    const {mutate} = useSWRConfig();
     const dispatch = useAppDispatch();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actfees"});
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
@@ -117,10 +113,11 @@ function ActFees() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {trigger} = useRequestMutation(null, "/settings/acts");
-    const {trigger: triggerAddAct} = useRequestMutation(null, "/settings/acts/add");
+    const {trigger: triggerActUpdate} = useRequestQueryMutation("/settings/acts/update");
+    const {trigger: triggerActDelete} = useRequestQueryMutation("/settings/acts/delete");
+    const {trigger: triggerAddAct} = useRequestQueryMutation("/settings/acts/add");
 
-    const {data: httpActSpeciality} = useRequest(medical_professional ? {
+    const {data: httpActSpeciality} = useRequestQuery(medical_professional ? {
         method: "GET",
         url: `/api/public/acts/${router.locale}`,
         params: {
@@ -129,20 +126,19 @@ function ActFees() {
         }
     } : null);
 
-    const {data: httpProfessionalsActs, mutate:mutateActs} = useRequest(medical_professional ? {
+    const {data: httpProfessionalsActs, mutate: mutateActs} = useRequestQuery(medical_professional ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}${
-            !isMobile
-                ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
-                : "?sort=true"
-        }`
-    } : null, SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(medical_professional && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}})
+    });
 
 
     useEffect(() => {
         if (medicalProfessionalData) {
             setConsultationFees(Number(medicalProfessionalData[0]?.consultation_fees));
-            if (localStorage.getItem('newCashbox')){
+            if (localStorage.getItem('newCashbox')) {
                 setIsChecked(localStorage.getItem('newCashbox') === '1')
             }
         }
@@ -177,46 +173,42 @@ function ActFees() {
     const editFees = () => {
         const form = new FormData();
         form.append("consultation_fees", consultationFees.toString());
-        trigger(
-            {
+        triggerActUpdate({
                 method: "PATCH",
                 url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/${router.locale}`,
                 data: form
             },
-            TriggerWithoutValidation
-        ).then(() => enqueueSnackbar(t("alert.updated"), {variant: "success"}));
+            {
+                onSuccess: () => enqueueSnackbar(t("alert.updated"), {variant: "success"})
+            });
     };
 
     const removeFees = (uuid: string) => {
         setLoading(true)
-        trigger(
-            {
+        triggerActDelete({
                 method: "DELETE",
                 url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`
             },
-            TriggerWithoutValidation
-        ).then(() => {
-            mutateActs().then(() => {
-                setOpen(false);
-                setLoading(false)
-                enqueueSnackbar(t("alert.delete-act"), {variant: "success"});
-                mutateMedicalProfessionalData();
-            });
-        }).catch((error) => {
-            const {
-                response: {data},
-            } = error;
-            setLoading(false);
-            setOpen(false);
-            enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
-        });
+            {
+                onSuccess: () => {
+                    mutateActs().then(() => {
+                        setOpen(false);
+                        setTimeout(() => setLoading(false));
+                        enqueueSnackbar(t("alert.delete-act"), {variant: "success"});
+                        mutateMedicalProfessionalData();
+                    });
+                }
+            }
+        );
     };
 
     const mutateMedicalProfessionalData = () => {
-        mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`).then(r => dispatch(setOngoing(r.data.data)));
+        //ongoing
+        invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`]);
     };
 
     const saveFees = () => {
+        setLoading(true);
         if (newFees.fees !== "" && typeof newFees.act === "string") {
             const form = new FormData();
             form.append(
@@ -227,27 +219,25 @@ function ActFees() {
             );
             form.append("price", `${newFees.fees}`);
 
-            trigger(
-                {
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/new-acts/${router.locale}`,
-                    data: form
-                },
-                TriggerWithoutValidation
-            ).then(() => {
-                mutateActs().then(() => {
-                    setCreate(false);
-                    setNewFees({act: null, fees: ""});
-                    enqueueSnackbar(t("alert.add"), {variant: "success"});
-                });
+            triggerAddAct({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/new-acts/${router.locale}`,
+                data: form
+            }, {
+                onSuccess: () => {
+                    setLoading(false);
+                    mutateActs().then(() => {
+                        setCreate(false);
+                        setNewFees({act: null, fees: ""});
+                        enqueueSnackbar(t("alert.add"), {variant: "success"});
+                    });
+                }
             });
         }
     };
 
-    const setActFees = useCallback((
-            isTopAct: boolean,
-            actFees: any
-        ) => {
+    const setActFees = useCallback((isTopAct: boolean, actFees: any) => {
+            setLoading(true);
             const form = new FormData();
             form.append("topAct", isTopAct.toString());
             form.append("act", actFees?.act?.uuid);
@@ -255,7 +245,9 @@ function ActFees() {
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
                 data: form
-            }).then(() => handleEdit(actFees, actFees.fees, (actFees.act as ActModel).name));
+            }, {
+                onSuccess: () => handleEdit(actFees, actFees.fees, (actFees.act as ActModel).name)
+            });
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [
@@ -272,19 +264,22 @@ function ActFees() {
         const form = new FormData();
         form.append("price", fees);
         name && form.append("name", name);
-        trigger({
+        triggerActUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${v.act?.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            mutateActs().then(() => {
-                enqueueSnackbar(t("alert.updated"), {variant: "success"});
-                mutateMedicalProfessionalData();
-                if (typeof newFees.act !== "string") {
-                    setCreate(false);
-                    setNewFees({act: null, fees: ""});
-                }
-            });
+        }, {
+            onSuccess: () => {
+                setLoading(false);
+                mutateActs().then(() => {
+                    enqueueSnackbar(t("alert.updated"), {variant: "success"});
+                    mutateMedicalProfessionalData();
+                    if (typeof newFees.act !== "string") {
+                        setCreate(false);
+                        setNewFees({act: null, fees: ""});
+                    }
+                });
+            }
         });
     }
     const handleSelected = (prop: string) => {
@@ -323,7 +318,7 @@ function ActFees() {
 
     const acts = (httpActSpeciality as HttpResponse)?.data as ActModel[];
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -378,35 +373,33 @@ function ActFees() {
                 )}
             </SubHeader>
 
-            <Card style={{margin:20,marginBottom: 0,paddingLeft: 10}}>
-                    <FormControlLabel
-                        label={t('betav')}
-                        control={
-                            <Checkbox
-                                checked={isChecked}
-                                onChange={() =>{
+            <Card style={{margin: 20, marginBottom: 0, paddingLeft: 10}}>
+                <FormControlLabel
+                    label={t('betav')}
+                    control={
+                        <Checkbox
+                            checked={isChecked}
+                            onChange={() => {
+                                const form = new FormData();
+                                form.append("is_demo", (!isChecked).toString());
+                                triggerActUpdate({
+                                        method: "PATCH",
+                                        url: `${urlMedicalEntitySuffix}/demo/${router.locale}`,
+                                        data: form
+                                    }, {
+                                        onSuccess: () => {
+                                            enqueueSnackbar(t(isChecked ? "alert.demodisabled" : "alert.demo"), {variant: "success"})
+                                            dispatch(setOngoing({newCashBox: !isChecked}));
+                                            localStorage.setItem('newCashbox', !isChecked ? '1' : '0')
+                                            setIsChecked(!isChecked);
+                                        }
+                                    }
+                                );
 
-                                    const form = new FormData();
-                                    form.append("is_demo", (!isChecked).toString());
-
-                                    trigger(
-                                        {
-                                            method: "PATCH",
-                                            url: `${urlMedicalEntitySuffix}/demo/${router.locale}`,
-                                            data: form
-                                        },
-                                        TriggerWithoutValidation
-                                    ).then(() => {
-                                        enqueueSnackbar(t(isChecked ? "alert.demodisabled":"alert.demo"), {variant: "success"})
-                                        dispatch(setOngoing({newCashBox: !isChecked}));
-                                        localStorage.setItem('newCashbox',!isChecked ? '1':'0')
-                                        setIsChecked(!isChecked);
-                                    });
-
-                                }}
-                            />
-                        }
-                    />
+                            }}
+                        />
+                    }
+                />
             </Card>
 
             {isMobile && (
@@ -554,7 +547,8 @@ function ActFees() {
                                     fullWidth: true,
                                 })}
                             />
-                            <Button
+                            <LoadingButton
+                                {...{loading}}
                                 disabled={newFees.act === null || newFees.fees.length === 0}
                                 variant="contained"
                                 onClick={() => {
@@ -565,7 +559,7 @@ function ActFees() {
                                     }
                                 }}>
                                 {t("save")}
-                            </Button>
+                            </LoadingButton>
                             <Button
                                 onClick={() => {
                                     handleRemove();

@@ -1,8 +1,7 @@
 import {CheckList} from "@features/checkList";
 import {useTranslation} from "next-i18next";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useEffect, useState} from "react";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 
@@ -14,7 +13,7 @@ function LanguesDialog(info: any) {
 
     const router = useRouter();
 
-    const {data} = useRequest({
+    const {data} = useRequestQuery({
         method: "GET",
         url: `/api/public/languages/${router.locale}`
     });

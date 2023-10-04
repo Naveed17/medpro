@@ -27,7 +27,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import HelpIcon from '@mui/icons-material/Help';
 import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingButton} from "@mui/lab";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {OverridableStringUnion} from "@mui/types";
 import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
@@ -47,7 +47,7 @@ function ImportDataRow({...props}) {
 
     const status = ['progress', 'success', 'error', 'failed', 'deleted']
     const colors: ChipColors[] = ['warning', 'success', 'error', 'error', 'info']
-    const {trigger: triggerImportDataDetail} = useRequestMutation(null, "/import/data/detail");
+    const {trigger: triggerImportDataDetail} = useRequestQueryMutation("/import/data/detail");
 
     const [warningAlertContainer, setWarningAlertContainer] = useState(false);
     const [infoAlertContainer, setInfoAlertContainer] = useState(false);
@@ -60,10 +60,12 @@ function ImportDataRow({...props}) {
         triggerImportDataDetail({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${type}/${router.locale}?page=1&limit=10`
-        }).then((value: any) => {
-            const {data} = value?.data;
-            if (value?.data.status === 'success') {
-                setExpandData(data.list);
+        }, {
+            onSuccess: (value: any) => {
+                const {data} = value?.data;
+                if (value?.data.status === 'success') {
+                    setExpandData(data.list);
+                }
             }
         });
     }

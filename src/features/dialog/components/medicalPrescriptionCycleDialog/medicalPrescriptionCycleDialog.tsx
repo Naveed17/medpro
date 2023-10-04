@@ -54,50 +54,41 @@ import {configSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import {AnimatePresence, motion} from "framer-motion";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {a11yProps, useLastPrescription, useMedicalProfessionalSuffix,} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import {useSnackbar} from "notistack";
 import FormControl from "@mui/material/FormControl";
 import {MedicalFormUnit, PrescriptionMultiUnits} from "@lib/constants";
 import ModelSwitchButton from "./modelSwitchButton";
 import {search} from "fast-fuzzy";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import {useSession} from "next-auth/react";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
     const {setState: setDrugs, state: drugs} = data;
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const refs = useRef([]);
     const refContainer = useRef(null);
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {lastPrescriptions} = useLastPrescription();
-    const {data: session} = useSession();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
-
     const {direction} = useAppSelector(configSelector);
     const {drawerAction} = useAppSelector(dialogSelector);
-    const {name: modelName, parent: modelParent} =
-        useAppSelector(prescriptionSelector);
+    const {name: modelName, parent: modelParent} = useAppSelector(prescriptionSelector);
 
     const [openAddParentDialog, setOpenAddParentDialog] = useState(false);
     const [parentModelName, setParentModelName] = useState<string>("");
-
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [initialOpenData, setInitialOpenData] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
@@ -168,17 +159,13 @@ function MedicalPrescriptionCycleDialog({...props}) {
     });
 
     const getMedicForm = (drug: any) => {
-        const [first, ...rest] = (
-            drug.cycles?.length > 0 ? drug.cycles[0].dosage.split(",")[0] : ""
-        )?.split(" ");
+        const [first, ...rest] = (drug.cycles?.length > 0 ? drug.cycles[0].dosage.split(",")[0] : "")?.split(" ");
         const unit = rest.join(" ");
         const hasMultiValues = PrescriptionMultiUnits.includes(unit);
         const hasMedicalFormUnit = MedicalFormUnit.find(
             (item) => item.unit === unit
         );
-        return drug.cycles.length > 0 &&
-        drug.cycles[0].dosage.split(",")[0] &&
-        hasMedicalFormUnit
+        return (drug.cycles?.length > 0 && drug.cycles[0].dosage.split(",")[0] && hasMedicalFormUnit)
             ? `${hasMedicalFormUnit.forms[0].form}${hasMultiValues ? `_${unit}` : ""}`
             : unit;
     };
@@ -205,67 +192,64 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     isVerified: true,
                 } as any,
                 unit: getMedicForm(drug),
-                cycles:
-                    drug.cycles.length === 0 &&
-                    (drug.duration === "" || drug.duration === null) &&
-                    drug.durationType === ""
-                        ? []
-                        : drug.cycles.map((cycle: PrescriptionCycleModel) => ({
-                            count: cycle.dosage.split(" ")[0]
-                                ? cycle.dosage.split(" ")[0] === fractions[0]
-                                    ? 0
-                                    : cycle.dosage.split(" ")[0] === fractions[1]
-                                        ? 1
-                                        : parseInt(cycle.dosage.split(" ")[0]) + 1
-                                : 2,
-                            dosageQty: cycle.dosage.split(" ")[0]
-                                ? cycle.dosage.split(" ")[0]
-                                : "1",
-                            dosageDuration: cycle.duration ? cycle.duration : 1,
-                            dosageMealValue:
-                                cycle.dosage !== "" &&
-                                cycle.dosage.split(",")[2] &&
-                                cycle.dosage.split(",")[2].length > 0
-                                    ? dosageMeal.find((meal) =>
-                                        cycle.dosage.split(",")[2].includes(t(meal.label))
-                                    )?.label
-                                    : "",
-                            durationValue: cycle.durationType ? cycle.durationType : "",
-                            dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
-                            cautionaryNoteInput: cycle.note?.length > 0,
-                            dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
-                            cautionaryNote: cycle.note !== "" ? cycle.note : "",
-                            dosageTime: [
-                                {
-                                    label: "morning",
-                                    value: cycle.dosage.split(",")[1]
-                                        ? cycle.dosage.split(",")[1].includes(t("morning"))
-                                        : false,
-                                },
-                                {
-                                    label: "mid_day",
-                                    value: cycle.dosage.split(",")[1]
-                                        ? cycle.dosage.split(",")[1].includes(t("mid_day"))
-                                        : false,
-                                },
-                                {
-                                    label: "evening",
-                                    value: cycle.dosage.split(",")[1]
-                                        ? cycle.dosage.split(",")[1].includes(t("evening"))
-                                        : false,
-                                },
-                                {
-                                    label: "before_sleeping",
-                                    value: cycle.dosage.split(",")[1]
-                                        ? cycle.dosage
-                                            .split(",")[1]
-                                            .includes(t("before_sleeping"))
-                                        : false,
-                                },
-                            ],
-                            dosageMeal,
-                            duration,
-                        })),
+                cycles: (drug.cycles?.length === 0 && (drug.duration === "" || drug.duration === null) && drug.durationType === "")
+                    ? []
+                    : drug.cycles.map((cycle: PrescriptionCycleModel) => ({
+                        count: cycle.dosage.split(" ")[0]
+                            ? cycle.dosage.split(" ")[0] === fractions[0]
+                                ? 0
+                                : cycle.dosage.split(" ")[0] === fractions[1]
+                                    ? 1
+                                    : parseInt(cycle.dosage.split(" ")[0]) + 1
+                            : 2,
+                        dosageQty: cycle.dosage.split(" ")[0]
+                            ? cycle.dosage.split(" ")[0]
+                            : "1",
+                        dosageDuration: cycle.duration ? cycle.duration : 1,
+                        dosageMealValue:
+                            cycle.dosage !== "" &&
+                            cycle.dosage.split(",")[2] &&
+                            cycle.dosage.split(",")[2].length > 0
+                                ? dosageMeal.find((meal) =>
+                                    cycle.dosage.split(",")[2].includes(t(meal.label))
+                                )?.label
+                                : "",
+                        durationValue: cycle.durationType ? cycle.durationType : "",
+                        dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
+                        cautionaryNoteInput: cycle.note?.length > 0,
+                        dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
+                        cautionaryNote: cycle.note !== "" ? cycle.note : "",
+                        dosageTime: [
+                            {
+                                label: "morning",
+                                value: cycle.dosage.split(",")[1]
+                                    ? cycle.dosage.split(",")[1].includes(t("morning"))
+                                    : false,
+                            },
+                            {
+                                label: "mid_day",
+                                value: cycle.dosage.split(",")[1]
+                                    ? cycle.dosage.split(",")[1].includes(t("mid_day"))
+                                    : false,
+                            },
+                            {
+                                label: "evening",
+                                value: cycle.dosage.split(",")[1]
+                                    ? cycle.dosage.split(",")[1].includes(t("evening"))
+                                    : false,
+                            },
+                            {
+                                label: "before_sleeping",
+                                value: cycle.dosage.split(",")[1]
+                                    ? cycle.dosage
+                                        .split(",")[1]
+                                        .includes(t("before_sleeping"))
+                                    : false,
+                            },
+                        ],
+                        dosageMeal,
+                        duration,
+                    })),
             });
         });
 
@@ -286,35 +270,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const {setFieldValue, values, getFieldProps, errors, touched} = formik;
 
-    const {trigger: triggerDrugList} = useRequestMutation(
-        null,
-        "consultation/drugs"
-    );
-    const {trigger: triggerPrescriptionModel} = useRequestMutation(
-        null,
-        "consultation/prescription/model"
-    );
-    const {trigger: triggerPrescriptionParent} = useRequestMutation(
-        null,
-        "consultation/prescription/model/parent"
-    );
-    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(
-        [
-            "/consultation/prescription/model/edit",
-            {Authorization: `Bearer ${session?.accessToken}`},
-        ],
-        sendRequest as any
-    );
+    const {trigger: triggerDrugList} = useRequestQueryMutation("consultation/drugs");
+    const {trigger: triggerPrescriptionModel} = useRequestQueryMutation("consultation/prescription/model");
+    const {trigger: triggerPrescriptionParent} = useRequestQueryMutation("consultation/prescription/model/parent");
+    const {trigger: triggerEditPrescriptionModel} = useRequestQueryMutation("/consultation/prescription/model/edit");
 
-    const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest(
-        urlMedicalProfessionalSuffix
-            ? {
-                method: "GET",
-                url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
-            }
-            : null,
-        SWRNoValidateConfig
-    );
+    const {data: ParentModelResponse, mutate: mutateParentModel} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
+    } : null, ReactQueryNoValidateConfig);
 
     const handleAddDrug = () => {
         setFieldValue("data", [
@@ -326,64 +290,66 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 block: "end",
             });
         });
-    };
+    }
 
-    const switchPrescriptionModel = (drugs: DrugModel[]) => {
+    const switchModel = (drugs: DrugModel[]) => {
         setDrugs(drugs);
         setFieldValue("data", setInitData(drugs));
-    };
+    }
 
     const editPrescriptionModel = (props: any) => {
         setEditModel(props.node);
-    };
+    }
 
     const editPrescriptionAction = () => {
         setLoading(true);
+        const form = new FormData();
+        form.append('drugs', JSON.stringify(drugs));
+        editModel?.text && form.append('name', editModel.text);
+        editModel?.parent && form.append('parent', editModel.parent.toString());
         triggerEditPrescriptionModel({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${editModel?.id}/${router.locale}`,
-            data: {
-                drugs: JSON.stringify(drugs),
-                name: editModel?.text,
-                parent: editModel?.parent,
-            },
-        } as any).then((result) => {
-            mutateParentModel().then(() => {
-                setLoading(false);
-                setDrugsList((result?.data as HttpResponse)?.data);
-                setEditModel(null);
-                enqueueSnackbar(t("editWithsuccess"), {variant: "success"});
-            });
+            data: form,
+        }, {
+            onSuccess: (result) => {
+                mutateParentModel().then(() => {
+                    setLoading(false);
+                    setDrugsList((result?.data as HttpResponse)?.data);
+                    setEditModel(null);
+                    enqueueSnackbar(t("editWithsuccess"), {variant: "success"});
+                });
+            }
         });
-    };
+    }
 
     const handleRemoveCycle = (idx: number, value: any) => {
         const filtered = values.data[idx].cycles.filter(
             (item: any) => item !== value
         );
         setFieldValue(`data[${idx}].cycles`, filtered);
-    };
+    }
 
     const handleRemoveDrug = (idx: number) => {
         const filtered = values.data.filter(
             (item: any, index: number) => index !== idx
         );
         setFieldValue(`data`, filtered);
-    };
+    }
 
     const handAddCycle = (index: number) => {
         setFieldValue(`data[${index}].cycles`, [
             ...values.data[index].cycles,
             ...initPrescriptionCycleData.cycles,
         ]);
-    };
+    }
 
     const handlePrescriptionTabChange = (
         event: React.SyntheticEvent,
         newValue: number
     ) => {
         setPrescriptionTabIndex(newValue);
-    };
+    }
 
     const handleDosageQty = (prop: string, index: number, idx: number) => {
         setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
@@ -406,7 +372,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 );
             }
         }
-    };
+    }
 
     const durationCounter = (prop: string, index: number, idx: number) => {
         setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
@@ -426,7 +392,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 values.data[idx].cycles[index].dosageDuration - 1
             );
         }
-    };
+    }
 
     const handleSaveDialog = () => {
         const form = new FormData();
@@ -438,14 +404,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${router.locale}`,
             data: form,
-        }).then(() =>
-            mutateParentModel().then(() => {
-                setInitialOpenData([modelParent]);
-                setPrescriptionTabIndex(1);
-            })
-        );
+        }, {
+            onSuccess: () =>
+                mutateParentModel().then(() => {
+                    setInitialOpenData([modelParent]);
+                    setPrescriptionTabIndex(1);
+                })
+        });
         setOpenDialog(false);
-    };
+    }
 
     const handleAddParentModel = () => {
         setLoading(true);
@@ -455,17 +422,19 @@ function MedicalPrescriptionCycleDialog({...props}) {
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
             data: form,
-        }).then(() => {
-            mutateParentModel().then((result) => {
-                const models = (result?.data as HttpResponse)
-                    ?.data as PrescriptionParentModel[];
-                dispatch(setParentModel(models[models.length - 1]?.uuid));
-                setOpenAddParentDialog(false);
-                setParentModelName("");
-                setLoading(false);
-            });
+        }, {
+            onSuccess: () => {
+                mutateParentModel().then((result: any) => {
+                    const models = (result?.data as HttpResponse)
+                        ?.data as PrescriptionParentModel[];
+                    dispatch(setParentModel(models[models.length - 1]?.uuid));
+                    setOpenAddParentDialog(false);
+                    setParentModelName("");
+                    setLoading(false);
+                });
+            }
         });
-    };
+    }
 
     const getFormUnitMedic: any = (form: string) => {
         const hasMultiValues = form.split("_");
@@ -491,7 +460,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 }) ?? form;
         }
         return formUnitMedic;
-    };
+    }
 
     const generateDosageText = (cycle: any, unit?: string) => {
         return unit && cycle.dosageTime.some((time: any) => time.value)
@@ -506,10 +475,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     : ""
             }`
             : "";
-    };
+    }
 
-    const models = (ParentModelResponse as HttpResponse)
-        ?.data as PrescriptionParentModel[];
+    const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
 
     useEffect(() => {
         if (models && models.length > 0) {
@@ -684,11 +652,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                         triggerDrugList({
                                                                             method: "GET",
                                                                             url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
-                                                                        }).then((cnx) =>
-                                                                            setDrugsList(
-                                                                                (cnx?.data as HttpResponse)?.data ?? []
-                                                                            )
-                                                                        );
+                                                                        }, {
+                                                                            onSuccess: (cnx) => setDrugsList((cnx?.data as HttpResponse)?.data ?? [])
+                                                                        });
                                                                     }
                                                                 }}
                                                                 placeholder={t("placeholder_drug_name")}
@@ -1249,7 +1215,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 switch (action) {
                                                     case "last-prescription":
                                                         const last: any[] = [];
-                                                        lastPrescriptions[0].prescription[0].prescription_has_drugs.map(
+                                                        lastPrescriptions[0].prescription_has_drugs.map(
                                                             (drug: any) => {
                                                                 last.push({
                                                                     cycles: drug.cycles,
@@ -1258,7 +1224,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 });
                                                             }
                                                         );
-                                                        switchPrescriptionModel([...last]);
+                                                        switchModel([...last]);
                                                         break;
                                                     case "set-prescription":
                                                         setInfo("medical_prescription_model");
@@ -1353,10 +1319,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         secondary={
                                                             <React.Fragment>
                                                                 <span style={{display: "grid"}}>
-                                  {drug.cycles.map((
-                                          cycle: PrescriptionCycleModel,
-                                          indexCycle: number
-                                      ) => (
+                                  {drug.cycles.map((cycle: PrescriptionCycleModel, indexCycle: number) => (
                                           <span
                                               key={`cycle-${indexCycle}`}
                                               style={{display: "grid"}}>
@@ -1379,7 +1342,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                             {cycle.note?.length > 0 &&
                                                 `(${cycle.note})`}
                                         </span>
-                                              {indexCycle < drug.cycles.length - 1 &&
+                                              {indexCycle < drug.cycles?.length - 1 &&
                                                   !(
                                                       errors.data &&
                                                       ((errors.data as any)[index]
@@ -1441,8 +1404,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 models,
                                                 t,
                                                 initialOpenData,
-                                                switchPrescriptionModel,
+                                                switchModel,
                                                 editPrescriptionModel,
+                                                setOpenAddParentDialog
                                             }}
                                         />
                                         <Button

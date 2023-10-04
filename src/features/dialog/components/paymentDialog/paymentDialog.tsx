@@ -1,14 +1,17 @@
 import React, {useEffect, useState} from 'react'
 import PaymentDialogStyled from './overrides/paymentDialogStyle';
 import {
+    Autocomplete,
     Avatar,
     Box,
     Button,
     Checkbox,
+    Divider,
     FormControlLabel,
     FormGroup,
     Grid,
     IconButton,
+    MenuItem,
     Paper,
     Stack,
     TextField,
@@ -35,10 +38,12 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {DatePicker} from "@features/datepicker";
 import {useInsurances} from "@lib/hooks/rest";
-import {useRequest} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRequestQuery} from "@lib/axios";
+import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
+import useBanks from "@lib/hooks/rest/useBanks";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -60,14 +65,14 @@ const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "left",
     },
-    /*{
+    {
         id: "time",
         numeric: false,
         disablePadding: true,
         label: "time",
         sortable: true,
         align: "left",
-    },*/
+    },
     {
         id: "amount",
         numeric: true,
@@ -133,6 +138,7 @@ function PaymentDialog({...props}) {
     const router = useRouter();
 
     const {appointment, selectedPayment, setSelectedPayment, patient} = data;
+    const {banks} = useBanks();
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
 
@@ -180,25 +186,11 @@ function PaymentDialog({...props}) {
 
     const {values, errors, touched, getFieldProps, setFieldValue, resetForm} = formik;
 
-    const {data: httpPatientWallet} = useRequest(medicalEntityHasUser && appointment ? {
+    const {data: httpPatientWallet} = useRequestQuery(medicalEntityHasUser && appointment ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
-
-    useEffect(() => {
-        setSelectedPayment({
-            ...selectedPayment,
-            payments
-        });
-    }, [payments]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (httpPatientWallet) {
-            const w = (httpPatientWallet as HttpResponse).data.wallet
-            setWallet(w)
-        }
-    }, [httpPatientWallet]); // eslint-disable-line react-hooks/exhaustive-deps
     const handleAddStep = () => {
         const step = [...values.check, {
             amount: "",
@@ -209,11 +201,13 @@ function PaymentDialog({...props}) {
             expiry_date: new Date(),
         }];
         setFieldValue("check", step);
-    };
+    }
+
     const handleDeleteStep = (props: any) => {
         const filter = values.check.filter((item: any) => item !== props)
         setFieldValue("check", filter);
     }
+
     const calculInsurance = () => {
         let total = 0
         payments.map((pay: { insurance: string; amount: number; }) => {
@@ -221,6 +215,7 @@ function PaymentDialog({...props}) {
         })
         return total
     }
+
     const checkCheques = () => {
         if (selectedPayment.uuid !== "") {
             let total = 0;
@@ -243,11 +238,31 @@ function PaymentDialog({...props}) {
         }
 
     }
+
     const calculRest = () => {
         let paymentTotal = 0
         selectedPayment.payments.map((pay: { amount: number; }) => paymentTotal += pay.amount)
         return selectedPayment.total - paymentTotal
     }
+
+    const getHours = ()=>{
+        return `${new Date().getHours()}:${new Date().getMinutes()}`
+    }
+
+    useEffect(() => {
+        setSelectedPayment({
+            ...selectedPayment,
+            payments
+        });
+    }, [payments]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (httpPatientWallet) {
+            const w = (httpPatientWallet as HttpResponse).data.wallet
+            setWallet(w)
+        }
+    }, [httpPatientWallet]); // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -317,7 +332,7 @@ function PaymentDialog({...props}) {
                                 <Typography
                                     fontWeight={700}
                                     component='strong'
-                                    mx={1}>{calculInsurance()}</Typography>
+                                    mx={1}>{(calculInsurance()).toFixed(3)}</Typography>
                                 {devise}
                             </Button>
 
@@ -329,7 +344,7 @@ function PaymentDialog({...props}) {
                                 <Typography
                                     fontWeight={700}
                                     component='strong'
-                                    mx={1}>{calculRest()}</Typography>
+                                    mx={1}>{(calculRest()).toFixed(3)}</Typography>
                                 {devise}
                             </Button>
 
@@ -515,7 +530,8 @@ function PaymentDialog({...props}) {
                                                                 const newPayment = [...payments, {
                                                                     amount: values.cash?.amount,
                                                                     designation: label,
-                                                                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                    payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                    payment_time: getHours(),
                                                                     status_transaction: TransactionStatus[1].value,
                                                                     type_transaction: TransactionType[2].value,
                                                                     payment_means: paymentTypesList.find((pt: {
@@ -537,7 +553,7 @@ function PaymentDialog({...props}) {
                                         </TabPanel>
                                     case 'check':
                                         return <TabPanel index={0}>
-                                            <Stack p={{xs: 1, sm: 2}}  justifyContent="center">
+                                            <Stack p={{xs: 1, sm: 2}} justifyContent="center">
                                                 <Typography gutterBottom>
                                                     {t('enter_the_amount')}
                                                 </Typography>
@@ -573,14 +589,51 @@ function PaymentDialog({...props}) {
                                                                         {...getFieldProps(`check[${idx}].carrier`)}
                                                                         required
                                                                     />
-                                                                    <TextField
-                                                                        variant="outlined"
-                                                                        placeholder={t("bank")}
+
+                                                                    <Autocomplete
+                                                                        id={"banks"}
+                                                                        freeSolo
                                                                         fullWidth
-                                                                        type="text"
-                                                                        {...getFieldProps(`check[${idx}].bank`)}
-                                                                        required
-                                                                    />
+                                                                        autoHighlight
+                                                                        disableClearable
+                                                                        placeholder={t("bank")}
+                                                                        size="small"
+                                                                        value={values[`check[${idx}].bank`]}
+                                                                        onChange={(e, newValue: any) => {
+                                                                            e.stopPropagation();
+                                                                            let res: string
+                                                                            if (newValue.inputValue)
+                                                                                res = newValue.inputValue
+                                                                            else res = newValue.name
+                                                                            setFieldValue(`check[${idx}].bank`, res)
+                                                                        }}
+                                                                        filterOptions={(options, params) => filterReasonOptions(options, params, t)}
+                                                                        sx={{color: "text.secondary"}}
+                                                                        options={banks ? banks : []}
+                                                                        loading={banks?.length === 0}
+                                                                        getOptionLabel={(option) => {
+                                                                            return option.name;
+                                                                        }}
+                                                                        isOptionEqualToValue={(option: any, value) => option.name === value?.name}
+                                                                        renderOption={(props, option) => (
+                                                                            <Stack
+                                                                                key={option.uuid ? option.uuid : "-1"}>
+                                                                                {!option.uuid && <Divider/>}
+                                                                                <MenuItem
+                                                                                    {...props}
+                                                                                    value={option.uuid}>
+                                                                                    {!option.uuid && <AddOutlinedIcon/>}
+                                                                                    {option.name}
+                                                                                </MenuItem>
+                                                                            </Stack>
+                                                                        )}
+                                                                        renderInput={params => <TextField color={"info"}
+                                                                                                          {...params}
+                                                                                                          placeholder={"--"}
+                                                                                                          sx={{paddingLeft: 0}}
+                                                                                                          variant="outlined"
+                                                                                                          fullWidth/>}/>
+
                                                                 </Stack>
 
                                                                 <TextField
@@ -662,7 +715,8 @@ function PaymentDialog({...props}) {
                                                                 let updatedPays: any[] = [];
                                                                 values.check?.map((ck: any) => {
                                                                     updatedPays.push({
-                                                                        payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                        payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                        payment_time: getHours(),
                                                                         designation: label,
                                                                         status_transaction: TransactionStatus[1].value,
                                                                         type_transaction: TransactionType[2].value,
@@ -708,7 +762,8 @@ function PaymentDialog({...props}) {
                                                                 const newPayment = [...payments, {
                                                                     amount: Number(values.cash?.amount),
                                                                     designation: label,
-                                                                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                    payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                    payment_time: getHours(),
                                                                     status_transaction: TransactionStatus[1].value,
                                                                     type_transaction: TransactionType[4].value,
                                                                     wallet: true
@@ -784,7 +839,8 @@ function PaymentDialog({...props}) {
                                                                 const newPayment = [...payments, {
                                                                     amount: Number(values.cash?.amount),
                                                                     designation: label,
-                                                                    payment_date: moment().format('DD-MM-YYYY HH:mm'),
+                                                                    payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                    payment_time: getHours(),
                                                                     status_transaction: TransactionStatus[1].value,
                                                                     type_transaction: TransactionType[2].value,
                                                                     insurance: deals.selected//insurances.find(i => i.uuid === deals.selected),

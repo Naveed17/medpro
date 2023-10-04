@@ -48,7 +48,7 @@ export default function HistoryCard({...props}) {
                     </Stack>
                 </Box>
                 <Stack spacing={2} direction="row" alignItems='center' ml={'auto !important'}>
-                    <Button className="btn-more" onClick={() => {
+                    {/*<Button className="btn-more" onClick={() => {
                         const event = {
                             title: `${patient.firstName}  ${patient.lastName}`,
                             publicId: row.uuid,
@@ -57,13 +57,12 @@ export default function HistoryCard({...props}) {
                                 patient: patient,
                                 motif: row.consultationReasons,
                                 description: "",
-                                meeting: false,
                                 status
                             }
                         }
                         dispatch(setSelectedEvent(event as any));
                         dispatch(openDrawer(true));
-                    }} size="small">{t('see_details')}</Button>
+                    }} size="small">{t('see_details')}</Button>*/}
                     <IconButton
                         onClick={() => {
                             dispatch(openDrawer(true));

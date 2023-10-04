@@ -24,14 +24,13 @@ import {useFormik, Form, FormikProvider, FieldArray} from "formik";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from '@mui/icons-material/Close';
 import IconUrl from "@themes/urlIcon";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {Session} from "next-auth";
 import dynamic from "next/dynamic";
 import {countries} from "@features/countrySelect/countries";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
 import {isValidPhoneNumber} from "libphonenumber-js";
@@ -42,6 +41,7 @@ import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
 import {checkObjectChange, flattenObject, useMedicalEntitySuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -94,15 +94,15 @@ function PatientContactDetailCard({...props}) {
             })),
     });
 
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
     const {
         data: httpPatientContactResponse,
         mutate: mutatePatientContact
-    } = useRequest(medicalEntityHasUser && patient ? {
+    } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/contact/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const contactData = (httpPatientContactResponse as HttpResponse)?.data as PatientContactModel;
     const initialValue = {
@@ -122,7 +122,8 @@ function PatientContactDetailCard({...props}) {
                     value: ""
                 }]
     }
-    const flattenedObject = flattenObject(initialValue);
+    const [flattenedObject, setFlattenedObject] = useState(flattenObject(initialValue));
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: initialValue,
@@ -134,10 +135,10 @@ function PatientContactDetailCard({...props}) {
 
     const {values, errors, getFieldProps, setFieldValue} = formik;
 
-    const {data: httpStatesResponse} = useRequest(values.country ? {
+    const {data: httpStatesResponse} = useRequestQuery(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const handleAddPhone = () => {
         const phone = [...values.phones, {code: doctor_country?.phone, value: ""}];
@@ -176,30 +177,32 @@ function PatientContactDetailCard({...props}) {
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/contact/${router.locale}`,
             data: params
-        }).then(() => {
-            setLoadingRequest(false);
-            mutatePatientContact();
-            mutatePatientList && mutatePatientList();
-            mutateAgenda && mutateAgenda();
-            if (appointment) {
-                const event = {
-                    ...appointment,
-                    extendedProps: {
-                        ...appointment.extendedProps,
-                        patient: {
-                            ...appointment.extendedProps.patient,
-                            contact: [
-                                {
-                                    ...appointment.extendedProps.patient.contact[0],
-                                    code: values.phones[0].code,
-                                    value: values.phones[0].value
-                                }]
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                mutatePatientContact();
+                mutatePatientList && mutatePatientList();
+                mutateAgenda && mutateAgenda();
+                if (appointment) {
+                    const event = {
+                        ...appointment,
+                        extendedProps: {
+                            ...appointment.extendedProps,
+                            patient: {
+                                ...appointment.extendedProps.patient,
+                                contact: [
+                                    {
+                                        ...appointment.extendedProps.patient.contact[0],
+                                        code: values.phones[0].code,
+                                        value: values.phones[0].value
+                                    }]
+                            }
                         }
-                    }
-                } as any;
-                dispatch(setSelectedEvent(event));
+                    } as any;
+                    dispatch(setSelectedEvent(event));
+                }
+                enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
             }
-            enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
         });
     }
 
@@ -208,9 +211,14 @@ function PatientContactDetailCard({...props}) {
     const disableActions = defaultEditStatus.personalInsuranceCard || defaultEditStatus.personalInfoCard;
 
     useEffect(() => {
+        contactData && setFlattenedObject(flattenObject(initialValue));
+    }, [contactData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (!editable) {
-            const changedValues = checkObjectChange(flattenedObject, values);
-            if (Object.keys(changedValues).length > 0) {
+            const flattenValues = flattenObject(values);
+            const changedValues = checkObjectChange(flattenedObject, flattenValues);
+            if (Object.keys(changedValues).length > 0 || Object.keys(flattenedObject).length !== Object.keys(flattenValues).length) {
                 handleUpdatePatient();
             }
         }

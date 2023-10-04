@@ -1,5 +1,11 @@
 // components
-import {BoxStyled} from "@features/leftActionBar";
+import {
+    BoxStyled,
+    cashBoxSelector,
+    setFilterCB,
+    setInsurances,
+    setPaymentTypes
+} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -10,28 +16,15 @@ import {Box, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
 import {BoxesFilter, DateFilter} from "@features/leftActionBar/components/cashbox/overrides";
-import {setFilterCB, setInsurances, setPaymentTypes} from "@features/leftActionBar/components/cashbox/actions";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox/selectors";
 
 
 const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
 
 function Cashbox() {
-
-    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
-    const [disabledDay, setDisabledDay] = useState<number[]>([]);
-
-    const [filterDate, setFilterDate] = useState(true);
-    const [byPeriod, setByPeriod] = useState(false);
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
-    const [loadingInscurances, setLoadingInscurances] = useState(true);
-    const [loadingPM, setLoadingPM] = useState(true);
-    const {currentDate} = useAppSelector(agendaSelector);
-
-    const hours = agendaConfig?.openingHours[0];
     const dispatch = useAppDispatch();
+    
+    const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
     const {
         selectedBoxes,
         insurances,
@@ -40,6 +33,18 @@ function Cashbox() {
         paymentTypesList,
         filterCB
     } = useAppSelector(cashBoxSelector);
+    const {currentDate} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
+
+    const [disabledDay, setDisabledDay] = useState<number[]>([]);
+    const [filterDate, setFilterDate] = useState(true);
+    const [byPeriod, setByPeriod] = useState(false);
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
+    const [loadingInscurances, setLoadingInscurances] = useState(true);
+    const [loadingPM, setLoadingPM] = useState(true);
+
+    const hours = agendaConfig?.openingHours[0];
 
     useEffect(() => {
         let boxes = '';
@@ -95,7 +100,6 @@ function Cashbox() {
         setLoadingPM(false)
     }, [paymentTypes]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
 
     return (
         <BoxStyled className="container-filter">

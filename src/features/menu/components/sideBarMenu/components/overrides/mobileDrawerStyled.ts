@@ -43,6 +43,16 @@ const MobileDrawerStyled = styled(Drawer)(({ theme }) => ({
                 position: "absolute",
                 bottom: 0,
                 left: 22,
+                "& .MuiListItem-root":{
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    "& .MuiListItemIcon-root": {
+                        backgroundColor: theme.palette.info.main,
+                        boxShadow: theme.shadows[4],
+                        border: `1px solid ${theme.palette.grey["A100"]}`,
+                    },
+                    }
+                },
             },
         },
     },

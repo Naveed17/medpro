@@ -45,8 +45,9 @@ export * from "./patientHistoryStaticCard";
 export * from "./historyAppointementContainer";
 export * from "./fileTemplateMobileCard";
 export * from "./actfeesMobileCard";
-export * from './userMobileCard';
-export * from './trashCard';
-export * from './noteCardCollapse';
-export * from './cashBoxMobileCard'
-export * from './cashoutMobileCard'
+export * from "./userMobileCard";
+export * from "./trashCard";
+export * from "./noteCardCollapse";
+export * from "./cashBoxMobileCard";
+export * from "./cashoutMobileCard";
+export * from "./inventoryMobileCard";

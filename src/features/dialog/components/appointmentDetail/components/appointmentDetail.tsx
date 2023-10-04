@@ -40,6 +40,8 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 import {getBirthdayFormat} from "@lib/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {useProfilePhoto} from "@lib/hooks/rest";
+import {Label} from "@features/label";
+import {DefaultCountry} from "@lib/constants";
 
 function AppointmentDetail({...props}) {
     const {
@@ -63,8 +65,12 @@ function AppointmentDetail({...props}) {
     const rootRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const {data: session} = useSession();
+
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const {t, ready} = useTranslation(["common", "agenda"]);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
@@ -158,9 +164,10 @@ function AppointmentDetail({...props}) {
                             <Stack
                                 spacing={2}
                                 direction="row"
+                                sx={{width: "100%"}}
                                 justifyContent="space-between"
                                 alignItems="flex-start">
-                                <Stack spacing={2} direction="row" alignItems="flex-start">
+                                <Stack sx={{width: "100%"}} spacing={2} direction="row" alignItems="flex-start">
                                     <Box position="relative">
                                         <Avatar
                                             src={
@@ -193,13 +200,32 @@ function AppointmentDetail({...props}) {
                                             <IconUrl path="ic-camera"/>
                                         </IconButton>*/}
                                     </Box>
-                                    <Stack>
+                                    <Stack sx={{width: "100%"}}>
                                         <Typography
                                             className={"user-name"}
                                             variant="subtitle1"
                                             color="primary"
                                             fontWeight={700}>
-                                            {appointment?.title}
+                                            <Stack direction={"row"} justifyContent={"space-between"}>
+                                                <span>{appointment?.title}</span>
+                                                {(appointment?.extendedProps?.restAmount > 0 || appointment?.extendedProps?.restAmount < 0) &&
+                                                    <Label
+                                                        variant='filled'
+                                                        sx={{
+                                                            "& .MuiSvgIcon-root": {
+                                                                width: 16,
+                                                                height: 16,
+                                                                pl: 0
+                                                            }
+                                                        }}
+                                                        color={appointment?.extendedProps.restAmount > 0 ? "expire" : "success"}>
+                                                        <Typography
+                                                            sx={{
+                                                                fontSize: 10,
+                                                            }}>
+                                                            {t(appointment?.extendedProps.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${appointment?.extendedProps.restAmount > 0 ? '-' : '+'} ${Math.abs(appointment?.extendedProps.restAmount)}`} {devise}</Typography>
+                                                    </Label>}
+                                            </Stack>
                                         </Typography>
                                         <List sx={{py: 1, pt: 0}}>
                                             {appointment?.extendedProps.patient?.birthdate && (
@@ -262,7 +288,7 @@ function AppointmentDetail({...props}) {
                                     </Stack>
                                 </Stack>
                                 {(canManageActions && OnEditDetail) &&
-                                    <IconButton size="small" onClick={() => OnEditDetail(appointment)}>
+                                    <IconButton className={"edit-button"} size="small" onClick={() => OnEditDetail(appointment)}>
                                         <IconUrl path="ic-duotone"/>
                                     </IconButton>}
                             </Stack>
@@ -447,10 +473,7 @@ function AppointmentDetail({...props}) {
                                 color="error"
                                 sx={{
                                     display:
-                                        appointment?.extendedProps.status.key === "CANCELED" ||
-                                        appointment?.extendedProps.status.key === "PATIENT_CANCELED" ||
-                                        appointment?.extendedProps.status.key === "FINISHED" ||
-                                        appointment?.extendedProps.status.key === "ON_GOING"
+                                        ["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(appointment?.extendedProps.status.key)
                                             ? "none"
                                             : "flex",
                                     "& svg": {
@@ -462,7 +485,7 @@ function AppointmentDetail({...props}) {
                                     <IconUrl
                                         path="icdelete"
                                         color={
-                                            (appointment?.extendedProps.status.key === "CANCELED" || appointment?.extendedProps.status.key === "PATIENT_CANCELED")
+                                            ["CANCELED", "PATIENT_CANCELED"].includes(appointment?.extendedProps.status.key)
                                                 ? "white"
                                                 : theme.palette.error.main
                                         }

@@ -199,6 +199,8 @@ export const authOptions: NextAuthOptions = {
                 const response = await fetch(`${baseURL}api/private/users/fr`, {
                     method: "GET",
                     headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
                         Authorization: `Bearer ${token.accessToken}`
                     }
                 });

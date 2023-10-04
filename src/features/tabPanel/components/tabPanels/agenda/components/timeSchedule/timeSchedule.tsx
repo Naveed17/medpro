@@ -11,7 +11,7 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -24,7 +24,6 @@ import {
     appointmentSelector, setAppointmentDate,
     setAppointmentDuration, setAppointmentMotif, setAppointmentRecurringDates
 } from "@features/tabPanel";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {TimeSlot} from "@features/timeSlot";
 import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
@@ -50,6 +49,7 @@ import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select} = props;
@@ -91,7 +91,6 @@ function TimeSchedule({...props}) {
     const [timeAvailable, setTimeAvailable] = useState(false);
     const [customTime, setCustomTime] = useState<Date | null>(null);
     const [openTime, setOpenTime] = useState(initRecurringDates.length === 0);
-    const [reasons, setReasons] = useState<ConsultationReasonModel[]>([]);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -100,14 +99,15 @@ function TimeSchedule({...props}) {
     const {
         data: httpConsultReasonResponse,
         mutate: mutateReasonsData
-    } = useRequest(medicalEntityHasUser ? {
+    } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
-    const {trigger} = useRequestMutation(null, "/calendar/slots");
+    const {trigger: triggerSlots} = useRequestQueryMutation("/agenda/slots");
+    const {trigger: triggerAddReason} = useRequestQueryMutation("/agenda/motif/add");
 
-    const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[] ?? [];
 
     const onTimeAvailable = useCallback((slots: TimeSlotModel[], time: string) => {
         return slots.find((item: TimeSlotModel) => item.start === time);
@@ -119,27 +119,29 @@ function TimeSchedule({...props}) {
 
     const getSlots = useCallback((date: Date, duration: string, timeSlot: string) => {
         setLoading(true);
-        trigger(medicalEntityHasUser && medical_professional ? {
+        (medicalEntityHasUser && medical_professional) && triggerSlots({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0]}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`
-        } : null, TriggerWithoutValidation).then((result) => {
-            const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
-            const slots = weekTimeSlots.find(slot => slot.date === moment(date).format("DD-MM-YYYY"))?.slots;
-            if (slots) {
-                setTimeSlots(slots);
-                if (moment(selectedDate).isValid() && onTimeAvailable(slots, timeSlot) ||
-                    !moment(selectedDate).isValid()) {
-                    setTimeAvailable(true);
-                } else {
-                    if (recurringDates.find((item: RecurringDateModel) => item.time === timeSlot)) {
-                        setRecurringDates([]);
+        }, {
+            onSuccess: (result) => {
+                const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
+                const slots = weekTimeSlots.find(slot => slot.date === moment(date).format("DD-MM-YYYY"))?.slots;
+                if (slots) {
+                    setTimeSlots(slots);
+                    if (moment(selectedDate).isValid() && onTimeAvailable(slots, timeSlot) ||
+                        !moment(selectedDate).isValid()) {
+                        setTimeAvailable(true);
+                    } else {
+                        if (recurringDates.find((item: RecurringDateModel) => item.time === timeSlot)) {
+                            setRecurringDates([]);
+                        }
+                        setTimeAvailable(false);
                     }
-                    setTimeAvailable(false);
                 }
+                setLoading(false);
             }
-            setLoading(false);
         });
-    }, [trigger, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [triggerSlots, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const onChangeReason = (reasons: ConsultationReasonModel[]) => {
         const reasonsUuid = reasons.map(reason => reason.uuid);
@@ -235,14 +237,16 @@ function TimeSchedule({...props}) {
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
             data: params
-        }).then(() => mutateReasonsData().then((result: any) => {
-            const {status} = result?.data;
-            const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
-            if (status === "success") {
-                onChangeReason([...reasons.filter(reason => selectedReasons.includes(reason.uuid)), reasonsUpdated[0]]);
-            }
-            setLoadingReq(false);
-        }));
+        }, {
+            onSuccess: () => mutateReasonsData().then((result: any) => {
+                const {status} = result?.data;
+                const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
+                if (status === "success") {
+                    onChangeReason([...reasons.filter(reason => selectedReasons.includes(reason.uuid)), reasonsUpdated[0]]);
+                }
+                setLoadingReq(false);
+            })
+        });
     }
 
     useEffect(() => {
@@ -260,11 +264,6 @@ function TimeSchedule({...props}) {
         }
     }, [locations]);
 
-    useEffect(() => {
-        if (httpConsultReasonResponse) {
-            setReasons((httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[]);
-        }
-    }, [httpConsultReasonResponse]);
 
     if (!ready) return (<LoadingScreen/>);
 
@@ -302,7 +301,7 @@ function TimeSchedule({...props}) {
                         {t("stepper-1.title")}
                     </Typography>}
 
-                    <Grid container spacing={2}>
+                    <Grid container spacing={1}>
                         <Grid item md={6} xs={12}>
                             <Typography variant="body1" color="text.primary" mt={3} mb={1}>
                                 {t("stepper-1.duration.title")}

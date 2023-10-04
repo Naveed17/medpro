@@ -25,7 +25,7 @@ import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
 import React, {useEffect, useRef, useState} from 'react';
 import IconUrl from '@themes/urlIcon';
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -75,9 +75,9 @@ function DocumentDetailDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const [name, setName] = useState(state.name);
-    const [note, setNote] = useState(state.description ? state.description : "");
-    const [date, setDate] = useState(moment(state.createdAt, 'DD-MM-YYYY HH:mm').format("DD/MM/YYYY"));
+    const [name, setName] = useState(state?.name);
+    const [note, setNote] = useState(state?.description ? state?.description : "");
+    const [date, setDate] = useState(moment(state?.createdAt, 'DD-MM-YYYY HH:mm').format("DD/MM/YYYY"));
     const [loading, setLoading] = useState(true);
     const [openAlert, setOpenAlert] = useState(false);
     const [file, setFile] = useState<any>('');
@@ -108,18 +108,18 @@ function DocumentDetailDialog({...props}) {
         }
     })
     const {direction} = useAppSelector(configSelector);
-    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote']
+    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote','glasses']
     const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
     const multimedias = ['video', 'audio', 'photo'];
     const list = [
         {
             title: 'document_type',
-            value: t(state.type),
+            value: t(state?.type),
 
         },
         {
             title: 'patient',
-            value: state.patient,
+            value: state?.patient,
         },
         {
             title: 'created_by',
@@ -131,34 +131,34 @@ function DocumentDetailDialog({...props}) {
         subtitle: t('subtitleRemovedoc'),
         icon: "/static/icons/ic-text.svg",
         name1: name,
-        name2: t(state.type),
+        name2: t(state?.type),
         data: props,
     }
     const actionButtons = [
         {
             title: 'print',
             icon: "ic-imprime",
-            disabled: multimedias.some(media => media === state.type)
+            disabled: multimedias.some(media => media === state?.type)
         },
         {
             title: data.header.show ? 'hide' : 'show',
             icon: "ic-menu2",
-            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
+            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: data.title.show ? 'hidetitle' : 'showtitle',
             icon: "ft14-text",
-            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
+            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: data.patient.show ? 'hidepatient' : 'showpatient',
             icon: "text-strikethrough",
-            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
+            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: 'settings',
             icon: "template",
-            disabled: multimedias.some(media => media === state.type) || !generatedDocs.some(media => media === state.type)
+            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: 'download',
@@ -167,21 +167,21 @@ function DocumentDetailDialog({...props}) {
         {
             title: 'edit',
             icon: "ic-edit-gray",
-            disabled: (state.type !== 'prescription' && state.type !== 'write_certif' && state.type !== 'requested-analysis' && state.type !== 'requested-medical-imaging') || !state.uuid
+            disabled: (state?.type !== 'prescription' && state?.type !== 'write_certif' && state?.type !== 'requested-analysis' && state?.type !== 'requested-medical-imaging') || !state?.uuid
         },
         {
             title: 'delete',
             icon: "icdelete",
-            disabled: !state.uuid
+            disabled: !state?.uuid
         }
     ];
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {trigger} = useRequestMutation(null, "/documents");
-
-    const {data: httpDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {trigger: triggerDocumentUpdate} = useRequestQueryMutation("/documents/update");
+    const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/documents/delete");
+    const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
     } : null);
@@ -214,7 +214,7 @@ function DocumentDetailDialog({...props}) {
 
     const printNow = useReactToPrint({
         content: () => componentRef.current,
-        documentTitle: `${t(state.type)} ${state.patient}`
+        documentTitle: `${t(state?.type)} ${state?.patient}`
     })
     const downloadF = () => {
         fetch(file).then(response => {
@@ -222,7 +222,7 @@ function DocumentDetailDialog({...props}) {
                 const fileURL = window.URL.createObjectURL(blob);
                 let alink = document.createElement('a');
                 alink.href = fileURL;
-                alink.download = `${state.type} ${state.patient}`
+                alink.download = `${state?.type} ${state?.patient}`
                 alink.click();
             })
         })
@@ -237,33 +237,34 @@ function DocumentDetailDialog({...props}) {
                 setOpenRemove(true)
                 break;
             case "edit":
-                switch (state.type) {
+                switch (state?.type) {
                     case "prescription":
+                        setOpenDialog(false);
                         dispatch(SetSelectedDialog({
                             action: 'medical_prescription_cycle',
-                            state: state.info.map((drug: any) => ({
+                            state: state?.info.map((drug: any) => ({
                                 cycles: drug.cycles,
                                 drugUuid: drug.standard_drug.uuid,
                                 name: drug.standard_drug.commercial_name,
                             })),
-                            uuid: state.uuidDoc,
-                            appUuid: state.appUuid
+                            uuid: state?.uuidDoc,
+                            appUuid: state?.appUuid
                         }))
                         break;
                     case "requested-analysis":
                         let res: AnalysisModel[] = []
-                        state.info.map((info: any) => {
+                        state?.info.map((info: any) => {
                             res.push({...info.analysis, note: info.note});
                         });
                         dispatch(SetSelectedDialog({
                             action: 'balance_sheet_request',
                             state: res,
-                            uuid: state.uuidDoc
+                            uuid: state?.uuidDoc
                         }))
                         break;
                     case "requested-medical-imaging":
                         let mi: MIModel[] = []
-                        state.info.map((info: any) => {
+                        state?.info.map((info: any) => {
                             mi.push({
                                 uuid: info['medical-imaging'].uuid,
                                 name: info['medical-imaging'].name,
@@ -273,15 +274,16 @@ function DocumentDetailDialog({...props}) {
                         dispatch(SetSelectedDialog({
                             action: 'medical_imagery',
                             state: mi,
-                            uuid: state.uuidDoc
+                            uuid: state?.uuidDoc
                         }))
                         break;
                     case "write_certif":
                         setOpenDialog(false);
+
                         dispatch(SetSelectedDialog({
                             action: 'write_certif',
                             state: state,
-                            uuid: state.certifUuid
+                            uuid: state?.certifUuid
                         }))
                         break;
                 }
@@ -302,7 +304,7 @@ function DocumentDetailDialog({...props}) {
                 setData({...data})
                 break;
             case "download":
-                if (generatedDocs.some(doc => doc == state.type))
+                if (generatedDocs.some(doc => doc == state?.type))
                     printNow();
                 else {
                     downloadF();
@@ -319,14 +321,16 @@ function DocumentDetailDialog({...props}) {
         const form = new FormData();
         form.append('attribute', attribute);
         form.append('value', value);
-        trigger({
+        triggerDocumentUpdate({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/documents/${state.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/documents/${state?.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            state.mutate()
-            state.mutateDetails && state.mutateDetails()
-            //enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
+        }, {
+            onSuccess: () => {
+                state?.mutate()
+                state?.mutateDetails && state?.mutateDetails()
+                //enqueueSnackbar(t("renameWithsuccess"), {variant: 'success'})
+            }
         });
     }
     const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
@@ -337,37 +341,43 @@ function DocumentDetailDialog({...props}) {
     const dialogSave = (state: any) => {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);
-        if (state.type === "quote") {
-            medicalEntityHasUser && trigger({
+        if (state?.type === "quote") {
+            medicalEntityHasUser && triggerDocumentDelete({
                 method: "DELETE",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${state.uuid}/${router.locale}`
-            }).then(() => {
-                state.mutate && state.mutate();
-                setOpenRemove(false);
-                setLoading(false);
-                setLoadingRequest && setLoadingRequest(false);
-                setOpenDialog && setOpenDialog(false);
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${state?.uuid}/${router.locale}`
+            }, {
+                onSuccess: () => {
+                    state?.mutate && state?.mutate();
+                    setOpenRemove(false);
+                    setLoading(false);
+                    setLoadingRequest && setLoadingRequest(false);
+                    setOpenDialog && setOpenDialog(false);
+                }
             });
 
         } else {
-            medicalEntityHasUser && trigger({
+            medicalEntityHasUser && triggerDocumentDelete({
                 method: "DELETE",
-                url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state.uuid}/${router.locale}`
-            }).then(() => {
-                state.mutate && state.mutate();
-                state.mutateDetails && state.mutateDetails()
-                setOpenRemove(false);
-                setLoading(false);
-                (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
-                setLoadingRequest && setLoadingRequest(false);
-                setOpenDialog && setOpenDialog(false);
+                url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state?.uuid}/${router.locale}`
+            }, {
+                onSuccess: () => {
+                    state?.mutate && state?.mutate();
+                    state?.mutateDetails && state?.mutateDetails()
+                    setOpenRemove(false);
+                    setLoading(false);
+                    (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
+                },
+                onSettled: ()=>{
+                    setLoadingRequest && setLoadingRequest(false);
+                    setOpenDialog && setOpenDialog(false);
+                }
             });
         }
     }
 
     useEffect(() => {
-        setIsImg(state.detectedType?.split('/')[0] === 'image')
-        setFile(state.uri)
+        setIsImg(state?.detectedType?.split('/')[0] === 'image')
+        setFile(state?.uri)
     }, [state])
 
     useEffect(() => {
@@ -378,44 +388,62 @@ function DocumentDetailDialog({...props}) {
                 setLoading(false)
             } else {
                 setOpenAlert(false);
-                const templates: any[] = [];
-                const slug = slugs[generatedDocs.findIndex(gd => gd === state.type)];
-                docInfo.map((di: { types: any[]; }) => {
-                    if (di.types.find(type => type.slug === slug))
-                        templates.push(di)
-                })
-                if (templates.length > 0) {
-                    setSelectedTemplate(templates[0].uuid)
-                    setData({
-                        ...templates[0].header.data,
-                        background: {
-                            show: templates[0].header.data.background.show,
-                            content: templates[0].file ? templates[0].file : ''
-                        }
+
+
+                if (state.documentHeader) {
+                    setSelectedTemplate(state.documentHeader)
+                    const _template = docInfo.find((template: { uuid: string; }) => template.uuid === state.documentHeader)
+                    if (_template){
+                        setData({
+                            ..._template.header.data,
+                            background: {
+                                show: _template.header.data.background.show,
+                                content: _template.file ? _template.file : ''
+                            }
+                        })
+                        setHeader(_template.header.header)
+                    }
+                }
+                else {
+                    const templates: any[] = [];
+                    const slug = slugs[generatedDocs.findIndex(gd => gd === state?.type)];
+                    docInfo.map((di: { types: any[]; }) => {
+                        if (di.types.find(type => type.slug === slug))
+                            templates.push(di)
                     })
-                    setHeader(templates[0].header.header)
-                } else {
-                    const defaultdoc = docInfo.find((di: { isDefault: any; }) => di.isDefault);
-                    if (defaultdoc) {
-                        setSelectedTemplate(defaultdoc.uuid)
+                    if (templates.length > 0) {
+                        setSelectedTemplate(templates[0].uuid)
                         setData({
-                            ...defaultdoc.header.data,
+                            ...templates[0].header.data,
                             background: {
-                                show: defaultdoc.header.data.background.show,
-                                content: defaultdoc.file ? defaultdoc.file : ''
+                                show: templates[0].header.data.background.show,
+                                content: templates[0].file ? templates[0].file : ''
                             }
                         })
-                        setHeader(defaultdoc.header.header)
+                        setHeader(templates[0].header.header)
                     } else {
-                        setSelectedTemplate(docInfo[0].uuid)
-                        setData({
-                            ...docInfo[0].header.data,
-                            background: {
-                                show: docInfo.header?.data.background.show,
-                                content: docInfo.file ? docInfo.file : ''
-                            }
-                        })
-                        setHeader(docInfo[0].header.header)
+                        const defaultdoc = docInfo.find((di: { isDefault: any; }) => di.isDefault);
+                        if (defaultdoc) {
+                            setSelectedTemplate(defaultdoc.uuid)
+                            setData({
+                                ...defaultdoc.header.data,
+                                background: {
+                                    show: defaultdoc.header.data.background.show,
+                                    content: defaultdoc.file ? defaultdoc.file : ''
+                                }
+                            })
+                            setHeader(defaultdoc.header.header)
+                        } else {
+                            setSelectedTemplate(docInfo[0].uuid)
+                            setData({
+                                ...docInfo[0].header.data,
+                                background: {
+                                    show: docInfo.header?.data.background.show,
+                                    content: docInfo.file ? docInfo.file : ''
+                                }
+                            })
+                            setHeader(docInfo[0].header.header)
+                        }
                     }
                 }
                 setLoading(false)
@@ -431,20 +459,20 @@ function DocumentDetailDialog({...props}) {
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
                         {
-                            !multimedias.some(multi => multi === state.type) &&
+                            !multimedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box ref={componentRef}>
                                     {
-                                        generatedDocs.some(doc => doc === state.type) &&
+                                        generatedDocs.some(doc => doc === state?.type) &&
                                         <div>
                                             {!loading && <PreviewA4  {...{
                                                 eventHandler,
                                                 data,
                                                 values: header,
-                                                state: (state.type === "fees" || state.type == 'quote') && state.info.length === 0 ? {
+                                                state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                                                     ...state,
                                                     info: [{
-                                                        fees: state.consultationFees,
+                                                        fees: state?.consultationFees,
                                                         hiddenData: true,
                                                         act: {
                                                             name: "Consultation",
@@ -460,7 +488,7 @@ function DocumentDetailDialog({...props}) {
                                         </div>
                                     }
                                     {
-                                        !generatedDocs.some(doc => doc === state.type) &&
+                                        !generatedDocs.some(doc => doc === state?.type) &&
                                         <Box sx={{
                                             '.react-pdf__Page': {
                                                 marginBottom: 1,
@@ -513,7 +541,7 @@ function DocumentDetailDialog({...props}) {
                                                             </ToggleButtonGroup>
                                                         </Stack>
                                                         <TransformComponent>
-                                                            <Box component={"img"} src={state.uri.url}
+                                                            <Box component={"img"} src={state?.uri.url}
                                                                  sx={{marginLeft: 2, maxWidth: "100%"}}
                                                                  alt={"img"}/>
                                                         </TransformComponent>
@@ -526,9 +554,9 @@ function DocumentDetailDialog({...props}) {
                             </Box>
                         }
                         {
-                            multimedias.some(multi => multi === state.type) &&
+                            multimedias.some(multi => multi === state?.type) &&
                             <Box>
-                                {state.type === 'photo' &&
+                                {state?.type === 'photo' &&
                                     <TransformWrapper initialScale={1}>
                                         {({zoomIn, zoomOut, resetTransform}) => (
                                             <React.Fragment>
@@ -550,14 +578,14 @@ function DocumentDetailDialog({...props}) {
                                                     </ToggleButtonGroup>
                                                 </Stack>
                                                 <TransformComponent>
-                                                    <Box component={"img"} src={state.uri.url}
+                                                    <Box component={"img"} src={state?.uri.url}
                                                          sx={{marginLeft: 2, maxWidth: "100%"}}
                                                          alt={"img"}/></TransformComponent>
                                             </React.Fragment>
 
                                         )}</TransformWrapper>}
-                                {state.type === 'video' && <ReactPlayer url={file.url} controls={true}/>}
-                                {state.type === 'audio' &&
+                                {state?.type === 'video' && <ReactPlayer url={file.url} controls={true}/>}
+                                {state?.type === 'audio' &&
                                     <Box padding={2}><AudioPlayer autoPlay src={file.url}/></Box>}
                             </Box>
                         }

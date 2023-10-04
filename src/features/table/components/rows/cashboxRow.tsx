@@ -30,15 +30,15 @@ import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {OnTransactionEdit} from "@lib/hooks/onTransactionEdit";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {PaymentFeesPopover} from "@features/popover";
-import {useSWRConfig} from "swr";
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+import {useTransactionEdit} from "@lib/hooks/rest";
+
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
     const {
@@ -49,22 +49,20 @@ function PaymentRow({...props}) {
         handleClick,
         isItemSelected
     } = props;
-    const {insurances, mutateTransctions, pmList, hideName} = data;
-
+    const {insurances, mutateTransactions, pmList, hideName} = data;
+    const router = useRouter();
+    const theme = useTheme();
+    const {enqueueSnackbar} = useSnackbar();
     const {data: session} = useSession();
-
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: triggerTransactionEdit} = useTransactionEdit();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {mutate} = useSWRConfig();
-
-    const router = useRouter();
-    const theme = useTheme();
-    const {enqueueSnackbar} = useSnackbar();
 
     const [selected, setSelected] = useState<any>([]);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
@@ -82,7 +80,7 @@ function PaymentRow({...props}) {
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {trigger: triggerPostTransaction} = useRequestMutation(null, "/payment/cashbox");
+    const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox");
 
     const handleChildSelect = (id: any) => {
         const selectedIndex = selected.indexOf(id);
@@ -96,34 +94,33 @@ function PaymentRow({...props}) {
             );
         }
         setSelected(newSelected);
-    };
+    }
+
     const resetDialog = () => {
         setOpenPaymentDialog(false);
     }
+
     const mutatePatientWallet = () => {
-        medicalEntityHasUser && row.appointment && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row.appointment.patient?.uuid}/wallet/${router.locale}`)
+        medicalEntityHasUser && row.appointment && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row.appointment.patient?.uuid}/wallet/${router.locale}`]);
     }
+
     const handleSubmit = () => {
         setLoadingRequest(true)
-        OnTransactionEdit(selectedPayment,
-            selectedBoxes,
-            router.locale,
-            session,
-            medical_entity.uuid,
+        triggerTransactionEdit(
+            selectedPayment,
             row,
-            triggerPostTransaction,
-            urlMedicalEntitySuffix,
             () => {
-                mutateTransctions().then(() => {
-                    mutatePatientWallet()
+                mutateTransactions().then(() => {
+                    mutatePatientWallet();
                     enqueueSnackbar(t("addsuccess"), {variant: 'success'});
                     setOpenPaymentDialog(false);
-                    setLoadingRequest(false);
-                })
+                    setTimeout(() => setLoadingRequest(false));
+                });
+
             }
         );
-
     }
+
     const deleteTransaction = () => {
         const form = new FormData();
         form.append("cash_box", selectedBoxes[0]?.uuid);
@@ -132,11 +129,13 @@ function PaymentRow({...props}) {
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/transactions/${row?.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            mutateTransctions()
-            mutatePatientWallet()
-            setLoadingDeleteTransaction(false);
-            setOpenDeleteTransactionDialog(false);
+        }, {
+            onSuccess: () => {
+                mutateTransactions()
+                mutatePatientWallet()
+                setLoadingDeleteTransaction(false);
+                setOpenDeleteTransactionDialog(false);
+            }
         });
 
     }
@@ -151,6 +150,7 @@ function PaymentRow({...props}) {
                 uuid: td.uuid,
                 amount: td.amount,
                 payment_date: td.payment_date,
+                payment_time: td.payment_time,
                 status_transaction: td.status_transaction_data,
                 type_transaction: td.type_transaction_data,
                 data: td.data
@@ -168,7 +168,7 @@ function PaymentRow({...props}) {
             payments,
             payed_amount,
             appointment: row.appointment,
-            patient:row.patient,
+            patient: row.patient,
             total: row?.amount,
             isNew: false
         });
@@ -188,6 +188,12 @@ function PaymentRow({...props}) {
                 : null
         );
     };
+
+    const getInsurances = () => {
+        let _res: string[] = [];
+        row.transaction_data.filter((td: any) => td.insurance).map((insc: any) => _res.push(insc.insurance.insurance.uuid))
+        return insurances.filter((insurance: { uuid: string; }) => _res.includes(insurance.uuid))
+    }
 
     useEffect(() => {
         dispatch(addBilling(selected));
@@ -251,54 +257,50 @@ function PaymentRow({...props}) {
                             },
                         }}>
                         <Icon path="ic-time"/>
-                        <Typography variant="body2">{moment(row.date_transaction).add(1,"hour").format('HH:mm')}</Typography>
+                        <Typography
+                            variant="body2">{moment(row.date_transaction).add(1, "hour").format('HH:mm')}</Typography>
                     </Stack>
 
                 </TableCell>
                 {!hideName &&
 
-                <TableCell>
-                    {row.appointment ? (
-                        <Link
-                            sx={{cursor: "pointer"}}
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                handleEvent({action: "PATIENT_DETAILS", row: row.appointment.patient, event});
-                            }}
-                            underline="none">
-                            {`${row.appointment.patient.firstName} ${row.appointment.patient.lastName}`}
-                        </Link>
-                    ) : row.patient ? (
-                        <Link
-                            sx={{cursor: "pointer"}}
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
-                            }}
-                            underline="none">
-                            {`${row.patient.firstName} ${row.patient.lastName}`}
-                        </Link>
-                    ) : (
-                        <Link underline="none">{row.transaction_data[0].data.label}</Link>
-                    )}
-                </TableCell>}
+                    <TableCell>
+                        {row.appointment ? (
+                            <Link
+                                sx={{cursor: "pointer"}}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEvent({action: "PATIENT_DETAILS", row: row.appointment.patient, event});
+                                }}
+                                underline="none">
+                                {`${row.appointment.patient.firstName} ${row.appointment.patient.lastName}`}
+                            </Link>
+                        ) : row.patient ? (
+                            <Link
+                                sx={{cursor: "pointer"}}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
+                                }}
+                                underline="none">
+                                {`${row.patient.firstName} ${row.patient.lastName}`}
+                            </Link>
+                        ) : (
+                            <Link underline="none">{row.transaction_data[0].data.label}</Link>
+                        )}
+                    </TableCell>}
                 <TableCell align={"center"}>
                     <Stack direction={"row"} justifyContent={"center"}>
                         {
-                            row.transaction_data.filter((td: any) => td.insurance).length > 0 ? row.transaction_data.filter((td: any) => td.insurance).map((td: any) => (
+                            row.transaction_data.filter((td: any) => td.insurance).length > 0 ? getInsurances().map((insurance: any) => (
                                 <Tooltip
-                                    key={td.insurance.insurance?.uuid}
-                                    title={td.insurance.insurance?.name}>
+                                    key={insurance?.uuid}
+                                    title={insurance?.name}>
                                     <Avatar variant={"circular"}>
-                                        {insurances?.find((insurance: any) => insurance.uuid === td.insurance?.insurance.uuid) &&
-                                            <ImageHandler
-                                                alt={td.insurance.insurance?.name}
-                                                src={insurances.find(
-                                                    (insurance: any) =>
-                                                        insurance.uuid ===
-                                                        td.insurance?.insurance.uuid
-                                                ).logoUrl.url}
-                                            />}
+                                        <ImageHandler
+                                            alt={insurance?.name}
+                                            src={insurance.logoUrl.url}
+                                        />
                                     </Avatar>
                                 </Tooltip>
                             )) : <Typography>--</Typography>
@@ -343,14 +345,16 @@ function PaymentRow({...props}) {
                 </TableCell>
                 <TableCell align="center">
                     <Stack direction={"row"} alignItems={"center"} spacing={1} justifyContent={"center"}>
-                        <Typography onClick={(event) => {
-                            event.stopPropagation();
-                            openFeesPopover(event)
-                        }}
-                                    color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
-                                    fontWeight={700}>
-                            {row.rest_amount != 0 ? `${row.amount - row.rest_amount} / ${row.amount}` : row.amount} <span
-                            style={{fontSize: 10}}>{devise}</span>
+                        <Typography
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                openFeesPopover(event)
+                            }}
+                            color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
+                            fontWeight={700}>
+                            {row.rest_amount != 0 ? `${(row.amount - row.rest_amount).toFixed(3)} / ${row.amount}` : row.amount}
+                            <span
+                                style={{fontSize: 10}}>{devise}</span>
                         </Typography>
 
                         {row?.appointment && <Menu
@@ -370,7 +374,7 @@ function PaymentRow({...props}) {
                                 vertical: "top",
                                 horizontal: "right",
                             }}>
-                            <PaymentFeesPopover uuid={row?.appointment.uuid}/>
+                            <PaymentFeesPopover {...{row, t}}/>
                         </Menu>}
 
                         <Stack direction={"row"}>
@@ -442,10 +446,10 @@ function PaymentRow({...props}) {
                                             sx={{
                                                 bgcolor: (theme: Theme) =>
                                                     theme.palette.background.paper,
-                                                    "&::before":{
+                                                "&::before": {
                                                     ...(idx > 0 && {
-                                                        height:"calc(100% + 8px)",
-                                                        top:'-70%'
+                                                        height: "calc(100% + 8px)",
+                                                        top: '-70%'
 
                                                     })
                                                 }
@@ -495,7 +499,7 @@ function PaymentRow({...props}) {
                                                     }}>
                                                     <Icon path="ic-time"/>
                                                     <Typography
-                                                        variant="body2">{moment(col.time,'HH:mm').add(1,"hour").format('HH:mm')}</Typography>
+                                                        variant="body2">{col.payment_time}</Typography>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell
@@ -517,7 +521,9 @@ function PaymentRow({...props}) {
                                                             color="text.primary"
                                                             variant="body2">
                                                             {t(col.payment_means.name)}
-                                                            {col.status_transaction_data === 3 && <CheckCircleOutlineRoundedIcon style={{fontSize:15}} color={"success"}/>}
+                                                            {col.status_transaction_data === 3 &&
+                                                                <CheckCircleOutlineRoundedIcon style={{fontSize: 15}}
+                                                                                               color={"success"}/>}
                                                         </Typography>}
 
                                                         {!col.payment_means && col.insurance && <Typography
@@ -534,7 +540,8 @@ function PaymentRow({...props}) {
                                                 </Stack>
                                             </TableCell>
                                             <TableCell>
-                                                {col.data.check_number && <Typography>{col.data.check_number}</Typography>}
+                                                {col.data.check_number &&
+                                                    <Typography>{col.data.check_number}</Typography>}
                                             </TableCell>
                                             <TableCell>
                                                 {col.data.carrier && <Typography>{col.data.carrier}</Typography>}

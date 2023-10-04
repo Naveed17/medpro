@@ -34,7 +34,7 @@ import {NoDataCard, PatientMobileCard, setTimer} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
-import {instanceAxios, useRequest, useRequestMutation} from "@lib/axios";
+import {instanceAxios, useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {
@@ -78,18 +78,18 @@ import {
 } from "@features/leftActionBar";
 import {selectCheckboxActionSelector, onSelectCheckbox} from 'src/features/selectCheckboxCard'
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
-import {sendRequest, useInsurances} from "@lib/hooks/rest";
-import useSWRMutation from "swr/mutation";
+import {useInsurances} from "@lib/hooks/rest";
 import {setDuplicated} from "@features/duplicateDetected";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {MobileContainer as MobileWidth} from "@lib/constants";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import Icon from "@themes/urlIcon";
-import {useSession} from "next-auth/react";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useMutateOnGoing} from "@lib/hooks";
+import {dehydrate, QueryClient} from "@tanstack/query-core";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -203,7 +203,7 @@ function Patient() {
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
-    const {data: session, status} = useSession();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -213,7 +213,7 @@ function Patient() {
     const {submitted} = useAppSelector(appointmentSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
-    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     // state hook for details drawer
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [appointmentMoveData, setAppointmentMoveData] = useState<EventDef>();
@@ -234,9 +234,8 @@ function Patient() {
         mouseY: number;
     } | null>(null);
     const [popoverActions, setPopoverActions] = useState(menuPopoverData);
-    const [loading] = useState<boolean>(status === "loading");
+    const [loading] = useState<boolean>(false);
     const [rows, setRows] = useState<PatientModel[]>([]);
-    const [page, setPage] = useState<any>(router.query.page || 1);
     const {collapse} = RightActionData.filter;
     const [open, setopen] = useState(false);
     const {selectedCheckbox} = useAppSelector(selectCheckboxActionSelector);
@@ -313,48 +312,55 @@ function Patient() {
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
-    const {trigger: triggerDeletePatient} = useRequestMutation(null, "/patient/delete");
-    const {trigger: triggerCheckDuplication} = useRequestMutation(null, "/patient/duplication/check");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status");
+    const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/patient/appointment/update");
+    const {trigger: triggerDeletePatient} = useRequestQueryMutation("/patient/delete");
+    const {trigger: triggerCheckDuplication} = useRequestQueryMutation("/patient/duplication/check");
+
+    let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
 
     const {
         data: httpPatientsResponse,
-        mutate,
+        mutate: mutatePatients,
         isLoading
-    } = useRequest(medicalEntityHasUser ? {
+    } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${router.query.params ?? localFilter}`
-    } : null, isMobile && SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(medicalEntityHasUser && {variables: {query: `?page=${page}&limit=10&withPagination=true${router.query.params ?? localFilter}`}})
+    });
 
     const checkDuplications = (patient: PatientModel, setLoadingRequest: any): PatientModel[] => {
         setLoadingRequest(true);
         medicalEntityHasUser && triggerCheckDuplication({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/duplications/${router.locale}`
-        }).then((results) => {
-            setLoadingRequest(false);
-            const duplications = ((results?.data as HttpResponse)?.data ?? []) as PatientModel[];
-            if (duplications?.length > 0) {
-                dispatch(setDuplicated({
-                    duplications,
-                    duplicationSrc: patient,
-                    duplicationInit: patient,
-                    openDialog: true,
-                    mutate
-                }));
-            } else {
-                enqueueSnackbar(t(`add-patient.dialog.no-duplicates-check`), {variant: "info"});
+        }, {
+            onSuccess: (results) => {
+                setLoadingRequest(false);
+                const duplications = ((results?.data as HttpResponse)?.data ?? []) as PatientModel[];
+                if (duplications?.length > 0) {
+                    dispatch(setDuplicated({
+                        duplications,
+                        duplicationSrc: patient,
+                        duplicationInit: patient,
+                        openDialog: true,
+                        mutate: mutatePatients
+                    }));
+                } else {
+                    enqueueSnackbar(t(`add-patient.dialog.no-duplicates-check`), {variant: "info"});
+                }
+                return duplications;
             }
-            return duplications;
-        }).finally(() => []);
+        });
 
         return [];
     }
 
     const submitStepper = (index: number) => {
         if (index === 2) {
-            mutate();
+            mutatePatients();
         }
     };
 
@@ -378,22 +384,24 @@ function Patient() {
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
             data: params
-        }).then((result) => {
-            if ((result?.data as HttpResponse).status === "success") {
-                enqueueSnackbar(
-                    t(
-                        `dialogs.move-dialog.${
-                            !event.extendedProps.onDurationChanged
-                                ? "alert-msg"
-                                : "alert-msg-duration"
-                        }`
-                    ),
-                    {variant: "success"}
-                );
+        }, {
+            onSuccess: (result) => {
+                if ((result?.data as HttpResponse).status === "success") {
+                    enqueueSnackbar(
+                        t(
+                            `dialogs.move-dialog.${
+                                !event.extendedProps.onDurationChanged
+                                    ? "alert-msg"
+                                    : "alert-msg-duration"
+                            }`
+                        ),
+                        {variant: "success"}
+                    );
+                }
+                setMoveDialog(false);
+                setLoadingRequest(false);
+                mutatePatients();
             }
-            setMoveDialog(false);
-            setLoadingRequest(false);
-            mutate();
         });
     };
 
@@ -406,29 +414,8 @@ function Patient() {
 
     const onConsultationStart = (event: EventDef) => {
         const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-        router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-            updateAppointmentStatus({
-                method: "PATCH",
-                data: {
-                    status: "4",
-                    start_date: moment().format("DD-MM-YYYY"),
-                    start_time: moment().format("HH:mm")
-                },
-                url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-            } as any).then(() => {
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setTimer({
-                        isActive: true,
-                        isPaused: false,
-                        event,
-                        startTime: moment().utc().format("HH:mm")
-                    }
-                ));
-                // refresh on going api
-                mutateOnGoing && mutateOnGoing();
-            });
-        })
-    };
+        router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
+    }
 
     const onUpdateMoveAppointmentData = () => {
         const timeSplit = moveDialogTime.split(":");
@@ -525,11 +512,13 @@ function Patient() {
         medicalEntityHasUser && triggerDeletePatient({
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient?.uuid}/${router.locale}`
-        }).then(() => {
-            setLoadingRequest(false);
-            setDeleteDialog(false);
-            mutate();
-            enqueueSnackbar(t(`alert.delete-patient`), {variant: "success"});
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                setTimeout(() => setDeleteDialog(false));
+                mutatePatients();
+                enqueueSnackbar(t(`alert.delete-patient`), {variant: "success"});
+            }
         });
     }
 
@@ -620,7 +609,7 @@ function Patient() {
                     },
                 }}>
                 <PatientToolbar
-                    {...{mutatePatient: mutate}}
+                    {...{mutatePatient: mutatePatients}}
                     onAddPatient={() => {
                         dispatch(onResetPatient());
                         setSelectedPatient(null);
@@ -646,7 +635,7 @@ function Patient() {
             <Box className="container">
                 <DesktopContainer>
                     <Otable
-                        {...{t, insurances, mutatePatient: mutate}}
+                        {...{t, insurances, mutatePatient: mutatePatients}}
                         headers={headCells}
                         handleEvent={handleTableActions}
                         rows={patientData?.list ?? []}
@@ -683,7 +672,7 @@ function Patient() {
                                     duplicationSrc: firstElement,
                                     duplicationInit: firstElement,
                                     openDialog: true,
-                                    mutate
+                                    mutate: mutatePatients
                                 }));
                             }}
                             variant="contained"
@@ -707,9 +696,8 @@ function Patient() {
                                 loadingPosition={"start"}
                                 startIcon={<RefreshIcon/>}
                                 onClick={() => {
-                                    setPage(page + 1);
                                     router.push({
-                                        query: {page: page + 1}
+                                        query: {page: ++page}
                                     })
                                 }}
                             >
@@ -957,7 +945,7 @@ function Patient() {
                 onClose={() => {
                     dispatch(openDrawer({type: "view", open: false}));
                 }}>
-                <AppointmentDetail OnDataUpdated={() => mutate()}/>
+                <AppointmentDetail OnDataUpdated={() => mutatePatients()}/>
             </Drawer>
 
             <Drawer
@@ -972,7 +960,7 @@ function Patient() {
                     }
                 }}>
                 <PatientDetail
-                    {...{isAddAppointment, patientId, mutate}}
+                    {...{isAddAppointment, patientId, mutate: mutatePatients}}
                     onCloseDialog={() => {
                         dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);
@@ -1041,29 +1029,39 @@ function Patient() {
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => {
-    // `getStaticProps` is executed on the server side.
-    const {data: countries} = await instanceAxios({
-        url: `/api/public/places/countries/${locale}?nationality=true`,
-        method: "GET"
+    const queryClient = new QueryClient();
+    const countries = `/api/public/places/countries/${locale}?nationality=true`;
+    const insurances = `/api/public/insurances/${locale}`;
+    const contactTypes = `/api/public/contact-type/${locale}`;
+
+    await queryClient.prefetchQuery([countries], async () => {
+        const {data} = await instanceAxios.request({
+            url: countries,
+            method: "GET"
+        });
+        return data
     });
 
-    const {data: insurances} = await instanceAxios({
-        url: `/api/public/insurances/${locale}`,
-        method: "GET"
+    await queryClient.prefetchQuery([insurances], async () => {
+        const {data} = await instanceAxios.request({
+            url: insurances,
+            method: "GET"
+        });
+        return data
     });
 
-    const {data: contactTypes} = await instanceAxios({
-        url: `/api/public/contact-type/${locale}`,
-        method: "GET"
+    await queryClient.prefetchQuery([contactTypes], async () => {
+        const {data} = await instanceAxios.request({
+            url: contactTypes,
+            method: "GET"
+        });
+        return data
     });
 
     return {
         props: {
-            fallback: {
-                [`/api/public/places/countries/${locale}?nationality=true`]: countries,
-                [`/api/public/insurances/${locale}`]: insurances,
-                [`/api/public/contact-type/${locale}`]: contactTypes
-            },
+            dehydratedState: dehydrate(queryClient),
+            fallback: false,
             ...(await serverSideTranslations(locale as string, [
                 "patient",
                 "agenda",

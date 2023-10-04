@@ -4,12 +4,12 @@ import {debounce} from "lodash";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import CircularProgress from "@mui/material/CircularProgress";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import {arrayUniqueByKey} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function AppointmentDisease({...props}) {
     const {OnSearch} = props;
@@ -21,10 +21,10 @@ function AppointmentDisease({...props}) {
     const [localFilter, setLocalFilter] = useState("");
     const [selectedDisease, setSelectedDisease] = useState({title: ""});
 
-    const {data: httpDiseasesResponse, isLoading} = useRequest(localFilter.length > 0 ? {
+    const {data: httpDiseasesResponse, isLoading} = useRequestQuery(localFilter.length > 0 ? {
         method: "GET",
         url: `/api/private/diseases/${router.locale}?name=${localFilter}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const handleOnChange = (event: string) => {
         setLocalFilter(event);
@@ -40,7 +40,7 @@ function AppointmentDisease({...props}) {
     })) as any[] ?? [];
 
     return (
-        <FormControl component="form" fullWidth>
+        <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
             <Autocomplete
                 id={"diseases"}
                 autoHighlight

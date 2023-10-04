@@ -14,7 +14,7 @@ import AccessMenageStyled from "./overrides/accessMenageStyle";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector} from "@features/base";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
@@ -28,17 +28,24 @@ const CardData = {
 };
 
 function AccessMenage({...props}) {
-    const {direction} = useAppSelector(configSelector);
     const {t} = props;
+    const {data: session} = useSession();
+
+    const {direction} = useAppSelector(configSelector);
+
     const [info, setInfo] = useState("");
     const [profiles, setProfiles] = useState<any>([]);
     const [loading, setLoading] = useState(false);
     const [mainLoading, setMainLoading] = useState(false);
     const [open, setOpen] = useState(false);
-    const {data: session} = useSession();
+    const [openDeleteDialog, setDeleteDialog] = useState(false);
+    const [selected, setSelected] = useState<any>(null);
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const {data: httpProfilesResponse, mutate,} = useRequest({
+
+    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
+    const {data: httpProfilesResponse, mutate,} = useRequestQuery({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/profile`
     });
@@ -54,25 +61,25 @@ function AccessMenage({...props}) {
         }).finally(() => setMainLoading(false))
     }, [httpProfilesResponse])
 
-    const [openDeleteDialog, setDeleteDialog] = useState(false);
-
-    const [selected, setSelected] = useState<any>(null);
-    const {trigger} = useRequestMutation(null, "/profile");
     const onDelete = (props: any) => {
         setSelected(props);
         setDeleteDialog(true);
-    };
+    }
+
     const deleteProfile = () => {
         setLoading(true);
-        trigger({
+        triggerProfileUpdate({
             method: "DELETE",
             url: `/api/medical-entity/${medical_entity.uuid}/profile/${selected.uuid}`
-        }).then(() => {
-            setLoading(false);
-            setDeleteDialog(false);
-            mutate();
+        }, {
+            onSuccess: () => {
+                setLoading(false);
+                setDeleteDialog(false);
+                mutate();
+            }
         })
     }
+
     return (
         <AccessMenageStyled spacing={2} height={1}>
             <Toolbar>

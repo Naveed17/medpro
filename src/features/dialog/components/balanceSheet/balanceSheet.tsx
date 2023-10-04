@@ -7,11 +7,9 @@ import {
     DialogActions,
     Grid,
     IconButton,
-    InputAdornment,
-    Menu,
-    MenuItem,
+    InputAdornment, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader,
     Skeleton,
-    Stack,
+    Stack, Tab, Tabs,
     TextField,
     Theme,
     Tooltip,
@@ -24,33 +22,40 @@ import AddIcon from '@mui/icons-material/Add';
 import Icon from '@themes/urlIcon'
 import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import dynamic from "next/dynamic";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {NoDataCard, NoteCardCollapse} from "@features/card";
-import {arrayUniqueByKey, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {a11yProps, arrayUniqueByKey, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {debounce} from "lodash";
 import SearchIcon from "@mui/icons-material/Search";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useAppSelector} from "@lib/redux/hooks";
+import {dashLayoutSelector} from "@features/base";
+import {TabPanel} from "@features/tabPanel";
+import RemoveCircleRoundedIcon from "@mui/icons-material/RemoveCircleRounded";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function BalanceSheetDialog({...props}) {
     const {data} = props;
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [model, setModel] = useState<string>('');
-    const [modals, setModels] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [balanceValue, setBalanceValue] = useState<AnalysisModel | null>(null);
@@ -61,27 +66,51 @@ function BalanceSheetDialog({...props}) {
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedModel, setSelectedModel] = useState<any>(data.model);
     const [name, setName] = useState('');
+    const [balanceSheetTabIndex, setbalanceSheetTabIndex] = useState(0);
     const [anchorElPopover, setAnchorElPopover] = useState<HTMLDivElement | null>(null);
     const textFieldRef = createRef<HTMLDivElement>();
     const autocompleteTextFieldRef = useRef<HTMLInputElement>(null);
     const openPopover = Boolean(anchorElPopover);
     const open = Boolean(anchorEl);
 
-    const {trigger} = useRequestMutation(null, "/balanceSheet");
-    const {enqueueSnackbar} = useSnackbar();
+    const {trigger: triggerBalanceSheetCreate} = useRequestQueryMutation("/balanceSheet/create");
+    const {trigger: triggerBalanceSheetUpdate} = useRequestQueryMutation("/balanceSheet/update");
+    const {trigger: triggerBalanceSheetDelete} = useRequestQueryMutation("/balanceSheet/delete");
+    const {trigger: triggerBalanceSheetGet} = useRequestQueryMutation("/balanceSheet/get");
+    const {trigger: triggerFavoriteAdd} = useRequestQueryMutation("/balanceSheet/favorite/create");
+    const {trigger: triggerFavoriteDelete} = useRequestQueryMutation("/balanceSheet/favorite/delete");
+
+    const {data: httpAnalysisResponse} = useRequestQuery({
+        method: "GET",
+        url: `/api/private/analysis/${router.locale}`
+    }, ReactQueryNoValidateConfig);
+
+    const {data: httpModelResponse, mutate} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+        method: "GET",
+        url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
+
+    const {
+        data: httpAnalysisFavoritesResponse,
+        mutate: mutateAnalysisFavorites
+    } = useRequestQuery(medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
+
+    const modals = ((httpModelResponse as HttpResponse)?.data ?? []) as any[];
+    const analysisFavorites = ((httpAnalysisFavoritesResponse as HttpResponse)?.data ?? []) as MIModel[];
 
     const handleClickPopover = useCallback(() => {
         setAnchorElPopover(textFieldRef.current);
     }, [textFieldRef]);
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    }
 
-    const handleClose = (item: { uuid: string, analyses: AnalysisModel[] }) => {
-        setAnalysis(item.analyses)
-        data.setState(item.analyses)
-        setSelectedModel(item)
-        setAnchorEl(null);
+
+    const onSetModelData = (item: { uuid: string, analyses: AnalysisModel[] }) => {
+        setAnalysis(item.analyses);
+        data.setState(item.analyses);
+        setSelectedModel(item);
+        setbalanceSheetTabIndex(0);
     }
 
     const handleCloseDialog = () => {
@@ -100,17 +129,14 @@ function BalanceSheetDialog({...props}) {
 
     const initialData = Array.from(new Array(10));
 
-    const {data: httpAnalysisResponse} = useRequest({
-        method: "GET",
-        url: `/api/private/analysis/${router.locale}`
-    });
-
-    const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
-        method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`
-    } : null);
-
     const {handleSubmit} = formik;
+
+    const handleBalanceSheetTabChange = (
+        event: React.SyntheticEvent,
+        newValue: number
+    ) => {
+        setbalanceSheetTabIndex(newValue);
+    }
 
     const addAnalysis = (value: AnalysisModel) => {
         if (analysis.findIndex(item => item.name === value.name) === -1) {
@@ -122,6 +148,7 @@ function BalanceSheetDialog({...props}) {
                 JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : [] as AnalysisModel[];
             localStorage.setItem("balance-Sheet-recent", JSON.stringify([...copy.filter(x => !recent.find((r: AnalysisModel) => r.uuid === x.uuid)), ...recent]));
             data.setState([...copy]);
+            setbalanceSheetTabIndex(0);
         }
     }
 
@@ -130,44 +157,51 @@ function BalanceSheetDialog({...props}) {
         form.append('globalNote', "");
         form.append('name', model);
         form.append('analyses', JSON.stringify(analysis));
-        trigger({
+        triggerBalanceSheetCreate({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${router.locale}`,
             data: form
-        }).then(() => {
-            setOpenDialog(false);
-            setModel("")
-            mutate().then(() =>
-                enqueueSnackbar(t("created"), {variant: 'success'})
-            );
-        })
+        }, {
+            onSuccess: () => {
+                setOpenDialog(false);
+                setModel("")
+                mutate().then(() => {
+                    enqueueSnackbar(t("created"), {variant: 'success'});
+                    setbalanceSheetTabIndex(1);
+                });
+            }
+        });
     }
 
     const searchInAnalysis = (analysisName: string) => {
         setName(analysisName);
         if (analysisName.length >= 2) {
-            trigger({
+            triggerBalanceSheetGet({
                 method: "GET",
                 url: `/api/private/analysis/${router.locale}?name=${analysisName}`
-            }).then((r) => {
-                const res = (r?.data as HttpResponse).data;
-                setSearchAnalysis(res.length > 0 ? res : analysisList);
+            }, {
+                onSuccess: (r: any) => {
+                    const res = (r?.data as HttpResponse).data;
+                    setSearchAnalysis(res.length > 0 ? res : analysisList);
+                }
             });
         } else {
             setSearchAnalysis(analysisList);
         }
     }
 
-    const deleteModel = () => {
-        trigger({
+    const deleteModel = (modelUuid: string) => {
+        triggerBalanceSheetDelete({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${selectedModel.uuid}/${router.locale}`
-        }).then(() => {
-            mutate().then(() => {
-                setSelectedModel(null)
-                setAnalysis([]);
-                enqueueSnackbar(t("removed"), {variant: 'success'})
-            });
+            url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${modelUuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                mutate().then(() => {
+                    setSelectedModel(null)
+                    setAnalysis([]);
+                    enqueueSnackbar(t("removed"), {variant: 'success'})
+                });
+            }
         })
     }
 
@@ -176,15 +210,29 @@ function BalanceSheetDialog({...props}) {
         form.append('globalNote', "");
         form.append('name', selectedModel.name);
         form.append('analyses', JSON.stringify(analysis));
-        trigger({
+        triggerBalanceSheetUpdate({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/requested-analysis-modal/${selectedModel.uuid}/${router.locale}`,
             data: form
-        }).then(() => {
-            mutate().then(() => {
-                enqueueSnackbar(t("updated"), {variant: 'success'})
-            });
-        })
+        }, {
+            onSuccess: () => {
+                mutate().then(() => {
+                    enqueueSnackbar(t("updated"), {variant: 'success'})
+                });
+            }
+        });
+    }
+
+    const addAnalysesFavorite = (medicalImagery: MIModel) => {
+        const form = new FormData();
+        medicalImagery?.uuid && form.append('analyse', medicalImagery.uuid);
+        medicalEntityHasUser && triggerFavoriteAdd({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${router.locale}`,
+            data: form,
+        }, {
+            onSuccess: () => mutateAnalysisFavorites()
+        });
     }
 
     const handleOnChange = (event: any, newValue: any) => {
@@ -201,16 +249,14 @@ function BalanceSheetDialog({...props}) {
             const analysisItem = (newValue as AnalysisModel);
             if (!analysis.find(item => item.uuid === analysisItem.uuid)) {
                 addAnalysis(newValue as AnalysisModel);
+                if (!analysisFavorites.find((item: MIModel) => item.uuid === analysisItem.uuid)) {
+                    addAnalysesFavorite(analysisItem);
+                }
             }
         }
     }
 
     const debouncedOnChange = debounce(handleOnChange, 500);
-
-    useEffect(() => {
-        if (httpModelResponse)
-            setModels((httpModelResponse as HttpResponse).data);
-    }, [httpModelResponse]);
 
     useEffect(() => {
         if (httpAnalysisResponse) {
@@ -237,50 +283,9 @@ function BalanceSheetDialog({...props}) {
                             noValidate
                             onSubmit={handleSubmit}>
                             <Stack spacing={1}>
-                                <Stack direction="row" alignItems="center">
-                                    {!isMobile && <Typography>{t('please_name_the_balance_sheet')}</Typography>}
-                                    {modals.length > 0 && <Button
-                                        sx={{ml: 'auto'}}
-                                        endIcon={
-                                            <KeyboardArrowDownIcon/>
-                                        }
-                                        id="basic-button"
-                                        aria-controls={open ? 'basic-menu' : undefined}
-                                        aria-haspopup="true"
-                                        aria-expanded={open ? 'true' : undefined}
-                                        onClick={handleClick}
-                                    >
-                                        {t('balance_sheet_model')}
-                                    </Button>}
-                                    <Menu
-                                        id="basic-menu"
-                                        anchorEl={anchorEl}
-                                        open={open}
-                                        onClose={() => {
-                                            setAnchorEl(null);
-                                        }}
-                                        sx={{
-                                            '& .MuiPaper-root': {
-                                                borderRadius: 0,
-                                                borderBottomLeftRadius: 8,
-                                                borderBottomRightRadius: 8,
-                                                marginTop: theme => theme.spacing(1),
-                                                minWidth: 150,
-                                                backgroundColor: theme => theme.palette.text.primary
-
-                                            }
-                                        }}
-                                        MenuListProps={{
-                                            'aria-labelledby': 'basic-button',
-                                        }}>
-                                        {modals.map((item, idx) =>
-                                            <MenuItem key={idx} sx={{color: theme => theme.palette.grey[0]}}
-                                                      onClick={() => {
-                                                          handleClose(item)
-                                                      }}>{item.name}</MenuItem>
-                                        )}
-                                    </Menu>
-                                </Stack>
+                                {!isMobile && <Stack direction="row" alignItems="center">
+                                    <Typography>{t('please_name_the_balance_sheet')}</Typography>
+                                </Stack>}
 
                                 {openPopover ?
                                     <Autocomplete
@@ -353,7 +358,7 @@ function BalanceSheetDialog({...props}) {
                             </Typography>
 
                             <Box>
-                                {!loading ? (analysisListLocal?.map((analysisItem: AnalysisModel, index: number) => (
+                                {(!loading && analysisFavorites.length > 0) ? (analysisFavorites?.map((analysisItem: AnalysisModel, index: number) => (
                                             <Chip
                                                 className={"chip-item"}
                                                 key={index}
@@ -362,13 +367,23 @@ function BalanceSheetDialog({...props}) {
                                                     addAnalysis(analysisItem)
                                                 }}
                                                 onDragStart={(event) => event.dataTransfer.setData("Text", (event.target as any).id)}
-                                                onDelete={() => console.log("delete")}
+                                                onDelete={() => {
+                                                    medicalEntityHasUser && triggerFavoriteDelete({
+                                                        method: "DELETE",
+                                                        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${analysisItem.uuid}/${router.locale}`,
+                                                    }, {
+                                                        onSuccess: () => {
+                                                            enqueueSnackbar(t(`alerts.favorite.delete`), {variant: "success"});
+                                                            mutateAnalysisFavorites();
+                                                        }
+                                                    });
+                                                }}
                                                 disabled={analysis.find(an => an.uuid && an.uuid === analysisItem.uuid) !== undefined}
                                                 label={analysisItem.name}
                                                 color="default"
                                                 clickable
                                                 draggable="true"
-                                                deleteIcon={<AddIcon/>}
+                                                deleteIcon={<RemoveCircleRoundedIcon/>}
                                             />
                                         )
                                     )) :
@@ -390,97 +405,151 @@ function BalanceSheetDialog({...props}) {
                     </FormikProvider>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                    <Stack direction="row" alignItems="center" justifyContent={"space-between"}>
-                        {selectedModel === null && <Typography gutterBottom>{t('balance_sheet_list')}</Typography>}
-                        {selectedModel && <TextField placeholder={t('modeleName')} onChange={(ev) => {
-                            selectedModel.name = ev.target.value;
-                            setSelectedModel({...selectedModel})
-                        }} value={selectedModel.name}></TextField>}
-                        {analysis.length > 0 && !selectedModel && <Button
-                            size={"small"}
-                            sx={{ml: 'auto'}}
-                            onClick={() => {
-                                setOpenDialog(true)
-                            }}
-                            startIcon={
-                                <AddIcon/>
-                            }>
-                            {t('save_template')}
-                        </Button>}
-                        {selectedModel && <Stack direction={"row"}>
-                            <Tooltip title={t('edit_template')}>
-                                <IconButton
-                                    size="small"
-                                    color={"primary"}
-                                    onClick={editModel}><SaveRoundedIcon/>
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip title={t('delete_template')}>
-                                <IconButton
-                                    size="small"
-                                    color={"error"}
-                                    onClick={deleteModel}><DeleteOutlineRoundedIcon/>
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip title={t('close_template')}>
-                                <IconButton size="small" onClick={() => {
-                                    setAnalysis([]);
-                                    setSelectedModel(null)
-                                }}><CloseRoundedIcon/>
-                                </IconButton>
-                            </Tooltip>
-                        </Stack>}
-                    </Stack>
-                    <Box className="list-container"
-                         sx={{minHeight: 300, pr: 1}}
-                         onDragOver={event => event.preventDefault()}
-                         onDrop={(event) => {
-                             event.preventDefault();
-                             const data = event.dataTransfer.getData("Text");
-                             addAnalysis(analysisListLocal.find(item => item.uuid === data) as AnalysisModel);
-                         }}>
-                        {analysis.length > 0 ?
-                            analysis.map((item, index) => (
-                                <NoteCardCollapse
-                                    key={index}
-                                    {...{item, t}}
-                                    onExpandHandler={(event: any) => {
-                                        event.stopPropagation();
-                                        setAnalysis([
-                                            ...analysis.slice(0, index),
-                                            {...analysis[index], expanded: !item.expanded},
-                                            ...analysis.slice(index + 1)
-                                        ]);
+                    <Box sx={{width: "100%", "& .MuiBox-root": {p: 0}}}>
+                        <Box sx={{borderBottom: 1, mb: 1, borderColor: "divider"}}>
+                            <Tabs
+                                value={balanceSheetTabIndex}
+                                onChange={handleBalanceSheetTabChange}
+                                aria-label="balance sheet tabs">
+                                <Tab
+                                    disableFocusRipple
+                                    label={t("preview")}
+                                    {...a11yProps(0)}
+                                />
+                                <Tab
+                                    disableFocusRipple
+                                    label={t("modeles")}
+                                    {...a11yProps(1)}
+                                />
+                            </Tabs>
+                        </Box>
+                        <TabPanel value={balanceSheetTabIndex} index={0}>
+                            <Stack sx={{mb: 1}} direction="row" alignItems="center" justifyContent={"space-between"}>
+                                {selectedModel && <TextField placeholder={t('modeleName')} onChange={(ev) => {
+                                    selectedModel.name = ev.target.value;
+                                    setSelectedModel({...selectedModel})
+                                }} value={selectedModel.name}></TextField>}
+                                {analysis.length > 0 && !selectedModel && <Button
+                                    size={"small"}
+                                    sx={{ml: 'auto'}}
+                                    onClick={() => {
+                                        setOpenDialog(true)
                                     }}
-                                    onDeleteItem={() => {
-                                        const copy = [...analysis]
-                                        copy.splice(index, 1);
-                                        setAnalysis([...copy])
-                                        data.setState([...copy])
-                                    }}
-                                    onNoteChange={(event: any) => {
-                                        let items = [...analysis];
-                                        let x = {...analysis[index]};
-                                        x.note = event.target.value;
-                                        items[index] = x;
-                                        setAnalysis([...items])
-                                        data.setState([...items])
-                                    }}/>
-                            ))
-                            : <Card className='loading-card'>
-                                <Stack spacing={2}>
-                                    <NoDataCard
-                                        {...{t}}
-                                        ns={"consultation"}
-                                        data={{
-                                            mainIcon: "ic-analyse",
-                                            title: "drag-balance-sheet",
-                                            description: "drag-description"
-                                        }}
-                                    />
-                                </Stack>
-                            </Card>
-                        }
+                                    startIcon={
+                                        <AddIcon/>
+                                    }>
+                                    {t('save_template')}
+                                </Button>}
+                                {selectedModel && <Stack direction={"row"}>
+                                    <Tooltip title={t('edit_template')}>
+                                        <IconButton
+                                            size="small"
+                                            color={"primary"}
+                                            onClick={editModel}><SaveRoundedIcon/>
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title={t('delete_template')}>
+                                        <IconButton
+                                            size="small"
+                                            color={"error"}
+                                            onClick={() => deleteModel(selectedModel.uuid)}><DeleteOutlineRoundedIcon/>
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip title={t('close_template')}>
+                                        <IconButton size="small" onClick={() => {
+                                            setAnalysis([]);
+                                            setSelectedModel(null)
+                                        }}><CloseRoundedIcon/>
+                                        </IconButton>
+                                    </Tooltip>
+                                </Stack>}
+                            </Stack>
+                            <Box className="list-container"
+                                 sx={{minHeight: 300, pr: 1}}
+                                 onDragOver={event => event.preventDefault()}
+                                 onDrop={(event) => {
+                                     event.preventDefault();
+                                     const data = event.dataTransfer.getData("Text");
+                                     addAnalysis(analysisListLocal.find(item => item.uuid === data) as AnalysisModel);
+                                 }}>
+                                {analysis.length > 0 ?
+                                    analysis.map((item, index) => (
+                                        <NoteCardCollapse
+                                            key={index}
+                                            {...{item, t}}
+                                            onExpandHandler={(event: any) => {
+                                                event.stopPropagation();
+                                                setAnalysis([
+                                                    ...analysis.slice(0, index),
+                                                    {...analysis[index], expanded: !item.expanded},
+                                                    ...analysis.slice(index + 1)
+                                                ]);
+                                            }}
+                                            onDeleteItem={() => {
+                                                const copy = [...analysis]
+                                                copy.splice(index, 1);
+                                                setAnalysis([...copy])
+                                                data.setState([...copy])
+                                            }}
+                                            onNoteChange={(event: any) => {
+                                                let items = [...analysis];
+                                                let x = {...analysis[index]};
+                                                x.note = event.target.value;
+                                                items[index] = x;
+                                                setAnalysis([...items])
+                                                data.setState([...items])
+                                            }}/>
+                                    ))
+                                    : <Card className='loading-card'>
+                                        <Stack spacing={2}>
+                                            <NoDataCard
+                                                {...{t}}
+                                                ns={"consultation"}
+                                                data={{
+                                                    mainIcon: "ic-analyse",
+                                                    title: "drag-balance-sheet",
+                                                    description: "drag-description"
+                                                }}
+                                            />
+                                        </Stack>
+                                    </Card>
+                                }
+                            </Box>
+                        </TabPanel>
+                        <TabPanel value={balanceSheetTabIndex} index={1}>
+                            <List
+                                disablePadding
+                                className={"prescription-preview"}
+                                subheader={
+                                    <ListSubheader
+                                        disableSticky
+                                        component="div"
+                                        id="nested-list-subheader">
+                                        {t('balance_sheet_list')}
+                                    </ListSubheader>
+                                }>
+                                {modals.map((item, idx) =>
+                                    <ListItemButton
+                                        key={idx}
+                                        sx={{pl: 4}}
+                                        alignItems="flex-start"
+                                        onClick={() => onSetModelData(item)}>
+                                        <ListItemIcon sx={{minWidth: 26}}>
+                                            <Icon width={"16"} height={"16"} path="ic-soura"/>
+                                        </ListItemIcon>
+                                        <ListItemText color={"primary"} primary={<Typography
+                                            color={"primary"}>{item.name}</Typography>}/>
+
+                                        <IconButton size="small" onClick={(event) => {
+                                            event.stopPropagation();
+                                            deleteModel(item.uuid);
+                                        }}>
+                                            <Icon path="setting/icdelete"/>
+                                        </IconButton>
+                                    </ListItemButton>
+                                )}
+                            </List>
+                        </TabPanel>
                     </Box>
                 </Grid>
             </Grid>

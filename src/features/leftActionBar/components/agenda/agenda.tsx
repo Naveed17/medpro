@@ -8,9 +8,6 @@ import {
     setFilter,
     AppointmentStatusFilter,
     AppointmentTypesFilter,
-    AppointmentReasonsFilter,
-    AppointmentActs,
-    AppointmentDisease
 } from "@features/leftActionBar";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";

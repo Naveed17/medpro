@@ -1,4 +1,4 @@
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
@@ -11,7 +11,7 @@ function useDuplicatedDetect({...props}) {
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {data: httpPatientDuplicationResponse, isLoading} = useRequest(medicalEntityHasUser && patientId ? {
+    const {data: httpPatientDuplicationResponse, isLoading} = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/duplications/${router.locale}`
     } : null);

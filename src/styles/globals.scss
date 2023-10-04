@@ -1,5 +1,9 @@
 @import "./variables";
 
+div.MuiModal-root:has(> div[style*="opacity: 0"]) {
+  pointer-events: none;
+}
+
 body {
   overflow: auto;
 
@@ -456,4 +460,12 @@ fieldset {
 
 .MuiAutocomplete-paper {
   min-width: 200px
+}
+
+.fc-col-header,
+.fc-daygrid-body,
+.fc-scrollgrid-sync-table,
+.fc-timegrid-body,
+.fc-timegrid-body table {
+  width: 100% !important;
 }
