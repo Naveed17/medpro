@@ -5,7 +5,7 @@ import {Box, useMediaQuery} from "@mui/material";
 import {Theme} from "@mui/material/styles";
 
 const Prescription = ({...props}) => {
-    const {eventHandler, data, pages, id, values, state, loading, date, title} = props;
+    const {componentRef, eventHandler, data, pages, id, values, state, loading, date, title} = props;
     const content = useRef<HTMLDivElement>(null);
     const footer = useRef<HTMLDivElement>(null);
     const [selected, setSelected] = useState("");
@@ -26,7 +26,7 @@ const Prescription = ({...props}) => {
     return (
         <>
             {!loading && <Box>
-                {data !== undefined && <div className={"portraitA4"} style={{
+                {data !== undefined && <div className={"portraitA4"} ref={componentRef} style={{
                     zoom: isMobile ? '40%' : '',
                     marginBottom: isMobile ? 80 : '',
                     marginLeft: isMobile ? 30 : '',
@@ -52,7 +52,7 @@ const Prescription = ({...props}) => {
                         bounds={{left: 0, top: 0, right: 0, bottom: 1000}}>
                         <div style={{
                             padding: "1.5rem 1.5rem 0",
-                            position:"absolute",
+                            position: "absolute",
                             zIndex: lastSelected === "header" ? 999 : 1,
                             opacity: selected === "" || selected === "header" ? 1 : 0.5,
                             width: "100%",
@@ -80,7 +80,7 @@ const Prescription = ({...props}) => {
                                     fontWeight: "bold",
                                     textAlign: "center",
                                     height: '7mm',
-                                    position:"absolute",
+                                    position: "absolute",
                                     zIndex: lastSelected === "title" ? 999 : 1,
                                     opacity: selected === "" || selected === "title" ? 1 : 0.5,
                                     border: state === undefined ? selected === 'title' ? '2px solid #0096d6' : '1px dashed #0096d6' : '0',
@@ -106,7 +106,7 @@ const Prescription = ({...props}) => {
                                 width: "100%",
                                 border: state === undefined ? selected === 'date' ? '2px solid #0096d6' : '1px dashed #0096d6' : '0',
                                 margin: "auto",
-                                position:"absolute",
+                                position: "absolute",
                                 zIndex: lastSelected === "date" ? 999 : 1,
                                 textAlign: data.date.textAlign ? data.date.textAlign : "",
                                 opacity: selected === "" || selected === "date" ? 1 : 0.5,
@@ -132,7 +132,7 @@ const Prescription = ({...props}) => {
                                    bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
                             <div style={{
                                 width: "fit-content",
-                                position:"absolute",
+                                position: "absolute",
                                 zIndex: lastSelected === "patient" ? 999 : 1,
                                 opacity: selected === "" || selected === "patient" ? 1 : 0.5,
                                 border: state === undefined ? selected === 'patient' ? '2px solid #0096d6' : '1px dashed #0096d6' : '0',
@@ -161,7 +161,7 @@ const Prescription = ({...props}) => {
                             padding: '0 10mm',
                             border: "0 solid",
                             overflowWrap: 'break-word',
-                            position:"absolute",
+                            position: "absolute",
                             zIndex: lastSelected === "content" ? 999 : 1,
                             opacity: selected === "" || selected === "content" ? 1 : 0.5,
                             height: `${data.content.maxHeight}px`
@@ -189,7 +189,7 @@ const Prescription = ({...props}) => {
                                                bounds={{left: 0, top: 0, right: 0, bottom: 1000}}>
                         <div style={{
                             padding: "1.5rem 1.5rem 0",
-                            position:"absolute",
+                            position: "absolute",
                             zIndex: lastSelected === "footer" ? 999 : 1,
                             opacity: selected === "" || selected === "footer" ? 1 : 0.5,
                             width: "100%",

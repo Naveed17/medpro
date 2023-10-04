@@ -1,6 +1,6 @@
 import {styled} from "@mui/material/styles";
 import {Box} from "@mui/material";
-import { MobileContainer } from "@lib/constants";
+import {MobileContainer} from "@lib/constants";
 
 const MainMenuStyled = styled(Box)(({theme}) => ({
     display: "flex",
@@ -31,14 +31,14 @@ const MainMenuStyled = styled(Box)(({theme}) => ({
                 position: "absolute",
                 bottom: 0,
                 left: 22,
-                 "& .MuiListItem-root":{
-                backgroundColor: "transparent",
-                  "&:not(.active):hover": {
-                    "& .MuiListItemIcon-root": {
-                        backgroundColor: theme.palette.info.main,
-                        boxShadow: theme.shadows[4],
-                        border: `1px solid ${theme.palette.grey["A100"]}`,
-                    },
+                "& .MuiListItem-root": {
+                    backgroundColor: "transparent",
+                    "&:not(.active):hover": {
+                        "& .MuiListItemIcon-root": {
+                            backgroundColor: theme.palette.info.main,
+                            boxShadow: theme.shadows[4],
+                            border: `1px solid ${theme.palette.grey["A100"]}`,
+                        },
                     }
                 },
                 "& .mt-2": {
@@ -47,22 +47,22 @@ const MainMenuStyled = styled(Box)(({theme}) => ({
             },
             "& .MuiListItem-root": {
                 flexDirection: "column",
-                zIndex:10,
+                zIndex: 10,
                 "& .MuiListItemIcon-root": {
                     borderRadius: 10,
-                    maxWidth:37,
-                    maxHeight:39,
-                    overflow:'hidden',
+                    maxWidth: 37,
+                    maxHeight: 39,
+                    overflow: 'hidden',
                     border: "1px solid transparent",
                     padding: 7,
                     "& svg": {
                         width: 22,
-                        "path":{
+                        "path": {
                             transition: 'all .5s ease-in-out .2s',
-                            
+
                         }
                     },
-                    
+
                 },
                 "&.active": {
                     "& .MuiListItemIcon-root": {
@@ -75,27 +75,25 @@ const MainMenuStyled = styled(Box)(({theme}) => ({
                         },
                     },
                 },
-                
+
                 "& .MuiListItemText-root": {
                     "& span": {
                         fontSize: 12,
                     },
                 },
-                ".icon-background":{
-                       backgroundColor: theme.palette.primary.main,
-                        boxShadow: theme.shadows[4],
-                        border: `1px solid ${theme.palette.grey["A100"]}`,
-                        position:'absolute',
-                        width:39,
-                        height:40,
-                        borderRadius:10,
-                        marginLeft:'auto',
-                        marginRight:'auto',
-                        zIndex:-1,
-                        
+                ".icon-background": {
+                    backgroundColor: theme.palette.info.main,
+                    boxShadow: theme.shadows[4],
+                    border: `1px solid ${theme.palette.grey["A100"]}`,
+                    position: 'absolute',
+                    width: 39,
+                    height: 40,
+                    borderRadius: 10,
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    zIndex: -1
                 }
             },
-
             "@media screen and (max-height: 600px)": {
                 marginTop: 0,
                 "&.list-bottom": {

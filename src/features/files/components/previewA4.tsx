@@ -6,8 +6,7 @@ import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
 
 function PreviewDialog({...props}) {
-    const {eventHandler, data, values, state, loading, date, t, nbPage} = props;
-
+    const {componentRef, eventHandler, data, values, state, loading, date, t, nbPage} = props;
     const {data: session} = useSession();
 
     const {data: user} = session as Session;
@@ -433,6 +432,7 @@ function PreviewDialog({...props}) {
             {pages.slice(0, nbPage ? 1 : pages.length).map((el, idx) => (
                 <div key={idx}>
                     <PrescriptionA4 {...{
+                        componentRef,
                         data,
                         id: idx,
                         eventHandler,
