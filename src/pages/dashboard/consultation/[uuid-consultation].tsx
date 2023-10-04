@@ -149,7 +149,7 @@ function ConsultationInProgress() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [pendingDocuments, setPendingDocuments] = useState<DocumentPreviewModel[]>([]);
     const [patient, setPatient] = useState<PatientPreview>();
-    const [total, setTotal] = useState(0);
+    const [total, setTotal] = useState(-1);
     const [state, setState] = useState<any>();
     const [openHistoryDialog, setOpenHistoryDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<null | string>("");
