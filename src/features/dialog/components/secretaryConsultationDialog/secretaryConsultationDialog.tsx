@@ -79,7 +79,6 @@ function SecretaryConsultationDialog({...props}) {
     const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {direction} = useAppSelector(configSelector);
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -92,7 +91,8 @@ function SecretaryConsultationDialog({...props}) {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
             setTransactions(res.transactions ? res.transactions[0] : null);
-            setTotal(res.fees ? res.fees : 0)
+            if (total === -1)
+                setTotal(res.fees ? res.fees : 0)
             setRestAmount(res.rest_amount)
         }
     }, [httpAppointmentTransactions, setTotal, setTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
