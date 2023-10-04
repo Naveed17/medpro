@@ -15,8 +15,6 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-
-
 function QualificationDialog(info: any) {
     const [files, setFile] = useState([]);
 

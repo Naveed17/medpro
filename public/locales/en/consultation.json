@@ -117,6 +117,7 @@
     "reason_for_consultation": "Reason for Consultation",
     "patient_history": "Patient History",
     "title": "Title",
+    "email": "Send by email",
     "back": "Back to today's consultation",
     "updateHistory": "You are updating the consultation from ",
     "add_reason": "Add a new reason",

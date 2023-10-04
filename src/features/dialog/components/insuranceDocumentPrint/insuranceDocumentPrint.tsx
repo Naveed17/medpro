@@ -56,9 +56,9 @@ function InsuranceDocumentPrint({...props}) {
                             const [cnamPatientInfoP1] = await pdfDoc.embedPdf(docUpdated, [0]);
                             const [cnamPatientInfoP2] = await pdfDoc.embedPdf(docUpdated, [1]);
                             const page1 = pdfDoc.addPage(CNAMDocP1);
-                            page1.drawPage(cnamPatientInfoP1, {x: 0, y: 5});
+                            page1.drawPage(cnamPatientInfoP1, {x: 0, y: 0});
                             const page2 = pdfDoc.addPage(CNAMDocP2);
-                            page2.drawPage(cnamPatientInfoP2, {x: 0, y: 32});
+                            page2.drawPage(cnamPatientInfoP2, {x: 0, y: 28});
                             const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
                             setFile(mergedPdf);
                         }
