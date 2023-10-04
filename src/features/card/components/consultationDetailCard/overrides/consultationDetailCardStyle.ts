@@ -1,8 +1,11 @@
 import {styled} from '@mui/material/styles';
 import {Card} from '@mui/material';
-const ConsultationDetailCardStyled = styled(Card)(({theme}) => ({
+const ConsultationDetailCardStyled = styled("div")(({theme}) => ({
     position: "relative",
-    minHeight: '40rem',
+    background: "white",
+    //minHeight: '40rem',
+    borderTop:"1px solid #ddd",
+    marginBottom:5,
     '& .card-header': {
         '& .react-svg': {
             marginRight: theme.spacing(1),

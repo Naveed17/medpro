@@ -236,56 +236,7 @@ function CIPPatientHistoryCard({...props}) {
 
     return (
         <ConsultationDetailCardStyled>
-            <Stack className="card-header" padding={'0.45rem'}
-                   direction="row"
-                   alignItems="center"
-                   justifyContent={hide ? "" : "space-between"}
-                   spacing={2}
-                   borderBottom={hide ? 0 : 1}
-                   sx={{
-                       position: hide ? "absolute" : "static",
-                       transform: hide ? "rotate(90deg)" : "rotate(0)",
-                       transformOrigin: "left",
-                       width: hide ? "44.5rem" : "auto",
-                       left:  23,
-                       top: -26,
-                   }}
-                   borderColor="divider">
-                {hide && <IconButton
-                    sx={{display: {xs: "none", md: "flex"}}}
-                    onClick={() => {
-                        if(isClose){
-                            return
-                        }
-                        setCloseExam(!closeExam);
-                        handleClosePanel(!closeExam);
-                       
-                    }}
-                    className="btn-collapse"
-                    disableRipple>
-                    <KeyboardArrowDownRoundedIcon/>
-                </IconButton>}
-                <Typography display='flex' alignItems="center" variant="body1" component="div" color="secondary"
-                            fontWeight={600}>
-                    <Icon path='ic-edit-file-pen'/>
-                    {t("review")}
-                </Typography>
 
-                {!hide && <IconButton
-                    sx={{display: {xs: "none", md: "flex"}}}
-                    onClick={() => {
-                        if(isClose){
-                            return
-                        }
-                        setCloseExam(!closeExam);
-                        handleClosePanel(!closeExam);
-                        
-                    }}
-                    className="btn-collapse"
-                    disableRipple>
-                    <ArrowForwardIosIcon/>
-                </IconButton>}
-            </Stack>
             <CardContent style={{padding: 20}}>
                 <FormikProvider value={formik}>
                     <Stack

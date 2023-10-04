@@ -5,10 +5,10 @@ import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Box,
     Button,
-    CardContent,
+    CardContent, Collapse,
     DialogActions,
     Drawer,
-    Fab,
+    Fab, IconButton,
     Skeleton,
     Stack,
     Toolbar,
@@ -25,7 +25,7 @@ import {useRouter} from "next/router";
 import {tabs} from "@features/toolbar/components/appToolbar/config";
 import {alpha, Theme} from "@mui/material/styles";
 import {AppToolbar} from "@features/toolbar/components/appToolbar";
-import {SubHeader} from "@features/subHeader";
+import {MyCardStyled, MyHeaderCardStyled, SubHeader} from "@features/subHeader";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {WidgetForm} from "@features/widget";
@@ -58,6 +58,31 @@ import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {AnimatePresence, motion} from "framer-motion";
+import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
+import Icon from "@themes/urlIcon";
+
+//%%%%%% %%%%%%%
+const grid = 8;
+const getItemStyle = (isDragging: any, draggableStyle: any) => ({
+    // some basic styles to make the items look a bit nicer
+    userSelect: "none",
+    padding: 0,
+    margin: `0 0 ${grid}px 0`,
+
+    // change background colour if dragging
+    background: isDragging ? "lightgreen" : "",
+
+    // styles we need to apply on draggables
+    ...draggableStyle
+});
+const getListStyle = (isDraggingOver: boolean) => ({
+    background: isDraggingOver ? "lightblue" : "",
+    padding: grid,
+    width: "50%"
+});
+//%%%%%% %%%%%%%
 
 function ConsultationInProgress() {
     const theme = useTheme();
@@ -165,6 +190,10 @@ function ConsultationInProgress() {
     const [transactions, setTransactions] = useState(null);
     const [restAmount, setRestAmount] = useState(0);
     const [switchTab, setSwitchTab] = useState(false);
+    const [cards, setCards] = useState([[
+        {id: 'item-1', content: 'widget',expanded:false,icon:"ic-edit-file-pen"},
+        {id: 'item-2', content: 'history',expanded:false,icon:"ic-historique"}
+    ], [{id: 'item-3', content: 'exam',expanded:false,icon:"ic-edit-file-pen"}]]);
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -555,6 +584,52 @@ function ConsultationInProgress() {
         setOpenDialog(true);
     }
 
+    //%%%%%% %%%%%%%
+    const move = (source: any, destination: any, droppableSource: any, droppableDestination: any) => {
+        const sourceClone = Array.from(source);
+        const destClone = Array.from(destination);
+        const [removed] = sourceClone.splice(droppableSource.index, 1);
+
+        destClone.splice(droppableDestination.index, 0, removed);
+
+        const result: any = {};
+        result[droppableSource.droppableId] = sourceClone;
+        result[droppableDestination.droppableId] = destClone;
+
+        return result;
+    };
+    const reorder = (list: any, startIndex: number, endIndex: number) => {
+        const result = Array.from(list);
+        const [removed] = result.splice(startIndex, 1);
+        result.splice(endIndex, 0, removed);
+
+        return result;
+    };
+    const onDragEnd = (result: any) => {
+        const {source, destination} = result;
+
+        // dropped outside the list
+        if (!destination) {
+            return;
+        }
+        const sInd = +source.droppableId;
+        const dInd = +destination.droppableId;
+
+        if (sInd === dInd) {
+            const items = reorder(cards[sInd], source.index, destination.index);
+            const newState: any = [...cards];
+            newState[sInd] = items;
+            setCards(newState);
+        } else {
+            const result: any = move(cards[sInd], cards[dInd], source, destination);
+            const newState = [...cards];
+            newState[sInd] = result[sInd];
+            newState[dInd] = result[dInd];
+            setCards(newState.filter(group => group.length));
+        }
+    }
+    //%%%%%% %%%%%%%
+
     useEffect(() => {
         if (httpPreviousResponse) {
             const data = (httpPreviousResponse as HttpResponse).data;
@@ -679,6 +754,84 @@ function ConsultationInProgress() {
                     setPatientShow={() => setFilterDrawer(!drawer)}
                 />
             </SubHeader>}
+
+            <div style={{display: "flex", width: "100%"}}>
+                <DragDropContext onDragEnd={onDragEnd}>
+                    {cards.map((el, ind) => (
+                        <Droppable key={ind} droppableId={`${ind}`}>
+                            {(provided, snapshot) => (
+                                <div
+                                    ref={provided.innerRef}
+                                    style={getListStyle(snapshot.isDraggingOver)}
+                                    {...provided.droppableProps}
+                                >
+                                    {el.map((item: any, index: number) => (
+                                        <Draggable
+                                            key={item.id}
+                                            draggableId={item.id}
+                                            index={index}>
+                                            {(provided: any, snapshot: any) => (
+                                                <div
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    style={getItemStyle(
+                                                        snapshot.isDragging,
+                                                        provided.draggableProps.style
+                                                    )}
+                                                >
+                                                    <MyCardStyled>
+                                                        <Stack direction={"row"}
+                                                               justifyContent={"space-between"}
+                                                               onClick={()=>{
+                                                                   let _cards = [...cards];
+                                                                   _cards[ind][index].expanded = !item.expanded
+                                                                   setCards([..._cards])
+                                                                   if (!item.expanded)
+                                                                       mutateSheetData();
+                                                               }}
+                                                               alignItems={"center"}>
+                                                            <MyHeaderCardStyled>
+                                                                <Icon className={'card-header'} path={item.icon}/>
+                                                                <Typography className={'card-title'}>{item.content}</Typography>
+                                                            </MyHeaderCardStyled>
+                                                            <IconButton className={"btn-header"}>
+                                                                {item.expanded ? <KeyboardArrowUpRoundedIcon/>: <KeyboardArrowDownRoundedIcon/> }
+                                                            </IconButton>
+                                                        </Stack>
+                                                        <Collapse in={item.expanded} timeout="auto" unmountOnExit>
+                                                            {item.content === 'exam' &&  <ConsultationDetailCard
+                                                                {...{
+                                                                    changes,
+                                                                    setChanges,
+                                                                    app_uuid,
+                                                                    exam: sheetExam,
+                                                                    hasDataHistory,
+                                                                    seeHistory,
+                                                                    closed: closeExam,
+                                                                    setCloseExam,
+                                                                    isClose,
+                                                                    agenda,
+                                                                    trigger: triggerAppointmentEdit
+                                                                }}
+                                                                handleClosePanel={(v: boolean) => setCloseExam(v)}
+
+                                                            />}
+                                                        </Collapse>
+                                                    </MyCardStyled>
+
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))}
+                                    {provided.placeholder}
+                                </div>
+                            )}
+                        </Droppable>
+                    ))}
+                </DragDropContext>
+            </div>
+
 
             {<HistoryAppointementContainer {...{isHistory, loading}}>
                 <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}}
