@@ -1,18 +1,6 @@
 import React, {useEffect, useState} from 'react'
-import {
-    Autocomplete,
-    Box,
-    CardContent,
-    Divider,
-    IconButton,
-    MenuItem,
-    Stack,
-    TextField,
-    Typography,
-    useTheme
-} from "@mui/material";
+import {Autocomplete, Box, CardContent, Divider, MenuItem, Stack, TextField, Typography, useTheme} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
-import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
 import {Form, FormikProvider, useFormik} from "formik";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -25,8 +13,6 @@ import {useRouter} from "next/router";
 import {RecButton} from "@features/buttons";
 import {dashLayoutSelector} from "@features/base";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import dynamic from "next/dynamic";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {debounce} from "lodash";
@@ -83,7 +69,6 @@ function CIPPatientHistoryCard({...props}) {
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data;
 
-
     const app_data = defaultExam?.appointment_data;
 
     const formik = useFormik({
@@ -99,6 +84,7 @@ function CIPPatientHistoryCard({...props}) {
             console.log('ok', values);
         },
     });
+
 
     const {handleSubmit, values, setFieldValue} = formik;
     const startStopRec = () => {
@@ -195,6 +181,8 @@ function CIPPatientHistoryCard({...props}) {
             data: form
         })
     }
+    const debouncedOnChange = debounce(saveChanges, 3000);
+
 
     useEffect(() => {
         setHide(closed && !isClose)
@@ -342,31 +330,28 @@ function CIPPatientHistoryCard({...props}) {
                             </Stack>
                             {
                                 !editNote && <div className={"contentPreview"}
-                                               onClick={() => {
-                                                   setEditNote(true)
-                                               }}
-                                               dangerouslySetInnerHTML={{__html: values.notes ? values.notes : '<p class="preview">--</p>'}}/>
+                                                  onClick={() => {
+                                                      setEditNote(true)
+                                                  }}
+                                                  dangerouslySetInnerHTML={{__html: values.notes ? values.notes : '<p class="preview">--</p>'}}/>
                             }
                             {
                                 editNote && <Editor
-                                value={values.notes}
-                                apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
-                                onEditorChange={(event) => {
-                                    setFieldValue("notes", event);
-                                }}
-                                onBlur={()=>{
-                                    saveChanges("notes",values.notes)
-                                }}
-                                init={{
-                                    branding: false,
-                                    statusbar: false,
-                                    menubar: false,
-                                    height: 200,
-                                    toolbar_mode: 'scrolling',
-                                    plugins: tinymcePlugins,
-                                    toolbar: tinymceToolbar,
-                                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                                }}/>
+                                    initialValue={values.notes}
+                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    onEditorChange={(event) => {
+                                        debouncedOnChange("notes", event)
+                                    }}
+                                    init={{
+                                        branding: false,
+                                        statusbar: false,
+                                        menubar: false,
+                                        height: 200,
+                                        toolbar_mode: 'scrolling',
+                                        plugins: tinymcePlugins,
+                                        toolbar: tinymceToolbar,
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}/>
                             }
                         </Box>
                         <Box width={1}>
@@ -377,19 +362,18 @@ function CIPPatientHistoryCard({...props}) {
                             </Stack>
                             {
                                 !editDiagnosic && <div className={"contentPreview"}
-                                                  onClick={() => {
-                                                      setEditDiagnosic(true)
-                                                  }}
-                                                  dangerouslySetInnerHTML={{__html: values.diagnosis ? values.diagnosis : '<p class="preview">--</p>'}}/>
+                                                       onClick={() => {
+                                                           setEditDiagnosic(true)
+                                                       }}
+                                                       dangerouslySetInnerHTML={{__html: values.diagnosis ? values.diagnosis : '<p class="preview">--</p>'}}/>
                             }
                             {
                                 editDiagnosic && <Editor
-                                    value={values.diagnosis}
+                                    initialValue={values.diagnosis}
                                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                                     onEditorChange={(event) => {
-                                        setFieldValue("diagnosis", event)
+                                        debouncedOnChange("diagnosis", event)
                                     }}
-                                    onBlur={()=>{saveChanges("diagnosis",values.diagnosis)}}
                                     init={{
                                         branding: false,
                                         statusbar: false,

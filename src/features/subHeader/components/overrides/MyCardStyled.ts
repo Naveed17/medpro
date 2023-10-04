@@ -8,6 +8,7 @@ const MyCardStyled = styled("div")(({theme}) => ({
         borderRadius: "0.375rem",
         border: "1px solid #DDD",
         width:"2.5rem",
+        backgroundColor:'white',
         height:"2.5rem",
         marginRight: 10
     },
@@ -19,12 +20,19 @@ const MyCardStyled = styled("div")(({theme}) => ({
             }
         }
     },
+    '& .card-icon':{
+        svg: {
+            path: {
+                fill: "#C9C8C8",
+            }
+        }
+    },
     '& .card-title': {
         color: "var(--secondaire-bleu-fonc, #1B2746)",
         fontFamily: 'Poppins',
         fontSize: '0.875rem',
         fontStyle: 'normal',
-        fontWeight: 500,
+        fontWeight: "bold",
         lineHeight: "120%", /* 1.05rem */
     }
 }));

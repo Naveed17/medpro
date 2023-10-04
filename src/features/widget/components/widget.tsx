@@ -60,6 +60,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         trigger,
         autoUpdate,
         mutateSheetData,
+        showToolbar,
         url
     } = props;
 
@@ -136,6 +137,7 @@ function Widget({...props}) {
         isClose,
         handleClosePanel,
         previousData,
+        showToolbar,
         acts, setActs, selectedModel,
         url, mutateSheetData,printGlasses
     } = props;
@@ -158,7 +160,6 @@ function Widget({...props}) {
         structure: [],
         uuid: "",
     });
-
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
@@ -256,11 +257,12 @@ function Widget({...props}) {
         <>
             <ConsultationModalStyled
                 sx={{
-                    height: {xs: closeMobilePanel ? "50px" : "30vh", md: "40.3rem"},
+                    //height: {xs: closeMobilePanel ? "50px" : "30vh", md: "40.3rem"},
                     position: "relative",
                     width: closePanel ? 50 : "auto",
+                    overflowX: "hidden"
                 }}>
-                <Stack
+                {showToolbar && <Stack
                     spacing={1}
                     p={2}
                     py={1}
@@ -311,7 +313,7 @@ function Widget({...props}) {
                         </Typography>
                         {!closePanel && <IconUrl path="ic-flesh-bas-y"/>}
                     </Stack>
-                </Stack>
+                </Stack>}
 
                 <CardContent
                     sx={{
@@ -374,6 +376,7 @@ function Widget({...props}) {
                                             selectedModel,
                                             trigger: triggerAppointmentEdit,
                                             mutateSheetData,
+                                            showToolbar,
                                             url
                                         }}
                                         key={m.uuid}

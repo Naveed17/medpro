@@ -179,6 +179,7 @@ function PreConsultationDialog({...props}) {
                 data={sheetModal.data}
                 autoUpdate={false}
                 appuuid={uuid}
+                showToolbar={true}
                 setSM={setSelectedModel}
                 handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>}
         </PreConsultationDialogStyled>)

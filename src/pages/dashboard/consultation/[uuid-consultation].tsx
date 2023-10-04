@@ -5,11 +5,12 @@ import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Box,
     Button,
-    CardContent, Collapse,
+    Collapse,
     DialogActions,
     Drawer,
-    Fab, IconButton,
-    Skeleton,
+    Fab,
+    Grid,
+    IconButton, ListItemIcon, ListItemText, MenuItem, MenuList,
     Stack,
     Toolbar,
     Typography,
@@ -29,12 +30,12 @@ import {MyCardStyled, MyHeaderCardStyled, SubHeader} from "@features/subHeader";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {WidgetForm} from "@features/widget";
-import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import {DocumentsTab, EventType, FeesTab, HistoryTab, Instruction, TabPanel, TimeSchedule} from "@features/tabPanel";
 import AppointHistoryContainerStyled
     from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
 import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {SubFooter} from "@features/subFooter";
 import {consultationSelector, SetPatient} from "@features/toolbar";
@@ -57,11 +58,10 @@ import {useWidgetModels} from "@lib/hooks/rest";
 import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {AnimatePresence, motion} from "framer-motion";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
-import Icon from "@themes/urlIcon";
+import {ModelDot} from "@features/modelDot";
 
 //%%%%%% %%%%%%%
 const grid = 8;
@@ -82,6 +82,7 @@ const getListStyle = (isDraggingOver: boolean) => ({
     padding: grid,
     width: "50%"
 });
+
 //%%%%%% %%%%%%%
 
 function ConsultationInProgress() {
@@ -189,11 +190,17 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [transactions, setTransactions] = useState(null);
     const [restAmount, setRestAmount] = useState(0);
-    const [switchTab, setSwitchTab] = useState(false);
+
+    const [sheet, setSheet] = useState<any>(null);
+    const [sheetExam, setSheetExam] = useState<any>(null);
+    const [hasDataHistory, setHasDataHistory] = useState<any>(null);
+    const [tabsData, setTabsData] = useState<any[]>([]);
+    const [sheetModal, setSheetModal] = useState<any>(null);
+
     const [cards, setCards] = useState([[
-        {id: 'item-1', content: 'widget',expanded:false,icon:"ic-edit-file-pen"},
-        {id: 'item-2', content: 'history',expanded:false,icon:"ic-historique"}
-    ], [{id: 'item-3', content: 'exam',expanded:false,icon:"ic-edit-file-pen"}]]);
+        {id: 'item-1', content: 'widget', expanded: false,config:false, icon: "ic-edit-file-pen"},
+        {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
+    ], [{id: 'item-3', content: 'exam', expanded: false, icon: "ic-edit-file-pen"}]]);
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -210,14 +217,21 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const sheet = (httpSheetResponse as HttpResponse)?.data;
-    const sheetExam = sheet?.exam;
-    const sheetModal = sheet?.modal;
-    const hasDataHistory = sheet?.hasDataHistory;
-    const tabsData = [...sheet?.hasHistory ? [{
-        label: "patient_history",
-        value: "patient history"
-    }] : [], ...tabs]
+    useEffect(() => {
+        if (httpSheetResponse) {
+            const data = (httpSheetResponse as HttpResponse)?.data
+            setSheet(data)
+            setSheetExam(data?.exam)
+            setSheetModal(data?.modal)
+            setHasDataHistory(data?.hasDataHistory)
+            setTabsData([...data?.hasHistory ? [{
+                label: "patient_history",
+                value: "patient history"
+            }] : [], ...tabs])
+        }
+
+
+    }, [httpSheetResponse])
 
     const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
@@ -230,13 +244,34 @@ function ConsultationInProgress() {
     } : null, ReactQueryNoValidateConfig);
 
     // ********** Requests ********** \\
-    const getWidgetSize = () => {
-        return isClose ? 50 : closeExam ? '100%' : '50%'
-    }
+    const changeModel = (prop: ModalModel,ind:number,index:number) => {
+        selectedModel.default_modal = prop;
+        setSelectedModel(selectedModel);
 
-    const getExamSize = () => {
-        return isClose ? "100%" : closeExam ? 50 : '50%';
-    }
+        const form = new FormData();
+        form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${app_uuid}`) as string)}));
+        form.append("modal_uuid", selectedModel?.default_modal.uuid);
+        triggerAppointmentEdit({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+            data: form
+        })
+
+        localStorage.setItem(
+            `Model-${app_uuid}`,
+            JSON.stringify({
+                data: {},
+                default_modal: prop,
+            })
+        );
+
+        let _cards = [...cards];
+        _cards[ind][index].expanded = true;
+        _cards[ind][index].config = false;
+        setCards([..._cards])
+
+    };
+
     const mutateDoc = () => {
         const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
         invalidateQueries([docUrl])
@@ -654,7 +689,6 @@ function ConsultationInProgress() {
                     change.checked = sheet[change.name] > 0
             })
             setChanges([...changes])
-
         }
     }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -678,13 +712,10 @@ function ConsultationInProgress() {
     }, [tableState.patientId]);
 
     useEffect(() => {
-        if (switchTab) {
-            setLoading(true)
-            mutateSheetData().then(() => {
-                setLoading(false)
-            })
-        }
-        setSwitchTab(true)
+        setLoading(true)
+        mutateSheetData().then(() => {
+            setLoading(false)
+        })
     }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -755,83 +786,6 @@ function ConsultationInProgress() {
                 />
             </SubHeader>}
 
-            <div style={{display: "flex", width: "100%"}}>
-                <DragDropContext onDragEnd={onDragEnd}>
-                    {cards.map((el, ind) => (
-                        <Droppable key={ind} droppableId={`${ind}`}>
-                            {(provided, snapshot) => (
-                                <div
-                                    ref={provided.innerRef}
-                                    style={getListStyle(snapshot.isDraggingOver)}
-                                    {...provided.droppableProps}
-                                >
-                                    {el.map((item: any, index: number) => (
-                                        <Draggable
-                                            key={item.id}
-                                            draggableId={item.id}
-                                            index={index}>
-                                            {(provided: any, snapshot: any) => (
-                                                <div
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                    {...provided.dragHandleProps}
-                                                    style={getItemStyle(
-                                                        snapshot.isDragging,
-                                                        provided.draggableProps.style
-                                                    )}
-                                                >
-                                                    <MyCardStyled>
-                                                        <Stack direction={"row"}
-                                                               justifyContent={"space-between"}
-                                                               onClick={()=>{
-                                                                   let _cards = [...cards];
-                                                                   _cards[ind][index].expanded = !item.expanded
-                                                                   setCards([..._cards])
-                                                                   if (!item.expanded)
-                                                                       mutateSheetData();
-                                                               }}
-                                                               alignItems={"center"}>
-                                                            <MyHeaderCardStyled>
-                                                                <Icon className={'card-header'} path={item.icon}/>
-                                                                <Typography className={'card-title'}>{item.content}</Typography>
-                                                            </MyHeaderCardStyled>
-                                                            <IconButton className={"btn-header"}>
-                                                                {item.expanded ? <KeyboardArrowUpRoundedIcon/>: <KeyboardArrowDownRoundedIcon/> }
-                                                            </IconButton>
-                                                        </Stack>
-                                                        <Collapse in={item.expanded} timeout="auto" unmountOnExit>
-                                                            {item.content === 'exam' &&  <ConsultationDetailCard
-                                                                {...{
-                                                                    changes,
-                                                                    setChanges,
-                                                                    app_uuid,
-                                                                    exam: sheetExam,
-                                                                    hasDataHistory,
-                                                                    seeHistory,
-                                                                    closed: closeExam,
-                                                                    setCloseExam,
-                                                                    isClose,
-                                                                    agenda,
-                                                                    trigger: triggerAppointmentEdit
-                                                                }}
-                                                                handleClosePanel={(v: boolean) => setCloseExam(v)}
-
-                                                            />}
-                                                        </Collapse>
-                                                    </MyCardStyled>
-
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                </div>
-                            )}
-                        </Droppable>
-                    ))}
-                </DragDropContext>
-            </div>
-
 
             {<HistoryAppointementContainer {...{isHistory, loading}}>
                 <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}}
@@ -862,7 +816,200 @@ function ConsultationInProgress() {
                         />
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <div style={{display: "flex", width: "100%"}}>
+                                    <DragDropContext onDragEnd={onDragEnd}>
+                                        {cards.map((el, ind) => (
+                                            <Droppable key={ind} droppableId={`${ind}`}>
+                                                {(provided, snapshot) => (
+                                                    <div
+                                                        ref={provided.innerRef}
+                                                        style={getListStyle(snapshot.isDraggingOver)}
+                                                        {...provided.droppableProps}
+                                                    >
+                                                        {el.map((item: any, index: number) => (
+                                                            <Draggable
+                                                                key={item.id}
+                                                                draggableId={item.id}
+                                                                index={index}>
+                                                                {(provided: any, snapshot: any) => (
+                                                                    <div
+                                                                        ref={provided.innerRef}
+                                                                        {...provided.draggableProps}
+                                                                        {...provided.dragHandleProps}
+                                                                        style={getItemStyle(
+                                                                            snapshot.isDragging,
+                                                                            provided.draggableProps.style
+                                                                        )}
+                                                                    >
+                                                                        <MyCardStyled>
+                                                                            <Stack direction={"row"}
+                                                                                   style={{backgroundColor: item.content === 'widget' && selectedModel ? alpha(selectedModel?.default_modal.color, 0.3) : ""}}
+                                                                                   justifyContent={"space-between"}
+                                                                                   onClick={() => {
+                                                                                       let _cards = [...cards];
+                                                                                       _cards[ind][index].expanded = !item.expanded
+                                                                                       setCards([..._cards])
+                                                                                       mutateSheetData();
+                                                                                   }}
+                                                                                   alignItems={"center"}>
+                                                                                {item.content === 'widget' && selectedModel ?
+                                                                                    <MyHeaderCardStyled>
+                                                                                        <Stack direction={"row"} spacing={1}
+                                                                                               alignItems={"center"}
+                                                                                               border={"1px solid white"}
+                                                                                               onClick={(e)=>{
+                                                                                                   e.stopPropagation();
+                                                                                                   let _cards = [...cards];
+                                                                                                   _cards[ind][index].config = !item.config
+                                                                                                   _cards[ind][index].expanded = false
+                                                                                                   setCards([..._cards])
+                                                                                               }}
+                                                                                               style={{padding:"3px 8px",borderRadius:5}}>
+                                                                                            <ModelDot
+                                                                                                color={selectedModel?.default_modal?.color}
+                                                                                                selected={false}/>
+                                                                                            <Typography
+                                                                                                className={'card-title'}>{selectedModel?.default_modal.label}</Typography>
+                                                                                            <IconUrl className={"card-icon"} path="ic-flesh-bas-y"/>
+                                                                                        </Stack>
 
+                                                                                    </MyHeaderCardStyled> :
+                                                                                    <MyHeaderCardStyled>
+                                                                                        <Icon className={'card-header'}
+                                                                                              path={item.icon}/>
+                                                                                        <Typography
+                                                                                            className={'card-title'}>{t(item.content)}</Typography>
+                                                                                    </MyHeaderCardStyled>}
+                                                                                <IconButton className={"btn-header"}>
+                                                                                    {item.expanded ?
+                                                                                        <KeyboardArrowUpRoundedIcon/> :
+                                                                                        <KeyboardArrowDownRoundedIcon/>}
+                                                                                </IconButton>
+                                                                            </Stack>
+                                                                            <Collapse in={item.expanded} timeout="auto" unmountOnExit>
+                                                                                {item.content === 'exam' &&
+                                                                                    <ConsultationDetailCard
+                                                                                        {...{
+                                                                                            changes,
+                                                                                            setChanges,
+                                                                                            app_uuid,
+                                                                                            exam: sheetExam,
+                                                                                            hasDataHistory,
+                                                                                            seeHistory,
+                                                                                            closed: closeExam,
+                                                                                            setCloseExam,
+                                                                                            isClose,
+                                                                                            agenda,
+                                                                                            trigger: triggerAppointmentEdit
+                                                                                        }}
+                                                                                        handleClosePanel={(v: boolean) => setCloseExam(v)}
+
+                                                                                    />}
+                                                                                {item.content === 'history' && <div
+                                                                                    style={{
+                                                                                        padding: 10,
+                                                                                        borderTop: "1px solid #DDD"
+                                                                                    }}>
+                                                                                    <HistoryTab
+                                                                                        {...{
+                                                                                            patient: {
+                                                                                                uuid: sheet?.patient,
+                                                                                                ...patient
+                                                                                            },
+                                                                                            dispatch,
+                                                                                            t,
+                                                                                            session,
+                                                                                            acts,
+                                                                                            direction,
+                                                                                            mutate: mutatePatient,
+                                                                                            setOpenDialog,
+                                                                                            showDoc,
+                                                                                            setState,
+                                                                                            setInfo,
+                                                                                            router,
+                                                                                            setIsViewerOpen,
+                                                                                            setSelectedTab,
+                                                                                            appuuid: app_uuid,
+                                                                                            trigger: triggerAppointmentEdit
+                                                                                        }}
+                                                                                    /></div>}
+                                                                                {item.content === 'widget' && !loading && models && Array.isArray(models) && models.length > 0 && selectedModel && patient && (
+                                                                                    <WidgetForm
+                                                                                        {...{
+                                                                                            models,
+                                                                                            changes,
+                                                                                            setChanges,
+                                                                                            isClose,
+                                                                                            acts,
+                                                                                            setActs,
+                                                                                            previousData,
+                                                                                            selectedModel,
+                                                                                            appuuid: app_uuid,
+                                                                                            modal: selectedModel,
+                                                                                            data: sheetModal?.data,
+                                                                                            closed: closeExam,
+                                                                                            setSM: setSelectedModel,
+                                                                                            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+                                                                                            mutateSheetData,
+                                                                                            printGlasses
+                                                                                        }}
+                                                                                        handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
+                                                                                )}
+                                                                            </Collapse>
+
+                                                                            <Collapse in={item.config} timeout="auto" unmountOnExit>
+                                                                                <MenuList>
+                                                                                    {(models as any[])?.map((item: any, idx: number) => (
+                                                                                        <Box key={"widgt-x-" + idx}>
+                                                                                            {item.isEnabled && (
+                                                                                                <MenuItem
+                                                                                                    key={`model-item-${idx}`}
+                                                                                                    onClick={() => {changeModel(item,ind,index)}}>
+                                                                                                    <ListItemIcon>
+                                                                                                        <ModelDot
+                                                                                                            color={item.color}
+                                                                                                            selected={false}
+                                                                                                            size={21}
+                                                                                                            sizedot={13}
+                                                                                                            padding={3}
+                                                                                                        />
+                                                                                                    </ListItemIcon>
+                                                                                                    <ListItemText
+                                                                                                        style={{
+                                                                                                            textOverflow: "ellipsis",
+                                                                                                            whiteSpace: "nowrap",
+                                                                                                            overflow: "hidden",
+                                                                                                        }}>
+                                                                                                        {item.label}
+                                                                                                    </ListItemText>
+                                                                                                </MenuItem>
+                                                                                            )}
+                                                                                        </Box>
+                                                                                    ))}
+                                                                                </MenuList>
+                                                                            </Collapse>
+                                                                        </MyCardStyled>
+
+                                                                    </div>
+                                                                )}
+                                                            </Draggable>
+                                                        ))}
+                                                        {provided.placeholder}
+                                                    </div>
+                                                )}
+                                            </Droppable>
+                                        ))}
+                                    </DragDropContext>
+                                </div>
+                            </Grid>
+                            <Grid item xs={0}>
+                            </Grid>
+                        </Grid>
+
+
+                        {/*
                         <Stack direction={{xs: 'column', md: 'row'}} justifyContent='space-between' spacing={2}>
                             <AnimatePresence mode="popLayout">
                                 <motion.div
@@ -890,28 +1037,7 @@ function ConsultationInProgress() {
                                         <Skeleton variant="rounded" width={"100%"}
                                                   sx={{height: {xs: "30vh", md: "40.3rem"}}}/>
                                     </CardContent>}
-                                    {!loading && models && Array.isArray(models) && models.length > 0 && selectedModel && patient && (
-                                        <WidgetForm
-                                            {...{
-                                                models,
-                                                changes,
-                                                setChanges,
-                                                isClose,
-                                                acts,
-                                                setActs,
-                                                previousData,
-                                                selectedModel,
-                                                appuuid: app_uuid,
-                                                modal: selectedModel,
-                                                data: sheetModal?.data,
-                                                closed: closeExam,
-                                                setSM: setSelectedModel,
-                                                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
-                                                mutateSheetData,
-                                                printGlasses
-                                            }}
-                                            handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
-                                    )}
+
                                     {!loading && !selectedModel && (<CardContent
                                             sx={{
                                                 bgcolor: alpha(theme.palette.primary.main, 0.1),
@@ -961,6 +1087,7 @@ function ConsultationInProgress() {
                                 </motion.div>
                             </AnimatePresence>
                         </Stack>
+*/}
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"documents"}>
                         <DocumentsTab

@@ -1,5 +1,6 @@
 import {Stack, useTheme} from "@mui/material";
 import React from "react";
+import {alpha} from "@mui/material/styles";
 
 function ModelDot({...DotProps}) {
     const theme = useTheme();
@@ -12,6 +13,7 @@ function ModelDot({...DotProps}) {
         padding = 5,
         marginRight = 0,
         icon = null,
+        style,
         ...rest
     } = DotProps;
     return (
@@ -34,6 +36,7 @@ function ModelDot({...DotProps}) {
                 flex: "none",
                 order: 0,
                 flexGrow: 0,
+                ...style
             }}>
             <Stack
                 alignItems="center"
