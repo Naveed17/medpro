@@ -149,7 +149,7 @@ function ConsultationInProgress() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [pendingDocuments, setPendingDocuments] = useState<DocumentPreviewModel[]>([]);
     const [patient, setPatient] = useState<PatientPreview>();
-    const [total, setTotal] = useState(0);
+    const [total, setTotal] = useState(-1);
     const [state, setState] = useState<any>();
     const [openHistoryDialog, setOpenHistoryDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<null | string>("");
@@ -164,7 +164,6 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [transactions, setTransactions] = useState(null);
     const [restAmount, setRestAmount] = useState(0);
-    const [switchTab, setSwitchTab] = useState(false);
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -603,13 +602,10 @@ function ConsultationInProgress() {
     }, [tableState.patientId]);
 
     useEffect(() => {
-        if (switchTab) {
             setLoading(true)
             mutateSheetData().then(() => {
                 setLoading(false)
             })
-        }
-        setSwitchTab(true)
     }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
