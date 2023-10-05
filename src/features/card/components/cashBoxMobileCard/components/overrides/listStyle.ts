@@ -4,7 +4,7 @@ const StyledList = styled(List)(({ theme }) => ({
   ".MuiListItem-root": {
     flexDirection: "column",
     alignItems: "flex-start",
-    //border: `1px solid ${theme.palette.divider}`,
+    border: `1px solid ${theme.palette.divider}`,
     borderRadius: "5px",
     "&:not(:last-child)": {
       marginBottom: "10px",
