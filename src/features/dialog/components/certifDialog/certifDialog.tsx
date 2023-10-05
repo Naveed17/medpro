@@ -114,14 +114,14 @@ function CertifDialog({...props}) {
     } : null, ReactQueryNoValidateConfig);
 
     const selectModel = (model: CertifModel) => {
-        setValue(model.content);
-        data.state.content = model.content;
-        data.state.title = model.title;
-        data.state.documentHeader = model.documentHeader
+        setValue(model?.content ?? "");
+        data.state.content = model?.content ?? "";
+        data.state.title = model?.title ?? "";
+        data.state.documentHeader = model?.documentHeader ?? ""
         data.setState(data.state)
         setTitle(model?.title ?? "")
-        setSelectedTemplate(model.documentHeader)
-        setSelectedColor([model.color])
+        setSelectedTemplate(model?.documentHeader ?? "")
+        setSelectedColor([model?.color ?? ""])
         setSelectedModel(model);
         setFolder(model?.folder ?? "");
     }
@@ -332,43 +332,51 @@ function CertifDialog({...props}) {
                         paddingRight: 2
                     }}>
                         <Stack spacing={1}>
-                            <Typography style={{color: "gray"}} fontSize={12}>{t('consultationIP.title')}</Typography>
-                            <Stack alignItems={"center"} spacing={1} direction={"row"}>
-                                <TextField
-                                    style={{width: "100%"}}
-                                    value={title}
-                                    onChange={(ev) => {
-                                        setTitle(ev.target.value)
-                                        data.state.title = ev.target.value;
-                                        data.setState(data.state)
-                                    }}/>
-                                {selectedColor.map(color => (
-                                    <ModelDot
-                                        key={color}
-                                        color={color}
-                                        onClick={() => {
-                                            if (selectedColor.length === 1)
-                                                setSelectedColor([...colors])
-                                            else {
-                                                setSelectedColor([color])
-                                                colors.splice(colors.findIndex(c => c === color), 1)
-                                                setColors([...colors, color])
-                                            }
-                                        }}>
-                                    </ModelDot>
-                                ))}
+                            <Stack direction={"row"} spacing={2} sx={{width: "100%"}}>
+                                <Stack sx={{width: "100%"}}>
+                                    <Typography style={{color: "gray"}}
+                                                fontSize={12}>{t('consultationIP.title')}</Typography>
+                                    <Stack alignItems={"center"} spacing={1} direction={"row"}>
+                                        <TextField
+                                            style={{width: "100%"}}
+                                            value={title}
+                                            onChange={(ev) => {
+                                                setTitle(ev.target.value)
+                                                data.state.title = ev.target.value;
+                                                data.setState(data.state)
+                                            }}/>
+                                        {selectedColor.map(color => (
+                                            <ModelDot
+                                                key={color}
+                                                color={color}
+                                                onClick={() => {
+                                                    if (selectedColor.length === 1)
+                                                        setSelectedColor([...colors])
+                                                    else {
+                                                        setSelectedColor([color])
+                                                        colors.splice(colors.findIndex(c => c === color), 1)
+                                                        setColors([...colors, color])
+                                                    }
+                                                }}>
+                                            </ModelDot>
+                                        ))}
+                                    </Stack>
+                                </Stack>
+
+                                <Stack sx={{width: "100%"}}>
+                                    <Typography style={{color: "gray"}}
+                                                fontSize={12}>{t('consultationIP.dir')}</Typography>
+                                    <Select
+                                        size={"small"}
+                                        value={folder}
+                                        onChange={(e) => setFolder(e.target.value)}>
+                                        {ParentModels.map((folder: any, index: number) => <MenuItem
+                                            key={index}
+                                            value={folder.uuid}>{folder.name}</MenuItem>)}
+                                    </Select>
+                                </Stack>
                             </Stack>
-                            <Stack>
-                                <Typography style={{color: "gray"}} fontSize={12}>{t('consultationIP.dir')}</Typography>
-                                <Select
-                                    size={"small"}
-                                    value={folder}
-                                    onChange={(e) => setFolder(e.target.value)}>
-                                    {ParentModels.map((folder: any, index: number) => <MenuItem
-                                        key={index}
-                                        value={folder.uuid}>{folder.name}</MenuItem>)}
-                                </Select>
-                            </Stack>
+
                             <div style={{display: "flex"}}>
                                 <Typography style={{color: "gray"}} fontSize={12} mt={1}
                                             mb={1}>{t('consultationIP.alertTitle')}</Typography>
