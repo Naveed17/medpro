@@ -620,6 +620,7 @@
         "selectColor": "Veuillez choisir une couleur",
         "nameReq": "Nom est obligatoire",
         "cancel": "Annuler",
+        "dir": "Répertoires",
         "save": "Enregistrer",
         "named": "Veuillez nommer le modèle",
         "select": "Veuillez choisir vos variables",

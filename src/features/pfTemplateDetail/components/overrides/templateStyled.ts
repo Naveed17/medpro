@@ -7,7 +7,7 @@ const TemplateStyled = styled("div")(({theme}) => ({
     rowGap: 0,
     "& .container": {
         padding: 5,
-        position: "relative",
+        position: "relative"
     },
     "& .heading": {
         display: "inline-block",

@@ -238,7 +238,7 @@ function CertifDialog({...props}) {
         setLoading(true);
         triggerFolderDelete({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/${selectedModel.parent === 0 ? "/certificate-modal-folders/" : "certificate-modals/"}${selectedModel.id}/${router.locale}`
+            url: `${urlMedicalProfessionalSuffix}/${selectedModel.parent === 0 && selectedModel.hasOwnProperty("isDefault") ? "certificate-modal-folders/" : "certificate-modals/"}${selectedModel.id}/${router.locale}`
         }, {
             onSuccess: () => {
                 setSelectedModel(null);
@@ -295,21 +295,7 @@ function CertifDialog({...props}) {
                 color: model.color ? model.color : '#0696D6',
                 text: model.title ? model.title : 'Sans titre',
                 data: model
-            })))
-            /*modelsList.map((model: CertifModel) => {
-                const stringToHTML = new DOMParser().parseFromString(model.content, 'text/html').body.firstChild
-                template.push({
-                    id: model.uuid,
-                    parent: "1",
-                    color: model.color ? model.color : '#0696D6',
-                    text: model.title ? model.title : 'Sans titre',
-                    name: model.title ? model.title : 'Sans titre',
-                    content: model.content,
-                    documentHeader: model.documentHeader,
-                    preview: (stringToHTML as HTMLElement)?.innerHTML,
-                    data: model
-                });
-            });*/
+            })));
             setTreeData(certifiesModel);
         }
     }, [httpParentModelResponse, httpModelResponse]) // eslint-disable-line react-hooks/exhaustive-deps
