@@ -94,7 +94,7 @@ export default function OphtPreview({...props}) {
             res.eyes.acuiteVisuelle && setAcuiteVisuelle(res.eyes.acuiteVisuelle);
             res.eyes.examination && setExamination(res.eyes.examination);
         }
-    }, [localStorage.getItem(`Modeldata${appuuid}`)])
+    }, [localStorage.getItem(`Modeldata${appuuid}`)]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Stack spacing={1}>
