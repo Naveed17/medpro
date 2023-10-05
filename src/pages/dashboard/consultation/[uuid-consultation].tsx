@@ -922,7 +922,7 @@ function ConsultationInProgress() {
                                     <span>{t("total")} : </span>
                                 </Typography>
                                 <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                    {isNaN(total) ? "-" : total} {devise}
+                                    {isNaN(total) || total <0 ? "-" : total} {devise}
                                 </Typography>
                                 <Stack
                                     direction="row"
