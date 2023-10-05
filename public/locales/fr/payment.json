@@ -36,6 +36,7 @@
   "more": "Plus",
   "betav":"Utiliser la nouvelle version de la caisse (bêta)",
   "payment_dialog_title": "Paiement",
+  "paidOn": "Payé le ",
   "payment_edit_dialog_title": "Modifier une transaction",
   "transactionAdded": "Transaction ajoutée",
   "settlement": "Règlement",

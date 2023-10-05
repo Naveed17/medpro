@@ -36,6 +36,7 @@
   "somme": "Somme",
   "more": "Plus",
   "payment_dialog_title": "Paiement",
+  "paidOn": "Paid on ",
   "payment_edit_dialog_title": "Modifier une transaction",
   "transactionAdded": "Transaction ajoutée",
   "settlement": "Règlement",
