@@ -15,12 +15,14 @@ import FolderOpenRoundedIcon from '@mui/icons-material/FolderOpenRounded';
 import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {prescriptionSelector, setModelName, setParentModel} from "@features/dialog";
+import {useTranslation} from "next-i18next";
 
 function MedicalPrescriptionModelDialog({...props}) {
     const {data: dialogData} = props;
-    const {t, models, setOpenAddParentDialog, color = "primary"} = dialogData;
+    const {models, setOpenAddParentDialog, color = "primary"} = dialogData;
     const dispatch = useAppDispatch();
 
+    const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
     const {parent} = useAppSelector(prescriptionSelector);
 
     const [selectedParent, setSelectedParent] = useState<string>("");
@@ -48,7 +50,7 @@ function MedicalPrescriptionModelDialog({...props}) {
                     </Stack>
                 )}
                 <Typography variant="body2" {...(dialogData?.dose && {mt: 2})} fontWeight={600}>
-                    {dialogData?.t("file", {ns: "consultation"})}
+                    {t("file", {ns: "consultation"})}
                 </Typography>
                 <RadioGroup
                     aria-labelledby="prescription-group-label"

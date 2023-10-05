@@ -33,7 +33,7 @@ import {useRouter} from "next/router";
 import Zoom from "react-medium-image-zoom";
 import {useSpeechRecognition} from "react-speech-recognition";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
-import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {capitalizeFirst, getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
@@ -247,9 +247,9 @@ function Consultation() {
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
-                                        width: "50%"
+                                        width: 150
                                     }}>
-                                    {patient?.firstName} {patient?.lastName}
+                                    {patient?.firstName ? capitalizeFirst(patient.firstName) : ""} {patient?.lastName}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
                                     {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}

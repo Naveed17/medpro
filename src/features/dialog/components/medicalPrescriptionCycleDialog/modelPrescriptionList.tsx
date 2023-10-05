@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {
     List,
     ListItem,
@@ -78,6 +78,7 @@ function ModelPrescriptionList({...props}) {
     }
 
     const handleEditModel = (props: any) => {
+        setSelectedModel(props.node);
         switchModel(props.node.data);
         editPrescriptionModel(props);
     }
@@ -105,6 +106,11 @@ function ModelPrescriptionList({...props}) {
             }
         });
     }
+
+    const handleSwitchModel = useCallback((node: any) => {
+        switchModel(node.data);
+        setSelectedModel(node);
+    }, [switchModel])
 
     useEffect(() => {
         if (models) {
@@ -142,9 +148,10 @@ function ModelPrescriptionList({...props}) {
                         render={(node, {depth, isOpen, onToggle}) => (
                             <CustomNode
                                 {...{
+                                    selectedNode: selectedModel?.id,
                                     node, depth, isOpen,
                                     onToggle,
-                                    switchModel,
+                                    switchModel: handleSwitchModel,
                                     handleEditModel,
                                     handleMoveModel,
                                     handleDeleteModel
@@ -236,7 +243,7 @@ function ModelPrescriptionList({...props}) {
                 contrastText={theme.palette.warning.contrastText}
                 action={"medical_prescription_model"}
                 open={openPrescriptionModelDialog}
-                data={{t, models, selectedModel, color: "warning", setOpenAddParentDialog}}
+                data={{models, selectedModel, color: "warning", setOpenAddParentDialog}}
                 dialogClose={() => setPrescriptionModelOpenDialog(false)}
                 size="md"
                 title={`${t("move_the_template_in_folder", {ns: "consultation"})} "${selectedModel?.text}"`}

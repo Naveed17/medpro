@@ -13,6 +13,7 @@ import {useTranslation} from "next-i18next";
 
 export const CustomNode = ({...props}) => {
     const {
+        selectedNode = null,
         switchModel = null,
         handleDeleteModel = null,
         handleMoveModel = null,
@@ -41,11 +42,11 @@ export const CustomNode = ({...props}) => {
                 {...(!props.node.isDefault && {
                     onClick: event => {
                         event.stopPropagation();
-                        handleClickEvent(props.node.data);
+                        handleClickEvent(props.node);
                     }
                 })}
                 className={`tree-node`}
-                style={{paddingInlineStart: indent}}>
+                style={{paddingInlineStart: indent, ...((props.node.parent !== 0 || props.node.parent === 0 && !props.node.hasOwnProperty("isDefault")) && selectedNode && selectedNode !== props.node.id && {opacity: 0.6})}}>
                 <div
                     className={`expandIconWrapper ${
                         props.isOpen ? "isOpen" : ""
@@ -72,7 +73,8 @@ export const CustomNode = ({...props}) => {
                     <Typography {...(props.node.parent !== 0 && {color: "primary", sx: {cursor: "pointer"}})}
                                 variant="body2">{props.node.text}</Typography>
                 </div>
-                {(handleMoveModel || handleEditModel) && props.node.parent !== 0 ? <IconButton
+                {(handleMoveModel || handleEditModel) && (props.node.parent !== 0 || props.node.parent === 0 && !props.node.hasOwnProperty("isDefault")) ?
+                    <IconButton
                         onClick={(event) => {
                             event.stopPropagation();
                             setAnchorEl(null);
@@ -139,24 +141,26 @@ export const CustomNode = ({...props}) => {
                     MenuListProps={{
                         "aria-labelledby": "basic-button",
                     }}>
-                    {(props.node.parent !== 0 && handleMoveModel) && <MenuItem
-                        onClick={(event) => {
-                            event.stopPropagation();
-                            setAnchorEl(null);
-                            handleMoveModel(props);
-                        }}>
-                        <DriveFileMoveOutlinedIcon sx={{width: 16, height: 16, mr: 1.2}}/>
-                        {t("move")}
-                    </MenuItem>}
-                    {(props.node.parent !== 0 && handleEditModel) && <MenuItem
-                        onClick={(event) => {
-                            event.stopPropagation();
-                            setAnchorEl(null);
-                            handleEditModel(props);
-                        }}>
-                        <IconUrl width={12} height={12} path="ic-edit"/>
-                        {t("edit")}
-                    </MenuItem>}
+                    {((props.node.parent !== 0 || props.node.parent === 0 && !props.node.hasOwnProperty("isDefault")) && handleMoveModel) &&
+                        <MenuItem
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                setAnchorEl(null);
+                                handleMoveModel(props);
+                            }}>
+                            <DriveFileMoveOutlinedIcon sx={{width: 16, height: 16, mr: 1.2}}/>
+                            {t("move")}
+                        </MenuItem>}
+                    {((props.node.parent !== 0 || props.node.parent === 0 && !props.node.hasOwnProperty("isDefault")) && handleEditModel) &&
+                        <MenuItem
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                setAnchorEl(null);
+                                handleEditModel(props);
+                            }}>
+                            <IconUrl width={12} height={12} path="ic-edit"/>
+                            {t("edit")}
+                        </MenuItem>}
                     {(!props.node.isDefault && handleDeleteModel) && <MenuItem
                         onClick={(event) => {
                             event.stopPropagation();

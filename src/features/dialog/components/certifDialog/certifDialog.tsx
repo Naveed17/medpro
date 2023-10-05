@@ -26,8 +26,8 @@ import SpeechRecognition, {useSpeechRecognition} from "react-speech-recognition"
 import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
-import {Dialog} from "@features/dialog";
-import {useAppSelector} from "@lib/redux/hooks";
+import {Dialog, prescriptionSelector, setParentModel} from "@features/dialog";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from "@tinymce/tinymce-react";
@@ -41,6 +41,8 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import IconUrl from "@themes/urlIcon";
 import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
+import EditIcon from "@mui/icons-material/Edit";
+import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -55,9 +57,11 @@ function CertifDialog({...props}) {
         resetTranscript
     } = useSpeechRecognition();
     const {enqueueSnackbar} = useSnackbar();
+    const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation("consultation");
     const {direction} = useAppSelector(configSelector);
+    const {parent: modelParent} = useAppSelector(prescriptionSelector);
 
     let [colors, setColors] = useState(["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"]);
     const [value, setValue] = useState<string>(data.state.content);
@@ -76,8 +80,10 @@ function CertifDialog({...props}) {
     const [openAddParentDialog, setOpenAddParentDialog] = useState(false);
     const [parentModelName, setParentModelName] = useState<string>("");
     const [loading, setLoading] = useState(false);
+    const [editModel, setEditModel] = useState(false);
     const [deleteModelDialog, setDeleteModelDialog] = useState<boolean>(false);
     const [dialogAction, setDialogAction] = useState<string>("");
+    const [openCertificateModelDialog, setOpenCertificateModelDialog] = useState(false);
 
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
@@ -122,7 +128,6 @@ function CertifDialog({...props}) {
         setTitle(model?.title ?? "")
         setSelectedTemplate(model?.documentHeader ?? "")
         setSelectedColor([model?.color ?? ""])
-        setSelectedModel(model);
         setFolder(model?.folder ?? "");
     }
 
@@ -180,20 +185,26 @@ function CertifDialog({...props}) {
     }
 
     const saveChanges = () => {
+        setLoading(true);
         const form = new FormData();
         form.append('content', value);
         form.append('color', selectedColor[0]);
         form.append('title', title);
+        folder && form.append('folder', folder);
+
         triggerModelsUpdate({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${selectedModel.uuid}/${router.locale}`,
             data: form
         }, {
             onSuccess: () => {
+                mutateParentModel();
                 mutateModel().then(() => {
-                    enqueueSnackbar(t("consultationIP.updated"), {variant: 'success'})
+                    enqueueSnackbar(t("consultationIP.updated"), {variant: 'success'});
+                    setEditModel(false);
                 });
-            }
+            },
+            onSettled: () => setLoading(false)
         });
     }
 
@@ -228,6 +239,8 @@ function CertifDialog({...props}) {
             ...(loading && {
                 onSettled: () => {
                     setLoading(false);
+                    mutateModel();
+                    mutateParentModel().then(() => setOpenCertificateModelDialog(false));
                 }
             })
         });
@@ -255,13 +268,27 @@ function CertifDialog({...props}) {
         setDeleteModelDialog(true);
     }
 
+    const handleMoveModel = (props: any) => {
+        dispatch(setParentModel(props.node.parent));
+        setSelectedModel(props.node);
+        setOpenCertificateModelDialog(true);
+    }
+
     const handleDrop = (newTree: any, {dragSourceId, dropTargetId}: any) => {
         handleMoveFolderRequest(dragSourceId, dropTargetId);
         setTreeData(newTree);
     }
 
-    const switchModel = (data: any) => {
-        selectModel(data);
+    const switchModel = (node: any) => {
+        selectModel(node.data);
+        setSelectedModel({...node.data, id: node.id});
+        setEditModel(false);
+    }
+
+    const handleEditModel = (props: any) => {
+        selectModel(props.node.data);
+        setSelectedModel({...props.node.data, id: props.node.id});
+        setEditModel(true);
     }
 
     const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
@@ -434,17 +461,44 @@ function CertifDialog({...props}) {
                     </List>
                 </Grid>
                 <Grid item xs={12} md={3} style={{borderLeft: `1px solid ${theme.palette.grey[200]}`}}>
+                    <Stack>
+                        {editModel ?
+                            <Stack direction={"row"} spacing={1} justifyContent={"end"}>
+                                <LoadingButton
+                                    {...{loading}}
+                                    loadingPosition="start"
+                                    color="warning"
+                                    size={"small"}
+                                    onClick={() => {
+                                        saveChanges();
+                                    }}
+                                    className="custom-button"
+                                    variant="contained"
+                                    startIcon={<EditIcon/>}>
+                                    {t("consultationIP.editModel")} {t("consultationIP.model")}
+                                </LoadingButton>
+
+                                <Button
+                                    size='small'
+                                    onClick={() => setEditModel(false)}
+                                    disabled={loading}>
+                                    {t('consultationIP.cancel')}
+                                </Button>
+                            </Stack>
+                            : <Button sx={{ml: 'auto', height: 1}}
+                                      size='small'
+                                      disabled={title.length === 0 || value.length === 0}
+                                      onClick={() => {
+                                          saveModel()
+                                      }}
+                                      startIcon={<AddIcon/>}>
+                                {t('consultationIP.createAsModel')}
+                            </Button>}
+                    </Stack>
+
                     <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
-                        <Typography variant={'h6'} marginLeft={2} marginTop={1}>{t('Models')}</Typography>
-                        <Button sx={{ml: 'auto', height: 1}}
-                                size='small'
-                                disabled={title.length === 0 || value.length === 0}
-                                onClick={() => {
-                                    saveModel()
-                                }}
-                                startIcon={<AddIcon/>}>
-                            {t('consultationIP.createAsModel')}
-                        </Button>
+                        <Typography variant={'h6'} marginLeft={2}>{t('Models')}</Typography>
+
                     </Stack>
 
                     <DndProvider backend={MultiBackend} options={getBackendOptions()}>
@@ -455,9 +509,12 @@ function CertifDialog({...props}) {
                                 render={(node, {depth, isOpen, onToggle}) => (
                                     <CustomNode
                                         {...{
+                                            selectedNode: selectedModel?.id,
                                             node,
                                             switchModel,
+                                            handleEditModel,
                                             handleDeleteModel,
+                                            handleMoveModel,
                                             depth,
                                             isOpen,
                                             onToggle
@@ -603,6 +660,41 @@ function CertifDialog({...props}) {
                     </>
                 }
             />
+
+            <Dialog
+                {...{direction}}
+                color={theme.palette.warning.main}
+                contrastText={theme.palette.warning.contrastText}
+                action={"medical_prescription_model"}
+                open={openCertificateModelDialog}
+                data={{t, models: ParentModels, selectedModel, color: "warning", setOpenAddParentDialog}}
+                dialogClose={() => setOpenCertificateModelDialog(false)}
+                size="md"
+                title={`${t("consultationIP.move_the_template_in_folder")} "${selectedModel?.text}"`}
+                actionDialog={(
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                        <Button
+                            variant="text-black"
+                            onClick={() => {
+                                setOpenCertificateModelDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("consultationIP.cancel")}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            loadingPosition={"start"}
+                            color={"warning"}
+                            startIcon={<DriveFileMoveOutlinedIcon/>}
+                            onClick={() => {
+                                setLoading(true);
+                                handleMoveFolderRequest(selectedModel?.id, modelParent, true);
+                            }}
+                            variant="contained">
+                            {t("consultationIP.save")}
+                        </LoadingButton>
+                    </Stack>
+                )}/>
         </Box>
     )
 }
