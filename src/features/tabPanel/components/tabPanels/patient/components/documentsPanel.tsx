@@ -236,6 +236,7 @@ function DocumentsPanel({...props}) {
                 createdAt: card.createdAt,
                 name: 'certif',
                 detectedType: card.type,
+                title:card.title,
                 type: 'write_certif',
                 mutate: mutatePatientDocuments,
                 mutateDetails: mutatePatientDetails

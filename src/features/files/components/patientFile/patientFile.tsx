@@ -106,7 +106,7 @@ function PatientFile({...props}) {
     } : null);
 
     const checkKey = (key: string) => {
-        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth";
+        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth" && key !=="eyes";
     }
 
     const patientData = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
