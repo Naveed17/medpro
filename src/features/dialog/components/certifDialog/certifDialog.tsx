@@ -207,7 +207,7 @@ function CertifDialog({...props}) {
             data: form,
         }, {
             onSuccess: () => {
-                mutateParentModel().then((result: any) => {
+                mutateParentModel().then(() => {
                     setOpenAddParentDialog(false);
                     setParentModelName("");
                 });
