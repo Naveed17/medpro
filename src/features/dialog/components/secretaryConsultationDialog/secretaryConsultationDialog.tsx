@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
+    Avatar,
     Badge,
     Box,
     Button,
@@ -41,6 +42,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import {useTransactionEdit} from "@lib/hooks/rest";
+import { useTheme } from "@emotion/react";
 
 const limit = 255;
 
@@ -62,7 +64,8 @@ function SecretaryConsultationDialog({...props}) {
         },
     } = props;
     const router = useRouter();
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const theme  = useTheme() as Theme;
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const {data: session} = useSession();
     const {trigger: triggerTransactionEdit} = useTransactionEdit();
 
@@ -152,7 +155,7 @@ function SecretaryConsultationDialog({...props}) {
                 })
             });
     }
-
+console.log(patient)
     return (
         <RootStyled>
             <Grid container>
@@ -163,10 +166,137 @@ function SecretaryConsultationDialog({...props}) {
                         maxWidth={{xs: "100%", md: "80%"}}
                         mx="auto"
                         width={1}>
+                        <Typography mt={{xs: 3, md: 0}} variant="subtitle1">
+                            {t("recap")}
+                        </Typography>
+                        <Typography>{t("doc_list")}</Typography>
+                        <Box display='grid' sx={{
+                            width: '100%',
+                            gridGap: 16,
+                            gridTemplateColumns: 
+                                "repeat(1,minmax(0,1fr))",
+                               
+                        }}>
+                            {changes.map((item: { checked: boolean; icon: string; name: string; }, idx: number) => (
+                                <Badge key={'feat' + idx} color="success" invisible={!item.checked}>
+                                    <Card className="document-card" sx={{
+                                        borderColor:item.checked ? (theme:Theme) => theme.palette.success.main :(theme:Theme) => theme.palette.divider
+                                    }}>
+                                        <CardContent>
+                                            <Stack direction='row' className="document-detail" alignItems="center">
+                                                <IconUrl path={item.icon} width={16} height={16}/>
+                                                <Typography variant='subtitle2' textAlign={"center"}
+                                                ml={1}
+                                                            whiteSpace={"nowrap"} fontSize={11}>
+                                                    {t("consultationIP." + item.name)}
+                                                </Typography>
+                                                {
+                                                    item.checked ? (
+                                                    <IconButton size="small" disableRipple sx={{ml:'auto'}}>
+                                                  <IconUrl path={"ic-printer"} color={theme.palette.primary.main} width={16} height={16}/>
+                                                </IconButton>
+                                                    )
+                                                :
+                                                (
+                                                <IconButton size="small" disableRipple sx={{ml:'auto'}}>
+                                                  <IconUrl path={"ic-plus"} color={theme.palette.primary.main} width={16} height={16}/>
+                                                </IconButton>
+                                                )
+                                                }
+                                                
+                                               
+                                            </Stack>
+                                        </CardContent>
+                                    </Card>
+                                </Badge>
+                            ))}
+                        </Box>
+
+                    </Stack>
+                </Grid>
+               <Grid item md={6} sm={12} xs={12}>
+                    <Stack
+                        alignItems="center"
+                        spacing={2}
+                        maxWidth={{xs: "100%", md: "80%"}}
+                        mx="auto"
+                        width={1}>
                         <Typography variant="subtitle1">
                             {t("finish_the_consutation")}
                         </Typography>
                         <Typography>{t("type_the_instruction_for_the_secretary")}</Typography>
+                        <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
+                           
+                        <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
+                            <Avatar 
+                            {...(patient?.hasPhoto && {
+                                alt:patient?.name,
+                                src:patient?.photo
+                            })}
+                             sx={{width: 30, height: 30,bgcolor:'primary.main'}} />
+                             <Stack>
+                                <Stack direction={"row"} alignItems={"center"} spacing={.5}>
+                                    <IconUrl path={patient?.gender ==="M" ? 'ic-h':'ic-f'}/>
+                                    <Typography color={"primary.main"}>
+                                                    {patient?.firstName} {patient?.lastName}
+                                                    </Typography>
+
+                                
+                             </Stack>
+                             {patient?.birthdate && 
+                             <Stack direction='row' alignItems='center' spacing={.5}>
+                                  <IconUrl path="ic-anniverssaire" width={13} height={13}/>
+                                 <Typography color="text.secondary">{patient?.birthdate} {" "}
+                                    ({moment().diff(moment(patient.birthdate, "DD-MM-YYYY"), "years") + " "+ t("filter.years")})
+
+                                 </Typography>
+                             
+                             </Stack>
+}
+                             </Stack>
+
+                        </Stack>
+                         {
+                            total - getTransactionAmountPayed() !== 0 ?
+                                <Stack direction={"row"} alignItems={"center"}>
+                                    {demo && <Button
+                                        endIcon={
+                                            <Typography sx={{fontSize:'16px !important'}}>
+                                                {devise}
+                                            </Typography>
+                                        }
+                                        variant="contained"
+                                        color="error"
+                                        size={"small"}
+                                        style={{
+                                            marginLeft: 5
+                                        }}
+                                        {...(isMobile && {
+
+                                            sx: {minWidth: 40},
+                                        })}
+                                        onClick={openDialogPayment}
+                                    >
+                                         
+                                         <Typography ml={1}>{t("amount_paid")}</Typography>
+                                         <Typography component='span' fontWeight={700} variant="subtitle2" ml={1}>
+                                            {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
+                                            {" "} 
+                                         </Typography>
+                                    </Button>
+                                    }
+                                </Stack> :
+                                <Chip
+                                    label={`${total} ${devise}`}
+                                    color={"success"}
+                                    onDelete={() => {
+                                    }}
+                                    deleteIcon={<DoneAllRoundedIcon/>}
+                                />
+                        }
+                        </Stack>
+                        <Stack className="instruction-box" spacing={1}>
+                            <Typography variant="body2" color="text.secondary">{t('note')}</Typography>
                         <TextField
                             fullWidth
                             multiline
@@ -185,47 +315,7 @@ function SecretaryConsultationDialog({...props}) {
                                 ),
                             }}
                         />
-                        {
-                            total - getTransactionAmountPayed() !== 0 ?
-                                <Stack direction={"row"} alignItems={"center"}>
-                                    <Typography mr={1}>{t("amount_paid")}</Typography>
-                                    <Label
-                                        variant="filled"
-                                        color={getTransactionAmountPayed() === 0 ? "success" : "warning"}
-                                        sx={{color: (theme) => theme.palette.text.primary}}>
-                                        <Typography
-                                            color="text.primary"
-                                            variant="subtitle1"
-                                            mr={0.3}
-                                            fontWeight={600}>
-                                            {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
-                                        </Typography>
-                                        {devise}
-                                    </Label>
-                                    {demo && <Button
-                                        variant="contained"
-                                        size={"small"}
-                                        style={{
-                                            marginLeft: 5
-                                        }}
-                                        {...(isMobile && {
-
-                                            sx: {minWidth: 40},
-                                        })}
-                                        onClick={openDialogPayment}
-                                    >
-                                        <IconUrl color={"white"} path="ic-fees"/> {!isMobile &&
-                                        <Typography fontSize={12} ml={1}>{t("pay")}</Typography>}
-                                    </Button>}
-                                </Stack> :
-                                <Chip
-                                    label={`${total} ${devise}`}
-                                    color={"success"}
-                                    onDelete={() => {
-                                    }}
-                                    deleteIcon={<DoneAllRoundedIcon/>}
-                                />
-                        }
+                        
                         <Button
                             className="counter-btn"
                             disableRipple
@@ -277,48 +367,8 @@ function SecretaryConsultationDialog({...props}) {
                             )}
                         </Button>
                     </Stack>
-                </Grid>
-
-                <Grid item md={6} sm={12} xs={12}>
-                    <Stack
-                        alignItems="center"
-                        spacing={2}
-                        maxWidth={{xs: "100%", md: "80%"}}
-                        mx="auto"
-                        width={1}>
-                        <Typography mt={{xs: 3, md: 0}} variant="subtitle1">
-                            {t("recap")}
-                        </Typography>
-
-                        <Box display='grid' sx={{
-                            width: '100%',
-                            gridGap: 16,
-                            gridTemplateColumns: {
-                                xs: "repeat(2,minmax(0,1fr))",
-                                sm: "repeat(3,minmax(0,1fr))"
-                            }
-                        }}>
-                            {changes.map((item: { checked: boolean; icon: string; name: string; }, idx: number) => (
-                                <Badge key={'feat' + idx} color="success" invisible={!item.checked}
-                                       badgeContent={<CheckIcon sx={{width: 8}}/>}>
-                                    <Card style={{width: '100%'}}>
-                                        <CardContent>
-                                            <Stack spacing={2} className="document-detail" alignItems="center">
-                                                <IconUrl path={item.icon}/>
-                                                <Typography variant='subtitle2' textAlign={"center"}
-                                                            whiteSpace={"nowrap"} fontSize={11}>
-                                                    {t("consultationIP." + item.name)}
-                                                </Typography>
-                                            </Stack>
-                                        </CardContent>
-                                    </Card>
-                                </Badge>
-                            ))}
-                        </Box>
-
                     </Stack>
                 </Grid>
-
             </Grid>
 
             <Dialog
