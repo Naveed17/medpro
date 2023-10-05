@@ -98,9 +98,7 @@ function DocumentsPanel({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
-    //const [documents, setDocuments] = useState<any[]>([]);
     const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
-    //const [quotes, setQuotes] = useState<any[]>([]);
     const [openQuoteDialog, setOpenQuoteDialog] = useState<boolean>(false);
     const [acts, setActs] = useState<AppointmentActModel[]>([]);
 

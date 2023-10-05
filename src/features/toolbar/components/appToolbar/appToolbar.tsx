@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Avatar, Button, MenuItem, Stack, Tab, Tabs, tabsClasses, Typography, Zoom,} from "@mui/material";
+import {Avatar, Button, MenuItem, Stack, Tab, Tabs, tabsClasses, Typography,} from "@mui/material";
 import AppToolbarStyled from "./overrides/appToolbarStyle";
 import AddIcon from "@mui/icons-material/Add";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -7,8 +7,8 @@ import StyledMenu from "./overrides/menuStyle";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {documentButtonList} from "@features/toolbar/components/appToolbar/config";
 import Icon from "@themes/urlIcon";
-import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
+import {useTranslation} from "next-i18next";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {consultationSelector, SetRecord, SetSelectedDialog, SetTimer} from "@features/toolbar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -56,7 +56,8 @@ function AppToolbar({...props}) {
         setAnchorEl,
         setPatientShow,
         dialog, setDialog,
-        mutateSheetData
+        mutateSheetData,
+        setFilterDrawer
     } = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
@@ -525,16 +526,26 @@ function AppToolbar({...props}) {
             <AppToolbarStyled minHeight="inherit" width={1}>
                 {isMobile && <Stack direction={"row"} mt={2} justifyContent={"space-between"} alignItems={"center"}>
                     {patient && <Stack onClick={() => setPatientShow()} direction={"row"} alignItems={"center"} mb={1}>
-                        <Zoom>
-                            <Avatar
-                                src={patientPhoto
+                        <Avatar
+                            src={
+                                patientPhoto
                                     ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                                    : (patient?.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
-                                sx={{width: 40, height: 40, marginLeft: 2, marginRight: 2, borderRadius: 2}}>
-                                <IconUrl width={"40"} height={"40"} path="men-avatar"/>
-                            </Avatar>
-                        </Zoom>
-                        <Stack>
+                                    : patient?.gender === "M"
+                                        ? "/static/icons/men-avatar.svg"
+                                        : "/static/icons/women-avatar.svg"
+                            }
+                            sx={{
+                                width: 40,
+                                height: 40,
+                                marginLeft: 2,
+                                marginRight: 2,
+                                borderRadius: 2,
+                            }}>
+                            <IconUrl width={"40"} height={"40"} path="men-avatar"/>
+                        </Avatar>
+                        <Stack onClick={() => {
+                            setFilterDrawer(true)
+                        }}>
                             <Typography variant="body1" color='primary.main'
                                         sx={{fontFamily: 'Poppins'}}>{patient.firstName} {patient.lastName}</Typography>
                             <Typography variant="body2" color="text.secondary">{patient.fiche_id}</Typography>

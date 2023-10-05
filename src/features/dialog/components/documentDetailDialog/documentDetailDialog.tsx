@@ -328,8 +328,14 @@ function DocumentDetailDialog({...props}) {
                 setData({...data})
                 break;
             case "download":
-                if (generatedDocs.some(doc => doc == state?.type))
-                    printNow();
+                if (generatedDocs.some(doc => doc == state?.type)) {
+                    const file = await generatePdfFromHtml("blob");
+                    const fileURL = window.URL.createObjectURL((file as Blob));
+                    let alink = document.createElement('a');
+                    alink.href = fileURL;
+                    alink.download = `${state?.type} ${state?.patient}`
+                    alink.click();
+                }
                 else {
                     downloadF();
                 }

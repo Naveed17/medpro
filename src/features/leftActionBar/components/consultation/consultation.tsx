@@ -247,7 +247,7 @@ function Consultation() {
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
-                                        width: "100%"
+                                        width: "50%"
                                     }}>
                                     {patient?.firstName} {patient?.lastName}
                                 </Typography>

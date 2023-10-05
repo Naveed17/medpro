@@ -204,6 +204,8 @@ function PreviewDialog({...props}) {
                             }
                             if (state.cin)
                                 txt = txt.replaceAll('{cin}', state.cin)
+                            if (state.tel)
+                                txt = txt.replaceAll('{tel}', state.tel)
                             txt = txt.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt.replaceAll('[votre nom]', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt.replaceAll('&nbsp;', '')
