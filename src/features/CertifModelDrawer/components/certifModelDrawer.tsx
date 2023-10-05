@@ -1,6 +1,18 @@
 import * as Yup from "yup";
 import {FormikProvider, useFormik} from "formik";
-import {Box, Button, Card, CardContent, Stack, TextField, Tooltip, Typography, useTheme,} from "@mui/material";
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    MenuItem,
+    Select,
+    Stack,
+    TextField,
+    Tooltip,
+    Typography,
+    useTheme,
+} from "@mui/material";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
@@ -25,7 +37,7 @@ function CertifModelDrawer({...props}) {
 
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
-    const {data, action, isdefault} = props;
+    const {data, action, isDefault, certificateFolderModel} = props;
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -55,12 +67,17 @@ function CertifModelDrawer({...props}) {
             .min(3, t("nameReq"))
             .max(50, t("ntl"))
             .required(t("nameReq")),
+        folder: Yup.string()
+            .min(3, t("nameReq"))
+            .max(50, t("ntl"))
+            .required(t("nameReq")),
     });
 
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
             title: data ? (data.title as string) : "",
+            folder: data ? (data.folder as string) : "",
             content: data ? (data.content as string) : "",
         },
         validationSchema,
@@ -69,6 +86,7 @@ function CertifModelDrawer({...props}) {
             form.append('content', values.content);
             form.append('color', modelColor);
             form.append('title', values.title);
+            values.folder?.length > 0 && form.append('folder', values.folder);
             let url = `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
             if (data) {
                 url = `${urlMedicalProfessionalSuffix}/certificate-modals/${data.uuid}/${router.locale}`
@@ -109,8 +127,8 @@ function CertifModelDrawer({...props}) {
             {action === "showDoc" ? <Box padding={5}>
                 <PreviewA4  {...{
                     eventHandler: null,
-                    data: isdefault?.header.data,
-                    values: isdefault?.header.header,
+                    data: isDefault?.header.data,
+                    values: isDefault?.header.header,
                     state: {
                         content: data.content,
                         description: "",
@@ -214,6 +232,19 @@ function CertifModelDrawer({...props}) {
                             helperText={touched.title && errors.title}
                             {...getFieldProps("title")}
                             error={Boolean(touched.title && errors.title)}/>
+
+                        <Typography
+                            marginTop={2}
+                            marginBottom={1}
+                            fontSize={12}>{t('dir')}</Typography>
+                        <Select
+                            sx={{width: "100%"}}
+                            size={"small"}
+                            {...getFieldProps("folder")}>
+                            {certificateFolderModel.map((folder: any, index: number) => <MenuItem
+                                key={index}
+                                value={folder.uuid}>{folder.name}</MenuItem>)}
+                        </Select>
 
                         <Typography
                             variant="body2"
