@@ -16,8 +16,9 @@ function MotifCard({...props}) {
         }
     }
     const checkKey = (key: string) => {
-        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth";
+        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth" && key !=="eyes";
     }
+
     return (
         <RootStled>
             <Grid container spacing={2}>
