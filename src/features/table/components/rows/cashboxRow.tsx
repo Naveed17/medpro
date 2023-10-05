@@ -475,7 +475,7 @@ function PaymentRow({...props}) {
                                                     }}>
                                                     <Icon path="ic-agenda"/>
                                                     <Typography
-                                                        variant="body2">{moment(col.payment_date.date).format('DD-MM-YYYY')}</Typography>
+                                                        variant="body2">{col.payment_date}</Typography>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell style={{
