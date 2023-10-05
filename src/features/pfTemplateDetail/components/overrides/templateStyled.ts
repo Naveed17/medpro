@@ -53,8 +53,8 @@ const TemplateStyled = styled("div")(({theme}) => ({
         overflow: "hidden",
         display: "-webkit-box",
         maxWidth: 110,
-        "-webkit-line-clamp": "1",
-        "-webkit-box-orient": "vertical"
+        //"-webkit-line-clamp": "1",
+        //"-webkit-box-orient": "vertical"
     },
     "& .color-content": {
         width: 15,

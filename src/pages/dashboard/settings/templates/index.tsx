@@ -37,6 +37,7 @@ import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {TabPanel} from "@features/tabPanel";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
+import DescriptionRoundedIcon from '@mui/icons-material/DescriptionRounded';
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -216,8 +217,8 @@ function TemplatesConfig() {
     useEffect(() => {
         const res: any[] = [];
         if (httpAnalysesResponse) {
-            const _analysis = (httpAnalysesResponse as HttpResponse)?.data as AnalysisModelModel[]
-            _analysis.forEach(r => {
+            const analysis = (httpAnalysesResponse as HttpResponse)?.data as AnalysisModelModel[]
+            analysis.forEach(r => {
                 const info = r.analyses.map((ra) => ({analysis: ra, note: ''}))
                 res.push({uuid: r.uuid, name: r.name, info})
             });
@@ -325,11 +326,11 @@ function TemplatesConfig() {
                         onChange={(event, value) => setCertificateTabIndex(value)}
                         aria-label="balance sheet tabs">
                         <Tab
-                            icon={<FolderRoundedIcon/>}
+                            icon={<DescriptionRoundedIcon/>}
                             iconPosition="start"
                             disableFocusRipple
                             disableRipple
-                            label={"Unfoldred"}
+                            label={t("unfolded")}
                             {...a11yProps(0)}/>
                         {certificateFolderModel.map(folder => <Tab
                             key={folder.uuid}
@@ -689,11 +690,11 @@ function TemplatesConfig() {
                                     </IconButton>
                                     <IconButton size="small" onClick={() => {
 
-                                        let _analysis: AnalysisModel[] = [];
+                                        let analysis: AnalysisModel[] = [];
                                         card.info.map((info: { analysis: AnalysisModel; }) => {
-                                            _analysis.push(info.analysis)
+                                            analysis.push(info.analysis)
                                         })
-                                        setState(_analysis);
+                                        setState(analysis);
                                         setModel(card)
                                         setInfo('balance_sheet_request');
                                         setOpenDialog(true);

@@ -85,7 +85,7 @@ function CertifDialog({...props}) {
         {name: '{aujourd\'hui}', title: 'today', show: true},
         {name: '{age}', title: 'age', show: data.state.brithdate},
         {name: '{birthdate}', title: 'birthdate', show: data.state.brithdate},
-        {name: '{cin}', title: 'cin', show: data.state.cin},
+        {name: '{cin}', title: 'cin', show: data.state.cin}
     ];
 
     const {trigger: triggerModelsCreate} = useRequestQueryMutation("/certif-models/create");
