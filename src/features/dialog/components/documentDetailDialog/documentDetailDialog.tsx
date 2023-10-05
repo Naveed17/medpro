@@ -627,7 +627,7 @@ function DocumentDetailDialog({...props}) {
                                     <TransformWrapper initialScale={1}>
                                         {({zoomIn, zoomOut, resetTransform}) => (
                                             <React.Fragment>
-                                                <Stack justifyContent={"end"} mr={2}>
+                                                <Stack justifyContent={"end"} direction={"row"} mr={2} ml={2}>
                                                     <ToggleButtonGroup className={"zoombar"} size="small"
                                                                        aria-label="Small sizes">
                                                         <ToggleButton onClick={() => zoomIn()} value="left"
