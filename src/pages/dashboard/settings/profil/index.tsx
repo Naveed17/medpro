@@ -235,7 +235,7 @@ function Profil() {
                                     src={
                                         medical_entity.profilePhoto
                                             ? medical_entity.profilePhoto
-                                            : "/static/img/avatar.svg"
+                                            : "/static/icons/Med-logo_.svg"
                                     }
                                 />
                             )}
