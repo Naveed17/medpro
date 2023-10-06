@@ -747,7 +747,7 @@ function AppToolbar({...props}) {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{appuuid: app_uuid, state, setState, t, setOpenDialog}}
+                    data={{appuuid: app_uuid, patient, state, setState, t, setOpenDialog}}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
                     direction={"ltr"}
                     sx={{height: info === "insurance_document_print" ? 600 : 480}}

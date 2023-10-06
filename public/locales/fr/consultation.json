@@ -125,6 +125,7 @@
     "title": "Titre",
     "receiver": "Recipient",
     "subject": "Sujet",
+    "sendEmailWithsuccess": "Email envoyé avec succès",
     "content": "Contenu",
     "send_document_joint": "Joindre le fichier",
     "email": "Envoyer par e-mail",
