@@ -52,6 +52,7 @@ import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import generatePDF from "react-to-pdf";
 import {useSnackbar} from "notistack";
+import {BlendMode, PDFDocument} from "pdf-lib";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -112,7 +113,7 @@ function DocumentDetailDialog({...props}) {
         }
     })
     const [sendEmailDrawer, setSendEmailDrawer] = useState(false);
-    const [previewDoc, setPreviewDoc] = useState<ArrayBuffer | File | null>(null);
+    const [previewDoc, setPreviewDoc] = useState<any>(null);
 
     const {direction} = useAppSelector(configSelector);
 
@@ -335,8 +336,7 @@ function DocumentDetailDialog({...props}) {
                     alink.href = fileURL;
                     alink.download = `${state?.type} ${state?.patient}`
                     alink.click();
-                }
-                else {
+                } else {
                     downloadF();
                 }
                 break;
@@ -365,7 +365,10 @@ function DocumentDetailDialog({...props}) {
         });
     }
 
-    const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
+    const eventHandler = (ev: any, location: {
+        x: any;
+        y: any;
+    }, from: string) => {
         data[from].x = location.x
         data[from].y = location.y
         setData({...data})
@@ -487,7 +490,9 @@ function DocumentDetailDialog({...props}) {
                 } else {
                     const templates: any[] = [];
                     const slug = slugs[generatedDocs.findIndex(gd => gd === state?.type)];
-                    docInfo.map((di: { types: any[]; }) => {
+                    docInfo.map((di: {
+                        types: any[];
+                    }) => {
                         if (di.types.find(type => type.slug === slug))
                             templates.push(di)
                     })
@@ -502,7 +507,9 @@ function DocumentDetailDialog({...props}) {
                         })
                         setHeader(templates[0].header.header)
                     } else {
-                        const defaultdoc = docInfo.find((di: { isDefault: any; }) => di.isDefault);
+                        const defaultdoc = docInfo.find((di: {
+                            isDefault: any;
+                        }) => di.isDefault);
                         if (defaultdoc) {
                             setSelectedTemplate(defaultdoc.uuid)
                             setData({

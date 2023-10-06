@@ -51,8 +51,7 @@ export const addPatientReducer = createReducer(initialPatientState, (builder) =>
         state.stepsData.submit = action.payload;
     }).addCase(setOpenUploadDialog, (state, action) => {
         state.openUploadDialog = action.payload;
-    })
-        .addCase(onResetPatient, (state, action) => {
-            return {...state, ...initialPatientState}
-        });
+    }).addCase(onResetPatient, (state, action) => {
+        return {...state, ...initialPatientState}
+    });
 });

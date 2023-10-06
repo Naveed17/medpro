@@ -315,7 +315,7 @@ function CertifDialog({...props}) {
                     }))
                 ]);
             });
-            modelsList.length > 0 && certifiesModel.push(...modelsList.map((model: CertifModel) => ({
+            modelsList.length > 0 && certifiesModel.push(...modelsList.reverse().map((model: CertifModel) => ({
                 id: model.uuid,
                 parent: 0,
                 color: model.color ? model.color : '#0696D6',
