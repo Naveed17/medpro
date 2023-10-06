@@ -112,7 +112,7 @@ function AddPatientStep1({...props}) {
             })
         ),
         old: Yup.string(),
-        birthdate: Yup.object().shape({
+        birthdate: Yup.object().nullable().shape({
             day: Yup.string(),
             month: Yup.string(),
             year: Yup.string(),
@@ -142,11 +142,7 @@ function AddPatientStep1({...props}) {
                 day: stepsData.step1.birthdate.day,
                 month: stepsData.step1.birthdate.month,
                 year: stepsData.step1.birthdate.year
-            } : {
-                day: "",
-                month: "",
-                year: "",
-            },
+            } : null,
             phones: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
                 [
                     {

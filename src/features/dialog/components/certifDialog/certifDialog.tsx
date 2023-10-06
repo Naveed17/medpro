@@ -353,8 +353,8 @@ function CertifDialog({...props}) {
                     <List sx={{
                         width: '100%',
                         bgcolor: 'background.paper',
-                        overflowX: "scroll",
-                        height: '24rem',
+                        overflow: "scroll",
+                        height: '96%',
                         paddingRight: 2
                     }}>
                         <Stack spacing={1}>

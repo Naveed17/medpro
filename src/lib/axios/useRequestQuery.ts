@@ -27,10 +27,8 @@ function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {
                 }),
                 signal
             }) : null, {
-                enabled:
-                    (request?.url?.length ?? 0) > 0 && queryKey.length > 0,
-                ...
-                    config
+                enabled: (request?.url?.length ?? 0) > 0 && queryKey.length > 0,
+                ...config
             }
         )
     ;
