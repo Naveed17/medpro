@@ -750,9 +750,9 @@ function AppToolbar({...props}) {
                     data={{appuuid: app_uuid, state, setState, t, setOpenDialog}}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
                     direction={"ltr"}
-                    sx={{height: info === "insurance_document_print" ? 600 : 400}}
+                    sx={{height: info === "insurance_document_print" ? 600 : 480}}
                     {...(info === "document_detail" && {
-                        sx: {height: 400, p: 0},
+                        sx: {height: 480, p: 0},
                     })}
                     title={t(info === "document_detail" ? "doc_detail_title" : info)}
                     {...(info === "document_detail" && {
