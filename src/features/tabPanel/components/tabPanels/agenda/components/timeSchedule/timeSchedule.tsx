@@ -239,11 +239,8 @@ function TimeSchedule({...props}) {
             data: params
         }, {
             onSuccess: () => mutateReasonsData().then((result: any) => {
-                const {status} = result?.data;
-                const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
-                if (status === "success") {
-                    onChangeReason([...reasons.filter(reason => selectedReasons.includes(reason.uuid)), reasonsUpdated[0]]);
-                }
+                const reasonsUpdated = (result?.data as HttpResponse)?.data?.data as ConsultationReasonModel[];
+                onChangeReason([...reasons.filter(reason => selectedReasons.includes(reason.uuid)), reasonsUpdated[0]]);
                 setLoadingReq(false);
             })
         });

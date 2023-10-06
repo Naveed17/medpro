@@ -30,7 +30,6 @@ import HistoryAppointementContainer from "@features/card/components/historyAppoi
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {WidgetForm} from "@features/widget";
 import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
-import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import {DocumentsTab, EventType, FeesTab, HistoryTab, Instruction, TabPanel, TimeSchedule} from "@features/tabPanel";
 import AppointHistoryContainerStyled
     from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
@@ -48,7 +47,6 @@ import {cashBoxSelector, ConsultationFilter} from "@features/leftActionBar";
 import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
-import {MobileContainer} from "@themes/mobileContainer";
 import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
 import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
 import {Session} from "next-auth";
@@ -228,6 +226,7 @@ function ConsultationInProgress() {
                 } ${patient?.lastName}`,
                 birthdate: patient?.birthdate,
                 cin: patient?.idCard,
+                tel: patient?.contact && patient?.contact.length > 0 ? patient?.contact[0] : "",
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -510,6 +509,7 @@ function ConsultationInProgress() {
 
         form.append("content", state.content);
         form.append("title", state.title);
+        form.append("header", state.documentHeader);
 
         triggerDocumentChat({
             method: "POST",
@@ -602,10 +602,10 @@ function ConsultationInProgress() {
     }, [tableState.patientId]);
 
     useEffect(() => {
-            setLoading(true)
-            mutateSheetData().then(() => {
-                setLoading(false)
-            })
+        setLoading(true)
+        mutateSheetData().then(() => {
+            setLoading(false)
+        })
     }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -630,7 +630,8 @@ function ConsultationInProgress() {
                        width={"100%"}>
                     <Stack spacing={1.5} direction="row" alignItems="center">
                         <IconUrl path={'ic-speaker'}/>
-                        <Typography>{t('consultationIP.updateHistory')} <b>{sheet?.date}</b>.</Typography>
+                        {!isMobile &&
+                            <Typography>{t('consultationIP.updateHistory')} <b>{sheet?.date}</b>.</Typography>}
                     </Stack>
                     <LoadingButton
                         disabled={false}
@@ -670,7 +671,8 @@ function ConsultationInProgress() {
                         mutatePatient,
                         mutateSheetData,
                         setAnchorEl,
-                        dialog, setDialog
+                        dialog, setDialog,
+                        setFilterDrawer
                     }}
                     setPatientShow={() => setFilterDrawer(!drawer)}
                 />
@@ -922,7 +924,7 @@ function ConsultationInProgress() {
                                     <span>{t("total")} : </span>
                                 </Typography>
                                 <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                    {isNaN(total) ? "-" : total} {devise}
+                                    {isNaN(total) || total < 0 ? "-" : total} {devise}
                                 </Typography>
                                 <Stack
                                     direction="row"
@@ -1084,36 +1086,18 @@ function ConsultationInProgress() {
                 />
             )}
 
-
-            <MobileContainer>
-                <Button
-                    startIcon={<IconUrl path="ic-filter"/>}
-                    variant="filter"
-                    onClick={() => setFilterDrawer(true)}
-                    sx={{
-                        position: "fixed",
-                        bottom: 100,
-                        transform: "translateX(-50%)",
-                        left: "50%",
-                        zIndex: 999,
-
-                    }}>
-                    {t("filter.title")}{" "}(0)
-                </Button>
-            </MobileContainer>
-
-
             <Fab sx={{
                 position: "fixed",
                 bottom: 76,
                 right: 30
             }}
+                 size={"small"}
                  onClick={() => {
                      setOpenChat(true)
                  }}
                  color={"primary"}
                  aria-label="edit">
-                <SmartToyOutlinedIcon/>
+                <IconUrl path={'ic-chatbot'}/>
             </Fab>
         </>
     );

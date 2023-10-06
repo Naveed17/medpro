@@ -468,7 +468,7 @@ function Cashbox() {
                         <DesktopContainer>
                             {!loading && (
                                 <Otable
-                                    {...{rows, t, insurances, pmList, mutateTransactions}}
+                                    {...{rows, t, insurances, pmList, mutateTransactions,filterCB}}
                                     headers={headCells}
                                     from={"cashbox"}
                                     handleEvent={handleTableActions}

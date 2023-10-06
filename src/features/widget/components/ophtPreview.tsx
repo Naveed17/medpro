@@ -18,7 +18,7 @@ import SaveIcon from '@mui/icons-material/Save';
 
 export default function OphtPreview({...props}) {
 
-    let {t, printGlasses, appuuid, url, triggerAppointmentEdit} = props
+    let {t, printGlasses, appuuid, url, triggerAppointmentEdit,data} = props
     const subTitle = ['av', 'sphere', 'cylindre', 'axe']
 
     const [acuiteVisuelle, setAcuiteVisuelle] = useState([
@@ -77,16 +77,6 @@ export default function OphtPreview({...props}) {
 
     const [open, setOpen] = useState(false);
     const [selectedEl, setSelectedEl] = useState<any>(null);
-    const [selectedExam, setSelectedExam] = useState<any>(null);
-
-    useEffect(() => {
-        const local = localStorage.getItem(`Modeldata${appuuid}`);
-        const res = local ? JSON.parse(local) : null;
-        if (res && res.eyes) {
-            res.eyes.acuiteVisuelle && setAcuiteVisuelle(res.eyes.acuiteVisuelle);
-            res.eyes.examination && setExamination(res.eyes.examination);
-        }
-    }, [localStorage.getItem(`Modeldata${appuuid}`)])
 
     const getOptions = (el: string, from: string) => {
         let res = []
@@ -97,9 +87,17 @@ export default function OphtPreview({...props}) {
         return res
     }
 
+    useEffect(() => {
+        console.log(data)
+        if (data && data.eyes) {
+            data.eyes.acuiteVisuelle && setAcuiteVisuelle([...data.eyes.acuiteVisuelle]);
+            data.eyes.examination && setExamination([...data.eyes.examination]);
+        }
+    }, [data]) // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <Stack spacing={1}>
-            <Typography color={"primary"}
+            <Typography color={"#0696D6"}
                         fontSize={13}
                         textAlign={"center"}>{t('ophtalmologiqueExam')}</Typography>
 
@@ -122,7 +120,7 @@ export default function OphtPreview({...props}) {
                 </tbody>
             </OphtTableStyled>
 
-            <Typography color={"primary"}
+            <Typography color={"#0696D6"}
                         fontSize={13}
                         textAlign={"center"}>{t('ac')}</Typography>
 
@@ -188,14 +186,14 @@ export default function OphtPreview({...props}) {
                 <DialogTitle style={{
                     marginBottom: 15,
                     borderBottom: "1px solid #eeeff1",
+                    color:"#0696D6"
                 }}
                              id="draggable-dialog-title">
-                    {'title'}
-                    <Typography fontSize={12} style={{color: "rgb(115, 119, 128)"}}>{'subtitle'}</Typography>
+                    {t('ophtalmologiqueExam')}
+                    <Typography fontSize={12} style={{color: "rgb(115, 119, 128)"}}>& {t('ac')}</Typography>
                 </DialogTitle>
                 <DialogContent>
 
-                    <Typography color={"primary"} style={{marginBottom: 8}}>{t('ophtalmologiqueExam')}</Typography>
 
                     <DialogTableStyled style={{width: "100%"}}
                                        onClick={() => {
@@ -259,7 +257,7 @@ export default function OphtPreview({...props}) {
                         </tbody>
                     </DialogTableStyled>
 
-                    <Typography color={"primary"} style={{marginBottom: 8, marginTop: 20}}>{t('ac')}</Typography>
+                    <Typography color={"#0696D6"} style={{marginBottom: 8, marginTop: 20}}>{t('ac')}</Typography>
                     <DialogTableStyled style={{width: "100%"}}>
                         <tbody>
                         <tr>
@@ -349,7 +347,7 @@ export default function OphtPreview({...props}) {
                 </DialogContent>
                 <DialogActions style={{borderTop: "1px solid #eeeff1"}}>
 
-                    <Button size={"small"} color={"primary"}
+                    <Button size={"small"}
                             onClick={() => {
                                 printGlasses([{
                                         pfl: acuiteVisuelle.filter(av => av.ref === "pf"),
@@ -358,10 +356,14 @@ export default function OphtPreview({...props}) {
                                 )
                             }}
                             startIcon={<IconUrl path="ic-imprime"/>}>
-                        <Typography>{t('pg')}</Typography>
+                        <Typography style={{textTransform:"initial",color:"#0696D6"}}>{t('pg')}</Typography>
                     </Button>
 
                     <Button variant="contained"
+                            style={{
+                                background: '#0696D6',
+                                margin: 10
+                            }}
                             onClick={() => {
                                 setOpen(false)
                                 const data = localStorage.getItem(`Modeldata${appuuid}`)

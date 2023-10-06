@@ -6,10 +6,13 @@ import {Button, Divider, IconButton, InputBase, LinearProgress, Paper, Theme, us
 import {PatientAppointmentCard} from "@features/card";
 import AddIcon from '@mui/icons-material/Add';
 import {debounce} from "lodash";
+import {onResetPatient} from "@features/tabPanel";
+import {useAppDispatch} from "@lib/redux/hooks";
 
 function AutoComplete({...props}) {
     const {data, loading, onSelectData, onSearchChange, t, onAddPatient} = props;
 
+    const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
 
     const [focus, setFocus] = useState(true);
@@ -19,8 +22,9 @@ function AutoComplete({...props}) {
     }, [onSearchChange]);
 
     const handleOnAddPatient = useCallback((event: any) => {
+        dispatch(onResetPatient());
         onAddPatient(event);
-    }, [onAddPatient]);
+    }, [dispatch, onAddPatient]);
 
     const handleListItemClick = ({...props}) => {
         onSelectData(props);

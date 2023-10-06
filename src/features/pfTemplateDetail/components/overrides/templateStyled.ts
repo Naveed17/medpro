@@ -7,7 +7,7 @@ const TemplateStyled = styled("div")(({theme}) => ({
     rowGap: 0,
     "& .container": {
         padding: 5,
-        position: "relative",
+        position: "relative"
     },
     "& .heading": {
         display: "inline-block",
@@ -53,8 +53,8 @@ const TemplateStyled = styled("div")(({theme}) => ({
         overflow: "hidden",
         display: "-webkit-box",
         maxWidth: 110,
-        "-webkit-line-clamp": "1",
-        "-webkit-box-orient": "vertical"
+        //"-webkit-line-clamp": "1",
+        //"-webkit-box-orient": "vertical"
     },
     "& .color-content": {
         width: 15,

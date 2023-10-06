@@ -18,6 +18,14 @@ const dialogData = [
         ),
     },
     {
+        action: "send-email",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/sendEmailDialog/sendEmailDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
         action: "mode",
         component: dynamic((): any =>
             import("@features/dialog/components/modeRegDialog/modeRegDialog").then(

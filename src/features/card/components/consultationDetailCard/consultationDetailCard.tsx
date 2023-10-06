@@ -147,8 +147,8 @@ function CIPPatientHistoryCard({...props}) {
             data: params
         }, {
             onSuccess: () => mutateReasonsData().then((result: any) => {
-                const {status} = result?.data;
-                const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
+                const {status, data} = result?.data?.data;
+                const reasonsUpdated = data as ConsultationReasonModel[];
                 if (status === "success") {
                     handleReasonChange([...reasons.filter((reason: {
                         uuid: any;
@@ -247,19 +247,19 @@ function CIPPatientHistoryCard({...props}) {
                        transform: hide ? "rotate(90deg)" : "rotate(0)",
                        transformOrigin: "left",
                        width: hide ? "44.5rem" : "auto",
-                       left:  23,
+                       left: 23,
                        top: -26,
                    }}
                    borderColor="divider">
                 {hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
-                        if(isClose){
+                        if (isClose) {
                             return
                         }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
-                       
+
                     }}
                     className="btn-collapse"
                     disableRipple>
@@ -274,12 +274,12 @@ function CIPPatientHistoryCard({...props}) {
                 {!hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
-                        if(isClose){
+                        if (isClose) {
                             return
                         }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
-                        
+
                     }}
                     className="btn-collapse"
                     disableRipple>
@@ -391,31 +391,31 @@ function CIPPatientHistoryCard({...props}) {
                             </Stack>
                             {
                                 !editNote && <div className={"contentPreview"}
-                                               onClick={() => {
-                                                   setEditNote(true)
-                                               }}
-                                               dangerouslySetInnerHTML={{__html: values.notes ? values.notes : '<p class="preview">--</p>'}}/>
+                                                  onClick={() => {
+                                                      setEditNote(true)
+                                                  }}
+                                                  dangerouslySetInnerHTML={{__html: values.notes ? values.notes : '<p class="preview">--</p>'}}/>
                             }
                             {
                                 editNote && <Editor
-                                value={values.notes}
-                                apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
-                                onEditorChange={(event) => {
-                                    setFieldValue("notes", event);
-                                }}
-                                onBlur={()=>{
-                                    saveChanges("notes",values.notes)
-                                }}
-                                init={{
-                                    branding: false,
-                                    statusbar: false,
-                                    menubar: false,
-                                    height: 200,
-                                    toolbar_mode: 'scrolling',
-                                    plugins: tinymcePlugins,
-                                    toolbar: tinymceToolbar,
-                                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                                }}/>
+                                    value={values.notes}
+                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    onEditorChange={(event) => {
+                                        setFieldValue("notes", event);
+                                    }}
+                                    onBlur={() => {
+                                        saveChanges("notes", values.notes)
+                                    }}
+                                    init={{
+                                        branding: false,
+                                        statusbar: false,
+                                        menubar: false,
+                                        height: 200,
+                                        toolbar_mode: 'scrolling',
+                                        plugins: tinymcePlugins,
+                                        toolbar: tinymceToolbar,
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}/>
                             }
                         </Box>
                         <Box width={1}>
@@ -426,10 +426,10 @@ function CIPPatientHistoryCard({...props}) {
                             </Stack>
                             {
                                 !editDiagnosic && <div className={"contentPreview"}
-                                                  onClick={() => {
-                                                      setEditDiagnosic(true)
-                                                  }}
-                                                  dangerouslySetInnerHTML={{__html: values.diagnosis ? values.diagnosis : '<p class="preview">--</p>'}}/>
+                                                       onClick={() => {
+                                                           setEditDiagnosic(true)
+                                                       }}
+                                                       dangerouslySetInnerHTML={{__html: values.diagnosis ? values.diagnosis : '<p class="preview">--</p>'}}/>
                             }
                             {
                                 editDiagnosic && <Editor
@@ -438,7 +438,9 @@ function CIPPatientHistoryCard({...props}) {
                                     onEditorChange={(event) => {
                                         setFieldValue("diagnosis", event)
                                     }}
-                                    onBlur={()=>{saveChanges("diagnosis",values.diagnosis)}}
+                                    onBlur={() => {
+                                        saveChanges("diagnosis", values.diagnosis)
+                                    }}
                                     init={{
                                         branding: false,
                                         statusbar: false,

@@ -64,9 +64,10 @@ function CipCard({...props}) {
                             {moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss')}
                         </Typography>
                     </Box>
-                    <Label color='warning' variant='filled' className='label'>
-                        {event?.extendedProps.type?.name ?? (typeof event?.extendedProps.type === "string" ? event?.extendedProps.type : "")}
-                    </Label>
+                    {(event?.extendedProps.type?.name || typeof event?.extendedProps.type === "string") &&
+                        <Label color='warning' variant='filled' className='label'>
+                            {event?.extendedProps.type?.name ?? (typeof event?.extendedProps.type === "string" ? event?.extendedProps.type : "")}
+                        </Label>}
                 </Stack>
             </CipCardStyled>
         </>
