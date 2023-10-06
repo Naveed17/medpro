@@ -75,7 +75,11 @@ function TemplatesConfig() {
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
     } : null);
 
-    const {data: httpModelResponse, isLoading: isCertificateModelLoading, mutate: mutateCertif} = useRequestQuery(urlMedicalProfessionalSuffix ? {
+    const {
+        data: httpModelResponse,
+        isLoading: isCertificateModelLoading,
+        mutate: mutateCertif
+    } = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
     } : null);
@@ -364,10 +368,11 @@ function TemplatesConfig() {
 
                         {isDefault && !isCertificateModelLoading && certificateModel.map(res => (
                             <Box key={res.uuid} className={"container"}>
-                                <div onMouseOver={() => {
-                                    handleMouseOver(res.uuid)
-                                }}
-                                     onMouseOut={handleMouseOut}>
+                                <div
+                                    onMouseOver={() => {
+                                        handleMouseOver(res.uuid)
+                                    }}
+                                    onMouseOut={handleMouseOut}>
                                     <PreviewA4  {...{
                                         eventHandler: null,
                                         data: isDefault?.header.data,
@@ -560,7 +565,10 @@ function TemplatesConfig() {
                                         t,
                                         state: {
                                             info: card.prescriptionModalHasDrugs.map((pmhd: any) =>
-                                                ({...pmhd, standard_drug: {commercial_name: pmhd.name, uuid: pmhd.drugUuid}})),
+                                                ({
+                                                    ...pmhd,
+                                                    standard_drug: {commercial_name: pmhd.name, uuid: pmhd.drugUuid}
+                                                })),
                                             description: "",
                                             doctor: "",
                                             name: "prescription",
@@ -578,7 +586,10 @@ function TemplatesConfig() {
                                     }}>
                                         <IconButton size="small" onClick={() => {
                                             const prescriptionModalHasDrugs = card.prescriptionModalHasDrugs.map((pmhd: any) =>
-                                                ({...pmhd, standard_drug: {commercial_name: pmhd.name, uuid: pmhd.drugUuid}}))
+                                                ({
+                                                    ...pmhd,
+                                                    standard_drug: {commercial_name: pmhd.name, uuid: pmhd.drugUuid}
+                                                }))
                                             setData({
                                                 uuid: card.uuid,
                                                 name: card.name,
@@ -593,7 +604,10 @@ function TemplatesConfig() {
 
                                         <IconButton size="small" onClick={() => {
                                             const prescriptionModalHasDrugs = card.prescriptionModalHasDrugs.map((pmhd: any) =>
-                                                ({...pmhd, standard_drug: {commercial_name: pmhd.name, uuid: pmhd.drugUuid}}))
+                                                ({
+                                                    ...pmhd,
+                                                    standard_drug: {commercial_name: pmhd.name, uuid: pmhd.drugUuid}
+                                                }))
                                             setModel({
                                                 uuid: card.uuid,
                                                 name: card.name,

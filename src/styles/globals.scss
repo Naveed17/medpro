@@ -429,7 +429,7 @@ fieldset {
         color: #00234B
       }
 
-      ;
+    ;
 
       svg {
         path {
@@ -468,4 +468,8 @@ fieldset {
 .fc-timegrid-body,
 .fc-timegrid-body table {
   width: 100% !important;
+}
+
+.react-draggable > div > div {
+  opacity: 1 !important;
 }
