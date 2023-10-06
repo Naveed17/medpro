@@ -958,7 +958,7 @@ function Agenda() {
         setOpenUploadDialog({...openUploadDialog, loading: true});
         const params = new FormData();
         documentConfig.files.map((file: any) => {
-            params.append(`files[${file.type}][]`, file.file, file.name);
+            params.append(`files[${file.type}][]`, file.file, file.name.slice(0, 20));
         });
         triggerUploadDocuments({
             method: "POST",
