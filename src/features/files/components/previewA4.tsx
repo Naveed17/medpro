@@ -319,6 +319,7 @@ function PreviewDialog({...props}) {
             el.id = `page${i}`
             el.style.position = "absolute"
             el.style.top = "0"
+            el.style.opacity = "0"
             if (state && (state.type === 'fees' || state.type === 'quote')) {
                 let total = 0;
                 const elx = document.createElement("table");
@@ -408,6 +409,7 @@ function PreviewDialog({...props}) {
         pageX.style.visibility = "hidden"
         pageX.style.position = "absolute"
         pageX.style.top = "0"
+        pageX.style.opacity = "0"
         document.body.append(pageX)
         if (state) {
             if (state.info)
@@ -451,7 +453,7 @@ function PreviewDialog({...props}) {
                         date,
                         loading,
                         pages
-                    }}></PrescriptionA4>
+                    }}/>
                 </div>
             ))}
         </>

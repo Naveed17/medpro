@@ -5,7 +5,7 @@ import RootStyled from "./overrides/rootStyled";
 // utils
 import CallIcon from "@mui/icons-material/Call";
 import IconUrl from "@themes/urlIcon";
-import React, {useEffect, useRef, useState,useLayoutEffect} from "react";
+import React, {useEffect, useRef, useState, useLayoutEffect} from "react";
 import {Label} from "@features/label";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -44,11 +44,11 @@ function AppointmentPopoverCard({...props}) {
                     fontWeight={400}
                     textAlign="center"
                     noWrap
-                     {...(!data as any && {
-                            sx:{
-                               width: height - 18
-                            }
-                        })}
+                    {...(!data as any && {
+                        sx: {
+                            width: height - 18
+                        }
+                    })}
                     fontSize={12}>
                     {data?.type?.name ?? <Skeleton variant="rectangular" width={height}/>}
                 </Typography>
@@ -164,6 +164,12 @@ function AppointmentPopoverCard({...props}) {
                 </Box>
                 <Box>
                     <Typography
+                        sx={{
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            width: "200px"
+                        }}
                         variant="body1"
                         color="text.primary"
                         fontWeight={700}
