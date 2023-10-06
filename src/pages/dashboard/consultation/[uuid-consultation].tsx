@@ -509,6 +509,7 @@ function ConsultationInProgress() {
 
         form.append("content", state.content);
         form.append("title", state.title);
+        form.append("header", state.documentHeader);
 
         triggerDocumentChat({
             method: "POST",
