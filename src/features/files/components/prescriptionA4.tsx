@@ -8,6 +8,7 @@ const Prescription = ({...props}) => {
     const {componentRef, eventHandler, data, pages, id, values, state, loading, date, title} = props;
     const content = useRef<HTMLDivElement>(null);
     const footer = useRef<HTMLDivElement>(null);
+    const [backgroundImg, setBackgroundImg] = useState<string | null>(null);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
     const [selected, setSelected] = useState("");
@@ -21,20 +22,38 @@ const Prescription = ({...props}) => {
         }
     }, [data, id, loading, pages])
 
-    return (<>
-        {data !== undefined && <div className={"portraitA4"} ref={componentRef} style={{
-            position: "relative",
-            zoom: isMobile ? '40%' : '',
-            marginBottom: isMobile ? 80 : '',
-            marginLeft: isMobile ? 30 : '',
-            fontSize: data.size === 'portraitA4' ? '15px' : ''
-        }}>
+    useEffect(() => {
+        if (data.background.show && data.background.content !== '') {
+            fetch(data.background.content.url).then(response => {
+                response.blob().then(blob => {
+                    setBackgroundImg(URL.createObjectURL(blob));
+                })
+            })
+        }
+    }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
 
-            {data.background.show && data.background.content !== '' && id === 0 &&
+    return (<>
+        {<div className={"portraitA4"}
+              ref={componentRef}
+              style={{
+                  position: "relative",
+                  zoom: isMobile ? '40%' : '',
+                  marginBottom: isMobile ? 80 : '',
+                  marginLeft: isMobile ? 30 : '',
+                  fontSize: data.size === 'portraitA4' ? '15px' : '',
+                  ...(data.background.show && data.background.content !== '' && id === 0 && backgroundImg && {
+                      backgroundImage: `url(${backgroundImg})`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundSize: "100% 100%"
+                  }),
+
+              }}>
+
+            {/*            {data.background.show && data.background.content !== '' && id === 0 && backgroundImg &&
                 // eslint-disable-next-line @next/next/no-img-element
                 <img className={"portraitA4"}
                      style={{position: "absolute", height: '100%', width: '100%'}}
-                     src={data.background.content.url} alt={'background'}/>}
+                     src={backgroundImg} alt={'background'}/>}*/}
 
             {data.header.show && id === 0 && <Draggable
                 onStop={(ev, data) => {

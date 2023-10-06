@@ -50,7 +50,7 @@ function InsuranceDocumentPrint({...props}) {
                         onSuccess: async (result: any) => {
                             const data = (result?.data as HttpResponse)?.data;
                             const docFile = await fetch(data.url).then((res) => res.arrayBuffer());
-                            const firstDonorPdfDoc = await PDFDocument.load(docFile)
+                            const firstDonorPdfDoc = await PDFDocument.load(docFile);
                             const [CNAMDocP1] = await pdfDoc.copyPages(firstDonorPdfDoc, [0]);
                             const [CNAMDocP2] = await pdfDoc.copyPages(firstDonorPdfDoc, [1]);
                             const [cnamPatientInfoP1] = await pdfDoc.embedPdf(docUpdated, [0]);

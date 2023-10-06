@@ -222,7 +222,7 @@ function AddPatientStep2({...props}) {
             is_support: false
         }))));
         form.append('gender', gender);
-        if (birthdate) {
+        if (birthdate && birthdate.day.length > 0) {
             form.append('birthdate', `${birthdate.day}-${birthdate.month}-${birthdate.year}`);
         }
         form.append('address', JSON.stringify({

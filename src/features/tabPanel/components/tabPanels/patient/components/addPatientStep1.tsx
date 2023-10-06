@@ -138,10 +138,14 @@ function AddPatientStep1({...props}) {
                 day: selectedPatient.birthdate.split("-")[0] as string,
                 month: selectedPatient.birthdate.split("-")[1] as string,
                 year: selectedPatient.birthdate.split("-")[2] as string,
-            } : stepsData.step1.birthdate.day !== "" && {
+            } : stepsData.step1.birthdate.day !== "" ? {
                 day: stepsData.step1.birthdate.day,
                 month: stepsData.step1.birthdate.month,
                 year: stepsData.step1.birthdate.year
+            } : {
+                day: "",
+                month: "",
+                year: "",
             },
             phones: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
                 [
