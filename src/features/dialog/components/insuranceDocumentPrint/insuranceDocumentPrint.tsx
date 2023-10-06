@@ -87,7 +87,7 @@ function InsuranceDocumentPrint({...props}) {
                     </ListItemIcon>
                     <ListItemText
                         primary={<Typography fontWeight={700} component='strong'>{insurance.name}</Typography>}/>
-                    <Stack direction={"row"} spacing={1.2} sx={{display: "contents"}}>
+                    <Stack direction={"row"} spacing={1.2}>
                         <FormControlLabel
                             control={<Checkbox
                                 checked={backgroundDoc}
