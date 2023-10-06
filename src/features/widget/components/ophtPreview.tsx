@@ -18,7 +18,7 @@ import SaveIcon from '@mui/icons-material/Save';
 
 export default function OphtPreview({...props}) {
 
-    let {t, printGlasses, appuuid, url, triggerAppointmentEdit} = props
+    let {t, printGlasses, appuuid, url, triggerAppointmentEdit,data} = props
     const subTitle = ['av', 'sphere', 'cylindre', 'axe']
 
     const [acuiteVisuelle, setAcuiteVisuelle] = useState([
@@ -88,13 +88,12 @@ export default function OphtPreview({...props}) {
     }
 
     useEffect(() => {
-        const local = localStorage.getItem(`Modeldata${appuuid}`);
-        const res = local ? JSON.parse(local) : null;
-        if (res && res.eyes) {
-            res.eyes.acuiteVisuelle && setAcuiteVisuelle(res.eyes.acuiteVisuelle);
-            res.eyes.examination && setExamination(res.eyes.examination);
+        console.log(data)
+        if (data && data.eyes) {
+            data.eyes.acuiteVisuelle && setAcuiteVisuelle([...data.eyes.acuiteVisuelle]);
+            data.eyes.examination && setExamination([...data.eyes.examination]);
         }
-    }, [localStorage.getItem(`Modeldata${appuuid}`)]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [data]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Stack spacing={1}>

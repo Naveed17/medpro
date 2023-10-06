@@ -125,7 +125,7 @@ function ProfilMenu() {
                     className="profile-img"
                     component="img"
                     alt="Connected user"
-                    src={`/static/mock-images/avatars/avatar_${roles.includes('ROLE_SECRETARY') ? "sec" : "dr"}.png`}
+                    src={`/static/icons/Med-logo_.svg`}
                     width={26}
                     height={26}
                 />
@@ -162,7 +162,7 @@ function ProfilMenu() {
                                                     className="profile-img"
                                                     component="img"
                                                     alt="The house from the offer."
-                                                    src={`/static/mock-images/avatars/avatar_${roles.includes('ROLE_SECRETARY') ? "sec" : "dr"}.png`}
+                                                    src={`/static/icons/Med-logo_.svg`}
                                                     width={pxToRem(46)}
                                                     height={pxToRem(46)}
                                                 />

@@ -83,6 +83,7 @@ function DocsConfig() {
     const [removeModelDialog, setRemoveModelDialog] = useState(false);
     const [title, setTitle] = useState("");
     const [isDefault, setIsDefault] = useState(false);
+    const [hasData, setHasData] = useState(false);
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
@@ -254,7 +255,6 @@ function DocsConfig() {
         handleInsuranceChange(insurances.type);
     }
 
-
     useEffect(() => {
         if (uuid === 'new') {
             setTimeout(() => {
@@ -266,12 +266,14 @@ function DocsConfig() {
 
     useEffect(() => {
         if (docHeader) {
-            setTitle((docHeader as DocTemplateModel).title);
-            setIsDefault((docHeader as DocTemplateModel).isDefault);
+            const dh = (docHeader as DocTemplateModel)
+            setTitle(dh.title);
+            setIsDefault(dh.isDefault);
+            setHasData(dh.hasData);
             setQueryState({
-                type: ((docHeader as DocTemplateModel).types)
+                type: (dh.types)
             });
-            const header = (docHeader as DocTemplateModel).header.header
+            const header = dh.header.header
             if (header) {
                 setFieldValue("left1", header.left1)
                 setFieldValue("left2", header.left2)
@@ -281,7 +283,7 @@ function DocsConfig() {
                 setFieldValue("right3", header.right3)
             }
 
-            const data = (docHeader as DocTemplateModel).header.data
+            const data = dh.header.data
             if (data) {
                 if (data.footer === undefined)
                     setData({
@@ -323,7 +325,7 @@ function DocsConfig() {
                     <p style={{margin: 0}}>{`${t("path")} > ${uuid === 'new' ? 'Créer document' : 'Modifier document'}`}</p>
                 </RootStyled>
 
-                {uuid !== 'new' && <Button
+                {uuid !== 'new' && !hasData && <Button
                     type="submit"
                     variant="contained"
                     color={"error"}
