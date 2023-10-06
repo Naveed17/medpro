@@ -366,6 +366,12 @@ function PreviewDialog({...props}) {
                 tt.style.textAlign = "center"
                 elx.appendChild(tt)
 
+                if (state.note){
+                    const note = document.createElement("p");
+                    note.append(`Note: ${state.note}`);
+                    elx.appendChild(note)
+                }
+
             } else {
                 for (let i = lastPos; i < rows.length; i++) {
                     const elx = document.createElement(rows[i].element);

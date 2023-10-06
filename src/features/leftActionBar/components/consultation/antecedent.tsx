@@ -1,5 +1,5 @@
 import {pxToRem} from "@themes/formatFontSize";
-import {Button, CardContent, IconButton, List, ListItem, ListItemIcon, Stack, Tooltip, Typography} from "@mui/material";
+import {Button, CardContent, IconButton, List, ListItem, ListItemIcon, Stack, Typography} from "@mui/material";
 import CircleIcon from "@mui/icons-material/Circle";
 import Icon from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
@@ -55,15 +55,14 @@ function Antecedent({...props}) {
                                 <ListItemIcon>
                                     <CircleIcon/>
                                 </ListItemIcon>
-                                <Tooltip title={item.note ? item.note : '-'}>
-                                    <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
-                                        {item.name}{" "}
-                                        {item.startDate ? " / " + item.startDate : ""}{" "}
-                                        {item.endDate ? " - " + item.endDate : ""}
-                                        {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
-                                        {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
-                                    </Typography>
-                                </Tooltip>
+                                <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
+                                    {item.name}{" "}
+                                    {item.startDate ? " / " + item.startDate : ""}{" "}
+                                    {item.endDate ? " - " + item.endDate : ""}
+                                    {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
+                                    {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
+                                    {item.note && ` ( ${item.note} )`}
+                                </Typography>
                                 <IconButton
                                     size="small"
                                     onClick={() => {
