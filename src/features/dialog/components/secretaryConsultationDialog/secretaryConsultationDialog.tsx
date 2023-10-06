@@ -9,10 +9,13 @@ import {
     Checkbox,
     Chip,
     DialogActions,
+    FormControlLabel,
     Grid,
     IconButton,
     InputAdornment,
     InputBase,
+    Radio,
+    RadioGroup,
     Stack,
     TextField,
     Theme,
@@ -39,9 +42,10 @@ import {useRouter} from "next/router";
 import {useRequestQuery} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-
+import {startCase} from 'lodash'
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import {useTransactionEdit} from "@lib/hooks/rest";
+import {TimeSchedule} from "@features/tabPanel";
 import { useTheme } from "@emotion/react";
 
 const limit = 255;
@@ -60,7 +64,9 @@ function SecretaryConsultationDialog({...props}) {
             meeting,
             setMeeting,
             checkedNext,
-            setCheckedNext
+            setCheckedNext,
+            addFinishAppointment,
+            setIsFinishAppointDisabled
         },
     } = props;
     const router = useRouter();
@@ -74,6 +80,7 @@ function SecretaryConsultationDialog({...props}) {
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
+    const [selectedDose,setSelectedDose] = useState("day")
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -155,15 +162,16 @@ function SecretaryConsultationDialog({...props}) {
                 })
             });
     }
-console.log(patient)
+    console.log(patient)
     return (
+        <>
+        {addFinishAppointment ?  <TimeSchedule select/>:(
         <RootStyled>
-            <Grid container>
+            <Grid container spacing={3}>
                 <Grid item md={6} sm={12} xs={12}>
                     <Stack
                         alignItems="center"
                         spacing={2}
-                        maxWidth={{xs: "100%", md: "80%"}}
                         mx="auto"
                         width={1}>
                         <Typography mt={{xs: 3, md: 0}} variant="subtitle1">
@@ -218,14 +226,13 @@ console.log(patient)
                     <Stack
                         alignItems="center"
                         spacing={2}
-                        maxWidth={{xs: "100%", md: "80%"}}
                         mx="auto"
                         width={1}>
                         <Typography variant="subtitle1">
                             {t("finish_the_consutation")}
                         </Typography>
                         <Typography>{t("type_the_instruction_for_the_secretary")}</Typography>
-                        <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
+                        <Stack pt={3} direction='row' alignItems='center' justifyContent='space-between' width={1}>
                            
                         <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
                             <Avatar 
@@ -237,17 +244,17 @@ console.log(patient)
                              <Stack>
                                 <Stack direction={"row"} alignItems={"center"} spacing={.5}>
                                     <IconUrl path={patient?.gender ==="M" ? 'ic-h':'ic-f'}/>
-                                    <Typography color={"primary.main"}>
+                                    <Typography fontWeight={700}>
                                                     {patient?.firstName} {patient?.lastName}
                                                     </Typography>
 
                                 
                              </Stack>
-                             {patient?.birthdate && 
+                             {patient?.contact?.length > 0 && 
                              <Stack direction='row' alignItems='center' spacing={.5}>
-                                  <IconUrl path="ic-anniverssaire" width={13} height={13}/>
-                                 <Typography color="text.secondary">{patient?.birthdate} {" "}
-                                    ({moment().diff(moment(patient.birthdate, "DD-MM-YYYY"), "years") + " "+ t("filter.years")})
+                                  <IconUrl path="ic-tel" color={theme.palette.text.primary} width={12} height={12}/>
+                                 <Typography variant="body2">{patient?.contact[0]}
+                                    
 
                                  </Typography>
                              
@@ -321,7 +328,9 @@ console.log(patient)
                             disableRipple
                             color="info"
                             variant="outlined"
-                            onClick={() => setCheckedNext(!checkedNext)}>
+                            onClick={() => {setCheckedNext(!checkedNext);
+                            setIsFinishAppointDisabled(!checkedNext)
+                            }}>
                             <Checkbox checked={checkedNext}/>
                             {t("plan_a_meeting")}
                             {checkedNext && (
@@ -361,8 +370,31 @@ console.log(patient)
                                             </IconButton>
                                         }
                                     />
+<RadioGroup
+        row
 
-                                    {t("day")}
+      >
+       
+       
+                                    {
+                                    [
+                                    'day','month','year'
+                                    ].map((item:string)=>(
+                                         <FormControlLabel
+                                         key={item}
+                                         onChange={(e) => {e.stopPropagation()
+                                         setSelectedDose(item)
+                                        }
+                                    }
+          value={item}
+          control={<Radio  checked={selectedDose === item}/>}
+          label={startCase(t(item))}
+          
+        />
+  
+                                    ))
+                                    }
+                                     </RadioGroup>
                                 </>
                             )}
                         </Button>
@@ -407,6 +439,8 @@ console.log(patient)
                 }
             />
         </RootStyled>
+        )}
+        </>
     );
 }
 

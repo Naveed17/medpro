@@ -58,7 +58,8 @@ import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {AnimatePresence, motion} from "framer-motion";
-
+import AddIcon from '@mui/icons-material/Add';
+import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 function ConsultationInProgress() {
     const theme = useTheme();
     const router = useRouter();
@@ -164,7 +165,8 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [transactions, setTransactions] = useState(null);
     const [restAmount, setRestAmount] = useState(0);
-
+    const [addFinishAppointment,setAddFinishAppointment] = useState<boolean>(false);
+    const [isAddFinishAppointDisabled,setIsFinishAppointDisabled] = useState<boolean>(false)
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
     }
@@ -358,9 +360,9 @@ function ConsultationInProgress() {
                     variant="text"
                     color={"black"}
                     onClick={leave}
-                    startIcon={<LogoutRoundedIcon/>}>
+                    startIcon={<IconUrl path="ic-temps"/>}>
                     <Typography sx={{display: {xs: "none", sm: "flex"}}}>
-                        {t("withoutSave")}
+                        {t("later_on")}
                     </Typography>
                 </LoadingButton>
                 <Stack direction={"row"} spacing={2}>
@@ -370,6 +372,14 @@ function ConsultationInProgress() {
                         startIcon={<CloseIcon/>}>
                         <Typography sx={{display: {xs: "none", sm: "flex"}}}>
                             {t("cancel")}
+                        </Typography>
+                    </Button>
+                    <Button
+                        disabled={isAddFinishAppointDisabled}
+                        onClick={() => setAddFinishAppointment(!addFinishAppointment)}
+                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon/>:<AddIcon/>}>
+                        <Typography sx={{display: {xs: "none", sm: "flex"}}}>
+                            {t(addFinishAppointment ? "back":"add_&_finish_appointment")}
                         </Typography>
                     </Button>
                     <LoadingButton
@@ -960,7 +970,7 @@ function ConsultationInProgress() {
                             disabled={loading}
                             loading={loading}
                             loadingPosition={"start"}
-                            onClick={end}
+                            onClick={() => {end();setAddFinishAppointment(false)}}
                             color={"error"}
                             className="btn-action"
                             startIcon={<IconUrl path="ic-check"/>}
@@ -1014,13 +1024,16 @@ function ConsultationInProgress() {
                         setMeeting,
                         checkedNext,
                         setCheckedNext,
+                        addFinishAppointment,
+                        setIsFinishAppointDisabled
                     }}
-                    size={"lg"}
+                    size={addFinishAppointment ? "md": "lg"}
                     color={
                         info === "secretary_consultation_alert" && theme.palette.error.main
                     }
                     {...(info === "secretary_consultation_alert" && {
-                        sx: {px: {xs: 2, sm: 3}}
+                        sx: {px: {xs: 2, sm: 3}},
+                    
                     })}
                     {...(info === "document_detail" && {
                         sx: {p: 0},
