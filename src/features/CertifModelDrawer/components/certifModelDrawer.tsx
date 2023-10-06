@@ -76,37 +76,18 @@ function CertifModelDrawer({...props}) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            title: data ? (data.title as string) : "",
-            folder: data ? (data.folder as string) : "",
-            content: data ? (data.content as string) : "",
+            title: data?.title ?? "",
+            folder: data?.folder ?? "",
+            content: data?.content ?? ""
         },
         validationSchema,
         onSubmit: async (values) => {
-            const form = new FormData();
-            form.append('content', values.content);
-            form.append('color', modelColor);
-            form.append('title', values.title);
-            values.folder?.length > 0 && form.append('folder', values.folder);
-            let url = `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
-            if (data) {
-                url = `${urlMedicalProfessionalSuffix}/certificate-modals/${data.uuid}/${router.locale}`
-            }
-            triggerSettingsModel({
-                method: data ? "PUT" : "POST",
-                url,
-                data: form,
-            }, {
-                onSuccess: () => {
-                    props.closeDraw();
-                    props.mutate();
-                    enqueueSnackbar(t(data ? "updated" : "created"), {variant: 'success'})
-
-                }
-            });
+            console.log("values");
         },
     });
 
     const {
+        values,
         errors,
         touched,
         handleSubmit,
@@ -118,6 +99,28 @@ function CertifModelDrawer({...props}) {
         (window as any).tinymce.execCommand('mceInsertContent', false, val);
     }
 
+    const handleSubmitData = () => {
+        const form = new FormData();
+        form.append('content', values.content);
+        form.append('color', modelColor);
+        form.append('title', values.title);
+        values.folder?.length > 0 && form.append('folder', values.folder);
+        let url = `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
+        if (data) {
+            url = `${urlMedicalProfessionalSuffix}/certificate-modals/${data.uuid}/${router.locale}`
+        }
+        triggerSettingsModel({
+            method: data ? "PUT" : "POST",
+            url,
+            data: form,
+        }, {
+            onSuccess: () => {
+                props.closeDraw();
+                props.mutate();
+                enqueueSnackbar(t(data ? "updated" : "created"), {variant: 'success'})
+            }
+        });
+    }
     const suggestions = (httpSuggestions as HttpResponse)?.data ?? [];
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
@@ -229,7 +232,7 @@ function CertifModelDrawer({...props}) {
                             variant="outlined"
                             required
                             fullWidth
-                            helperText={touched.title && errors.title}
+                            helperText={touched.title && errors.title as string}
                             {...getFieldProps("title")}
                             error={Boolean(touched.title && errors.title)}/>
 
@@ -310,7 +313,7 @@ function CertifModelDrawer({...props}) {
                         direction={"row"}>
                         <Button onClick={props.closeDraw}>{t("cancel")}</Button>
                         <Button
-                            type="submit"
+                            onClick={handleSubmitData}
                             disabled={loading}
                             variant="contained"
                             color="primary">
