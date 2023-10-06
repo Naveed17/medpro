@@ -220,6 +220,13 @@ const Content = ({...props}) => {
         handleClickDialog();
     }
 
+    const handleClose = () => {
+        setOpenDialog(false);
+        setInfo("");
+        setInfoDynamic("");
+        setState([]);
+    }
+
     const handleOpenDynamic = (action: string) => {
         if (patientAntecedents && Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
         setInfo("dynamicAnt");
@@ -874,19 +881,11 @@ const Content = ({...props}) => {
                     direction={direction}
                     actions={true}
                     title={getTitle()}
-                    dialogClose={() => {
-                        setOpenDialog(false);
-                        setInfo("");
-                        setInfoDynamic("");
-                    }}
+                    dialogClose={handleClose}
                     actionDialog={
                         <DialogActions>
                             <Button
-                                onClick={() => {
-                                    setOpenDialog(false);
-                                    setInfo("");
-                                    setInfoDynamic("");
-                                }}
+                                onClick={handleClose}
                                 startIcon={<CloseIcon/>}>
                                 {t("cancel")}
                             </Button>
