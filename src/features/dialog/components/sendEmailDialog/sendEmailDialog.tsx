@@ -38,7 +38,7 @@ function SendEmailDialog({...props}) {
         },
     });
 
-    const sendEmailCallback = useCallback(() => {
+    const sendEmailCallback = useCallback((values: any) => {
         handleSendEmail(values);
     }, [handleSendEmail]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -102,7 +102,7 @@ function SendEmailDialog({...props}) {
                     loadingPosition={"start"}
                     disabled={!isValid}
                     sx={{marginLeft: 'auto'}}
-                    onClick={() => sendEmailCallback()}
+                    onClick={() => sendEmailCallback(values)}
                     variant="contained"
                     startIcon={<SaveRoundedIcon/>}>
                     {t("save")}

@@ -132,7 +132,7 @@ function AppToolbar({...props}) {
                 const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
                 if (audios.length > 0) {
                     const form = new FormData();
-                    form.append(`files[${audios[0].uuid}][]`, file, file.name);
+                    form.append(`files[${audios[0].uuid}][]`, file, file.name.slice(0, 20));
                     triggerDrugsCreate({
                         method: "POST",
                         url: docUrl,
@@ -306,7 +306,7 @@ function AppToolbar({...props}) {
                 //form.append("title", state.name);
                 //form.append("description", state.description);
                 state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
-                    form.append(`files[${file.type}][]`, file?.file as any, file?.name);
+                    form.append(`files[${file.type}][]`, file?.file as any, file?.name?.slice(0, 20));
                 });
 
                 triggerDrugsUpdate({
@@ -747,7 +747,7 @@ function AppToolbar({...props}) {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{appuuid: app_uuid, state, setState, t, setOpenDialog}}
+                    data={{appuuid: app_uuid, patient, state, setState, t, setOpenDialog}}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
                     direction={"ltr"}
                     sx={{height: info === "insurance_document_print" ? 600 : 480}}

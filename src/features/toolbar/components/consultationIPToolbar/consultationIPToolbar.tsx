@@ -135,7 +135,7 @@ function ConsultationIPToolbar({...props}) {
                 const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
                 if (audios.length > 0) {
                     const form = new FormData();
-                    form.append(`files[${audios[0].uuid}][]`, file, file.name);
+                    form.append(`files[${audios[0].uuid}][]`, file, file.name.slice(0, 20));
                     triggerDrugsCreate({
                         method: "POST",
                         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
@@ -296,7 +296,7 @@ function ConsultationIPToolbar({...props}) {
                 //form.append("title", state.name);
                 //form.append("description", state.description);
                 state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
-                    form.append(`files[${file.type}][]`, file?.file as any, file?.name);
+                    form.append(`files[${file.type}][]`, file?.file as any, file?.name?.slice(0, 20));
                 });
 
                 triggerDrugsCreate({
