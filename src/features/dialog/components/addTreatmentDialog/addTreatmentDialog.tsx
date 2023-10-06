@@ -46,7 +46,7 @@ function AddTreatmentDialog({...props}) {
                 isVerified: false
             } : newValue;
 
-            setTraitments([...traitments, (selectedDrug as DrugModel)]);
+            setTraitments([(selectedDrug as DrugModel),...traitments]);
             data.setState([...data.state, {
                 uuid: selectedDrug.uuid,
                 name: selectedDrug.commercial_name,

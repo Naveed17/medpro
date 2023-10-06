@@ -141,7 +141,6 @@ function CertifDialog({...props}) {
         }, {
             onSuccess: () => mutateModel().then(() => {
                 mutateParentModel();
-                setSelectedTemplate('')
             })
         });
     }

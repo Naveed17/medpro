@@ -443,7 +443,7 @@ function PaymentRow({...props}) {
                                             role="checkbox"
                                             className="collapse-row"
                                             sx={{
-                                                bgcolor: (theme: Theme) => col.payment_date === data.filterCB.start_date ?
+                                                bgcolor: (theme: Theme) => data.filterCB && col.payment_date === data.filterCB.start_date ?
                                                     theme.palette.background.paper: "#ffffff66",
                                                 "&::before": {
                                                     ...(idx > 0 && {
@@ -473,7 +473,7 @@ function PaymentRow({...props}) {
                                                     }}>
                                                     <Icon path="ic-agenda"/>
                                                     <Typography
-                                                        variant="body2">{col.payment_date !== data.filterCB.start_date ? t("paidOn"):""}{col.payment_date}</Typography>
+                                                        variant="body2">{data.filterCB &&col.payment_date !== data.filterCB.start_date ? t("paidOn"):""}{col.payment_date}</Typography>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell style={{
@@ -572,7 +572,7 @@ function PaymentRow({...props}) {
                                                 style={{
                                                     backgroundColor: "transparent",
                                                     border: "none",
-                                                    opacity: col.payment_date === data.filterCB.start_date ? 1:0.5
+                                                    opacity: data.filterCB && col.payment_date === data.filterCB.start_date ? 1:0.5
                                                 }}>
                                                 <Typography
                                                     color={
