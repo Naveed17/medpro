@@ -63,10 +63,9 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
 function DocsConfig() {
-
-    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
     const router = useRouter();
     const theme = useTheme();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
@@ -81,7 +80,7 @@ function DocsConfig() {
     const [files, setFiles] = useState<any[]>([]);
     const [file, setFile] = useState<File | null>(null);
     const [types, setTypes] = useState([]);
-    const [open, setOpen] = useState(false);
+    const [removeModelDialog, setRemoveModelDialog] = useState(false);
     const [title, setTitle] = useState("");
     const [isDefault, setIsDefault] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -225,24 +224,22 @@ function DocsConfig() {
         })
     }
 
-    const openDialog = () => {
-        setOpen(true);
+    const openRemoveDialog = () => {
+        setRemoveModelDialog(true);
         setSelected({
             title: t('askRemove'),
             subtitle: t('subtitleRemove'),
             icon: "/static/icons/setting/ic-edit-file.svg",
             name1: title,
-            name2: "",
-            // data: props,
-            request: {
-                method: "DELETE",
-                url: `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`
-            }
+            name2: ""
         })
     }
 
-    const remove = () => {
-        triggerHeaderDelete(selected.request, {
+    const removeModel = () => {
+        triggerHeaderDelete({
+            method: "DELETE",
+            url: `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`
+        }, {
             onSuccess: () => {
                 mutate().then(() => {
                     router.back();
@@ -331,7 +328,7 @@ function DocsConfig() {
                     variant="contained"
                     color={"error"}
                     style={{marginRight: 10}}
-                    onClick={openDialog}>
+                    onClick={openRemoveDialog}>
                     {!isMobile ? t("remove") : <DeleteOutlineRoundedIcon/>}
                 </Button>}
                 <Button
@@ -790,25 +787,26 @@ function DocsConfig() {
             </Grid>
 
 
-            <Dialog action={"remove"}
-                    open={open}
-                    data={selected}
-                    direction={direction}
-                    color={(theme: Theme) => theme.palette.error.main}
-                    title={t('remove')}
-                    t={t}
-                    actionDialog={
-                        <DialogActions>
-                            <Button onClick={() => {
-                                setOpen(false);
-                            }}
-                                    startIcon={<CloseIcon/>}>{t('cancel')}</Button>
-                            <LoadingButton variant="contained"
-                                           loading={loading}
-                                           sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
-                                           onClick={remove}>{t('remove')}</LoadingButton>
-                        </DialogActions>
-                    }
+            <Dialog
+                action={"remove"}
+                open={removeModelDialog}
+                data={selected}
+                direction={direction}
+                color={(theme: Theme) => theme.palette.error.main}
+                title={t('remove')}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => {
+                            setRemoveModelDialog(false);
+                        }}
+                                startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loading}
+                            sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                            onClick={removeModel}>{t('remove')}</LoadingButton>
+                    </DialogActions>
+                }
             />
         </>
     );
