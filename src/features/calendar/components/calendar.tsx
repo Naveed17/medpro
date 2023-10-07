@@ -65,6 +65,7 @@ function Calendar({...props}) {
         OnAddAppointment,
         OnSelectEvent,
         OnSelectDate,
+        OnOpenPatient,
         OnEventChange,
         OnMenuActions,
         mutate: mutateAgenda
@@ -143,6 +144,9 @@ function Calendar({...props}) {
         switch (action) {
             case "showEvent":
                 handleOnSelectEvent(eventData);
+                break;
+            case "showPatient":
+                OnOpenPatient(eventData);
                 break;
             case "waitingRoom":
                 OnWaitingRoom(eventData);
