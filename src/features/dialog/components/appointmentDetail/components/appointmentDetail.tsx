@@ -15,7 +15,7 @@ import {
     Stack,
     Toolbar,
     Typography,
-    useTheme,
+    useTheme, useMediaQuery,
 } from "@mui/material";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
@@ -41,10 +41,11 @@ import {getBirthdayFormat} from "@lib/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {Label} from "@features/label";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry, MobileContainer} from "@lib/constants";
 
 function AppointmentDetail({...props}) {
     const {
+        isBeta,
         OnConsultation,
         OnConsultationView,
         OnEditDetail,
@@ -65,6 +66,7 @@ function AppointmentDetail({...props}) {
     const rootRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const {data: session} = useSession();
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
@@ -208,7 +210,7 @@ function AppointmentDetail({...props}) {
                                             fontWeight={700}>
                                             <Stack direction={"row"} justifyContent={"space-between"}>
                                                 <span>{appointment?.title}</span>
-                                                {(appointment?.extendedProps?.restAmount > 0 || appointment?.extendedProps?.restAmount < 0) &&
+                                                {(isBeta && (appointment?.extendedProps?.restAmount > 0 || appointment?.extendedProps?.restAmount < 0)) &&
                                                     <Label
                                                         variant='filled'
                                                         sx={{
@@ -288,7 +290,8 @@ function AppointmentDetail({...props}) {
                                     </Stack>
                                 </Stack>
                                 {(canManageActions && OnEditDetail) &&
-                                    <IconButton className={"edit-button"} size="small" onClick={() => OnEditDetail(appointment)}>
+                                    <IconButton className={"edit-button"} size="small"
+                                                onClick={() => OnEditDetail(appointment)}>
                                         <IconUrl path="ic-duotone"/>
                                     </IconButton>}
                             </Stack>
@@ -354,7 +357,7 @@ function AppointmentDetail({...props}) {
                 {(canManageActions && (OnConfirmAppointment || OnWaiting || OnLeaveWaiting || OnPatientNoShow || SetCancelDialog)) && (
                     <CardActions sx={{pb: 4}}>
                         <Stack spacing={1} width={1}>
-                            {appointment?.extendedProps.patient.contact?.length > 0 && <LoadingButton
+                            {isMobile && appointment?.extendedProps.patient.contact?.length > 0 && <LoadingButton
                                 href={`tel:${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
                                 variant="contained"
                                 startIcon={<IconUrl path="ic-tel" className="ic-tel"/>}

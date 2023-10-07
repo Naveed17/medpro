@@ -466,6 +466,16 @@
       "favorite": {
         "delete": "le favori a été supprimé avec succès"
       }
+    },
+    "no-data": {
+      "imaging": {
+        "title": "Aucun favorite",
+        "description": "Ajouter des imageries médicales"
+      },
+      "analyse": {
+        "title": "Aucun favorite",
+        "description": "Ajouter des bilans"
+      }
     }
   },
   "table": {
@@ -512,6 +522,14 @@
   "price_of_act": "prix de l'acte",
   "end_consultation_btn": "Terminer la consultation",
   "no-data": {
+    "imaging": {
+      "title": "Aucun favorite",
+      "description": "Ajouter des imageries médicales"
+    },
+    "analyse": {
+      "title": "Aucun favorite",
+      "description": "Ajouter des bilans"
+    },
     "event": {
       "title": "Aucun document ",
       "description": "Ajouter des analyses, rapports, imageries médicales, photos, vidéos.... ",

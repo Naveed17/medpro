@@ -12,7 +12,7 @@ import {useRouter} from "next/router";
 import {alpha, Theme} from "@mui/material/styles";
 
 function Event({...props}) {
-    const {event, view, isMobile, open, setAppointmentData, setAnchorEl, isEventDragging} = props;
+    const {isBeta, event, view, isMobile, open, setAppointmentData, setAnchorEl, isEventDragging} = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -60,11 +60,11 @@ function Event({...props}) {
         <>
             <EventStyled
                 sx={{
-                    ...(!appointment?.payed && {backgroundColor: (theme: Theme) => alpha(theme.palette.expire.main, 0.2)}),
-                    ...(appointment.motif.length > 0 && {background: (theme: Theme) => `linear-gradient(90deg, ${!appointment?.payed ? alpha(theme.palette.expire.main, 0.2) : 'rgba(255,0,0,0)'} 95%, ${appointment.motif.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
+                    ...((isBeta && !appointment?.payed) && {backgroundColor: (theme: Theme) => alpha(theme.palette.expire.main, 0.2)}),
+                    ...(appointment.motif.length > 0 && {background: (theme: Theme) => `linear-gradient(90deg, ${isBeta && !appointment?.payed ? alpha(theme.palette.expire.main, 0.2) : 'rgba(255,0,0,0)'} 95%, ${appointment.motif.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
                     "&:before": {
                         background: event.borderColor
-                    },
+                    }
                 }}
                 aria-owns={open ? 'mouse-over-popover' : undefined}
                 aria-haspopup="true"

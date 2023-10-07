@@ -54,7 +54,7 @@ import {
     AppointmentDetail, QuickAddAppointment,
     Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime, preConsultationSelector
 } from "@features/dialog";
-import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
+import {AppointmentListMobile, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter, leftActionBarSelector, cashBoxSelector} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
@@ -122,7 +122,7 @@ function Agenda() {
     const {model} = useAppSelector(preConsultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
-        openViewDrawer, currentStepper, config,
+        openViewDrawer, currentStepper,
         selectedEvent, actionSet, openMoveDrawer, openPayDialog,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
@@ -189,12 +189,13 @@ function Agenda() {
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const {jti} = session?.user as any;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
     const transitionDuration = {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
     };
 
-    const {data: httpAppointmentsResponse, mutate: mutateAppointmentsData} = useRequestQuery(agenda && query ? {
+    const {data: httpAppointmentsResponse} = useRequestQuery(agenda && query ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
     } : null, {
@@ -1096,6 +1097,7 @@ function Agenda() {
                         transition={{ease: "easeIn", duration: .5}}>
                         <Calendar
                             {...{
+                                isBeta,
                                 events: events.current,
                                 doctor_country,
                                 agenda,
@@ -1114,6 +1116,11 @@ function Agenda() {
                             OnSelectEvent={onSelectEvent}
                             OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
                             OnEventChange={onEventChange}
+                            OnOpenPatient={(event: EventDef) => {
+                                setEvent(event);
+                                dispatch(openDrawer({type: "view", open: false}));
+                                dispatch(openDrawer({type: "patient", open: true}));
+                            }}
                             OnMenuActions={onMenuActions}
                             OnSelectDate={onSelectDate}
                             OnViewChange={onViewChange}
@@ -1203,6 +1210,7 @@ function Agenda() {
                     }}>
                     {((event || selectedEvent) && openViewDrawer) &&
                         <AppointmentDetail
+                            {...{isBeta}}
                             OnConsultation={onConsultationStart}
                             OnConfirmAppointment={onConfirmAppointment}
                             OnConsultationView={onConsultationView}
@@ -1233,7 +1241,6 @@ function Agenda() {
                             }}
                             OnMoveAppointment={onMoveAppointment}
                             translate={t}
-
                         />}
                 </Drawer>
 

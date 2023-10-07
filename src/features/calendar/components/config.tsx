@@ -155,12 +155,12 @@ export const TableHead = [
         align: "center",
         sortable: true,
     },
-    {
+/*    {
         id: "agenda",
         label: "header.agenda",
         align: "center",
         sortable: true,
-    },
+    },*/
     {
         id: "fees",
         label: "header.fees",

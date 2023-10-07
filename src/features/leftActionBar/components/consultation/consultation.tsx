@@ -81,6 +81,7 @@ function Consultation() {
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
@@ -285,7 +286,7 @@ function Consultation() {
                                     </Typography>
                                 )}
 
-                                {(patient && (patient?.rest_amount ?? 0) !== 0) && <Label
+                                {(isBeta && patient && (patient?.rest_amount ?? 0) !== 0) && <Label
                                     variant='filled'
                                     sx={{
                                         "& .MuiSvgIcon-root": {
