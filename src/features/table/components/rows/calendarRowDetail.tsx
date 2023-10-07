@@ -37,6 +37,7 @@ function CalendarRowDetail({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const handleEventClick = (action: string, eventData: EventModal) => {
         let event = eventData;
@@ -71,8 +72,8 @@ function CalendarRowDetail({...props}) {
                     "&:hover": {
                         "& .first-child": {
                             borderWidth: "1px 0px 1px 1px",
-                        },
-                    },
+                        }
+                    }
                 }}>
                 <TableCell
                     sx={{
@@ -196,7 +197,10 @@ function CalendarRowDetail({...props}) {
                 </TableCell>
                 <TableCell align="center">
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
-                        <Typography variant={"body2"} color="text.secondary">{data.title}</Typography>
+                        <Typography
+                            sx={{cursor: "pointer"}}
+                            onClick={() => handleEventClick("showPatient", data)}
+                            variant={"body2"} color="primary">{data.title}</Typography>
                         {/* {duplications?.length > 0 &&
                             <Tooltip title={t("duplication")} TransitionComponent={Zoom}>
                                 <IconButton
@@ -228,9 +232,9 @@ function CalendarRowDetail({...props}) {
                             </Tooltip>}*/}
                     </Stack>
                 </TableCell>
-                <TableCell align="center">{config?.name}</TableCell>
+                {/*<TableCell align="center">{config?.name}</TableCell>*/}
                 <TableCell align="right">
-                    {(data?.restAmount > 0 || data?.restAmount < 0) && data?.status?.key !== "PENDING" ? <Box>
+                    {isBeta && (data?.restAmount > 0 || data?.restAmount < 0) && data?.status?.key !== "PENDING" ? <Box>
                         <Label
                             variant='filled'
                             sx={{
@@ -275,7 +279,7 @@ function CalendarRowDetail({...props}) {
                                 </LoadingButton>
                             </>}
 
-                        {moment(data?.time).format("DD-MM-YYYY") === moment().format("DD-MM-YYYY") &&
+                        {data?.status.key !== "FINISHED" && moment(data?.time).format("DD-MM-YYYY") === moment().format("DD-MM-YYYY") &&
                             <>
                                 {data?.status.key !== "WAITING_ROOM" ?
                                     <Tooltip title={t("enter-waiting-room")}>

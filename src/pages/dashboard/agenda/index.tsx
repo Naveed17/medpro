@@ -1116,6 +1116,11 @@ function Agenda() {
                             OnSelectEvent={onSelectEvent}
                             OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
                             OnEventChange={onEventChange}
+                            OnOpenPatient={(event: EventDef) => {
+                                setEvent(event);
+                                dispatch(openDrawer({type: "view", open: false}));
+                                dispatch(openDrawer({type: "patient", open: true}));
+                            }}
                             OnMenuActions={onMenuActions}
                             OnSelectDate={onSelectDate}
                             OnViewChange={onViewChange}
