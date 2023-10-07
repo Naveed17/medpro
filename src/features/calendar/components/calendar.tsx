@@ -47,6 +47,7 @@ const Otable = dynamic(() => import('@features/table/components/table'));
 
 function Calendar({...props}) {
     const {
+        isBeta,
         calendarRef,
         events: appointments,
         OnRangeChange,
@@ -219,7 +220,7 @@ function Calendar({...props}) {
     const isHorizontal = () => {
         if (view === "timeGridDay")
             return 'left';
-        else if (moment(appointmentData?.time).weekday() > 4)
+        else if (moment(appointmentData?.dayDate, "DD-MM-YYYY").weekday() > 4)
             return -305;
         else return 'right';
     }
@@ -346,6 +347,7 @@ function Calendar({...props}) {
                                         transition={{ease: "easeOut", duration: .2}}>
                                         <Event
                                             {...{
+                                                isBeta,
                                                 open,
                                                 isEventDragging,
                                                 setAppointmentData,
@@ -572,7 +574,7 @@ function Calendar({...props}) {
                                               size="small"
                                               color={"primary"}/>}
                                     <AppointmentPopoverCard
-                                        {...{t: translation}}
+                                        {...{isBeta, t: translation}}
                                         style={{width: "300px", border: "none"}}
                                         data={appointmentData}/>
                                 </motion.div>

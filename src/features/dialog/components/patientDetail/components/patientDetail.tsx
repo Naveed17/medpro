@@ -146,6 +146,7 @@ function PatientDetail({...props}) {
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const {jti} = session?.user as any;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status");
     const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/patient/documents");
@@ -377,13 +378,13 @@ function PatientDetail({...props}) {
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
-        {
+        ...(isBeta ? [{
             title: "tabs.transactions",
             children: <TransactionPanel {...{
                 patient, wallet, rest, walletMutate, devise, router
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
-        },
+        }] : []),
         {
             title: "tabs.notes",
             children: <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />,
@@ -442,6 +443,7 @@ function PatientDetail({...props}) {
                     <PatientDetailsCard
                         loading={!patient}
                         {...{
+                            isBeta,
                             patient,
                             onConsultation,
                             antecedentsData,

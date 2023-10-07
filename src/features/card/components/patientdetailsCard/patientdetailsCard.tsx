@@ -41,6 +41,7 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 function PatientDetailsCard({...props}) {
     const {
+        isBeta,
         patient,
         patientPhoto,
         onConsultation,
@@ -239,7 +240,7 @@ function PatientDetailsCard({...props}) {
                                         }}
                                         {...getFieldProps("name")}
                                     />
-                                    {rest > 0 && <Label
+                                    {isBeta && rest > 0 && <Label
                                         variant='filled'
                                         sx={{
                                             "& .MuiSvgIcon-root": {

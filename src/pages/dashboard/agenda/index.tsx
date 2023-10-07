@@ -189,6 +189,7 @@ function Agenda() {
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const {jti} = session?.user as any;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
     const transitionDuration = {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
@@ -1096,6 +1097,7 @@ function Agenda() {
                         transition={{ease: "easeIn", duration: .5}}>
                         <Calendar
                             {...{
+                                isBeta,
                                 events: events.current,
                                 doctor_country,
                                 agenda,
@@ -1203,6 +1205,7 @@ function Agenda() {
                     }}>
                     {((event || selectedEvent) && openViewDrawer) &&
                         <AppointmentDetail
+                            {...{isBeta}}
                             OnConsultation={onConsultationStart}
                             OnConfirmAppointment={onConfirmAppointment}
                             OnConsultationView={onConsultationView}
@@ -1233,7 +1236,6 @@ function Agenda() {
                             }}
                             OnMoveAppointment={onMoveAppointment}
                             translate={t}
-
                         />}
                 </Drawer>
 
