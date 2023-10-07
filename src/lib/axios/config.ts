@@ -27,9 +27,9 @@ instanceAxios.interceptors.response.use((response) => response, (error) => {
     switch (error.response?.data?.code) {
         case 4000:
             console.log("fin session");
-            signIn('keycloak', {
+            /*signIn('keycloak', {
                 callbackUrl: `/dashboard/agenda`,
-            }); // Force sign in to hopefully resolve error
+            }); // Force sign in to hopefully resolve error*/
             break;
     }
     throw error;
