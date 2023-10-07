@@ -466,6 +466,16 @@
       "favorite": {
         "delete": "le favori a été supprimé avec succès"
       }
+    },
+    "no-data": {
+      "imaging": {
+        "title": "Aucun favorite",
+        "description": "Ajouter des imageries médicales"
+      },
+      "analyse": {
+        "title": "Aucun favorite",
+        "description": "Ajouter des bilans"
+      }
     }
   },
   "table": {
