@@ -11,7 +11,6 @@ import {LoadingButton} from "@mui/lab";
 import moment from "moment-timezone";
 import React, {useEffect, useState} from "react";
 import {useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector} from "@features/calendar";
 import {sideBarSelector} from "@features/menu";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
@@ -28,7 +27,6 @@ function CalendarRowDetail({...props}) {
     const {data: session} = useSession();
     const theme = useTheme();
 
-    const {config} = useAppSelector(agendaSelector);
     const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
 
     const [loading, setLoading] = useState<boolean>(false);

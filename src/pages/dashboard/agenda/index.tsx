@@ -54,7 +54,7 @@ import {
     AppointmentDetail, QuickAddAppointment,
     Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime, preConsultationSelector
 } from "@features/dialog";
-import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
+import {AppointmentListMobile, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
 import {AgendaFilter, leftActionBarSelector, cashBoxSelector} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
@@ -122,7 +122,7 @@ function Agenda() {
     const {model} = useAppSelector(preConsultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
-        openViewDrawer, currentStepper, config,
+        openViewDrawer, currentStepper,
         selectedEvent, actionSet, openMoveDrawer, openPayDialog,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
@@ -195,7 +195,7 @@ function Agenda() {
         exit: theme.transitions.duration.leavingScreen,
     };
 
-    const {data: httpAppointmentsResponse, mutate: mutateAppointmentsData} = useRequestQuery(agenda && query ? {
+    const {data: httpAppointmentsResponse} = useRequestQuery(agenda && query ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
     } : null, {
