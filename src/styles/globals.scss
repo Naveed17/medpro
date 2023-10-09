@@ -473,11 +473,12 @@ fieldset {
 .react-draggable > div > div {
   opacity: 1 !important;
 }
+
 // page controls for pdf lib
 .page-controls {
   position: absolute;
   bottom: 18%;
-  left: 16%;
+  left: 16.5%;
   background: white;
   transform: translate(-50%);
   transition: opacity ease-in-out .2s;
@@ -506,7 +507,7 @@ fieldset {
   cursor: pointer
 }
 
-.page-controls button:enabled:hover,.page-controls button:enabled:focus {
+.page-controls button:enabled:hover, .page-controls button:enabled:focus {
   background-color: #e6e6e6
 }
 

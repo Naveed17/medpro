@@ -23,7 +23,7 @@ import {Document, Page, pdfjs} from "react-pdf";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
-import React, {MutableRefObject, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import IconUrl from '@themes/urlIcon';
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -45,14 +45,12 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import PreviewA4 from "@features/files/components/previewA4";
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix, generatePdfFromHtml} from "@lib/hooks";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
-import generatePDF from "react-to-pdf";
 import {useSnackbar} from "notistack";
-import {PDFDocument} from "pdf-lib";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -423,22 +421,6 @@ function DocumentDetailDialog({...props}) {
             <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
         ))}
     </Document>;
-
-    const generatePdfFromHtml = async (componentRef: MutableRefObject<any[]>, type: any) => {
-        const pdfDoc = await PDFDocument.create();
-        for (const ref of componentRef.current) {
-            const doc = await generatePDF(() => ref, {
-                filename: `report${new Date().toISOString()}.pdf`,
-                method: "build"
-            });
-            const docData = await PDFDocument.load(doc?.output("arraybuffer"));
-            const [docPage] = await pdfDoc.copyPages(docData, [0]);
-            pdfDoc.addPage(docPage);
-        }
-
-        const data = await pdfDoc.save();
-        return type === "blob" ? new File([new Blob([data])], `report${new Date().toISOString()}`, {type: "application/pdf"}) : data;
-    }
 
     const handleSendEmail = async (data: any) => {
         setLoadingReq(true);

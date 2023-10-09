@@ -754,6 +754,7 @@ function AppToolbar({...props}) {
                     {...(info === "document_detail" && {
                         sx: {height: 480, p: 0},
                     })}
+                    {...(info === "write_certif" && {enableFullScreen: true})}
                     title={t(info === "document_detail" ? "doc_detail_title" : info)}
                     {...(info === "document_detail" && {
                         onClose: handleCloseDialog,

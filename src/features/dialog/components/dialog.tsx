@@ -23,7 +23,7 @@ function Dialogs({...props}) {
         onClose,
         icon,
         size = "md",
-        EnableFullScreen = false,
+        enableFullScreen = false,
         sx,
         ...rest
     } = props;
@@ -68,7 +68,7 @@ function Dialogs({...props}) {
                         {icon && <HourglassEmptyRoundedIcon/>}
                         {title}
                     </Stack>
-                    {EnableFullScreen && <IconButton
+                    {enableFullScreen && <IconButton
                         aria-label="close"
                         onClick={() => setFullScreen(!fullScreen)}
                         sx={{
@@ -101,7 +101,7 @@ function Dialogs({...props}) {
                     {...(fullScreen && {sx: {minHeight: 600}})}
                     style={{overflow: action === 'write_certif' ? 'hidden' : ''}}>
                     <DialogContentText id="scroll-dialog-description" tabIndex={-1}/>
-                    <Component {...(data && {data})}/>
+                    <Component {...(data && {data, fullScreen})}/>
                 </DialogContent>
                 {actionDialog ? <DialogActions style={{width: '100%'}}>{actionDialog}</DialogActions> : null}
             </Dialog>
