@@ -30,7 +30,7 @@ function SignOut() {
         return path;
     }
 
-    return (loading ? <LoadingScreen button text={"loading-error"}/> : <Redirect to={logoutPath}/>)
+    return (loading ? <LoadingScreen/> : <Redirect to={logoutPath}/>)
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => ({

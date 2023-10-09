@@ -52,7 +52,7 @@ function AuthGuard({children}: LayoutProps) {
     // returns children and then the useEffect redirect is fired afterward,
     // hence the temporary flash of the child content.
     if (status === "loading" || status === "unauthenticated") {
-        return <LoadingScreen button text={"loading-error"}/>
+        return <LoadingScreen/>
     }
 
     if (userPermission.includes(router.pathname) && roles.includes('ROLE_SECRETARY')) {
