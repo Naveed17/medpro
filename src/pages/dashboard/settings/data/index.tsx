@@ -176,7 +176,6 @@ function Data() {
     if (!ready)
         return (
             <LoadingScreen
-
                 button
                 text={"loading-error"}
             />

@@ -124,7 +124,7 @@ function Patient({...props}) {
 
     const patients = (httpPatientResponse as HttpResponse)?.data as PatientModel[] ?? [];
 
-    if (!ready) return (<LoadingScreen/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <div>

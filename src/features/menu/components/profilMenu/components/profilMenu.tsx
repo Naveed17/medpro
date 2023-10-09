@@ -110,7 +110,7 @@ function ProfilMenu() {
         dispatch(openMenu(false));
     };
 
-    if (loading) return (<LoadingScreen text={"loading-switch"}/>);
+    if (loading) return (<LoadingScreen button text={"loading-switch"}/>);
 
     return (
         <ProfileSectionStyled
