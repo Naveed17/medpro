@@ -26,11 +26,12 @@ function SignIn() {
         }
     });
 
-    if (loading) return (<LoadingScreen/>);
+    if (loading) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         status === "unauthenticated" ?
             <LoadingScreen
+                button
                 {...{color: "error", ...(error && {text: "loading-error"})}}
             /> :
             <Redirect to='/dashboard/agenda'/>)

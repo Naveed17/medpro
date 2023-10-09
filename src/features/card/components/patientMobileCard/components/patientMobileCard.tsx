@@ -258,7 +258,6 @@ function PatientMobileCard({...props}) {
     if (!ready)
         return (
             <LoadingScreen
-
                 button
                 text={"loading-error"}
             />

@@ -26,7 +26,6 @@ function BasicPopover({...props}) {
     if (!ready)
         return (
             <LoadingScreen
-
                 button
                 text={"loading-error"}
             />
