@@ -347,7 +347,7 @@ function CertifDialog({...props}) {
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
-        <Box>
+        <>
             <Grid container>
                 <Grid item xs={12} md={9}>
                     <List sx={{
@@ -694,7 +694,7 @@ function CertifDialog({...props}) {
                         </LoadingButton>
                     </Stack>
                 )}/>
-        </Box>
+        </>
     )
 }
 

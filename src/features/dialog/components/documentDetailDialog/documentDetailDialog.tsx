@@ -23,7 +23,7 @@ import {Document, Page, pdfjs} from "react-pdf";
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import {useTranslation} from 'next-i18next'
 import {capitalize} from 'lodash'
-import React, {useEffect, useRef, useState} from 'react';
+import React, {MutableRefObject, useEffect, useRef, useState} from 'react';
 import IconUrl from '@themes/urlIcon';
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -52,7 +52,7 @@ import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import generatePDF from "react-to-pdf";
 import {useSnackbar} from "notistack";
-import {BlendMode, PDFDocument} from "pdf-lib";
+import {PDFDocument} from "pdf-lib";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -90,7 +90,7 @@ function DocumentDetailDialog({...props}) {
     const [numPages, setNumPages] = useState<number | null>(null);
     const [menu, setMenu] = useState(true);
     const [isImg, setIsImg] = useState(false);
-    const componentRef = useRef<any>(null)
+    const componentRef = useRef<any[]>([])
     const [header, setHeader] = useState(null);
     const [docs, setDocs] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState("");
@@ -232,7 +232,7 @@ function DocumentDetailDialog({...props}) {
     }
 
     const printNow = useReactToPrint({
-        content: () => componentRef.current,
+        content: () => componentRef.current[0],
         documentTitle: `${t(state?.type)} ${state?.patient}`
     })
 
@@ -255,7 +255,7 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "email":
                 setSendEmailDrawer(true);
-                const file = await generatePdfFromHtml("blob");
+                const file = await generatePdfFromHtml(componentRef, "blob");
                 setPreviewDoc(file);
                 break;
             case "delete":
@@ -330,7 +330,7 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "download":
                 if (generatedDocs.some(doc => doc == state?.type)) {
-                    const file = await generatePdfFromHtml("blob");
+                    const file = await generatePdfFromHtml(componentRef, "blob");
                     const fileURL = window.URL.createObjectURL((file as Blob));
                     let alink = document.createElement('a');
                     alink.href = fileURL;
@@ -412,7 +412,7 @@ function DocumentDetailDialog({...props}) {
     }
 
     const doc = <Document
-        ref={componentRef}
+        ref={(element) => (componentRef.current as any)[0] = element}
         file={file}
         loading={t('wait')}
         onLoadSuccess={onDocumentLoadSuccess}
@@ -424,13 +424,20 @@ function DocumentDetailDialog({...props}) {
         ))}
     </Document>;
 
-    const generatePdfFromHtml = async (type: any) => {
-        const document = await generatePDF(componentRef, {
-            filename: `report${new Date().toISOString()}.pdf`,
-            method: "build"
-        })
-        const data = document?.output(type);
-        return type === "blob" ? new File([data], `report${new Date().toISOString()}`, {type: "application/pdf"}) : data;
+    const generatePdfFromHtml = async (componentRef: MutableRefObject<any[]>, type: any) => {
+        const pdfDoc = await PDFDocument.create();
+        for (const ref of componentRef.current) {
+            const doc = await generatePDF(() => ref, {
+                filename: `report${new Date().toISOString()}.pdf`,
+                method: "build"
+            });
+            const docData = await PDFDocument.load(doc?.output("arraybuffer"));
+            const [docPage] = await pdfDoc.copyPages(docData, [0]);
+            pdfDoc.addPage(docPage);
+        }
+
+        const data = await pdfDoc.save();
+        return type === "blob" ? new File([new Blob([data])], `report${new Date().toISOString()}`, {type: "application/pdf"}) : data;
     }
 
     const handleSendEmail = async (data: any) => {
@@ -441,7 +448,7 @@ function DocumentDetailDialog({...props}) {
         form.append('subject', data.subject);
         form.append('content', data.content);
         if (data.withFile) {
-            form.append('files[]', await generatePdfFromHtml("blob") as any);
+            form.append('files[]', await generatePdfFromHtml(componentRef, "blob") as any);
         }
 
         triggerEmilSend({

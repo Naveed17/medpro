@@ -23,6 +23,7 @@ function Dialogs({...props}) {
         onClose,
         icon,
         size = "md",
+        EnableFullScreen = false,
         sx,
         ...rest
     } = props;
@@ -67,7 +68,7 @@ function Dialogs({...props}) {
                         {icon && <HourglassEmptyRoundedIcon/>}
                         {title}
                     </Stack>
-                    <IconButton
+                    {EnableFullScreen && <IconButton
                         aria-label="close"
                         onClick={() => setFullScreen(!fullScreen)}
                         sx={{
@@ -78,7 +79,7 @@ function Dialogs({...props}) {
                             color: (theme) => theme.palette.grey[0],
                         }}>
                         <FullscreenIcon/>
-                    </IconButton>
+                    </IconButton>}
                     {onClose ? (
                         <IconButton
                             aria-label="close"
