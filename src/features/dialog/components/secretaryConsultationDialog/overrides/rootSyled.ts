@@ -37,6 +37,10 @@ const RootStyled = styled(Stack)(({theme}) => ({
                 width: 14,
                 height: 14
             }
+        },
+        [theme.breakpoints.down('sm')]:{
+            width: '100%',
+            flexDirection:'column'
         }
     },
     '.MuiInputAdornment-root': {

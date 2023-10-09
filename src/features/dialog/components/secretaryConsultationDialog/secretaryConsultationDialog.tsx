@@ -66,12 +66,12 @@ function SecretaryConsultationDialog({...props}) {
             checkedNext,
             setCheckedNext,
             addFinishAppointment,
-            setIsFinishAppointDisabled
         },
     } = props;
     const router = useRouter();
     const theme  = useTheme() as Theme;
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
     const {data: session} = useSession();
     const {trigger: triggerTransactionEdit} = useTransactionEdit();
 
@@ -162,10 +162,40 @@ function SecretaryConsultationDialog({...props}) {
                 })
             });
     }
-    console.log(patient)
     return (
         <>
-        {addFinishAppointment ?  <TimeSchedule select/>:(
+        {addFinishAppointment ?  <Stack spacing={5}>
+            <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
+                            <Avatar 
+                            {...(patient?.hasPhoto && {
+                                alt:patient?.name,
+                                src:patient?.photo
+                            })}
+                             sx={{width: 30, height: 30,bgcolor:'primary.main'}} />
+                             <Stack>
+                                <Stack direction={"row"} alignItems={"center"} spacing={.5}>
+                                    <IconUrl path={patient?.gender ==="M" ? 'ic-h':'ic-f'}/>
+                                    <Typography fontWeight={700}>
+                                                    {patient?.firstName} {patient?.lastName}
+                                                    </Typography>
+
+                                
+                             </Stack>
+                             {patient?.contact?.length > 0 && 
+                             <Stack direction='row' alignItems='center' spacing={.5}>
+                                  <IconUrl path="ic-tel" color={theme.palette.text.primary} width={12} height={12}/>
+                                 <Typography variant="body2">{patient?.contact[0]}
+                                    
+
+                                 </Typography>
+                             
+                             </Stack>
+}
+                             </Stack>
+
+                        </Stack>
+            <TimeSchedule select/>
+            </Stack>:(
         <RootStyled>
             <Grid container spacing={3}>
                 <Grid item md={6} sm={12} xs={12}>
@@ -232,7 +262,7 @@ function SecretaryConsultationDialog({...props}) {
                             {t("finish_the_consutation")}
                         </Typography>
                         <Typography>{t("type_the_instruction_for_the_secretary")}</Typography>
-                        <Stack pt={3} direction='row' alignItems='center' justifyContent='space-between' width={1}>
+                        <Stack pt={3} direction={{xs:'column',sm:'row'}} alignItems='center' justifyContent='space-between' spacing={{xs:2,sm:0}} width={1}>
                            
                         <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
                             <Avatar 
@@ -329,10 +359,17 @@ function SecretaryConsultationDialog({...props}) {
                             color="info"
                             variant="outlined"
                             onClick={() => {setCheckedNext(!checkedNext);
-                            setIsFinishAppointDisabled(!checkedNext)
                             }}>
+                             <Stack direction="row" alignItems='center' 
+                              {
+                                ...(checkedNext && isSmall && {
+                                    mb:1
+                                })
+                              }
+                             >  
                             <Checkbox checked={checkedNext}/>
-                            {t("plan_a_meeting")}
+                            <Typography>{t("plan_a_meeting")}</Typography>
+                            </Stack> 
                             {checkedNext && (
                                 <>
                                     <InputBase

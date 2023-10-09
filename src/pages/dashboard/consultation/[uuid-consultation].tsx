@@ -166,7 +166,6 @@ function ConsultationInProgress() {
     const [transactions, setTransactions] = useState(null);
     const [restAmount, setRestAmount] = useState(0);
     const [addFinishAppointment,setAddFinishAppointment] = useState<boolean>(false);
-    const [isAddFinishAppointDisabled,setIsFinishAppointDisabled] = useState<boolean>(false)
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
     }
@@ -361,24 +360,28 @@ function ConsultationInProgress() {
                     color={"black"}
                     onClick={leave}
                     startIcon={<IconUrl path="ic-temps"/>}>
-                    <Typography sx={{display: {xs: "none", sm: "flex"}}}>
+                    <Typography sx={{display: {xs: "none", md: "flex"}}}>
                         {t("later_on")}
                     </Typography>
                 </LoadingButton>
-                <Stack direction={"row"} spacing={2}>
+                <Stack direction={"row"} spacing={2} sx={{
+                    ".MuiButton-startIcon":{
+                        mr:{xs:0,md:1}
+                    }
+                }}>
                     <Button
                         variant="text-black"
                         onClick={handleCloseDialog}
                         startIcon={<CloseIcon/>}>
-                        <Typography sx={{display: {xs: "none", sm: "flex"}}}>
+                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
                             {t("cancel")}
                         </Typography>
                     </Button>
                     <Button
-                        disabled={isAddFinishAppointDisabled}
+                        disabled={checkedNext}
                         onClick={() => setAddFinishAppointment(!addFinishAppointment)}
                         startIcon={addFinishAppointment ? <KeyboardBackspaceIcon/>:<AddIcon/>}>
-                        <Typography sx={{display: {xs: "none", sm: "flex"}}}>
+                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
                             {t(addFinishAppointment ? "back":"add_&_finish_appointment")}
                         </Typography>
                     </Button>
@@ -391,7 +394,7 @@ function ConsultationInProgress() {
                             saveConsultation();
                         }}
                         startIcon={<IconUrl path="ic-check"/>}>
-                        <Typography sx={{display: {xs: "none", sm: "flex"}}}>
+                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
                             {t("end_consultation")}
                         </Typography>
                     </LoadingButton>
@@ -970,7 +973,7 @@ function ConsultationInProgress() {
                             disabled={loading}
                             loading={loading}
                             loadingPosition={"start"}
-                            onClick={() => {end();setAddFinishAppointment(false)}}
+                            onClick={() => {end();setAddFinishAppointment(false),setCheckedNext(false)}}
                             color={"error"}
                             className="btn-action"
                             startIcon={<IconUrl path="ic-check"/>}
@@ -1025,7 +1028,7 @@ function ConsultationInProgress() {
                         checkedNext,
                         setCheckedNext,
                         addFinishAppointment,
-                        setIsFinishAppointDisabled
+                        
                     }}
                     size={addFinishAppointment ? "md": "lg"}
                     color={
