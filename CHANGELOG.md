@@ -1,3 +1,13 @@
+## [4.20.1](https://github.com/SmartMedSA/med-pro/compare/v4.20.0...v4.20.1) (2023-10-07)
+
+
+### Bug Fixes
+
+* agenda mode isBeta ([4f11a8c](https://github.com/SmartMedSA/med-pro/commit/4f11a8c5cca36b43c515dbc044eb9fbb8ff67c5f))
+* comment sign keycloak when session end ([4b4e704](https://github.com/SmartMedSA/med-pro/commit/4b4e704922230e8536a5c746510b1ff80a9482d8))
+* isBeta flag issue ([4e60fd8](https://github.com/SmartMedSA/med-pro/commit/4e60fd81585b060816e17bf554689bcf89579035))
+* translation issue no-data ([986836c](https://github.com/SmartMedSA/med-pro/commit/986836c238121c1eb89c683666ab395a0f85e9bb))
+
 # [4.20.0](https://github.com/SmartMedSA/med-pro/compare/v4.19.2...v4.20.0) (2023-10-06)
 
 
