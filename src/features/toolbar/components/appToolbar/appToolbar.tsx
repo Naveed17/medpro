@@ -9,7 +9,7 @@ import {documentButtonList} from "@features/toolbar/components/appToolbar/config
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import {useProfilePhoto} from "@lib/hooks/rest";
+import {useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
 import {consultationSelector, SetRecord, SetSelectedDialog, SetTimer} from "@features/toolbar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQueryMutation} from "@lib/axios";
@@ -65,6 +65,7 @@ function AppToolbar({...props}) {
     const {data: session} = useSession();
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {trigger: triggerNotificationPush} = useSendNotification();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {record} = useAppSelector(consultationSelector);
@@ -78,6 +79,7 @@ function AppToolbar({...props}) {
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
+    const {jti} = session?.user as any;
 
     const [info, setInfo] = useState<null | string>("");
     const [state, setState] = useState<any>();
@@ -87,8 +89,9 @@ function AppToolbar({...props}) {
     const [action, setActions] = useState<boolean>(false);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
 
-    const mutateDoc = () => {
-        invalidateQueries([docUrl])
+    const mutateDoc = async () => {
+        await invalidateQueries([docUrl]);
+        refreshDocSession();
     }
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -116,7 +119,6 @@ function AppToolbar({...props}) {
             dispatch(SetRecord(false))
             dispatch(SetTimer('00:00'))
             mutateDoc();
-
         }).catch((e: any) => {
             alert('We could not retrieve your message');
             console.log(e);
@@ -160,6 +162,18 @@ function AppToolbar({...props}) {
         setAnchorEl(null);
         setOpenDialog(true);
         setActions(true);
+    }
+
+    const refreshDocSession = () => {
+        triggerNotificationPush({
+            action: "push",
+            root: "all",
+            message: " ",
+            content: JSON.stringify({
+                mutate: docUrl,
+                fcm_session: jti
+            })
+        });
     }
 
     const handleSaveDialog = () => {
@@ -754,6 +768,7 @@ function AppToolbar({...props}) {
                     {...(info === "document_detail" && {
                         sx: {height: 480, p: 0},
                     })}
+                    {...(info === "write_certif" && {enableFullScreen: true})}
                     title={t(info === "document_detail" ? "doc_detail_title" : info)}
                     {...(info === "document_detail" && {
                         onClose: handleCloseDialog,

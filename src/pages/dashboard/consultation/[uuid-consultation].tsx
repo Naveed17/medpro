@@ -87,9 +87,7 @@ function ConsultationInProgress() {
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
     const {trigger: triggerTransactionCreate} = useRequestQueryMutation("transaction/create");
-    const {trigger: triggerNotificationPush} = useRequestQueryMutation("notification/push");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
-    const {trigger: triggerUsers} = useRequestQueryMutation("users/get");
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
 
@@ -411,50 +409,6 @@ function ConsultationInProgress() {
         return payed_amount;
     }
 
-    const sendNotification = () => {
-        triggerUsers({
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/users`
-        }, {
-            onSuccess: (r: any) => {
-                const secretary = (r?.data as HttpResponse).data;
-                if (secretary.length > 0 && patient) {
-                    const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
-                    const restAmount = getTransactionAmountPayed();
-                    const form = new FormData();
-                    form.append("action", "end_consultation");
-                    form.append("root", "agenda");
-                    form.append("content",
-                        JSON.stringify({
-                            fees: total,
-                            restAmount: total - restAmount,
-                            instruction: localInstr ? localInstr : "",
-                            control: checkedNext,
-                            edited: false,
-                            payed: transactions ? restAmount === 0 : restAmount !== 0,
-                            nextApp: meeting ? meeting : "0",
-                            appUuid: app_uuid,
-                            dayDate: sheet?.date,
-                            patient: {
-                                uuid: patient.uuid,
-                                email: patient.email,
-                                birthdate: patient.birthdate,
-                                firstName: patient.firstName,
-                                lastName: patient.lastName,
-                                gender: patient.gender,
-                            },
-                        })
-                    );
-                    triggerNotificationPush({
-                        method: "POST",
-                        url: `${urlMedicalEntitySuffix}/professionals/notification/${router.locale}`,
-                        data: form
-                    });
-                }
-            }
-        })
-    }
-
     const checkTransactions = () => {
         if (!transactions && app_uuid) {
             const form = new FormData();
@@ -475,8 +429,32 @@ function ConsultationInProgress() {
     }
 
     const saveConsultation = () => {
+        setLoading(true);
+        const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
+        const restAmount = getTransactionAmountPayed();
         const form = new FormData();
         form.append("status", "5");
+        form.append("action", "end_consultation");
+        form.append("root", "agenda");
+        form.append("content", JSON.stringify({
+            fees: total,
+            restAmount: total - restAmount,
+            instruction: localInstr ? localInstr : "",
+            control: checkedNext,
+            edited: false,
+            payed: transactions ? restAmount === 0 : restAmount !== 0,
+            nextApp: meeting ? meeting : "0",
+            appUuid: app_uuid,
+            dayDate: sheet?.date,
+            patient: {
+                uuid: patient?.uuid,
+                email: patient?.email,
+                birthdate: patient?.birthdate,
+                firstName: patient?.firstName,
+                lastName: patient?.lastName,
+                gender: patient?.gender,
+            },
+        }));
         triggerAppointmentEdit({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
@@ -488,12 +466,12 @@ function ConsultationInProgress() {
                     dispatch(resetTimer());
                     dispatch(openDrawer({type: "view", open: false}));
                 });
-                sendNotification();
                 checkTransactions();
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
-            }
+            },
+            onSettled: () => setLoading(false)
         });
     }
 

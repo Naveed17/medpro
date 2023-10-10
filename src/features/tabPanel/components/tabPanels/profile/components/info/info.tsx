@@ -93,7 +93,7 @@ function Info({...props}) {
 
     if (error || errorLang) return <div>failed to load</div>;
     if (!ready || !httpResponse || !httpResponseLang || loading)
-        return <LoadingScreen/>;
+        return <LoadingScreen button text={"loading-error"}/>;
 
     const specialties = (httpResponse as HttpResponse).data as SpecialtyModel[];
     const languages = (httpResponseLang as HttpResponse).data as LanguageModel[];

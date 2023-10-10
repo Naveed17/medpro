@@ -44,7 +44,7 @@ function EditProfile() {
     // get user session data
     const { data: user } = session as Session;
 
-    if (!ready || loading) return (<LoadingScreen />);
+    if (!ready || loading) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <Box className="container">

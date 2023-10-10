@@ -34,7 +34,7 @@ const Prescription = ({...props}) => {
 
     return (<>
         {<div className={"portraitA4"}
-              ref={componentRef}
+              {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[id] = element})}
               style={{
                   position: "relative",
                   zoom: isMobile ? '40%' : '',

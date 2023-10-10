@@ -262,7 +262,7 @@ function TimeSchedule({...props}) {
     }, [locations]);
 
 
-    if (!ready) return (<LoadingScreen/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <div>
