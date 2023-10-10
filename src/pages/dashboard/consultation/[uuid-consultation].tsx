@@ -87,9 +87,7 @@ function ConsultationInProgress() {
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
     const {trigger: triggerTransactionCreate} = useRequestQueryMutation("transaction/create");
-    const {trigger: triggerNotificationPush} = useRequestQueryMutation("notification/push");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
-    const {trigger: triggerUsers} = useRequestQueryMutation("users/get");
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
 
@@ -431,6 +429,7 @@ function ConsultationInProgress() {
     }
 
     const saveConsultation = () => {
+        setLoading(true);
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
         const restAmount = getTransactionAmountPayed();
         const form = new FormData();
@@ -471,7 +470,8 @@ function ConsultationInProgress() {
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
-            }
+            },
+            onSettled: () => setLoading(false)
         });
     }
 
