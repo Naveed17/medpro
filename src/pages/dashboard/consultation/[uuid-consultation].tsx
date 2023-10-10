@@ -431,6 +431,7 @@ function ConsultationInProgress() {
     }
 
     const saveConsultation = () => {
+        setLoading(true);
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
         const restAmount = getTransactionAmountPayed();
         const form = new FormData();
@@ -471,7 +472,8 @@ function ConsultationInProgress() {
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
-            }
+            },
+            onSettled: () => setLoading(false)
         });
     }
 
