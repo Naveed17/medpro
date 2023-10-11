@@ -241,7 +241,6 @@ function ImportData() {
     if (!ready)
         return (
             <LoadingScreen
-
                 button
                 text={"loading-error"}
             />

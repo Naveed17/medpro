@@ -30,7 +30,7 @@ import {
 } from "@features/table";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 // ________________________________
-import {NoDataCard, PatientMobileCard, setTimer} from "@features/card";
+import {NoDataCard, PatientMobileCard} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
@@ -88,7 +88,6 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import Icon from "@themes/urlIcon";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {useMutateOnGoing} from "@lib/hooks";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 
 const humanizeDuration = require("humanize-duration");
@@ -203,7 +202,6 @@ function Patient() {
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
-    const {trigger: mutateOnGoing} = useMutateOnGoing();
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
@@ -312,7 +310,6 @@ function Patient() {
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
 
-    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status");
     const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/patient/appointment/update");
     const {trigger: triggerDeletePatient} = useRequestQueryMutation("/patient/delete");
     const {trigger: triggerCheckDuplication} = useRequestQueryMutation("/patient/duplication/check");
@@ -556,8 +553,10 @@ function Patient() {
         }
     }
 
-    useLeavePageConfirm(() => {
-        dispatch(resetFilterPatient());
+    useLeavePageConfirm((path: string) => {
+        if (!path.includes("/dashboard/patient")) {
+            dispatch(resetFilterPatient());
+        }
     });
 
     useLayoutEffect(() => {

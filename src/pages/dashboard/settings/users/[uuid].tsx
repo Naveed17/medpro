@@ -198,6 +198,7 @@ function ModifyUser() {
     } = formik;
 
     if (!ready) return (<LoadingScreen
+        button
         {...(uuid && {
             error: true,
             button: 'loading-error-404-reset',
@@ -205,7 +206,7 @@ function ModifyUser() {
         })}
     />);
 
-    if (!user) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error-data-404"}/>);
+    if (!user) return (<LoadingScreen button text={"loading-error-data-404"}/>);
 
     return (
         <>

@@ -47,7 +47,7 @@ import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function CertifDialog({...props}) {
-    const {data} = props
+    const {data, fullScreen} = props
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const router = useRouter();
     const theme = useTheme();
@@ -84,6 +84,7 @@ function CertifDialog({...props}) {
     const [deleteModelDialog, setDeleteModelDialog] = useState<boolean>(false);
     const [dialogAction, setDialogAction] = useState<string>("");
     const [openCertificateModelDialog, setOpenCertificateModelDialog] = useState(false);
+    const [height, setHeight] = React.useState(400);
 
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
@@ -291,40 +292,37 @@ function CertifDialog({...props}) {
     }
 
     const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
+    const modelsList = (httpModelResponse as HttpResponse)?.data?.reverse() ?? [];
 
     useEffect(() => {
-        if (httpParentModelResponse && httpModelResponse) {
-            const certifiesModel: any[] = [];
-            const modelsList = (httpModelResponse as HttpResponse).data;
-
-            ParentModels.map((model: any) => {
-                certifiesModel.push(...[
-                    {
-                        id: model.uuid,
-                        isDefault: model.name === "Default",
-                        parent: 0,
-                        droppable: true,
-                        text: model.name === "Default" ? "Répertoire par défaut" : model.name
-                    },
-                    ...model.files.map((certifie: any) => ({
-                        id: certifie.uuid,
-                        parent: model.uuid,
-                        color: model.color ? model.color : theme.palette.text.primary,
-                        text: certifie.title,
-                        data: {...certifie, folder: model.uuid}
-                    }))
-                ]);
-            });
-            modelsList.length > 0 && certifiesModel.push(...modelsList.reverse().map((model: CertifModel) => ({
-                id: model.uuid,
-                parent: 0,
-                color: model.color ? model.color : '#0696D6',
-                text: model.title ? model.title : 'Sans titre',
-                data: model
-            })));
-            setTreeData(certifiesModel);
-        }
-    }, [httpParentModelResponse, httpModelResponse]) // eslint-disable-line react-hooks/exhaustive-deps
+        const certifiesModel: any[] = [];
+        ParentModels.map((model: any) => {
+            certifiesModel.push(...[
+                {
+                    id: model.uuid,
+                    isDefault: model.name === "Default",
+                    parent: 0,
+                    droppable: true,
+                    text: model.name === "Default" ? "Répertoire par défaut" : model.name
+                },
+                ...model.files.map((certifie: any) => ({
+                    id: certifie.uuid,
+                    parent: model.uuid,
+                    color: model.color ? model.color : theme.palette.text.primary,
+                    text: certifie.title,
+                    data: {...certifie, folder: model.uuid}
+                }))
+            ]);
+        });
+        modelsList.length > 0 && certifiesModel.push(...modelsList.map((model: CertifModel) => ({
+            id: model.uuid,
+            parent: 0,
+            color: model.color ? model.color : '#0696D6',
+            text: model.title ? model.title : 'Sans titre',
+            data: model
+        })));
+        setTreeData(certifiesModel);
+    }, [ParentModels, modelsList]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (data)
@@ -344,17 +342,19 @@ function CertifDialog({...props}) {
         }
     }, [httpDocumentHeader])
 
+    useEffect(() => {
+        setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 400) : 300);
+    }, [fullScreen, window.innerHeight])  // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
-        <Box>
-            <Grid container>
+        <>
+            <Grid container sx={{height: "100%"}}>
                 <Grid item xs={12} md={9}>
                     <List sx={{
                         width: '100%',
-                        bgcolor: 'background.paper',
-                        overflow: "scroll",
-                        height: '96%',
+                        bgColor: 'background.paper',
                         paddingRight: 2
                     }}>
                         <Stack spacing={1}>
@@ -439,23 +439,26 @@ function CertifDialog({...props}) {
                                         startStopRec();
                                     }}/>
                             </Stack>
-
-                            <Editor
-                                value={value}
-                                apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
-                                onEditorChange={(res) => {
-                                    data.state.content = res;
-                                    data.setState(data.state)
-                                    setValue(res)
-                                }}
-                                init={{
-                                    branding: false,
-                                    statusbar: false,
-                                    menubar: false,
-                                    plugins: tinymcePlugins,
-                                    toolbar: tinymceToolbar,
-                                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                                }}/>
+                            <div style={{height, paddingBottom: "1rem"}}>
+                                <Editor
+                                    value={value}
+                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    onEditorChange={(res) => {
+                                        data.state.content = res;
+                                        data.setState(data.state)
+                                        setValue(res)
+                                    }}
+                                    init={{
+                                        width: "100%",
+                                        height: "100%",
+                                        branding: false,
+                                        statusbar: false,
+                                        menubar: false,
+                                        plugins: tinymcePlugins,
+                                        toolbar: tinymceToolbar,
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}/>
+                            </div>
                         </Stack>
                     </List>
                 </Grid>
@@ -501,7 +504,7 @@ function CertifDialog({...props}) {
                     </Stack>
 
                     <DndProvider backend={MultiBackend} options={getBackendOptions()}>
-                        <TreeStyled className={"app"}>
+                        <TreeStyled {...{fullScreen, innerHeight: window.innerHeight}} className={"app"}>
                             <Tree
                                 tree={treeData}
                                 rootId={0}
@@ -694,7 +697,7 @@ function CertifDialog({...props}) {
                         </LoadingButton>
                     </Stack>
                 )}/>
-        </Box>
+        </>
     )
 }
 
