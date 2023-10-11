@@ -6,7 +6,7 @@ import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
 
 function PreviewDialog({...props}) {
-    const {componentRef, eventHandler, data, values, state, loading, date, t, nbPage} = props;
+    const {previewDocRef, componentRef, eventHandler, data, values, state, loading, date, t, nbPage} = props;
     const {data: session} = useSession();
 
     const {data: user} = session as Session;
@@ -367,7 +367,7 @@ function PreviewDialog({...props}) {
                 tt.style.textAlign = "center"
                 elx.appendChild(tt)
 
-                if (state.note){
+                if (state.note) {
                     const note = document.createElement("p");
                     note.append(`Note: ${state.note}`);
                     elx.appendChild(note)
@@ -438,9 +438,10 @@ function PreviewDialog({...props}) {
     }, [data])
 
     return (
-        <>
+        <div ref={previewDocRef}>
             {pages.slice(0, nbPage ? 1 : pages.length).map((el, idx) => (
                 <div key={idx}>
+                    <div className="page-break"/>
                     <PrescriptionA4 {...{
                         componentRef,
                         data,
@@ -456,7 +457,7 @@ function PreviewDialog({...props}) {
                     }}/>
                 </div>
             ))}
-        </>
+        </div>
     );
 }
 

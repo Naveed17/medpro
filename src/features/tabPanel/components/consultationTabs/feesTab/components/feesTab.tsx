@@ -2,9 +2,12 @@ import React, {useEffect, useState} from "react";
 import {Box, InputAdornment, Stack, TextField} from "@mui/material";
 import {Otable} from "@features/table";
 import SearchIcon from "@mui/icons-material/Search";
+import {CipMedicProCard} from '@features/card'
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
 
 function FeesTab({...props}) {
 
@@ -199,8 +202,8 @@ function FeesTab({...props}) {
                         }}
                     />
                 </Stack>}
-
-                <Otable
+                  <DesktopContainer>
+                    <Otable
                     headers={headCells}
                     rows={acts?.filter((act: any) => {
                         return act.act.name?.toLowerCase().includes(search.toLowerCase())
@@ -210,8 +213,7 @@ function FeesTab({...props}) {
                     edit={editAct ? editAct : editActConsult}
                     devise={devise}
                     handleChange={setTotal}/>
-
-                {/* {!isQuoteRequest&&<Button
+                    {/* {!isQuoteRequest&&<Button
                     onClick={() => {
                         router.push("/dashboard/settings/actfees")
                     }}
@@ -219,9 +221,32 @@ function FeesTab({...props}) {
                     startIcon={<TuneRoundedIcon/>}>
                     {t('consultationIP.config')}
                 </Button>}*/}
+                    </DesktopContainer> 
+                    <MobileContainer>
+                        {
+                            <Stack spacing={2}>
+                                {
+                                acts?.filter((act: any) => {
+                        return act.act.name?.toLowerCase().includes(search.toLowerCase())
+                    }).map((act: any) => (
+<React.Fragment key={act.uuid}>
+    <CipMedicProCard row={act} devise={devise} 
+     edit={editAct ? editAct : editActConsult}
+    />
+</React.Fragment>
+                    ))    
+                                }
+                                
+                            </Stack>
+                        }
+                        
+                        </MobileContainer>    
+                
+
+                
             </Box>
 
-            <Box pt={8}/>
+            <Box pt={4}/>
         </>
     );
 }

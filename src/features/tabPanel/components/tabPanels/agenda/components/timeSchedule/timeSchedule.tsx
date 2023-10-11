@@ -352,9 +352,9 @@ function TimeSchedule({...props}) {
                                     }}
                                     filterOptions={(options, params) => {
                                         const {inputValue} = params;
-                                        const filtered = options.filter(option => [option.name.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
+                                        const filtered = options.filter(option => [option.name?.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
                                         // Suggest the creation of a new value
-                                        const isExisting = options.some((option) => inputValue.toLowerCase() === option.name.toLowerCase());
+                                        const isExisting = options.some((option) => inputValue.toLowerCase() === option.name?.toLowerCase());
                                         if (inputValue !== '' && !isExisting) {
                                             filtered.push({
                                                 inputValue,
