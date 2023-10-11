@@ -8,11 +8,13 @@ import {
     Button,
     DialogActions,
     Drawer,
+    Fab,
     IconButton,
     LinearProgress,
     Stack, Tab, Tabs,
     Toolbar,
     Typography,
+    Zoom,
     useTheme
 } from "@mui/material";
 import dynamic from "next/dynamic";
@@ -66,7 +68,10 @@ function TemplatesConfig() {
     const [model, setModel] = useState<any>(null);
     const [prescriptionTabIndex, setPrescriptionTabIndex] = useState(0);
     const [certificateTabIndex, setCertificateTabIndex] = useState(0);
-
+    const transitionDuration = {
+    enter: theme.transitions.duration.enteringScreen,
+    exit: theme.transitions.duration.leavingScreen,
+  };
     const {trigger: triggerModelDelete} = useRequestQueryMutation("/settings/certifModel/delete");
     const {trigger: triggerEditPrescriptionModel} = useRequestQueryMutation("/consultation/prescription/model/edit");
 
@@ -259,17 +264,18 @@ function TemplatesConfig() {
                 bgcolor={'#eff2f9'}
                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <TemplateStyled>
-                    <div className={"portraitA4"} onClick={() => {
+                    <Box className={"portraitA4"} onClick={() => {
                         router.push(`/dashboard/settings/templates/new`);
                     }} style={{
                         marginTop: 25,
                         marginRight: 30,
                         alignItems: "center",
-                        display: "flex",
+                        display:'flex',
                         justifyContent: "center"
                     }}>
                         <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
-                    </div>
+                    </Box>
+                    
                     {docs.map(res => (
                         <Box key={res.uuid} className={"container"}>
                             <div onMouseOver={() => {
@@ -309,6 +315,9 @@ function TemplatesConfig() {
                                 </Stack>}
                         </Box>
                     ))}
+                    
+          
+        
                 </TemplateStyled>
             </Box>
 
