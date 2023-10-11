@@ -89,6 +89,7 @@ function DocumentDetailDialog({...props}) {
     const [menu, setMenu] = useState(true);
     const [isImg, setIsImg] = useState(false);
     const componentRef = useRef<any[]>([])
+    const previewDocRef = useRef<any>(null)
     const [header, setHeader] = useState(null);
     const [docs, setDocs] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState("");
@@ -226,11 +227,11 @@ function DocumentDetailDialog({...props}) {
     }
 
     const handlePrint = () => {
-        printNow()
+        printNow();
     }
 
     const printNow = useReactToPrint({
-        content: () => componentRef.current[0],
+        content: () => previewDocRef.current,
         documentTitle: `${t(state?.type)} ${state?.patient}`
     })
 
@@ -531,6 +532,7 @@ function DocumentDetailDialog({...props}) {
         <div>
             {!loading && <PreviewA4
                 {...{
+                    previewDocRef,
                     componentRef,
                     eventHandler,
                     data,

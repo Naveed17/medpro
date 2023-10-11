@@ -292,7 +292,7 @@ function CertifDialog({...props}) {
     }
 
     const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
-    const modelsList = (httpModelResponse as HttpResponse)?.data?.reverse() ?? [];
+    const modelsList = (httpModelResponse as HttpResponse)?.data ?? [];
 
     useEffect(() => {
         const certifiesModel: any[] = [];
