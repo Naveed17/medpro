@@ -18,7 +18,7 @@ import SaveIcon from '@mui/icons-material/Save';
 
 export default function OphtPreview({...props}) {
 
-    let {t, printGlasses, appuuid, url, triggerAppointmentEdit,data} = props
+    let {t, printGlasses, appuuid, url, triggerAppointmentEdit,data,selectedModel} = props
     const subTitle = ['av', 'sphere', 'cylindre', 'axe']
 
     const [acuiteVisuelle, setAcuiteVisuelle] = useState([
@@ -26,43 +26,43 @@ export default function OphtPreview({...props}) {
             name: "Réfraction subjective",
             lignes: 1,
             ref: "refSub",
-            od: {av: "x", sphere: "", cylindre: "", axe: ""},
-            og: {av: "x", sphere: "", cylindre: "", axe: ""},
+            od: {av: "x", sphere: "0", cylindre: "0", axe: "0"},
+            og: {av: "x", sphere: "0", cylindre: "0", axe: "0"},
         },
         {
             name: "Correction de loin",
             lignes: 1,
             ref: "cl",
-            od: {av: "", sphere: "", cylindre: "", axe: ""},
-            og: {av: "", sphere: "", cylindre: "", axe: ""},
+            od: {av: "0", sphere: "0", cylindre: "0", axe: "0"},
+            og: {av: "0", sphere: "0", cylindre: "0", axe: "0"},
         },
         {
             name: "Correction de prés",
             lignes: 1,
             ref: "cp",
-            od: {av: "", sphere: "", cylindre: "", axe: ""},
-            og: {av: "", sphere: "", cylindre: "", axe: ""},
+            od: {av: "0", sphere: "0", cylindre: "0", axe: "0"},
+            og: {av: "0", sphere: "0", cylindre: "0", axe: "0"},
         },
         {
             name: "Prescription finale",
             lignes: 2,
             ref: "pf",
-            od: {av: "L", sphere: "", cylindre: "", axe: ""},
-            og: {av: "L", sphere: "", cylindre: "", axe: ""},
+            od: {av: "L", sphere: "0", cylindre: "0", axe: "0"},
+            og: {av: "L", sphere: "0", cylindre: "0", axe: "0"},
         },
         {
             name: "",
             lignes: 1,
             ref: "pfp",
-            od: {av: "P", sphere: "", cylindre: "", axe: ""},
-            og: {av: "P", sphere: "", cylindre: "", axe: ""},
+            od: {av: "P", sphere: "0", cylindre: "0", axe: "0"},
+            og: {av: "P", sphere: "0", cylindre: "0", axe: "0"},
         },
         {
             name: "Lentille",
             lignes: 1,
             ref: "len",
-            od: {av: "x", sphere: "", cylindre: "", axe: ""},
-            og: {av: "x", sphere: "", cylindre: "", axe: ""},
+            od: {av: "x", sphere: "0", cylindre: "0", axe: "0"},
+            og: {av: "x", sphere: "0", cylindre: "0", axe: "0"},
         },
     ]);
     const [examination, setExamination] = useState([
@@ -88,7 +88,6 @@ export default function OphtPreview({...props}) {
     }
 
     useEffect(() => {
-        console.log(data)
         if (data && data.eyes) {
             data.eyes.acuiteVisuelle && setAcuiteVisuelle([...data.eyes.acuiteVisuelle]);
             data.eyes.examination && setExamination([...data.eyes.examination]);
@@ -148,13 +147,13 @@ export default function OphtPreview({...props}) {
                         {av.name && <td rowSpan={av.lignes} className={"title col"}>{t(av.ref)}</td>}
                         {subTitle.map((od, index) => (
                             <td className={"col"} key={`od-${index}`}>
-                                <Typography className={"val"}>{av.od[od]}</Typography>
+                                <Typography className={av.od[od] == "0" ?"valIs0":"val"}>{av.od[od]}</Typography>
                             </td>
                         ))}
 
                         {subTitle.map((og, index) => (
                             <td className={"col"} key={`og-${index}`}>
-                                <Typography className={"val"}>{av.og[og]}</Typography>
+                                <Typography className={av.og[og] == "0" ?"valIs0":"val"} style={{color:av.og[og] == "0" ? "grey":""}}>{av.og[og]}</Typography>
                             </td>
                         ))}
                     </tr>
@@ -379,6 +378,7 @@ export default function OphtPreview({...props}) {
 
                                 const form = new FormData();
                                 form.append("modal_data", JSON.stringify(res));
+                                form.append("modal_uuid", selectedModel?.default_modal.uuid);
                                 triggerAppointmentEdit({
                                     method: "PUT",
                                     url,
