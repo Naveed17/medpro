@@ -98,11 +98,10 @@ function DocumentsPanel({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
-    //const [documents, setDocuments] = useState<any[]>([]);
     const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
-    //const [quotes, setQuotes] = useState<any[]>([]);
     const [openQuoteDialog, setOpenQuoteDialog] = useState<boolean>(false);
     const [acts, setActs] = useState<AppointmentActModel[]>([]);
+    const [note,setNotes] = useState("");
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -127,6 +126,7 @@ function DocumentsPanel({...props}) {
 
     const documents = (httpAppDocPatientResponse as HttpResponse)?.data.reduce((docs: any[], doc: any) => [...(docs ?? []), ...doc?.documents], []) ?? [];
     const quotes = (httpQuotesResponse as HttpResponse)?.data ?? [];
+
     const tabsContent = [
         {
             title: "Documents du rendez-vous",
@@ -236,6 +236,7 @@ function DocumentsPanel({...props}) {
                 createdAt: card.createdAt,
                 name: 'certif',
                 detectedType: card.type,
+                title:card.title,
                 type: 'write_certif',
                 mutate: mutatePatientDocuments,
                 mutateDetails: mutatePatientDetails
@@ -300,7 +301,7 @@ function DocumentsPanel({...props}) {
             const form = new FormData();
             form.append("patient", patient.uuid);
             form.append("num_quote", "");
-            form.append("notes", "");
+            form.append("notes", note);
             form.append("quote_items", JSON.stringify(rows));
 
             triggerQuoteUpdate({
@@ -311,7 +312,7 @@ function DocumentsPanel({...props}) {
                 onSuccess: () => {
                     mutateQuotes().then(() => {
                         setOpenQuoteDialog(false)
-                        showQuote("", acts.filter(act => act.selected));
+                        showQuote("", acts.filter(act => act.selected),note);
                         let _acts = [...acts]
                         _acts.map(act => {
                             act.selected = false
@@ -323,7 +324,7 @@ function DocumentsPanel({...props}) {
         }
     }
 
-    const showQuote = (uuid: string, rows: AppointmentActModel[]) => {
+    const showQuote = (uuid: string, rows: AppointmentActModel[],note:string) => {
         let type = "";
         if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
@@ -333,6 +334,7 @@ function DocumentsPanel({...props}) {
             name: "Quote",
             info: rows,
             uuid: uuid,
+            note,
             mutate: mutateQuotes,
             createdAt: moment().format("DD/MM/YYYY"),
             patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
@@ -422,7 +424,7 @@ function DocumentsPanel({...props}) {
                                                 act_item: { uuid: string; };
                                             }) => qi.act_item && qi.act_item.uuid === act.act.uuid) !== -1
                                         }])
-                                        showQuote(card.uuid, _acts.filter(act => act.selected))
+                                        showQuote(card.uuid, _acts.filter(act => act.selected),card.notes)
                                     }} alignItems={"center"}
                                            padding={2}>
                                         <IconUrl width={20} path={"ic-text"}/>
@@ -624,6 +626,7 @@ function DocumentsPanel({...props}) {
             <Dialog
                 action={"quote-request-dialog"}
                 data={{
+                    note,setNotes,
                     acts, setActs
                 }}
                 open={openQuoteDialog}

@@ -1,11 +1,12 @@
 import {DialogData} from "@features/dialog";
 import DialogTitle from "@mui/material/DialogTitle";
-import {DialogActions, DialogContent, DialogContentText, IconButton, Stack,useMediaQuery} from "@mui/material";
+import {DialogActions, DialogContent, DialogContentText, IconButton, Stack, useMediaQuery} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {Theme} from "@mui/material/styles";
 import Dialog, {DialogProps} from "@mui/material/Dialog";
-import React, { useState} from "react";
+import React, {useState} from "react";
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
 
 function Dialogs({...props}) {
     const {
@@ -22,17 +23,20 @@ function Dialogs({...props}) {
         onClose,
         icon,
         size = "md",
+        enableFullScreen = false,
         sx,
         ...rest
     } = props;
     const selected = DialogData.find((item) => item.action === action);
     const [fullWidth] = useState(true);
+    const [fullScreen, setFullScreen] = useState(false);
     const [maxWidth] = useState<DialogProps["maxWidth"]>(size);
     const Component: any = selected ? selected.component : action;
     const smScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
     return (
         <>
             <Dialog
+                {...(fullScreen && {fullScreen: true})}
                 {...{open, maxWidth, fullWidth}}
                 {...rest}
                 onClose={dialogClose}
@@ -42,15 +46,15 @@ function Dialogs({...props}) {
                 aria-describedby="scroll-dialog-description"
                 {
                     ...(smScreen && {
-                        PaperProps:{
-                            sx:{
+                        PaperProps: {
+                            sx: {
                                 width: '100%',
-                                m:1,
+                                m: 1,
                             }
 
                         }
                     })
-                 }>
+                }>
                 {!headerDialog ? <DialogTitle
                     sx={{
                         backgroundColor: color
@@ -64,6 +68,18 @@ function Dialogs({...props}) {
                         {icon && <HourglassEmptyRoundedIcon/>}
                         {title}
                     </Stack>
+                    {enableFullScreen && <IconButton
+                        aria-label="close"
+                        onClick={() => setFullScreen(!fullScreen)}
+                        sx={{
+                            position: "absolute",
+                            right: onClose ? "3rem" : 8,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            color: (theme) => theme.palette.grey[0],
+                        }}>
+                        <FullscreenIcon/>
+                    </IconButton>}
                     {onClose ? (
                         <IconButton
                             aria-label="close"
@@ -74,16 +90,18 @@ function Dialogs({...props}) {
                                 top: "50%",
                                 transform: "translateY(-50%)",
                                 color: (theme) => theme.palette.grey[0],
-                            }}
-                        >
+                            }}>
                             <CloseIcon/>
                         </IconButton>
                     ) : null}
                 </DialogTitle> : headerDialog}
-                <DialogContent dividers={true} sx={{...sx}}
-                               style={{overflow: action === 'write_certif' ? 'hidden' : ''}}>
+                <DialogContent
+                    dividers={true}
+                    sx={{...sx}}
+                    {...(fullScreen && {sx: {minHeight: 600}})}
+                    style={{overflow: action === 'write_certif' ? 'hidden' : ''}}>
                     <DialogContentText id="scroll-dialog-description" tabIndex={-1}/>
-                    <Component {...(data && {data})}/>
+                    <Component {...(data && {data, fullScreen})}/>
                 </DialogContent>
                 {actionDialog ? <DialogActions style={{width: '100%'}}>{actionDialog}</DialogActions> : null}
             </Dialog>

@@ -40,7 +40,6 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {TabPanel} from "@features/tabPanel";
 import RemoveCircleRoundedIcon from "@mui/icons-material/RemoveCircleRounded";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -92,6 +91,7 @@ function BalanceSheetDialog({...props}) {
 
     const {
         data: httpAnalysisFavoritesResponse,
+        isLoading: isAnalysisFavoritesLoading,
         mutate: mutateAnalysisFavorites
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
@@ -358,47 +358,50 @@ function BalanceSheetDialog({...props}) {
                             </Typography>
 
                             <Box>
-                                {(!loading && analysisFavorites.length > 0) ? (analysisFavorites?.map((analysisItem: AnalysisModel, index: number) => (
-                                            <Chip
-                                                className={"chip-item"}
-                                                key={index}
-                                                id={analysisItem.uuid}
-                                                onClick={() => {
-                                                    addAnalysis(analysisItem)
-                                                }}
-                                                onDragStart={(event) => event.dataTransfer.setData("Text", (event.target as any).id)}
-                                                onDelete={() => {
-                                                    medicalEntityHasUser && triggerFavoriteDelete({
-                                                        method: "DELETE",
-                                                        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${analysisItem.uuid}/${router.locale}`,
-                                                    }, {
-                                                        onSuccess: () => {
-                                                            enqueueSnackbar(t(`alerts.favorite.delete`), {variant: "success"});
-                                                            mutateAnalysisFavorites();
-                                                        }
-                                                    });
-                                                }}
-                                                disabled={analysis.find(an => an.uuid && an.uuid === analysisItem.uuid) !== undefined}
-                                                label={analysisItem.name}
-                                                color="default"
-                                                clickable
-                                                draggable="true"
-                                                deleteIcon={<RemoveCircleRoundedIcon/>}
-                                            />
-                                        )
-                                    )) :
-                                    initialData.map((item, index) => (
+                                {(!isAnalysisFavoritesLoading && analysisFavorites.length > 0) ? (analysisFavorites?.map((analysisItem: AnalysisModel, index: number) => (
                                         <Chip
                                             className={"chip-item"}
                                             key={index}
-                                            label={""}
+                                            id={analysisItem.uuid}
+                                            onClick={() => {
+                                                addAnalysis(analysisItem)
+                                            }}
+                                            onDragStart={(event) => event.dataTransfer.setData("Text", (event.target as any).id)}
+                                            onDelete={() => {
+                                                medicalEntityHasUser && triggerFavoriteDelete({
+                                                    method: "DELETE",
+                                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${analysisItem.uuid}/${router.locale}`,
+                                                }, {
+                                                    onSuccess: () => {
+                                                        enqueueSnackbar(t(`alerts.favorite.delete`), {variant: "success"});
+                                                        mutateAnalysisFavorites();
+                                                    }
+                                                });
+                                            }}
+                                            disabled={analysis.find(an => an.uuid && an.uuid === analysisItem.uuid) !== undefined}
+                                            label={analysisItem.name}
                                             color="default"
                                             clickable
                                             draggable="true"
-                                            avatar={<Skeleton width={90} sx={{marginLeft: '16px !important'}}
-                                                              variant="text"/>}
-                                            deleteIcon={<AddIcon/>}
-                                        />))
+                                            deleteIcon={<RemoveCircleRoundedIcon/>}
+                                        />
+                                    )
+                                )) : isAnalysisFavoritesLoading ? initialData.map((item, index) => (
+                                    <Chip
+                                        className={"chip-item"}
+                                        key={index}
+                                        label={""}
+                                        color="default"
+                                        clickable
+                                        draggable="true"
+                                        avatar={<Skeleton width={90} sx={{marginLeft: '16px !important'}}
+                                                          variant="text"/>}
+                                        deleteIcon={<AddIcon/>}
+                                    />)) : <NoDataCard t={t} ns={"consultation"} data={{
+                                    mainIcon: "ic-analyse",
+                                    title: "no-data.analyse.title",
+                                    description: "no-data.analyse.description",
+                                }}/>
                                 }
                             </Box>
                         </Stack>

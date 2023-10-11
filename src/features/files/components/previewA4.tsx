@@ -6,8 +6,7 @@ import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
 
 function PreviewDialog({...props}) {
-    const {eventHandler, data, values, state, loading, date, t, nbPage} = props;
-
+    const {componentRef, eventHandler, data, values, state, loading, date, t, nbPage} = props;
     const {data: session} = useSession();
 
     const {data: user} = session as Session;
@@ -205,6 +204,8 @@ function PreviewDialog({...props}) {
                             }
                             if (state.cin)
                                 txt = txt.replaceAll('{cin}', state.cin)
+                            if (state.tel)
+                                txt = txt.replaceAll('{tel}', state.tel)
                             txt = txt.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt.replaceAll('[votre nom]', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt.replaceAll('&nbsp;', '')
@@ -318,6 +319,7 @@ function PreviewDialog({...props}) {
             el.id = `page${i}`
             el.style.position = "absolute"
             el.style.top = "0"
+            el.style.opacity = "0"
             if (state && (state.type === 'fees' || state.type === 'quote')) {
                 let total = 0;
                 const elx = document.createElement("table");
@@ -365,6 +367,12 @@ function PreviewDialog({...props}) {
                 tt.style.textAlign = "center"
                 elx.appendChild(tt)
 
+                if (state.note){
+                    const note = document.createElement("p");
+                    note.append(`Note: ${state.note}`);
+                    elx.appendChild(note)
+                }
+
             } else {
                 for (let i = lastPos; i < rows.length; i++) {
                     const elx = document.createElement(rows[i].element);
@@ -401,6 +409,7 @@ function PreviewDialog({...props}) {
         pageX.style.visibility = "hidden"
         pageX.style.position = "absolute"
         pageX.style.top = "0"
+        pageX.style.opacity = "0"
         document.body.append(pageX)
         if (state) {
             if (state.info)
@@ -433,6 +442,7 @@ function PreviewDialog({...props}) {
             {pages.slice(0, nbPage ? 1 : pages.length).map((el, idx) => (
                 <div key={idx}>
                     <PrescriptionA4 {...{
+                        componentRef,
                         data,
                         id: idx,
                         eventHandler,
@@ -443,7 +453,7 @@ function PreviewDialog({...props}) {
                         date,
                         loading,
                         pages
-                    }}></PrescriptionA4>
+                    }}/>
                 </div>
             ))}
         </>

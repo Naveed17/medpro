@@ -1,13 +1,12 @@
 import React from "react";
 
-import {Document, Font, Page, StyleSheet, Text, View} from '@react-pdf/renderer';
+import {Document, Font, Page, PDFViewer, StyleSheet, Text, View} from '@react-pdf/renderer';
 import moment from "moment";
 import {useRequestQuery} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {PDFViewer} from "@react-pdf/renderer";
 
 Font.register({
     family: 'Poppins',
@@ -106,8 +105,14 @@ function PatientFile({...props}) {
     } : null);
 
     const checkKey = (key: string) => {
-        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth";
+        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth" && key !== "eyes";
     }
+
+    const extractContent = (s: string) => {
+        var span = document.createElement('span');
+        span.innerHTML = s;
+        return span.textContent || span.innerText;
+    };
 
     const patientData = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
 
@@ -290,7 +295,7 @@ function PatientFile({...props}) {
                                             {appointment.appointmentData?.map(data => (
                                                 data.name !== 'models' &&
                                                 <Text style={{...styles.text, marginLeft: 10, marginBottom: 5}}
-                                                      key={`${data.uuid}`}>• {t("filter." + data.name)}: {data.value ? data.value : "--"}</Text>
+                                                      key={`${data.uuid}`}>• {t("filter." + data.name)}: {data.value ? extractContent(data.value) : "--"}</Text>
                                             ))}
                                         </View>
                                         <View style={styles.tableCol}>

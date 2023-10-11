@@ -50,15 +50,15 @@ function InsuranceDocumentPrint({...props}) {
                         onSuccess: async (result: any) => {
                             const data = (result?.data as HttpResponse)?.data;
                             const docFile = await fetch(data.url).then((res) => res.arrayBuffer());
-                            const firstDonorPdfDoc = await PDFDocument.load(docFile)
+                            const firstDonorPdfDoc = await PDFDocument.load(docFile);
                             const [CNAMDocP1] = await pdfDoc.copyPages(firstDonorPdfDoc, [0]);
                             const [CNAMDocP2] = await pdfDoc.copyPages(firstDonorPdfDoc, [1]);
                             const [cnamPatientInfoP1] = await pdfDoc.embedPdf(docUpdated, [0]);
                             const [cnamPatientInfoP2] = await pdfDoc.embedPdf(docUpdated, [1]);
                             const page1 = pdfDoc.addPage(CNAMDocP1);
-                            page1.drawPage(cnamPatientInfoP1, {x: 0, y: 5});
+                            page1.drawPage(cnamPatientInfoP1, {x: 0, y: 0});
                             const page2 = pdfDoc.addPage(CNAMDocP2);
-                            page2.drawPage(cnamPatientInfoP2, {x: 0, y: 32});
+                            page2.drawPage(cnamPatientInfoP2, {x: 0, y: 28});
                             const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
                             setFile(mergedPdf);
                         }
@@ -87,7 +87,7 @@ function InsuranceDocumentPrint({...props}) {
                     </ListItemIcon>
                     <ListItemText
                         primary={<Typography fontWeight={700} component='strong'>{insurance.name}</Typography>}/>
-                    <Stack direction={"row"} spacing={1.2} sx={{display: "contents"}}>
+                    <Stack direction={"row"} spacing={1.2}>
                         <FormControlLabel
                             control={<Checkbox
                                 checked={backgroundDoc}

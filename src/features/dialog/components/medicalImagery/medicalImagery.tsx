@@ -72,6 +72,7 @@ function MedicalImageryDialog({...props}) {
 
     const {
         data: httpImagingFavoritesResponse,
+        isLoading: isImagingFavoritesLoading,
         mutate: mutateImagingFavorites
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
@@ -255,7 +256,7 @@ function MedicalImageryDialog({...props}) {
                             </Typography>
 
                             <Box>
-                                {(!loading && imagingFavorites.length > 0) ? imagingFavorites?.slice(0, 20).map((item: any, index: number) => (
+                                {(!isImagingFavoritesLoading && imagingFavorites.length > 0) ? imagingFavorites?.slice(0, 20).map((item: any, index: number) => (
                                         <Chip
                                             className={"chip-item"}
                                             key={index}
@@ -281,8 +282,7 @@ function MedicalImageryDialog({...props}) {
                                             deleteIcon={<RemoveCircleRoundedIcon/>}
                                         />
                                     ))
-                                    :
-                                    initialData.map((item, index) => (
+                                    : isImagingFavoritesLoading ? initialData.map((item, index) => (
                                         <Chip
                                             className={"chip-item"}
                                             key={index}
@@ -294,7 +294,11 @@ function MedicalImageryDialog({...props}) {
                                                               variant="text"/>}
                                             deleteIcon={<AddIcon/>}
                                         />)
-                                    )}
+                                    ) : <NoDataCard t={t} ns={"consultation"} data={{
+                                        mainIcon: "ic-soura",
+                                        title: "no-data.imaging.title",
+                                        description: "no-data.imaging.description",
+                                    }}/>}
                             </Box>
                         </Stack>
                     </FormikProvider>

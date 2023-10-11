@@ -133,8 +133,8 @@ function CIPPatientHistoryCard({...props}) {
             data: params
         }, {
             onSuccess: () => mutateReasonsData().then((result: any) => {
-                const {status} = result?.data;
-                const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
+                const {status, data} = result?.data?.data;
+                const reasonsUpdated = data as ConsultationReasonModel[];
                 if (status === "success") {
                     handleReasonChange([...reasons.filter((reason: {
                         uuid: any;
@@ -224,7 +224,56 @@ function CIPPatientHistoryCard({...props}) {
 
     return (
         <ConsultationDetailCardStyled>
+            <Stack className="card-header" padding={'0.45rem'}
+                   direction="row"
+                   alignItems="center"
+                   justifyContent={hide ? "" : "space-between"}
+                   spacing={2}
+                   borderBottom={hide ? 0 : 1}
+                   sx={{
+                       position: hide ? "absolute" : "static",
+                       transform: hide ? "rotate(90deg)" : "rotate(0)",
+                       transformOrigin: "left",
+                       width: hide ? "44.5rem" : "auto",
+                       left: 23,
+                       top: -26,
+                   }}
+                   borderColor="divider">
+                {hide && <IconButton
+                    sx={{display: {xs: "none", md: "flex"}}}
+                    onClick={() => {
+                        if (isClose) {
+                            return
+                        }
+                        setCloseExam(!closeExam);
+                        handleClosePanel(!closeExam);
 
+                    }}
+                    className="btn-collapse"
+                    disableRipple>
+                    <KeyboardArrowDownRoundedIcon/>
+                </IconButton>}
+                <Typography display='flex' alignItems="center" variant="body1" component="div" color="secondary"
+                            fontWeight={600}>
+                    <Icon path='ic-edit-file-pen'/>
+                    {t("review")}
+                </Typography>
+
+                {!hide && <IconButton
+                    sx={{display: {xs: "none", md: "flex"}}}
+                    onClick={() => {
+                        if (isClose) {
+                            return
+                        }
+                        setCloseExam(!closeExam);
+                        handleClosePanel(!closeExam);
+
+                    }}
+                    className="btn-collapse"
+                    disableRipple>
+                    <ArrowForwardIosIcon/>
+                </IconButton>}
+            </Stack>
             <CardContent style={{padding: 20}}>
                 <FormikProvider value={formik}>
                     <Stack
@@ -337,6 +386,24 @@ function CIPPatientHistoryCard({...props}) {
                             }
                             {
                                 editNote && <Editor
+                                    value={values.notes}
+                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    onEditorChange={(event) => {
+                                        setFieldValue("notes", event);
+                                    }}
+                                    onBlur={() => {
+                                        saveChanges("notes", values.notes)
+                                    }}
+                                    init={{
+                                        branding: false,
+                                        statusbar: false,
+                                        menubar: false,
+                                        height: 200,
+                                        toolbar_mode: 'scrolling',
+                                        plugins: tinymcePlugins,
+                                        toolbar: tinymceToolbar,
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}/>
                                     initialValue={values.notes}
                                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                                     onEditorChange={(event) => {

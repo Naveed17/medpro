@@ -5,7 +5,7 @@ import RootStyled from "./overrides/rootStyled";
 // utils
 import CallIcon from "@mui/icons-material/Call";
 import IconUrl from "@themes/urlIcon";
-import React, {useEffect, useRef, useState,useLayoutEffect} from "react";
+import React, {useRef, useState, useLayoutEffect} from "react";
 import {Label} from "@features/label";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -15,7 +15,7 @@ import {useProfilePhoto} from "@lib/hooks/rest";
 import {AppointmentStatus} from "@features/calendar";
 
 function AppointmentPopoverCard({...props}) {
-    const {data, style, t} = props;
+    const {isBeta, data, style, t} = props;
     const {data: session} = useSession();
     const {patientPhoto} = useProfilePhoto({patientId: data?.patient?.uuid, hasPhoto: data?.patient?.hasPhoto});
 
@@ -44,11 +44,11 @@ function AppointmentPopoverCard({...props}) {
                     fontWeight={400}
                     textAlign="center"
                     noWrap
-                     {...(!data as any && {
-                            sx:{
-                               width: height - 18
-                            }
-                        })}
+                    {...(!data as any && {
+                        sx: {
+                            width: height - 18
+                        }
+                    })}
                     fontSize={12}>
                     {data?.type?.name ?? <Skeleton variant="rectangular" width={height}/>}
                 </Typography>
@@ -123,7 +123,7 @@ function AppointmentPopoverCard({...props}) {
                         {AppointmentStatus[data?.status] ? t(`appointment-status.${AppointmentStatus[data.status].key}`, {ns: "common"}) :
                             <Skeleton variant="text" width={100}/>}</Typography>
                 </Label>
-                {(data?.restAmount > 0 || data?.restAmount < 0) && <Label
+                {(isBeta && (data?.restAmount > 0 || data?.restAmount < 0)) && <Label
                     variant='filled'
                     sx={{
                         "& .MuiSvgIcon-root": {
@@ -164,6 +164,12 @@ function AppointmentPopoverCard({...props}) {
                 </Box>
                 <Box>
                     <Typography
+                        sx={{
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            width: "200px"
+                        }}
                         variant="body1"
                         color="text.primary"
                         fontWeight={700}

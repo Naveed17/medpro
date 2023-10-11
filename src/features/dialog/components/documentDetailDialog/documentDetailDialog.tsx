@@ -45,11 +45,12 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import PreviewA4 from "@features/files/components/previewA4";
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix, generatePdfFromHtml} from "@lib/hooks";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
+import {useSnackbar} from "notistack";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -71,6 +72,7 @@ function DocumentDetailDialog({...props}) {
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+    const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -79,13 +81,14 @@ function DocumentDetailDialog({...props}) {
     const [note, setNote] = useState(state?.description ? state?.description : "");
     const [date, setDate] = useState(moment(state?.createdAt, 'DD-MM-YYYY HH:mm').format("DD/MM/YYYY"));
     const [loading, setLoading] = useState(true);
+    const [loadingReq, setLoadingReq] = useState(false);
     const [openAlert, setOpenAlert] = useState(false);
     const [file, setFile] = useState<any>('');
     const [openRemove, setOpenRemove] = useState(false);
     const [numPages, setNumPages] = useState<number | null>(null);
     const [menu, setMenu] = useState(true);
     const [isImg, setIsImg] = useState(false);
-    const componentRef = useRef<any>(null)
+    const componentRef = useRef<any[]>([])
     const [header, setHeader] = useState(null);
     const [docs, setDocs] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState("");
@@ -107,8 +110,12 @@ function DocumentDetailDialog({...props}) {
             y: 150
         }
     })
+    const [sendEmailDrawer, setSendEmailDrawer] = useState(false);
+    const [previewDoc, setPreviewDoc] = useState<any>(null);
+
     const {direction} = useAppSelector(configSelector);
-    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote','glasses']
+
+    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote', 'glasses']
     const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
     const multimedias = ['video', 'audio', 'photo'];
     const list = [
@@ -140,6 +147,11 @@ function DocumentDetailDialog({...props}) {
             icon: "ic-imprime",
             disabled: multimedias.some(media => media === state?.type)
         },
+        ...(generatedDocs.some(doc => doc == state?.type) ? [{
+            title: 'email',
+            icon: "ic-send-mail",
+            disabled: multimedias.some(media => media === state?.type)
+        }] : []),
         {
             title: data.header.show ? 'hide' : 'show',
             icon: "ic-menu2",
@@ -178,9 +190,12 @@ function DocumentDetailDialog({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const general_information = (user as UserDataResponse).general_information;
 
     const {trigger: triggerDocumentUpdate} = useRequestQueryMutation("/documents/update");
     const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/documents/delete");
+    const {trigger: triggerEmilSend} = useRequestQueryMutation("/documents/email/send");
+
     const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
@@ -192,7 +207,8 @@ function DocumentDetailDialog({...props}) {
 
     const handleClose = () => {
         setOpenAlert(false);
-    };
+    }
+
     const handleYes = () => {
         const selected: any = docs.find((doc: any) => doc.uuid === selectedTemplate);
         if (selected) {
@@ -207,15 +223,17 @@ function DocumentDetailDialog({...props}) {
                 setLoading(false)
             }, 1000)
         }
-    };
+    }
+
     const handlePrint = () => {
         printNow()
     }
 
     const printNow = useReactToPrint({
-        content: () => componentRef.current,
+        content: () => componentRef.current[0],
         documentTitle: `${t(state?.type)} ${state?.patient}`
     })
+
     const downloadF = () => {
         fetch(file).then(response => {
             response.blob().then(blob => {
@@ -228,10 +246,15 @@ function DocumentDetailDialog({...props}) {
         })
     }
 
-    const handleActions = (action: string) => {
+    const handleActions = async (action: string) => {
         switch (action) {
             case "print":
                 handlePrint();
+                break;
+            case "email":
+                setSendEmailDrawer(true);
+                const file = await generatePdfFromHtml(componentRef, "blob");
+                setPreviewDoc(file);
                 break;
             case "delete":
                 setOpenRemove(true)
@@ -239,6 +262,7 @@ function DocumentDetailDialog({...props}) {
             case "edit":
                 switch (state?.type) {
                     case "prescription":
+                        setOpenDialog(false);
                         dispatch(SetSelectedDialog({
                             action: 'medical_prescription_cycle',
                             state: state?.info.map((drug: any) => ({
@@ -303,9 +327,14 @@ function DocumentDetailDialog({...props}) {
                 setData({...data})
                 break;
             case "download":
-                if (generatedDocs.some(doc => doc == state?.type))
-                    printNow();
-                else {
+                if (generatedDocs.some(doc => doc == state?.type)) {
+                    const file = await generatePdfFromHtml(componentRef, "blob");
+                    const fileURL = window.URL.createObjectURL((file as Blob));
+                    let alink = document.createElement('a');
+                    alink.href = fileURL;
+                    alink.download = `${state?.type} ${state?.patient}`
+                    alink.click();
+                } else {
                     downloadF();
                 }
                 break;
@@ -316,6 +345,7 @@ function DocumentDetailDialog({...props}) {
                 break;
         }
     }
+
     const editDoc = (attribute: string, value: string) => {
         const form = new FormData();
         form.append('attribute', attribute);
@@ -332,11 +362,16 @@ function DocumentDetailDialog({...props}) {
             }
         });
     }
-    const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
+
+    const eventHandler = (ev: any, location: {
+        x: any;
+        y: any;
+    }, from: string) => {
         data[from].x = location.x
         data[from].y = location.y
         setData({...data})
     }
+
     const dialogSave = (state: any) => {
         setLoading(true);
         setLoadingRequest && setLoadingRequest(true);
@@ -366,12 +401,49 @@ function DocumentDetailDialog({...props}) {
                     setLoading(false);
                     (documentViewIndex === 1 && mutatePatientDocuments) && mutatePatientDocuments();
                 },
-                onSettled: ()=>{
+                onSettled: () => {
                     setLoadingRequest && setLoadingRequest(false);
                     setOpenDialog && setOpenDialog(false);
                 }
             });
         }
+    }
+
+    const doc = <Document
+        ref={(element) => (componentRef.current as any)[0] = element}
+        file={file}
+        loading={t('wait')}
+        onLoadSuccess={onDocumentLoadSuccess}
+        onLoadError={() => {
+            setError(true)
+        }}>
+        {Array.from(new Array(numPages), (el, index) => (
+            <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
+        ))}
+    </Document>;
+
+    const handleSendEmail = async (data: any) => {
+        setLoadingReq(true);
+        const form = new FormData();
+        form.append('receiver', data.receiver);
+        form.append('sender', general_information.email);
+        form.append('subject', data.subject);
+        form.append('content', data.content);
+        if (data.withFile) {
+            form.append('files[]', await generatePdfFromHtml(componentRef, "blob") as any);
+        }
+
+        triggerEmilSend({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/send-mail/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                setSendEmailDrawer(false);
+                enqueueSnackbar(t("sendEmailWithsuccess"), {variant: 'success'});
+            },
+            onSettled: () => setLoadingReq(false)
+        });
     }
 
     useEffect(() => {
@@ -391,8 +463,10 @@ function DocumentDetailDialog({...props}) {
 
                 if (state.documentHeader) {
                     setSelectedTemplate(state.documentHeader)
-                    const _template = docInfo.find((template: { uuid: string; }) => template.uuid === state.documentHeader)
-                    if (_template){
+                    const _template = docInfo.find((template: {
+                        uuid: string;
+                    }) => template.uuid === state.documentHeader)
+                    if (_template) {
                         setData({
                             ..._template.header.data,
                             background: {
@@ -402,11 +476,12 @@ function DocumentDetailDialog({...props}) {
                         })
                         setHeader(_template.header.header)
                     }
-                }
-                else {
+                } else {
                     const templates: any[] = [];
                     const slug = slugs[generatedDocs.findIndex(gd => gd === state?.type)];
-                    docInfo.map((di: { types: any[]; }) => {
+                    docInfo.map((di: {
+                        types: any[];
+                    }) => {
                         if (di.types.find(type => type.slug === slug))
                             templates.push(di)
                     })
@@ -421,7 +496,9 @@ function DocumentDetailDialog({...props}) {
                         })
                         setHeader(templates[0].header.header)
                     } else {
-                        const defaultdoc = docInfo.find((di: { isDefault: any; }) => di.isDefault);
+                        const defaultdoc = docInfo.find((di: {
+                            isDefault: any;
+                        }) => di.isDefault);
                         if (defaultdoc) {
                             setSelectedTemplate(defaultdoc.uuid)
                             setData({
@@ -450,6 +527,32 @@ function DocumentDetailDialog({...props}) {
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
+    const generatedDocsNode = generatedDocs.some(doc => doc === state?.type) &&
+        <div>
+            {!loading && <PreviewA4
+                {...{
+                    componentRef,
+                    eventHandler,
+                    data,
+                    values: header,
+                    state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
+                        ...state,
+                        info: [{
+                            fees: state?.consultationFees,
+                            hiddenData: true,
+                            act: {
+                                name: "Consultation",
+                            },
+                            qte: 1
+                        }]
+                    } : state,
+                    date,
+                    loading,
+                    t
+                }} />}
+            {loading && <div className={data.size ? data.size : "portraitA5"}></div>}
+        </div>
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -457,37 +560,11 @@ function DocumentDetailDialog({...props}) {
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
-                        {
-                            !multimedias.some(multi => multi === state?.type) &&
+                        {!multimedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
-                                <Box ref={componentRef}>
-                                    {
-                                        generatedDocs.some(doc => doc === state?.type) &&
-                                        <div>
-                                            {!loading && <PreviewA4  {...{
-                                                eventHandler,
-                                                data,
-                                                values: header,
-                                                state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
-                                                    ...state,
-                                                    info: [{
-                                                        fees: state?.consultationFees,
-                                                        hiddenData: true,
-                                                        act: {
-                                                            name: "Consultation",
-                                                        },
-                                                        qte: 1
-                                                    }]
-                                                } : state,
-                                                date,
-                                                loading,
-                                                t
-                                            }} />}
-                                            {loading && <div className={data.size ? data.size : "portraitA5"}></div>}
-                                        </div>
-                                    }
-                                    {
-                                        !generatedDocs.some(doc => doc === state?.type) &&
+                                <Box id={"previewID"}>
+                                    {generatedDocsNode}
+                                    {!generatedDocs.some(doc => doc === state?.type) &&
                                         <Box sx={{
                                             '.react-pdf__Page': {
                                                 marginBottom: 1,
@@ -496,19 +573,7 @@ function DocumentDetailDialog({...props}) {
                                                 }
                                             }
                                         }}>
-                                            {!isImg && !error && <Document ref={
-                                                componentRef} file={file}
-                                                                           loading={t('wait')}
-                                                                           onLoadSuccess={onDocumentLoadSuccess}
-                                                                           onLoadError={() => {
-                                                                               setError(true)
-                                                                           }}
-                                            >
-                                                {Array.from(new Array(numPages), (el, index) => (
-                                                    <Page key={`page_${index + 1}`} pageNumber={index + 1}/>
-                                                ))}
-
-                                            </Document>}
+                                            {!isImg && !error && doc}
                                             {!isImg && error && <Card style={{padding: 10}} onClick={downloadF}>
                                                 <Stack alignItems={"center"} spacing={1} justifyContent={"center"}>
                                                     <IconUrl width={100} height={100} path={"ic-download"}/>
@@ -552,14 +617,13 @@ function DocumentDetailDialog({...props}) {
                                 </Box>
                             </Box>
                         }
-                        {
-                            multimedias.some(multi => multi === state?.type) &&
+                        {multimedias.some(multi => multi === state?.type) &&
                             <Box>
                                 {state?.type === 'photo' &&
                                     <TransformWrapper initialScale={1}>
                                         {({zoomIn, zoomOut, resetTransform}) => (
                                             <React.Fragment>
-                                                <Stack justifyContent={"end"} mr={2}>
+                                                <Stack justifyContent={"end"} direction={"row"} mr={2} ml={2}>
                                                     <ToggleButtonGroup className={"zoombar"} size="small"
                                                                        aria-label="Small sizes">
                                                         <ToggleButton onClick={() => zoomIn()} value="left"
@@ -592,18 +656,17 @@ function DocumentDetailDialog({...props}) {
                 </Grid>
                 <Grid item xs={12} md={menu ? 4 : 1} className="sidebar" color={"white"} style={{background: "white"}}>
                     {menu ? <List>
-                        <ListItem className='secound-list'>
-                            <ListItemButton onClick={() => {
-                                setMenu(false)
-                            }}>
-                                <ListItemIcon>
-                                    <CloseFullscreenIcon/>
-                                </ListItemIcon>
-                                <ListItemText primary={t("close")}/>
-                            </ListItemButton>
-                        </ListItem>
-                        {
-                            actionButtons.map((button, idx) =>
+                            <ListItem className='secound-list'>
+                                <ListItemButton onClick={() => {
+                                    setMenu(false)
+                                }}>
+                                    <ListItemIcon>
+                                        <CloseFullscreenIcon/>
+                                    </ListItemIcon>
+                                    <ListItemText primary={t("close")}/>
+                                </ListItemButton>
+                            </ListItem>
+                            {actionButtons.map((button, idx) =>
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
                                     {!button.disabled && <ListItemButton
                                         className={button.title === "delete" ? "btn-delete" : ""}>
@@ -612,132 +675,123 @@ function DocumentDetailDialog({...props}) {
                                         </ListItemIcon>
                                         {menu && <ListItemText primary={t(button.title)}/>}
                                     </ListItemButton>}
-                                </ListItem>
-                            )
-                        }
-                        <ListItem className='secound-list'>
-                            <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                <Typography color='text.secondary'>
-                                    {t('document_note')}
-                                </Typography>
-                                <TextField
-                                    value={note}
-                                    id={'note-input'}
-                                    multiline
-                                    rows={4}
-                                    onBlur={() => {
-                                        editDoc("description", note)
-                                    }}
-                                    onChange={(ev) => {
-                                        setNote(ev.target.value)
-                                        document.getElementById('note-input')?.focus()
-                                    }}/>
-                            </ListItemButton>
-                        </ListItem>
-                        <ListItem className='secound-list'>
-                            <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                <Typography color='text.secondary'>
-                                    {t('document_name')}
-                                </Typography>
-                                <TextField
-                                    value={name}
-                                    id={'name-input'}
-                                    onBlur={() => editDoc("name", name)}
-                                    onChange={(ev) => {
-                                        setName(ev.target.value)
-                                        document.getElementById('name-input')?.focus()
-                                    }}
-                                />
-                            </ListItemButton>
-                        </ListItem>
-                        <ListItem className='secound-list'>
-                            <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                <Typography color='text.secondary'>
-                                    {t('created_on')}
-                                </Typography>
-                                <TextField
-                                    value={date}
-                                    id={'date-input'}
-                                    onChange={(ev) => {
-                                        setDate(ev.target.value);
-                                        document.getElementById('date-input')?.focus()
-                                    }}
-                                />
-                                {/*<Button size='small' className='btn-modi' onClick={() => console.log(date)}>
+                                </ListItem>)
+                            }
+                            <ListItem className='secound-list'>
+                                <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                    <Typography color='text.secondary'>
+                                        {t('document_note')}
+                                    </Typography>
+                                    <TextField
+                                        value={note}
+                                        id={'note-input'}
+                                        multiline
+                                        rows={4}
+                                        onBlur={() => {
+                                            editDoc("description", note)
+                                        }}
+                                        onChange={(ev) => {
+                                            setNote(ev.target.value)
+                                            document.getElementById('note-input')?.focus()
+                                        }}/>
+                                </ListItemButton>
+                            </ListItem>
+                            <ListItem className='secound-list'>
+                                <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                    <Typography color='text.secondary'>
+                                        {t('document_name')}
+                                    </Typography>
+                                    <TextField
+                                        value={name}
+                                        id={'name-input'}
+                                        onBlur={() => editDoc("name", name)}
+                                        onChange={(ev) => {
+                                            setName(ev.target.value)
+                                            document.getElementById('name-input')?.focus()
+                                        }}
+                                    />
+                                </ListItemButton>
+                            </ListItem>
+                            <ListItem className='secound-list'>
+                                <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                    <Typography color='text.secondary'>
+                                        {t('created_on')}
+                                    </Typography>
+                                    <TextField
+                                        value={date}
+                                        id={'date-input'}
+                                        onChange={(ev) => {
+                                            setDate(ev.target.value);
+                                            document.getElementById('date-input')?.focus()
+                                        }}
+                                    />
+                                    {/*<Button size='small' className='btn-modi' onClick={() => console.log(date)}>
                                     <IconUrl path="ic-edit"/>
                                     {t('modifier')}
                                 </Button>*/}
-                            </ListItemButton>
-                        </ListItem>
-                        {
-                            list.map((item, idx) =>
-                                <ListItem className='secound-list' key={idx}>
-                                    <ListItemButton disableRipple
-                                                    sx={{flexDirection: "column", alignItems: 'flex-start'}}>
-                                        <Typography color='text.secondary'>
-                                            {capitalize(t(item.title))}
-                                        </Typography>
-                                        <Typography fontWeight={700}>
-                                            {item.value}
-                                        </Typography>
-                                    </ListItemButton>
-                                </ListItem>
-                            )
-                        }
-                    </List> : <>
-
-
+                                </ListItemButton>
+                            </ListItem>
+                            {
+                                list.map((item, idx) =>
+                                    <ListItem className='secound-list' key={idx}>
+                                        <ListItemButton disableRipple
+                                                        sx={{flexDirection: "column", alignItems: 'flex-start'}}>
+                                            <Typography color='text.secondary'>
+                                                {capitalize(t(item.title))}
+                                            </Typography>
+                                            <Typography fontWeight={700}>
+                                                {item.value}
+                                            </Typography>
+                                        </ListItemButton>
+                                    </ListItem>
+                                )
+                            }
+                        </List> :
                         <List>
-
-                            <ListItem onClick={() => {
-                                setMenu(true)
-                            }} disablePadding sx={{display: 'block'}}>
+                            <ListItem
+                                onClick={() => {
+                                    setMenu(true)
+                                }} disablePadding sx={{display: 'block'}}>
                                 <ListItemButton
                                     sx={{
                                         minHeight: 48,
                                         justifyContent: 'center',
                                         px: 2.5,
-                                    }}
-                                >
+                                    }}>
                                     <ListItemIcon
                                         sx={{
                                             minWidth: 0,
                                             margin: 'auto',
                                             justifyContent: 'center',
-                                        }}
-                                    >
+                                        }}>
                                         <OpenInFullIcon/>
                                     </ListItemIcon>
                                 </ListItemButton>
                             </ListItem>
 
-                            {
-                                actionButtons.map((button, idx) =>
-                                    !button.disabled &&
-                                    <ListItem key={`${idx}-item`} onClick={() => handleActions(button.title)}
-                                              disablePadding sx={{display: 'block'}}>
-                                        <ListItemButton
+                            {actionButtons.map((button, idx) =>
+                                !button.disabled &&
+                                <ListItem key={`${idx}-item`} onClick={() => handleActions(button.title)}
+                                          disablePadding sx={{display: 'block'}}>
+                                    <ListItemButton
+                                        sx={{
+                                            minHeight: 48,
+                                            justifyContent: 'center',
+                                            px: 2.5,
+                                        }}>
+                                        <ListItemIcon
                                             sx={{
-                                                minHeight: 48,
+                                                minWidth: 0,
+                                                margin: 'auto',
                                                 justifyContent: 'center',
-                                                px: 2.5,
-                                            }}
-                                        >
-                                            <ListItemIcon
-                                                sx={{
-                                                    minWidth: 0,
-                                                    margin: 'auto',
-                                                    justifyContent: 'center',
-                                                }}
-                                            >
-                                                <IconUrl path={button.icon}/>
-                                            </ListItemIcon>
-                                        </ListItemButton>
-                                    </ListItem>
-                                )
+                                            }}>
+                                            <IconUrl path={button.icon}/>
+                                        </ListItemIcon>
+                                    </ListItemButton>
+                                </ListItem>)
                             }
                         </List>
-                    </>}
+                    }
                 </Grid>
             </Grid>
 
@@ -787,6 +841,22 @@ function DocumentDetailDialog({...props}) {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <CustomDialog
+                action={"send-email"}
+                open={sendEmailDrawer}
+                data={{
+                    patient,
+                    preview: previewDoc,
+                    loading: loadingReq,
+                    title: state?.title ?? "", t,
+                    handleSendEmail
+                }}
+                onClose={() => setSendEmailDrawer(false)}
+                aria-labelledby="email-dialog-title"
+                aria-describedby="email-dialog-description"
+                title={t("email")}
+            />
         </DocumentDetailDialogStyled>
     )
 }

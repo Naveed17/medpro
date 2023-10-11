@@ -33,7 +33,7 @@ import {useRouter} from "next/router";
 import Zoom from "react-medium-image-zoom";
 import {useSpeechRecognition} from "react-speech-recognition";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
-import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {capitalizeFirst, getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
 import {dashLayoutSelector} from "@features/base";
@@ -81,6 +81,7 @@ function Consultation() {
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
 
@@ -247,9 +248,9 @@ function Consultation() {
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
-                                        width: "100%"
+                                        width: 150
                                     }}>
-                                    {patient?.firstName} {patient?.lastName}
+                                    {patient?.firstName ? capitalizeFirst(patient.firstName) : ""} {patient?.lastName}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
                                     {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
@@ -285,7 +286,7 @@ function Consultation() {
                                     </Typography>
                                 )}
 
-                                {(patient && (patient?.rest_amount ?? 0) !== 0) && <Label
+                                {(isBeta && patient && (patient?.rest_amount ?? 0) !== 0) && <Label
                                     variant='filled'
                                     sx={{
                                         "& .MuiSvgIcon-root": {

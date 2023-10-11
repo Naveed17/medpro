@@ -65,14 +65,14 @@ const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "left",
     },
-    /*{
+    {
         id: "time",
         numeric: false,
         disablePadding: true,
         label: "time",
         sortable: true,
         align: "left",
-    },*/
+    },
     {
         id: "amount",
         numeric: true,

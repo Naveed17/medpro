@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, Stack, Typography} from "@mui/material";
+import {Button, Stack, TextField, Typography} from "@mui/material";
 import AddRequestQuoteDialogStyle from "./overrides/addRequestQuoteDialogStyle";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
@@ -11,7 +11,7 @@ import {DefaultCountry} from "@lib/constants";
 function AddRequestQuoteDialog({...props}) {
 
     const {data} = props;
-    const {acts, setActs} = data
+    const {acts, setActs, note, setNotes} = data
     const {data: session} = useSession();
     const {t} = useTranslation("consultation");
 
@@ -47,7 +47,7 @@ function AddRequestQuoteDialog({...props}) {
 
 
     return (
-        <AddRequestQuoteDialogStyle>
+        <AddRequestQuoteDialogStyle spacing={0}>
             <Stack direction={"row"} justifyContent={"end"} mb={2}>
                 <Button size='small'
                         variant='contained'
@@ -70,6 +70,20 @@ function AddRequestQuoteDialog({...props}) {
                      isQuoteRequest={true}
             />
 
+
+
+            <Stack style={{
+                position:"absolute",
+                bottom:74,
+                right:0,
+                width:"100%",
+                background:"white",
+                padding:10
+            }}>
+                <TextField value={note}
+                           placeholder={'notes..'}
+                           onChange={(e) => setNotes(e.target.value)}/>
+            </Stack>
         </AddRequestQuoteDialogStyle>
     );
 }

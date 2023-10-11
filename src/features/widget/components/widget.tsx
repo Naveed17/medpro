@@ -212,7 +212,7 @@ function Widget({...props}) {
             const ophtalmo = document.getElementById('opht');
             if (ophtalmo) {
                 const root = ReactDOM.createRoot(ophtalmo);
-                root.render(<OphtPreview {...{t,printGlasses,appuuid,url,triggerAppointmentEdit}}/>)
+                root.render(<OphtPreview {...{t,printGlasses,appuuid,url,triggerAppointmentEdit,data}}/>)
             }
         }, 1000)
     }
@@ -416,6 +416,17 @@ function Widget({...props}) {
                     <Button onClick={() => {
                         setOpenTeeth("")
                         setUpdated(!updated)
+
+                        const form = new FormData();
+                        form.append("modal_data",(localStorage.getItem(`Modeldata${appuuid}`) as string));
+                        form.append("modal_uuid", selectedModel?.default_modal.uuid);
+                        triggerAppointmentEdit({
+                            method: "PUT",
+                            url,
+                            data: form
+                        }, {
+                            onSuccess: () => mutateSheetData()
+                        });
                     }
                     }>{t('save')}</Button>
                 </DialogActions>

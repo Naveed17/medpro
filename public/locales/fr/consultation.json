@@ -92,6 +92,7 @@
   "end of consultation": "fin de la consultation",
   "cancel": "Annuler",
   "note": "Note: ",
+  "write_certif": "Document médical",
   "showAll": "Afficher tout...",
   "notes": "observations",
   "hint text": "Texte d'indice",
@@ -123,6 +124,12 @@
     "insurance_document_print": "Documents assurance",
     "patient_history": "Historique",
     "title": "Titre",
+    "receiver": "Recipient",
+    "subject": "Sujet",
+    "sendEmailWithsuccess": "Email envoyé avec succès",
+    "content": "Contenu",
+    "send_document_joint": "Joindre le fichier",
+    "email": "Envoyer par e-mail",
     "back": "Retour à la consultation d'aujourd'hui",
     "updateHistory": "Vous êtes en train de modifier la consultation du ",
     "add_reason": "Ajouter un nouveau motif",
@@ -460,6 +467,16 @@
       "favorite": {
         "delete": "le favori a été supprimé avec succès"
       }
+    },
+    "no-data": {
+      "imaging": {
+        "title": "Aucun favorite",
+        "description": "Ajouter des imageries médicales"
+      },
+      "analyse": {
+        "title": "Aucun favorite",
+        "description": "Ajouter des bilans"
+      }
     }
   },
   "table": {
@@ -506,6 +523,14 @@
   "price_of_act": "prix de l'acte",
   "end_consultation_btn": "Terminer la consultation",
   "no-data": {
+    "imaging": {
+      "title": "Aucun favorite",
+      "description": "Ajouter des imageries médicales"
+    },
+    "analyse": {
+      "title": "Aucun favorite",
+      "description": "Ajouter des bilans"
+    },
     "event": {
       "title": "Aucun document ",
       "description": "Ajouter des analyses, rapports, imageries médicales, photos, vidéos.... ",

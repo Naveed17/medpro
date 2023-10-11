@@ -31,6 +31,7 @@ import HistoryAppointementContainer from "@features/card/components/historyAppoi
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {WidgetForm} from "@features/widget";
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
+import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import {DocumentsTab, EventType, FeesTab, HistoryTab, Instruction, TabPanel, TimeSchedule} from "@features/tabPanel";
 import AppointHistoryContainerStyled
     from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
@@ -49,7 +50,6 @@ import {cashBoxSelector, ConsultationFilter} from "@features/leftActionBar";
 import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
-import {MobileContainer} from "@themes/mobileContainer";
 import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
 import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
 import {Session} from "next-auth";
@@ -115,9 +115,7 @@ function ConsultationInProgress() {
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
     const {trigger: triggerTransactionCreate} = useRequestQueryMutation("transaction/create");
-    const {trigger: triggerNotificationPush} = useRequestQueryMutation("notification/push");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
-    const {trigger: triggerUsers} = useRequestQueryMutation("users/get");
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
 
@@ -175,7 +173,7 @@ function ConsultationInProgress() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [pendingDocuments, setPendingDocuments] = useState<DocumentPreviewModel[]>([]);
     const [patient, setPatient] = useState<PatientPreview>();
-    const [total, setTotal] = useState(0);
+    const [total, setTotal] = useState(-1);
     const [state, setState] = useState<any>();
     const [openHistoryDialog, setOpenHistoryDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<null | string>("");
@@ -293,6 +291,7 @@ function ConsultationInProgress() {
                 } ${patient?.lastName}`,
                 birthdate: patient?.birthdate,
                 cin: patient?.idCard,
+                tel: patient?.contact && patient?.contact.length > 0 ? patient?.contact[0] : "",
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -477,50 +476,6 @@ function ConsultationInProgress() {
         return payed_amount;
     }
 
-    const sendNotification = () => {
-        triggerUsers({
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/users`
-        }, {
-            onSuccess: (r: any) => {
-                const secretary = (r?.data as HttpResponse).data;
-                if (secretary.length > 0 && patient) {
-                    const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
-                    const restAmount = getTransactionAmountPayed();
-                    const form = new FormData();
-                    form.append("action", "end_consultation");
-                    form.append("root", "agenda");
-                    form.append("content",
-                        JSON.stringify({
-                            fees: total,
-                            restAmount: total - restAmount,
-                            instruction: localInstr ? localInstr : "",
-                            control: checkedNext,
-                            edited: false,
-                            payed: transactions ? restAmount === 0 : restAmount !== 0,
-                            nextApp: meeting ? meeting : "0",
-                            appUuid: app_uuid,
-                            dayDate: sheet?.date,
-                            patient: {
-                                uuid: patient.uuid,
-                                email: patient.email,
-                                birthdate: patient.birthdate,
-                                firstName: patient.firstName,
-                                lastName: patient.lastName,
-                                gender: patient.gender,
-                            },
-                        })
-                    );
-                    triggerNotificationPush({
-                        method: "POST",
-                        url: `${urlMedicalEntitySuffix}/professionals/notification/${router.locale}`,
-                        data: form
-                    });
-                }
-            }
-        })
-    }
-
     const checkTransactions = () => {
         if (!transactions && app_uuid) {
             const form = new FormData();
@@ -541,8 +496,32 @@ function ConsultationInProgress() {
     }
 
     const saveConsultation = () => {
+        setLoading(true);
+        const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
+        const restAmount = getTransactionAmountPayed();
         const form = new FormData();
         form.append("status", "5");
+        form.append("action", "end_consultation");
+        form.append("root", "agenda");
+        form.append("content", JSON.stringify({
+            fees: total,
+            restAmount: total - restAmount,
+            instruction: localInstr ? localInstr : "",
+            control: checkedNext,
+            edited: false,
+            payed: transactions ? restAmount === 0 : restAmount !== 0,
+            nextApp: meeting ? meeting : "0",
+            appUuid: app_uuid,
+            dayDate: sheet?.date,
+            patient: {
+                uuid: patient?.uuid,
+                email: patient?.email,
+                birthdate: patient?.birthdate,
+                firstName: patient?.firstName,
+                lastName: patient?.lastName,
+                gender: patient?.gender,
+            },
+        }));
         triggerAppointmentEdit({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
@@ -554,12 +533,12 @@ function ConsultationInProgress() {
                     dispatch(resetTimer());
                     dispatch(openDrawer({type: "view", open: false}));
                 });
-                sendNotification();
                 checkTransactions();
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
-            }
+            },
+            onSettled: () => setLoading(false)
         });
     }
 
@@ -575,6 +554,7 @@ function ConsultationInProgress() {
 
         form.append("content", state.content);
         form.append("title", state.title);
+        form.append("header", state.documentHeader);
 
         triggerDocumentChat({
             method: "POST",
@@ -740,7 +720,8 @@ function ConsultationInProgress() {
                        width={"100%"}>
                     <Stack spacing={1.5} direction="row" alignItems="center">
                         <IconUrl path={'ic-speaker'}/>
-                        <Typography>{t('consultationIP.updateHistory')} <b>{sheet?.date}</b>.</Typography>
+                        {!isMobile &&
+                            <Typography>{t('consultationIP.updateHistory')} <b>{sheet?.date}</b>.</Typography>}
                     </Stack>
                     <LoadingButton
                         disabled={false}
@@ -780,7 +761,8 @@ function ConsultationInProgress() {
                         mutatePatient,
                         mutateSheetData,
                         setAnchorEl,
-                        dialog, setDialog
+                        dialog, setDialog,
+                        setFilterDrawer
                     }}
                     setPatientShow={() => setFilterDrawer(!drawer)}
                 />
@@ -1206,7 +1188,7 @@ function ConsultationInProgress() {
                                     <span>{t("total")} : </span>
                                 </Typography>
                                 <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                    {isNaN(total) ? "-" : total} {devise}
+                                    {isNaN(total) || total < 0 ? "-" : total} {devise}
                                 </Typography>
                                 <Stack
                                     direction="row"
@@ -1368,36 +1350,18 @@ function ConsultationInProgress() {
                 />
             )}
 
-
-            <MobileContainer>
-                <Button
-                    startIcon={<IconUrl path="ic-filter"/>}
-                    variant="filter"
-                    onClick={() => setFilterDrawer(true)}
-                    sx={{
-                        position: "fixed",
-                        bottom: 100,
-                        transform: "translateX(-50%)",
-                        left: "50%",
-                        zIndex: 999,
-
-                    }}>
-                    {t("filter.title")}{" "}(0)
-                </Button>
-            </MobileContainer>
-
-
             <Fab sx={{
                 position: "fixed",
                 bottom: 76,
                 right: 30
             }}
+                 size={"small"}
                  onClick={() => {
                      setOpenChat(true)
                  }}
                  color={"primary"}
                  aria-label="edit">
-                <SmartToyOutlinedIcon/>
+                <IconUrl path={'ic-chatbot'}/>
             </Fab>
         </>
     );

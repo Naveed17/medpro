@@ -441,16 +441,14 @@ function PaymentRow({...props}) {
                                             hover
                                             onClick={() => handleChildSelect(col)}
                                             role="checkbox"
-
                                             className="collapse-row"
                                             sx={{
-                                                bgcolor: (theme: Theme) =>
-                                                    theme.palette.background.paper,
+                                                bgcolor: (theme: Theme) => data.filterCB && col.payment_date === data.filterCB.start_date ?
+                                                    theme.palette.background.paper: "#ffffff66",
                                                 "&::before": {
                                                     ...(idx > 0 && {
                                                         height: "calc(100% + 8px)",
                                                         top: '-70%'
-
                                                     })
                                                 }
                                             }}>
@@ -475,7 +473,7 @@ function PaymentRow({...props}) {
                                                     }}>
                                                     <Icon path="ic-agenda"/>
                                                     <Typography
-                                                        variant="body2">{moment(col.payment_date.date).format('DD-MM-YYYY')}</Typography>
+                                                        variant="body2">{data.filterCB &&col.payment_date !== data.filterCB.start_date ? t("paidOn"):""}{col.payment_date}</Typography>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell style={{
@@ -539,16 +537,16 @@ function PaymentRow({...props}) {
                                                     </Stack>
                                                 </Stack>
                                             </TableCell>
-                                            <TableCell>
-                                                {col.data.check_number &&
-                                                    <Typography>{col.data.check_number}</Typography>}
-                                            </TableCell>
-                                            <TableCell>
-                                                {col.data.carrier && <Typography>{col.data.carrier}</Typography>}
-                                            </TableCell>
-                                            <TableCell>
-                                                {col.data.bank && <Typography>{col.data.bank}</Typography>}
-                                            </TableCell>
+                                            {col.data.check_number && <TableCell>
+
+                                                <Typography>{col.data.check_number}</Typography>
+                                            </TableCell>}
+                                            {col.data.carrier && <TableCell>
+                                                <Typography>{col.data.carrier}</Typography>
+                                            </TableCell>}
+                                            {col.data.bank && <TableCell>
+                                                <Typography>{col.data.bank}</Typography>
+                                            </TableCell>}
                                             {/*
                                             <TableCell
                                                 align="left"
@@ -574,6 +572,7 @@ function PaymentRow({...props}) {
                                                 style={{
                                                     backgroundColor: "transparent",
                                                     border: "none",
+                                                    opacity: data.filterCB && col.payment_date === data.filterCB.start_date ? 1:0.5
                                                 }}>
                                                 <Typography
                                                     color={
