@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {
+    Avatar,
     Badge,
     Box,
     Button,
@@ -8,10 +9,13 @@ import {
     Checkbox,
     Chip,
     DialogActions,
+    FormControlLabel,
     Grid,
     IconButton,
     InputAdornment,
     InputBase,
+    Radio,
+    RadioGroup,
     Stack,
     TextField,
     Theme,
@@ -38,9 +42,11 @@ import {useRouter} from "next/router";
 import {useRequestQuery} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-
+import {startCase} from 'lodash'
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import {useTransactionEdit} from "@lib/hooks/rest";
+import {TimeSchedule} from "@features/tabPanel";
+import { useTheme } from "@emotion/react";
 
 const limit = 255;
 
@@ -58,11 +64,14 @@ function SecretaryConsultationDialog({...props}) {
             meeting,
             setMeeting,
             checkedNext,
-            setCheckedNext
+            setCheckedNext,
+            addFinishAppointment,
         },
     } = props;
     const router = useRouter();
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const theme  = useTheme() as Theme;
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
     const {data: session} = useSession();
     const {trigger: triggerTransactionEdit} = useTransactionEdit();
 
@@ -71,6 +80,7 @@ function SecretaryConsultationDialog({...props}) {
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
+    const [selectedDose,setSelectedDose] = useState("day")
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -152,21 +162,178 @@ function SecretaryConsultationDialog({...props}) {
                 })
             });
     }
-
     return (
+        <>
+        {addFinishAppointment ?  <Stack spacing={5}>
+            <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
+                            <Avatar 
+                            {...(patient?.hasPhoto && {
+                                alt:patient?.name,
+                                src:patient?.photo
+                            })}
+                             sx={{width: 30, height: 30,bgcolor:'primary.main'}} />
+                             <Stack>
+                                <Stack direction={"row"} alignItems={"center"} spacing={.5}>
+                                    <IconUrl path={patient?.gender ==="M" ? 'ic-h':'ic-f'}/>
+                                    <Typography fontWeight={700}>
+                                                    {patient?.firstName} {patient?.lastName}
+                                                    </Typography>
+
+                                
+                             </Stack>
+                             {patient?.contact?.length > 0 && 
+                             <Stack direction='row' alignItems='center' spacing={.5}>
+                                  <IconUrl path="ic-tel" color={theme.palette.text.primary} width={12} height={12}/>
+                                 <Typography variant="body2">{patient?.contact[0]}
+                                    
+
+                                 </Typography>
+                             
+                             </Stack>
+}
+                             </Stack>
+
+                        </Stack>
+            <TimeSchedule select/>
+            </Stack>:(
         <RootStyled>
-            <Grid container>
+            <Grid container spacing={3}>
                 <Grid item md={6} sm={12} xs={12}>
                     <Stack
                         alignItems="center"
                         spacing={2}
-                        maxWidth={{xs: "100%", md: "80%"}}
+                        mx="auto"
+                        width={1}>
+                        <Typography mt={{xs: 3, md: 0}} variant="subtitle1">
+                            {t("recap")}
+                        </Typography>
+                        <Typography>{t("doc_list")}</Typography>
+                        <Box display='grid' sx={{
+                            width: '100%',
+                            gridGap: 16,
+                            gridTemplateColumns: 
+                                "repeat(1,minmax(0,1fr))",
+                               
+                        }}>
+                            {changes.map((item: { checked: boolean; icon: string; name: string; }, idx: number) => (
+                                <Badge key={'feat' + idx} color="success" invisible={!item.checked}>
+                                    <Card className="document-card" sx={{
+                                        borderColor:item.checked ? (theme:Theme) => theme.palette.success.main :(theme:Theme) => theme.palette.divider
+                                    }}>
+                                        <CardContent>
+                                            <Stack direction='row' className="document-detail" alignItems="center">
+                                                <IconUrl path={item.icon} width={16} height={16}/>
+                                                <Typography variant='subtitle2' textAlign={"center"}
+                                                ml={1}
+                                                            whiteSpace={"nowrap"} fontSize={11}>
+                                                    {t("consultationIP." + item.name)}
+                                                </Typography>
+                                                {
+                                                    item.checked ? (
+                                                    <IconButton size="small" disableRipple sx={{ml:'auto'}}>
+                                                  <IconUrl path={"ic-printer"} color={theme.palette.primary.main} width={16} height={16}/>
+                                                </IconButton>
+                                                    )
+                                                :
+                                                (
+                                                <IconButton size="small" disableRipple sx={{ml:'auto'}}>
+                                                  <IconUrl path={"ic-plus"} color={theme.palette.primary.main} width={16} height={16}/>
+                                                </IconButton>
+                                                )
+                                                }
+                                                
+                                               
+                                            </Stack>
+                                        </CardContent>
+                                    </Card>
+                                </Badge>
+                            ))}
+                        </Box>
+
+                    </Stack>
+                </Grid>
+               <Grid item md={6} sm={12} xs={12}>
+                    <Stack
+                        alignItems="center"
+                        spacing={2}
                         mx="auto"
                         width={1}>
                         <Typography variant="subtitle1">
                             {t("finish_the_consutation")}
                         </Typography>
                         <Typography>{t("type_the_instruction_for_the_secretary")}</Typography>
+                        <Stack pt={3} direction={{xs:'column',sm:'row'}} alignItems='center' justifyContent='space-between' spacing={{xs:2,sm:0}} width={1}>
+                           
+                        <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
+                            <Avatar 
+                            {...(patient?.hasPhoto && {
+                                alt:patient?.name,
+                                src:patient?.photo
+                            })}
+                             sx={{width: 30, height: 30,bgcolor:'primary.main'}} />
+                             <Stack>
+                                <Stack direction={"row"} alignItems={"center"} spacing={.5}>
+                                    <IconUrl path={patient?.gender ==="M" ? 'ic-h':'ic-f'}/>
+                                    <Typography fontWeight={700}>
+                                                    {patient?.firstName} {patient?.lastName}
+                                                    </Typography>
+
+                                
+                             </Stack>
+                             {patient?.contact?.length > 0 && 
+                             <Stack direction='row' alignItems='center' spacing={.5}>
+                                  <IconUrl path="ic-tel" color={theme.palette.text.primary} width={12} height={12}/>
+                                 <Typography variant="body2">{patient?.contact[0]}
+                                    
+
+                                 </Typography>
+                             
+                             </Stack>
+}
+                             </Stack>
+
+                        </Stack>
+                         {
+                            total - getTransactionAmountPayed() !== 0 ?
+                                <Stack direction={"row"} alignItems={"center"}>
+                                    {demo && <Button
+                                        endIcon={
+                                            <Typography sx={{fontSize:'16px !important'}}>
+                                                {devise}
+                                            </Typography>
+                                        }
+                                        variant="contained"
+                                        color="error"
+                                        size={"small"}
+                                        style={{
+                                            marginLeft: 5
+                                        }}
+                                        {...(isMobile && {
+
+                                            sx: {minWidth: 40},
+                                        })}
+                                        onClick={openDialogPayment}
+                                    >
+                                         
+                                         <Typography ml={1}>{t("amount_paid")}</Typography>
+                                         <Typography component='span' fontWeight={700} variant="subtitle2" ml={1}>
+                                            {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
+                                            {" "} 
+                                         </Typography>
+                                    </Button>
+                                    }
+                                </Stack> :
+                                <Chip
+                                    label={`${total} ${devise}`}
+                                    color={"success"}
+                                    onDelete={() => {
+                                    }}
+                                    deleteIcon={<DoneAllRoundedIcon/>}
+                                />
+                        }
+                        </Stack>
+                        <Stack className="instruction-box" spacing={1}>
+                            <Typography variant="body2" color="text.secondary">{t('note')}</Typography>
                         <TextField
                             fullWidth
                             multiline
@@ -185,55 +352,24 @@ function SecretaryConsultationDialog({...props}) {
                                 ),
                             }}
                         />
-                        {
-                            total - getTransactionAmountPayed() !== 0 ?
-                                <Stack direction={"row"} alignItems={"center"}>
-                                    <Typography mr={1}>{t("amount_paid")}</Typography>
-                                    <Label
-                                        variant="filled"
-                                        color={getTransactionAmountPayed() === 0 ? "success" : "warning"}
-                                        sx={{color: (theme) => theme.palette.text.primary}}>
-                                        <Typography
-                                            color="text.primary"
-                                            variant="subtitle1"
-                                            mr={0.3}
-                                            fontWeight={600}>
-                                            {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
-                                        </Typography>
-                                        {devise}
-                                    </Label>
-                                    {demo && <Button
-                                        variant="contained"
-                                        size={"small"}
-                                        style={{
-                                            marginLeft: 5
-                                        }}
-                                        {...(isMobile && {
-
-                                            sx: {minWidth: 40},
-                                        })}
-                                        onClick={openDialogPayment}
-                                    >
-                                        <IconUrl color={"white"} path="ic-fees"/> {!isMobile &&
-                                        <Typography fontSize={12} ml={1}>{t("pay")}</Typography>}
-                                    </Button>}
-                                </Stack> :
-                                <Chip
-                                    label={`${total} ${devise}`}
-                                    color={"success"}
-                                    onDelete={() => {
-                                    }}
-                                    deleteIcon={<DoneAllRoundedIcon/>}
-                                />
-                        }
+                        
                         <Button
                             className="counter-btn"
                             disableRipple
                             color="info"
                             variant="outlined"
-                            onClick={() => setCheckedNext(!checkedNext)}>
+                            onClick={() => {setCheckedNext(!checkedNext);
+                            }}>
+                             <Stack direction="row" alignItems='center' 
+                              {
+                                ...(checkedNext && isSmall && {
+                                    mb:1
+                                })
+                              }
+                             >  
                             <Checkbox checked={checkedNext}/>
-                            {t("plan_a_meeting")}
+                            <Typography>{t("plan_a_meeting")}</Typography>
+                            </Stack> 
                             {checkedNext && (
                                 <>
                                     <InputBase
@@ -271,54 +407,37 @@ function SecretaryConsultationDialog({...props}) {
                                             </IconButton>
                                         }
                                     />
+<RadioGroup
+        row
 
-                                    {t("day")}
+      >
+       
+       
+                                    {
+                                    [
+                                    'day','month','year'
+                                    ].map((item:string)=>(
+                                         <FormControlLabel
+                                         key={item}
+                                         onChange={(e) => {e.stopPropagation()
+                                         setSelectedDose(item)
+                                        }
+                                    }
+          value={item}
+          control={<Radio  checked={selectedDose === item}/>}
+          label={startCase(t(item))}
+          
+        />
+  
+                                    ))
+                                    }
+                                     </RadioGroup>
                                 </>
                             )}
                         </Button>
                     </Stack>
-                </Grid>
-
-                <Grid item md={6} sm={12} xs={12}>
-                    <Stack
-                        alignItems="center"
-                        spacing={2}
-                        maxWidth={{xs: "100%", md: "80%"}}
-                        mx="auto"
-                        width={1}>
-                        <Typography mt={{xs: 3, md: 0}} variant="subtitle1">
-                            {t("recap")}
-                        </Typography>
-
-                        <Box display='grid' sx={{
-                            width: '100%',
-                            gridGap: 16,
-                            gridTemplateColumns: {
-                                xs: "repeat(2,minmax(0,1fr))",
-                                sm: "repeat(3,minmax(0,1fr))"
-                            }
-                        }}>
-                            {changes.map((item: { checked: boolean; icon: string; name: string; }, idx: number) => (
-                                <Badge key={'feat' + idx} color="success" invisible={!item.checked}
-                                       badgeContent={<CheckIcon sx={{width: 8}}/>}>
-                                    <Card style={{width: '100%'}}>
-                                        <CardContent>
-                                            <Stack spacing={2} className="document-detail" alignItems="center">
-                                                <IconUrl path={item.icon}/>
-                                                <Typography variant='subtitle2' textAlign={"center"}
-                                                            whiteSpace={"nowrap"} fontSize={11}>
-                                                    {t("consultationIP." + item.name)}
-                                                </Typography>
-                                            </Stack>
-                                        </CardContent>
-                                    </Card>
-                                </Badge>
-                            ))}
-                        </Box>
-
                     </Stack>
                 </Grid>
-
             </Grid>
 
             <Dialog
@@ -357,6 +476,8 @@ function SecretaryConsultationDialog({...props}) {
                 }
             />
         </RootStyled>
+        )}
+        </>
     );
 }
 
