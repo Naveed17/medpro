@@ -86,7 +86,7 @@ function FeesTab({...props}) {
     const {data: httpAppointmentFees, mutate} = useRequestQuery(app_uuid ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/acts/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
+    } : null);
 
     const res = (httpAppointmentFees as HttpResponse)?.data;
 

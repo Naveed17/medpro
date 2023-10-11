@@ -204,7 +204,11 @@
   "analyse": "Analyse",
   "rapport": "Rapport",
   "today": "Aujourd’hui",
-  "permission": "Vous n'avez pas la permission d'accéder à cette ressource",
+  "permission": {
+    "title":"Permission d'accéder",
+    "description":"Vous n'avez pas la permission d'accéder à cette ressource",
+    "button":"Retourner"
+  },
   "back": "Retour",
   "notif_alert": "Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications.",
   "install_app": "Installer l'app",

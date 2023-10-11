@@ -292,6 +292,7 @@ const Content = ({...props}) => {
                 patient: `${type} ${
                     patient.firstName
                 } ${patient.lastName}`,
+                cin:patient?.idCard ? patient?.idCard : "",
                 mutate: mutatePatientDocuments,
             });
             setOpenDialogDoc(true);

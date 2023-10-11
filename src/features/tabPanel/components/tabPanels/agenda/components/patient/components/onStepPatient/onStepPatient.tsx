@@ -1,6 +1,7 @@
 import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import {
-    Autocomplete, Avatar,
+    Autocomplete,
+    Avatar,
     Box,
     Button,
     Card,
@@ -34,9 +35,6 @@ import {useRouter} from "next/router";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
@@ -45,7 +43,7 @@ import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
+import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
@@ -53,6 +51,8 @@ import {LoadingButton} from "@mui/lab";
 import {CountrySelect} from "@features/countrySelect";
 import {arrayUniqueByKey} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -126,12 +126,10 @@ function OnStepPatient({...props}) {
         firstName: Yup.string()
             .min(3, t("first-name-error"))
             .max(50, t("first-name-error"))
-            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
             .required(t("first-name-error")),
         lastName: Yup.string()
             .min(3, t("last-name-error"))
             .max(50, t("last-name-error"))
-            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
             .required(t("last-name-error")),
         phones: Yup.array().of(
             Yup.object().shape({
@@ -518,9 +516,9 @@ function OnStepPatient({...props}) {
                                             withCountryCallingCode
                                             {...(getFieldProps(`phones[${index}].phone`) &&
                                                 {
-                                                    helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
-                                                        getFieldProps(`phones[${index}].phone`).value : ""}`
-                                                })}
+                                                    helperText: getFieldProps(`phones[${index}].phone`)?.value ? `${commonTranslation("phone_format")} : ${getFieldProps(`phones[${index}].phone`).value}` : ""
+                                                }
+                                            )}
                                             error={Boolean(errors.phones && (errors.phones as any)[index])}
                                             country={phoneObject.dial?.code.toUpperCase() as any}
                                             value={getFieldProps(`phones[${index}].phone`) ?
