@@ -43,7 +43,7 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {startCase} from 'lodash'
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import {useTransactionEdit} from "@lib/hooks/rest";
-import {TimeSchedule} from "@features/tabPanel";
+import {EventType, TimeSchedule} from "@features/tabPanel";
 import {useTheme} from "@emotion/react";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
@@ -166,7 +166,7 @@ function SecretaryConsultationDialog({...props}) {
 
     return (
         <>
-            {addFinishAppointment ? <Stack spacing={5}>
+            {addFinishAppointment ? <Stack spacing={1}>
                 <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
                     <Avatar
                         {...(patient?.hasPhoto && {
@@ -188,6 +188,7 @@ function SecretaryConsultationDialog({...props}) {
                         }
                     </Stack>
                 </Stack>
+                <EventType select defaultType={1}/>
                 <TimeSchedule select/>
             </Stack> : (
                 <RootStyled>

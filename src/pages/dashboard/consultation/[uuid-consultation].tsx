@@ -36,7 +36,7 @@ import {
     EventType,
     FeesTab,
     HistoryTab,
-    Instruction,
+    Instruction, resetAppointment,
     TabPanel,
     TimeSchedule
 } from "@features/tabPanel";
@@ -81,6 +81,7 @@ function ConsultationInProgress() {
     const {t} = useTranslation("consultation");
     //***** SELECTORS ****//
     const {
+        appointmentTypes,
         medicalEntityHasUser,
         medicalProfessionalData
     } = useAppSelector(dashLayoutSelector);
@@ -92,6 +93,7 @@ function ConsultationInProgress() {
     const {tableState} = useAppSelector(tableActionSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
     const {
+        type,
         motif,
         duration,
         recurringDates
@@ -492,7 +494,7 @@ function ConsultationInProgress() {
             }))));
             motif && form.append('consultation_reasons', motif.toString());
             form.append('duration', duration as string);
-            //form.append('type', type);
+            form.append('type', type);
         }
         triggerAppointmentEdit({
             method: "PUT",
@@ -503,6 +505,7 @@ function ConsultationInProgress() {
                 setActions(false);
                 batch(() => {
                     dispatch(resetTimer());
+                    dispatch(resetAppointment());
                     dispatch(openDrawer({type: "view", open: false}));
                 });
                 checkTransactions();
