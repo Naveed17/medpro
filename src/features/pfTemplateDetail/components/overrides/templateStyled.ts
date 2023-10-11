@@ -18,11 +18,12 @@ const TemplateStyled = styled("div")(({theme}) => ({
          [theme.breakpoints.down("md")]:{
             width:'100%',
             marginRight:'0 !important',
-            marginBottom:40,
+            marginBottom:150,
             
         },
         [theme.breakpoints.between("sm", "md")]:{
-            height:'calc(100% - 200px)'
+            height:'calc(100% - 200px)',
+            marginBottom:0,
         },
     },
     "& .container": {
@@ -98,11 +99,12 @@ const TemplateStyled = styled("div")(({theme}) => ({
         [theme.breakpoints.down("md")]:{
             width:'100%',
             marginRight:'0 !important',
-            marginBottom:40,
+            marginBottom:150,
             
         },
         [theme.breakpoints.between("sm", "md")]:{
-            height:'calc(100% - 200px)'
+            height:'calc(100% - 200px)',
+            marginBottom:0,
         },
     }
 }));
