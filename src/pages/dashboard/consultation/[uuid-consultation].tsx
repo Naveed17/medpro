@@ -10,7 +10,11 @@ import {
     Drawer,
     Fab,
     Grid,
-    IconButton, ListItemIcon, ListItemText, MenuItem, MenuList,
+    IconButton,
+    ListItemIcon,
+    ListItemText,
+    MenuItem,
+    MenuList,
     Stack,
     Toolbar,
     Typography,
@@ -30,8 +34,6 @@ import {MyCardStyled, MyHeaderCardStyled, SubHeader} from "@features/subHeader";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {WidgetForm} from "@features/widget";
-import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
-import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import {DocumentsTab, EventType, FeesTab, HistoryTab, Instruction, TabPanel, TimeSchedule} from "@features/tabPanel";
 import AppointHistoryContainerStyled
     from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
@@ -62,6 +64,7 @@ import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 import {ModelDot} from "@features/modelDot";
+import {DocumentPreview} from "@features/tabPanel/components/consultationTabs/documentPreview";
 
 //%%%%%% %%%%%%%
 const grid = 8;
@@ -188,15 +191,9 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [transactions, setTransactions] = useState(null);
     const [restAmount, setRestAmount] = useState(0);
-
-    const [sheet, setSheet] = useState<any>(null);
-    const [sheetExam, setSheetExam] = useState<any>(null);
-    const [hasDataHistory, setHasDataHistory] = useState<any>(null);
-    const [tabsData, setTabsData] = useState<any[]>([]);
-    const [sheetModal, setSheetModal] = useState<any>(null);
-
+    const [showDocument, setShowDocument] = useState(false);
     const [cards, setCards] = useState([[
-        {id: 'item-1', content: 'widget', expanded: false,config:false, icon: "ic-edit-file-pen"},
+        {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
     ], [{id: 'item-3', content: 'exam', expanded: false, icon: "ic-edit-file-pen"}]]);
 
@@ -215,21 +212,14 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    useEffect(() => {
-        if (httpSheetResponse) {
-            const data = (httpSheetResponse as HttpResponse)?.data
-            setSheet(data)
-            setSheetExam(data?.exam)
-            setSheetModal(data?.modal)
-            setHasDataHistory(data?.hasDataHistory)
-            setTabsData([...data?.hasHistory ? [{
-                label: "patient_history",
-                value: "patient history"
-            }] : [], ...tabs])
-        }
-
-
-    }, [httpSheetResponse])
+    const sheet = (httpSheetResponse as HttpResponse)?.data
+    const sheetExam = sheet?.exam;
+    const sheetModal = sheet?.modal;
+    const hasDataHistory = sheet?.hasDataHistory
+    const tabsData = [...sheet?.hasHistory ? [{
+        label: "patient_history",
+        value: "patient history"
+    }] : [], ...tabs]
 
     const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
@@ -242,7 +232,7 @@ function ConsultationInProgress() {
     } : null, ReactQueryNoValidateConfig);
 
     // ********** Requests ********** \\
-    const changeModel = (prop: ModalModel,ind:number,index:number) => {
+    const changeModel = (prop: ModalModel, ind: number, index: number) => {
         selectedModel.default_modal = prop;
         setSelectedModel(selectedModel);
 
@@ -274,6 +264,7 @@ function ConsultationInProgress() {
         const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
         invalidateQueries([docUrl])
     }
+
     const showDoc = (card: any) => {
         let type = "";
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
@@ -713,6 +704,7 @@ function ConsultationInProgress() {
             });
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <>
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
@@ -762,7 +754,8 @@ function ConsultationInProgress() {
                         mutateSheetData,
                         setAnchorEl,
                         dialog, setDialog,
-                        setFilterDrawer
+                        setFilterDrawer,
+                        showDocument, setShowDocument
                     }}
                     setPatientShow={() => setFilterDrawer(!drawer)}
                 />
@@ -798,8 +791,8 @@ function ConsultationInProgress() {
                         />
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12}>
+                        <Grid container spacing={1}>
+                            <Grid item xs={showDocument ? 10 : 12}>
                                 <div style={{display: "flex", width: "100%"}}>
                                     <DragDropContext onDragEnd={onDragEnd}>
                                         {cards.map((el, ind) => (
@@ -830,31 +823,37 @@ function ConsultationInProgress() {
                                                                                    style={{backgroundColor: item.content === 'widget' && selectedModel ? alpha(selectedModel?.default_modal.color, 0.3) : ""}}
                                                                                    justifyContent={"space-between"}
                                                                                    onClick={() => {
+                                                                                       document.activeElement && (document.activeElement as HTMLElement).blur();
                                                                                        let _cards = [...cards];
                                                                                        _cards[ind][index].expanded = !item.expanded
                                                                                        setCards([..._cards])
-                                                                                       mutateSheetData();
                                                                                    }}
                                                                                    alignItems={"center"}>
                                                                                 {item.content === 'widget' && selectedModel ?
                                                                                     <MyHeaderCardStyled>
-                                                                                        <Stack direction={"row"} spacing={1}
+                                                                                        <Stack direction={"row"}
+                                                                                               spacing={1}
                                                                                                alignItems={"center"}
                                                                                                border={"1px solid white"}
-                                                                                               onClick={(e)=>{
+                                                                                               onClick={(e) => {
                                                                                                    e.stopPropagation();
                                                                                                    let _cards = [...cards];
                                                                                                    _cards[ind][index].config = !item.config
                                                                                                    _cards[ind][index].expanded = false
                                                                                                    setCards([..._cards])
                                                                                                }}
-                                                                                               style={{padding:"3px 8px",borderRadius:5}}>
+                                                                                               style={{
+                                                                                                   padding: "3px 8px",
+                                                                                                   borderRadius: 5
+                                                                                               }}>
                                                                                             <ModelDot
                                                                                                 color={selectedModel?.default_modal?.color}
                                                                                                 selected={false}/>
                                                                                             <Typography
                                                                                                 className={'card-title'}>{selectedModel?.default_modal.label}</Typography>
-                                                                                            <IconUrl className={"card-icon"} path="ic-flesh-bas-y"/>
+                                                                                            <IconUrl
+                                                                                                className={"card-icon"}
+                                                                                                path="ic-flesh-bas-y"/>
                                                                                         </Stack>
 
                                                                                     </MyHeaderCardStyled> :
@@ -870,7 +869,8 @@ function ConsultationInProgress() {
                                                                                         <KeyboardArrowDownRoundedIcon/>}
                                                                                 </IconButton>
                                                                             </Stack>
-                                                                            <Collapse in={item.expanded} timeout="auto" unmountOnExit>
+                                                                            <Collapse in={item.expanded} timeout="auto"
+                                                                                      unmountOnExit>
                                                                                 {item.content === 'exam' &&
                                                                                     <ConsultationDetailCard
                                                                                         {...{
@@ -901,6 +901,7 @@ function ConsultationInProgress() {
                                                                                                 ...patient
                                                                                             },
                                                                                             dispatch,
+                                                                                            mini: true,
                                                                                             t,
                                                                                             session,
                                                                                             acts,
@@ -941,14 +942,17 @@ function ConsultationInProgress() {
                                                                                 )}
                                                                             </Collapse>
 
-                                                                            <Collapse in={item.config} timeout="auto" unmountOnExit>
+                                                                            <Collapse in={item.config} timeout="auto"
+                                                                                      unmountOnExit>
                                                                                 <MenuList>
                                                                                     {(models as any[])?.map((item: any, idx: number) => (
                                                                                         <Box key={"widgt-x-" + idx}>
                                                                                             {item.isEnabled && (
                                                                                                 <MenuItem
                                                                                                     key={`model-item-${idx}`}
-                                                                                                    onClick={() => {changeModel(item,ind,index)}}>
+                                                                                                    onClick={() => {
+                                                                                                        changeModel(item, ind, index)
+                                                                                                    }}>
                                                                                                     <ListItemIcon>
                                                                                                         <ModelDot
                                                                                                             color={item.color}
@@ -986,90 +990,11 @@ function ConsultationInProgress() {
                                     </DragDropContext>
                                 </div>
                             </Grid>
-                            <Grid item xs={0}>
-                            </Grid>
+                            <Grid item xs={showDocument ? 2 : 0}>
+                                {showDocument &&
+                                    <DocumentPreview {...{docs: changes.filter(c => c.index !== undefined), theme, t}}/>
+                                }                            </Grid>
                         </Grid>
-
-
-                        {/*
-                        <Stack direction={{xs: 'column', md: 'row'}} justifyContent='space-between' spacing={2}>
-                            <AnimatePresence mode="popLayout">
-                                <motion.div
-                                    key={'modal'}
-                                    layoutId="modal-1"
-                                    initial={false}
-                                    animate={{
-                                        width: isMobile ? "100%" : getWidgetSize()
-
-                                    }}
-
-                                >
-                                    {loading && <CardContent
-                                        sx={{
-                                            bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                            border: `1px solid ${theme.palette.grey['A300']}`,
-                                            overflow: 'hidden',
-                                            borderRadius: 2,
-                                            height: {xs: "30vh", md: "40.3rem"},
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                            padding: 0
-                                        }}>
-                                        <Skeleton variant="rounded" width={"100%"}
-                                                  sx={{height: {xs: "30vh", md: "40.3rem"}}}/>
-                                    </CardContent>}
-
-                                    {!loading && !selectedModel && (<CardContent
-                                            sx={{
-                                                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                                border: `1px solid ${theme.palette.grey['A300']}`,
-                                                overflow: 'hidden',
-                                                borderRadius: 2,
-                                                height: {xs: "30vh", md: "40.3rem"},
-                                                display: "flex",
-                                                justifyContent: "center",
-                                                alignItems: "center"
-                                            }}>
-
-                                            <Stack spacing={1} alignItems={"center"}>
-                                                <TuneRoundedIcon/>
-                                                <Typography fontSize={11}
-                                                            textAlign={"center"}>{t('consultationIP.noActiveFile')}</Typography>
-                                                <Typography fontSize={10} textAlign={"center"}
-                                                            style={{opacity: 0.5}}>{t('consultationIP.configure')}</Typography>
-                                                <Button size={"small"} onClick={() => {
-                                                    router.replace("/dashboard/settings/patient-file-templates")
-                                                }}></Button>
-                                            </Stack>
-                                        </CardContent>
-                                    )}
-                                </motion.div>
-                                <motion.div initial={false}
-                                            animate={{
-                                                width: isMobile ? "100%" : getExamSize()
-                                            }}>
-                                    <ConsultationDetailCard
-                                        {...{
-                                            changes,
-                                            setChanges,
-                                            app_uuid,
-                                            exam: sheetExam,
-                                            hasDataHistory,
-                                            seeHistory,
-                                            closed: closeExam,
-                                            setCloseExam,
-                                            isClose,
-                                            agenda,
-                                            trigger: triggerAppointmentEdit
-                                        }}
-                                        handleClosePanel={(v: boolean) => setCloseExam(v)}
-
-                                    />
-                                </motion.div>
-                            </AnimatePresence>
-                        </Stack>
-*/}
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"documents"}>
                         <DocumentsTab

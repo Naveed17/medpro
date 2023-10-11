@@ -28,6 +28,7 @@ function HistoryTab({...props}) {
         setState,
         setInfo,
         router,
+        mini,
         appuuid
     } = props;
 
@@ -125,7 +126,7 @@ function HistoryTab({...props}) {
                     {t("consultationIP.suivi_chiffre")}
                 </Label>
             </Stack>}
-            <div style={{overflowY: "hidden"}}>
+            <div style={{overflowY: "hidden", marginBottom:10}}>
                 {keys.length > 0 &&
                     <HistoryStyled>
                         <thead>
@@ -139,7 +140,7 @@ function HistoryTab({...props}) {
                         {keys.map((key: string) => (
                             <tr key={key}>
                                 <td style={{minWidth: 120}}><Typography
-                                    className={"keys col"}>{sheet[key]['label']}</Typography></td>
+                                    className={"keys col"} style={{width:"100%",whiteSpace: "nowrap"}}>{sheet[key]['label']}</Typography></td>
                                 {dates.map((date: string) => (<td key={date}><Typography
                                     className={"data col"}>{sheet[key]['data'][date] ? sheet[key]['data'][date] + sheet[key]['description'] : '-'}</Typography>
                                 </td>))}
@@ -165,9 +166,9 @@ function HistoryTab({...props}) {
                                     ? dispatch(SetSelectedApp(""))
                                     : dispatch(SetSelectedApp(app.uuid));
                             }}
-                            open={false}
+                            open={app.uuid === selectedApp}
                             key={`${app.uuid}timeline`}>
-                            <AppointmentHistoryPreview {...{app, appuuid, dispatch, t}}>
+                            <AppointmentHistoryPreview {...{app, appuuid, dispatch, t,mini}}>
                                 {selectedApp === app.uuid && <Collapse
                                     in={app.uuid === selectedApp}>
                                     <AppointmentHistoryContent {...{

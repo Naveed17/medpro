@@ -14,7 +14,7 @@ import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useAppSelector} from "@lib/redux/hooks";
 import CircleIcon from '@mui/icons-material/Circle';
 function AppointmentHistoryPreview({...props}) {
-    const {children,app, appuuid,dispatch, t} = props;
+    const {children,app, appuuid,dispatch, t,mini} = props;
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
@@ -59,7 +59,8 @@ function AppointmentHistoryPreview({...props}) {
                         )}
                     </Typography>}
                     <Stack ml="auto" direction={"row"} spacing={1} alignItems={"center"}>
-                        <Chip icon={<CircleIcon style={{color:`${app.type.color}`}}/>} size={"small"} label={app.type.name} color={"info"}/>
+                        {!mini &&<Chip icon={<CircleIcon style={{color: `${app.type.color}`}}/>} size={"small"}
+                              label={app.type.name} color={"info"}/>}
                         <Typography
                             variant="body2"
                             color="text.secondary"

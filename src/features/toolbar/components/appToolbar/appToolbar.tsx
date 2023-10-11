@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Avatar, Button, MenuItem, Stack, Tab, Tabs, tabsClasses, Typography,} from "@mui/material";
+import {Avatar, Button, IconButton, MenuItem, Stack, Tab, Tabs, tabsClasses, Typography,} from "@mui/material";
 import AppToolbarStyled from "./overrides/appToolbarStyle";
 import AddIcon from "@mui/icons-material/Add";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -57,7 +57,8 @@ function AppToolbar({...props}) {
         setPatientShow,
         dialog, setDialog,
         mutateSheetData,
-        setFilterDrawer
+        setFilterDrawer,
+        showDocument, setShowDocument
     } = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
@@ -693,6 +694,9 @@ function AppToolbar({...props}) {
                                     </>
                             }
                         </Button>
+                        <IconButton onClick={()=>setShowDocument(!showDocument)} style={{borderRadius: "0.625rem", border: "1px solid var(--secondaire-gris-claire, #DDD)"}}>
+                            <IconUrl path={"doc"}/>
+                        </IconButton>
                         <StyledMenu
                             {...{open, anchorEl}}
                             id="basic-menu"

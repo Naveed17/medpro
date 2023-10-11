@@ -1,10 +1,10 @@
 import {styled} from '@mui/material/styles';
 
-const HistoryStyled = styled("table")(({theme}) => ({
+const HistoryStyled = styled("table")(() => ({
     width: '100%',
     backgroundColor: 'rgba(255,255,255,.8)',
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 5,
     borderRadius:8,
     "& .col": {
         borderBottom: '1px dashed #E0E0E0',

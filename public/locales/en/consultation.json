@@ -108,7 +108,7 @@
   "history": "Historical Record",
   "exam": "Exam",
   "balance_sheet_request": "Analyses",
-  "reason_for_consultation": "Reason for Consultation",
+  "reason_for_consultation": "Reason",
   "imMedAI": "Hello, I'm MedAI, you want my opinion?",
   "yes": "Yes",
   "wait": "Few moments",
@@ -116,7 +116,7 @@
   "consultationIP": {
     "importResult": "Please import the result of the balance sheet",
     "recent-search": "Select the requested medical imaging",
-    "reason_for_consultation": "Reason for Consultation",
+    "reason_for_consultation": "Reason",
     "patient_history": "Patient History",
     "title": "Title",
     "email": "Send by email",

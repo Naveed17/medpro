@@ -31,7 +31,6 @@ function CIPPatientHistoryCard({...props}) {
         hasDataHistory,
         seeHistory,
         closed,
-        handleClosePanel,
         isClose,
         agenda,
         trigger: triggerAppointmentEdit
@@ -51,7 +50,6 @@ function CIPPatientHistoryCard({...props}) {
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState('');
     let [diseases, setDiseases] = useState<string[]>([]);
-    const [closeExam, setCloseExam] = useState<boolean>(closed);
     const [hide, setHide] = useState<boolean>(false);
     const [editNote, setEditNote] = useState<boolean>(false);
     const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
@@ -224,7 +222,7 @@ function CIPPatientHistoryCard({...props}) {
 
     return (
         <ConsultationDetailCardStyled>
-            <Stack className="card-header" padding={'0.45rem'}
+            {/*<Stack className="card-header" padding={'0.45rem'}
                    direction="row"
                    alignItems="center"
                    justifyContent={hide ? "" : "space-between"}
@@ -273,7 +271,7 @@ function CIPPatientHistoryCard({...props}) {
                     disableRipple>
                     <ArrowForwardIosIcon/>
                 </IconButton>}
-            </Stack>
+            </Stack>*/}
             <CardContent style={{padding: 20}}>
                 <FormikProvider value={formik}>
                     <Stack
@@ -386,24 +384,6 @@ function CIPPatientHistoryCard({...props}) {
                             }
                             {
                                 editNote && <Editor
-                                    value={values.notes}
-                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
-                                    onEditorChange={(event) => {
-                                        setFieldValue("notes", event);
-                                    }}
-                                    onBlur={() => {
-                                        saveChanges("notes", values.notes)
-                                    }}
-                                    init={{
-                                        branding: false,
-                                        statusbar: false,
-                                        menubar: false,
-                                        height: 200,
-                                        toolbar_mode: 'scrolling',
-                                        plugins: tinymcePlugins,
-                                        toolbar: tinymceToolbar,
-                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                                    }}/>
                                     initialValue={values.notes}
                                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                                     onEditorChange={(event) => {
