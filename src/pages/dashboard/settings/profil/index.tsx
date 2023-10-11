@@ -17,7 +17,7 @@ import {
     Skeleton,
     DialogActions,
     useMediaQuery,
-    Theme, Tooltip,
+    Theme, Tooltip, FormControlLabel, Switch,
 } from "@mui/material";
 import CardStyled from "@themes/overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
@@ -39,7 +39,7 @@ import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ImageHandler} from "@features/image";
 
 function Profil() {
@@ -49,6 +49,7 @@ function Profil() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation("settings");
     const {direction} = useAppSelector(configSelector);
@@ -63,6 +64,7 @@ function Profil() {
     const [qualifications, setQualifications] = useState<QualificationModel[]>([]);
     const [info, setInfo] = useState<any[]>([]);
     const [name, setName] = useState<string>("");
+    const [smsRappel, setSmsRappel] = useState(false);
     const [acts, setActs] = useState<MedicalProfessionalActModel[]>([]);
     const [speciality, setSpeciality] = useState<string>("");
     const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
@@ -73,12 +75,14 @@ function Profil() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
     const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/settings/profile/update");
+    const {trigger: triggerSmsRappelEdit} = useRequestQueryMutation("/settings/medicalProfessional/edit");
 
     useEffect(() => {
         if (medicalProfessionalData) {
             const infoData = medicalProfessionalData[0];
             const medical_professional = infoData.medical_professional as MedicalProfessionalModel;
             setName(medical_professional?.publicName);
+            setSmsRappel(medical_professional?.sendSms ?? false);
             let lngs: LanguageModel[] = [];
             medical_professional?.languages.map((lang) => lngs.push(lang.language));
             setLanguages(lngs);
@@ -381,6 +385,55 @@ function Profil() {
                                         onClick={() => dialogOpen("assurance")}>
                                         <IconUrl path="ic-edit"/>
                                     </IconButton>
+                                </Stack>
+                            </ListItem>
+                            <ListItem>
+                                <Stack
+                                    spacing={2.3}
+                                    direction="row"
+                                    alignItems="flex-start"
+                                    width={1}>
+                                    <IconUrl className="left-icon" path="ic-send-mail" width={18} height={18}/>
+                                    <Stack spacing={1} alignItems="flex-start" width={1}>
+                                        <Typography
+                                            variant="subtitle2"
+                                            gutterBottom
+                                            fontWeight={600}>
+                                            {t("profil.sms-rappel")}
+                                        </Typography>
+                                        <Stack
+                                            spacing={1}
+                                            direction={{xs: "column", md: "row"}}
+                                            alignItems={{xs: "stretch", md: "flex-start"}}
+                                            width={1}>
+                                            {loading ? (initialData.map((mode: any, index) => (
+                                                    <Button
+                                                        key={index}
+                                                        variant="outlined"
+                                                        color="info"
+                                                        onClick={() => dialogOpen("mode")}>
+                                                        {<Skeleton width={50} variant="text"/>}
+                                                    </Button>
+                                                ))
+                                            ) : <FormControlLabel
+                                                control={<Switch
+                                                    checked={smsRappel}
+                                                    onChange={e => {
+                                                        setSmsRappel(e.target.checked)
+                                                        const form = new FormData();
+                                                        form.append("attribute", "isSendSms");
+                                                        form.append("value", e.target.checked.toString());
+                                                        triggerSmsRappelEdit({
+                                                            method: "PATCH",
+                                                            url: `${urlMedicalProfessionalSuffix}/config/${router.locale}`,
+                                                            data: form
+                                                        }, {
+                                                            onSuccess: () => invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`]),
+                                                        });
+                                                    }}/>}
+                                                label={t("profil.sms-rappel-send")}/>}
+                                        </Stack>
+                                    </Stack>
                                 </Stack>
                             </ListItem>
                             <ListItem>

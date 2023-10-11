@@ -67,15 +67,22 @@ const headCells = [
         id: "status",
         numeric: false,
         disablePadding: false,
-        label: "request",
+        label: "access",
         align: "center",
         sortable: true,
     },
     {
-        id: "admin",
+        id: "access",
         numeric: false,
         disablePadding: false,
         label: "accessSetting",
+        align: "center",
+        sortable: true,
+    }, {
+        id: "permission",
+        numeric: false,
+        disablePadding: false,
+        label: "docPermission",
         align: "center",
         sortable: true,
     },
@@ -87,14 +94,14 @@ const headCells = [
     //     align: "center",
     //     sortable: true,
     // },
-    {
-        id: "action",
-        numeric: false,
-        disablePadding: false,
-        label: "action",
-        align: "center",
-        sortable: false,
-    },
+    /* {
+         id: "action",
+         numeric: false,
+         disablePadding: false,
+         label: "action",
+         align: "center",
+         sortable: false,
+     },*/
 ];
 
 function Users() {
@@ -119,9 +126,9 @@ function Users() {
 
     const users = (httpUsersResponse as HttpResponse)?.data as UserModel[];
 
-    const handleChange = (props: any, event: any) => {
+    const handleChange = (action: string, props: any, event: any) => {
         const form = new FormData();
-        form.append("attribute", "isActive");
+        form.append("attribute", action === "ACCESS" ? "isActive" : "isDocSee");
         form.append("value", JSON.stringify(event.target.checked));
         triggerUserUpdate({
             method: "PATCH",
@@ -132,7 +139,7 @@ function Users() {
                 mutate();
                 enqueueSnackbar(t("updated"), {variant: "success"});
             }
-        })
+        });
     }
 
     const closeDraw = () => {
@@ -174,7 +181,7 @@ function Users() {
                 <RootStyled>
                     <p style={{margin: 0}}>{t("path")}</p>
                 </RootStyled>
-                <Stack direction="row" alignItems="center" spacing={2}>
+                {/*<Stack direction="row" alignItems="center" spacing={2}>
                     <Button
                         sx={{
                             display: {xs: "none", md: "flex"},
@@ -194,7 +201,7 @@ function Users() {
                         color="success">
                         {t("add")}
                     </Button>
-                </Stack>
+                </Stack>*/}
             </SubHeader>
             <Box className="container">
                 {users && users.length > 0 ? (
@@ -202,7 +209,7 @@ function Users() {
                         <DesktopContainer>
                             <Otable
                                 headers={headCells}
-                                rows={users}
+                                rows={users.filter(user => !user.isProfessional)}
                                 from={"users"}
                                 {...{t, handleChange}}
                                 edit={onDelete}

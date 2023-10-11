@@ -22,6 +22,8 @@
   },
   "profil": {
     "specialities": "Spécialités",
+    "sms-rappel": "SMS de rappel",
+    "sms-rappel-send": "Activer le rappel par SMS",
     "qualification": "Qualification professionnelle",
     "assurence": "Assurance maladie",
     "regMode": "Modes de règlement",
@@ -410,6 +412,7 @@
         "role_professional": "Rôle professionnel",
         "secretary": "Secretaire",
         "active": "Actif",
+        "docPermission": "Accès aux documents de rendez-vous",
         "inactive": "Inactif"
       }
     },
