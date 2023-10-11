@@ -272,6 +272,7 @@ function DocumentsPanel({...props}) {
                 createdAt: card.createdAt,
                 detectedType: card.type,
                 patient: patient.firstName + ' ' + patient.lastName,
+                cin:patient?.idCard ? patient?.idCard : "",
                 mutate: mutatePatientDocuments,
                 mutateDetails: mutatePatientDetails
             })

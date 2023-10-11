@@ -270,6 +270,7 @@ function ConsultationInProgress() {
                 patient: `${type} ${
                     patient?.firstName
                 } ${patient?.lastName}`,
+                cin:patient?.idCard ? patient?.idCard : "",
                 mutate: mutateDoc,
                 mutateDetails: mutatePatient
             });
@@ -757,7 +758,7 @@ function ConsultationInProgress() {
                                             }}
                                             handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
                                     )}
-                                    {!loading && !selectedModel && (<CardContent
+                                    {!loading  && (!models || !selectedModel) && (<CardContent
                                             sx={{
                                                 bgcolor: alpha(theme.palette.primary.main, 0.1),
                                                 border: `1px solid ${theme.palette.grey['A300']}`,

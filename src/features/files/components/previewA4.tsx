@@ -30,14 +30,14 @@ function PreviewDialog({...props}) {
             name: 'name',
             style: {
                 'margin-bottom': 0,
-                'font-size': data.size === 'portraitA4' ? "15px" : '20px',
+                'font-size': data.size === 'portraitA4' ? "17px" : '22px',
                 'font-weight': 'bold'
             }
         },
         {
             name: 'dosage',
             style: {
-                'font-size': data.size === 'portraitA4' ? "14px" : '19px',
+                'font-size': data.size === 'portraitA4' ? "16px" : '21px',
                 'margin-top': 0,
                 'margin-bottom': '1px',
                 'margin-left': '14px'
