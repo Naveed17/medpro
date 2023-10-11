@@ -409,7 +409,7 @@ function SecretaryConsultationDialog({...props}) {
                                                     {['day', 'month', 'year'].map((item: string) => (
                                                         <FormControlLabel
                                                             key={item}
-                                                            onChange={(e) => {
+                                                            onChange={() => {
                                                                 setCheckedNext(true);
                                                                 setTimeout(() => setSelectedDose(item));
                                                             }}

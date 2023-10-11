@@ -49,7 +49,6 @@ import {consultationSelector, SetPatient} from "@features/toolbar";
 import {Dialog, DialogProps, PatientDetail} from "@features/dialog";
 import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
-import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import {useSession} from "next-auth/react";
 import {DrawerBottom} from "@features/drawerBottom";
 import {cashBoxSelector, ConsultationFilter} from "@features/leftActionBar";
@@ -81,7 +80,6 @@ function ConsultationInProgress() {
     const {t} = useTranslation("consultation");
     //***** SELECTORS ****//
     const {
-        appointmentTypes,
         medicalEntityHasUser,
         medicalProfessionalData
     } = useAppSelector(dashLayoutSelector);
