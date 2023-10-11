@@ -211,7 +211,15 @@ function Widget({...props}) {
             const ophtalmo = document.getElementById('opht');
             if (ophtalmo) {
                 const root = ReactDOM.createRoot(ophtalmo);
-                root.render(<OphtPreview {...{t,printGlasses,appuuid,url,triggerAppointmentEdit,data}}/>)
+                root.render(<OphtPreview {...{
+                    t,
+                    printGlasses,
+                    appuuid,
+                    url,
+                    triggerAppointmentEdit,
+                    data,
+                    selectedModel
+                }}/>)
             }
         }, 1000)
     }

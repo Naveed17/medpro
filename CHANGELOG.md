@@ -1,3 +1,17 @@
+## [4.20.2](https://github.com/SmartMedSA/med-pro/compare/v4.20.1...v4.20.2) (2023-10-11)
+
+
+### Bug Fixes
+
+* docs config undefined refs ([fc7e02f](https://github.com/SmartMedSA/med-pro/commit/fc7e02f0dced79913331260a210f5870d41d9be6))
+* end consultation issue ([b4f696e](https://github.com/SmartMedSA/med-pro/commit/b4f696e5748ffa429ad5b2ffdbf07ce3b235788f))
+* loading screen refresh button issue ([24b1bf0](https://github.com/SmartMedSA/med-pro/commit/24b1bf04bd3b24077a24e5bbdde6ffe77b1e020d))
+* loading screen refresh button issue ([92be9ed](https://github.com/SmartMedSA/med-pro/commit/92be9ed84638cc54b7034f262e27d00b86773070))
+* pdf to html multi pages ([54250ed](https://github.com/SmartMedSA/med-pro/commit/54250ed38ce6c458bd4ce7f919a1ae0678eda323))
+* pdf to html multi pages ([64f7d63](https://github.com/SmartMedSA/med-pro/commit/64f7d63e640f6f2cca488b9cc2284a912384c8ea))
+* refresh consultation docs ([1c2a452](https://github.com/SmartMedSA/med-pro/commit/1c2a452324d801b3b450eb24ba55fd673ddc4a71))
+* search patient pagination issue ([cca15f4](https://github.com/SmartMedSA/med-pro/commit/cca15f454f04725f79b7742ab925840c09873ab3))
+
 ## [4.20.1](https://github.com/SmartMedSA/med-pro/compare/v4.20.0...v4.20.1) (2023-10-07)
 
 
