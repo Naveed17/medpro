@@ -157,6 +157,30 @@ const Prescription = ({...props}) => {
                             className="handle">{data.patient.prefix} {state ? state.patient : data.patient.content}</div>}
                     </div>
                 </Draggable>
+
+                {data.cin && <Draggable
+                    onStop={(ev, data) => {
+                        eventHandler(ev, data, 'cin');
+                        setSelected("");
+                    }}
+                    onStart={() => {
+                        setSelected("cin");
+                        setLastSelected("cin");
+                    }}
+                    disabled={eventHandler === null}
+                    defaultPosition={{x: data.cin.x, y: data.cin.y}}
+                    bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
+                    <div style={{
+                        width: "fit-content",
+                        position: "absolute",
+                        zIndex: lastSelected === "cin" ? 999 : 1,
+                        opacity: selected === "" || selected === "cin" ? 1 : 0.5,
+                        border: state === undefined ? selected === 'cin' ? '2px solid #0096d6' : '1px dashed #0096d6' : '0',
+                    }}>
+                        {data.cin.show && <div
+                            className="handle">{data.cin.prefix} {state ? state.cin : data.cin.content}</div>}
+                    </div>
+                </Draggable>}
             </>}
 
             <Draggable

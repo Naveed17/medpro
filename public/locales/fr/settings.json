@@ -659,6 +659,7 @@
       "patient": "Nom patient",
       "firstName": "Nom & prénom",
       "configPatient": "Configurer nom du patient",
+      "cin": "CIN",
       "prefix": "Prefix",
       "configDate": "Configurer date",
       "nom": "Nom",

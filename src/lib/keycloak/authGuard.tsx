@@ -56,7 +56,7 @@ function AuthGuard({children}: LayoutProps) {
     }
 
     if (userPermission.includes(router.pathname) && roles.includes('ROLE_SECRETARY')) {
-        return <LoadingScreen text={t("permission")} iconNote={<LockIcon/>} button={'back'}/>
+        return <LoadingScreen text={"permission"} iconNote={<LockIcon/>} button={'back'}/>
     }
 
     return <>{children}</>;

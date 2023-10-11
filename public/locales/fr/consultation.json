@@ -554,6 +554,7 @@
   "pay": "Payez maintenant",
   "consultation_fees_paid": "Tous les frais de consultation ont été réglés.",
   "recap": "Récapitulatif de la consultation",
+  "doc_list": "Liste Documents",
   "type_the_instruction_for_the_secretary": "Tapez l’instruction pour la secretaire",
   "type_instruction_for_the_secretary": "Tapez l'instruction pour la secretaire",
   "end_consultation": "Fin de consultation",
@@ -565,6 +566,11 @@
   "edit_of_consultation": "Enregistrer modifications",
   "plan_a_meeting": "Planifier un contrôle",
   "day": "Jour",
+  "month": "mois",
+  "year": "an",
+  "back": "Retour",
+  "add_&_finish_appointment": "Terminer et Ajouter un rendez-vous",
+  "later_on": "Plus tard",
   "steppers": {
     "tabs": {
       "tab-1": "Type",

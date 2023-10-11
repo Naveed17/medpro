@@ -34,9 +34,6 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
@@ -62,6 +59,8 @@ import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -94,6 +93,7 @@ function DocsConfig() {
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
         date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
+        cin: {show: false, prefix: 'CIN : ', content: '', x: 40, y: 274},
         size: 'portraitA4',
         content: {
             show: true,
@@ -767,6 +767,20 @@ function DocsConfig() {
                                         : {data.patient.x} , y : {data.patient.y}</Typography>
                                 </fieldset>
                             </Collapse>
+
+                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                                <Checkbox
+                                    checked={data.cin && data.cin.show}
+                                    onChange={(ev) => {
+                                        if(data.cin) {
+                                            data.cin.show = ev.target.checked;
+                                            setData({...data})
+                                        }
+                                        else setData({...data,cin:{show: true, prefix: 'CIN : ', content: '', x: 40, y: 274}})
+                                    }}
+                                />
+                                <ListItemText primary={t("cin")}/>
+                            </ListItem>
                         </List>
                     </Box>
                 </Grid>
