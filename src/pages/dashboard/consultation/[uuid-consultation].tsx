@@ -30,7 +30,16 @@ import HistoryAppointementContainer from "@features/card/components/historyAppoi
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {WidgetForm} from "@features/widget";
 import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
-import {DocumentsTab, EventType, FeesTab, HistoryTab, Instruction, TabPanel, TimeSchedule} from "@features/tabPanel";
+import {
+    appointmentSelector,
+    DocumentsTab,
+    EventType,
+    FeesTab,
+    HistoryTab,
+    Instruction,
+    TabPanel,
+    TimeSchedule
+} from "@features/tabPanel";
 import AppointHistoryContainerStyled
     from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
 import IconUrl from "@themes/urlIcon";
@@ -58,6 +67,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {AnimatePresence, motion} from "framer-motion";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+
 function ConsultationInProgress() {
     const theme = useTheme();
     const router = useRouter();
@@ -81,6 +91,11 @@ function ConsultationInProgress() {
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
+    const {
+        motif,
+        duration,
+        recurringDates
+    } = useAppSelector(appointmentSelector);
 
     const {data: user} = session as Session;
     const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData[0].medical_professional.uuid;
@@ -161,7 +176,8 @@ function ConsultationInProgress() {
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [transactions, setTransactions] = useState(null);
     const [restAmount, setRestAmount] = useState(0);
-    const [addFinishAppointment,setAddFinishAppointment] = useState<boolean>(false);
+    const [addFinishAppointment, setAddFinishAppointment] = useState<boolean>(false);
+
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
     }
@@ -269,7 +285,7 @@ function ConsultationInProgress() {
                 patient: `${type} ${
                     patient?.firstName
                 } ${patient?.lastName}`,
-                cin:patient?.idCard ? patient?.idCard : "",
+                cin: patient?.idCard ? patient?.idCard : "",
                 mutate: mutateDoc,
                 mutateDetails: mutatePatient
             });
@@ -363,8 +379,8 @@ function ConsultationInProgress() {
                     </Typography>
                 </LoadingButton>
                 <Stack direction={"row"} spacing={2} sx={{
-                    ".MuiButton-startIcon":{
-                        mr:{xs:0,md:1}
+                    ".MuiButton-startIcon": {
+                        mr: {xs: 0, md: 1}
                     }
                 }}>
                     <Button
@@ -378,9 +394,9 @@ function ConsultationInProgress() {
                     <Button
                         disabled={checkedNext}
                         onClick={() => setAddFinishAppointment(!addFinishAppointment)}
-                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon/>:<AddIcon/>}>
+                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon/> : <AddIcon/>}>
                         <Typography sx={{display: {xs: "none", md: "flex"}}}>
-                            {t(addFinishAppointment ? "back":"add_&_finish_appointment")}
+                            {t(addFinishAppointment ? "back" : "add_&_finish_appointment")}
                         </Typography>
                     </Button>
                     <LoadingButton
@@ -469,6 +485,15 @@ function ConsultationInProgress() {
                 gender: patient?.gender,
             },
         }));
+        if (recurringDates.length > 0) {
+            form.append('dates', JSON.stringify(recurringDates.map(recurringDate => ({
+                "start_date": recurringDate.date,
+                "start_time": recurringDate.time
+            }))));
+            motif && form.append('consultation_reasons', motif.toString());
+            form.append('duration', duration as string);
+            //form.append('type', type);
+        }
         triggerAppointmentEdit({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
@@ -749,7 +774,7 @@ function ConsultationInProgress() {
                                             }}
                                             handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
                                     )}
-                                    {!loading  && (!models || !selectedModel) && (<CardContent
+                                    {!loading && (!models || !selectedModel) && (<CardContent
                                             sx={{
                                                 bgcolor: alpha(theme.palette.primary.main, 0.1),
                                                 border: `1px solid ${theme.palette.grey['A300']}`,
@@ -954,7 +979,11 @@ function ConsultationInProgress() {
                             disabled={loading}
                             loading={loading}
                             loadingPosition={"start"}
-                            onClick={() => {end();setAddFinishAppointment(false),setCheckedNext(false)}}
+                            onClick={() => {
+                                end();
+                                setAddFinishAppointment(false);
+                                setCheckedNext(false);
+                            }}
                             color={"error"}
                             className="btn-action"
                             startIcon={<IconUrl path="ic-check"/>}
@@ -1008,20 +1037,12 @@ function ConsultationInProgress() {
                         setMeeting,
                         checkedNext,
                         setCheckedNext,
-                        addFinishAppointment,
-                        
+                        addFinishAppointment
                     }}
-                    size={addFinishAppointment ? "md": "lg"}
-                    color={
-                        info === "secretary_consultation_alert" && theme.palette.error.main
-                    }
-                    {...(info === "secretary_consultation_alert" && {
-                        sx: {px: {xs: 2, sm: 3}},
-                    
-                    })}
-                    {...(info === "document_detail" && {
-                        sx: {p: 0},
-                    })}
+                    size={addFinishAppointment ? "md" : "lg"}
+                    color={info === "secretary_consultation_alert" && theme.palette.error.main}
+                    {...(info === "secretary_consultation_alert" && {sx: {px: {xs: 2, sm: 3}}})}
+                    {...(info === "document_detail" && {sx: {p: 0}})}
                     title={t(info === "document_detail" ? "doc_detail_title" : info)}
                     {...((info === "document_detail" || info === "end_consultation") && {
                         onClose: handleCloseDialog,

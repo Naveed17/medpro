@@ -38,43 +38,39 @@ const RootStyled = styled(Stack)(({theme}) => ({
                 height: 14
             }
         },
-        [theme.breakpoints.down('sm')]:{
+        [theme.breakpoints.down('sm')]: {
             width: '100%',
-            flexDirection:'column'
+            flexDirection: 'column'
         }
     },
     '.MuiInputAdornment-root': {
         alignSelf: 'flex-end'
     },
-    ".document-card":{
-        borderRadius:6,
+    ".document-card": {
+        borderRadius: 6,
         width: "100%",
-        '.MuiCardContent-root':{
-            padding:theme.spacing(1),
-            "&:last-child":{
-                paddingBottom:theme.spacing(1)
+        '.MuiCardContent-root': {
+            padding: theme.spacing(1),
+            "&:last-child": {
+                paddingBottom: theme.spacing(1)
             }
         }
     },
-    ".instruction-box":{
-border: `1px dashed ${theme.palette.divider}`,
-width:'100%',
-padding:theme.spacing(1),
-borderRadius:6,
+    ".instruction-box": {
+        border: `1px dashed ${theme.palette.divider}`,
+        width: '100%',
+        padding: theme.spacing(1),
+        borderRadius: 6,
     },
     "@media (max-width: 1024px)": {
         minWidth: 0,
     },
-  
- ["input::-webkit-outer-spin-button,input::-webkit-inner-spin-button"]:{
- "-webkit-appearance": "none",
-    margin: 0
- },
-
-"input[type=number]" :{
-    "-moz-appearance":"textfield" 
-}
-
-
+    ["input::-webkit-outer-spin-button,input::-webkit-inner-spin-button"]: {
+        //"-webkit-appearance": "none",
+        margin: 0
+    },
+    "input[type=number]": {
+        // "-moz-appearance": "textfield"
+    }
 }));
 export default RootStyled;
