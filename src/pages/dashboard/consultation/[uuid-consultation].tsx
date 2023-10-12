@@ -1249,7 +1249,10 @@ function ConsultationInProgress() {
                                                                                 {item.content === 'history' && <div
                                                                                     style={{
                                                                                         padding: 10,
-                                                                                        borderTop: "1px solid #DDD"
+                                                                                        borderTop: "1px solid #DDD",
+                                                                                        borderBottomRightRadius:3,
+                                                                                        borderBottomLeftRadius:3,
+                                                                                        backgroundColor: theme.palette.grey["A10"]
                                                                                     }}>
                                                                                     <HistoryTab
                                                                                         {...{

@@ -3,7 +3,7 @@ import React from 'react'
 import RootStled from './overrides/rootStyle';
 
 function MotifCard({...props}) {
-    const {data, t} = props;
+    const {data,mini, t} = props;
     const models = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type === 'models')
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
     const getLabel = (key: string, from: string) => {
@@ -23,7 +23,7 @@ function MotifCard({...props}) {
         <RootStled>
             <Grid container spacing={2}>
                 {models && models.data && Object.keys(models.data).length > 0 && Object.keys(models.data).filter(ml => models.data[ml]).length > 0 &&
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={mini ? 12:6}>
                         <Card className="motif-card">
                             <CardContent>
                                 <Stack direction="row" alignItems="center" justifyContent="space-between"
@@ -50,7 +50,7 @@ function MotifCard({...props}) {
                     </Grid>
                 }
 
-                {notmodels && <Grid item xs={12} md={6}>
+                {notmodels && <Grid item xs={12} md={mini ? 12:6}>
                     <Card className="motif-card">
                         <CardContent>
                             {data.appointment.appointmentData.map((data: {

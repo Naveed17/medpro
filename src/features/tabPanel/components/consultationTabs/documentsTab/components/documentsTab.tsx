@@ -46,25 +46,28 @@ function DocumentsTab({...props}) {
 
 
     return (
-        <>
+        <Stack spacing={1} padding={2}>
             {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 &&
-                <Typography variant='subtitle2' fontWeight={700} mt={3} mb={1} fontSize={16}>
-                    {t('gallery')}
-                </Typography>}
+                <Stack>
+                    <Typography variant='subtitle2' fontWeight={700} mt={3} mb={1} fontSize={16}>
+                        {t('gallery')}
+                    </Typography>
 
-            <Box style={{overflowX: "auto", marginBottom: 10}}>
-                <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
-                    {
-                        documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                            <React.Fragment key={`doc-item-${idx}`}>
-                                <DocumentCard onClick={() => {
-                                    showDoc(card)
-                                }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
-                            </React.Fragment>
-                        )
-                    }
+                    <Box style={{overflowX: "auto", marginBottom: 10}}>
+                        <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
+                            {
+                                documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
+                                    <React.Fragment key={`doc-item-${idx}`}>
+                                        <DocumentCard onClick={() => {
+                                            showDoc(card)
+                                        }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
+                                    </React.Fragment>
+                                )
+                            }
+                        </Stack>
+                    </Box>
                 </Stack>
-            </Box>
+            }
 
             {documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').length > 0 &&
                 <Typography variant='subtitle2' fontWeight={700} mb={3} fontSize={16}>
@@ -146,7 +149,7 @@ function DocumentsTab({...props}) {
             {documents.length === 0 && (
                 <NoDataCard t={t} ns={"consultation"} data={noCardData}/>
             )}
-        </>
+        </Stack>
     );
 }
 

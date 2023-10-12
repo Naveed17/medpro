@@ -24,6 +24,7 @@ function AppointmentHistoryContent({...props}) {
         setOpenDialog,
         session,
         patient,
+        mini,
         t
     } = props;
     const router = useRouter();
@@ -116,7 +117,7 @@ function AppointmentHistoryContent({...props}) {
 
     return (
         <Stack spacing={2} padding={2}>
-            <MotifCard data={app} t={t}/>
+            <MotifCard data={app} mini={mini} t={t}/>
             <List dense>
                 {SubMotifCard.map((col: any, indx: number) => (
                     <React.Fragment key={`list-item-${indx}`}>

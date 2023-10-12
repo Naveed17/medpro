@@ -181,6 +181,7 @@ function HistoryTab({...props}) {
                                         setOpenDialog,
                                         session,
                                         patient,
+                                        mini,
                                         historyUUID: app.uuid,
                                         t
                                     }}/>
