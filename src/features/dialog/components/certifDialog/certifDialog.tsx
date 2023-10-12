@@ -84,7 +84,7 @@ function CertifDialog({...props}) {
     const [deleteModelDialog, setDeleteModelDialog] = useState<boolean>(false);
     const [dialogAction, setDialogAction] = useState<string>("");
     const [openCertificateModelDialog, setOpenCertificateModelDialog] = useState(false);
-    const [height, setHeight] = React.useState(400);
+    const [height, setHeight] = React.useState(440);
 
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
@@ -343,7 +343,7 @@ function CertifDialog({...props}) {
     }, [httpDocumentHeader])
 
     useEffect(() => {
-        setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 400) : 300);
+        setHeight(fullScreen ? (window.innerHeight > 800 ? 680 : 440) : 340);
     }, [fullScreen, window.innerHeight])  // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -371,7 +371,7 @@ function CertifDialog({...props}) {
                                                 data.state.title = ev.target.value;
                                                 data.setState(data.state)
                                             }}/>
-                                        {selectedColor.map(color => (
+                                        {/*{selectedColor.map(color => (
                                             <ModelDot
                                                 key={color}
                                                 color={color}
@@ -385,7 +385,7 @@ function CertifDialog({...props}) {
                                                     }
                                                 }}>
                                             </ModelDot>
-                                        ))}
+                                        ))}*/}
                                     </Stack>
                                 </Stack>
 
@@ -401,26 +401,24 @@ function CertifDialog({...props}) {
                                             value={folder.uuid}>{folder.name}</MenuItem>)}
                                     </Select>
                                 </Stack>
-                            </Stack>
 
-                            <div style={{display: "flex"}}>
-                                <Typography style={{color: "gray"}} fontSize={12} mt={1}
-                                            mb={1}>{t('consultationIP.alertTitle')}</Typography>
-                                <div style={{marginLeft: 15}}>
-                                    {templates.map((doc: any) => (<FormControlLabel
-                                        key={doc.uuid}
-                                        control={
-                                            <Checkbox checked={selectedTemplate === doc.uuid}
-                                                      onChange={() => {
-                                                          setSelectedTemplate(doc.uuid)
-                                                          data.state.documentHeader = doc.uuid
-                                                          data.setState(data.state)
-                                                      }} name={doc.uuid}/>
-                                        }
-                                        label={doc.title}
-                                    />))}
-                                </div>
-                            </div>
+                                <Stack sx={{width: "100%"}}>
+                                    <Typography style={{color: "gray"}}
+                                                fontSize={12}>{t('consultationIP.alertTitle')}</Typography>
+                                    <Select
+                                        size={"small"}
+                                        value={selectedTemplate}
+                                        onChange={(e) => {
+                                            setSelectedTemplate(e.target.value);
+                                            data.state.documentHeader = e.target.value;
+                                            data.setState(data.state);
+                                        }}>
+                                        {templates.map((template: any, index: number) => <MenuItem
+                                            key={index}
+                                            value={template.uuid}>{template.title}</MenuItem>)}
+                                    </Select>
+                                </Stack>
+                            </Stack>
 
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
                                 <Stack direction={"row"} alignItems={"center"} spacing={1}>
