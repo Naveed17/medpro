@@ -9,6 +9,7 @@ import {
     Tab,
     Tabs,
     tabsClasses,
+    Tooltip,
     Typography,
     Zoom,
 } from "@mui/material";
@@ -63,7 +64,6 @@ function AppToolbar({...props}) {
         setFilterDrawer,
         nbDoc,
         prescription, checkUp, imagery,
-        setActions,
         showDocument, setShowDocument
     } = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -209,7 +209,6 @@ function AppToolbar({...props}) {
                 break;
         }
         setOpenDialog(true);
-        setActions(true);
     };
 
     useEffect(() => {
@@ -225,7 +224,6 @@ function AppToolbar({...props}) {
         }
         setDialog("");
         setOpenDialog(true);
-        setActions(true);
     }, [checkUp, dialog, prescription, setDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -237,21 +235,18 @@ function AppToolbar({...props}) {
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setActions(true);
                     break;
                 case "balance_sheet_request":
                     setInfo("balance_sheet_request");
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setActions(true);
                     break;
                 case "medical_imagery":
                     setInfo("medical_imagery");
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setActions(true);
                     break;
                 case "write_certif":
                     setInfo("write_certif");
@@ -266,7 +261,6 @@ function AppToolbar({...props}) {
                     });
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setActions(true);
                     break;
             }
         }
@@ -433,16 +427,18 @@ function AppToolbar({...props}) {
 
                         {selectedTab === 'consultation_form' && <Zoom in={selectedTab === 'consultation_form'}
                                                                       style={{transitionDelay: selectedTab === 'consultation_form' ? '500ms' : '0ms'}}>
-                            <Badge badgeContent={nbDoc} color="primary">
-                                <IconButton onClick={() => setShowDocument(!showDocument)}
-                                            style={{
-                                                borderRadius: "0.625rem",
-                                                border: "1px solid var(--secondaire-gris-claire, #DDD)",
-                                                width: 40
-                                            }}>
-                                    <IconUrl path={"doc"}/>
-                                </IconButton>
-                            </Badge>
+                            <Tooltip title={t("documents")}>
+                                <Badge badgeContent={nbDoc} showZero={true} color="primary">
+                                    <IconButton onClick={() => setShowDocument(!showDocument)}
+                                                style={{
+                                                    borderRadius: "0.625rem",
+                                                    border: "1px solid var(--secondaire-gris-claire, #DDD)",
+                                                    width: 40
+                                                }}>
+                                        <IconUrl path={"doc"}/>
+                                    </IconButton>
+                                </Badge>
+                            </Tooltip>
                         </Zoom>}
 
                         <StyledMenu

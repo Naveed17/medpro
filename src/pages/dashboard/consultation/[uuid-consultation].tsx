@@ -25,7 +25,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ConsultationDetailCard, PendingDocumentCard, resetTimer, timerSelector} from "@features/card";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
-import {useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {tabs} from "@features/toolbar/components/appToolbar/config";
 import {alpha, Theme} from "@mui/material/styles";
@@ -81,6 +81,7 @@ import {SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 
 //%%%%%% %%%%%%%
+
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
     // some basic styles to make the items look a bit nicer
@@ -99,6 +100,7 @@ const getListStyle = (isDraggingOver: boolean) => ({
     padding: grid,
     width: "50%"
 });
+
 //%%%%%% %%%%%%%
 
 function ConsultationInProgress() {
@@ -139,7 +141,6 @@ function ConsultationInProgress() {
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
     const {trigger: triggerTransactionCreate} = useRequestQueryMutation("transaction/create");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
-    const {trigger: invalidateQueries} = useInvalidateQueries();
     const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
     const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
 
@@ -203,7 +204,6 @@ function ConsultationInProgress() {
     const [info, setInfo] = useState<null | string>("");
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [openSecDialog, setOpenSecDialog] = useState<boolean>(false);
-    const [actions, setActions] = useState<boolean>(false);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
     const [dialog, setDialog] = useState<string>("");
@@ -259,6 +259,16 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/previous/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
+    const {
+        data: httpDocumentResponse,
+        mutate: mutateDoc
+    } = useRequestQuery(medical_professional_uuid && agenda && nbDoc > 0 ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
+
+    const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : []
+
     // ********** Requests ********** \\
     const changeModel = (prop: ModalModel, ind: number, index: number) => {
         selectedModel.default_modal = prop;
@@ -287,11 +297,6 @@ function ConsultationInProgress() {
         setCards([..._cards])
 
     };
-
-    const mutateDoc = () => {
-        const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
-        invalidateQueries([docUrl])
-    }
 
     const showDoc = (card: any) => {
         let type = "";
@@ -416,7 +421,6 @@ function ConsultationInProgress() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
         }, {
             onSuccess: () => {
-                setActions(false);
                 batch(() => {
                     dispatch(resetTimer());
                     dispatch(openDrawer({type: "view", open: false}));
@@ -563,7 +567,6 @@ function ConsultationInProgress() {
             data: form
         }, {
             onSuccess: () => {
-                setActions(false);
                 batch(() => {
                     dispatch(resetTimer());
                     dispatch(resetAppointment());
@@ -580,7 +583,6 @@ function ConsultationInProgress() {
 
     const end = () => {
         setOpenSecDialog(true);
-        setActions(true);
     }
 
     const handleSaveCertif = () => {
@@ -642,7 +644,6 @@ function ConsultationInProgress() {
         setInfo(getPrescriptionUI());
         setAnchorEl(null);
         setOpenDialog(true);
-        setActions(true);
     }
 
     const handleSaveDialog = () => {
@@ -688,7 +689,6 @@ function ConsultationInProgress() {
                             patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
                         });
                         setOpenDialog(true);
-                        setActions(false);
                         setPrescription([]);
 
                         let pdoc = [...pendingDocuments];
@@ -733,7 +733,6 @@ function ConsultationInProgress() {
                             patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
                         });
                         setOpenDialog(true);
-                        setActions(false);
 
                         let pdoc = [...pendingDocuments];
                         pdoc = pdoc.filter((obj) => obj.id !== 1);
@@ -777,7 +776,6 @@ function ConsultationInProgress() {
                             mutate: mutateDoc
                         });
                         setOpenDialog(true);
-                        setActions(false);
 
                         let pdoc = [...pendingDocuments];
                         pdoc = pdoc.filter((obj) => obj.id !== 1);
@@ -800,7 +798,6 @@ function ConsultationInProgress() {
                     onSuccess: () => mutateDoc()
                 });
                 setOpenDialog(true);
-                setActions(true);
                 break;
             case "write_certif":
                 form.append("content", state.content);
@@ -837,7 +834,6 @@ function ConsultationInProgress() {
                             documentHeader: state.documentHeader
                         });
                         setOpenDialog(true);
-                        setActions(false);
                     }
                 });
                 break;
@@ -894,7 +890,7 @@ function ConsultationInProgress() {
         dispatch(SetSelectedDialog(null))
     };
 
-    const showPreview = (action:string) =>{
+    const showPreview = (action: string) => {
         console.log(action)
         switch (action) {
             case "prescription":
@@ -925,6 +921,25 @@ function ConsultationInProgress() {
         setOpenDialog(true);
     }
 
+    const addInfo = (name: string) => {
+        setSelectedTab("consultation_form")
+        setOpenSecDialog(false);
+        let _cards = [...cards];
+        let ind = 0;
+        let index = 0
+        cards.forEach((card, i) => card.forEach((c, j) => {
+            if (c.content === name) {
+                ind = i
+                index = j
+            }
+        }))
+        _cards[ind][index].expanded = true
+        setCards([..._cards])
+    }
+
+    const showCheckedDoc = (name: string) => {
+        showDoc(documents.filter((doc: MedicalDocuments) => doc.documentType === name)[0]);
+    }
 
     //%%%%%% %%%%%%%
     const move = (source: any, destination: any, droppableSource: any, droppableDestination: any) => {
@@ -990,16 +1005,6 @@ function ConsultationInProgress() {
             })
             setActs(_acts);
             setMPActs(_acts);
-
-            let nb = 0;
-            changes.map(change => {
-                if (sheet && sheet[change.name]) {
-                    change.checked = sheet[change.name] > 0;
-                    nb += sheet[change.name]
-                }
-            })
-            setNbDoc(nb);
-            setChanges([...changes])
         }
     }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1044,6 +1049,18 @@ function ConsultationInProgress() {
             });
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        let nb = 0;
+        changes.map(change => {
+            if (sheet && sheet[change.name]) {
+                change.checked = sheet[change.name] > 0;
+                nb += sheet[change.name]
+            }
+        })
+        setNbDoc(nb);
+        setChanges([...changes])
+    }, [documents, sheet]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -1095,7 +1112,6 @@ function ConsultationInProgress() {
                         setFilterDrawer,
                         nbDoc,
                         prescription, checkUp, imagery,
-                        setActions,
                         showDocument, setShowDocument
                     }}
                     setPatientShow={() => setFilterDrawer(!drawer)}
@@ -1131,7 +1147,7 @@ function ConsultationInProgress() {
                             }}
                         />
                     </TabPanel>
-                    <TabPanel padding={1} value={selectedTab}  index={"consultation_form"}>
+                    <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
                         <Grid container spacing={0}>
                             <Grid item xs={showDocument ? 10 : 12}>
                                 <div style={{display: "flex", width: "100%"}}>
@@ -1335,17 +1351,13 @@ function ConsultationInProgress() {
                             </Grid>
                             <Grid item xs={showDocument ? 2 : 0}>
                                 {showDocument && <DocumentPreview {...{
-                                    allDocs:changes.filter(ch => ch.index !== undefined && !ch.checked),
-                                    urlMedicalEntitySuffix,
+                                    allDocs: changes.filter(ch => ch.index !== undefined && !ch.checked),
+                                    documents,
+                                    showDocument,
                                     showDoc,
-                                    agenda,
-                                    app_uuid,
-                                    router,
-                                    medical_professional_uuid,
                                     theme,
-                                    t,
                                     showPreview,
-                                    showDocument
+                                    t,
                                 }}/>
                                 }
                             </Grid>
@@ -1354,11 +1366,8 @@ function ConsultationInProgress() {
                     <TabPanel padding={1} value={selectedTab} index={"documents"}>
                         <DocumentsTab
                             {...{
-                                medical_professional_uuid,
-                                agenda,
-                                urlMedicalEntitySuffix,
-                                selectedDialog,
-                                app_uuid,
+                                documents,
+                                mutateDoc,
                                 showDoc,
                                 router,
                                 t
@@ -1546,33 +1555,30 @@ function ConsultationInProgress() {
                 onClose={() => setOpenSecDialog(false)}
                 open={openSecDialog}
                 data={{
-                    state,
+
                     app_uuid,
                     agenda: agenda?.uuid,
                     patient: {
                         uuid: sheet?.patient,
                         ...patient
                     },
-                    setState,
-                    setDialog,
-                    setOpenDialog,
                     t,
-                    changes,
                     transactions, setTransactions,
                     total, setTotal,
-                    restAmount, setRestAmount,
+                    setRestAmount,
+                    addInfo,
+                    changes,
                     meeting,
                     setMeeting,
                     checkedNext,
                     setCheckedNext,
-                    addFinishAppointment
+                    addFinishAppointment,
+                    showCheckedDoc,
+                    showPreview
                 }}
                 size={addFinishAppointment ? "md" : "lg"}
                 color={theme.palette.error.main}
-                {...(info !== "secretary_consultation_alert" && {dialogClose: handleCloseDialog})}
-                {...(actions && {
-                    actionDialog: <DialogAction/>,
-                })}
+                actionDialog={<DialogAction/>}
             />
 
 

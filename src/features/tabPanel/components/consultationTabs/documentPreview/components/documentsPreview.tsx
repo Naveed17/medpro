@@ -4,35 +4,23 @@ import 'react-h5-audio-player/lib/styles.css';
 import IconUrl from "@themes/urlIcon";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import Slide from "@mui/material/Slide";
-import {useRequestQuery} from "@lib/axios";
 import {iconDocument} from "@lib/constants";
 import {pxToRem} from "@themes/formatFontSize";
 
 function DocumentsPreview({...props}) {
     const {
         allDocs,
-        urlMedicalEntitySuffix,
-        agenda,
-        app_uuid,
-        router,
-        medical_professional_uuid,
+        documents,
         showDocument,
         showDoc,
         theme,
         showPreview,
         t,
     } = props;
-    console.log(allDocs)
-
-    const {data: httpDocumentResponse} = useRequestQuery(medical_professional_uuid && agenda ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
-    } : null);
-    const docs = (httpDocumentResponse as HttpResponse)?.data
 
     return (
         <Stack spacing={1} mt={pxToRem(5)}>
-            {docs && docs.map((doc: any) => (
+            {documents && documents.map((doc: any) => (
                 <Slide direction="down" mountOnEnter unmountOnExit
                        in={showDocument}
                        key={doc.uuid}>
@@ -51,7 +39,7 @@ function DocumentsPreview({...props}) {
                     </Card>
                 </Slide>
             ))}
-            {docs && allDocs.map((doc: any) => (
+            {documents && allDocs.map((doc: any) => (
                 <Slide direction="down" mountOnEnter unmountOnExit
                        in={showDocument}
                        key={doc.index}>

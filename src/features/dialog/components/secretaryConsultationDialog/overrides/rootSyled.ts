@@ -10,7 +10,12 @@ const RootStyled = styled(Stack)(({theme}) => ({
     '.counter-btn': {
         padding: theme.spacing(1),
         alignSelf: 'flex-start',
+        backgroundColor: theme.palette.grey["A10"],
+        color: "black",
         minHeight: 50,
+        border:0,
+        width:"100%",
+        justifyContent: "flex-start",
         '.MuiCheckbox-root': {
             width: 20,
             height: 20,

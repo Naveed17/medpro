@@ -59,14 +59,18 @@ function SecretaryConsultationDialog({...props}) {
             transactions, setTransactions,
             total, setTotal,
             setRestAmount,
+            addInfo,
             changes,
             meeting,
             setMeeting,
             checkedNext,
             setCheckedNext,
             addFinishAppointment,
+            showCheckedDoc,
+            showPreview
         }
     } = props;
+    console.log(transactions)
     const router = useRouter();
     const theme = useTheme() as Theme;
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -196,13 +200,14 @@ function SecretaryConsultationDialog({...props}) {
                         <Grid item md={6} sm={12} xs={12}>
                             <Stack
                                 alignItems="center"
-                                spacing={2}
+                                spacing={1}
                                 mx="auto"
                                 width={1}>
                                 <Typography mt={{xs: 3, md: 0}} variant="subtitle1">
                                     {t("recap")}
                                 </Typography>
-                                <Typography>{t("docs")}</Typography>
+                                <Typography
+                                    style={{opacity: .7, fontSize: 13, marginBottom: 10}}>{t("docs")}</Typography>
                                 <Box display='grid'
                                      sx={{
                                          width: '100%',
@@ -210,6 +215,7 @@ function SecretaryConsultationDialog({...props}) {
                                          gridTemplateColumns: "repeat(1,minmax(0,1fr))"
                                      }}>
                                     {changes.map((item: {
+                                        index: number;
                                         checked: boolean;
                                         icon: string;
                                         name: string;
@@ -219,7 +225,16 @@ function SecretaryConsultationDialog({...props}) {
                                                 borderColor: item.checked ? (theme: Theme) => theme.palette.success.main : (theme: Theme) => theme.palette.divider
                                             }}>
                                                 <CardContent>
-                                                    <Stack direction='row' className="document-detail"
+                                                    <Stack direction='row'
+                                                           onClick={() => {
+                                                               if (item.index !== undefined) {
+                                                                   if (!item.checked) {
+                                                                       showPreview(item.name)
+                                                                   } else showCheckedDoc(item.name)
+                                                               } else
+                                                                   addInfo(item.name === "fiche" ? "widget" : "exam")
+                                                           }}
+                                                           className="document-detail"
                                                            alignItems="center">
                                                         <IconUrl path={item.icon} width={16} height={16}/>
                                                         <Typography
@@ -231,26 +246,25 @@ function SecretaryConsultationDialog({...props}) {
                                                             fontSize={11}>
                                                             {t("consultationIP." + item.name)}
                                                         </Typography>
-                                                        {item.checked && <CheckCircleIcon
-                                                            color={"success"}
-                                                            sx={{
-                                                                ml: 'auto',
-                                                                width: 20
-                                                            }}/>}
-                                                        {/*{item.checked ? (
+                                                        {item.checked ? item.index !== undefined ? (
                                                                 <IconButton size="small" disableRipple
                                                                             sx={{ml: 'auto'}}>
                                                                     <IconUrl path={"ic-printer"}
                                                                              color={theme.palette.primary.main}
                                                                              width={16} height={16}/>
-                                                                </IconButton>) :
+                                                                </IconButton>) : (<CheckCircleIcon
+                                                                color={"success"}
+                                                                sx={{
+                                                                    ml: 'auto',
+                                                                    width: 20
+                                                                }}/>) :
                                                             (<IconButton size="small" disableRipple
                                                                          sx={{ml: 'auto'}}>
                                                                 <IconUrl path={"ic-plus"}
                                                                          color={theme.palette.primary.main}
                                                                          width={16} height={16}/>
                                                             </IconButton>)
-                                                        }*/}
+                                                        }
                                                     </Stack>
                                                 </CardContent>
                                             </Card>
@@ -262,14 +276,18 @@ function SecretaryConsultationDialog({...props}) {
                         <Grid item md={6} sm={12} xs={12}>
                             <Stack
                                 alignItems="center"
-                                spacing={2}
+                                spacing={1}
                                 mx="auto"
                                 width={1}>
                                 <Typography variant="subtitle1">
                                     {t("finish_the_consutation")}
                                 </Typography>
-                                <Typography>{t("type_the_instruction_for_the_secretary")}</Typography>
-                                <Stack pt={3} direction={{xs: 'column', sm: 'row'}} alignItems='center'
+                                <Typography style={{
+                                    opacity: .7,
+                                    fontSize: 13,
+                                    marginBottom: 10
+                                }}>{t("type_the_instruction_for_the_secretary")}</Typography>
+                                <Stack pt={2} pb={2} direction={{xs: 'column', sm: 'row'}} alignItems='center'
                                        justifyContent='space-between' spacing={{xs: 2, sm: 0}} width={1}>
 
                                     <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
@@ -303,7 +321,7 @@ function SecretaryConsultationDialog({...props}) {
                                                     </Typography>
                                                 }
                                                 variant="contained"
-                                                color={getTransactionAmountPayed() === 0 ? "success" : "warning"}
+                                                color={getTransactionAmountPayed() === 0 ? "error" : "warning"}
                                                 size={"small"}
                                                 style={{marginLeft: 5}}
                                                 {...(isMobile && {
@@ -311,7 +329,7 @@ function SecretaryConsultationDialog({...props}) {
                                                 })}
                                                 onClick={openDialogPayment}>
 
-                                                <Typography ml={1}>{t("amount_paid")}</Typography>
+                                                <Typography ml={1}>{t("amount_to_paid")}</Typography>
                                                 <Typography component='span' fontWeight={700} variant="subtitle2"
                                                             ml={1}>
                                                     {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
@@ -320,13 +338,27 @@ function SecretaryConsultationDialog({...props}) {
                                             </Button>
                                             }
                                         </Stack> :
-                                        <Chip
-                                            label={`${total} ${devise}`}
+                                        <Button
+                                            endIcon={
+                                                <Typography sx={{fontSize: '16px !important'}}>
+                                                    {devise}
+                                                </Typography>
+                                            }
+                                            variant="contained"
                                             color={"success"}
-                                            onDelete={() => {
-                                            }}
-                                            deleteIcon={<DoneAllRoundedIcon/>}
-                                        />
+                                            size={"small"}
+                                            style={{marginLeft: 5}}
+                                            {...(isMobile && {
+                                                sx: {minWidth: 40},
+                                            })}
+                                            onClick={openDialogPayment}>
+
+                                            <Typography ml={1}>{t("amount_paid")}</Typography>
+                                            <Typography component='span' fontWeight={700} variant="subtitle2"
+                                                        ml={1}>
+                                                 {total}
+                                            </Typography>
+                                        </Button>
                                     }
                                 </Stack>
                                 <Stack className="instruction-box" spacing={1}>
@@ -353,7 +385,6 @@ function SecretaryConsultationDialog({...props}) {
                                     <Button
                                         className="counter-btn"
                                         disableRipple
-                                        color="info"
                                         variant="outlined"
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -371,7 +402,7 @@ function SecretaryConsultationDialog({...props}) {
                                         {checkedNext && (
                                             <>
                                                 <InputBase
-                                                    type={"number"}
+                                                    disabled={true}
                                                     value={meeting}
                                                     placeholder={'-'}
                                                     onClick={(e) => {
