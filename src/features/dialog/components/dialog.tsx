@@ -99,9 +99,8 @@ function Dialogs({...props}) {
                     ) : null}
                 </DialogTitle> : headerDialog}
                 <DialogContent
+                    {...{sx}}
                     dividers={true}
-                    sx={{...sx}}
-                    {...(fullScreen && {sx: {minHeight: 600}})}
                     style={{overflow: action === 'write_certif' ? 'hidden' : ''}}>
                     <DialogContentText id="scroll-dialog-description" tabIndex={-1}/>
                     <Component {...(data && {data, fullScreen})}/>
