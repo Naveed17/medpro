@@ -7,7 +7,6 @@ import {
     Card,
     CardContent,
     Checkbox,
-    Chip,
     DialogActions,
     FormControlLabel,
     Grid,
@@ -41,7 +40,6 @@ import {useRequestQuery} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {startCase} from 'lodash'
-import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import {useTransactionEdit} from "@lib/hooks/rest";
 import {EventType, TimeSchedule} from "@features/tabPanel";
 import {useTheme} from "@emotion/react";
@@ -70,7 +68,6 @@ function SecretaryConsultationDialog({...props}) {
             showPreview
         }
     } = props;
-    console.log(transactions)
     const router = useRouter();
     const theme = useTheme() as Theme;
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -356,7 +353,7 @@ function SecretaryConsultationDialog({...props}) {
                                             <Typography ml={1}>{t("amount_paid")}</Typography>
                                             <Typography component='span' fontWeight={700} variant="subtitle2"
                                                         ml={1}>
-                                                 {total}
+                                                {total}
                                             </Typography>
                                         </Button>
                                     }

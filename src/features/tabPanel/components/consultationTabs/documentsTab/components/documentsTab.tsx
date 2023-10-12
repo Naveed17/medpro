@@ -15,6 +15,7 @@ function DocumentsTab({...props}) {
         documents,
         mutateDoc,
         showDoc,
+        mutateSheetData,
         router,
         t
     } = props;
@@ -36,7 +37,10 @@ function DocumentsTab({...props}) {
             method: "DELETE",
             url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`
         }, {
-            onSuccess: () => mutateDoc().then(() => setSelectedAudio(null))
+            onSuccess: () => mutateDoc().then(() => {
+                setSelectedAudio(null)
+                mutateSheetData();
+            })
         });
     }
 

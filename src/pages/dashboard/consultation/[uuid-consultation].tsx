@@ -891,7 +891,6 @@ function ConsultationInProgress() {
     };
 
     const showPreview = (action: string) => {
-        console.log(action)
         switch (action) {
             case "prescription":
                 setInfo(getPrescriptionUI());
@@ -1005,6 +1004,17 @@ function ConsultationInProgress() {
             })
             setActs(_acts);
             setMPActs(_acts);
+
+            let nb = 0;
+            changes.map(change => {
+                if (sheet && sheet[change.name]) {
+                    change.checked = sheet[change.name] > 0;
+                    nb += sheet[change.name]
+                }
+            })
+            setNbDoc(nb);
+            setChanges([...changes])
+            console.log("change")
         }
     }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1049,18 +1059,6 @@ function ConsultationInProgress() {
             });
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        let nb = 0;
-        changes.map(change => {
-            if (sheet && sheet[change.name]) {
-                change.checked = sheet[change.name] > 0;
-                nb += sheet[change.name]
-            }
-        })
-        setNbDoc(nb);
-        setChanges([...changes])
-    }, [documents, sheet]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -1368,6 +1366,7 @@ function ConsultationInProgress() {
                             {...{
                                 documents,
                                 mutateDoc,
+                                mutateSheetData,
                                 showDoc,
                                 router,
                                 t
@@ -1609,7 +1608,7 @@ function ConsultationInProgress() {
                                 <Stack direction={{xs: 'column', sm: 'row'}} justifyContent={"space-between"}
                                        alignItems={{xs: 'flex-start', sm: 'center'}}>
                                     {t(`consultationIP.${info}`)}
-                                    <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
+                                    <SwitchPrescriptionUI {...{t,keyPrefix:"consultationIP", handleSwitchUI}} />
                                 </Stack>
                             </DialogTitle>
                         ),
