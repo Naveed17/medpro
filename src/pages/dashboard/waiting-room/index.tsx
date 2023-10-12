@@ -38,8 +38,10 @@ import {LoadingButton} from "@mui/lab";
 import {ActionMenu} from "@features/menu";
 import {agendaSelector} from "@features/calendar";
 import {useTransactionEdit} from "@lib/hooks/rest";
+import {Board} from "@features/board";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -343,7 +345,7 @@ function WaitingRoom() {
                 }} color="warning"/>
                 <DesktopContainer>
                     <Box className="container">
-                        <Box display={{xs: "none", md: "block"}} mt={1}>
+                        {/*<Box display={{xs: "none", md: "block"}} mt={1}>
                             {waitingRooms &&
                                 <>
                                     {waitingRooms.length > 0 ? <Otable
@@ -391,7 +393,9 @@ function WaitingRoom() {
                                     </ActionMenu>
                                 </>
                             }
-                        </Box>
+                        </Box>*/}
+                        <Board />
+
                     </Box>
                 </DesktopContainer>
                 <MobileContainer>
