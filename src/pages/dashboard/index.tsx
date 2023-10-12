@@ -13,7 +13,7 @@ function Dashboard() {
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(locale as string, ['menu']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda']))
     }
 })
 
