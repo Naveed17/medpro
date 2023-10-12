@@ -12,6 +12,7 @@ a {
 * {
   box-sizing: border-box;
 }
+
 .container {
   padding: 0 2rem;
 }
@@ -121,10 +122,10 @@ a {
 }
 
 
+
 @media (max-width: 600px) {
   .grid {
     width: 100%;
     flex-direction: column;
   }
 }
-

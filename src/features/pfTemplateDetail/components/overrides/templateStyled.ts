@@ -1,13 +1,47 @@
 import {styled} from "@mui/material/styles";
 
 const TemplateStyled = styled("div")(({theme}) => ({
+    position:'relative',
     display: "inline-flex",
     flexWrap: "wrap",
     columnGap: 0,
     rowGap: 0,
+    [theme.breakpoints.down("md")]:{
+        width:"100%",
+    },
+    [theme.breakpoints.between("sm", "md")]:{
+        display:'grid',
+        gridTemplateColumns:'repeat(auto-fill, minmax(300px, 1fr))',
+        gap:20,
+    },
+    "& > .portraitA4":{
+         [theme.breakpoints.down("md")]:{
+            width:'100%',
+            marginRight:'0 !important',
+            marginBottom:150,
+            
+        },
+        [theme.breakpoints.between("sm", "md")]:{
+            height:'calc(100% - 200px)',
+            marginBottom:0,
+        },
+    },
     "& .container": {
         padding: 5,
-        position: "relative"
+        position: "relative",
+         ".portraitA4":{
+        [theme.breakpoints.down("md")]:{
+            width:'100%',
+            marginLeft:'0 !important',
+           
+        },
+      
+    },
+      [theme.breakpoints.down("md")]:{
+            width:'100%',
+            padding:0,
+           
+        },
     },
     "& .heading": {
         display: "inline-block",
@@ -60,6 +94,18 @@ const TemplateStyled = styled("div")(({theme}) => ({
         width: 15,
         height: 15,
         borderRadius: 8
+    },
+    ".portraitA4.MuiBox-root":{
+        [theme.breakpoints.down("md")]:{
+            width:'100%',
+            marginRight:'0 !important',
+            marginBottom:150,
+            
+        },
+        [theme.breakpoints.between("sm", "md")]:{
+            height:'calc(100% - 200px)',
+            marginBottom:0,
+        },
     }
 }));
 
