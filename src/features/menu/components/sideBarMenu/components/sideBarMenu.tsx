@@ -158,15 +158,9 @@ function SideBarMenu({children}: LayoutProps) {
 
                                             setCurrentIndex(i);
                                         }}>
-                                        {i === currentIndex ? (
-                                            <Fade in={true} timeout={1000}>
-                                                <Box>
-                                                    <Icon path={item.icon}/>
-                                                </Box>
-                                            </Fade>
-                                        ) : (
+                                        
                                             <Icon path={item.icon}/>
-                                        )}
+                                        
                                     </ListItemIcon>
                                 </Badge>
                                 <ListItemTextStyled primary={t("main-menu." + item.name)}/>

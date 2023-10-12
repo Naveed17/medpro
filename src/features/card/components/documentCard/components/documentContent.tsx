@@ -18,9 +18,11 @@ function DocumentContent({...props}) {
         <Stack {...(!resize && {justifyItems: "center", margin: 0})} direction={"row"} spacing={1}>
             {date && <>
                 <EventRoundedIcon style={{fontSize: 15, color: "grey"}}/>
-                <Typography whiteSpace={"nowrap"} fontSize={12}
-                            {...(!resize && {sx: {marginTop: 0}})}
-                            sx={{color: "grey", cursor: "pointer"}}>
+                <Typography
+                    whiteSpace={"nowrap"}
+                    fontSize={12}
+                    {...(!resize && {sx: {marginTop: 0}})}
+                    sx={{color: "grey", cursor: "pointer"}}>
                     {moment(data.createdAt, 'DD-MM-YYYY HH:mm').add(1, "hour").format('DD-MM-YYYY')}
                 </Typography>
             </>}

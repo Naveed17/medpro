@@ -98,7 +98,7 @@ function ConsultationInProgress() {
     } = useAppSelector(appointmentSelector);
 
     const {data: user} = session as Session;
-    const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData[0].medical_professional.uuid;
+    const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData.medical_professional.uuid;
     const app_uuid = router.query["uuid-consultation"];
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
@@ -585,7 +585,7 @@ function ConsultationInProgress() {
             setSelectedModel(sheetModal);
             setLoading(false)
             let _acts: AppointmentActModel[] = []
-            medicalProfessionalData && medicalProfessionalData[0].acts.map(act => {
+            medicalProfessionalData && medicalProfessionalData.acts.map(act => {
                 _acts.push({qte: 1, selected: false, ...act})
             })
             setActs(_acts);

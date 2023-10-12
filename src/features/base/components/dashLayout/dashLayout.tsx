@@ -66,17 +66,17 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         url: `${urlMedicalEntitySuffix}/professional/user/${router.locale}`
     }, ReactQueryNoValidateConfig);
 
-    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequestQuery(medicalEntityHasUser ? {
+    const {data: httpAgendasResponse} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequestQuery(agenda ? {
+    const {data: httpPendingAppointmentResponse} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpOngoingResponse, mutate} = useRequestQuery(agenda ? {
+    const {data: httpOngoingResponse} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -291,9 +291,9 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     useEffect(() => {
         if (httpProfessionalsResponse) {
-            const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalDataModel[];
+            const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalPermissionModel;
             dispatch(setPaymentTypesList(medicalProfessionalData[0].payments));
-            dispatch(setOngoing({medicalProfessionalData}));
+            dispatch(setOngoing({medicalProfessionalData: medicalProfessionalData[0], secretaryAccess: medicalProfessionalData?.secretary_access ?? false}));
         }
     }, [httpProfessionalsResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
