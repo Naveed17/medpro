@@ -47,6 +47,7 @@ function Agenda() {
                     children: (
                         <FilterRootStyled>
                             <PatientFilter
+                                {...{t}}
                                 OnSearch={(data: { query: ActionBarState }) => {
                                     dispatch(setFilter({patient: data.query}));
                                 }}
@@ -66,7 +67,6 @@ function Agenda() {
                                         ],
                                     },
                                 }}
-                                t={t}
                             />
                         </FilterRootStyled>
                     ),
