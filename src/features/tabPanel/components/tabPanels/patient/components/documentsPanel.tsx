@@ -89,9 +89,13 @@ function DocumentsPanel({...props}) {
     } = props;
     const router = useRouter();
     const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medical_professional} = useMedicalProfessionalSuffix();
+
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
     const {selectedDialog} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
     // filter checked array
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -103,9 +107,6 @@ function DocumentsPanel({...props}) {
     const [acts, setActs] = useState<AppointmentActModel[]>([]);
     const [note,setNotes] = useState("");
 
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {medical_professional} = useMedicalProfessionalSuffix();
 
     const {trigger: triggerQuoteUpdate} = useRequestQueryMutation("/patient/quote");
 
@@ -159,7 +160,7 @@ function DocumentsPanel({...props}) {
                                 data={AddAppointmentCardWithoutButtonsData}/>
                 }
             </Box>,
-            permission: ["ROLE_PROFESSIONAL"]
+            permission: ["ROLE_PROFESSIONAL",...(medicalProfessionalData?.secretary_access ? ["ROLE_SECRETARY"]: [])]
         },
         {
             title: "Documents du patient",
@@ -180,7 +181,7 @@ function DocumentsPanel({...props}) {
                         {patientDocuments?.length > 0 ?
                             patientDocuments?.filter((doc: MedicalDocuments) =>
                                 doc.documentType !== 'photo' && selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
-                                <Grid key={`doc-item-${idx}`} item md={4} xs={12} m={1}
+                                <Grid key={`doc-item-${idx}`} item md={5.6} xs={12} m={1}
                                       alignItems={"center"}
                                       sx={{
                                           "& .sub-title": {

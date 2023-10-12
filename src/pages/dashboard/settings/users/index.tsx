@@ -1,5 +1,5 @@
 import React, {ReactElement, useState} from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector} from "@features/base";
@@ -36,6 +36,8 @@ import {useSnackbar} from "notistack";
 import {UserMobileCard} from '@features/card';
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
+import {useSendNotification} from "@lib/hooks/rest";
+import {useSession} from "next-auth/react";
 
 const CardData = {
     mainIcon: "ic-user",
@@ -63,7 +65,7 @@ const headCells = [
         align: "center",
         sortable: true,
     },
-    {
+    /*{
         id: "status",
         numeric: false,
         disablePadding: false,
@@ -78,7 +80,8 @@ const headCells = [
         label: "accessSetting",
         align: "center",
         sortable: true,
-    }, {
+    },*/
+    {
         id: "permission",
         numeric: false,
         disablePadding: false,
@@ -106,19 +109,25 @@ const headCells = [
 
 function Users() {
     const router = useRouter();
-    const dispatch = useAppDispatch();
+    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {enqueueSnackbar} = useSnackbar();
+    const {trigger: triggerNotificationPush} = useSendNotification();
+
     const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
+    const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selected, setSelected] = useState<any>("");
-    const {direction} = useAppSelector(configSelector);
     const [open, setOpen] = useState(false);
+
+    const {jti} = session?.user as any;
 
     const {trigger: triggerUserUpdate} = useRequestQueryMutation("/users/update");
     const {trigger: triggerUserDelete} = useRequestQueryMutation("/users/delete");
+
     const {data: httpUsersResponse, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
@@ -138,6 +147,17 @@ function Users() {
             onSuccess: () => {
                 mutate();
                 enqueueSnackbar(t("updated"), {variant: "success"});
+                if (action === "DOC_PERMISSION") {
+                    medicalEntityHasUser && triggerNotificationPush({
+                        action: "push",
+                        root: "all",
+                        message: " ",
+                        content: JSON.stringify({
+                            mutate: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
+                            fcm_session: jti
+                        })
+                    });
+                }
             }
         });
     }

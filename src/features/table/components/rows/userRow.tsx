@@ -51,7 +51,7 @@ function UserRow({...props}) {
                     </Stack>
                 )}
             </TableCell>
-            <TableCell align="center">
+            {/*<TableCell align="center">
                 {row ? (
                     <Lable variant="filled" color={row.isActive ? "success" : "error"} sx={{px: 1.5}}>
                         {row.isActive ? t("table.active") : t("table.inactive")}
@@ -79,7 +79,7 @@ function UserRow({...props}) {
                 ) : (
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>
                 )}
-            </TableCell>
+            </TableCell>*/}
             <TableCell align="center">
                 {row ? (
                     <Switch
