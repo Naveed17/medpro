@@ -1,5 +1,5 @@
 import React, {ReactElement, useState} from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector} from "@features/base";
@@ -36,6 +36,8 @@ import {useSnackbar} from "notistack";
 import {UserMobileCard} from '@features/card';
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
+import {useSendNotification} from "@lib/hooks/rest";
+import {useSession} from "next-auth/react";
 
 const CardData = {
     mainIcon: "ic-user",
@@ -63,19 +65,27 @@ const headCells = [
         align: "center",
         sortable: true,
     },
-    {
+    /*{
         id: "status",
         numeric: false,
         disablePadding: false,
-        label: "request",
+        label: "access",
         align: "center",
         sortable: true,
     },
     {
-        id: "admin",
+        id: "access",
         numeric: false,
         disablePadding: false,
         label: "accessSetting",
+        align: "center",
+        sortable: true,
+    },*/
+    {
+        id: "permission",
+        numeric: false,
+        disablePadding: false,
+        label: "docPermission",
         align: "center",
         sortable: true,
     },
@@ -87,31 +97,37 @@ const headCells = [
     //     align: "center",
     //     sortable: true,
     // },
-    {
-        id: "action",
-        numeric: false,
-        disablePadding: false,
-        label: "action",
-        align: "center",
-        sortable: false,
-    },
+    /* {
+         id: "action",
+         numeric: false,
+         disablePadding: false,
+         label: "action",
+         align: "center",
+         sortable: false,
+     },*/
 ];
 
 function Users() {
     const router = useRouter();
-    const dispatch = useAppDispatch();
+    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {enqueueSnackbar} = useSnackbar();
+    const {trigger: triggerNotificationPush} = useSendNotification();
+
     const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
+    const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selected, setSelected] = useState<any>("");
-    const {direction} = useAppSelector(configSelector);
     const [open, setOpen] = useState(false);
+
+    const {jti} = session?.user as any;
 
     const {trigger: triggerUserUpdate} = useRequestQueryMutation("/users/update");
     const {trigger: triggerUserDelete} = useRequestQueryMutation("/users/delete");
+
     const {data: httpUsersResponse, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
@@ -119,9 +135,9 @@ function Users() {
 
     const users = (httpUsersResponse as HttpResponse)?.data as UserModel[];
 
-    const handleChange = (props: any, event: any) => {
+    const handleChange = (action: string, props: any, event: any) => {
         const form = new FormData();
-        form.append("attribute", "isActive");
+        form.append("attribute", action === "ACCESS" ? "isActive" : "isDocSee");
         form.append("value", JSON.stringify(event.target.checked));
         triggerUserUpdate({
             method: "PATCH",
@@ -131,8 +147,19 @@ function Users() {
             onSuccess: () => {
                 mutate();
                 enqueueSnackbar(t("updated"), {variant: "success"});
+                if (action === "DOC_PERMISSION") {
+                    medicalEntityHasUser && triggerNotificationPush({
+                        action: "push",
+                        root: "all",
+                        message: " ",
+                        content: JSON.stringify({
+                            mutate: `${urlMedicalEntitySuffix}/professionals/${router.locale}`,
+                            fcm_session: jti
+                        })
+                    });
+                }
             }
-        })
+        });
     }
 
     const closeDraw = () => {
@@ -174,7 +201,7 @@ function Users() {
                 <RootStyled>
                     <p style={{margin: 0}}>{t("path")}</p>
                 </RootStyled>
-                <Stack direction="row" alignItems="center" spacing={2}>
+                {/*<Stack direction="row" alignItems="center" spacing={2}>
                     <Button
                         sx={{
                             display: {xs: "none", md: "flex"},
@@ -194,7 +221,7 @@ function Users() {
                         color="success">
                         {t("add")}
                     </Button>
-                </Stack>
+                </Stack>*/}
             </SubHeader>
             <Box className="container">
                 {users && users.length > 0 ? (
@@ -202,7 +229,7 @@ function Users() {
                         <DesktopContainer>
                             <Otable
                                 headers={headCells}
-                                rows={users}
+                                rows={users.filter(user => !user.isProfessional)}
                                 from={"users"}
                                 {...{t, handleChange}}
                                 edit={onDelete}

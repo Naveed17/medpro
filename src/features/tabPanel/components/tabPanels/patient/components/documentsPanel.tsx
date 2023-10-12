@@ -89,9 +89,13 @@ function DocumentsPanel({...props}) {
     } = props;
     const router = useRouter();
     const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medical_professional} = useMedicalProfessionalSuffix();
+
     // translation
     const {t, ready} = useTranslation(["consultation", "patient"]);
     const {selectedDialog} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser, secretaryAccess} = useAppSelector(dashLayoutSelector);
 
     // filter checked array
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -101,11 +105,8 @@ function DocumentsPanel({...props}) {
     const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
     const [openQuoteDialog, setOpenQuoteDialog] = useState<boolean>(false);
     const [acts, setActs] = useState<AppointmentActModel[]>([]);
-    const [note,setNotes] = useState("");
+    const [note, setNotes] = useState("");
 
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {medical_professional} = useMedicalProfessionalSuffix();
 
     const {trigger: triggerQuoteUpdate} = useRequestQueryMutation("/patient/quote");
 
@@ -159,7 +160,7 @@ function DocumentsPanel({...props}) {
                                 data={AddAppointmentCardWithoutButtonsData}/>
                 }
             </Box>,
-            permission: ["ROLE_PROFESSIONAL"]
+            permission: ["ROLE_PROFESSIONAL", ...(secretaryAccess ? ["ROLE_SECRETARY"] : [])]
         },
         {
             title: "Documents du patient",
@@ -180,7 +181,7 @@ function DocumentsPanel({...props}) {
                         {patientDocuments?.length > 0 ?
                             patientDocuments?.filter((doc: MedicalDocuments) =>
                                 doc.documentType !== 'photo' && selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
-                                <Grid key={`doc-item-${idx}`} item md={4} xs={12} m={1}
+                                <Grid key={`doc-item-${idx}`} item md={5.6} xs={12} m={1}
                                       alignItems={"center"}
                                       sx={{
                                           "& .sub-title": {
@@ -236,7 +237,7 @@ function DocumentsPanel({...props}) {
                 createdAt: card.createdAt,
                 name: 'certif',
                 detectedType: card.type,
-                title:card.title,
+                title: card.title,
                 type: 'write_certif',
                 mutate: mutatePatientDocuments,
                 mutateDetails: mutatePatientDetails
@@ -272,7 +273,7 @@ function DocumentsPanel({...props}) {
                 createdAt: card.createdAt,
                 detectedType: card.type,
                 patient: patient.firstName + ' ' + patient.lastName,
-                cin:patient?.idCard ? patient?.idCard : "",
+                cin: patient?.idCard ? patient?.idCard : "",
                 mutate: mutatePatientDocuments,
                 mutateDetails: mutatePatientDetails
             })
@@ -313,7 +314,7 @@ function DocumentsPanel({...props}) {
                 onSuccess: () => {
                     mutateQuotes().then(() => {
                         setOpenQuoteDialog(false)
-                        showQuote("", acts.filter(act => act.selected),note);
+                        showQuote("", acts.filter(act => act.selected), note);
                         let _acts = [...acts]
                         _acts.map(act => {
                             act.selected = false
@@ -325,7 +326,7 @@ function DocumentsPanel({...props}) {
         }
     }
 
-    const showQuote = (uuid: string, rows: AppointmentActModel[],note:string) => {
+    const showQuote = (uuid: string, rows: AppointmentActModel[], note: string) => {
         let type = "";
         if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
@@ -425,7 +426,7 @@ function DocumentsPanel({...props}) {
                                                 act_item: { uuid: string; };
                                             }) => qi.act_item && qi.act_item.uuid === act.act.uuid) !== -1
                                         }])
-                                        showQuote(card.uuid, _acts.filter(act => act.selected),card.notes)
+                                        showQuote(card.uuid, _acts.filter(act => act.selected), card.notes)
                                     }} alignItems={"center"}
                                            padding={2}>
                                         <IconUrl width={20} path={"ic-text"}/>
@@ -627,7 +628,7 @@ function DocumentsPanel({...props}) {
             <Dialog
                 action={"quote-request-dialog"}
                 data={{
-                    note,setNotes,
+                    note, setNotes,
                     acts, setActs
                 }}
                 open={openQuoteDialog}

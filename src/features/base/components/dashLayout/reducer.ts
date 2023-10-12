@@ -7,7 +7,8 @@ export type dashLayoutState = {
     import_data?: string[];
     newCashBox?: boolean;
     medicalEntityHasUser?: MedicalEntityHasUsersModel[];
-    medicalProfessionalData?: MedicalProfessionalDataModel[];
+    medicalProfessionalData?: MedicalProfessionalDataModel;
+    secretaryAccess?: boolean;
     appointmentTypes?: AppointmentTypeModel[];
     notifications?: any[];
     last_fiche_id?: string;

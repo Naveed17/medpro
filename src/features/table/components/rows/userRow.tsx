@@ -7,16 +7,16 @@ import Button from "@mui/material/Button";
 import {TableRowStyled} from "@features/table";
 import Switch from "@mui/material/Switch";
 import {useAppDispatch} from "@lib/redux/hooks";
-import {editUser} from "@features/table";
 import {uniqueId} from "lodash";
-import { useState } from "react";
+import {useState} from "react";
 
 function UserRow({...props}) {
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const {pathname, locale} = router;
     const {row, handleChange, t, editMotif} = props;
-    const [isActive,setIsActive] = useState(row.isActive);
+    const [isActive, setIsActive] = useState(row.isActive);
+    const [hasDocPermission, setHasDocPermission] = useState(row.canSeeDoc);
+
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
@@ -51,10 +51,10 @@ function UserRow({...props}) {
                     </Stack>
                 )}
             </TableCell>
-            <TableCell align="center">
+            {/*<TableCell align="center">
                 {row ? (
-                    <Lable variant="filled" color={row.isActive ?"success":"error"} sx={{px: 1.5}}>
-                        {row.isActive ? t("table.active") : t("table.inactive")} 
+                    <Lable variant="filled" color={row.isActive ? "success" : "error"} sx={{px: 1.5}}>
+                        {row.isActive ? t("table.active") : t("table.inactive")}
                     </Lable>
                 ) : (
                     <Skeleton
@@ -70,10 +70,25 @@ function UserRow({...props}) {
                     <Switch
                         name="active"
                         onChange={(e) => {
-                        setIsActive(e.target.checked);
-                        handleChange(row,e)}
-                    }
+                            setIsActive(e.target.checked);
+                            handleChange("ACCESS", row, e)
+                        }
+                        }
                         checked={isActive}
+                    />
+                ) : (
+                    <Skeleton width={50} height={40} sx={{m: "auto"}}/>
+                )}
+            </TableCell>*/}
+            <TableCell align="center">
+                {row ? (
+                    <Switch
+                        name="active"
+                        onChange={(e) => {
+                            setHasDocPermission(e.target.checked);
+                            handleChange("DOC_PERMISSION", row, e)
+                        }}
+                        checked={hasDocPermission}
                     />
                 ) : (
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>
@@ -88,7 +103,7 @@ function UserRow({...props}) {
                     <Skeleton variant="text" width={100} sx={{m: "auto"}}/>
                 )}
             </TableCell> */}
-            <TableCell align="right">
+            {/*            <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
                         <Button
@@ -124,7 +139,7 @@ function UserRow({...props}) {
                         <Skeleton variant="text" width={50}/>
                     </Stack>
                 )}
-            </TableCell>
+            </TableCell>*/}
         </TableRowStyled>
     );
 }
