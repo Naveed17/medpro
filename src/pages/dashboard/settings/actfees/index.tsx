@@ -137,7 +137,7 @@ function ActFees() {
 
     useEffect(() => {
         if (medicalProfessionalData) {
-            setConsultationFees(Number(medicalProfessionalData[0]?.consultation_fees));
+            setConsultationFees(Number(medicalProfessionalData?.consultation_fees));
             if (localStorage.getItem('newCashbox')) {
                 setIsChecked(localStorage.getItem('newCashbox') === '1')
             }

@@ -79,7 +79,7 @@ function Profil() {
 
     useEffect(() => {
         if (medicalProfessionalData) {
-            const infoData = medicalProfessionalData[0];
+            const infoData = medicalProfessionalData;
             const medical_professional = infoData.medical_professional as MedicalProfessionalModel;
             setName(medical_professional?.publicName);
             setSmsRappel(medical_professional?.sendSms ?? false);

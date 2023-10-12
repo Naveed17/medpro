@@ -87,12 +87,12 @@ function Acts() {
     useEffect(() => {
         if (medicalProfessionalData !== undefined) {
             const professionalSpecialities = {};
-            medicalProfessionalData[0]?.medical_professional.specialities.map((speciality: any, index: number) => {
+            medicalProfessionalData?.medical_professional.specialities.map((speciality: any, index: number) => {
                 Object.assign(professionalSpecialities, {['specialities[' + index + ']']: speciality.speciality.uuid});
             });
             setSpecialities(professionalSpecialities);
             setIsProfile(true);
-            const acts = medicalProfessionalData[0]?.acts;
+            const acts = medicalProfessionalData?.acts;
             let main: ActModel[] = [];
             let secondary: ActModel[] = [];
             acts?.map((act: MedicalProfessionalActModel) => {

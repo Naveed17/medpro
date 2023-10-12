@@ -5,5 +5,4 @@ interface MedicalProfessionalDataModel {
     medical_professional: MedicalProfessionalModel;
     payments: any[];
     qualification: any[];
-    secretary_access?: null | boolean;
 }
