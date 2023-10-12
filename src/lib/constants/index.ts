@@ -201,6 +201,20 @@ export const TransactionStatus = [
     },
 ];
 
+export const iconDocument = (data:string) => {
+    return data === "prescription" && "ic-traitement" ||
+        data == "requested-analysis" && "ic-analyse" ||
+        data == "analyse" && "ic-analyse" ||
+        data == "medical-imaging" && "ic-soura" ||
+        data == "requested-medical-imaging" && "ic-soura" ||
+        data === "photo" && "ic-img" ||
+        data === "audio" && "ic-son" ||
+        data === "Rapport" && "ic-text" ||
+        data === "medical-certificate" && "ic-text" ||
+        data === "video" && "ic-video-outline" ||
+        data !== "prescription" && "ic-pdf" || ""
+}
+
 export const tinymcePlugins = "advlist anchor autolink autosave charmap codesample directionality  emoticons help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount table"
 export const tinymceToolbar = "blocks fontfamily fontsize | bold italic underline forecolor backcolor | align lineheight checklist bullist numlist | table tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol "
 

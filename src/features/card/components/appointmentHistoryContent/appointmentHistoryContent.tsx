@@ -7,7 +7,7 @@ import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {Session} from "next-auth";
 import {MotifCard} from "@features/card";
-import {DefaultCountry, SubMotifCard} from "@lib/constants";
+import {DefaultCountry, iconDocument, SubMotifCard} from "@lib/constants";
 import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
 import Image from "next/image";
@@ -213,18 +213,7 @@ function AppointmentHistoryContent({...props}) {
                                                         }} alignItems="center">
                                                             {data.documentType !== 'photo' &&
                                                                 <IconUrl height={25} width={25}
-                                                                         path={
-                                                                             data.documentType === "prescription" && "ic-traitement" ||
-                                                                             data.documentType == "requested-analysis" && "ic-analyse" ||
-                                                                             data.documentType == "analyse" && "ic-analyse" ||
-                                                                             data.documentType == "medical-imaging" && "ic-soura" ||
-                                                                             data.documentType == "requested-medical-imaging" && "ic-soura" ||
-                                                                             data.documentType === "audio" && "ic-son" ||
-                                                                             data.documentType === "Rapport" && "ic-text" ||
-                                                                             data.documentType === "medical-certificate" && "ic-text" ||
-                                                                             data.documentType === "video" && "ic-video-outline" ||
-                                                                             data.documentType !== "prescription" && "ic-pdf" || ""
-                                                                         }/>}
+                                                                         path={iconDocument(data.documentType)}/>}
                                                             {data.documentType === 'photo' &&
                                                                 <Image width={25}
                                                                        height={25}
@@ -342,18 +331,7 @@ function AppointmentHistoryContent({...props}) {
                                                                                 {card.documentType !== 'photo' &&
                                                                                     <IconUrl height={25}
                                                                                              width={25}
-                                                                                             path={
-                                                                                                 card.documentType === "prescription" && "ic-traitement" ||
-                                                                                                 card.documentType == "requested-analysis" && "ic-analyse" ||
-                                                                                                 card.documentType == "analyse" && "ic-analyse" ||
-                                                                                                 card.documentType == "medical-imaging" && "ic-soura" ||
-                                                                                                 card.documentType == "requested-medical-imaging" && "ic-soura" ||
-                                                                                                 card.documentType === "audio" && "ic-son" ||
-                                                                                                 card.documentType === "Rapport" && "ic-text" ||
-                                                                                                 card.documentType === "medical-certificate" && "ic-text" ||
-                                                                                                 card.documentType === "video" && "ic-video-outline" ||
-                                                                                                 card.documentType !== "prescription" && "ic-pdf" || ""
-                                                                                             }/>}
+                                                                                             path={iconDocument(card.documentType)}/>}
                                                                                 {card.documentType === 'photo' &&
                                                                                     <Image width={25}
                                                                                            height={25}
