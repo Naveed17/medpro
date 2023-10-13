@@ -8,26 +8,19 @@ import {
 } from "react-beautiful-dnd";
 import React from "react";
 import styled from '@emotion/styled';
-import {grid, QuoteList} from "@features/board";
+import {BoardList} from "@features/board";
+import {Card, CardHeader, Grid, IconButton, Typography, useTheme} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import CalendarIcon from "@themes/overrides/icons/calendarIcon";
+import IconUrl from "@themes/urlIcon";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import {CustomIconButton} from "@features/buttons";
+import {Theme} from "@mui/system";
 
 const ParentContainer = styled.div`
   height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
-`;
-
-const Container = styled.div`
-  min-height: 100vh;
-  /* like display:flex but will allow bleeding over the window width */
-  min-width: 100vw;
-  display: inline-flex;
-`;
-
-
-const ContainerColumn = styled.div`
-  margin: ${grid}px;
-  display: flex;
-  flex-direction: column;
 `;
 
 const Header = styled.div`
@@ -60,15 +53,44 @@ const Title = styled.h4`
 const authors: any[] = [
     {
         id: '1',
-        name: 'Jake',
+        name: 'Rdv aujourd\'hui',
         url: '#',
-        avatarUrl: "/static/icons/men-avatar.svg",
+        icon: <CalendarIcon/>,
+        action: <CustomIconButton
+            variant="filled"
+            color={"primary"}
+            size={"small"}>
+            <AddIcon fontSize={"small"} htmlColor={"white"}/>
+        </CustomIconButton>
     },
     {
         id: '2',
-        name: 'Bom',
+        name: 'Salle d’attente',
         url: '#',
-        avatarUrl: "/static/icons/men-avatar.svg",
+        icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
+        action: <CustomIconButton
+            variant="filled"
+            color={"primary"}
+            size={"small"}>
+            <AddIcon fontSize={"small"} htmlColor={"white"}/>
+        </CustomIconButton>
+    },
+    {
+        id: '3',
+        name: 'En Consultation',
+        url: '#',
+        icon: <IconUrl width={20} height={20} path="ic-attendre"/>
+    },
+    {
+        id: '4',
+        name: 'Terminé',
+        url: '#',
+        icon: <CheckCircleIcon
+            color={"primary"}
+            sx={{
+                ml: 'auto',
+                width: 20
+            }}/>
     }];
 
 export const quotes: any[] = [
@@ -126,7 +148,7 @@ export const quotes: any[] = [
                 "name": "Consultation"
             },
             "uuid": "c9e55c89-cd9f-49e1-a677-0b17a4f910e1",
-            "status": 5
+            "status": 3
         },
         author: authors[1],
     }]
@@ -138,12 +160,11 @@ export const authorQuoteMap: any = authors.reduce(
     (previous: any, author: any) => ({
         ...previous,
         [author.name]: getByAuthor(author, quotes),
-    }),
-    {},
-);
+    }), {});
 
 function Board() {
-    console.log("authorQuoteMap", Object.keys(authorQuoteMap));
+    const theme = useTheme();
+
     return (
         <ParentContainer>
             <DragDropContext onDragEnd={(e) => console.log("onDragEnd", e)}>
@@ -154,20 +175,30 @@ function Board() {
                     ignoreContainerClipping={true}
                     isCombineEnabled={true}>
                     {(provided: DroppableProvided) => (
-                        <Container ref={provided.innerRef} {...provided.droppableProps}>
+                        <Grid container spacing={1} ref={provided.innerRef} {...provided.droppableProps}>
                             {Object.keys(authorQuoteMap).map((key: any, index: number) => (
                                 <Draggable key={index} draggableId={key} index={index}>
                                     {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
-                                        <ContainerColumn ref={provided.innerRef} {...provided.draggableProps}>
+                                        <Grid item md={3} ref={provided.innerRef} {...provided.draggableProps}>
                                             <Header isDragging={snapshot.isDragging}>
                                                 <Title
                                                     isDragging={snapshot.isDragging}
                                                     {...provided.dragHandleProps}
                                                     aria-label={`${key} quote list`}>
-                                                    {key}
+                                                    <Card sx={{mr: 2, minWidth: 235}}>
+                                                        <CardHeader
+                                                            avatar={authors[index].icon}
+                                                            {...(authors[index].action && {action: authors[index].action})}
+                                                            title={<Typography
+                                                                color={"text.primary"} fontWeight={700}
+                                                                fontSize={14}>
+                                                                {key}
+                                                            </Typography>}
+                                                        />
+                                                    </Card>
                                                 </Title>
                                             </Header>
-                                            <QuoteList
+                                            <BoardList
                                                 listId={key}
                                                 listType="QUOTE"
                                                 quotes={authorQuoteMap[key]}
@@ -175,12 +206,12 @@ function Board() {
                                                 isCombineEnabled
                                                 useClone
                                             />
-                                        </ContainerColumn>
+                                        </Grid>
                                     )}
                                 </Draggable>
                             ))}
                             {provided.placeholder}
-                        </Container>
+                        </Grid>
                     )}
                 </Droppable>
             </DragDropContext>

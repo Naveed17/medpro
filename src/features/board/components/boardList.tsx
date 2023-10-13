@@ -1,28 +1,25 @@
-// @flow
 import React from 'react';
 import styled from '@emotion/styled';
 import {Droppable, Draggable} from 'react-beautiful-dnd';
-import QuoteItem from './quote-item';
-
 import type {
     DroppableProvided,
     DroppableStateSnapshot,
     DraggableProvided,
     DraggableStateSnapshot,
 } from 'react-beautiful-dnd';
-import {grid} from "@features/board";
+import {BoardItem, grid} from "@features/board";
 
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  opacity: ${({isDropDisabled}) => (isDropDisabled ? 0.5 : 'inherit')};
-  padding: ${grid}px;
+  opacity: ${({isDropDisabled}: { isDropDisabled: Boolean }) => (isDropDisabled ? 0.5 : 'inherit')};
+
   border: ${grid}px;
   padding-bottom: 0;
   transition: background-color 0.2s ease, opacity 0.1s ease;
   user-select: none;
-  width: 250px;
+  width: 100%;
 `;
 
 const scrollContainerHeight: number = 250;
@@ -58,7 +55,7 @@ const InnerQuoteList = React.memo(function InnerQuoteList(
                 dragProvided: DraggableProvided,
                 dragSnapshot: DraggableStateSnapshot,
             ) => (
-                <QuoteItem
+                <BoardItem
                     key={quote.id}
                     quote={quote}
                     isDragging={dragSnapshot.isDragging}
@@ -85,7 +82,7 @@ function InnerList({...props}) {
     );
 }
 
-export default function QuoteList({...props}) {
+export default function BoardList({...props}) {
     const {
         ignoreContainerClipping,
         internalScroll,
@@ -107,30 +104,21 @@ export default function QuoteList({...props}) {
             ignoreContainerClipping={ignoreContainerClipping}
             isDropDisabled={isDropDisabled}
             isCombineEnabled={isCombineEnabled}
-            renderClone={
-                useClone
-                    ? (provided, snapshot, descriptor) => (
-                        <QuoteItem
-                            quote={quotes[descriptor.source.index]}
-                            provided={provided}
-                            isDragging={snapshot.isDragging}
-                            isClone
-                        />
-                    )
-                    : null
-            }
-        >
-            {(
-                dropProvided: DroppableProvided,
-                dropSnapshot: DroppableStateSnapshot,
-            ) => (
+            renderClone={useClone && ((provided, snapshot, descriptor) => (
+                <BoardItem
+                    quote={quotes[descriptor.source.index]}
+                    provided={provided}
+                    isDragging={snapshot.isDragging}
+                    isClone
+                />
+            ))}>
+            {(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
                 <Wrapper
                     style={style}
                     isDraggingOver={dropSnapshot.isDraggingOver}
                     isDropDisabled={isDropDisabled}
                     isDraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
-                    {...dropProvided.droppableProps}
-                >
+                    {...dropProvided.droppableProps}>
                     {internalScroll ? (
                         <ScrollContainer style={scrollContainerStyle}>
                             <InnerList

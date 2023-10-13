@@ -133,3 +133,9 @@ declare global {
         group(o: T, fn: Function): Array<T>;
     }
 }
+
+declare module '@emotion/styled/types' {
+    interface CreateStyled<T> {
+        isDragging?: Boolean
+    }
+}

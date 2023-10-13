@@ -16,6 +16,7 @@ import {LoadingButton} from "@mui/lab";
 import {Document, Page} from "react-pdf";
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
+import {ImageHandler} from "@features/image";
 
 function SendEmailDialog({...props}) {
     const {preview, patient, t, title, handleSendEmail, loading} = props.data;
@@ -68,20 +69,29 @@ function SendEmailDialog({...props}) {
     return (
         <FormikProvider value={formik}>
             <Grid container spacing={1.4} pl={.8}>
-                <Grid item xs={12} md={3.7}
-                      sx={{
-                          boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px",
-                          mt: 2
-                      }}>
-                    <Box sx={{scale: "0.4", transformOrigin: "top left", height: 340}}>
-                        <Document
-                            file={preview}
-                            onLoadSuccess={onDocumentLoadSuccess}
-                            loading={t('wait')}>
-                            <Page pageNumber={pageNumber}/>
-                        </Document>
+                {preview && <Grid
+                    item xs={12} md={3.7}
+                    sx={{
+                        ...(!preview.type.includes("image") && {boxShadow: "rgba(99, 99, 99, 0.2) 0px 2px 8px 0px"}),
+                        mt: 2
+                    }}>
+                    <Box
+                        sx={{scale: preview.type.includes("image") ? "1" : "0.4", transformOrigin: "top left", height: 340}}>
+                        {preview.type.includes("image") ?
+                            <img
+                                src={URL.createObjectURL(preview)}
+                                id="displayFile"
+                                height="100%"
+                                width="100%"
+                                alt={"File"}/> :
+                            <Document
+                                file={preview}
+                                onLoadSuccess={onDocumentLoadSuccess}
+                                loading={t('wait')}>
+                                <Page pageNumber={pageNumber}/>
+                            </Document>}
                     </Box>
-                    <div className="page-controls">
+                    {!preview.type.includes("image") && <div className="page-controls">
                         <button
                             type="button"
                             disabled={pageNumber <= 1}
@@ -92,9 +102,9 @@ function SendEmailDialog({...props}) {
                             disabled={numPages ? pageNumber >= numPages : true}
                             onClick={nextPage}>›
                         </button>
-                    </div>
-                </Grid>
-                <Grid item xs={12} md={8.3}>
+                    </div>}
+                </Grid>}
+                <Grid item xs={12} md={preview ? 8.3 : 12}>
                     <Box ml={2}>
                         <Stack>
                             <Typography style={{color: "gray"}}
@@ -122,11 +132,11 @@ function SendEmailDialog({...props}) {
                             </FormControl>
                         </Stack>
 
-                        <FormControlLabel
+                        {preview && <FormControlLabel
                             control={<Checkbox
                                 checked={values.withFile}
                                 {...getFieldProps("withFile")}/>}
-                            label={t("send_document_joint")}/>
+                            label={t("send_document_joint")}/>}
                     </Box>
 
                 </Grid>

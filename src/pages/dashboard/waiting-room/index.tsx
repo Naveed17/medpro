@@ -344,7 +344,7 @@ function WaitingRoom() {
                     visibility: !httpWaitingRoomsResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
                 <DesktopContainer>
-                    <Box className="container">
+                    <Box sx={{ml: 2}}>
                         {/*<Box display={{xs: "none", md: "block"}} mt={1}>
                             {waitingRooms &&
                                 <>
@@ -394,7 +394,7 @@ function WaitingRoom() {
                                 </>
                             }
                         </Box>*/}
-                        <Board />
+                        <Board/>
 
                     </Box>
                 </DesktopContainer>
