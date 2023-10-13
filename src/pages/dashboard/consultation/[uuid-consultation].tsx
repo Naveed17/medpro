@@ -71,7 +71,9 @@ import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
+import {DragDropContext, Draggable as DraggableDnd, Droppable} from "react-beautiful-dnd";
+import Draggable from "react-draggable";
+
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 import {ModelDot} from "@features/modelDot";
@@ -945,9 +947,7 @@ function ConsultationInProgress() {
         const sourceClone = Array.from(source);
         const destClone = Array.from(destination);
         const [removed] = sourceClone.splice(droppableSource.index, 1);
-
         destClone.splice(droppableDestination.index, 0, removed);
-
         const result: any = {};
         result[droppableSource.droppableId] = sourceClone;
         result[droppableDestination.droppableId] = destClone;
@@ -981,7 +981,7 @@ function ConsultationInProgress() {
             const newState = [...cards];
             newState[sInd] = result[sInd];
             newState[dInd] = result[dInd];
-            setCards(newState.filter(group => group.length));
+            setCards(newState);
         }
     }
     //%%%%%% %%%%%%%
@@ -1014,7 +1014,6 @@ function ConsultationInProgress() {
             })
             setNbDoc(nb);
             setChanges([...changes])
-            console.log("change")
         }
     }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1159,9 +1158,10 @@ function ConsultationInProgress() {
                                                         {...provided.droppableProps}
                                                     >
                                                         {el.map((item: any, index: number) => (
-                                                            <Draggable
+                                                            <DraggableDnd
                                                                 key={item.id}
                                                                 draggableId={item.id}
+                                                                //isDragDisabled={item.content === 'exam'}
                                                                 index={index}>
                                                                 {(provided: any, snapshot: any) => (
                                                                     <div
@@ -1241,6 +1241,7 @@ function ConsultationInProgress() {
                                                                                             setCloseExam,
                                                                                             isClose,
                                                                                             agenda,
+                                                                                            mutateSheetData,
                                                                                             trigger: triggerAppointmentEdit
                                                                                         }}
                                                                                         handleClosePanel={(v: boolean) => setCloseExam(v)}
@@ -1250,8 +1251,8 @@ function ConsultationInProgress() {
                                                                                     style={{
                                                                                         padding: 10,
                                                                                         borderTop: "1px solid #DDD",
-                                                                                        borderBottomRightRadius:3,
-                                                                                        borderBottomLeftRadius:3,
+                                                                                        borderBottomRightRadius: 3,
+                                                                                        borderBottomLeftRadius: 3,
                                                                                         backgroundColor: theme.palette.grey["A10"]
                                                                                     }}>
                                                                                     <HistoryTab
@@ -1340,7 +1341,7 @@ function ConsultationInProgress() {
 
                                                                     </div>
                                                                 )}
-                                                            </Draggable>
+                                                            </DraggableDnd>
                                                         ))}
                                                         {provided.placeholder}
                                                     </div>
@@ -1611,7 +1612,7 @@ function ConsultationInProgress() {
                                 <Stack direction={{xs: 'column', sm: 'row'}} justifyContent={"space-between"}
                                        alignItems={{xs: 'flex-start', sm: 'center'}}>
                                     {t(`consultationIP.${info}`)}
-                                    <SwitchPrescriptionUI {...{t,keyPrefix:"consultationIP", handleSwitchUI}} />
+                                    <SwitchPrescriptionUI {...{t, keyPrefix: "consultationIP", handleSwitchUI}} />
                                 </Stack>
                             </DialogTitle>
                         ),
@@ -1706,19 +1707,21 @@ function ConsultationInProgress() {
                 />
             )}
 
-            <Fab sx={{
-                position: "fixed",
-                bottom: 76,
-                right: 30
-            }}
-                 size={"small"}
-                 onClick={() => {
-                     setOpenChat(true)
-                 }}
-                 color={"primary"}
-                 aria-label="edit">
-                <IconUrl path={'ic-chatbot'}/>
-            </Fab>
+            <Draggable>
+                <Fab sx={{
+                    position: "fixed",
+                    bottom: 76,
+                    right: 30
+                }}
+                     size={"small"}
+                     onClick={() => {
+                         setOpenChat(true)
+                     }}
+                     color={"primary"}
+                     aria-label="edit">
+                    <IconUrl path={'ic-chatbot'}/>
+                </Fab>
+            </Draggable>
         </>
     );
 }

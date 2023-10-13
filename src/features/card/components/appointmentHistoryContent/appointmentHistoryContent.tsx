@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Box, Button, Grid, IconButton, List, ListItemIcon, Stack, TextField, Typography} from "@mui/material";
+import {Box, Button, Grid, List, ListItemIcon, Stack, TextField, Typography} from "@mui/material";
 import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -130,15 +130,12 @@ function AppointmentHistoryContent({...props}) {
                                 <Typography variant="body2" fontWeight={700}>
                                     {t(col.title)}
                                 </Typography>
-                                <IconButton size="small" sx={{ml: "auto"}}>
-                                    <IconUrl path="ic-expand-more"/>
-                                </IconButton>
                             </ListItemStyled>
 
                             <ListItemDetailsStyled sx={{p: 0}}>
-                                {col.type === "treatment" && <>
+                                {col.type === "treatment" && app?.appointment.treatments.length > 0 && <>
                                     {
-                                        app?.appointment.treatments.length > 0 ? <>
+                                        <>
                                             {
                                                 app.appointment.treatments.filter((t: {
                                                     isOtherProfessional: any;
@@ -187,63 +184,56 @@ function AppointmentHistoryContent({...props}) {
                                                     </Box>
                                                 )
                                             )}
-                                        </> : <Box className={'boxHisto'}>
-                                            <Typography
-                                                className={"empty"}>{t('consultationIP.noTreatment')}</Typography>
-                                        </Box>
+                                        </>
                                     } </>}
 
-                                {col.type === "document" && <>
-                                    {app?.documents.length > 0 ?
-                                        <Box style={{padding: 20, paddingTop: 25}}>
-                                            <Grid
-                                                container
-                                                spacing={2}
-                                                className={"docGrid"}>
-                                                {app.documents.map((data: any) => (
-                                                    <Grid
-                                                        item
-                                                        xs={12}
-                                                        md={2}
-                                                        key={`doc-item-${data.uuid}`}>
-                                                        <Stack direction={"row"}
-                                                               style={{background: "white"}}
-                                                               borderRadius={1} padding={1}
-                                                               spacing={1} onClick={() => {
-                                                            showDoc(data)
-                                                        }} alignItems="center">
-                                                            {data.documentType !== 'photo' &&
-                                                                <IconUrl height={25} width={25}
-                                                                         path={iconDocument(data.documentType)}/>}
-                                                            {data.documentType === 'photo' &&
-                                                                <Image width={25}
-                                                                       height={25}
-                                                                       src={data.uri.thumbnails.length === 0 ? data.uri.url : data.uri.thumbnails['thumbnail_32']}
-                                                                       style={{borderRadius: 5}}
-                                                                       alt={'photo history'}/>}
-                                                            <Typography variant='subtitle2'
-                                                                        textAlign={"center"}
-                                                                        whiteSpace={"nowrap"}
-                                                                        display={"block"}
-                                                                        maxWidth={"60%"}
-                                                                        style={{cursor: "pointer"}}
-                                                                        overflow={"hidden !important"}
-                                                                        textOverflow={'ellipsis'}
-                                                                        fontSize={9}>
-                                                                {t(data.title)}
-                                                            </Typography>
-                                                        </Stack>
-                                                    </Grid>
-                                                ))}
-                                            </Grid>
-                                        </Box> : <Box className={'boxHisto'}>
-                                            <Typography
-                                                className={"empty"}>{t('consultationIP.noDoc')}</Typography>
-                                        </Box>}
+                                {col.type === "document" && app?.documents.length > 0 && <>
+                                    <Box style={{padding: 20, paddingTop: 25}}>
+                                        <Grid
+                                            container
+                                            spacing={2}
+                                            className={"docGrid"}>
+                                            {app.documents.map((data: any) => (
+                                                <Grid
+                                                    item
+                                                    xs={12}
+                                                    md={2}
+                                                    key={`doc-item-${data.uuid}`}>
+                                                    <Stack direction={"row"}
+                                                           style={{background: "white"}}
+                                                           borderRadius={1} padding={1}
+                                                           spacing={1} onClick={() => {
+                                                        showDoc(data)
+                                                    }} alignItems="center">
+                                                        {data.documentType !== 'photo' &&
+                                                            <IconUrl height={25} width={25}
+                                                                     path={iconDocument(data.documentType)}/>}
+                                                        {data.documentType === 'photo' &&
+                                                            <Image width={25}
+                                                                   height={25}
+                                                                   src={data.uri.thumbnails.length === 0 ? data.uri.url : data.uri.thumbnails['thumbnail_32']}
+                                                                   style={{borderRadius: 5}}
+                                                                   alt={'photo history'}/>}
+                                                        <Typography variant='subtitle2'
+                                                                    textAlign={"center"}
+                                                                    whiteSpace={"nowrap"}
+                                                                    display={"block"}
+                                                                    maxWidth={"60%"}
+                                                                    style={{cursor: "pointer"}}
+                                                                    overflow={"hidden !important"}
+                                                                    textOverflow={'ellipsis'}
+                                                                    fontSize={9}>
+                                                            {t(data.title)}
+                                                        </Typography>
+                                                    </Stack>
+                                                </Grid>
+                                            ))}
+                                        </Grid>
+                                    </Box>
                                 </>}
 
-                                {col.type === "req-sheet" && <>
-                                    {app?.appointment.requestedAnalyses.length > 0 ? app?.appointment.requestedAnalyses.map(
+                                {col.type === "req-sheet" && app?.appointment.requestedAnalyses.length > 0 && <>
+                                    {app?.appointment.requestedAnalyses.map(
                                         (reqSheet: any, reqSheetID: number) => (
                                             <Box key={`req-sheet-item-${reqSheetID}`}>
                                                 {reqSheet.hasAnalysis.map(
@@ -293,75 +283,65 @@ function AppointmentHistoryContent({...props}) {
                                                         {t("consultationIP.save")}
                                                     </Button>
                                                 </Box>
-                                            </Box>)) : <Box className={'boxHisto'}>
-                                        <Typography
-                                            className={"empty"}>{t('consultationIP.noRequest')}</Typography>
-                                    </Box>}
+                                            </Box>))}
 
 
                                 </>}
 
-                                {col.type === "req-medical-imaging" && <>
+                                {col.type === "req-medical-imaging" && app?.appointment.requestedImaging && Object.keys(app?.appointment.requestedImaging)
+                                    .length > 0 && <>
                                     {
-                                        app?.appointment.requestedImaging && Object.keys(app?.appointment.requestedImaging)
-                                            .length > 0 ? <>
-                                            {
-                                                app?.appointment.requestedImaging["medical-imaging"].map((rs: any, idx: number) => (
-                                                    <Box key={`req-sheet-imgx-${idx}`}
-                                                         className={"boxHisto"}>
-                                                        <Typography
-                                                            fontSize={12}>{rs["medical-imaging"]?.name}</Typography>
-                                                        {rs.uri &&
-                                                            <Grid container mb={0.1} mt={0}
-                                                                  spacing={1}>
-                                                                {
-                                                                    app.documents.filter((doc: {
-                                                                        uri: any;
-                                                                    }) => rs.uri.includes(doc.uri)).map((card: any) => (
-                                                                        <Grid item xs={3}
-                                                                              key={`doc-item-${card.uuid}`}>
-                                                                            <Stack direction={"row"}
-                                                                                   style={{background: "white"}}
-                                                                                   borderRadius={1}
-                                                                                   padding={1}
-                                                                                   spacing={1}
-                                                                                   onClick={() => {
-                                                                                       showDoc(card)
-                                                                                   }}
-                                                                                   alignItems="center">
-                                                                                {card.documentType !== 'photo' &&
-                                                                                    <IconUrl height={25}
-                                                                                             width={25}
-                                                                                             path={iconDocument(card.documentType)}/>}
-                                                                                {card.documentType === 'photo' &&
-                                                                                    <Image width={25}
-                                                                                           height={25}
-                                                                                           src={card.uri}
-                                                                                           style={{borderRadius: 5}}
-                                                                                           alt={'photo history'}/>}
-                                                                                <Typography
-                                                                                    variant='subtitle2'
-                                                                                    textAlign={"center"}
-                                                                                    whiteSpace={"nowrap"}
-                                                                                    display={"block"}
-                                                                                    maxWidth={"60%"}
-                                                                                    style={{cursor: "pointer"}}
-                                                                                    overflow={"hidden !important"}
-                                                                                    textOverflow={'ellipsis'}
-                                                                                    fontSize={9}>
-                                                                                    {t(card.title)}
-                                                                                </Typography>
-                                                                            </Stack>
-                                                                        </Grid>
-                                                                    ))
-                                                                }
-                                                            </Grid>}
-                                                    </Box>))
-                                            }
-                                        </> : <Box className={'boxHisto'}>
-                                            <Typography
-                                                className={"empty"}>{t('consultationIP.noImage')}</Typography>
-                                        </Box>
+                                        app?.appointment.requestedImaging["medical-imaging"].map((rs: any, idx: number) => (
+                                            <Box key={`req-sheet-imgx-${idx}`}
+                                                 className={"boxHisto"}>
+                                                <Typography
+                                                    fontSize={12}>{rs["medical-imaging"]?.name}</Typography>
+                                                {rs.uri &&
+                                                    <Grid container mb={0.1} mt={0}
+                                                          spacing={1}>
+                                                        {
+                                                            app.documents.filter((doc: {
+                                                                uri: any;
+                                                            }) => rs.uri.includes(doc.uri)).map((card: any) => (
+                                                                <Grid item xs={3}
+                                                                      key={`doc-item-${card.uuid}`}>
+                                                                    <Stack direction={"row"}
+                                                                           style={{background: "white"}}
+                                                                           borderRadius={1}
+                                                                           padding={1}
+                                                                           spacing={1}
+                                                                           onClick={() => {
+                                                                               showDoc(card)
+                                                                           }}
+                                                                           alignItems="center">
+                                                                        {card.documentType !== 'photo' &&
+                                                                            <IconUrl height={25}
+                                                                                     width={25}
+                                                                                     path={iconDocument(card.documentType)}/>}
+                                                                        {card.documentType === 'photo' &&
+                                                                            <Image width={25}
+                                                                                   height={25}
+                                                                                   src={card.uri}
+                                                                                   style={{borderRadius: 5}}
+                                                                                   alt={'photo history'}/>}
+                                                                        <Typography
+                                                                            variant='subtitle2'
+                                                                            textAlign={"center"}
+                                                                            whiteSpace={"nowrap"}
+                                                                            display={"block"}
+                                                                            maxWidth={"60%"}
+                                                                            style={{cursor: "pointer"}}
+                                                                            overflow={"hidden !important"}
+                                                                            textOverflow={'ellipsis'}
+                                                                            fontSize={9}>
+                                                                            {t(card.title)}
+                                                                        </Typography>
+                                                                    </Stack>
+                                                                </Grid>
+                                                            ))
+                                                        }
+                                                    </Grid>}
+                                            </Box>))
                                     }
                                 </>}
 

@@ -1,5 +1,17 @@
 import React, {useEffect, useState} from 'react'
-import {Autocomplete, Box, CardContent, Divider, MenuItem, Stack, TextField, Typography, useTheme} from "@mui/material";
+import {
+    Autocomplete,
+    Box,
+    CardContent,
+    Divider,
+    IconButton,
+    MenuItem,
+    Stack,
+    TextField,
+    Tooltip,
+    Typography,
+    useTheme
+} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import {useTranslation} from 'next-i18next'
 import {Form, FormikProvider, useFormik} from "formik";
@@ -18,7 +30,8 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {debounce} from "lodash";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {Editor} from "@tinymce/tinymce-react";
-import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
+import {tinymcePlugins, tinymceToolbarNotes} from "@lib/constants";
+import DesignServicesRoundedIcon from '@mui/icons-material/DesignServicesRounded';
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -33,6 +46,7 @@ function CIPPatientHistoryCard({...props}) {
         closed,
         isClose,
         agenda,
+        mutateSheetData,
         trigger: triggerAppointmentEdit
     } = props;
     const router = useRouter();
@@ -52,6 +66,7 @@ function CIPPatientHistoryCard({...props}) {
     let [diseases, setDiseases] = useState<string[]>([]);
     const [hide, setHide] = useState<boolean>(false);
     const [editNote, setEditNote] = useState<boolean>(false);
+    const [showToolbar, setShowToolbar] = useState<boolean>(false);
     const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
 
     const {trigger: triggerAddReason} = useRequestQueryMutation("/motif/add");
@@ -179,7 +194,7 @@ function CIPPatientHistoryCard({...props}) {
             data: form
         })
     }
-    const debouncedOnChange = debounce(saveChanges, 3000);
+    const debouncedOnChange = debounce(saveChanges, 1000);
 
 
     useEffect(() => {
@@ -361,6 +376,7 @@ function CIPPatientHistoryCard({...props}) {
                                 </Typography>
                                 <Stack direction={"row"} spacing={2} alignItems={"center"}>
                                     {(listen === '' || listen === 'observation') && <>
+
                                         {hasDataHistory &&
                                             <Typography
                                                 color={"primary"} style={{cursor: "pointer"}}
@@ -368,6 +384,15 @@ function CIPPatientHistoryCard({...props}) {
                                                 {t('seeHistory')}
                                             </Typography>}
                                     </>}
+                                    <Tooltip title="toolbar">
+                                        <IconButton size={"small"} onClick={() => {
+                                            mutateSheetData && mutateSheetData()
+                                            setShowToolbar(!showToolbar)
+                                        }
+                                        }>
+                                            <DesignServicesRoundedIcon/>
+                                        </IconButton>
+                                    </Tooltip>
                                     <RecButton
                                         small
                                         onClick={() => {
@@ -375,15 +400,28 @@ function CIPPatientHistoryCard({...props}) {
                                         }}/>
                                 </Stack>
                             </Stack>
+
                             {
-                                !editNote && <div className={"contentPreview"}
-                                                  onClick={() => {
-                                                      setEditNote(true)
-                                                  }}
-                                                  dangerouslySetInnerHTML={{__html: values.notes ? values.notes : '<p class="preview">--</p>'}}/>
+                                showToolbar &&
+                                <Editor
+                                    initialValue={values.notes}
+                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    onEditorChange={(event) => {
+                                        debouncedOnChange("notes", event)
+                                    }}
+                                    init={{
+                                        branding: false,
+                                        statusbar: false,
+                                        menubar: false,
+                                        height: 400,
+                                        toolbar_mode: 'wrap',
+                                        plugins: tinymcePlugins,
+                                        toolbar: tinymceToolbarNotes,
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}/>
                             }
                             {
-                                editNote && <Editor
+                                !showToolbar && <Editor
                                     initialValue={values.notes}
                                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                                     onEditorChange={(event) => {
@@ -394,9 +432,7 @@ function CIPPatientHistoryCard({...props}) {
                                         statusbar: false,
                                         menubar: false,
                                         height: 200,
-                                        toolbar_mode: 'scrolling',
-                                        plugins: tinymcePlugins,
-                                        toolbar: tinymceToolbar,
+                                        toolbar: false,
                                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                                     }}/>
                             }
@@ -406,13 +442,32 @@ function CIPPatientHistoryCard({...props}) {
                                 <Typography variant="body2" fontWeight={500}>
                                     {t("diagnosis")}
                                 </Typography>
+
+                                <Tooltip title="toolbar">
+                                    <IconButton size={"small"} onClick={() => {
+                                        mutateSheetData && mutateSheetData()
+                                        setEditDiagnosic(!editDiagnosic)
+                                    }
+                                    }>
+                                        <DesignServicesRoundedIcon/>
+                                    </IconButton>
+                                </Tooltip>
                             </Stack>
                             {
-                                !editDiagnosic && <div className={"contentPreview"}
-                                                       onClick={() => {
-                                                           setEditDiagnosic(true)
-                                                       }}
-                                                       dangerouslySetInnerHTML={{__html: values.diagnosis ? values.diagnosis : '<p class="preview">--</p>'}}/>
+                                !editDiagnosic && <Editor
+                                    initialValue={values.diagnosis}
+                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    onEditorChange={(event) => {
+                                        debouncedOnChange("diagnosis", event)
+                                    }}
+                                    init={{
+                                        branding: false,
+                                        statusbar: false,
+                                        menubar: false,
+                                        height: 200,
+                                        toolbar: false,
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}/>
                             }
                             {
                                 editDiagnosic && <Editor
@@ -425,10 +480,10 @@ function CIPPatientHistoryCard({...props}) {
                                         branding: false,
                                         statusbar: false,
                                         menubar: false,
-                                        height: 200,
-                                        toolbar_mode: 'scrolling',
+                                        height: 400,
+                                        toolbar_mode: 'wrap',
                                         plugins: tinymcePlugins,
-                                        toolbar: tinymceToolbar,
+                                        toolbar: tinymceToolbarNotes,
                                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                                     }}/>
                             }
