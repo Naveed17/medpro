@@ -434,12 +434,9 @@ function Consultation() {
                                 <Stack sx={{ml: "auto"}} spacing={2} direction={"row"}>
                                     <Badge
                                         badgeContent={col.badge}
-                                        sx={{marginTop: 1.5}}
+                                        sx={{marginRight: 1.5}}
                                         color="warning"
                                     />
-                                    <IconButton size="small">
-                                        <Icon path={collapse === col.id ? "arrow-up-table" : "ic-expand-more"}/>
-                                    </IconButton>
                                 </Stack>
                             </ListItem>
                             <ListItem sx={{p: 0}}>

@@ -8,11 +8,11 @@ import {
     MenuItem,
     Stack,
     TextField,
+    Tooltip,
     Typography,
     useTheme
 } from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
-import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
 import {Form, FormikProvider, useFormik} from "formik";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -25,14 +25,13 @@ import {useRouter} from "next/router";
 import {RecButton} from "@features/buttons";
 import {dashLayoutSelector} from "@features/base";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import dynamic from "next/dynamic";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {debounce} from "lodash";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {Editor} from "@tinymce/tinymce-react";
-import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
+import {tinymcePlugins, tinymceToolbarNotes} from "@lib/constants";
+import DesignServicesRoundedIcon from '@mui/icons-material/DesignServicesRounded';
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -45,9 +44,9 @@ function CIPPatientHistoryCard({...props}) {
         hasDataHistory,
         seeHistory,
         closed,
-        handleClosePanel,
         isClose,
         agenda,
+        mutateSheetData,
         trigger: triggerAppointmentEdit
     } = props;
     const router = useRouter();
@@ -65,9 +64,9 @@ function CIPPatientHistoryCard({...props}) {
     const [isStarted, setIsStarted] = useState(false);
     let [oldNote, setOldNote] = useState('');
     let [diseases, setDiseases] = useState<string[]>([]);
-    const [closeExam, setCloseExam] = useState<boolean>(closed);
     const [hide, setHide] = useState<boolean>(false);
     const [editNote, setEditNote] = useState<boolean>(false);
+    const [showToolbar, setShowToolbar] = useState<boolean>(false);
     const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
 
     const {trigger: triggerAddReason} = useRequestQueryMutation("/motif/add");
@@ -82,7 +81,6 @@ function CIPPatientHistoryCard({...props}) {
     });
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data;
-
 
     const app_data = defaultExam?.appointment_data;
 
@@ -99,6 +97,7 @@ function CIPPatientHistoryCard({...props}) {
             console.log('ok', values);
         },
     });
+
 
     const {handleSubmit, values, setFieldValue} = formik;
     const startStopRec = () => {
@@ -195,6 +194,8 @@ function CIPPatientHistoryCard({...props}) {
             data: form
         })
     }
+    const debouncedOnChange = debounce(saveChanges, 1000);
+
 
     useEffect(() => {
         setHide(closed && !isClose)
@@ -236,7 +237,7 @@ function CIPPatientHistoryCard({...props}) {
 
     return (
         <ConsultationDetailCardStyled>
-            <Stack className="card-header" padding={'0.45rem'}
+            {/*<Stack className="card-header" padding={'0.45rem'}
                    direction="row"
                    alignItems="center"
                    justifyContent={hide ? "" : "space-between"}
@@ -285,7 +286,7 @@ function CIPPatientHistoryCard({...props}) {
                     disableRipple>
                     <ArrowForwardIosIcon/>
                 </IconButton>}
-            </Stack>
+            </Stack>*/}
             <CardContent style={{padding: 20}}>
                 <FormikProvider value={formik}>
                     <Stack
@@ -375,6 +376,7 @@ function CIPPatientHistoryCard({...props}) {
                                 </Typography>
                                 <Stack direction={"row"} spacing={2} alignItems={"center"}>
                                     {(listen === '' || listen === 'observation') && <>
+
                                         {hasDataHistory &&
                                             <Typography
                                                 color={"primary"} style={{cursor: "pointer"}}
@@ -382,6 +384,15 @@ function CIPPatientHistoryCard({...props}) {
                                                 {t('seeHistory')}
                                             </Typography>}
                                     </>}
+                                    <Tooltip title={t('toolbar')}>
+                                        <IconButton size={"small"} onClick={() => {
+                                            mutateSheetData && mutateSheetData()
+                                            setShowToolbar(!showToolbar)
+                                        }
+                                        }>
+                                            <DesignServicesRoundedIcon/>
+                                        </IconButton>
+                                    </Tooltip>
                                     <RecButton
                                         small
                                         onClick={() => {
@@ -389,31 +400,39 @@ function CIPPatientHistoryCard({...props}) {
                                         }}/>
                                 </Stack>
                             </Stack>
+
                             {
-                                !editNote && <div className={"contentPreview"}
-                                                  onClick={() => {
-                                                      setEditNote(true)
-                                                  }}
-                                                  dangerouslySetInnerHTML={{__html: values.notes ? values.notes : '<p class="preview">--</p>'}}/>
-                            }
-                            {
-                                editNote && <Editor
-                                    value={values.notes}
+                                showToolbar &&
+                                <Editor
+                                    initialValue={values.notes}
                                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                                     onEditorChange={(event) => {
-                                        setFieldValue("notes", event);
+                                        debouncedOnChange("notes", event)
                                     }}
-                                    onBlur={() => {
-                                        saveChanges("notes", values.notes)
+                                    init={{
+                                        branding: false,
+                                        statusbar: false,
+                                        menubar: false,
+                                        height: 400,
+                                        toolbar_mode: 'wrap',
+                                        plugins: tinymcePlugins,
+                                        toolbar: tinymceToolbarNotes,
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}/>
+                            }
+                            {
+                                !showToolbar && <Editor
+                                    initialValue={values.notes}
+                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    onEditorChange={(event) => {
+                                        debouncedOnChange("notes", event)
                                     }}
                                     init={{
                                         branding: false,
                                         statusbar: false,
                                         menubar: false,
                                         height: 200,
-                                        toolbar_mode: 'scrolling',
-                                        plugins: tinymcePlugins,
-                                        toolbar: tinymceToolbar,
+                                        toolbar: false,
                                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                                     }}/>
                             }
@@ -423,32 +442,48 @@ function CIPPatientHistoryCard({...props}) {
                                 <Typography variant="body2" fontWeight={500}>
                                     {t("diagnosis")}
                                 </Typography>
+
+                                <Tooltip title={t('toolbar')}>
+                                    <IconButton size={"small"} onClick={() => {
+                                        mutateSheetData && mutateSheetData()
+                                        setEditDiagnosic(!editDiagnosic)
+                                    }
+                                    }>
+                                        <DesignServicesRoundedIcon/>
+                                    </IconButton>
+                                </Tooltip>
                             </Stack>
                             {
-                                !editDiagnosic && <div className={"contentPreview"}
-                                                       onClick={() => {
-                                                           setEditDiagnosic(true)
-                                                       }}
-                                                       dangerouslySetInnerHTML={{__html: values.diagnosis ? values.diagnosis : '<p class="preview">--</p>'}}/>
-                            }
-                            {
-                                editDiagnosic && <Editor
-                                    value={values.diagnosis}
+                                !editDiagnosic && <Editor
+                                    initialValue={values.diagnosis}
                                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                                     onEditorChange={(event) => {
-                                        setFieldValue("diagnosis", event)
-                                    }}
-                                    onBlur={() => {
-                                        saveChanges("diagnosis", values.diagnosis)
+                                        debouncedOnChange("diagnosis", event)
                                     }}
                                     init={{
                                         branding: false,
                                         statusbar: false,
                                         menubar: false,
                                         height: 200,
-                                        toolbar_mode: 'scrolling',
+                                        toolbar: false,
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}/>
+                            }
+                            {
+                                editDiagnosic && <Editor
+                                    initialValue={values.diagnosis}
+                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    onEditorChange={(event) => {
+                                        debouncedOnChange("diagnosis", event)
+                                    }}
+                                    init={{
+                                        branding: false,
+                                        statusbar: false,
+                                        menubar: false,
+                                        height: 400,
+                                        toolbar_mode: 'wrap',
                                         plugins: tinymcePlugins,
-                                        toolbar: tinymceToolbar,
+                                        toolbar: tinymceToolbarNotes,
                                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                                     }}/>
                             }
