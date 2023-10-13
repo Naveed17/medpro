@@ -14,6 +14,7 @@ import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {AppointmentHistoryContent} from "@features/card/components/appointmentHistoryContent";
 import Icon from "@themes/icon";
 import moment from "moment/moment";
+import {WidgetCharts} from "@features/tabPanel";
 
 function HistoryTab({...props}) {
 
@@ -150,6 +151,8 @@ function HistoryTab({...props}) {
                     </HistoryStyled>}
             </div>
             {/****** Sheet History ******/}
+
+            <WidgetCharts {...{sheet,mini}}/>
 
             {/****** Latest appointment ******/}
             {latest_appointment && latest_appointment.length > 0 && <Stack spacing={2} mb={2} alignItems="flex-start">
