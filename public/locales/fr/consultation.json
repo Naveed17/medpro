@@ -90,7 +90,6 @@
     "rest": "Solde:"
   },
   "end of consultation": "fin de la consultation",
-  "toolbar": "barre d'outils",
   "cancel": "Annuler",
   "note": "Note: ",
   "write_certif": "Document médical",
@@ -121,6 +120,7 @@
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
     "recent-search-balance-sheet": "Sélectionner le bilan demandée",
+    "toolbar": "barre d'outils",
     "reason_for_consultation": "Motif",
     "insurance_document_print": "Documents assurance",
     "patient_history": "Historique",

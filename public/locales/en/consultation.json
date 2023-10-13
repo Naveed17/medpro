@@ -89,7 +89,6 @@
     "rest": "Sold:"
   },
   "end of consultation": "End of Consultation",
-  "toolbar": "Toolbar",
   "cancel": "Cancel",
   "note": "Note: ",
   "write_certif": "Medical Document",
@@ -118,6 +117,7 @@
     "importResult": "Please import the result of the balance sheet",
     "recent-search": "Select the requested medical imaging",
     "reason_for_consultation": "Reason",
+    "toolbar": "Toolbar",
     "patient_history": "Patient History",
     "title": "Title",
     "email": "Send by email",

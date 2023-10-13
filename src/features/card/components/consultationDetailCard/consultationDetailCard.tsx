@@ -384,7 +384,7 @@ function CIPPatientHistoryCard({...props}) {
                                                 {t('seeHistory')}
                                             </Typography>}
                                     </>}
-                                    <Tooltip title="toolbar">
+                                    <Tooltip title={t('toolbar')}>
                                         <IconButton size={"small"} onClick={() => {
                                             mutateSheetData && mutateSheetData()
                                             setShowToolbar(!showToolbar)
@@ -443,7 +443,7 @@ function CIPPatientHistoryCard({...props}) {
                                     {t("diagnosis")}
                                 </Typography>
 
-                                <Tooltip title="toolbar">
+                                <Tooltip title={t('toolbar')}>
                                     <IconButton size={"small"} onClick={() => {
                                         mutateSheetData && mutateSheetData()
                                         setEditDiagnosic(!editDiagnosic)
