@@ -1,7 +1,7 @@
 import { Card } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-const ConsultationModalStyled = styled(Card)(({ theme }) => ({
+const ConsultationModalStyled = styled("div")(({ theme }) => ({
     "& .card-header": {
         ".icon-wrapper": {
             borderRadius: "50%",
@@ -27,6 +27,7 @@ const ConsultationModalStyled = styled(Card)(({ theme }) => ({
         height: "100%",
         padding: theme.spacing(0),
         paddingTop: theme.spacing(1),
+        overflowX:"hidden",
         ".fieldset-body": {
             margin: 0,
         },

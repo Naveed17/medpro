@@ -1,5 +1,18 @@
-import React, {useEffect, useState} from "react";
-import {Avatar, Button, MenuItem, Stack, Tab, Tabs, tabsClasses, Typography,} from "@mui/material";
+import React, {useEffect} from "react";
+import {
+    Avatar,
+    Badge,
+    Button,
+    IconButton,
+    MenuItem,
+    Stack,
+    Tab,
+    Tabs,
+    tabsClasses,
+    Tooltip,
+    Typography,
+    Zoom,
+} from "@mui/material";
 import AppToolbarStyled from "./overrides/appToolbarStyle";
 import AddIcon from "@mui/icons-material/Add";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -10,25 +23,18 @@ import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import {useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
-import {consultationSelector, SetRecord, SetSelectedDialog, SetTimer} from "@features/toolbar";
+import {consultationSelector, SetRecord, SetTimer} from "@features/toolbar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
 import StopCircleIcon from "@mui/icons-material/StopCircle";
-import moment from "moment-timezone";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {Dialog, handleDrawerAction} from "@features/dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import {Theme} from "@mui/material/styles";
-import {SwitchPrescriptionUI} from "@features/buttons";
-import CloseIcon from "@mui/icons-material/Close";
-import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 
 const MicRecorder = require('mic-recorder-to-mp3');
 const recorder = new MicRecorder({
@@ -39,9 +45,9 @@ function AppToolbar({...props}) {
 
     const {
         selectedTab,
-        setSelectedTab,
-        pendingDocuments,
-        setPendingDocuments,
+        setInfo,
+        setState,
+        setOpenDialog,
         tabsData,
         selectedDialog,
         agenda,
@@ -52,12 +58,13 @@ function AppToolbar({...props}) {
         changes,
         anchorEl,
         loading,
-        mutatePatient,
         setAnchorEl,
         setPatientShow,
         dialog, setDialog,
-        mutateSheetData,
-        setFilterDrawer
+        setFilterDrawer,
+        nbDoc,
+        prescription, checkUp, imagery,
+        showDocument, setShowDocument
     } = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
@@ -71,7 +78,6 @@ function AppToolbar({...props}) {
     const {record} = useAppSelector(consultationSelector);
 
     const {trigger: triggerDrugsCreate} = useRequestQueryMutation("/drugs/create");
-    const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
     const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
 
     const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/documents/${router.locale}`;
@@ -80,14 +86,6 @@ function AppToolbar({...props}) {
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
     const {jti} = session?.user as any;
-
-    const [info, setInfo] = useState<null | string>("");
-    const [state, setState] = useState<any>();
-    const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
-    const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
-    const [action, setActions] = useState<boolean>(false);
-    const [imagery, setImagery] = useState<AnalysisModel[]>([]);
 
     const mutateDoc = async () => {
         await invalidateQueries([docUrl]);
@@ -153,17 +151,6 @@ function AppToolbar({...props}) {
         dispatch(openDrawer({type: "add", open: true}));
     }
 
-    const handleSwitchUI = () => {
-        //close the current dialog
-        setOpenDialog(false);
-        setInfo(null);
-        // switch UI and open dialog
-        setInfo(getPrescriptionUI());
-        setAnchorEl(null);
-        setOpenDialog(true);
-        setActions(true);
-    }
-
     const refreshDocSession = () => {
         triggerNotificationPush({
             action: "push",
@@ -176,256 +163,8 @@ function AppToolbar({...props}) {
         });
     }
 
-    const handleSaveDialog = () => {
-        const form = new FormData();
-        let method = "";
-        let url = ""
-        switch (info) {
-            case "medical_prescription":
-            case "medical_prescription_cycle":
-                form.append("globalNote", "");
-                form.append("isOtherProfessional", "false");
-                form.append("drugs", JSON.stringify(state));
-                method = "POST"
-                url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/prescriptions/${router.locale}`;
-                if (selectedDialog && selectedDialog.action.includes("medical_prescription")) {
-                    method = "PUT"
-                    url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`;
-                }
-
-                triggerDrugsUpdate({
-                    method: method,
-                    url: url,
-                    data: form
-                }, {
-                    onSuccess: (r: any) => {
-                        mutateDoc();
-                        mutatePatient();
-                        setInfo("document_detail");
-                        const res = r.data.data;
-                        let type = "";
-                        if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                            type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
-
-                        setState({
-                            uri: res[1],
-                            name: "prescription",
-                            type: "prescription",
-                            info: res[0].prescription_has_drugs,
-                            uuid: res[0].uuid,
-                            uuidDoc: res[0].uuid,
-                            createdAt: moment().format('DD/MM/YYYY'),
-                            description: "",
-                            patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
-                        });
-                        setOpenDialog(true);
-                        setActions(false);
-                        setPrescription([]);
-
-                        let pdoc = [...pendingDocuments];
-                        pdoc = pdoc.filter((obj) => obj.id !== 2);
-                        setPendingDocuments(pdoc);
-                    }
-                });
-                break;
-            case "balance_sheet_request":
-                form.append("analyses", JSON.stringify(state));
-                method = "POST"
-                url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/requested-analysis/${router.locale}`;
-                if (selectedDialog && selectedDialog.action === "balance_sheet_request") {
-                    method = "PUT"
-                    url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/requested-analysis/${selectedDialog.uuid}/edit/${router.locale}`;
-                }
-
-                triggerDrugsUpdate({
-                    method: method,
-                    url: url,
-                    data: form
-                }, {
-                    onSuccess: (r: any) => {
-                        mutateDoc();
-                        mutatePatient();
-                        //mutatePatientAnalyses();
-                        setCheckUp([]);
-                        setInfo("document_detail");
-                        const res = r.data.data;
-                        let type = "";
-                        if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                            type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
-
-                        setState({
-                            uuid: res[0].uuid,
-                            uri: res[1],
-                            name: "requested-analysis",
-                            type: "requested-analysis",
-                            createdAt: moment().format('DD/MM/YYYY'),
-                            description: "",
-                            info: res[0].analyses,
-                            patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
-                        });
-                        setOpenDialog(true);
-                        setActions(false);
-
-                        let pdoc = [...pendingDocuments];
-                        pdoc = pdoc.filter((obj) => obj.id !== 1);
-                        setPendingDocuments(pdoc);
-                    }
-                });
-                break;
-            case "medical_imagery":
-                form.append("medical-imaging", JSON.stringify(state));
-
-                method = "POST"
-                url = `${urlMedicalEntitySuffix}/appointment/${app_uuid}/medical-imaging/${router.locale}`;
-                if (selectedDialog && selectedDialog.action === "medical_imagery") {
-                    method = "PUT"
-                    url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/medical-imaging/${selectedDialog.uuid}/edit/${router.locale}`;
-                }
-
-                triggerDrugsUpdate({
-                    method,
-                    url,
-                    data: form
-                }, {
-                    onSuccess: (r: any) => {
-                        mutateDoc();
-                        mutatePatient();
-                        setImagery([]);
-                        setInfo("document_detail");
-                        const res = r.data.data;
-                        let type = "";
-                        if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                            type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
-                        setState({
-                            uuid: res[0].uuid,
-                            uri: res[1],
-                            name: "requested-medical-imaging",
-                            type: "requested-medical-imaging",
-                            info: res[0]["medical-imaging"],
-                            createdAt: moment().format('DD/MM/YYYY'),
-                            description: "",
-                            patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
-                            mutate: mutateDoc
-                        });
-                        setOpenDialog(true);
-                        setActions(false);
-
-                        let pdoc = [...pendingDocuments];
-                        pdoc = pdoc.filter((obj) => obj.id !== 1);
-                        setPendingDocuments(pdoc);
-                    }
-                });
-                break;
-            case "add_a_document":
-                //form.append("title", state.name);
-                //form.append("description", state.description);
-                state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
-                    form.append(`files[${file.type}][]`, file?.file as any, file?.name?.slice(0, 20));
-                });
-
-                triggerDrugsUpdate({
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/documents/${router.locale}`,
-                    data: form
-                }, {
-                    onSuccess: () => mutateDoc()
-                });
-                setOpenDialog(true);
-                setActions(true);
-                break;
-            case "write_certif":
-                form.append("content", state.content);
-                form.append("title", state.title);
-                form.append("header", state.documentHeader);
-
-                method = "POST"
-                url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/certificates/${router.locale}`;
-                if (selectedDialog && selectedDialog.action === "write_certif") {
-                    method = "PUT"
-                    url = `${urlMedicalEntitySuffix}/appointments/${app_uuid}/certificates/${selectedDialog.state.certifUuid}/${router.locale}`;
-                }
-
-                triggerDrugsUpdate({
-                    method: method,
-                    url: url,
-                    data: form
-                }, {
-                    onSuccess: () => {
-                        mutateDoc();
-                        setInfo("document_detail");
-                        setState({
-                            content: state.content,
-                            doctor: state.name,
-                            patient: state.patient,
-                            birthdate: patient?.birthdate,
-                            cin: patient?.idCard,
-                            createdAt: moment().format('DD/MM/YYYY'),
-                            description: "",
-                            title: state.title,
-                            days: state.days,
-                            name: "certif",
-                            type: "write_certif",
-                            documentHeader: state.documentHeader
-                        });
-                        setOpenDialog(true);
-                        setActions(false);
-                    }
-                });
-                break;
-        }
-
-        setSelectedTab("documents");
-        mutateSheetData()
-        setOpenDialog(false);
-        setInfo(null);
-        dispatch(SetSelectedDialog(null))
-    };
-
-    const handleCloseDialog = () => {
-        let pdoc = [...pendingDocuments];
-        switch (info) {
-            case "medical_prescription":
-            case "medical_prescription_cycle":
-                if (state.length > 0) {
-                    setPrescription(state)
-                    if (pdoc.findIndex((pdc) => pdc.id === 2) === -1)
-                        pdoc.push({
-                            id: 2,
-                            name: "requestedPrescription",
-                            status: "in_progress",
-                            icon: "ic-traitement",
-                            state
-                        });
-                } else {
-                    pdoc = pdoc.filter((obj) => obj.id !== 2);
-                }
-                break;
-            case "balance_sheet_request":
-                setCheckUp(state);
-                if (state.length > 0) {
-                    if (pdoc.findIndex((pdc) => pdc.id === 1) === -1)
-                        pdoc.push({
-                            id: 1,
-                            name: "requestedAnalyses",
-                            status: "in_progress",
-                            icon: "ic-analyse",
-                            state
-                        });
-                } else {
-                    pdoc = pdoc.filter((obj) => obj.id !== 1);
-                }
-                break;
-            case "medical_imagery":
-                setImagery(state);
-                break;
-        }
-        setOpenDialog(false);
-        setInfo(null);
-        setPendingDocuments(pdoc);
-        dispatch(SetSelectedDialog(null))
-    };
-
     const handleClose = (action: string) => {
+        setAnchorEl(null);
         switch (action) {
             case "draw_up_an_order":
                 setInfo(getPrescriptionUI());
@@ -469,9 +208,7 @@ function AppToolbar({...props}) {
                 setInfo(null);
                 break;
         }
-        setAnchorEl(null);
         setOpenDialog(true);
-        setActions(true);
     };
 
     useEffect(() => {
@@ -487,8 +224,7 @@ function AppToolbar({...props}) {
         }
         setDialog("");
         setOpenDialog(true);
-        setActions(true);
-    }, [checkUp, dialog, prescription, setDialog]);
+    }, [checkUp, dialog, prescription, setDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (selectedDialog) {
@@ -499,21 +235,18 @@ function AppToolbar({...props}) {
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setActions(true);
                     break;
                 case "balance_sheet_request":
                     setInfo("balance_sheet_request");
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setActions(true);
                     break;
                 case "medical_imagery":
                     setInfo("medical_imagery");
                     setState(selectedDialog.state);
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setActions(true);
                     break;
                 case "write_certif":
                     setInfo("write_certif");
@@ -528,12 +261,10 @@ function AppToolbar({...props}) {
                     });
                     setAnchorEl(null);
                     setOpenDialog(true);
-                    setActions(true);
                     break;
             }
         }
     }, [selectedDialog])// eslint-disable-line react-hooks/exhaustive-deps
-
 
     return (
         <>
@@ -693,6 +424,23 @@ function AppToolbar({...props}) {
                                     </>
                             }
                         </Button>
+
+                        {selectedTab === 'consultation_form' && <Zoom in={selectedTab === 'consultation_form'}
+                                                                      style={{transitionDelay: selectedTab === 'consultation_form' ? '500ms' : '0ms'}}>
+                            <Tooltip title={t("documents")}>
+                                <Badge badgeContent={nbDoc} showZero={true} color="primary">
+                                    <IconButton onClick={() => setShowDocument(!showDocument)}
+                                                style={{
+                                                    borderRadius: "0.625rem",
+                                                    border: "1px solid var(--secondaire-gris-claire, #DDD)",
+                                                    width: 40
+                                                }}>
+                                        <IconUrl path={"doc"}/>
+                                    </IconButton>
+                                </Badge>
+                            </Tooltip>
+                        </Zoom>}
+
                         <StyledMenu
                             {...{open, anchorEl}}
                             id="basic-menu"
@@ -757,79 +505,6 @@ function AppToolbar({...props}) {
 
             </AppToolbarStyled>
 
-            {info && (
-                <Dialog
-                    action={info}
-                    open={openDialog}
-                    data={{appuuid: app_uuid, patient, state, setState, t, setOpenDialog}}
-                    size={["add_vaccin"].includes(info) ? "sm" : "xl"}
-                    direction={"ltr"}
-                    sx={{height: info === "insurance_document_print" ? 600 : 480}}
-                    {...(info === "document_detail" && {
-                        sx: {height: 480, p: 0},
-                    })}
-                    {...(info === "write_certif" && {enableFullScreen: true})}
-                    title={t(info === "document_detail" ? "doc_detail_title" : info)}
-                    {...(info === "document_detail" && {
-                        onClose: handleCloseDialog,
-                    })}
-                    dialogClose={handleCloseDialog}
-                    {...(["medical_prescription", "medical_prescription_cycle"].includes(info) && {
-                        headerDialog: (<DialogTitle
-                                sx={{
-                                    backgroundColor: (theme: Theme) => theme.palette.primary.main,
-                                    position: "relative",
-                                }}
-                                id="scroll-dialog-title">
-                                <Stack direction={{xs: 'column', sm: 'row'}} justifyContent={"space-between"}
-                                       alignItems={{xs: 'flex-start', sm: 'center'}}>
-                                    {t(info)}
-                                    <SwitchPrescriptionUI {...{t, handleSwitchUI}} />
-                                </Stack>
-                            </DialogTitle>
-                        ),
-                        sx: {
-                            p: 1.5,
-                            overflowX: 'hidden'
-                        }
-
-                    })}
-                    actionDialog={
-                        action ? (
-                            <Stack sx={{width: "100%"}}
-                                   direction={"row"}
-                                   {...(info === "medical_prescription_cycle" && {
-                                       direction: {xs: 'column', sm: 'row'},
-
-                                   })}
-                                   justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
-                                {info === "medical_prescription_cycle" &&
-                                    <Button sx={{alignSelf: 'flex-start'}} startIcon={<AddIcon/>} onClick={() => {
-                                        dispatch(handleDrawerAction("addDrug"));
-                                    }}>
-                                        {t("add_drug")}
-                                    </Button>}
-                                <Stack direction={"row"} justifyContent={{xs: 'space-between', sm: 'flex-start'}}
-                                       spacing={1.2}
-                                       {...(info === "medical_prescription_cycle" && {
-                                           mt: {xs: 1, md: 0}
-                                       })}>
-                                    <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
-                                        {t("cancel")}
-                                    </Button>
-                                    {info !== "insurance_document_print" && <Button
-                                        variant="contained"
-                                        onClick={handleSaveDialog}
-                                        disabled={info.includes("medical_prescription") && state.length === 0}
-                                        startIcon={<SaveRoundedIcon/>}>
-                                        {t("save")}
-                                    </Button>}
-                                </Stack>
-                            </Stack>
-                        ) : null
-                    }
-                />
-            )}
         </>
     );
 }

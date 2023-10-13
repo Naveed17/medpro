@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react";
-import {Box, IconButton, CircularProgress, Stack, Tooltip, Typography} from "@mui/material";
+import React, {useState} from "react";
+import {Box, IconButton, Stack, Tooltip, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
@@ -8,18 +8,16 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import fileDownload from 'js-file-download';
 import axios from "axios";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useRequestQueryMutation} from "@lib/axios";
 
 function DocumentsTab({...props}) {
     const {
-        medical_professional_uuid,
-        agenda,
-        urlMedicalEntitySuffix,
-        app_uuid,
+        documents,
+        mutateDoc,
         showDoc,
+        mutateSheetData,
         router,
-        t,
+        t
     } = props;
 
     const noCardData = {
@@ -31,53 +29,45 @@ function DocumentsTab({...props}) {
     };
 
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
-    const [documents, setDocuments] = useState<MedicalDocuments[]>([]);
-    const [loadingDocs, setLoadingDocs] = useState(true);
 
     const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/document/delete");
-    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequestQuery(medical_professional_uuid && agenda ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
 
     const removeDoc = () => {
         triggerDocumentDelete({
             method: "DELETE",
             url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`
         }, {
-            onSuccess: () => mutateDoc().then(() => setSelectedAudio(null))
+            onSuccess: () => mutateDoc().then(() => {
+                setSelectedAudio(null)
+                mutateSheetData();
+            })
         });
     }
 
-    useEffect(() => {
-        if (httpDocumentResponse) {
-            setDocuments((httpDocumentResponse as HttpResponse).data)
-            setLoadingDocs(false)
-        }
-    }, [httpDocumentResponse])
 
     return (
-        <>
-            {loadingDocs && <Stack direction={"row"} justifyContent={"center"}><CircularProgress/></Stack>}
-
+        <Stack spacing={1} padding={2}>
             {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 &&
-                <Typography variant='subtitle2' fontWeight={700} mt={3} mb={1} fontSize={16}>
-                    {t('gallery')}
-                </Typography>}
+                <Stack>
+                    <Typography variant='subtitle2' fontWeight={700} mt={3} mb={1} fontSize={16}>
+                        {t('gallery')}
+                    </Typography>
 
-            <Box style={{overflowX: "auto", marginBottom: 10}}>
-                <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
-                    {
-                        documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                            <React.Fragment key={`doc-item-${idx}`}>
-                                <DocumentCard onClick={() => {
-                                    showDoc(card)
-                                }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
-                            </React.Fragment>
-                        )
-                    }
+                    <Box style={{overflowX: "auto", marginBottom: 10}}>
+                        <Stack direction={"row"} spacing={1} m={1} alignItems={"center"}>
+                            {
+                                documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
+                                    <React.Fragment key={`doc-item-${idx}`}>
+                                        <DocumentCard onClick={() => {
+                                            showDoc(card)
+                                        }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
+                                    </React.Fragment>
+                                )
+                            }
+                        </Stack>
+                    </Box>
                 </Stack>
-            </Box>
+            }
 
             {documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').length > 0 &&
                 <Typography variant='subtitle2' fontWeight={700} mb={3} fontSize={16}>
@@ -156,10 +146,10 @@ function DocumentsTab({...props}) {
                     />
                 </Box>}
             </Box>
-            {documents.length === 0 && !loadingDocs && (
+            {documents.length === 0 && (
                 <NoDataCard t={t} ns={"consultation"} data={noCardData}/>
             )}
-        </>
+        </Stack>
     );
 }
 

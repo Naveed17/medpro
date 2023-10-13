@@ -3,6 +3,7 @@ import IconUrl from '@themes/urlIcon';
 import React from 'react'
 import DocumentCardStyled from './overrides/documentCardStyle';
 import {DocumentContent} from "@features/card";
+import {iconDocument} from "@lib/constants";
 
 function DocumentCard({...props}) {
     const {data, onClick, t, date, title, resize} = props;
@@ -17,19 +18,7 @@ function DocumentCard({...props}) {
                                    direction={"row"}
                                    className="document-detail"
                                    alignItems="center">
-                                <IconUrl width={title ? "20" : "50"} height={title ? "20" : "50"} path={
-                                    data.documentType === "prescription" && "ic-traitement" ||
-                                    data.documentType == "requested-analysis" && "ic-analyse" ||
-                                    data.documentType == "analyse" && "ic-analyse" ||
-                                    data.documentType == "medical-imaging" && "ic-soura" ||
-                                    data.documentType == "requested-medical-imaging" && "ic-soura" ||
-                                    data.documentType === "photo" && "ic-img" ||
-                                    data.documentType === "audio" && "ic-son" ||
-                                    data.documentType === "Rapport" && "ic-text" ||
-                                    data.documentType === "medical-certificate" && "ic-text" ||
-                                    data.documentType === "video" && "ic-video-outline" ||
-                                    data.documentType !== "prescription" && "ic-pdf" || ""
-                                }/>
+                                <IconUrl width={title ? "20" : "50"} height={title ? "20" : "50"} path={iconDocument(data.documentType)}/>
                                 {title && <DocumentContent {...{data, date, t, resize}}/>}
                             </Stack>
                         </CardContent>
@@ -38,19 +27,7 @@ function DocumentCard({...props}) {
                     <Tooltip title={"Note : " + data.description ? data.description : "--"}>
                         <CardContent style={{padding: 0}} onClick={onClick}>
                             <Stack alignItems="center">
-                                <IconUrl width={70} height={164} path={
-                                    data.documentType === "prescription" && "ic-traitement" ||
-                                    data.documentType == "requested-analysis" && "ic-analyse" ||
-                                    data.documentType == "analyse" && "ic-analyse" ||
-                                    data.documentType == "medical-imaging" && "ic-soura" ||
-                                    data.documentType == "requested-medical-imaging" && "ic-soura" ||
-                                    data.documentType === "photo" && "ic-img" ||
-                                    data.documentType === "audio" && "ic-son" ||
-                                    data.documentType === "Rapport" && "ic-text" ||
-                                    data.documentType === "medical-certificate" && "ic-text" ||
-                                    data.documentType === "video" && "ic-video-outline" ||
-                                    data.documentType !== "prescription" && "ic-pdf" || ""
-                                }/>
+                                <IconUrl width={70} height={164} path={iconDocument(data.documentType)}/>
                                 <DocumentContent {...{data, date, t, resize}} />
                             </Stack>
                         </CardContent>

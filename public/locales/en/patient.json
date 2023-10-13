@@ -51,7 +51,7 @@
     "description": ""
   },
   "config": {
-    "reason_for_consultation": "Reason for Consultation",
+    "reason_for_consultation": "Reason",
     "acts": "Act",
     "disease": "Disease",
     "insurance": "Insurances",

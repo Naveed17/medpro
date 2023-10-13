@@ -15,7 +15,7 @@ const WidgetForm: any = memo(
             handleClosePanel,
             isClose,
             expandButton, previousData, selectedModel,
-            url,
+            url,showToolbar,
             autoUpdate = true,
             acts, setActs, setSelectedAct, selectedAct, setSelectedUuid, mutateSheetData,printGlasses
         } = props;
@@ -40,6 +40,7 @@ const WidgetForm: any = memo(
                     previousData,
                     closed,
                     selectedModel,
+                    showToolbar,
                     url,printGlasses
                 }}
                 setModal={setSM}
