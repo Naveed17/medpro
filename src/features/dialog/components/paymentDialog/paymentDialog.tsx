@@ -1,11 +1,14 @@
-import React, {useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import PaymentDialogStyled from './overrides/paymentDialogStyle';
 import {
     Autocomplete,
     Avatar,
     Box,
     Button,
+    Card,
+    CardContent,
     Checkbox,
+    Collapse,
     Divider,
     FormControlLabel,
     FormGroup,
@@ -17,7 +20,8 @@ import {
     TextField,
     Theme,
     Typography,
-    useMediaQuery
+    useMediaQuery,
+    useTheme,
 } from '@mui/material'
 import IconUrl from '@themes/urlIcon';
 import {AnimatePresence, motion} from 'framer-motion';
@@ -44,7 +48,7 @@ import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import useBanks from "@lib/hooks/rest/useBanks";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-
+import ConsultationCard from './consultationCard';
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 interface HeadCell {
@@ -126,10 +130,10 @@ function TabPanel(props: TabPanelProps) {
 
 function PaymentDialog({...props}) {
     const {data} = props;
+    const theme = useTheme<Theme>();
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
-
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -248,7 +252,6 @@ function PaymentDialog({...props}) {
     const getHours = ()=>{
         return `${new Date().getHours()}:${new Date().getMinutes()}`
     }
-
     useEffect(() => {
         setSelectedPayment({
             ...selectedPayment,
@@ -274,20 +277,21 @@ function PaymentDialog({...props}) {
                            alignItems='center'
                            justifyContent={patient ? 'space-between' : 'flex-end'}>
                         <Stack spacing={2} direction="row" alignItems='center'>
-                            <Avatar sx={{width: 26, height: 26}}
-                                    src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
+                            <Avatar sx={{width: 42, height: 42}}
+                                     src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}
+                                     />
                             <Stack>
                                 <Stack direction="row" spacing={0.5} alignItems="center">
-                                    <Typography color="primary">
+                                    <Typography fontWeight={700}>
                                         {patient.firstName} {patient.lastName}
                                     </Typography>
                                 </Stack>
 
-                                {patient.birthdate &&
+                                {patient.contact.length &&
                                     <Stack direction="row" spacing={0.5} alignItems="center">
-                                        <IconUrl path="ic-anniverssaire"/>
-                                        <Typography variant='body2' color="text.secondary" alignItems='center'>
-                                            {patient.birthdate}
+                                        <IconUrl path="ic-tel" color={theme.palette.text.primary}/>
+                                        <Typography variant='body2' alignItems='center'>
+                                            {patient.contact[0]}
                                         </Typography>
                                     </Stack>}
                             </Stack>
@@ -366,9 +370,10 @@ function PaymentDialog({...props}) {
                                 {devise}
                             </Button>
                         </Stack>}
-                    </Stack>}
+                    </Stack>
+                    }
 
-                {!patient && <Box>
+                {/* {!patient && <Box>
                     <Typography style={{color: "gray"}} fontSize={12} mb={1}>{t('description')}</Typography>
                     <TextField
                         value={label}
@@ -377,9 +382,9 @@ function PaymentDialog({...props}) {
                             setLabel(ev.target.value)
                         }}/>
                     <Typography style={{color: "gray"}} fontSize={12} mb={0} mt={3}>{t('paymentMean')}</Typography>
-                </Box>}
+                </Box>} */}
 
-                <FormGroup
+                {/* <FormGroup
                     row
                     {...(deals.selected && {
                         sx: {
@@ -428,7 +433,7 @@ function PaymentDialog({...props}) {
                                 }
                                 label={
                                     <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        
                                         <img style={{width: 16}} src={method.logoUrl.url} alt={'payment means'}/>
                                         {
                                             !isMobile && maxLength < 5 &&
@@ -455,7 +460,7 @@ function PaymentDialog({...props}) {
                                 }
                                 label={
                                     <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                       
                                         <img style={{width: 16}}
                                              src={insurances.find(i => i.uuid === insurance.insurance.uuid)?.logoUrl.url}
                                              alt={'insurance logo'}/>
@@ -483,7 +488,7 @@ function PaymentDialog({...props}) {
                         }
                         label={
                             <Stack className='label-inner' direction='row' alignItems="center" spacing={1}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                               
                                 <IconUrl path={'ic-payment'}/>
 
                                 {
@@ -494,8 +499,8 @@ function PaymentDialog({...props}) {
                             </Stack>
                         }
                     />}
-                </FormGroup>
-                <Grid container alignItems="center" spacing={1}>
+                </FormGroup> */}
+                {/* <Grid container alignItems="center" spacing={1}>
                     <Grid item xs={12} lg={payments.length > 0 ? 7 : 12}>
                         <AnimatePresence>
                             {(() => {
@@ -912,6 +917,25 @@ function PaymentDialog({...props}) {
                             </AnimatePresence>
                         </Grid>
                     }
+                </Grid> */}
+
+                <Grid container spacing={3} mt={2.5}>
+                    <Grid item xs={12} md={6}>
+                        <Typography fontWeight={600} mb={1}>{t("current_consultation")}</Typography>
+                        <Stack spacing={1}>
+                            <ConsultationCard {...{t,devise}}/>
+                        </Stack>
+                        <Typography my={1} fontWeight={700}>{t("other_consultation")}</Typography>
+                        <Stack spacing={1} borderRadius={.5} maxHeight={244} p={1} sx={{overflowY:'auto',bgcolor:theme.palette.back.main}}>
+                                 
+                                 <ConsultationCard {...{t,devise}}/>
+                                
+                        </Stack>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <Divider orientation="vertical"/>
+                        <Typography fontWeight={600} mb={1}>{t("payment_history")}</Typography>
+                    </Grid>
                 </Grid>
             </PaymentDialogStyled>
         </FormikProvider>

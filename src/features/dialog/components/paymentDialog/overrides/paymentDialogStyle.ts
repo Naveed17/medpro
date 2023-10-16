@@ -6,8 +6,8 @@ const PaymentDialogStyled = styled(Box)(({theme}) => ({
         padding: "24px 40px"
     },
     '.MuiAvatar-root': {
-        width: 28,
-        height: 28,
+        width: 42,
+        height: 42,
     },
     '& .MuiFormGroup-root': {
         border: "none",
@@ -49,6 +49,45 @@ const PaymentDialogStyled = styled(Box)(({theme}) => ({
         borderRadius: 8,
         '.MuiPaper-root': {
             padding: theme.spacing(2)
+        }
+    },
+    '.consultation-card':{
+        overflow:'visible',
+        ".MuiCardContent-root":{
+            '&:last-child':{
+                paddingBottom:theme.spacing(2)
+            },
+            ".btn-collapse":{
+                border: `1px solid ${theme.palette.divider}`,
+                borderRadius: theme.spacing(.7),
+                padding: theme.spacing(.2),
+                marginLeft:'auto'
+            }
+        },
+        ".data-table":{
+            tableLayout:'fixed',
+            width:'100%',
+            tr:{
+            th:{
+                fontWeight:400,
+                fontSize:12,
+                paddingBottom:10,
+            },
+            td:{
+                fontSize:12,
+                paddingBottom:8
+            
+            },
+            "&:last-child":{
+                td:{
+                    paddingBottom:0
+                }
+            },
+        }
+        },
+        ".btn-print":{
+            border:`1px solid ${theme.palette.divider}`,
+            color:theme.palette.text.primary,
         }
     }
 
