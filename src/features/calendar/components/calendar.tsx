@@ -225,7 +225,7 @@ function Calendar({...props}) {
         if (view === "timeGridDay")
             return 'left';
         else if (moment(appointmentData?.dayDate, "DD-MM-YYYY").weekday() > 4)
-            return -305;
+            return "center";
         else return 'right';
     }
 
