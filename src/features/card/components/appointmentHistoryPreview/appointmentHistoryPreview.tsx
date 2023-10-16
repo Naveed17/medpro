@@ -1,4 +1,3 @@
-import PaperStyled from "./overrides/paperStyled";
 import React from "react";
 import PatientHistoryCardStyled
     from "@features/card/components/patientHistoryCard/components/overrides/PatientHistoryCardStyle";
@@ -13,8 +12,9 @@ import {useRouter} from "next/router";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useAppSelector} from "@lib/redux/hooks";
 import CircleIcon from '@mui/icons-material/Circle';
+
 function AppointmentHistoryPreview({...props}) {
-    const {children,app, appuuid,dispatch, t,mini} = props;
+    const {children, app, appuuid, dispatch, t, mini} = props;
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
@@ -29,63 +29,78 @@ function AppointmentHistoryPreview({...props}) {
     }
 
     return (
-            <PatientHistoryCardStyled
-                style={{border: app.uuid === appuuid ? "2px solid #FFD400" : app.uuid !== appuuid ? 0 : ""}}>
-                <Stack
-                    className="card-header"
-                    p={2}
-                    direction="row"
-                    justifyContent={"space-between"}
+        <PatientHistoryCardStyled
+            style={{
+                border: app.uuid === appuuid ? "2px solid #FFD400" : app.uuid !== appuuid ? 0 : "",
+                opacity: selectedApp === "" || app.uuid === selectedApp ? 1 : 0.7
+            }}>
+            <Stack
+                className="card-header"
+                p={2}
+                direction="row"
+                id={`x${app.uuid}`}
+                justifyContent={"space-between"}
+                alignItems="center"
+                onClick={() => {
+                    app.uuid === selectedApp
+                        ? dispatch(SetSelectedApp(""))
+                        : dispatch(SetSelectedApp(app.uuid));
+                    const el = document.getElementById(`x${app.uuid}`)
+
+                    setTimeout(() => {
+                        if (el)
+                            document.getElementById('container-tab')?.scrollTo({
+                                top: el?.offsetTop - 120,
+                                left: 0,
+                                behavior: "smooth",
+                            });
+                    }, 1000)
+                }
+                }
+                borderBottom={1}
+                borderColor="divider">
+                {!isMobile && <Typography
+                    display="flex"
                     alignItems="center"
-                    onClick={() => {
-                        app.uuid === selectedApp
-                            ? dispatch(SetSelectedApp(""))
-                            : dispatch(SetSelectedApp(app.uuid));
-                    }}
-                    borderBottom={1}
-                    borderColor="divider">
-                    {!isMobile && <Typography
-                        display="flex"
-                        alignItems="center"
-                        component="div"
+                    component="div"
+                    sx={{cursor: "pointer"}}
+                    fontWeight={600}>
+                    <Icon path={"ic-doc"}/>
+                    {capitalize(t("reason_for_consultation"))}{" "}
+                    {app.consultationReason.length > 0 ? (
+                        <>: {app.consultationReason.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</>
+                    ) : (
+                        <>: --</>
+                    )}
+                </Typography>}
+                <Stack ml="auto" direction={"row"} spacing={1} alignItems={"center"}>
+                    {!mini && <Chip icon={<CircleIcon style={{color: `${app.type.color}`}}/>} size={"small"}
+                                    label={app.type.name} color={"info"}/>}
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
                         sx={{cursor: "pointer"}}
-                        fontWeight={600}>
-                        <Icon path={"ic-doc"}/>
-                        {capitalize(t("reason_for_consultation"))}{" "}
-                        {app.consultationReason.length > 0 ? (
-                            <>: {app.consultationReason.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</>
-                        ) : (
-                            <>: --</>
-                        )}
-                    </Typography>}
-                    <Stack ml="auto" direction={"row"} spacing={1} alignItems={"center"}>
-                        {!mini &&<Chip icon={<CircleIcon style={{color: `${app.type.color}`}}/>} size={"small"}
-                              label={app.type.name} color={"info"}/>}
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{cursor: "pointer"}}
-                            textTransform={"capitalize"}>
-                            {moment(app.date, "DD-MM-YYYY").format(
-                                "ddd DD-MM-YYYY"
-                            )}{" "}
-                            <AccessTimeIcon
-                                style={{marginBottom: "-3px", width: 20, height: 15}}
-                            />{" "}
-                            {app.time}
-                        </Typography>
-                        <IconButton onClick={() => {
-                            handleConsultation();
-                        }}>
-                            <OpenInNewIcon style={{color: "white", fontSize: 20}}/>
-                        </IconButton>
-                    </Stack>
+                        textTransform={"capitalize"}>
+                        {moment(app.date, "DD-MM-YYYY").format(
+                            "ddd DD-MM-YYYY"
+                        )}{" "}
+                        <AccessTimeIcon
+                            style={{marginBottom: "-3px", width: 20, height: 15}}
+                        />{" "}
+                        {app.time}
+                    </Typography>
+                    <IconButton onClick={() => {
+                        handleConsultation();
+                    }}>
+                        <OpenInNewIcon style={{color: "white", fontSize: 20}}/>
+                    </IconButton>
                 </Stack>
-                <CardContent
-                    style={{padding: 0}}>
-                    {children}
-                </CardContent>
-            </PatientHistoryCardStyled>
+            </Stack>
+            <CardContent
+                style={{padding: 0}}>
+                {children}
+            </CardContent>
+        </PatientHistoryCardStyled>
     )
 }
 

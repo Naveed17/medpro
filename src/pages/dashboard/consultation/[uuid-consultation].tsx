@@ -221,7 +221,7 @@ function ConsultationInProgress() {
     const [cards, setCards] = useState([[
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
-    ], [{id: 'item-3', content: 'exam', expanded: false, icon: "ic-edit-file-pen"}]]);
+    ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]]);
 
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
@@ -1118,6 +1118,7 @@ function ConsultationInProgress() {
 
             {<HistoryAppointementContainer {...{isHistory, loading}}>
                 <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}}
+                     id={"container-tab"}
                      className="container-scroll">
                     <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
                         <HistoryTab
