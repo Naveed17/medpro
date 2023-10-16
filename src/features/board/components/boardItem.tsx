@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from '@emotion/styled';
 import {DraggableProvided} from "react-beautiful-dnd";
 import {Button, Card, CardActions, CardContent, IconButton, Stack, Typography, useTheme} from "@mui/material";
@@ -8,6 +8,14 @@ import {ModelDot} from "@features/modelDot";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import IconUrl from "@themes/urlIcon";
 import {CustomIconButton} from "@features/buttons";
+import {countries} from "@features/countrySelect/countries";
+import {getDiffDuration} from "@lib/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
+import {timerSelector} from "@features/card";
+import moment from "moment-timezone";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
+import {dashLayoutSelector} from "@features/base";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 const imageSize: number = 40;
 
@@ -60,16 +68,32 @@ function BoardItem({...props}) {
         style,
         isClone,
         index,
+        handleEvent
     } = props;
     const theme = useTheme();
+    const {startTime: initTimer} = useAppSelector(timerSelector);
+    const {next: is_next} = useAppSelector(dashLayoutSelector);
+
+    const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
+    const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
+
+    useEffect(() => {
+        let interval: any = null;
+
+        interval = setInterval(() => {
+            setTime(time + 1);
+        }, 1000);
+        return () => {
+            clearInterval(interval);
+        };
+    }, [time]);
 
     return (
         <Container
-            href={quote.author.url}
             isDragging={isDragging}
             isGroupedOver={isGroupedOver}
             isClone={isClone}
-            colors={quote.author.colors}
+            colors={quote.column.colors}
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
@@ -77,24 +101,32 @@ function BoardItem({...props}) {
             data-is-dragging={isDragging}
             data-testid={quote.id}
             data-index={index}
-            aria-label={`${quote.author.name} quote ${quote.content}`}>
+            aria-label={`${quote.column.name} quote ${quote.content}`}>
             <Card sx={{width: "96%"}}>
                 <CardContent sx={{p: 1}}>
                     <Stack direction={"row"} spacing={.5} alignItems={"start"} justifyContent={"space-between"}>
                         <Stack>
-                            <Typography color={"primary"} fontWeight={400} fontSize={14}>
+                            <Typography
+                                sx={{
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    width: [1, 3].includes(quote.content.status) ? "140px" : "98%"
+                                }}
+                                color={"primary"} fontWeight={400} fontSize={14}>
                                 {quote.content.patient.lastName} {quote.content.patient.firstName}
                             </Typography>
                             <Stack direction={"row"} spacing={.5} alignItems={"center"}>
-                                {quote.content.patient.contact[0].flag && <ImageHandler
-                                    sx={{
-                                        width: 26,
-                                        height: 18,
-                                        borderRadius: 0.4
-                                    }}
-                                    alt={"flags"}
-                                    src={`https://flagcdn.com/${quote.content.patient.contact[0].flag.toLowerCase()}.svg`}
-                                />}
+                                {countries.find(country => country.phone === quote.content.patient.contact[0].code) &&
+                                    <ImageHandler
+                                        sx={{
+                                            width: 26,
+                                            height: 18,
+                                            borderRadius: 0.4
+                                        }}
+                                        alt={"flags"}
+                                        src={`https://flagcdn.com/${countries.find(country => country.phone === quote.content.patient.contact[0].code)?.code.toLowerCase()}.svg`}
+                                    />}
                                 <Typography variant="body2" fontWeight={400} fontSize={11} color="text.primary">
                                     {quote.content.patient.contact[0].code} {quote.content.patient.contact[0].value}
                                 </Typography>
@@ -116,12 +148,28 @@ function BoardItem({...props}) {
                                 </IconButton>
                             </>}
                             {quote.content.status === 3 && <>
+                                <IconButton
+                                    onClick={(event) => handleEvent({action: "NEXT_CONSULTATION", row: {...quote.content, is_next: !!is_next}, event})}
+                                    size={"small"}
+                                    disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
+                                    sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}>
+                                    {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
+                                    {is_next && <CloseRoundedIcon fontSize={"small"}/>}
+                                </IconButton>
                                 <CustomIconButton
                                     variant="filled"
                                     color={"warning"}
                                     size={"small"}>
                                     <PlayCircleIcon fontSize={"small"}/>
                                 </CustomIconButton>
+                            </>}
+                            {quote.content.status === 5 && <>
+                                <IconButton
+                                    size={"small"}
+                                    disableFocusRipple
+                                    sx={{background: theme.palette.primary.main, borderRadius: 1}}>
+                                    <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
+                                </IconButton>
                             </>}
                         </Stack>
                     </Stack>
@@ -140,22 +188,25 @@ function BoardItem({...props}) {
                     <Stack direction={"row"} spacing={.5} alignItems={"center"}>
                         <AccessTimeIcon sx={{width: 16, height: 16}}/>
                         <Typography variant="body2" fontWeight={700} fontSize={14} color="text.primary">
-                            {quote.content.startTime}
+                            {quote.content.status === 4 && time ?
+                                moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
+                                quote.content.status !== 3 ?
+                                    quote.content.startTime :
+                                    getDiffDuration(`${quote.content.dayDate} ${quote.content.startTime}`)}
                         </Typography>
                     </Stack>
 
-                    <Button
+                    {parseInt(index) ? <Button
                         sx={{
                             p: 0,
                             minWidth: '2.5rem',
                             minHeight: '.5rem',
                             marginLeft: 'auto'
-                        }} variant={"contained"} size={"small"}> AR -1</Button>
+                        }} variant={"contained"} size={"small"}> AR-{index + 1}</Button> : ""}
                 </CardActions>
             </Card>
         </Container>
-    )
-        ;
+    );
 }
 
 export default React.memo<any>(BoardItem);

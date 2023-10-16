@@ -8,6 +8,7 @@ import type {
     DraggableStateSnapshot,
 } from 'react-beautiful-dnd';
 import {BoardItem, grid} from "@features/board";
+import {useTimer} from "@lib/hooks";
 
 
 const Wrapper = styled.div`
@@ -38,7 +39,7 @@ const DropZone = styled.div`
 const ScrollContainer = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
-  max-height: 100%;
+  max-height: ${typeof window !== "undefined" && window.innerHeight > 800 ? '75vh' : '67vh'};
 `;
 
 /* stylelint-disable block-no-empty */
@@ -46,9 +47,7 @@ const Container = styled.div``;
 /* stylelint-enable */
 
 
-const InnerQuoteList = React.memo(function InnerQuoteList(
-    props: any,
-) {
+const InnerQuoteList = React.memo(function InnerQuoteList(props: any) {
     return props.quotes.map((quote: any, index: number) => (
         <Draggable key={quote.id} draggableId={quote.id} index={index}>
             {(
@@ -56,11 +55,13 @@ const InnerQuoteList = React.memo(function InnerQuoteList(
                 dragSnapshot: DraggableStateSnapshot,
             ) => (
                 <BoardItem
+                    {...{index}}
                     key={quote.id}
                     quote={quote}
                     isDragging={dragSnapshot.isDragging}
                     isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
                     provided={dragProvided}
+                    handleEvent={props.handleEvent}
                 />
             )}
         </Draggable>
@@ -75,7 +76,7 @@ function InnerList({...props}) {
         <Container>
             {title}
             <DropZone ref={dropProvided.innerRef}>
-                <InnerQuoteList quotes={quotes}/>
+                <InnerQuoteList quotes={quotes} handleEvent={props.handleEvent}/>
                 {dropProvided.placeholder}
             </DropZone>
         </Container>
@@ -95,6 +96,7 @@ export default function BoardList({...props}) {
         quotes,
         title,
         useClone,
+        handleEvent
     } = props;
 
     return (
@@ -106,6 +108,7 @@ export default function BoardList({...props}) {
             isCombineEnabled={isCombineEnabled}
             renderClone={useClone && ((provided, snapshot, descriptor) => (
                 <BoardItem
+                    handleEvent
                     quote={quotes[descriptor.source.index]}
                     provided={provided}
                     isDragging={snapshot.isDragging}
@@ -122,16 +125,12 @@ export default function BoardList({...props}) {
                     {internalScroll ? (
                         <ScrollContainer style={scrollContainerStyle}>
                             <InnerList
-                                quotes={quotes}
-                                title={title}
-                                dropProvided={dropProvided}
+                                {...{handleEvent, title, quotes, dropProvided}}
                             />
                         </ScrollContainer>
                     ) : (
                         <InnerList
-                            quotes={quotes}
-                            title={title}
-                            dropProvided={dropProvided}
+                            {...{handleEvent, title, quotes, dropProvided}}
                         />
                     )}
                 </Wrapper>

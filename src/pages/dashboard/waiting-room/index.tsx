@@ -39,9 +39,55 @@ import {ActionMenu} from "@features/menu";
 import {agendaSelector} from "@features/calendar";
 import {useTransactionEdit} from "@lib/hooks/rest";
 import {Board} from "@features/board";
+import CalendarIcon from "@themes/overrides/icons/calendarIcon";
+import {CustomIconButton} from "@features/buttons";
+import AddIcon from "@mui/icons-material/Add";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
+const columns: any[] = [
+    {
+        id: '1',
+        name: 'Rdv aujourd\'hui',
+        url: '#',
+        icon: <CalendarIcon/>,
+        action: <CustomIconButton
+            variant="filled"
+            color={"primary"}
+            size={"small"}>
+            <AddIcon fontSize={"small"} htmlColor={"white"}/>
+        </CustomIconButton>
+    },
+    {
+        id: '3',
+        name: 'Salle d’attente',
+        url: '#',
+        icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
+        action: <CustomIconButton
+            variant="filled"
+            color={"primary"}
+            size={"small"}>
+            <AddIcon fontSize={"small"} htmlColor={"white"}/>
+        </CustomIconButton>
+    },
+    {
+        id: '4',
+        name: 'En Consultation',
+        url: '#',
+        icon: <IconUrl width={20} height={20} path="ic-attendre"/>
+    },
+    {
+        id: '5',
+        name: 'Terminé',
+        url: '#',
+        icon: <CheckCircleIcon
+            color={"primary"}
+            sx={{
+                ml: 'auto',
+                width: 20
+            }}/>
+    }];
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -108,10 +154,13 @@ function WaitingRoom() {
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
 
-    const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequestQuery({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`
-    });
+    const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequestQuery(agenda ? {
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
+        } : null, {
+            ...(agenda && {variables: {query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week`}})
+        }
+    );
 
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
@@ -169,7 +218,10 @@ function WaitingRoom() {
         if (!isActive) {
             const publicId = (row?.uuid ? row.uuid : row?.publicId ? row?.publicId : (row as any)?.id) as string
             const slugConsultation = `/dashboard/consultation/${publicId}`;
-            router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
+            router.push({
+                pathname: slugConsultation,
+                query: {inProgress: true}
+            }, slugConsultation, {locale: router.locale});
         } else {
             setError(true);
             setLoadingRequest(false);
@@ -288,19 +340,13 @@ function WaitingRoom() {
         });
     }
 
-    const waitingRooms = (httpWaitingRoomsResponse as HttpResponse)?.data as any;
+    const waitingRooms = ((httpWaitingRoomsResponse as HttpResponse)?.data ?? []) as AppointmentModel[];
 
     useEffect(() => {
         if (isMounted.current && !lock) {
             dispatch(toggleSideBar(false));
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (waitingRooms) {
-            dispatch(setOngoing({waiting_room: waitingRooms.length}))
-        }
-    }, [dispatch, waitingRooms]);
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -319,8 +365,7 @@ function WaitingRoom() {
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
-                            transition={{ease: "easeIn", duration: 1}}
-                        >
+                            transition={{ease: "easeIn", duration: 1}}>
                             <Alert variant="filled"
                                    onClick={() => {
                                        const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
@@ -394,16 +439,18 @@ function WaitingRoom() {
                                 </>
                             }
                         </Box>*/}
-                        <Board/>
-
+                        <Board
+                            {...{columns}}
+                            handleEvent={handleTableActions}
+                            data={waitingRooms.group((diag: any) => diag.status)}/>
                     </Box>
                 </DesktopContainer>
                 <MobileContainer>
-                    <DetailsCard
+                    {/* <DetailsCard
                         {...{t}}
                         waitingRoom
                         handleEvent={handleTableActions}
-                        rows={waitingRooms}/>
+                        rows={waitingRooms}/>*/}
                 </MobileContainer>
             </Box>
 
@@ -414,8 +461,7 @@ function WaitingRoom() {
                 onClose={() => {
                     dispatch(onOpenPatientDrawer({patientId: ""}));
                     setPatientDetailDrawer(false);
-                }}
-            >
+                }}>
                 <PatientDetail
                     {...{isAddAppointment, patientId: tableState.patientId}}
                     onCloseDialog={() => {
