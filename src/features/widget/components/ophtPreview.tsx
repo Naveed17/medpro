@@ -112,8 +112,8 @@ export default function OphtPreview({...props}) {
                 {examination.map((ex: any) => (
                     <tr key={ex.name}>
                         <td className={"title col"}>{t(ex.name)}</td>
-                        <td className={"center"}>{ex.od ? ex.od : "-"}</td>
-                        <td className={"center"}>{ex.og ? ex.og : "-"}</td>
+                        <td className={"center col"}>{ex.od ? ex.od : "-"}</td>
+                        <td className={"center col"}>{ex.og ? ex.og : "-"}</td>
                     </tr>
                 ))}
                 </tbody>

@@ -147,6 +147,7 @@ const Content = ({...props}) => {
                 onSuccess: () => {
                     mutatePatient();
                     medicalEntityHasUser && mutateAntecedents()
+                    setState([]);
                 }
             });
         } else if (info === "add_treatment") {
