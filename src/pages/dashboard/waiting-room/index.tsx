@@ -1,22 +1,21 @@
 import {GetStaticProps} from "next";
 import React, {ReactElement, useEffect, useState} from "react";
 //components
-import {DetailsCard, NoDataCard, setTimer, timerSelector} from "@features/card";
+import {timerSelector} from "@features/card";
 // next-i18next
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
-import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
-import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, MenuItem} from "@mui/material";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
+import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, Paper} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
-import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
+import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
 import {Session} from "next-auth";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import Typography from "@mui/material/Typography";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
@@ -26,68 +25,27 @@ import {toggleSideBar} from "@features/menu";
 import {useIsMountedRef, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
 import dynamic from "next/dynamic";
-import {Dialog, PatientDetail, preConsultationSelector} from "@features/dialog";
+import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {AddWaitingRoomCardData, DefaultCountry, WaitingHeadCells} from "@lib/constants";
+import {DefaultCountry} from "@lib/constants";
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {LoadingButton} from "@mui/lab";
-import {ActionMenu} from "@features/menu";
-import {agendaSelector} from "@features/calendar";
+import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useTransactionEdit} from "@lib/hooks/rest";
 import {Board} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton} from "@features/buttons";
 import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import {DropResult} from "react-beautiful-dnd";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {appointmentSelector, setAppointmentSubmit} from "@features/tabPanel";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
-const columns: any[] = [
-    {
-        id: '1',
-        name: 'Rdv aujourd\'hui',
-        url: '#',
-        icon: <CalendarIcon/>,
-        action: <CustomIconButton
-            variant="filled"
-            color={"primary"}
-            size={"small"}>
-            <AddIcon fontSize={"small"} htmlColor={"white"}/>
-        </CustomIconButton>
-    },
-    {
-        id: '3',
-        name: 'Salle d’attente',
-        url: '#',
-        icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
-        action: <CustomIconButton
-            variant="filled"
-            color={"primary"}
-            size={"small"}>
-            <AddIcon fontSize={"small"} htmlColor={"white"}/>
-        </CustomIconButton>
-    },
-    {
-        id: '4',
-        name: 'En Consultation',
-        url: '#',
-        icon: <IconUrl width={20} height={20} path="ic-attendre"/>
-    },
-    {
-        id: '5',
-        name: 'Terminé',
-        url: '#',
-        icon: <CheckCircleIcon
-            color={"primary"}
-            sx={{
-                ml: 'auto',
-                width: 20
-            }}/>
-    }];
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -108,10 +66,19 @@ function WaitingRoom() {
     const {isActive, event} = useAppSelector(timerSelector);
     const {model} = useAppSelector(preConsultationSelector);
     const {selectedBoxes, paymentTypesList} = useAppSelector(cashBoxSelector);
+    const {
+        motif,
+        duration,
+        patient,
+        type,
+        submitted,
+        recurringDates
+    } = useAppSelector(appointmentSelector);
+    const {next: is_next} = useAppSelector(dashLayoutSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
@@ -149,16 +116,21 @@ function WaitingRoom() {
             action: "onPatientDetail",
         }]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
+    const [waitingRoomsGroup, setWaitingRoomsGroup] = useState<any[]>([]);
+    const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
+    const [quickAddAppointmentTab, setQuickAddAppointmentTab] = useState(1);
+    const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
+    const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
 
     const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequestQuery(agenda ? {
             method: "GET",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
         } : null, {
-            ...(agenda && {variables: {query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week`}})
+            ...(agenda && {variables: {query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().add(1, "days").format("DD-MM-YYYY")}&format=week`}})
         }
     );
 
@@ -197,6 +169,7 @@ function WaitingRoom() {
         // actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
         setPopoverActions(actions);
     };
+
     const nextConsultation = (row: any) => {
         const form = new FormData();
         form.append('attribute', 'is_next');
@@ -207,9 +180,8 @@ function WaitingRoom() {
             data: form
         }, {
             onSuccess: () => {
-                mutateWaitingRoom();
                 // refresh on going api
-                mutateOnGoing();
+                mutateOnGoing().then(() => mutateWaitingRoom());
                 setLoadingRequest(false);
             }
         });
@@ -227,6 +199,54 @@ function WaitingRoom() {
             setLoadingRequest(false);
         }
     }
+
+    const handleAddAppointment = () => {
+        setLoadingRequest(true);
+        const params = new FormData();
+        params.append('dates', JSON.stringify(recurringDates.map(recurringDate => ({
+            "start_date": recurringDate.date,
+            "start_time": recurringDate.time
+        }))));
+        motif && params.append('consultation_reasons', motif.toString());
+        params.append('title', `${patient?.firstName} ${patient?.lastName}`);
+        params.append('patient_uuid', patient?.uuid as string);
+        params.append('type', type);
+        params.append('duration', duration as string);
+        params.append('status', quickAddAppointmentTab.toString());
+
+        addAppointmentTrigger({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
+            data: params
+        }, {
+            onSuccess: (value) => {
+                mutateWaitingRoom();
+                dispatch(setAppointmentSubmit({uuids: value?.data.data}));
+                dispatch(setStepperIndex(0));
+                setTimeout(() => setQuickAddAppointment(false));
+            },
+            onSettled: () => {
+                setLoadingRequest(false);
+            }
+        });
+    }
+
+    const handleAppointmentStatus = (uuid: string, status: string) => {
+        const form = new FormData();
+        form.append('status', status);
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: form,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/status/${router.locale}`
+        }, {
+            onSuccess: () => {
+                // refresh on going api
+                mutateOnGoing();
+                mutateWaitingRoom();
+            }
+        });
+    }
+
     const OnMenuActions = (action: string) => {
         switch (action) {
             case "onConsultationStart":
@@ -238,20 +258,11 @@ function WaitingRoom() {
             case "onNextConsultation":
                 nextConsultation(row);
                 break;
+            case "onEnterWaitingRoom":
+                handleAppointmentStatus(row?.uuid as string, '3');
+                break;
             case "onLeaveWaitingRoom":
-                const form = new FormData();
-                form.append('status', '1');
-                updateAppointmentStatus({
-                    method: "PATCH",
-                    data: form,
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/status/${router.locale}`
-                }, {
-                    onSuccess: () => {
-                        // refresh on going api
-                        mutateOnGoing();
-                        mutateWaitingRoom();
-                    }
-                });
+                handleAppointmentStatus(row?.uuid as string, '1');
                 break;
             case "onPatientDetail":
                 dispatch(onOpenPatientDrawer({patientId: row?.patient.uuid}));
@@ -296,6 +307,13 @@ function WaitingRoom() {
         }
         handleClose();
     }
+
+    const handleDragEvent = (result: DropResult, item: BoardModel) => {
+        handleAppointmentStatus(
+            item.content.uuid,
+            columns.find(column => result.destination?.droppableId === column.name)?.id);
+    }
+
     const handleTableActions = (data: any) => {
         setRow(data.row);
         switch (data.action) {
@@ -305,6 +323,12 @@ function WaitingRoom() {
                 break;
             case "START_CONSULTATION":
                 startConsultation(data.row);
+                break;
+            case "ENTER_WAITING_ROOM":
+                handleAppointmentStatus(data.row.uuid as string, '3');
+                break;
+            case "LEAVE_WAITING_ROOM":
+                handleAppointmentStatus(data.row.uuid as string, '1');
                 break;
             case "NEXT_CONSULTATION":
                 nextConsultation(data.row);
@@ -340,7 +364,62 @@ function WaitingRoom() {
         });
     }
 
-    const waitingRooms = ((httpWaitingRoomsResponse as HttpResponse)?.data ?? []) as AppointmentModel[];
+    const columns: any[] = [
+        {
+            id: '1',
+            name: 'Rdv aujourd\'hui',
+            url: '#',
+            icon: <CalendarIcon/>,
+            action: <CustomIconButton
+                onClick={() => {
+                    setQuickAddAppointment(true);
+                    setTimeout(() => setQuickAddAppointmentTab(1));
+                }}
+                variant="filled"
+                color={"primary"}
+                size={"small"}>
+                <AddIcon fontSize={"small"} htmlColor={"white"}/>
+            </CustomIconButton>
+        },
+        {
+            id: '3',
+            name: 'Salle d’attente',
+            url: '#',
+            icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
+            action: <CustomIconButton
+                onClick={() => {
+                    setQuickAddAppointment(true);
+                    setTimeout(() => setQuickAddAppointmentTab(3));
+                }}
+                variant="filled"
+                color={"primary"}
+                size={"small"}>
+                <AddIcon fontSize={"small"} htmlColor={"white"}/>
+            </CustomIconButton>
+        },
+        {
+            id: '4',
+            name: 'En Consultation',
+            url: '#',
+            icon: <IconUrl width={20} height={20} path="ic-attendre"/>
+        },
+        {
+            id: '5',
+            name: 'Terminé',
+            url: '#',
+            icon: <CheckCircleIcon
+                color={"primary"}
+                sx={{
+                    ml: 'auto',
+                    width: 20
+                }}/>
+        }];
+
+    useEffect(() => {
+        if (httpWaitingRoomsResponse) {
+            setWaitingRoomsGroup((httpWaitingRoomsResponse as HttpResponse).data.group((diag: any) => diag.status));
+        }
+    }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (isMounted.current && !lock) {
@@ -440,9 +519,9 @@ function WaitingRoom() {
                             }
                         </Box>*/}
                         <Board
-                            {...{columns}}
+                            {...{columns, handleDragEvent}}
                             handleEvent={handleTableActions}
-                            data={waitingRooms.group((diag: any) => diag.status)}/>
+                            data={waitingRoomsGroup}/>
                     </Box>
                 </DesktopContainer>
                 <MobileContainer>
@@ -453,6 +532,51 @@ function WaitingRoom() {
                         rows={waitingRooms}/>*/}
                 </MobileContainer>
             </Box>
+
+            <Drawer
+                anchor={"right"}
+                sx={{
+                    width: 300
+                }}
+                open={quickAddAppointment}
+                dir={direction}
+                onClose={() => {
+                    setQuickAddAppointment(false);
+                }}>
+                <QuickAddAppointment
+                    {...{t}}
+                    handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
+                <Paper
+                    sx={{
+                        display: quickAddPatient ? "none" : "inline-block",
+                        borderRadius: 0,
+                        borderWidth: 0,
+                        textAlign: "right",
+                        p: "1rem"
+                    }}
+                    className="action">
+                    <Button
+                        sx={{
+                            mr: 1
+                        }}
+                        variant="text-primary"
+                        onClick={() => setQuickAddAppointment(false)}
+                        startIcon={<CloseIcon/>}>
+                        {t("cancel", {ns: "common"})}
+                    </Button>
+                    <LoadingButton
+                        loading={loadingRequest}
+                        variant="contained"
+                        color={"primary"}
+                        onClick={event => {
+                            event.stopPropagation();
+                            handleAddAppointment();
+                        }}
+                        disabled={recurringDates.length === 0 || type === "" || !patient}>
+                        {t("save", {ns: "common"})}
+                    </LoadingButton>
+                </Paper>
+            </Drawer>
 
             <Drawer
                 anchor={"right"}
@@ -549,6 +673,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
             "menu",
             "common",
             "patient",
+            "agenda",
             "consultation",
             "payment",
             "waitingRoom",

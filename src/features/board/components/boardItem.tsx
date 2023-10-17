@@ -16,6 +16,8 @@ import moment from "moment-timezone";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import {dashLayoutSelector} from "@features/base";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 const imageSize: number = 40;
 
@@ -71,11 +73,16 @@ function BoardItem({...props}) {
         handleEvent
     } = props;
     const theme = useTheme();
+    const {data: session} = useSession();
+
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
 
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
+
+    const {data: user} = session as Session;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     useEffect(() => {
         let interval: any = null;
@@ -135,40 +142,59 @@ function BoardItem({...props}) {
 
                         <Stack direction={"row"} spacing={1}>
                             {quote.content.status === 1 && <>
-                                <IconButton
+                                {!roles.includes('ROLE_SECRETARY') && <IconButton
+                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                        action: "START_CONSULTATION",
+                                        row: quote.content,
+                                        event
+                                    })}
                                     size={"small"}
                                     sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}>
                                     <PlayCircleIcon fontSize={"small"}/>
-                                </IconButton>
+                                </IconButton>}
                                 <IconButton
+                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                        action: "ENTER_WAITING_ROOM",
+                                        row: quote.content,
+                                        event
+                                    })}
                                     size={"small"}
                                     disableFocusRipple
                                     sx={{background: theme.palette.primary.main, borderRadius: 1}}>
                                     <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
                                 </IconButton>
                             </>}
-                            {quote.content.status === 3 && <>
+                            {(quote.content.status === 3) && <>
                                 <IconButton
-                                    onClick={(event) => handleEvent({action: "NEXT_CONSULTATION", row: {...quote.content, is_next: !!is_next}, event})}
+                                    onClick={(event) => handleEvent({
+                                        action: "NEXT_CONSULTATION",
+                                        row: {...quote.content, is_next: !!is_next},
+                                        event
+                                    })}
                                     size={"small"}
                                     disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
                                     sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}>
                                     {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
                                     {is_next && <CloseRoundedIcon fontSize={"small"}/>}
                                 </IconButton>
-                                <CustomIconButton
+                                {!roles.includes('ROLE_SECRETARY') && <CustomIconButton
+                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                        action: "START_CONSULTATION",
+                                        row: quote.content,
+                                        event
+                                    })}
                                     variant="filled"
                                     color={"warning"}
                                     size={"small"}>
                                     <PlayCircleIcon fontSize={"small"}/>
-                                </CustomIconButton>
+                                </CustomIconButton>}
                             </>}
                             {quote.content.status === 5 && <>
                                 <IconButton
                                     size={"small"}
                                     disableFocusRipple
                                     sx={{background: theme.palette.primary.main, borderRadius: 1}}>
-                                    <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
+                                    <IconUrl color={"white"} width={18} height={18} path="ic-argent"/>
                                 </IconButton>
                             </>}
                         </Stack>

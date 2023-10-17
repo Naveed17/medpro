@@ -49,7 +49,7 @@ const Container = styled.div``;
 
 const InnerQuoteList = React.memo(function InnerQuoteList(props: any) {
     return props.quotes.map((quote: any, index: number) => (
-        <Draggable key={quote.id} draggableId={quote.id} index={index}>
+        <Draggable key={quote.id} draggableId={quote.id} index={index} isDragDisabled={!quote?.content.isDraggable}>
             {(
                 dragProvided: DraggableProvided,
                 dragSnapshot: DraggableStateSnapshot,
