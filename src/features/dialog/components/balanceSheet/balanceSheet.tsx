@@ -56,13 +56,11 @@ function BalanceSheetDialog({...props}) {
 
     const [model, setModel] = useState<string>('');
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [balanceValue, setBalanceValue] = useState<AnalysisModel | null>(null);
     const [searchAnalysis, setSearchAnalysis] = useState<AnalysisModel[]>([]);
     const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
     const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
     const [analysisListLocal, setAnalysisListLocal] = useState<AnalysisModel[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
     const [selectedModel, setSelectedModel] = useState<any>(data.model);
     const [name, setName] = useState('');
     const [balanceSheetTabIndex, setbalanceSheetTabIndex] = useState(0);
@@ -70,7 +68,6 @@ function BalanceSheetDialog({...props}) {
     const textFieldRef = createRef<HTMLDivElement>();
     const autocompleteTextFieldRef = useRef<HTMLInputElement>(null);
     const openPopover = Boolean(anchorElPopover);
-    const open = Boolean(anchorEl);
 
     const {trigger: triggerBalanceSheetCreate} = useRequestQueryMutation("/balanceSheet/create");
     const {trigger: triggerBalanceSheetUpdate} = useRequestQueryMutation("/balanceSheet/update");
@@ -96,7 +93,7 @@ function BalanceSheetDialog({...props}) {
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
+    } : null);
 
     const modals = ((httpModelResponse as HttpResponse)?.data ?? []) as any[];
     const analysisFavorites = ((httpAnalysisFavoritesResponse as HttpResponse)?.data ?? []) as MIModel[];
@@ -265,7 +262,6 @@ function BalanceSheetDialog({...props}) {
             setAnalysisListLocal(localStorage.getItem("balance-Sheet-recent") ?
                 JSON.parse(localStorage.getItem("balance-Sheet-recent") as string) : analysisListData);
             setSearchAnalysis(analysisListData);
-            setLoading(false);
         }
     }, [httpAnalysisResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
