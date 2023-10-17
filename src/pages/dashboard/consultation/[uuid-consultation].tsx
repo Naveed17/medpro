@@ -1014,6 +1014,13 @@ function ConsultationInProgress() {
             })
             setNbDoc(nb);
             setChanges([...changes])
+
+            if (hasDataHistory === false){
+                setCards([[
+                    {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"}
+                ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]])
+            }
+
         }
     }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1219,7 +1226,7 @@ function ConsultationInProgress() {
                                                                                         <Icon className={'card-header'}
                                                                                               path={item.icon}/>
                                                                                         <Typography
-                                                                                            className={'card-title'}>{t(item.content)}</Typography>
+                                                                                            className={'card-title'}>{item.content !== "widget" ?t(item.content):""}</Typography>
                                                                                     </MyHeaderCardStyled>}
                                                                                 <IconButton className={"btn-header"}>
                                                                                     {item.expanded ?
@@ -1249,11 +1256,14 @@ function ConsultationInProgress() {
 
                                                                                     />}
                                                                                 {item.content === 'history' && <div
+                                                                                   id={"histo"}
                                                                                     style={{
                                                                                         padding: 10,
                                                                                         borderTop: "1px solid #DDD",
                                                                                         borderBottomRightRadius: 3,
                                                                                         borderBottomLeftRadius: 3,
+                                                                                        maxHeight: "96.4vh",
+                                                                                        overflowY: "auto",
                                                                                         backgroundColor: theme.palette.grey["A10"]
                                                                                     }}>
                                                                                     <HistoryTab

@@ -47,14 +47,11 @@ function AppointmentHistoryPreview({...props}) {
                         : dispatch(SetSelectedApp(app.uuid));
                     const el = document.getElementById(`x${app.uuid}`)
 
-                    setTimeout(() => {
                         if (el)
-                            document.getElementById('container-tab')?.scrollTo({
-                                top: el?.offsetTop - 120,
-                                left: 0,
+                            document.getElementById('histo')?.scrollTo({
+                                top: el?.offsetTop-235,
                                 behavior: "smooth",
                             });
-                    }, 1000)
                 }
                 }
                 borderBottom={1}
