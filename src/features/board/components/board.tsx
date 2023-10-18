@@ -16,6 +16,7 @@ import IconUrl from "@themes/urlIcon";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {CustomIconButton} from "@features/buttons";
 import {Theme} from "@mui/system";
+import {useTranslation} from "next-i18next";
 
 const ParentContainer = styled.div`
   padding-bottom: 1rem;
@@ -51,6 +52,8 @@ const Title = styled.h4`
 
 function Board({...props}) {
     const {columns, data, handleEvent, handleDragEvent} = props;
+
+    const {t} = useTranslation('waitingRoom', {keyPrefix: 'tabs'});
 
     const [boardData, setBoardData] = useState<any>({});
 
@@ -139,8 +142,8 @@ function Board({...props}) {
                 data[itemGroup[0]].map((item: any) => {
                     quotes.push({
                         id: item.uuid,
-                        content: {...item, isDraggable: item.status !== 4},
-                        column: columns.find((column: BoardColumnsModel) => column.id === itemGroup[0]),
+                        content: {...item, isDraggable: ![4, 5].includes(item.status)},
+                        column: columns.find((column: BoardColumnsModel) => column.id.split(",").includes(itemGroup[0])),
                     })
                 })
             });
@@ -175,7 +178,7 @@ function Board({...props}) {
                                                             title={<Typography
                                                                 color={"text.primary"} fontWeight={700}
                                                                 fontSize={14}>
-                                                                {key} {boardData[key].length > 0 && index < 3 ? `(${boardData[key].length})` : ""}
+                                                                {t(key)} {boardData[key].length > 0 && index < 3 ? `(${boardData[key].length})` : ""}
                                                             </Typography>}
                                                         />
                                                     </Card>

@@ -429,7 +429,7 @@ fieldset {
         color: #00234B
       }
 
-      ;
+    ;
 
       svg {
         path {
@@ -470,7 +470,7 @@ fieldset {
   width: 100% !important;
 }
 
-.react-draggable>div>div {
+.react-draggable > div > div {
   opacity: 1 !important;
 }
 
@@ -520,4 +520,10 @@ fieldset {
 .page-controls button:last-child {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0
+}
+
+.ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }

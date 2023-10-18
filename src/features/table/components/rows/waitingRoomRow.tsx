@@ -24,6 +24,7 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import IconUrl from "@themes/urlIcon";
 
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
@@ -31,7 +32,7 @@ function WaitingRoomRow({...props}) {
 
     const theme = useTheme();
 
-    const {next} = useAppSelector(dashLayoutSelector);
+    const {next: is_next} = useAppSelector(dashLayoutSelector);
 
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -150,7 +151,7 @@ function WaitingRoomRow({...props}) {
                                     ml: 0.6,
                                     fontSize: 12
                                 }}>
-                                {moment(row.arrive_time, "HH:mm")
+                                {moment(row.startTime, "HH:mm")
                                     .add(1, "hours")
                                     .format("HH:mm")}
                             </Typography>
@@ -284,27 +285,51 @@ function WaitingRoomRow({...props}) {
                                         setLoading(true);
                                         handleEvent({action: "START_CONSULTATION", row, event});
                                     }}
+                                    sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}
                                     size="small">
-                                    <PlayCircleIcon/>
+                                    <PlayCircleIcon fontSize={"small"}/>
                                 </IconButton>
                             </span>
                         </Tooltip>}
-                        <Tooltip title={t(row.is_next ? "is_next" : "next")}>
-                            <span>
-                                <IconButton
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        setLoading(true);
-                                        handleEvent({action: "NEXT_CONSULTATION", row, event});
-                                    }}
-                                    disabled={next !== null && !row.is_next}
-                                    color={"primary"}
-                                    size="small">
-                                    {!row.is_next && <ArrowForwardRoundedIcon/>}
-                                    {row.is_next && <CloseRoundedIcon/>}
+                        {([1, 3].includes(row.status) && (is_next !== null && is_next?.uuid === row.uuid || is_next === null)) &&
+                            <Tooltip title={t(row.is_next ? "is_next" : "next")}>
+                                <span>
+                                    <IconButton
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            setLoading(true);
+                                            handleEvent({
+                                                action: "NEXT_CONSULTATION",
+                                                row: {...row, is_next: !!is_next},
+                                                event
+                                            });
+                                        }}
+                                        sx={{
+                                            border: `1px solid ${theme.palette.divider}`,
+                                            borderRadius: 1,
+                                            ...(is_next && {background: theme.palette.primary.main, border: "none"}),
+                                        }}
+                                        size="small">
+                                        {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
+                                        {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
+                                    </IconButton>
+                                </span>
+                            </Tooltip>}
+                        {row.status === 1 && <Tooltip title={t(row.is_next ? "is_next" : "next")}>
+                                <span>
+                                    <IconButton
+                                        onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                            action: "ENTER_WAITING_ROOM",
+                                            row: row,
+                                            event
+                                        })}
+                                        size={"small"}
+                                        disableFocusRipple
+                                        sx={{background: theme.palette.primary.main, borderRadius: 1}}>
+                                    <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
                                 </IconButton>
-                            </span>
-                        </Tooltip>
+                                </span>
+                        </Tooltip>}
                         <Tooltip title={t('more')}>
                             <span>
                                 <IconButton
@@ -321,6 +346,7 @@ function WaitingRoomRow({...props}) {
                     </Stack>
                 </TableCell>
             </TableRow>
+
             {info && (
                 <Dialog
                     action={info}

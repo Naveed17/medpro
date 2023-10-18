@@ -1,15 +1,15 @@
 import {GetStaticProps} from "next";
 import React, {ReactElement, useEffect, useState} from "react";
 //components
-import {timerSelector} from "@features/card";
+import {NoDataCard, timerSelector} from "@features/card";
 // next-i18next
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
-import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, Paper} from "@mui/material";
+import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, MenuItem, Paper, Typography} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
-import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
+import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {Session} from "next-auth";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
@@ -21,14 +21,14 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import moment from "moment-timezone";
 import {useSnackbar} from "notistack";
-import {toggleSideBar} from "@features/menu";
+import {ActionMenu, toggleSideBar} from "@features/menu";
 import {useIsMountedRef, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
 import dynamic from "next/dynamic";
 import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {DefaultCountry} from "@lib/constants";
+import {AddWaitingRoomCardData, DefaultCountry, WaitingHeadCells} from "@lib/constants";
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
@@ -42,8 +42,11 @@ import {CustomIconButton} from "@features/buttons";
 import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {appointmentSelector, setAppointmentSubmit} from "@features/tabPanel";
+import {appointmentSelector, setAppointmentSubmit, TabPanel} from "@features/tabPanel";
+import Icon from "@themes/urlIcon";
+import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import PersonOffIcon from "@mui/icons-material/PersonOff";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -58,6 +61,7 @@ function WaitingRoom() {
     const {trigger: triggerTransactionEdit} = useTransactionEdit();
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
+
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
     const {lock} = useAppSelector(appLockSelector);
@@ -80,7 +84,7 @@ function WaitingRoom() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
@@ -94,39 +98,28 @@ function WaitingRoom() {
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
-    const [popoverActions, setPopoverActions] = useState([
-        {
-            title: "pre_consultation_data",
-            icon: <PendingIcon/>,
-            action: "onPreConsultation",
-        },
-        ...(!roles.includes('ROLE_SECRETARY') ? [{
-            title: "start_the_consultation",
-            icon: <PlayCircleIcon/>,
-            action: "onConsultationStart",
-        }] : []),
-        {
-            title: "leave_waiting_room",
-            icon: <IconUrl color={"white"} path="ic-salle"/>,
-            action: "onLeaveWaitingRoom",
-        },
-        {
-            title: "see_patient_form",
-            icon: <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
-            action: "onPatientDetail",
-        }]);
+    const [popoverActions, setPopoverActions] = useState<any[]>([]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [waitingRoomsGroup, setWaitingRoomsGroup] = useState<any[]>([]);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddAppointmentTab, setQuickAddAppointmentTab] = useState(1);
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
+    const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
+    const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
+    const [tabIndex, setTabIndex] = useState<number>(0);
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
     const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
+    const {trigger: appointmentTransactionsTrigger} = useRequestQueryMutation("/agenda/appointment/transctions");
+    const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
 
-    const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequestQuery(agenda ? {
+    const {
+        data: httpWaitingRoomsResponse,
+        mutate: mutateWaitingRoom,
+        isLoading: isLoadingWaitingRooms
+    } = useRequestQuery(agenda ? {
             method: "GET",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
         } : null, {
@@ -164,10 +157,10 @@ function WaitingRoom() {
     }
 
     const resetDialog = () => {
-        setOpenPaymentDialog(false);
+        setOpenPaymentDialog(false);/*
         const actions = [...popoverActions];
         // actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
-        setPopoverActions(actions);
+        setPopoverActions(actions);*/
     };
 
     const nextConsultation = (row: any) => {
@@ -186,6 +179,22 @@ function WaitingRoom() {
             }
         });
     }
+
+    const handleUploadDocuments = () => {
+        setOpenUploadDialog({...openUploadDialog, loading: true});
+        const params = new FormData();
+        documentConfig.files.map((file: any) => {
+            params.append(`files[${file.type}][]`, file.file, file.name.slice(0, 20));
+        });
+        triggerUploadDocuments({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/documents/${router.locale}`,
+            data: params
+        }, {
+            onSuccess: () => setOpenUploadDialog({loading: false, dialog: false})
+        });
+    }
+
     const startConsultation = (row: any) => {
         if (!isActive) {
             const publicId = (row?.uuid ? row.uuid : row?.publicId ? row?.publicId : (row as any)?.id) as string
@@ -247,32 +256,19 @@ function WaitingRoom() {
         });
     }
 
-    const OnMenuActions = (action: string) => {
-        switch (action) {
-            case "onConsultationStart":
-                startConsultation(row);
-                break;
-            case "onPreConsultation":
-                setOpenPreConsultationDialog(true);
-                break;
-            case "onNextConsultation":
-                nextConsultation(row);
-                break;
-            case "onEnterWaitingRoom":
-                handleAppointmentStatus(row?.uuid as string, '3');
-                break;
-            case "onLeaveWaitingRoom":
-                handleAppointmentStatus(row?.uuid as string, '1');
-                break;
-            case "onPatientDetail":
-                dispatch(onOpenPatientDrawer({patientId: row?.patient.uuid}));
-                setPatientDetailDrawer(true);
-                break;
-            case "onPay":
-                let payed_amount = 0;//row?.appointment_type.price ? row?.appointment_type.price - row?.rest_amount : 0;
+    const handleTransactionData = () => {
+        appointmentTransactionsTrigger({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/transactions/${router.locale}`
+        }, {
+            onSuccess: (result) => {
+                const appointmentData = (result?.data as HttpResponse)?.data;
+                const transaction = appointmentData.transactions ? appointmentData.transactions[0] : null;
+                setRow({...row, transactions: appointmentData?.transactions ?? null} as any);
+                let payed_amount = 0;
                 let payments: any[] = [];
-                row?.transactions && row.transactions.map(transaction => {
-                    payed_amount += transaction.amount - transaction.rest_amount;
+                if (transaction) {
+                    payed_amount += transaction.amount;
                     transaction.transaction_data.map((td: any) => {
                         let pay: any = {
                             uuid: td.uuid,
@@ -291,7 +287,7 @@ function WaitingRoom() {
                         }
                         payments.push(pay)
                     })
-                });
+                }
 
                 setSelectedPayment({
                     uuid: row?.uuid,
@@ -299,10 +295,49 @@ function WaitingRoom() {
                     payed_amount,
                     appointment: row,
                     patient: row?.patient,
-                    total: row?.appointment_type.price,
+                    total: appointmentData?.fees ? appointmentData.fees : 0,
                     isNew: payed_amount === 0
                 });
                 setOpenPaymentDialog(true);
+            }
+        })
+    }
+
+    const OnMenuActions = (action: string) => {
+        switch (action) {
+            case "onConsultationStart":
+                startConsultation(row);
+                break;
+            case "onPreConsultation":
+                setOpenPreConsultationDialog(true);
+                break;
+            case "onNextConsultation":
+                nextConsultation(row);
+                break;
+            case "onEnterWaitingRoom":
+                handleAppointmentStatus(row?.uuid as string, '3');
+                break;
+            case "onLeaveWaitingRoom":
+                handleAppointmentStatus(row?.uuid as string, '1');
+                break;
+            case "onCancel":
+                handleAppointmentStatus(row?.uuid as string, '6');
+                break;
+            case "onDelete":
+                handleAppointmentStatus(row?.uuid as string, '9');
+                break;
+            case "onPatientNoShow":
+                handleAppointmentStatus(row?.uuid as string, '10');
+                break;
+            case "onAddConsultationDocuments":
+                setOpenUploadDialog({...openUploadDialog, dialog: true});
+                break;
+            case "onPatientDetail":
+                dispatch(onOpenPatientDrawer({patientId: row?.patient.uuid}));
+                setPatientDetailDrawer(true);
+                break;
+            case "onPay":
+                handleTransactionData();
                 break;
         }
         handleClose();
@@ -333,16 +368,57 @@ function WaitingRoom() {
             case "NEXT_CONSULTATION":
                 nextConsultation(data.row);
                 break;
+            case "ON_PAY":
+                handleTransactionData();
+                break;
             default:
-                if (data.row.rest_amount >= 0 && demo && !popoverActions.find(data => data.action === "onPay")) {
-                    setPopoverActions([{
+                setPopoverActions([
+                    ...(data.row.rest_amount !== 0 && isBeta && ![1, 6, 9, 10].includes(data.row.status) ? [{
                         title: "consultation_pay",
                         icon: <IconUrl color={"white"} path="ic-fees"/>,
                         action: "onPay",
-                    }, ...popoverActions])
-                } else {
-                    setPopoverActions([...popoverActions]);
-                }
+                    }] : []),
+                    {
+                        title: "pre_consultation_data",
+                        icon: <PendingIcon/>,
+                        action: "onPreConsultation",
+                    },
+                    ...(!roles.includes('ROLE_SECRETARY') && ![5, 4, 6, 9, 10].includes(data.row.status) ? [{
+                        title: "start_the_consultation",
+                        icon: <PlayCircleIcon/>,
+                        action: "onConsultationStart",
+                    }] : []),
+                    ...(data.row.status === 3 ? [{
+                        title: "leave_waiting_room",
+                        icon: <IconUrl color={"white"} path="ic-salle"/>,
+                        action: "onLeaveWaitingRoom",
+                    }] : []),
+                    {
+                        title: "import_document",
+                        icon: <UploadFileOutlinedIcon/>,
+                        action: "onAddConsultationDocuments",
+                    },
+                    ...(data.row.status === 1 ? [{
+                        title: "patient_no_show",
+                        icon: <PersonOffIcon/>,
+                        action: "onPatientNoShow",
+                    }] : []),
+                    {
+                        title: "see_patient_form",
+                        icon: <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
+                        action: "onPatientDetail",
+                    },
+                    ...(![5, 4, 6, 9, 10].includes(data.row.status) ? [{
+                        title: "cancel_appointment",
+                        icon: <Icon color={"white"} width={"16"} height={"16"} path="close"/>,
+                        action: "onCancel",
+                    },
+                        {
+                            title: "delete_appointment",
+                            icon: <Icon color={"white"} width={"18"} height={"18"} path="icdelete"/>,
+                            action: "onDelete"
+                        }] : [])
+                ]);
                 handleContextMenu(data.event);
                 break;
         }
@@ -367,7 +443,7 @@ function WaitingRoom() {
     const columns: any[] = [
         {
             id: '1',
-            name: 'Rdv aujourd\'hui',
+            name: 'today-rdv',
             url: '#',
             icon: <CalendarIcon/>,
             action: <CustomIconButton
@@ -383,7 +459,7 @@ function WaitingRoom() {
         },
         {
             id: '3',
-            name: 'Salle d’attente',
+            name: 'waiting-room',
             url: '#',
             icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
             action: <CustomIconButton
@@ -399,13 +475,13 @@ function WaitingRoom() {
         },
         {
             id: '4',
-            name: 'En Consultation',
+            name: 'ongoing',
             url: '#',
             icon: <IconUrl width={20} height={20} path="ic-attendre"/>
         },
         {
-            id: '5',
-            name: 'Terminé',
+            id: '5,6,9,10',
+            name: 'finished',
             url: '#',
             icon: <CheckCircleIcon
                 color={"primary"}
@@ -437,7 +513,7 @@ function WaitingRoom() {
                         display: "block"
                     }
                 }}>
-                <RoomToolbar/>
+                <RoomToolbar {...{tabIndex, setTabIndex, columns}}/>
 
                 {error &&
                     <AnimatePresence>
@@ -472,31 +548,7 @@ function WaitingRoom() {
                         {/*<Box display={{xs: "none", md: "block"}} mt={1}>
                             {waitingRooms &&
                                 <>
-                                    {waitingRooms.length > 0 ? <Otable
-                                            {...{
-                                                doctor_country,
-                                                roles,
-                                                loading: loadingRequest,
-                                                setLoading: setLoadingRequest
-                                            }}
-                                            headers={WaitingHeadCells}
-                                            rows={waitingRooms}
-                                            from={"waitingRoom"}
-                                            t={t}
-                                            pagination
-                                            handleEvent={handleTableActions}
-                                        />
-                                        :
-                                        <NoDataCard
-                                            t={t}
-                                            onHandleClick={() => {
-                                                router.push('/dashboard/agenda').then(() => {
-                                                    enqueueSnackbar(t("add-to-waiting-room"), {variant: 'info'})
-                                                });
-                                            }}
-                                            ns={"waitingRoom"}
-                                            data={AddWaitingRoomCardData}/>
-                                    }
+
 
                                     <ActionMenu {...{contextMenu, handleClose}}>
                                         {popoverActions.map(
@@ -518,10 +570,146 @@ function WaitingRoom() {
                                 </>
                             }
                         </Box>*/}
-                        <Board
-                            {...{columns, handleDragEvent}}
-                            handleEvent={handleTableActions}
-                            data={waitingRoomsGroup}/>
+                        <TabPanel padding={.1} value={tabIndex} index={0}>
+                            <Board
+                                {...{columns, handleDragEvent}}
+                                handleEvent={handleTableActions}
+                                data={waitingRoomsGroup}/>
+                        </TabPanel>
+                        <TabPanel padding={.1} value={tabIndex} index={1}>
+                            {waitingRoomsGroup ? <Otable
+                                    sx={{mt: 1, pr: 2}}
+                                    {...{
+                                        doctor_country,
+                                        roles,
+                                        loading: loadingRequest,
+                                        setLoading: setLoadingRequest
+                                    }}
+                                    headers={WaitingHeadCells}
+                                    rows={waitingRoomsGroup[1]}
+                                    from={"waitingRoom"}
+                                    t={t}
+                                    pagination
+                                    handleEvent={handleTableActions}
+                                />
+                                :
+                                <NoDataCard
+                                    t={t}
+                                    onHandleClick={() => {
+                                        router.push('/dashboard/agenda').then(() => {
+                                            enqueueSnackbar(t("add-to-waiting-room"), {variant: 'info'})
+                                        });
+                                    }}
+                                    ns={"waitingRoom"}
+                                    data={AddWaitingRoomCardData}/>
+                            }
+                        </TabPanel>
+                        <TabPanel padding={.1} value={tabIndex} index={2}>
+                            {waitingRoomsGroup ? <Otable
+                                    sx={{mt: 1, pr: 2}}
+                                    {...{
+                                        doctor_country,
+                                        roles,
+                                        loading: loadingRequest,
+                                        setLoading: setLoadingRequest
+                                    }}
+                                    headers={WaitingHeadCells}
+                                    rows={waitingRoomsGroup[3]}
+                                    from={"waitingRoom"}
+                                    t={t}
+                                    pagination
+                                    handleEvent={handleTableActions}
+                                />
+                                :
+                                <NoDataCard
+                                    t={t}
+                                    onHandleClick={() => {
+                                        router.push('/dashboard/agenda').then(() => {
+                                            enqueueSnackbar(t("add-to-waiting-room"), {variant: 'info'})
+                                        });
+                                    }}
+                                    ns={"waitingRoom"}
+                                    data={AddWaitingRoomCardData}/>
+                            }
+                        </TabPanel>
+                        <TabPanel padding={.1} value={tabIndex} index={3}>
+                            {waitingRoomsGroup ? <Otable
+                                    sx={{mt: 1, pr: 2}}
+                                    {...{
+                                        doctor_country,
+                                        roles,
+                                        loading: loadingRequest,
+                                        setLoading: setLoadingRequest
+                                    }}
+                                    headers={WaitingHeadCells}
+                                    rows={waitingRoomsGroup[4]}
+                                    from={"waitingRoom"}
+                                    t={t}
+                                    pagination
+                                    handleEvent={handleTableActions}
+                                />
+                                :
+                                <NoDataCard
+                                    t={t}
+                                    onHandleClick={() => {
+                                        router.push('/dashboard/agenda').then(() => {
+                                            enqueueSnackbar(t("add-to-waiting-room"), {variant: 'info'})
+                                        });
+                                    }}
+                                    ns={"waitingRoom"}
+                                    data={AddWaitingRoomCardData}/>
+                            }
+                        </TabPanel>
+                        <TabPanel padding={.1} value={tabIndex} index={4}>
+                            {waitingRoomsGroup ? <Otable
+                                    sx={{mt: 1, pr: 2}}
+                                    {...{
+                                        doctor_country,
+                                        roles,
+                                        loading: loadingRequest,
+                                        setLoading: setLoadingRequest
+                                    }}
+                                    headers={WaitingHeadCells}
+                                    rows={[
+                                        ...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : []),
+                                        ...(waitingRoomsGroup[6] ? waitingRoomsGroup[6] : []),
+                                        ...(waitingRoomsGroup[9] ? waitingRoomsGroup[9] : []),
+                                        ...(waitingRoomsGroup[10] ? waitingRoomsGroup[10] : [])]}
+                                    from={"waitingRoom"}
+                                    t={t}
+                                    pagination
+                                    handleEvent={handleTableActions}
+                                />
+                                :
+                                <NoDataCard
+                                    t={t}
+                                    onHandleClick={() => {
+                                        router.push('/dashboard/agenda').then(() => {
+                                            enqueueSnackbar(t("add-to-waiting-room"), {variant: 'info'})
+                                        });
+                                    }}
+                                    ns={"waitingRoom"}
+                                    data={AddWaitingRoomCardData}/>
+                            }
+                        </TabPanel>
+
+                        <ActionMenu {...{contextMenu, handleClose}}>
+                            {popoverActions.map(
+                                (v: any, index) => (
+                                    <MenuItem
+                                        key={index}
+                                        className="popover-item"
+                                        onClick={() => {
+                                            OnMenuActions(v.action);
+                                        }}>
+                                        {v.icon}
+                                        <Typography fontSize={15} sx={{color: "#fff"}}>
+                                            {t(`${v.title}`)}
+                                        </Typography>
+                                    </MenuItem>
+                                )
+                            )}
+                        </ActionMenu>
                     </Box>
                 </DesktopContainer>
                 <MobileContainer>
@@ -659,6 +847,48 @@ function WaitingRoom() {
                             startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                             {t("save", {ns: "common"})}
                         </Button>
+                    </DialogActions>
+                }
+            />
+
+            <Dialog
+                {...{direction}}
+                action={"add_a_document"}
+                open={openUploadDialog.dialog}
+                data={{
+                    t,
+                    state: documentConfig,
+                    setState: setDocumentConfig
+                }}
+                size={"md"}
+                sx={{minHeight: 400}}
+                title={t("doc_detail_title", {ns: "common"})}
+                {...(!openUploadDialog.loading && {
+                    dialogClose: () => setOpenUploadDialog({
+                        ...openUploadDialog,
+                        dialog: false
+                    })
+                })}
+                actionDialog={
+                    <DialogActions>
+                        <Button
+                            onClick={() => {
+                                setOpenUploadDialog({...openUploadDialog, dialog: false});
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel", {ns: "common"})}
+                        </Button>
+                        <LoadingButton
+                            loading={openUploadDialog.loading}
+                            loadingPosition={"start"}
+                            variant="contained"
+                            onClick={event => {
+                                event.stopPropagation();
+                                handleUploadDocuments();
+                            }}
+                            startIcon={<SaveRoundedIcon/>}>
+                            {t("save", {ns: "common"})}
+                        </LoadingButton>
                     </DialogActions>
                 }
             />

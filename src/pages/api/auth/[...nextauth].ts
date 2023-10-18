@@ -8,6 +8,7 @@ import {JWT} from "next-auth/jwt";
 // https://next-auth.js.org/configuration/options
 
 const refreshAccessToken = async (token: JWT) => {
+    console.log("refreshAccessToken");
     try {
         if (Date.now() > (token as any).refreshTokenExpired) {
             console.log('Error thrown');
