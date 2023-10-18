@@ -94,7 +94,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                 {...(autoUpdate && {
                     onBlur: (ev: { data: any; }) => {
                         const form = new FormData();
-                        form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string), ...ev.data}));
+                        form.append("modal_data", JSON.stringify({...ev.data}));
                         form.append("modal_uuid", selectedModel?.default_modal.uuid);
                         trigger({
                             method: "PUT",
