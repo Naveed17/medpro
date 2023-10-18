@@ -30,7 +30,7 @@ function WidgetCharts({...props}) {
 
     const getDesc = (key: string) => {
         let res: string[] = [];
-        res.push(`${sheet[key].label} (${sheet[key].description})`)
+        res.push(`${sheet[key].label} ${sheet[key].description ? `(${sheet[key].description})`:''}`)
         return res
     }
 

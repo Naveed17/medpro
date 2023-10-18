@@ -226,6 +226,7 @@ function ConsultationInProgress() {
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
+    const isDemo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -574,7 +575,7 @@ function ConsultationInProgress() {
                     dispatch(resetAppointment());
                     dispatch(openDrawer({type: "view", open: false}));
                 });
-                checkTransactions();
+                isDemo && checkTransactions();
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
@@ -1015,7 +1016,7 @@ function ConsultationInProgress() {
             setNbDoc(nb);
             setChanges([...changes])
 
-            if (hasDataHistory === false){
+            if (hasDataHistory === false) {
                 setCards([[
                     {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"}
                 ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]])
@@ -1226,7 +1227,7 @@ function ConsultationInProgress() {
                                                                                         <Icon className={'card-header'}
                                                                                               path={item.icon}/>
                                                                                         <Typography
-                                                                                            className={'card-title'}>{item.content !== "widget" ?t(item.content):""}</Typography>
+                                                                                            className={'card-title'}>{item.content !== "widget" ? t(item.content) : ""}</Typography>
                                                                                     </MyHeaderCardStyled>}
                                                                                 <IconButton className={"btn-header"}>
                                                                                     {item.expanded ?
@@ -1256,7 +1257,7 @@ function ConsultationInProgress() {
 
                                                                                     />}
                                                                                 {item.content === 'history' && <div
-                                                                                   id={"histo"}
+                                                                                    id={"histo"}
                                                                                     style={{
                                                                                         padding: 10,
                                                                                         borderTop: "1px solid #DDD",

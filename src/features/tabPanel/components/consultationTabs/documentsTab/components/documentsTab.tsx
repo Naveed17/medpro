@@ -147,7 +147,9 @@ function DocumentsTab({...props}) {
                 </Box>}
             </Box>
             {documents.length === 0 && (
-                <NoDataCard t={t} ns={"consultation"} data={noCardData}/>
+                <Box className={"container"}>
+                    <NoDataCard t={t} ns={"consultation"} data={noCardData}/>
+                </Box>
             )}
         </Stack>
     );
