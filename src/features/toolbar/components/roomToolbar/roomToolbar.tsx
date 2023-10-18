@@ -1,12 +1,9 @@
-import {Stack, Typography, useMediaQuery, Button, Tabs, Tab} from '@mui/material'
-import {useRouter} from 'next/router';
+import {Stack, useMediaQuery, Button, Tabs, Tab} from '@mui/material'
 import {useTranslation} from "next-i18next";
 import {DrawerBottom} from '@features/drawerBottom';
 import {WaitingRoom} from '@features/leftActionBar'
 import Icon from '@themes/urlIcon'
 import React, {SyntheticEvent, useCallback, useState} from 'react';
-import SalleIcon from "@themes/overrides/icons/salleIcon";
-import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
 import {MobileContainer} from '@themes/mobileContainer';
 import {a11yProps} from "@lib/hooks";
@@ -16,9 +13,7 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 function RoomToolbar({...props}) {
     const {tabIndex, setTabIndex, columns, data, handleCollapse, openCalendar} = props;
-    const router = useRouter();
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
-    const {enqueueSnackbar} = useSnackbar();
 
     const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'tabs'});
 

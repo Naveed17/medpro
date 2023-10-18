@@ -386,7 +386,7 @@ fieldset {
   margin-left: 2rem;
   -ms-transform: scale(3);
   /* IE 9 */
-  -webkit-transform: scale(3);
+  //-webkit-transform: scale(3);
   /* Safari 3-8 */
   transform: scale(3);
 }
@@ -396,7 +396,7 @@ fieldset {
   margin-left: 1rem;
   -ms-transform: scale(2.4);
   /* IE 9 */
-  -webkit-transform: scale(2.4);
+  //-webkit-transform: scale(2.4);
   /* Safari 3-8 */
   transform: scale(2.4);
 }

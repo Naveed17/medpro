@@ -6,16 +6,10 @@ import {
     Droppable,
     DroppableProvided, DropResult
 } from "react-beautiful-dnd";
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import styled from '@emotion/styled';
 import {BoardList} from "@features/board";
-import {Card, CardHeader, Grid, IconButton, Typography, useTheme} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import CalendarIcon from "@themes/overrides/icons/calendarIcon";
-import IconUrl from "@themes/urlIcon";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import {CustomIconButton} from "@features/buttons";
-import {Theme} from "@mui/system";
+import {Card, CardHeader, Grid, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 
 const ParentContainer = styled.div`

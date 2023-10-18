@@ -18,7 +18,6 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {leftActionBarSelector} from "@features/leftActionBar";
 import moment from "moment-timezone";
 import {useSnackbar} from "notistack";
 import {ActionMenu, toggleSideBar} from "@features/menu";
@@ -62,20 +61,18 @@ function WaitingRoom() {
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
 
-    const {query: filter} = useAppSelector(leftActionBarSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {model} = useAppSelector(preConsultationSelector);
-    const {selectedBoxes, paymentTypesList} = useAppSelector(cashBoxSelector);
+    const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {
         motif,
         duration,
         patient,
         type,
-        submitted,
         recurringDates
     } = useAppSelector(appointmentSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
@@ -117,8 +114,7 @@ function WaitingRoom() {
 
     const {
         data: httpWaitingRoomsResponse,
-        mutate: mutateWaitingRoom,
-        isLoading: isLoadingWaitingRooms
+        mutate: mutateWaitingRoom
     } = useRequestQuery(agenda ? {
             method: "GET",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
