@@ -1,3 +1,10 @@
+## [4.20.3](https://github.com/SmartMedSA/med-pro/compare/v4.20.2...v4.20.3) (2023-10-18)
+
+
+### Bug Fixes
+
+* null consultation fees ([2ce3acc](https://github.com/SmartMedSA/med-pro/commit/2ce3acc299621b4fb558384dc1a4c4bb23d39064))
+
 ## [4.20.2](https://github.com/SmartMedSA/med-pro/compare/v4.20.1...v4.20.2) (2023-10-11)
 
 
