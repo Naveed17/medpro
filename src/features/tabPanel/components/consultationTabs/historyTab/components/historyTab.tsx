@@ -1,6 +1,6 @@
 import React from "react";
 import {Label} from "@features/label";
-import {Box, Collapse, Drawer, Stack, Typography,} from "@mui/material";
+import {Box, Card, Collapse, Drawer, Stack, Typography,} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
 import {AppointmentDetail, dialogSelector, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {useRequestQuery} from "@lib/axios";
@@ -15,6 +15,8 @@ import {AppointmentHistoryContent} from "@features/card/components/appointmentHi
 import Icon from "@themes/icon";
 import moment from "moment/moment";
 import {WidgetCharts} from "@features/tabPanel";
+import PediatricianCharts
+    from "@features/tabPanel/components/consultationTabs/pediatricianChart/components/pediatricianCharts";
 
 function HistoryTab({...props}) {
 
@@ -62,6 +64,9 @@ function HistoryTab({...props}) {
 
     return (
         <>
+            <Card style={{width:"50%"}}>
+                <PediatricianCharts {...{sheet}}/>
+            </Card>
             {/****** Next appointment ******/}
             {nextAppointment && nextAppointment.length > 0 && (
                 <Stack spacing={2} mb={2} alignItems="flex-start">
