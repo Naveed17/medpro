@@ -1,3 +1,11 @@
+## [4.20.4](https://github.com/SmartMedSA/med-pro/compare/v4.20.3...v4.20.4) (2023-10-18)
+
+
+### Bug Fixes
+
+* remove data from widget ([9f42868](https://github.com/SmartMedSA/med-pro/commit/9f428684d94f0567e572125ecbc701ec20b3760e))
+* remove data from widget ([5b474dd](https://github.com/SmartMedSA/med-pro/commit/5b474dd74f732e4cefec314c94aa01dfbd61b4e6))
+
 ## [4.20.3](https://github.com/SmartMedSA/med-pro/compare/v4.20.2...v4.20.3) (2023-10-18)
 
 
