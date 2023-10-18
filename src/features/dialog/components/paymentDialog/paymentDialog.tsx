@@ -49,6 +49,7 @@ import {useRouter} from "next/router";
 import useBanks from "@lib/hooks/rest/useBanks";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import ConsultationCard from './consultationCard';
+import PaymentCard from './paymentCard';
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 interface HeadCell {
@@ -180,7 +181,14 @@ function PaymentDialog({...props}) {
     const formik = useFormik({
         initialValues: {
             ...deals,
-            totalToPay: selectedPayment.total - selectedPayment.payed_amount
+            totalToPay: selectedPayment.total - selectedPayment.payed_amount,
+            paymentMethods:[
+                {
+                selected:paymentTypesList && paymentTypesList.length > 0 ? paymentTypesList[0].uuid : null,
+                ...deals,
+                },
+                
+        ]
         },
         validationSchema,
         onSubmit: values => {
@@ -919,7 +927,7 @@ function PaymentDialog({...props}) {
                     }
                 </Grid> */}
 
-                <Grid container spacing={3} mt={2.5}>
+                <Grid container spacing={6} mt={2.5}>
                     <Grid item xs={12} md={6}>
                         <Typography fontWeight={600} mb={1}>{t("current_consultation")}</Typography>
                         <Stack spacing={1}>
@@ -933,8 +941,38 @@ function PaymentDialog({...props}) {
                         </Stack>
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <Divider orientation="vertical"/>
-                        <Typography fontWeight={600} mb={1}>{t("payment_history")}</Typography>
+                        <Stack spacing={2} height={1} position={'relative'}>
+                            <Divider orientation='vertical'sx={{position:'absolute' ,height:'100%',left:-20}}/>
+                            <Stack direction="row" alignItems="center" justifyContent='space-between'>
+                             <Typography fontWeight={600} mb={1}>{t("payment")}</Typography>
+                             <Button 
+                              onClick={()=>formik.setFieldValue("paymentMethods",[...values.paymentMethods,{
+                                selected:paymentTypesList[0].uuid,
+                                amount:0,
+                                check:[{
+                                amount: "",
+                                carrier: "",
+                                bank: "",
+                                check_number: '',
+                                payment_date: new Date(),
+                                expiry_date: new Date(),
+                                }]
+                              }])}
+                             startIcon={<AddIcon/>} size="small">{t("add_payment")}</Button>
+                            </Stack>
+                            <AnimatePresence>
+                            {values.paymentMethods.map((item:any,i:any) => (
+                                <motion.div key={i} 
+                                    initial={{opacity:0}}
+                                    animate={{opacity:1}}
+                                    exit={{opacity:0}}
+                                    transition={{duration:0.3}}
+                                >
+                                    <PaymentCard {...{t,devise,paymentTypesList,item,i,formik}}/>
+                                </motion.div>
+                            ))}
+                            </AnimatePresence>
+                        </Stack>
                     </Grid>
                 </Grid>
             </PaymentDialogStyled>

@@ -89,7 +89,37 @@ const PaymentDialogStyled = styled(Box)(({theme}) => ({
             border:`1px solid ${theme.palette.divider}`,
             color:theme.palette.text.primary,
         }
+    },
+    ".payment-card":{
+        border:`1px dashed ${theme.palette.divider}`,
+        ".btn-del":{
+         border:`1px solid ${theme.palette.divider}`,
+         borderRadius:theme.spacing(.7),
+         svg:{
+            path:{
+                fill:theme.palette.text.secondary
+            }
+         }
+        }
+    
+    },
+    ".check-container":{
+        ".expand-icon":{
+            background:theme.palette.success.main,
+            borderRadius:theme.spacing(.7),
+            padding:theme.spacing(.5),
+            svg:{
+                fontSize:18,
+                path:{
+                    fill:theme.palette.common.white
+                }
+            }
+        },
+        ".MuiCardContent-root":{
+            "&:last-child":{
+                paddingBottom:theme.spacing(2)
+            }
+        }
     }
-
 }));
 export default PaymentDialogStyled
