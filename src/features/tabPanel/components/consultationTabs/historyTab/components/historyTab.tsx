@@ -15,8 +15,6 @@ import {AppointmentHistoryContent} from "@features/card/components/appointmentHi
 import Icon from "@themes/icon";
 import moment from "moment/moment";
 import {WidgetCharts} from "@features/tabPanel";
-import PediatricianCharts
-    from "@features/tabPanel/components/consultationTabs/pediatricianChart/components/pediatricianCharts";
 
 function HistoryTab({...props}) {
 
@@ -62,10 +60,44 @@ function HistoryTab({...props}) {
         })
     })
 
+    const canvas: HTMLCanvasElement = (document.getElementById("canvas") as HTMLCanvasElement);
+    if (canvas) {
+        canvas.style.width = '100%';
+
+        canvas.width = 700;
+        canvas.height = 700;
+
+        const ctx = canvas?.getContext("2d")
+
+        if (ctx) {
+            const image = new Image(1434, 1260); // Using optional size for image
+            image.onload = () => {
+                ctx?.drawImage(image, 0, 0, 700, 700)
+            }
+            image.src = "/static/img/weight.png"
+
+            ctx.fillStyle = "#FF0000";
+            ctx.rect(100, 80, 20, 20);
+            ctx.rect(200, 280, 20, 20);
+            ctx.fill();
+        }
+
+
+
+    }
+
+
     return (
         <>
-            <Card style={{width:"50%"}}>
-                <PediatricianCharts {...{sheet}}/>
+
+            {/* <canvas id="canvas" style={{width:700}}>
+                <img style={{width:700}} src="/static/img/weight.png" alt=""/>
+            </canvas>*/}
+            <Card style={{width: "50%", height: 520}}>
+
+                <canvas id="canvas"></canvas>
+
+
             </Card>
             {/****** Next appointment ******/}
             {nextAppointment && nextAppointment.length > 0 && (
@@ -132,7 +164,7 @@ function HistoryTab({...props}) {
                     {t("consultationIP.suivi_chiffre")}
                 </Label>
             </Stack>}
-            <div style={{overflowY: "hidden", marginBottom:10}}>
+            <div style={{overflowY: "hidden", marginBottom: 10}}>
                 {keys.length > 0 &&
                     <HistoryStyled>
                         <thead>
@@ -146,7 +178,9 @@ function HistoryTab({...props}) {
                         {keys.map((key: string) => (
                             <tr key={key}>
                                 <td style={{minWidth: 120}}><Typography
-                                    className={"keys col"} style={{width:"100%",whiteSpace: "nowrap"}}>{sheet[key]['label']}</Typography></td>
+                                    className={"keys col"}
+                                    style={{width: "100%", whiteSpace: "nowrap"}}>{sheet[key]['label']}</Typography>
+                                </td>
                                 {dates.map((date: string) => (<td key={date}><Typography
                                     className={"data col"}>{sheet[key]['data'][date] ? sheet[key]['data'][date] + sheet[key]['description'] : '-'}</Typography>
                                 </td>))}
@@ -157,14 +191,15 @@ function HistoryTab({...props}) {
             </div>
             {/****** Sheet History ******/}
 
-            <WidgetCharts {...{sheet,mini}}/>
+            <WidgetCharts {...{sheet, mini}}/>
 
             {/****** Latest appointment ******/}
-            {latest_appointment && latest_appointment.length > 0 && <Stack id={'records'} spacing={2} mb={2} alignItems="flex-start">
-                <Label variant="filled" color="warning">
-                    {t("history")}
-                </Label>
-            </Stack>}
+            {latest_appointment && latest_appointment.length > 0 &&
+                <Stack id={'records'} spacing={2} mb={2} alignItems="flex-start">
+                    <Label variant="filled" color="warning">
+                        {t("history")}
+                    </Label>
+                </Stack>}
             <Stack spacing={1}>
                 {latest_appointment && latest_appointment.map((app: any, appID: number) => (
                     <React.Fragment key={`app-el-${appID}`}>
@@ -176,7 +211,7 @@ function HistoryTab({...props}) {
                             }}
                             open={app.uuid === selectedApp}
                             key={`${app.uuid}timeline`}>
-                            <AppointmentHistoryPreview {...{app, appuuid, dispatch, t,mini}}>
+                            <AppointmentHistoryPreview {...{app, appuuid, dispatch, t, mini}}>
                                 {selectedApp === app.uuid && <Collapse
                                     in={app.uuid === selectedApp}>
                                     <AppointmentHistoryContent {...{
