@@ -96,6 +96,9 @@ function SecretaryConsultationDialog({...props}) {
             if (total === -1){
                 const form = new FormData();
                 form.append("consultation_fees", res.fees ? res.fees : 0);
+                form.append("acts", JSON.stringify([]));
+                form.append("fees",  res.fees ? res.fees : 0);
+
                 triggerAppointmentEdit({
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
