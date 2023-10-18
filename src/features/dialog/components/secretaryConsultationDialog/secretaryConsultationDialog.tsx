@@ -35,7 +35,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRouter} from "next/router";
-import {useRequestQuery} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
@@ -82,6 +82,8 @@ function SecretaryConsultationDialog({...props}) {
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
+    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
+
     const {data: httpAppointmentTransactions, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
@@ -91,8 +93,19 @@ function SecretaryConsultationDialog({...props}) {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
             setTransactions(res.transactions ? res.transactions[0] : null);
-            if (total === -1)
-                setTotal(res.fees ? res.fees : 0)
+            if (total === -1){
+                const form = new FormData();
+                form.append("consultation_fees", res.fees ? res.fees : 0);
+                triggerAppointmentEdit({
+                    method: "PUT",
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+                    data: form
+                }, {
+                    onSuccess: () => {
+                        setTotal(res.fees ? res.fees : 0)
+                    }
+                })
+            }
             setRestAmount(res.rest_amount)
         }
     }, [httpAppointmentTransactions, setTotal, setTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
