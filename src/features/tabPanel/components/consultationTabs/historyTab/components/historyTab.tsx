@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {Label} from "@features/label";
 import {Box, Card, Collapse, Drawer, Stack, Typography,} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -60,40 +60,48 @@ function HistoryTab({...props}) {
         })
     })
 
-    const canvas: HTMLCanvasElement = (document.getElementById("canvas") as HTMLCanvasElement);
-    if (canvas) {
-        canvas.style.width = '100%';
+    useEffect(() => {
+        const canvas: HTMLCanvasElement = (document.getElementById("canvas") as HTMLCanvasElement);
+        if (canvas) {
+            canvas.style.width = '100%';
+            canvas.height = 700
+            canvas.width = 700
 
-        canvas.width = 700;
-        canvas.height = 700;
+            const ctx = canvas?.getContext("2d")
 
-        const ctx = canvas?.getContext("2d")
+            if (ctx) {
+                console.log(canvas.height)
+                const image = new Image(1434, 1260); // Using optional size for image
+                image.onload = () => {
+                    ctx?.drawImage(image, 0, 0, 700, 700)
 
-        if (ctx) {
-            const image = new Image(1434, 1260); // Using optional size for image
-            image.onload = () => {
-                ctx?.drawImage(image, 0, 0, 700, 700)
+                    ctx.fillStyle = "blue";
+
+                    for (let x = 34; x < 700; x += 52) {
+                        for (let i = 680; i > 0; i -= 37.795275591) { //26.8
+                            ctx.roundRect(x, i, 8, 8, [30, 30, 30, 30])
+                        }
+                    }
+                    ctx.fill();
+
+                    if (canvas)
+                        canvas.addEventListener('click', (ev) => {
+                            console.log(ev)
+                        })
+
+                }
+                image.src = "/static/img/weight.jpg"
+
+
             }
-            image.src = "/static/img/weight.png"
 
-            ctx.fillStyle = "#FF0000";
-            ctx.rect(100, 80, 20, 20);
-            ctx.rect(200, 280, 20, 20);
-            ctx.fill();
+
         }
-
-
-
-    }
-
+    }, [])
 
     return (
         <>
-
-            {/* <canvas id="canvas" style={{width:700}}>
-                <img style={{width:700}} src="/static/img/weight.png" alt=""/>
-            </canvas>*/}
-            <Card style={{width: "50%", height: 520}}>
+            <Card style={{width: "50%"}}>
 
                 <canvas id="canvas"></canvas>
 
