@@ -41,25 +41,7 @@ function WaitingRoomRow({...props}) {
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setInfo(null);
-    };
-
-    const handleClick = (action: number) => {
-        switch (action) {
-            case 1:
-                setInfo("end_consultation");
-                setOpenDialog(true);
-                setActions(false);
-                break;
-            case 2:
-                setInfo("secretary_consultation_alert");
-                setOpenDialog(true);
-                setActions(true);
-                break;
-            default:
-                setInfo(null);
-                break;
-        }
-    };
+    }
 
     const DialogAction = () => {
         return (
@@ -75,7 +57,7 @@ function WaitingRoomRow({...props}) {
                 </Button>
             </DialogActions>
         );
-    };
+    }
 
     const getDuration = (time: string) => {
         const duration: any = moment.duration(
@@ -86,17 +68,6 @@ function WaitingRoomRow({...props}) {
         const minutes =
             duration._data.minutes !== 0 ? `${duration._data.minutes}min` : "";
         return `${hours} ${minutes}`;
-    };
-
-    const onClickTooltipItem = (item: {
-        title: string;
-        icon: ReactElement;
-        action: string;
-    }) => {
-        switch (item.action) {
-            case "onOpenPatientDrawer":
-                break;
-        }
     }
 
     return (

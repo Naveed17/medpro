@@ -3,7 +3,6 @@ import {DrawerBottom} from '@features/drawerBottom';
 import {WaitingRoom} from '@features/leftActionBar'
 import Icon from '@themes/urlIcon'
 import React, {SyntheticEvent, useCallback, useState} from 'react';
-import dynamic from "next/dynamic";
 import {MobileContainer} from '@themes/mobileContainer';
 import {a11yProps} from "@lib/hooks";
 
