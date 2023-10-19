@@ -78,6 +78,7 @@ function SendEmailDialog({...props}) {
                     <Box
                         sx={{scale: preview.type.includes("image") ? "1" : "0.4", transformOrigin: "top left", height: 340}}>
                         {preview.type.includes("image") ?
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img
                                 src={URL.createObjectURL(preview)}
                                 id="displayFile"

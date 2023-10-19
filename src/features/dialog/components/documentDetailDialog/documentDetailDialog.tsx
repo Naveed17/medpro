@@ -337,7 +337,6 @@ function DocumentDetailDialog({...props}) {
                 setData({...data})
                 break;
             case "download":
-                console.log("doc", generatedDocs.some(doc => doc == state?.type))
                 if (generatedDocs.some(doc => doc == state?.type)) {
                     const file = await generatePdfFromHtml(componentRef, "blob");
                     const fileURL = window.URL.createObjectURL((file as Blob));

@@ -502,9 +502,7 @@ function AppToolbar({...props}) {
                         </StyledMenu>
                     </Stack>}
                 </Stack>
-
             </AppToolbarStyled>
-
         </>
     );
 }
