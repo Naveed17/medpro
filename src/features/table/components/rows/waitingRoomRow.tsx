@@ -105,11 +105,14 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Box display="flex" alignItems="center">
-                            <Typography
-                                fontSize={12}
-                                component={"span"}>
-                                {`${key + 1}`}
-                            </Typography>
+                            <Button
+                                sx={{
+                                    p: 0,
+                                    minWidth: '2.5rem',
+                                    minHeight: '.5rem',
+                                    marginRight: '4px'
+                                }} variant={"contained"}
+                                size={"small"}> AR-{key + 1}</Button>
                         </Box>
                     ) : (
                         <Skeleton variant="text" width={80}/>
@@ -136,8 +139,8 @@ function WaitingRoomRow({...props}) {
                     {row ? (
                         <Stack
                             alignItems="center"
-                            justifyItems={"center"}
-                            justifyContent={"center"}
+                            justifyItems={"left"}
+                            justifyContent={"left"}
                             direction={"row"}
                             sx={{
                                 svg: {
@@ -276,7 +279,24 @@ function WaitingRoomRow({...props}) {
                 </TableCell>
                 <TableCell>
                     <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
-                        {!roles.includes("ROLE_SECRETARY") && <Tooltip title={t("start")}>
+                        {(!roles.includes("ROLE_SECRETARY") && [5, 3].includes(row.status)) &&
+                            <Tooltip title={t("start")}>
+                            <span>
+                                <IconButton
+                                    disabled={loading}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setLoading(true);
+                                        handleEvent({action: "ON_PAY", row, event});
+                                    }}
+                                    sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}
+                                    size="small">
+                                    <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
+                                </IconButton>
+                            </span>
+                            </Tooltip>}
+                        {(!roles.includes("ROLE_SECRETARY") && [1, 3].includes(row.status)) &&
+                            <Tooltip title={t("start")}>
                             <span>
                                 <IconButton
                                     disabled={loading}
@@ -290,7 +310,7 @@ function WaitingRoomRow({...props}) {
                                     <PlayCircleIcon fontSize={"small"}/>
                                 </IconButton>
                             </span>
-                        </Tooltip>}
+                            </Tooltip>}
                         {([1, 3].includes(row.status) && (is_next !== null && is_next?.uuid === row.uuid || is_next === null)) &&
                             <Tooltip title={t(row.is_next ? "is_next" : "next")}>
                                 <span>

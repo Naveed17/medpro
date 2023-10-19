@@ -47,7 +47,7 @@ const Title = styled.h4`
 function Board({...props}) {
     const {columns, data, handleEvent, handleDragEvent} = props;
 
-    const {t} = useTranslation('waitingRoom', {keyPrefix: 'tabs'});
+    const {t} = useTranslation('waitingRoom', {keyPrefix: 'config.tabs'});
 
     const [boardData, setBoardData] = useState<any>({});
 

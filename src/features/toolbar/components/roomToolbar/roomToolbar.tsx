@@ -1,5 +1,4 @@
 import {Stack, useMediaQuery, Button, Tabs, Tab} from '@mui/material'
-import {useTranslation} from "next-i18next";
 import {DrawerBottom} from '@features/drawerBottom';
 import {WaitingRoom} from '@features/leftActionBar'
 import Icon from '@themes/urlIcon'
@@ -8,18 +7,13 @@ import dynamic from "next/dynamic";
 import {MobileContainer} from '@themes/mobileContainer';
 import {a11yProps} from "@lib/hooks";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
-
 function RoomToolbar({...props}) {
-    const {tabIndex, setTabIndex, columns, data, handleCollapse, openCalendar} = props;
+    const {t, tabIndex, setTabIndex, columns, data, handleCollapse} = props;
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
-
-    const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'tabs'});
 
     const [open, set0pen] = useState(false);
 
-    const [tabsContent, setTabsContent] = useState([
+    const [tabsContent] = useState([
         {
             title: "overview",
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
@@ -34,8 +28,6 @@ function RoomToolbar({...props}) {
         setTabIndex(newValue);
     }, [setTabIndex]);
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
-
     return (
         <Stack direction='row' justifyContent="space-between" mt={2.8} width={1} alignItems="center">
             <Tabs
@@ -48,7 +40,7 @@ function RoomToolbar({...props}) {
                     <Tab
                         key={`tabHeader-${tabHeaderIndex}`}
                         disableRipple
-                        label={t(tabHeader.title)}
+                        label={t(`tabs.${tabHeader.title}`)}
                         {...a11yProps(tabHeaderIndex)}
                     />)
                 )}

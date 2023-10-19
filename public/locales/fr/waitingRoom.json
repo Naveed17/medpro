@@ -3,19 +3,12 @@
     "title": "Salle d’attente",
     "room": "salle",
     "add": "Ajouter",
-    "add-to-waiting-room": "Sélectionner un rendez-vous et ajouter le patient à la salle d'attente."
-  },
-  "tabs": {
-    "overview" : "Aperçu",
-    "today-rdv" : "Rdv aujourd'hui",
-    "waiting-room" : "Salle d’attente",
-    "ongoing" : "En Consultation",
-    "finished" : "Terminé"
+    "add-to-waiting-room": "Ajouter votre premier patient à la salle d'attente."
   },
   "filter": {
     "title": "Filtre",
     "patient": "Patient",
-    "date-of-birth": "Date de naissance",
+    "birthdate": "Date de naissance",
     "gender": "Genre",
     "male": "Homme",
     "female": "Femme",
@@ -70,8 +63,15 @@
     "add-to-waiting-room": "Sélectionner un rendez-vous et ajouter le patient à la salle d'attente.",
     "empty": "Aucun patient dans salle d'attente",
     "desc": "Selectionner RDV et ajouter le patient dans salle d'attente",
+    "tabs": {
+      "overview": "Aperçu",
+      "today-rdv": "Rdv aujourd'hui",
+      "waiting-room": "Salle d’attente",
+      "ongoing": "En Consultation",
+      "finished": "Terminé"
+    },
     "table": {
-      "Id": "Id",
+      "Id": "N°",
       "arrival time": "Arrivé à",
       "appointment time": "RDV à",
       "reason": "Motif",
