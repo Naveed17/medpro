@@ -425,8 +425,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         }, {
             onSuccess: () => {
                 mutateParentModel().then((result: any) => {
-                    const models = (result?.data as HttpResponse)
-                        ?.data as PrescriptionParentModel[];
+                    const models = (result?.data as HttpResponse)?.data as PrescriptionParentModel[];
                     dispatch(setParentModel(models[models.length - 1]?.uuid));
                     setOpenAddParentDialog(false);
                     setParentModelName("");

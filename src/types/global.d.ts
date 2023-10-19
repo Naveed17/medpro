@@ -14,7 +14,7 @@ declare global {
     };
 
     interface Array<T> {
-        group(o: T, fn: Function): Array<T>;
+        group(fn: Function): Array<T>;
     }
 }
 
@@ -128,8 +128,8 @@ declare module "@fullcalendar/interaction" {
     }
 }
 
-declare global {
-    interface Array<T> {
-        group(o: T, fn: Function): Array<T>;
+declare module '@emotion/styled/types' {
+    interface CreateStyled<T> {
+        isDragging?: Boolean
     }
 }

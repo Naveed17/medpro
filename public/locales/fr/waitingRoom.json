@@ -3,12 +3,12 @@
     "title": "Salle d’attente",
     "room": "salle",
     "add": "Ajouter",
-    "add-to-waiting-room": "Sélectionner un rendez-vous et ajouter le patient à la salle d'attente."
+    "add-to-waiting-room": "Ajouter votre premier patient à la salle d'attente."
   },
   "filter": {
     "title": "Filtre",
     "patient": "Patient",
-    "date-of-birth": "Date de naissance",
+    "birthdate": "Date de naissance",
     "gender": "Genre",
     "male": "Homme",
     "female": "Femme",
@@ -43,6 +43,9 @@
     "room": "salle",
     "start_the_consultation": "Commencer la consultation",
     "next_consultation": "Prochaine consultation",
+    "add-quick-drawer": "Ajout rapide d'un rendez-vous",
+    "doc_detail_title": "Document",
+    "patient_no_show": "le patient ne s'est pas présenté",
     "addsuccess": "Paiement ajouté",
     "start": "Commencer",
     "more": "Plus",
@@ -54,11 +57,21 @@
     "pre_consultation_dialog_title": "Remplir les données de suivi de la consultation",
     "consultation_pay": "Payer",
     "leave_waiting_room": "Quitter la salle d'attente",
+    "import_document": "Importer un document",
+    "cancel_appointment": "Annuler RDV",
+    "delete_appointment": "Supprimer RDV",
     "add-to-waiting-room": "Sélectionner un rendez-vous et ajouter le patient à la salle d'attente.",
     "empty": "Aucun patient dans salle d'attente",
     "desc": "Selectionner RDV et ajouter le patient dans salle d'attente",
+    "tabs": {
+      "overview": "Aperçu",
+      "today-rdv": "Rdv aujourd'hui",
+      "waiting-room": "Salle d’attente",
+      "ongoing": "En Consultation",
+      "finished": "Terminé"
+    },
     "table": {
-      "Id": "Id",
+      "Id": "N°",
       "arrival time": "Arrivé à",
       "appointment time": "RDV à",
       "reason": "Motif",
@@ -87,7 +100,7 @@
   "room": "salle",
   "end_consultation": "Fin de consultation",
   "end_of_consultation_with": "Fin de consultation avec",
-  "finish_the_consutation": "vous êtes sûr de terminer la consutation ?",
+  "finish_the_consutation": "vous êtes sûr de terminer la consutation ?",
   "type_the_instruction_for_the_secretary": "tapez l’Instruction pour la secretaire",
   "type_instruction_for_the_secretary": "Tapez instruction pour la secretaire"
 }

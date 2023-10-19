@@ -13,7 +13,7 @@ function useMutateOnGoing() {
     const {config: agenda} = useAppSelector(agendaSelector);
 
     const trigger = useCallback(() => {
-        setTimeout(() => queryClient.invalidateQueries({queryKey: [`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${router.locale}`]}));
+        return Promise.resolve(queryClient.invalidateQueries({queryKey: [`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/ongoing/appointments/${router.locale}`]}));
     }, [agenda?.uuid, queryClient, router.locale, urlMedicalEntitySuffix])
 
     return {

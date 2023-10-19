@@ -44,6 +44,7 @@ import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import useBanks from "@lib/hooks/rest/useBanks";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -186,6 +187,13 @@ function PaymentDialog({...props}) {
 
     const {values, errors, touched, getFieldProps, setFieldValue, resetForm} = formik;
 
+    const {
+        data: httpPatientInsurancesResponse
+    } = useRequestQuery(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/insurances/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
+
     const {data: httpPatientWallet} = useRequestQuery(medicalEntityHasUser && appointment ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
@@ -245,7 +253,7 @@ function PaymentDialog({...props}) {
         return selectedPayment.total - paymentTotal
     }
 
-    const getHours = ()=>{
+    const getHours = () => {
         return `${new Date().getHours()}:${new Date().getMinutes()}`
     }
 
@@ -262,6 +270,8 @@ function PaymentDialog({...props}) {
             setWallet(w)
         }
     }, [httpPatientWallet]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const patientInsurances = ((httpPatientInsurancesResponse as HttpResponse)?.data ?? []) as PatientInsurancesModel[];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -314,8 +324,7 @@ function PaymentDialog({...props}) {
                             {wallet > 0 && <Button size='small' variant='contained' color="success"
                                                    {...(isMobile && {
                                                        fullWidth: true
-                                                   })}
-                            >
+                                                   })}>
                                 {t("wallet")}
                                 <Typography
                                     fontWeight={700}
@@ -326,8 +335,7 @@ function PaymentDialog({...props}) {
                             <Button size='small' variant='contained' color="primary"
                                     {...(isMobile && {
                                         fullWidth: true
-                                    })}
-                            >
+                                    })}>
                                 {t("insurance_total")}
                                 <Typography
                                     fontWeight={700}
@@ -358,8 +366,7 @@ function PaymentDialog({...props}) {
                                             ml: {xs: '0 !important', md: '8px !important'},
                                             mt: {xs: '8px !important', md: '0 !important',}
                                         }
-                                    })}
-                            >
+                                    })}>
                                 {t("total")}
                                 <Typography fontWeight={700} component='strong'
                                             mx={1}>{selectedPayment.total}</Typography>
@@ -407,8 +414,7 @@ function PaymentDialog({...props}) {
                             }
                         }
 
-                    })}
-                >
+                    })}>
                     {paymentTypesList && paymentTypesList.filter((pt: {
                         slug: string;
                     }) => !(!appointment && pt.slug === "check")).map((method: {
@@ -440,8 +446,7 @@ function PaymentDialog({...props}) {
                             />
                     )}
 
-                    {
-                        appointment && insurances && patient.insurances.map((insurance: any) =>
+                    {patientInsurances.map((insurance: any) =>
                             <FormControlLabel
                                 className={insurance.uuid === deals.selected ? "selected" : ''}
                                 onClick={() => {
@@ -530,7 +535,7 @@ function PaymentDialog({...props}) {
                                                                 const newPayment = [...payments, {
                                                                     amount: values.cash?.amount,
                                                                     designation: label,
-                                                                    payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                    payment_date: moment(new Date(), 'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
                                                                     payment_time: getHours(),
                                                                     status_transaction: TransactionStatus[1].value,
                                                                     type_transaction: TransactionType[2].value,
@@ -715,7 +720,7 @@ function PaymentDialog({...props}) {
                                                                 let updatedPays: any[] = [];
                                                                 values.check?.map((ck: any) => {
                                                                     updatedPays.push({
-                                                                        payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                        payment_date: moment(new Date(), 'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
                                                                         payment_time: getHours(),
                                                                         designation: label,
                                                                         status_transaction: TransactionStatus[1].value,
@@ -762,7 +767,7 @@ function PaymentDialog({...props}) {
                                                                 const newPayment = [...payments, {
                                                                     amount: Number(values.cash?.amount),
                                                                     designation: label,
-                                                                    payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                    payment_date: moment(new Date(), 'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
                                                                     payment_time: getHours(),
                                                                     status_transaction: TransactionStatus[1].value,
                                                                     type_transaction: TransactionType[4].value,
@@ -839,7 +844,7 @@ function PaymentDialog({...props}) {
                                                                 const newPayment = [...payments, {
                                                                     amount: Number(values.cash?.amount),
                                                                     designation: label,
-                                                                    payment_date: moment(new Date(),'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
+                                                                    payment_date: moment(new Date(), 'DD-MM-YYYY HH:mm').format('DD-MM-YYYY'),
                                                                     payment_time: getHours(),
                                                                     status_transaction: TransactionStatus[1].value,
                                                                     type_transaction: TransactionType[2].value,

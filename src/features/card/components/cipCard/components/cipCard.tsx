@@ -9,33 +9,18 @@ import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
+import {useTimer} from "@lib/hooks";
 
 function CipCard({...props}) {
     const {openPatientDialog} = props;
     const {data: session} = useSession();
     const router = useRouter();
+    const {timer} = useTimer();
 
-    const {startTime: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
+    const {event} = useAppSelector(timerSelector);
 
     const {data: user} = session as Session;
-    const roles = (user as UserDataResponse).general_information.roles as Array<string>
-    const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
-    const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
-
-    useEffect(() => {
-        let interval: any = null;
-
-        if (isActive && isPaused === false) {
-            interval = setInterval(() => {
-                setTime(time + 1);
-            }, 1000);
-        } else {
-            clearInterval(interval);
-        }
-        return () => {
-            clearInterval(interval);
-        };
-    }, [isActive, isPaused, time]);
+    const roles = (user as UserDataResponse).general_information.roles as Array<string>;
 
     const handleConsultation = () => {
         const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
@@ -61,7 +46,7 @@ function CipCard({...props}) {
                     </Typography>
                     <Box className={'timer-card'}>
                         <Typography color="common.white" variant='caption'>
-                            {moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss')}
+                            {timer}
                         </Typography>
                     </Box>
                     {(event?.extendedProps.type?.name || typeof event?.extendedProps.type === "string") &&

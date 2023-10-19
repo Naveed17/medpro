@@ -24,6 +24,7 @@
   "duplication": "Détection des doublons",
   "loading": "Veuillez patienter un instant le temps de chargement",
   "noOption": "Aucun résultat trouvé",
+  "doc_detail_title": "Document",
   "loading-error": {
     "title": "Actualiser la page !",
     "description": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",

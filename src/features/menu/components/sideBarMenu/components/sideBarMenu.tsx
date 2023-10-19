@@ -158,9 +158,7 @@ function SideBarMenu({children}: LayoutProps) {
 
                                             setCurrentIndex(i);
                                         }}>
-                                        
-                                            <Icon path={item.icon}/>
-                                        
+                                        <Icon path={item.icon}/>
                                     </ListItemIcon>
                                 </Badge>
                                 <ListItemTextStyled primary={t("main-menu." + item.name)}/>

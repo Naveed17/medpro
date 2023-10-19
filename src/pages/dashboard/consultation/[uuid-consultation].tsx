@@ -794,7 +794,7 @@ function ConsultationInProgress() {
 
                 triggerDrugsUpdate({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/documents/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
                     data: form
                 }, {
                     onSuccess: () => mutateDoc()
@@ -1015,7 +1015,7 @@ function ConsultationInProgress() {
             setNbDoc(nb);
             setChanges([...changes])
 
-            if (hasDataHistory === false){
+            if (hasDataHistory === false) {
                 setCards([[
                     {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"}
                 ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]])
@@ -1226,7 +1226,7 @@ function ConsultationInProgress() {
                                                                                         <Icon className={'card-header'}
                                                                                               path={item.icon}/>
                                                                                         <Typography
-                                                                                            className={'card-title'}>{item.content !== "widget" ?t(item.content):""}</Typography>
+                                                                                            className={'card-title'}>{item.content !== "widget" ? t(item.content) : ""}</Typography>
                                                                                     </MyHeaderCardStyled>}
                                                                                 <IconButton className={"btn-header"}>
                                                                                     {item.expanded ?
@@ -1256,7 +1256,7 @@ function ConsultationInProgress() {
 
                                                                                     />}
                                                                                 {item.content === 'history' && <div
-                                                                                   id={"histo"}
+                                                                                    id={"histo"}
                                                                                     style={{
                                                                                         padding: 10,
                                                                                         borderTop: "1px solid #DDD",
