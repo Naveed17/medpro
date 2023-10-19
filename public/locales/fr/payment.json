@@ -46,7 +46,7 @@
   "cashout": "Décaisser",
   "appointment_date": "Date du RDV",
   "remainder_to_pay": "Reste a payé",
-  "current_consultationPaiement": "Consultation actuelle",
+  "current_consultation": "Consultation actuelle",
   "consultation": "Consultation",
   "today": "Aujourd’hui",
   "amount_paid": "Montant a payé",
@@ -61,6 +61,7 @@
   "choose_a_payment_method": "Choisissez une méthode de paiement",
   "add_check": "Ajouter un Chéque",
   "check_title": "Informations de Chéque",
+  "method": "Méthode",
   "dialogs": {
     "delete-dialog": {
       "title": "Supprimer transaction",

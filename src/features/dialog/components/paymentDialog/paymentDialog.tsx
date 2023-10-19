@@ -1,387 +1,464 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react'
-import PaymentDialogStyled from './overrides/paymentDialogStyle';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import PaymentDialogStyled from "./overrides/paymentDialogStyle";
 import {
-    Autocomplete,
-    Avatar,
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Checkbox,
-    Collapse,
-    Divider,
-    FormControlLabel,
-    FormGroup,
-    Grid,
-    IconButton,
-    MenuItem,
-    Paper,
-    Stack,
-    TextField,
-    Theme,
-    Typography,
-    useMediaQuery,
-    useTheme,
-} from '@mui/material'
-import IconUrl from '@themes/urlIcon';
-import {AnimatePresence, motion} from 'framer-motion';
-import {useTranslation} from "next-i18next";
+  Autocomplete,
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Checkbox,
+  Collapse,
+  Divider,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  IconButton,
+  MenuItem,
+  Paper,
+  Stack,
+  TextField,
+  Theme,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import IconUrl from "@themes/urlIcon";
+import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "next-i18next";
 import dynamic from "next/dynamic";
-import {FormikProvider, useFormik} from "formik";
+import { FormikProvider, useFormik } from "formik";
 import * as Yup from "yup";
-import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
+import {
+  DefaultCountry,
+  TransactionStatus,
+  TransactionType,
+} from "@lib/constants";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
 import AddIcon from "@mui/icons-material/Add";
-import {MobileContainer} from "@themes/mobileContainer";
-import {PaymentDialogMobileCard} from "@features/card";
-import {Otable} from "@features/table";
-import {DesktopContainer} from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
+import { PaymentDialogMobileCard } from "@features/card";
+import { Otable } from "@features/table";
+import { DesktopContainer } from "@themes/desktopConainter";
 import moment from "moment-timezone";
-import {useAppSelector} from "@lib/redux/hooks";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import {DatePicker} from "@features/datepicker";
-import {useInsurances} from "@lib/hooks/rest";
-import {useRequestQuery} from "@lib/axios";
-import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
-import {dashLayoutSelector} from "@features/base";
-import {useRouter} from "next/router";
+import { useAppSelector } from "@lib/redux/hooks";
+import { cashBoxSelector } from "@features/leftActionBar/components/cashbox";
+import { DatePicker } from "@features/datepicker";
+import { useInsurances } from "@lib/hooks/rest";
+import { useRequestQuery } from "@lib/axios";
+import { filterReasonOptions, useMedicalEntitySuffix } from "@lib/hooks";
+import { dashLayoutSelector } from "@features/base";
+import { useRouter } from "next/router";
 import useBanks from "@lib/hooks/rest/useBanks";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import ConsultationCard from './consultationCard';
-import PaymentCard from './paymentCard';
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import ConsultationCard from "./consultationCard";
+import PaymentCard from "./paymentCard";
+const LoadingScreen = dynamic(
+  () => import("@features/loadingScreen/components/loadingScreen")
+);
 
 interface HeadCell {
-    disablePadding: boolean;
-    id: string;
-    label: string;
-    numeric: boolean;
-    sortable: boolean;
-    align: "left" | "right" | "center";
+  disablePadding: boolean;
+  id: string;
+  label: string;
+  numeric: boolean;
+  sortable: boolean;
+  align: "left" | "right" | "center";
 }
 
 const headCells: readonly HeadCell[] = [
-    {
-        id: "date",
-        numeric: false,
-        disablePadding: true,
-        label: "date",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "time",
-        numeric: false,
-        disablePadding: true,
-        label: "time",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "amount",
-        numeric: true,
-        disablePadding: false,
-        label: "amount",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "method",
-        numeric: true,
-        disablePadding: false,
-        label: "method",
-        sortable: true,
-        align: "right",
-    },
+  {
+    id: "date",
+    numeric: false,
+    disablePadding: true,
+    label: "date",
+    sortable: true,
+    align: "left",
+  },
+  {
+    id: "time",
+    numeric: false,
+    disablePadding: true,
+    label: "time",
+    sortable: true,
+    align: "left",
+  },
+  {
+    id: "amount",
+    numeric: true,
+    disablePadding: false,
+    label: "amount",
+    sortable: true,
+    align: "left",
+  },
+  {
+    id: "method",
+    numeric: true,
+    disablePadding: false,
+    label: "method",
+    sortable: true,
+    align: "right",
+  },
 ];
 
 interface TabPanelProps {
-    children?: React.ReactNode;
-    index: number;
+  children?: React.ReactNode;
+  index: number;
 }
 
 const variants = {
-    initial: {opacity: 0,},
-    animate: {
-        opacity: 1,
-        transition: {
-            delay: 0.1,
-        }
-    }
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: {
+      delay: 0.1,
+    },
+  },
 };
 
 function TabPanel(props: TabPanelProps) {
-    const {children, index, ...other} = props;
-    return (
-        <motion.div
-            key={index}
-            variants={variants}
-            initial="initial"
-            animate={"animate"}
-            id={`simple-tabpanel-${index}`}
-            aria-labelledby={`simple-tab-${index}`}
-            className="tab-panel"
-            {...other}
-        >
-            {children}
-        </motion.div>
-    );
+  const { children, index, ...other } = props;
+  return (
+    <motion.div
+      key={index}
+      variants={variants}
+      initial="initial"
+      animate={"animate"}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      className="tab-panel"
+      {...other}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
-function PaymentDialog({...props}) {
-    const {data} = props;
-    const theme = useTheme<Theme>();
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-    const {t, ready} = useTranslation("payment");
-    const {paymentTypesList} = useAppSelector(cashBoxSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+function PaymentDialog({ ...props }) {
+  const { data } = props;
+  const theme = useTheme<Theme>();
+  const { data: session } = useSession();
+  const ref = useRef(null);
+  const scrollToView = () => {
+    setTimeout(() => {
+      (ref.current as unknown as HTMLElement)?.scrollIntoView({
+        behavior: "smooth",
+      });
+    }, 300);
+  };
 
-    const {insurances} = useInsurances();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const router = useRouter();
+  const { data: user } = session as Session;
+  const { t, ready } = useTranslation("payment");
+  const { paymentTypesList } = useAppSelector(cashBoxSelector);
+  const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
 
-    const {appointment, selectedPayment, setSelectedPayment, patient} = data;
-    const {banks} = useBanks();
+  const { insurances } = useInsurances();
+  const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+  const router = useRouter();
 
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
+  const { appointment, selectedPayment, setSelectedPayment, patient } = data;
+  const { banks } = useBanks();
 
-    const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
-    const [label, setLabel] = useState('');
-    const [byRate, setByRate] = useState(false);
-    const [wallet, setWallet] = useState(0);
-    const [deals, setDeals] = React.useState<any>({
-        cash: {
-            amount: selectedPayment.total > 0 && payments.length === 0 ? selectedPayment.total - selectedPayment.payed_amount : ""
+  const isMobile = useMediaQuery((theme: Theme) =>
+    theme.breakpoints.down("sm")
+  );
+
+  const [payments, setPayments] = useState<any>([...selectedPayment.payments]);
+  const [label, setLabel] = useState("");
+  const [byRate, setByRate] = useState(false);
+  const [wallet, setWallet] = useState(0);
+  const [deals, setDeals] = React.useState<any>({
+    cash: {
+      amount:
+        selectedPayment.total > 0 && payments.length === 0
+          ? selectedPayment.total - selectedPayment.payed_amount
+          : 0,
+    },
+    card: {
+      amount:
+        selectedPayment.total > 0 && payments.length === 0
+          ? selectedPayment.total - selectedPayment.payed_amount
+          : 0,
+    },
+    check: [
+      {
+        amount:
+          selectedPayment.total > 0 && payments.length === 0
+            ? selectedPayment.total - selectedPayment.payed_amount
+            : 0,
+        carrier: patient ? `${patient.firstName} ${patient.lastName}` : "",
+        bank: "",
+        check_number: "",
+        payment_date: new Date(),
+        expiry_date: new Date(),
+      },
+    ],
+    selected:
+      paymentTypesList && paymentTypesList.length > 0
+        ? paymentTypesList[0].slug
+        : null,
+  });
+
+  const medical_entity = (user as UserDataResponse)
+    .medical_entity as MedicalEntityModel;
+  const doctor_country = medical_entity.country
+    ? medical_entity.country
+    : DefaultCountry;
+  const devise = doctor_country.currency?.name;
+  const maxLength =
+    patient && patient.insurances
+      ? patient.insurances.length + paymentTypesList.length
+      : 1;
+
+  const validationSchema = Yup.object().shape({
+    totalToPay: Yup.number(),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      ...deals,
+      totalToPay: selectedPayment.total - selectedPayment.payed_amount,
+      paymentMethods: [
+        {
+          selected:
+            paymentTypesList && paymentTypesList.length > 0
+              ? paymentTypesList[0].slug
+              : null,
+          ...deals,
+          ...(wallet > 0 && {
+            wallet,
+          }),
         },
-        card: {
-            amount: selectedPayment.total > 0 && payments.length === 0 ? selectedPayment.total - selectedPayment.payed_amount : ""
-        },
-        check: [{
-            amount: selectedPayment.total > 0 && payments.length === 0 ? selectedPayment.total - selectedPayment.payed_amount : "",
-            carrier: patient ? `${patient.firstName} ${patient.lastName}` : "",
-            bank: "",
-            check_number: '',
-            payment_date: new Date(),
-            expiry_date: new Date(),
-        }],
-        selected: paymentTypesList && paymentTypesList.length > 0 ? paymentTypesList[0].slug : null
-    });
+      ],
+    },
+    validationSchema,
+    onSubmit: (values) => {
+      console.log(values);
+    },
+  });
 
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const devise = doctor_country.currency?.name;
-    const maxLength = patient && patient.insurances ? patient.insurances.length + paymentTypesList.length : 1;
+  const { values, errors, touched, getFieldProps, setFieldValue, resetForm } =
+    formik;
 
-    const validationSchema = Yup.object().shape({
-        totalToPay: Yup.number()
-    });
-
-    const formik = useFormik({
-        initialValues: {
-            ...deals,
-            totalToPay: selectedPayment.total - selectedPayment.payed_amount,
-            paymentMethods:[
-                {
-                selected:paymentTypesList && paymentTypesList.length > 0 ? paymentTypesList[0].uuid : null,
-                ...deals,
-                },
-                
-        ]
-        },
-        validationSchema,
-        onSubmit: values => {
-            console.log(values);
-        },
-    });
-
-    const {values, errors, touched, getFieldProps, setFieldValue, resetForm} = formik;
-
-    const {data: httpPatientWallet} = useRequestQuery(medicalEntityHasUser && appointment ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
-    } : null);
-
-    const handleAddStep = () => {
-        const step = [...values.check, {
-            amount: "",
-            carrier: "",
-            bank: "",
-            check_number: '',
-            payment_date: new Date(),
-            expiry_date: new Date(),
-        }];
-        setFieldValue("check", step);
-    }
-
-    const handleDeleteStep = (props: any) => {
-        const filter = values.check.filter((item: any) => item !== props)
-        setFieldValue("check", filter);
-    }
-
-    const calculInsurance = () => {
-        let total = 0
-        payments.map((pay: { insurance: string; amount: number; }) => {
-            if (pay.insurance) total += pay.amount
-        })
-        return total
-    }
-
-    const checkCheques = () => {
-        if (selectedPayment.uuid !== "") {
-            let total = 0;
-            let hasEmpty = false;
-            values.check.map((check: { amount: number }) => {
-                if (check.amount.toString() === "")
-                    hasEmpty = true;
-                else total += check.amount;
-            });
-            return hasEmpty ? hasEmpty : total > calculRest();
-        } else {
-            let hasEmpty = false;
-            let total = 0;
-            values.check.map((check: { amount: number }) => {
-                if (check.amount.toString() === "")
-                    hasEmpty = true;
-                else total += check.amount;
-            });
-            return hasEmpty
+  const { data: httpPatientWallet } = useRequestQuery(
+    medicalEntityHasUser && appointment
+      ? {
+          method: "GET",
+          url: `${urlMedicalEntitySuffix}/mehu/${
+            (medicalEntityHasUser[0] as any)?.slug
+          }/patients/${patient?.uuid}/wallet/${router.locale}`,
         }
+      : null
+  );
 
+  const handleAddStep = () => {
+    const step = [
+      ...values.check,
+      {
+        amount: "",
+        carrier: "",
+        bank: "",
+        check_number: "",
+        payment_date: new Date(),
+        expiry_date: new Date(),
+      },
+    ];
+    setFieldValue("check", step);
+  };
+
+  const handleDeleteStep = (props: any) => {
+    const filter = values.check.filter((item: any) => item !== props);
+    setFieldValue("check", filter);
+  };
+
+  const calculInsurance = () => {
+    let total = 0;
+    payments.map((pay: { insurance: string; amount: number }) => {
+      if (pay.insurance) total += pay.amount;
+    });
+    return total;
+  };
+
+  const checkCheques = () => {
+    if (selectedPayment.uuid !== "") {
+      let total = 0;
+      let hasEmpty = false;
+      values.check.map((check: { amount: number }) => {
+        if (check.amount.toString() === "") hasEmpty = true;
+        else total += check.amount;
+      });
+      return hasEmpty ? hasEmpty : total > calculRest();
+    } else {
+      let hasEmpty = false;
+      let total = 0;
+      values.check.map((check: { amount: number }) => {
+        if (check.amount.toString() === "") hasEmpty = true;
+        else total += check.amount;
+      });
+      return hasEmpty;
     }
+  };
 
-    const calculRest = () => {
-        let paymentTotal = 0
-        selectedPayment.payments.map((pay: { amount: number; }) => paymentTotal += pay.amount)
-        return selectedPayment.total - paymentTotal
+  const calculRest = () => {
+    let paymentTotal = 0;
+    selectedPayment.payments.map(
+      (pay: { amount: number }) => (paymentTotal += pay.amount)
+    );
+    return selectedPayment.total - paymentTotal;
+  };
+
+  const getHours = () => {
+    return `${new Date().getHours()}:${new Date().getMinutes()}`;
+  };
+  useEffect(() => {
+    setSelectedPayment({
+      ...selectedPayment,
+      payments,
+    });
+  }, [payments]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (httpPatientWallet) {
+      const w = (httpPatientWallet as HttpResponse).data.wallet;
+      setWallet(w);
     }
+  }, [httpPatientWallet]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const getHours = ()=>{
-        return `${new Date().getHours()}:${new Date().getMinutes()}`
-    }
-    useEffect(() => {
-        setSelectedPayment({
-            ...selectedPayment,
-            payments
-        });
-    }, [payments]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!ready) return <LoadingScreen button text={"loading-error"} />;
 
-    useEffect(() => {
-        if (httpPatientWallet) {
-            const w = (httpPatientWallet as HttpResponse).data.wallet
-            setWallet(w)
-        }
-    }, [httpPatientWallet]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <FormikProvider value={formik}>
+      <PaymentDialogStyled>
+        {patient && (
+          <Stack
+            spacing={2}
+            direction={{ xs: patient ? "column" : "row", sm: "row" }}
+            alignItems="center"
+            justifyContent={patient ? "space-between" : "flex-end"}
+            mb={2}
+          >
+            <Stack spacing={2} direction="row" alignItems="center">
+              <Avatar
+                sx={{ width: 42, height: 42 }}
+                src={`/static/icons/${
+                  patient?.gender !== "O" ? "men" : "women"
+                }-avatar.svg`}
+              />
+              <Stack>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Typography fontWeight={700}>
+                    {patient.firstName} {patient.lastName}
+                  </Typography>
+                </Stack>
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+                {patient.contact.length && (
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <IconUrl path="ic-tel" color={theme.palette.text.primary} />
+                    <Typography variant="body2" alignItems="center">
+                      {patient.contact[0]}
+                    </Typography>
+                  </Stack>
+                )}
+              </Stack>
+            </Stack>
 
-    return (
-        <FormikProvider value={formik}>
-            <PaymentDialogStyled>
-                {patient &&
-                    <Stack spacing={2}
-                           direction={{xs: patient ? 'column' : 'row', sm: 'row'}}
-                           alignItems='center'
-                           justifyContent={patient ? 'space-between' : 'flex-end'}>
-                        <Stack spacing={2} direction="row" alignItems='center'>
-                            <Avatar sx={{width: 42, height: 42}}
-                                     src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}
-                                     />
-                            <Stack>
-                                <Stack direction="row" spacing={0.5} alignItems="center">
-                                    <Typography fontWeight={700}>
-                                        {patient.firstName} {patient.lastName}
-                                    </Typography>
-                                </Stack>
+            {appointment && (
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                alignItems="center"
+                justifyContent={{ xs: "center", sm: "flex-start" }}
+                sx={{
+                  "& .MuiButtonBase-root": {
+                    fontSize: 13,
+                  },
+                }}
+                {...(wallet > 0 && {
+                  sx: {
+                    flexWrap: "wrap",
+                  },
+                })}
+                spacing={1}
+              >
+                {wallet > 0 && (
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="success"
+                    {...(isMobile && {
+                      fullWidth: true,
+                    })}
+                  >
+                    {t("wallet")}
+                    <Typography fontWeight={700} component="strong" mx={1}>
+                      {wallet}
+                    </Typography>
+                    {devise}
+                  </Button>
+                )}
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="primary"
+                  {...(isMobile && {
+                    fullWidth: true,
+                  })}
+                >
+                  {t("insurance_total")}
+                  <Typography fontWeight={700} component="strong" mx={1}>
+                    {calculInsurance().toFixed(3)}
+                  </Typography>
+                  {devise}
+                </Button>
 
-                                {patient.contact.length &&
-                                    <Stack direction="row" spacing={0.5} alignItems="center">
-                                        <IconUrl path="ic-tel" color={theme.palette.text.primary}/>
-                                        <Typography variant='body2' alignItems='center'>
-                                            {patient.contact[0]}
-                                        </Typography>
-                                    </Stack>}
-                            </Stack>
-                        </Stack>
+                <Button
+                  size="small"
+                  variant="contained"
+                  color={calculRest() === 0 ? "success" : "error"}
+                  {...(isMobile && {
+                    fullWidth: true,
+                  })}
+                >
+                  {t("btn_remain")}
+                  <Typography fontWeight={700} component="strong" mx={1}>
+                    {calculRest().toFixed(3)}
+                  </Typography>
+                  {devise}
+                </Button>
 
-                        {appointment && <Stack
+                <Button
+                  size="small"
+                  variant="contained"
+                  color={calculRest() === 0 ? "success" : "warning"}
+                  {...(isMobile && {
+                    fullWidth: true,
+                  })}
+                  {...(wallet > 0 && {
+                    sx: {
+                      flexWrap: "wrap",
+                      ml: { xs: "0 !important", md: "8px !important" },
+                      mt: { xs: "8px !important", md: "0 !important" },
+                    },
+                  })}
+                >
+                  {t("total")}
+                  <Typography fontWeight={700} component="strong" mx={1}>
+                    {selectedPayment.total}
+                  </Typography>
+                  {devise}
+                </Button>
+              </Stack>
+            )}
+          </Stack>
+        )}
 
-                            direction={{xs: 'column', sm: 'row'}}
-                            alignItems="center"
-                            justifyContent={{xs: 'center', sm: 'flex-start'}}
-                            sx={{
-                                "& .MuiButtonBase-root": {
-                                    fontSize: 13
-                                }
-                            }}
-                            {...(wallet > 0 && {
-                                sx: {
-                                    flexWrap: 'wrap',
-
-                                }
-                            })}
-                            spacing={1}>
-
-                            {wallet > 0 && <Button size='small' variant='contained' color="success"
-                                                   {...(isMobile && {
-                                                       fullWidth: true
-                                                   })}
-                            >
-                                {t("wallet")}
-                                <Typography
-                                    fontWeight={700}
-                                    component='strong'
-                                    mx={1}>{wallet}</Typography>
-                                {devise}
-                            </Button>}
-                            <Button size='small' variant='contained' color="primary"
-                                    {...(isMobile && {
-                                        fullWidth: true
-                                    })}
-                            >
-                                {t("insurance_total")}
-                                <Typography
-                                    fontWeight={700}
-                                    component='strong'
-                                    mx={1}>{(calculInsurance()).toFixed(3)}</Typography>
-                                {devise}
-                            </Button>
-
-                            <Button size='small' variant='contained' color={calculRest() === 0 ? "success" : "error"}
-                                    {...(isMobile && {
-                                        fullWidth: true
-                                    })}>
-                                {t("btn_remain")}
-                                <Typography
-                                    fontWeight={700}
-                                    component='strong'
-                                    mx={1}>{(calculRest()).toFixed(3)}</Typography>
-                                {devise}
-                            </Button>
-
-                            <Button size='small' variant='contained' color={calculRest() === 0 ? "success" : "warning"}
-                                    {...(isMobile && {
-                                        fullWidth: true
-                                    })}
-                                    {...(wallet > 0 && {
-                                        sx: {
-                                            flexWrap: 'wrap',
-                                            ml: {xs: '0 !important', md: '8px !important'},
-                                            mt: {xs: '8px !important', md: '0 !important',}
-                                        }
-                                    })}
-                            >
-                                {t("total")}
-                                <Typography fontWeight={700} component='strong'
-                                            mx={1}>{selectedPayment.total}</Typography>
-                                {devise}
-                            </Button>
-                        </Stack>}
-                    </Stack>
-                    }
-
-                {/* {!patient && <Box>
+        {/* {!patient && <Box>
                     <Typography style={{color: "gray"}} fontSize={12} mb={1}>{t('description')}</Typography>
                     <TextField
                         value={label}
@@ -392,7 +469,7 @@ function PaymentDialog({...props}) {
                     <Typography style={{color: "gray"}} fontSize={12} mb={0} mt={3}>{t('paymentMean')}</Typography>
                 </Box>} */}
 
-                {/* <FormGroup
+        {/* <FormGroup
                     row
                     {...(deals.selected && {
                         sx: {
@@ -508,7 +585,7 @@ function PaymentDialog({...props}) {
                         }
                     />}
                 </FormGroup> */}
-                {/* <Grid container alignItems="center" spacing={1}>
+        {/* <Grid container alignItems="center" spacing={1}>
                     <Grid item xs={12} lg={payments.length > 0 ? 7 : 12}>
                         <AnimatePresence>
                             {(() => {
@@ -927,57 +1004,130 @@ function PaymentDialog({...props}) {
                     }
                 </Grid> */}
 
-                <Grid container spacing={6} mt={2.5}>
-                    <Grid item xs={12} md={6}>
-                        <Typography fontWeight={600} mb={1}>{t("current_consultation")}</Typography>
-                        <Stack spacing={1}>
-                            <ConsultationCard {...{t,devise}}/>
-                        </Stack>
-                        <Typography my={1} fontWeight={700}>{t("other_consultation")}</Typography>
-                        <Stack spacing={1} borderRadius={.5} maxHeight={244} p={1} sx={{overflowY:'auto',bgcolor:theme.palette.back.main}}>
-                                 
-                                 <ConsultationCard {...{t,devise}}/>
-                                
-                        </Stack>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Stack spacing={2} height={1} position={'relative'}>
-                            <Divider orientation='vertical'sx={{position:'absolute' ,height:'100%',left:-20}}/>
-                            <Stack direction="row" alignItems="center" justifyContent='space-between'>
-                             <Typography fontWeight={600} mb={1}>{t("payment")}</Typography>
-                             <Button 
-                              onClick={()=>formik.setFieldValue("paymentMethods",[...values.paymentMethods,{
-                                selected:paymentTypesList[0].uuid,
-                                amount:0,
-                                check:[{
-                                amount: "",
-                                carrier: "",
-                                bank: "",
-                                check_number: '',
-                                payment_date: new Date(),
-                                expiry_date: new Date(),
-                                }]
-                              }])}
-                             startIcon={<AddIcon/>} size="small">{t("add_payment")}</Button>
-                            </Stack>
-                            <AnimatePresence>
-                            {values.paymentMethods.map((item:any,i:any) => (
-                                <motion.div key={i} 
-                                    initial={{opacity:0}}
-                                    animate={{opacity:1}}
-                                    exit={{opacity:0}}
-                                    transition={{duration:0.3}}
-                                >
-                                    <PaymentCard {...{t,devise,paymentTypesList,item,i,formik}}/>
-                                </motion.div>
-                            ))}
-                            </AnimatePresence>
-                        </Stack>
-                    </Grid>
-                </Grid>
-            </PaymentDialogStyled>
-        </FormikProvider>
-    )
+        <Grid container spacing={6}>
+          <Grid item xs={12} md={6}>
+            <Typography fontWeight={600} mb={1}>
+              {t("current_consultation")}
+            </Typography>
+            <Stack spacing={1}>
+              <ConsultationCard {...{ t, devise }} />
+            </Stack>
+            <Typography my={1} fontWeight={700}>
+              {t("other_consultation")}
+            </Typography>
+            <Stack
+              spacing={1}
+              borderRadius={0.5}
+              maxHeight={244}
+              p={1}
+              sx={{ overflowY: "auto", bgcolor: theme.palette.back.main }}
+            >
+              <ConsultationCard {...{ t, devise }} />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Stack spacing={2} height={1} position={"relative"}>
+              <Divider
+                orientation="vertical"
+                sx={{ position: "absolute", height: "100%", left: -20 }}
+              />
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography fontWeight={600} mb={1}>
+                  {t("payment")}
+                </Typography>
+                <Button
+                  onClick={() => {
+                    setFieldValue("paymentMethods", [
+                      ...values.paymentMethods,
+                      {
+                        selected: paymentTypesList[0].slug,
+                        cash: {
+                          amount: 0,
+                        },
+                        check: [
+                          {
+                            amount: "",
+                            carrier: "",
+                            bank: "",
+                            check_number: "",
+                            payment_date: new Date(),
+                            expiry_date: new Date(),
+                          },
+                        ],
+                      },
+                    ]);
+                    scrollToView();
+                  }}
+                  startIcon={<AddIcon />}
+                  size="small"
+                >
+                  {t("add_payment")}
+                </Button>
+              </Stack>
+              <table className="method-table">
+                <thead>
+                  <tr>
+                    <th align="left">{t("table.date")}</th>
+                    <th align="center">{t("method")}</th>
+                    <th align="right">{t("amount")} (DT)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {values.paymentMethods.map((method: any, idx: any) => (
+                    <tr key={idx}>
+                      <td align="left">
+                        {moment(new Date(), "DD-MM-YYYY HH:mm").format(
+                          "DD-MM-YYYY"
+                        )}
+                      </td>
+                      <td align="center">{t(method.selected)}</td>
+                      <td align="right">
+                        {method.selected === "cash"
+                          ? method.cash.amount
+                          : method.selected === "check"
+                          ? 0
+                          : method.wallet}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <Stack maxHeight={300} overflow="auto" spacing={2}>
+                <AnimatePresence>
+                  {values.paymentMethods.map((item: any, i: any) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <PaymentCard
+                        {...{
+                          t,
+                          devise,
+                          paymentTypesList,
+                          item,
+                          i,
+                          formik,
+                          wallet,
+                        }}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+                <Box ref={ref} />
+              </Stack>
+            </Stack>
+          </Grid>
+        </Grid>
+      </PaymentDialogStyled>
+    </FormikProvider>
+  );
 }
 
-export default PaymentDialog
+export default PaymentDialog;
