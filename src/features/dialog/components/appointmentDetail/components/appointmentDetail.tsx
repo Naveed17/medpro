@@ -15,7 +15,7 @@ import {
     Stack,
     Toolbar,
     Typography,
-    useTheme,
+    useTheme, useMediaQuery,
 } from "@mui/material";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
@@ -33,13 +33,19 @@ import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {getBirthdayFormat} from "@lib/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {useProfilePhoto} from "@lib/hooks/rest";
+import {Label} from "@features/label";
+import {DefaultCountry, MobileContainer} from "@lib/constants";
 
 function AppointmentDetail({...props}) {
     const {
+        isBeta,
         OnConsultation,
         OnConsultationView,
         OnEditDetail,
@@ -60,8 +66,13 @@ function AppointmentDetail({...props}) {
     const rootRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const {data: session} = useSession();
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
     const {t, ready} = useTranslation(["common", "agenda"]);
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
@@ -155,9 +166,10 @@ function AppointmentDetail({...props}) {
                             <Stack
                                 spacing={2}
                                 direction="row"
+                                sx={{width: "100%"}}
                                 justifyContent="space-between"
                                 alignItems="flex-start">
-                                <Stack spacing={2} direction="row" alignItems="flex-start">
+                                <Stack sx={{width: "100%"}} spacing={2} direction="row" alignItems="flex-start">
                                     <Box position="relative">
                                         <Avatar
                                             src={
@@ -190,13 +202,32 @@ function AppointmentDetail({...props}) {
                                             <IconUrl path="ic-camera"/>
                                         </IconButton>*/}
                                     </Box>
-                                    <Stack>
+                                    <Stack sx={{width: "100%"}}>
                                         <Typography
                                             className={"user-name"}
                                             variant="subtitle1"
                                             color="primary"
                                             fontWeight={700}>
-                                            {appointment?.title}
+                                            <Stack direction={"row"} justifyContent={"space-between"}>
+                                                <span>{appointment?.title}</span>
+                                                {(isBeta && (appointment?.extendedProps?.restAmount > 0 || appointment?.extendedProps?.restAmount < 0)) &&
+                                                    <Label
+                                                        variant='filled'
+                                                        sx={{
+                                                            "& .MuiSvgIcon-root": {
+                                                                width: 16,
+                                                                height: 16,
+                                                                pl: 0
+                                                            }
+                                                        }}
+                                                        color={appointment?.extendedProps.restAmount > 0 ? "expire" : "success"}>
+                                                        <Typography
+                                                            sx={{
+                                                                fontSize: 10,
+                                                            }}>
+                                                            {t(appointment?.extendedProps.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${appointment?.extendedProps.restAmount > 0 ? '-' : '+'} ${Math.abs(appointment?.extendedProps.restAmount)}`} {devise}</Typography>
+                                                    </Label>}
+                                            </Stack>
                                         </Typography>
                                         <List sx={{py: 1, pt: 0}}>
                                             {appointment?.extendedProps.patient?.birthdate && (
@@ -259,7 +290,8 @@ function AppointmentDetail({...props}) {
                                     </Stack>
                                 </Stack>
                                 {(canManageActions && OnEditDetail) &&
-                                    <IconButton size="small" onClick={() => OnEditDetail(appointment)}>
+                                    <IconButton className={"edit-button"} size="small"
+                                                onClick={() => OnEditDetail(appointment)}>
                                         <IconUrl path="ic-duotone"/>
                                     </IconButton>}
                             </Stack>
@@ -325,7 +357,7 @@ function AppointmentDetail({...props}) {
                 {(canManageActions && (OnConfirmAppointment || OnWaiting || OnLeaveWaiting || OnPatientNoShow || SetCancelDialog)) && (
                     <CardActions sx={{pb: 4}}>
                         <Stack spacing={1} width={1}>
-                            {appointment?.extendedProps.patient.contact?.length > 0 && <LoadingButton
+                            {isMobile && appointment?.extendedProps.patient.contact?.length > 0 && <LoadingButton
                                 href={`tel:${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
                                 variant="contained"
                                 startIcon={<IconUrl path="ic-tel" className="ic-tel"/>}
@@ -444,9 +476,7 @@ function AppointmentDetail({...props}) {
                                 color="error"
                                 sx={{
                                     display:
-                                        appointment?.extendedProps.status.key === "CANCELED" ||
-                                        appointment?.extendedProps.status.key === "FINISHED" ||
-                                        appointment?.extendedProps.status.key === "ON_GOING"
+                                        ["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(appointment?.extendedProps.status.key)
                                             ? "none"
                                             : "flex",
                                     "& svg": {
@@ -458,7 +488,7 @@ function AppointmentDetail({...props}) {
                                     <IconUrl
                                         path="icdelete"
                                         color={
-                                            appointment?.extendedProps.status.key === "CANCELED"
+                                            ["CANCELED", "PATIENT_CANCELED"].includes(appointment?.extendedProps.status.key)
                                                 ? "white"
                                                 : theme.palette.error.main
                                         }

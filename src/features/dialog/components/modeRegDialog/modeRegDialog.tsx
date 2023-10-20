@@ -1,45 +1,33 @@
 import {CheckList} from "@features/checkList";
-import {useTranslation} from "next-i18next";
-import {useRequest} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {useRequestQuery} from "@lib/axios";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
 
-function ModeRegDialog(info:any) {
-
-    const { data: session, status } = useSession();
+function ModeRegDialog(info: any) {
     const [items, setItems] = useState<InsuranceModel[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const headers = {
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json',
-    }
     const router = useRouter();
 
-    const { data, error } = useRequest({
+    const {data} = useRequestQuery({
         method: "GET",
-        url: "/api/public/payment-means/"+router.locale,
-        headers
+        url: `/api/public/payment-means/${router.locale}`
     });
 
     useEffect(() => {
-        if (data !== undefined){
+        if (data !== undefined) {
             setItems((data as any).data);
             setLoading(false);
         }
-    },[data])
-
-    const { t, ready } = useTranslation("settings");
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    }, [data])
 
     return (
         <CheckList items={items}
                    data={info}
                    loading={loading}
                    action={'mode'}
-                   search={''} />
+                   search={''}/>
     )
 }
+
 export default ModeRegDialog

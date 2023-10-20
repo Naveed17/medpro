@@ -16,16 +16,17 @@ import {styled} from "@mui/material/styles";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
-import dynamic from "next/dynamic";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
-import {LoadingScreen} from "@features/loadingScreen";
-import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {useInvalidateQueries, useMedicalProfessionalSuffix} from "@lib/hooks";
 import ReactDOM from "react-dom/client";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {SearchInput} from "@features/input";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const FormBuilder: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -75,11 +76,11 @@ const PaperStyled = styled(Form)(({theme}) => ({
 }));
 
 function PfTemplateDetail({...props}) {
-    const {data, closeDraw, action, mutate, refresh} = props
-    const {data: session} = useSession();
+    const {data, closeDraw, action, mutate} = props
     const router = useRouter();
-
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+
     const {t, ready} = useTranslation("settings", {keyPrefix: "templates.config.dialog"});
 
     const colors = [
@@ -100,13 +101,12 @@ function PfTemplateDetail({...props}) {
     const [components, setComponents] = useState<any[]>([]);
     const initalData = Array.from(new Array(4));
 
-    const {trigger: triggerModalRequest} = useRequestMutation(null, "/settings/pfTemplateDetails");
+    const {trigger: triggerModalRequest} = useRequestQueryMutation("/settings/pfTemplateDetails");
 
-    const {data: jsonWidgetsResponse} = useRequest({
+    const {data: jsonWidgetsResponse} = useRequestQuery({
         method: "GET",
-        url: `/api/private/json-widgets/specialities/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    }, SWRNoValidateConfig);
+        url: `/api/private/json-widgets/specialities/${router.locale}`
+    }, ReactQueryNoValidateConfig);
 
     const widgets = (jsonWidgetsResponse as HttpResponse)?.data;
 
@@ -178,13 +178,14 @@ function PfTemplateDetail({...props}) {
             triggerModalRequest({
                 method: editAction ? "PUT" : "POST",
                 url: `${urlMedicalProfessionalSuffix}/modals${editAction ? `/${data.uuid}` : ""}/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }).then(() => {
-                refresh(`${urlMedicalProfessionalSuffix}/modals/${router.locale}`);
-                mutate();
-                closeDraw();
-                setLoading(false);
+                data: form
+            }, {
+                onSuccess: () => {
+                    invalidateQueries([`${urlMedicalProfessionalSuffix}/modals/${router.locale}`]);
+                    mutate();
+                    closeDraw();
+                    setLoading(false);
+                }
             });
         },
     });

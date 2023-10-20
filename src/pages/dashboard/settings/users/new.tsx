@@ -26,11 +26,14 @@ import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {DashLayout} from "@features/base";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {addUser, tableActionSelector} from "@features/table";
+import {addUser} from "@features/table";
 import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
-import {LoadingScreen} from "@features/loadingScreen";
-import {useRequestMutation, useRequest} from "@lib/axios";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DatePicker} from "@features/datepicker";
@@ -54,54 +57,37 @@ function NewUser() {
     const phoneInputRef = useRef(null);
     const {enqueueSnackbar} = useSnackbar()
     const dispatch = useAppDispatch();
-    const {tableState} = useAppSelector(tableActionSelector);
-    const [loading, setLoading] = useState(false);
-    const {agendas} = useAppSelector(agendaSelector);
-    const [profiles, setProfiles] = useState<any[]>([]);
     const {data: session} = useSession();
-    const {data: userSession} = session as Session;
-    const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
-    const [agendaRoles] = useState(agendas);
-    const [user] = useState(tableState.editUser);
-    const {data: userData} = session as Session;
-    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
-    const {trigger} = useRequestMutation(null, "/users");
+
+    const {t, ready} = useTranslation("settings");
+    const {agendas} = useAppSelector(agendaSelector);
+
+    const [loading, setLoading] = useState(false);
+    const [profiles, setProfiles] = useState<any[]>([]);
+    const [agendaRoles] = useState([]);
     const [roles, setRoles] = useState([
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
     ]);
-    const {data: httpProfilesResponse,} = useRequest({
+
+    const {data: userSession} = session as Session;
+    const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+
+    const {trigger: triggerUserAdd} = useRequestQueryMutation("/users/add");
+    const {data: httpProfilesResponse} = useRequestQuery({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/profile`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/medical-entity/${medical_entity.uuid}/profile`
     });
-    useEffect(() => {
-        if (httpProfilesResponse) {
-            setProfiles((httpProfilesResponse as HttpResponse)?.data)
-        }
-    }, [httpProfilesResponse])
-    const {t, ready} = useTranslation("settings");
 
     const validationSchema = Yup.object().shape({
-        name: Yup.string()
-            .min(3, t("users.ntc"))
-            .max(50, t("users.ntl"))
-            .required(t("users.nameReq")),
-        email: Yup.string()
-            .email(t("users.mailInvalid"))
-            .required(t("users.mailReq")),
-        consultation_fees: Yup.string()
-            .required(),
-        birthdate: Yup.string()
-            .required(),
-        firstname: Yup.string()
-            .required(),
-        lastname: Yup.string()
-            .required(),
-        password: Yup.string()
-            .required(),
+        name: Yup.string().min(3, t("users.ntc")).max(50, t("users.ntl")).required(t("users.nameReq")),
+        email: Yup.string().email(t("users.mailInvalid")).required(t("users.mailReq")),
+        consultation_fees: Yup.string().required(),
+        birthdate: Yup.string().required(),
+        firstname: Yup.string().required(),
+        lastname: Yup.string().required(),
+        password: Yup.string().required(),
         phones: Yup.array().of(
             Yup.object().shape({
                 dial: Yup.object().shape({
@@ -122,8 +108,7 @@ function NewUser() {
         ),
         confirmPassword: Yup.string().when('password', (password, field) =>
             password ? field.required().oneOf([Yup.ref('password')]) : field),
-        profile: Yup.string()
-            .required(),
+        profile: Yup.string().required(),
     });
 
     const formik = useFormik({
@@ -175,23 +160,27 @@ function NewUser() {
             }))));
             form.append('password', values.password);
             form.append('profile', values.profile);
-            trigger({
+            triggerUserAdd({
                 method: "POST",
                 url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }).then(() => {
-                enqueueSnackbar(t("users.alert.success"), {variant: "success"});
-                setLoading(false)
-                dispatch(addUser({...values}));
-                router.push("/dashboard/settings/users");
-            }).catch(() => {
-                setLoading(false);
-                enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
-            })
+                data: form
+            }, {
+                onSuccess: () => {
+                    enqueueSnackbar(t("users.alert.success"), {variant: "success"});
+                    setLoading(false)
+                    dispatch(addUser({...values}));
+                    router.push("/dashboard/settings/users");
+                }
+            });
 
         },
     });
+
+    useEffect(() => {
+        if (httpProfilesResponse) {
+            setProfiles((httpProfilesResponse as HttpResponse)?.data)
+        }
+    }, [httpProfilesResponse])
 
     const {
         values,
@@ -201,7 +190,7 @@ function NewUser() {
         getFieldProps,
         setFieldValue,
     } = formik;
-    if (!ready) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

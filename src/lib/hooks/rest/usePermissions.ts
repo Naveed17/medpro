@@ -1,32 +1,17 @@
-import {useRequest} from "@lib/axios";
-import {useSession} from "next-auth/react";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {useEffect, useState} from "react";
+import {useRequestQuery} from "@lib/axios";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function usePermissions() {
-    const {data: session} = useSession();
-
-    const [permissions, setPermissions] = useState<any>(null);
-
-    const {data: httpPermissionsResponse} = useRequest({
+    const {data: httpPermissionsResponse} = useRequestQuery({
         method: "GET",
-        url: "/api/medical-entity/permissions",
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    }, SWRNoValidateConfig);
+        url: "/api/medical-entity/permissions"
+    }, ReactQueryNoValidateConfig);
 
     const hasPermission = (permissionName: PermissionName) => {
-        return !!permissions[permissionName];
+        return !!((httpPermissionsResponse as HttpResponse)?.data ?? [])[permissionName];
     }
 
-    useEffect(() => {
-        if (httpPermissionsResponse) {
-            setPermissions((httpPermissionsResponse as HttpResponse)?.data as PermissionModel[]);
-        }
-    }, [httpPermissionsResponse])
-
-    return {permissions, hasPermission};
+    return {permissions: (httpPermissionsResponse as HttpResponse)?.data ?? [], hasPermission};
 }
 
 export default usePermissions;

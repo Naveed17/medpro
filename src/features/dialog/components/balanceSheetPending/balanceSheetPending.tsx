@@ -1,26 +1,15 @@
-import {
-    Grid,
-    Stack,
-    Typography,
-    Button,
-    Card,
-    IconButton,
-    Autocomplete,
-    TextField,
-    Divider,
-    Box,
-    DialogActions
-} from '@mui/material'
-import {useFormik, Form, FormikProvider} from "formik";
+import {Button, Card, DialogActions, Stack, TextField, Typography} from '@mui/material'
+import {useFormik} from "formik";
 import BalanceSheetPendingStyled from './overrides/balanceSheetPendingStyle';
-import {UploadFileCard} from '@features/card';
 import {Dialog} from '@features/dialog'
 import {useTranslation} from 'next-i18next'
-import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
 import React, {useState} from 'react';
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function BalanceSheetPendingDialog({...props}) {
     const {data} = props;
@@ -46,7 +35,7 @@ function BalanceSheetPendingDialog({...props}) {
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
     return (
         <BalanceSheetPendingStyled>
             {/*<Grid container spacing={5}>
@@ -94,27 +83,27 @@ function BalanceSheetPendingDialog({...props}) {
                     <Divider orientation="vertical"/>
                 </Grid>
                 <Grid item xs={12} md={5}>*/}
-                    <Typography gutterBottom>{t('balance_sheet_list')}</Typography>
-                    {
-                        analyses.hasAnalysis.map((item: any, index: number) => (
-                            <Card key={index} sx={{p: 1}}>
-                                <Stack direction='row' alignItems="center" justifyContent='space-between' mb={1}>
-                                    <Typography>{item.analysis.name}</Typography>
-                                </Stack>
-                                <TextField
-                                    placeholder={t("enter_the_result")}
-                                    value={item.result}
-                                    fullWidth
-                                    onChange={(ev) => {
-                                        let items = analyses.hasAnalysis.map((item: { result: string }) => ({...item}));
-                                        items[index].result = ev.target.value;
-                                        setAnalyses({uuid: analyses.uuid, hasAnalysis: items})
-                                        data.setState({uuid: analyses.uuid, hasAnalysis: items})
-                                    }}
-                                />
-                            </Card>
-                        ))}
-{/*
+            <Typography gutterBottom>{t('balance_sheet_list')}</Typography>
+            {
+                analyses.hasAnalysis.map((item: any, index: number) => (
+                    <Card key={index} sx={{p: 1}}>
+                        <Stack direction='row' alignItems="center" justifyContent='space-between' mb={1}>
+                            <Typography>{item.analysis.name}</Typography>
+                        </Stack>
+                        <TextField
+                            placeholder={t("enter_the_result")}
+                            value={item.result}
+                            fullWidth
+                            onChange={(ev) => {
+                                let items = analyses.hasAnalysis.map((item: { result: string }) => ({...item}));
+                                items[index].result = ev.target.value;
+                                setAnalyses({uuid: analyses.uuid, hasAnalysis: items})
+                                data.setState({uuid: analyses.uuid, hasAnalysis: items})
+                            }}
+                        />
+                    </Card>
+                ))}
+            {/*
                 </Grid>
             </Grid>
 */}

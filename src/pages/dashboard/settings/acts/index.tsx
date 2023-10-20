@@ -10,21 +10,23 @@ import {Chip, Paper, Skeleton, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {MultiSelect} from "@features/multiSelect";
 import BasicAlert from "@themes/overrides/Alert";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
-import {LoadingScreen} from "@features/loadingScreen";
-import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
-import {getDifference, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {getDifference, useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
-import {useSWRConfig} from "swr";
+
 function Acts() {
     const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medical_professional} = useMedicalProfessionalSuffix();
-    const {mutate} = useSWRConfig();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "actes"});
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
@@ -45,24 +47,20 @@ function Acts() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {trigger: triggerAddAct} = useRequestMutation(null, "/settings/acts/add");
-    const {trigger: triggerDeleteAct} = useRequestMutation(null, "/settings/acts/delete");
+    const {trigger: triggerAddAct} = useRequestQueryMutation("/settings/acts/add");
+    const {trigger: triggerDeleteAct} = useRequestQueryMutation("/settings/acts/delete");
 
-    const {data} = useRequest(isProfile ? {
+    const {data} = useRequestQuery(isProfile ? {
         method: "GET",
         url: `/api/public/acts/${router.locale}`,
-        params: specialities,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        params: specialities
     } : null);
 
     const removeFees = (uuid: string) => {
         triggerDeleteAct({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            }
-        }, TriggerWithoutValidation)
+            url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`
+        });
     }
 
     const setDoctorActs = useCallback((isTopAct: boolean, actUuid: string) => {
@@ -72,9 +70,10 @@ function Acts() {
         triggerAddAct({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`));
+            data: form
+        }, {
+            onSuccess: () => invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`])
+        });
     }, [medical_entity.uuid, router.locale, session?.accessToken, triggerAddAct]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {

@@ -1,55 +1,58 @@
 //material-ui
-import {Box, Typography, Stack, Avatar, Chip} from "@mui/material";
+import {Box, Typography, Stack, Avatar, Chip, Skeleton} from "@mui/material";
 // styled
 import RootStyled from "./overrides/rootStyled";
 // utils
-import moment from "moment-timezone";
 import CallIcon from "@mui/icons-material/Call";
 import IconUrl from "@themes/urlIcon";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useRef, useState, useLayoutEffect} from "react";
 import {Label} from "@features/label";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
 import {useProfilePhoto} from "@lib/hooks/rest";
+import {AppointmentStatus} from "@features/calendar";
 
 function AppointmentPopoverCard({...props}) {
-    const {data, style, t} = props;
+    const {isBeta, data, style, t} = props;
     const {data: session} = useSession();
-    const {patientPhoto} = useProfilePhoto({patientId: data.patient?.uuid, hasPhoto: data?.patient?.hasPhoto});
+    const {patientPhoto} = useProfilePhoto({patientId: data?.patient?.uuid, hasPhoto: data?.patient?.hasPhoto});
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
-    const [height, setHeight] = useState(0)
+    const [height, setHeight] = useState(120)
     const componentRef = useRef<null | HTMLDivElement>(null);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (componentRef.current) {
             setHeight(componentRef.current.clientHeight)
         }
-    }, []);
-
+    }, [data]);
     return (
         <RootStyled sx={style} ref={componentRef}>
             <Box className={"badge"}
                  sx={{
                      background: data?.type?.color,
-                     width: height - 9
+                     width: height - 10
                  }}>
                 <Typography
                     color="text.primary"
                     fontWeight={400}
                     textAlign="center"
                     noWrap
-                    fontSize={12}
-                >
-                    {data?.type?.name}
+                    {...(!data as any && {
+                        sx: {
+                            width: height - 18
+                        }
+                    })}
+                    fontSize={12}>
+                    {data?.type?.name ?? <Skeleton variant="rectangular" width={height}/>}
                 </Typography>
             </Box>
-
             {data?.hasErrors?.map((error: string, index: number) => (
                 <Stack key={index + error}
                        spacing={2} mt={.5} pl={4}
@@ -77,18 +80,16 @@ function AppointmentPopoverCard({...props}) {
                         alignItems: "center",
                         svg: {mr: 0.6}
                     }}
-                    component="span"
-                >
-                    <IconUrl path="ic-time"/> {moment(data?.time).format("HH:mm")}
+                    component="span">
+                    <IconUrl path="ic-time"/> {data?.startTime ?? <Skeleton variant="text" width={60}/>}
                 </Typography>
                 <Typography
                     variant="body1"
                     color="text.primary"
                     fontWeight={600}
                     component="span"
-                    sx={{display: "flex", alignItems: "center", svg: {mr: 0.6}}}
-                >
-                    <IconUrl path="ic-calendar"/> {moment(data?.time).format("DD-MM-YYYY")}
+                    sx={{display: "flex", alignItems: "center", svg: {mr: 0.6}}}>
+                    <IconUrl path="ic-calendar"/> {data?.dayDate ?? <Skeleton variant="text" width={100}/>}
                 </Typography>
             </Stack>
             {data?.isOnline && <Stack pl={3.2} mb={.5} direction="row" alignItems='center'>
@@ -103,7 +104,7 @@ function AppointmentPopoverCard({...props}) {
                 />
                 <Typography ml={.5} variant={"caption"}>{t("event.online-appointment", {ns: "common"})}</Typography>
             </Stack>}
-            <Stack pl={4} direction="row" alignItems='center'>
+            <Stack pl={4} direction="row" alignItems='center' spacing={.8}>
                 <Label variant='filled'
                        sx={{
                            "& .MuiSvgIcon-root": {
@@ -112,23 +113,39 @@ function AppointmentPopoverCard({...props}) {
                                pl: 0
                            }
                        }}
-                       color={data?.status?.classColor}>
-                    {data?.status?.icon}
+                       color={AppointmentStatus[data?.status]?.classColor}>
+                    {AppointmentStatus[data?.status]?.icon}
                     <Typography
                         sx={{
                             fontSize: 10,
-                            ml: ["WAITING_ROOM", "NOSHOW"].includes(data?.status?.key) ? .5 : 0
-                        }}
-                    >{t(`appointment-status.${data?.status?.key}`, {ns: "common"})}</Typography>
+                            ml: ["WAITING_ROOM", "NOSHOW"].includes(AppointmentStatus[data?.status]?.key) ? .5 : 0
+                        }}>
+                        {AppointmentStatus[data?.status] ? t(`appointment-status.${AppointmentStatus[data.status].key}`, {ns: "common"}) :
+                            <Skeleton variant="text" width={100}/>}</Typography>
                 </Label>
+                {(isBeta && (data?.restAmount > 0 || data?.restAmount < 0)) && <Label
+                    variant='filled'
+                    sx={{
+                        "& .MuiSvgIcon-root": {
+                            width: 16,
+                            height: 16,
+                            pl: 0
+                        }
+                    }}
+                    color={data.restAmount > 0 ? "expire" : "success"}>
+                    <Typography
+                        sx={{
+                            fontSize: 10,
+                        }}>
+                        {t(data.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${data.restAmount > 0 ? '-' : '+'} ${Math.abs(data.restAmount)}`} {devise}</Typography>
+                </Label>}
             </Stack>
 
             <Stack
                 direction="row"
                 spacing={1}
                 mt={1}
-                sx={{p: "0 2rem"}}
-            >
+                sx={{p: "0 2rem"}}>
                 <Box mt={.5}>
                     <Avatar
                         src={patientPhoto
@@ -147,12 +164,17 @@ function AppointmentPopoverCard({...props}) {
                 </Box>
                 <Box>
                     <Typography
+                        sx={{
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            width: "200px"
+                        }}
                         variant="body1"
                         color="text.primary"
                         fontWeight={700}
-                        noWrap
-                    >
-                        {data?.patient.firstName} {data?.patient.lastName}
+                        noWrap>
+                        {data?.patient.firstName ?? <Skeleton variant="text" width={50}/>} {data?.patient.lastName}
                     </Typography>
                     <Typography
                         variant="body2"
@@ -166,8 +188,7 @@ function AppointmentPopoverCard({...props}) {
                                 marginRight: 1
                             }
                         }}
-                        component="span"
-                    >
+                        component="span">
                         <CallIcon/>
                         {data?.patient.contact ? data?.patient.contact[0]?.code : doctor_country?.phone}
                         {data?.patient.contact[0]?.value}
@@ -175,10 +196,10 @@ function AppointmentPopoverCard({...props}) {
                 </Box>
             </Stack>
 
-            {data.motif.length > 0 &&
+            {data?.consultationReasons.length > 0 &&
                 <Stack pl={4} direction="row" mb={1} justifyContent='space-between' alignItems='flex-start'>
                     <Typography sx={{fontSize: 12}} color={"back"}>
-                        {`${t("table.header.motif")}: `}{data.motif.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
+                        {`${t("table.header.motif")}: `}{data.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
                 </Stack>}
 
         </RootStyled>

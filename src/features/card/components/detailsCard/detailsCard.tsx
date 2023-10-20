@@ -61,7 +61,7 @@ export default function DetailsCard({...props}) {
                         }`,
                     }}>
                     {waitingRoom && (
-                        <Grid container>
+                        <Grid container spacing={1}>
                             <Grid item md={10} sm={10} xs={11}>
                                 <Box
                                     display="flex"

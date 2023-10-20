@@ -21,10 +21,12 @@ interface PatientModel {
     isParent: boolean;
     medicalEntityPatientBase: MedicalEntityPatientBaseModel[];
     nextAppointments: [];
+    nextAppointment?: any;
     documents: [];
     latestAppointments: [];
     previousAppointments: [];
     requestedAnalyses: [];
     requestedImaging: [];
     treatment?: [];
+    checked?: boolean;
 }

@@ -1,29 +1,17 @@
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {useEffect, useState} from "react";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function useAntecedentTypes() {
     const router = useRouter();
-    const {data: session} = useSession();
 
-    const [allAntecedents, setAllAntecedents] = useState<any[]>([]);
-
-    const {data: httpAntecedentType} = useRequest({
+    const {data: httpAntecedentType} = useRequestQuery({
         method: "GET",
-        url: `/api/private/antecedent-types/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+        url: `/api/private/antecedent-types/${router.locale}`
+    }, ReactQueryNoValidateConfig);
 
 
-    useEffect(() => {
-        if (httpAntecedentType) {
-            setAllAntecedents((httpAntecedentType as HttpResponse)?.data);
-        }
-    }, [httpAntecedentType])
-
-    return {allAntecedents}
+    return {allAntecedents: (httpAntecedentType as HttpResponse)?.data ?? [] as AntecedentsTypeModel[]}
 }
 
 export default useAntecedentTypes;

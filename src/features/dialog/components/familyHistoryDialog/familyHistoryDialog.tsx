@@ -12,24 +12,35 @@ import {
     Stack,
     TextField,
     Typography
-} from '@mui/material'
-import {useSession} from "next-auth/react";
+} from '@mui/material';
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function FamilyHistoryDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: FamilyAntecedentsModel[] = props.data.state;
     const setState = props.data.setState;
+    const router = useRouter();
+
     const [value, setValue] = useState("");
     const [loading, setLoading] = useState(true);
     const initalData = Array.from(new Array(20));
     const [antecedents, setAntecedents] = useState<AntecedentsTypeModel[]>([]);
-    const {trigger} = useRequestMutation(null, "/antecedent");
     const allAntecedents = props.data.antecedents;
+
+    const {trigger: triggerAntecedentCreate} = useRequestQueryMutation("/antecedent/create");
+    const {data: httpAntecedentsResponse} = useRequestQuery({
+        method: "GET",
+        url: `/api/private/antecedents/${allAntecedents.find((ant: {
+            slug: any;
+        }) => ant.slug === 'family_antecedents').uuid}/${router.locale}`
+    });
+
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const index = state.findIndex((v: any) => v.uuid === event.target.name);
@@ -45,9 +56,6 @@ function FamilyHistoryDialog({...props}) {
         }
     };
 
-    const {data: session} = useSession();
-    const router = useRouter();
-
     useEffect(() => {
         if (state && antecedents.length > 0) {
             let items = state.map(item => ({...item}));
@@ -61,14 +69,6 @@ function FamilyHistoryDialog({...props}) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [antecedents])
 
-    const {data: httpAntecedentsResponse} = useRequest({
-        method: "GET",
-        url: `/api/private/antecedents/${allAntecedents.find((ant: { slug: any; }) => ant.slug === 'family_antecedents').uuid}/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
-    });
-
     useEffect(() => {
         if (httpAntecedentsResponse) {
             setAntecedents((httpAntecedentsResponse as HttpResponse).data)
@@ -81,7 +81,7 @@ function FamilyHistoryDialog({...props}) {
         setValue(e.target.value);
     };
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
     return (
         <FamilyHistoryDialogStyled display='block'>
             <Box maxWidth={{xs: '100%', md: '80%'}} mx="auto">
@@ -270,24 +270,26 @@ function FamilyHistoryDialog({...props}) {
                                                size='small'
                                                onClick={() => {
                                                    const form = new FormData();
-                                                   form.append('type', allAntecedents.find((ant: { slug: any; }) => ant.slug === 'family_antecedents').uuid);
+                                                   form.append('type', allAntecedents.find((ant: {
+                                                       slug: any;
+                                                   }) => ant.slug === 'family_antecedents').uuid);
                                                    form.append('name', value);
-                                                   trigger({
+                                                   triggerAntecedentCreate({
                                                        method: "POST",
                                                        url: `/api/private/antecedents/${router.locale}`,
-                                                       data: form,
-                                                       headers: {
-                                                           ContentType: 'multipart/form-data',
-                                                           Authorization: `Bearer ${session?.accessToken}`
+                                                       data: form
+                                                   }, {
+                                                       onSuccess: (data: any) => {
+                                                           antecedents.push({
+                                                               name: value,
+                                                               type: allAntecedents.find((ant: {
+                                                                   slug: any;
+                                                               }) => ant.slug === 'family_antecedents').uuid,
+                                                               uuid: (data?.data as HttpResponse).data.uuid,
+                                                               value_type: -1
+                                                           })
+                                                           setAntecedents([...antecedents])
                                                        }
-                                                   }, {revalidate: true, populateCache: true}).then((data) => {
-                                                       antecedents.push({
-                                                           name: value,
-                                                           type: allAntecedents.find((ant: { slug: any; }) => ant.slug === 'family_antecedents').uuid,
-                                                           uuid: (data?.data as HttpResponse).data.uuid,
-                                                           value_type: -1
-                                                       })
-                                                       setAntecedents([...antecedents])
                                                    });
 
                                                }}

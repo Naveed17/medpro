@@ -2,18 +2,9 @@ import React from 'react'
 import {Checkbox, ListItemIcon, ListItemText} from '@mui/material'
 import SidebarCheckboxStyled from './overrides/sidebarCheckboxStyled';
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
 
-interface Props {
-    data: any;
-    label?: string;
-    onChange: (v: any) => void;
-    translate: {
-        t: Function;
-        ready: boolean;
-    }
-
-}
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 export default function SidebarCheckbox({...props}) {
     const {data, label = "text", onChange, translate, checkState = false} = props

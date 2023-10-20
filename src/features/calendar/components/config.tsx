@@ -22,6 +22,7 @@ import CoPresentOutlinedIcon from '@mui/icons-material/CoPresentOutlined';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import PersonOffIcon from '@mui/icons-material/PersonOff';
 import {Avatar} from "@mui/material";
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 
 export const IconsTypes: any = {
     "ic-consultation": <EventOutlinedIcon/>,
@@ -114,6 +115,13 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
             src="/static/icons/Med-logo_.svg"
         />,
     },
+    15: {
+        key: "PATIENT_CANCELED",
+        value: "Annulé",
+        color: "#c92a2a",
+        classColor: "error",
+        icon: <CancelCircleIcon/>,
+    }
 };
 
 export const TableHead = [
@@ -147,12 +155,12 @@ export const TableHead = [
         align: "center",
         sortable: true,
     },
-    {
+/*    {
         id: "agenda",
         label: "header.agenda",
         align: "center",
         sortable: true,
-    },
+    },*/
     {
         id: "fees",
         label: "header.fees",
@@ -203,6 +211,11 @@ export const CalendarContextMenu = [
         title: "pre_consultation_data",
         icon: <CoPresentOutlinedIcon/>,
         action: "onPreConsultation",
+    },
+    {
+        title: "import_document",
+        icon: <UploadFileOutlinedIcon/>,
+        action: "onAddConsultationDocuments",
     },
     {
         title: "confirm_appointment",

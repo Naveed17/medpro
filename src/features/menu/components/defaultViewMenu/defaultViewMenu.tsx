@@ -12,17 +12,16 @@ import {Collapse, Divider, ListItemButton, SvgIcon, Typography, useTheme} from "
 import {ToggleButtonStyled} from "@features/toolbar";
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {setView} from "@features/calendar";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {useSession} from "next-auth/react";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useTranslation} from "next-i18next";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Link from "next/link";
-import {dashLayoutSelector} from "@features/base";
 
 const VIEW_OPTIONS = [
     {value: "timeGridDay", label: "day", text: "Jour", icon: TodayIcon},
@@ -39,7 +38,6 @@ function DefaultViewMenu() {
     const dispatch = useAppDispatch();
 
     const {t} = useTranslation('common');
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -49,7 +47,7 @@ function DefaultViewMenu() {
     const general_information = (user as UserDataResponse).general_information;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
 
-    const {trigger: triggerViewChange} = useRequestMutation(null, "/agenda/set/default-view");
+    const {trigger: triggerViewChange} = useRequestQueryMutation("/agenda/set/default-view");
 
     const handleDefaultView = (view: string) => {
         dispatch(setView(view));
@@ -59,11 +57,9 @@ function DefaultViewMenu() {
         triggerViewChange({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/users/edit/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
-            // update the session, without reloading the page
-            update({agenda_default_view: view});
+            data: form
+        }, {
+            onSuccess: () => update({agenda_default_view: view})
         });
     };
 

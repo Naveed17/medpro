@@ -9,9 +9,11 @@ import {
     Hidden,
     Toolbar,
     useMediaQuery,
-    Badge
+    Badge,
+    Theme,
+    useTheme,
+    Fade,
 } from "@mui/material";
-import {Theme} from "@mui/material/styles";
 // utils
 import Icon from "@themes/icon";
 
@@ -43,17 +45,24 @@ import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
 import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(
+    () => import("@features/loadingScreen/components/loadingScreen")
+);
+
 import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
+import {MobileContainer} from "@lib/constants";
+import {motion} from "framer-motion";
 
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("sm")
-    );
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+    const [currentIndex, setCurrentIndex] = useState<number | null>(null);
     const router = useRouter();
+    const theme = useTheme<Theme>();
     const dispatch = useAppDispatch();
 
     const {data: user} = session as Session;
@@ -61,13 +70,14 @@ function SideBarMenu({children}: LayoutProps) {
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room} = useAppSelector(dashLayoutSelector);
+    const {waiting_room, newCashBox} = useAppSelector(dashLayoutSelector);
     const {sortedData} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("menu");
 
     let container: any = useRef<HTMLDivElement>(null);
-    const [menuItems, setMenuItems] = useState(sidebarItems);
-
+    const [menuItems, setMenuItems] = useState(
+        sidebarItems.filter((item) => item.enabled)
+    );
 
     const handleRouting = (path: string) => {
         // Always do navigations after the first render
@@ -85,7 +95,7 @@ function SideBarMenu({children}: LayoutProps) {
             method: "GET",
         });
         dispatch(logout({redirect: true, path}));
-    }
+    };
 
     const handleSettingRoute = () => {
         isMobile
@@ -96,7 +106,11 @@ function SideBarMenu({children}: LayoutProps) {
                 }`
             );
         dispatch(toggleMobileBar(true));
-    }
+    };
+    const iconBackgroundVariants = {
+        hidden: {opacity: 0},
+        visible: {opacity: 1},
+    };
 
     const drawer = (
         <div>
@@ -112,16 +126,19 @@ function SideBarMenu({children}: LayoutProps) {
                 </Box>
             </Link>
 
-            <List>
-                {menuItems?.map((item) => (
+            <List
+                component={motion.ul}
+                layout
+                onMouseLeave={() => setCurrentIndex(null)}
+                sx={{overflow: 'hidden', px: 1.5}}>
+                {menuItems?.map((item, i) => (
                     <Hidden key={item.name} smUp={item.name === "wallet"}>
-                        <a onClick={() => handleRouting(item.href)}>
+                        <a onClick={(e) => handleRouting(item.href)}>
                             <ListItem
                                 sx={{
                                     margin: "0.5rem 0",
+                                    cursor: 'pointer'
                                 }}
-                                disableRipple
-                                button
                                 className={router.pathname === item.href ? "active" : ""}>
                                 <Badge
                                     anchorOrigin={{
@@ -131,8 +148,25 @@ function SideBarMenu({children}: LayoutProps) {
                                     invisible={item.badge === undefined || isMobile}
                                     color="warning"
                                     badgeContent={item.badge}>
-                                    <ListItemIcon>
-                                        <Icon path={item.icon}/>
+                                    <ListItemIcon
+                                        onMouseEnter={(e) => {
+                                            if (router.pathname === item.href) {
+                                                e.stopPropagation();
+                                                setCurrentIndex(null);
+                                                return;
+                                            }
+
+                                            setCurrentIndex(i);
+                                        }}>
+                                        {i === currentIndex ? (
+                                            <Fade in={true} timeout={1000}>
+                                                <Box>
+                                                    <Icon path={item.icon}/>
+                                                </Box>
+                                            </Fade>
+                                        ) : (
+                                            <Icon path={item.icon}/>
+                                        )}
                                     </ListItemIcon>
                                 </Badge>
                                 <ListItemTextStyled primary={t("main-menu." + item.name)}/>
@@ -140,6 +174,20 @@ function SideBarMenu({children}: LayoutProps) {
                                     <Badge
                                         badgeContent={item.badge}
                                         color="warning"
+                                        sx={{
+                                            ".MuiBadge-badge": {
+                                                right: 8,
+                                            },
+                                        }}
+                                    />
+                                )}
+
+                                {i === currentIndex && (
+                                    <motion.div
+                                        className="icon-background"
+                                        layoutId="social"
+                                        key="social"
+                                        initial={false}
                                     />
                                 )}
                             </ListItem>
@@ -181,7 +229,17 @@ function SideBarMenu({children}: LayoutProps) {
     });
 
     useEffect(() => {
-        const currentDay = sortedData.find((event) => event.date === moment().format("DD-MM-YYYY"));
+        let demo = user.medical_entity.hasDemo;
+        if (localStorage.getItem("newCashbox"))
+            demo = localStorage.getItem("newCashbox") === "1";
+        menuItems[3].href = demo ? "/dashboard/cashbox" : "/dashboard/payment";
+        setMenuItems([...menuItems]);
+    }, [newCashBox]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        const currentDay = sortedData.find(
+            (event) => event.date === moment().format("DD-MM-YYYY")
+        );
         setMenuItems([
             {...menuItems[0], badge: currentDay ? currentDay.events.length : 0},
             {...menuItems[1], badge: waiting_room},
@@ -189,7 +247,7 @@ function SideBarMenu({children}: LayoutProps) {
         ]);
     }, [sortedData, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
     return (
         <MainMenuStyled>
@@ -197,7 +255,8 @@ function SideBarMenu({children}: LayoutProps) {
             <Box
                 component="nav"
                 aria-label="mailbox folders"
-                className="sidenav-main">
+                className="sidenav-main"
+            >
                 {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
                 <MobileDrawerStyled
                     container={container.current}
@@ -207,7 +266,8 @@ function SideBarMenu({children}: LayoutProps) {
                     onClose={() => dispatch(toggleMobileBar(mobileOpened))}
                     ModalProps={{
                         keepMounted: true, // Better open performance on mobile.
-                    }}>
+                    }}
+                >
                     {drawer}
                 </MobileDrawerStyled>
                 <Drawer variant="permanent" open>
@@ -215,9 +275,10 @@ function SideBarMenu({children}: LayoutProps) {
                 </Drawer>
             </Box>
             <Box
-                display={{xs: "none", sm: "block"}}
+                display={isMobile ? "none" : "block"}
                 component="nav"
-                className={`action-side-nav ${opened ? "active" : ""}`}>
+                className={`action-side-nav ${opened ? "active" : ""}`}
+            >
                 <div className="action-bar-open">
                     {/* side page bar */}
                     <LeftActionBar/>

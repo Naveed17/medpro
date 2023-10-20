@@ -131,6 +131,14 @@ const rowsActionsData = [
     ),
   },
   {
+    action: "cashbox",
+    component: dynamic((): any =>
+        import("@features/table/components/rows/cashboxRow").then(
+            (mod) => mod
+        )
+    ),
+  },
+  {
     action: "chequesList",
     component: dynamic((): any =>
       import("@features/table/components/rows/chequeRow").then(
@@ -149,6 +157,14 @@ const rowsActionsData = [
     action: "import_data",
     component: dynamic((): any =>
       import("@features/table/components/rows/importDataRow").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    action: "inventory",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/inventoryRow").then(
         (mod) => mod
       )
     ),

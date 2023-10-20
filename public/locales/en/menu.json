@@ -12,7 +12,8 @@
     "stats": "Statistics",
     "settings": "My Profile",
     "logout": "Logout",
-    "payment": "Payment"
+    "payment": "Payment",
+    "inventory": "Inventory"
   },
   "doctor-dropdown": {
     "news": "News Feed",

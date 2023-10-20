@@ -4,7 +4,10 @@ import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 import CollapseCardStyled from "./overrides/collapseCardStyle";
 import { useTheme, Theme, PaletteColor } from "@mui/material/styles";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 export default function ConsultationProgressCard({ ...props }) {
     const { index, data, open, onClickAction, translate } = props
     const { color, icon, id } = data;

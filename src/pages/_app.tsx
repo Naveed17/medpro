@@ -18,7 +18,6 @@ import "moment/locale/fr";
 // import wrap components
 import AppThemeProvider from "@themes/index";
 import KeycloakSession from "@lib/keycloak/keycloakSession";
-import SwrProvider from "@lib/swr/swrProvider";
 import AuthGuard from "@lib/keycloak/authGuard";
 import moment from "moment-timezone";
 import Head from "next/head";
@@ -29,6 +28,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import {EnvPattern} from "@lib/constants";
 import smartlookClient from "smartlook-client";
 import {useRouter} from "next/router";
+import {firebaseCloudSdk} from "@lib/firebase";
+import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
+import ReactQueryProvider from "@lib/reactQuery/reactQueryProvider";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -58,12 +60,23 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
 
     if (typeof window !== "undefined") {
         const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
-        // init smartlook client
-        prodEnv && smartlookClient.init('8ffbddca1e49f6d7c5836891cc9c1e8c20c1c79a', {region: 'eu'});
+        //init remote config
+        const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
+        remoteConfig.settings.minimumFetchIntervalMillis = 600000;
+        if (prodEnv && remoteConfig) {
+            fetchAndActivate(remoteConfig).then(() => {
+                const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
+                if (config.smartlook && config.countries?.includes(process.env.NEXT_PUBLIC_COUNTRY?.toLowerCase())) {
+                    // init smartlook client
+                    smartlookClient.init('8ffbddca1e49f6d7c5836891cc9c1e8c20c1c79a', {region: 'eu'});
+                }
+            });
+        }
     }
-
     // Get Layout for pages
     const getLayout = Component.getLayout ?? ((page) => page);
+    const pageKey = router.asPath;
+
     return (
         <Provider store={store}>
             <SnackbarProvider className={"snackbar-notification"}
@@ -74,28 +87,28 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                 <AppThemeProvider>
                     <GlobleStyles>
                         <KeycloakSession session={pageProps.session}>
-                            <SwrProvider fallback={pageProps.fallback}>
+                            <ReactQueryProvider {...pageProps}>
                                 <Head>
                                     <title>Med Link</title>
                                     <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
                                 </Head>
                                 <AnimatePresence
-                                    mode='wait'
                                     initial={false}
+                                    mode="popLayout"
                                     onExitComplete={() => window.scrollTo(0, 0)}>
                                     <ErrorBoundary>
                                         {Component.auth ? (
                                             <AuthGuard>
                                                 <FcmLayout {...pageProps}>
-                                                    {getLayout(<Component {...pageProps} />)}
+                                                    {getLayout(<Component key={pageKey} {...pageProps} />)}
                                                 </FcmLayout>
                                             </AuthGuard>
                                         ) : (
-                                            <> {getLayout(<Component {...pageProps} />)}</>
+                                            <> {getLayout(<Component key={pageKey} {...pageProps} />)}</>
                                         )}
                                     </ErrorBoundary>
                                 </AnimatePresence>
-                            </SwrProvider>
+                            </ReactQueryProvider>
                         </KeycloakSession>
                     </GlobleStyles>
                 </AppThemeProvider>

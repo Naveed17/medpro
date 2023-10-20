@@ -1,27 +1,22 @@
 import FullCalendar from "@fullcalendar/react"; // => request placed at the top
 import {
     Backdrop,
-    Box,
+    Box, Chip,
     ClickAwayListener,
     IconButton,
     Menu,
-    MenuItem,
+    MenuItem, Popover,
     Theme,
     useMediaQuery,
     useTheme
 } from "@mui/material";
-
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
-
-import React, {useEffect, useRef, useState} from "react";
-
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import listPlugin from '@fullcalendar/list';
 import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";
 import Typography from "@mui/material/Typography";
-
 import moment from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
@@ -36,10 +31,8 @@ import {
     SlotFormat,
     TableHead
 } from "@features/calendar";
-
 import dynamic from "next/dynamic";
-import {useIsMountedRef} from "@lib/hooks";
-import {NoDataCard} from "@features/card";
+import {AppointmentPopoverCard, NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {BusinessHoursInput} from "@fullcalendar/core";
 import {useSwipeable} from "react-swipeable";
@@ -47,11 +40,15 @@ import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
+import {MobileContainer} from "@lib/constants";
+import {motion} from "framer-motion";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
 function Calendar({...props}) {
     const {
+        isBeta,
+        calendarRef,
         events: appointments,
         OnRangeChange,
         spinner,
@@ -60,7 +57,6 @@ function Calendar({...props}) {
         t: translation,
         sortedData,
         doctor_country,
-        OnInit,
         OnLeaveWaitingRoom,
         OnConfirmEvent,
         OnMoveEvent,
@@ -69,20 +65,22 @@ function Calendar({...props}) {
         OnAddAppointment,
         OnSelectEvent,
         OnSelectDate,
+        OnOpenPatient,
         OnEventChange,
-        OnMenuActions
+        OnMenuActions,
+        mutate: mutateAgenda
     } = props;
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const isMounted = useIsMountedRef();
-    const calendarRef = useRef(null);
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
 
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
 
     const prevView = useRef(view);
 
+    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+    const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
     const [events, setEvents] = useState<EventModal[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<string>();
@@ -96,12 +94,18 @@ function Calendar({...props}) {
         mouseY: number;
     } | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isEventDragging, setIsEventDragging] = useState(false);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
-    const openingHours = agendaConfig?.locations[0].openingHours[0].openingHours;
+    const openingHours = agendaConfig?.openingHours[0];
     const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
+    const open = Boolean(anchorEl);
+
+    const handleOnSelectEvent = useCallback((value: any) => {
+        OnSelectEvent(value);
+    }, [OnSelectEvent]);
 
     const getSlotsFormat = (slot: number) => {
         const duration = moment.duration(slot, "hours") as any;
@@ -139,7 +143,10 @@ function Calendar({...props}) {
     const handleTableEvent = (action: string, eventData: EventModal) => {
         switch (action) {
             case "showEvent":
-                OnSelectEvent(eventData);
+                handleOnSelectEvent(eventData);
+                break;
+            case "showPatient":
+                OnOpenPatient(eventData);
                 break;
             case "waitingRoom":
                 OnWaitingRoom(eventData);
@@ -189,9 +196,9 @@ function Calendar({...props}) {
             action === "onLeaveWaitingRoom" &&
             eventMenu.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
-            (eventMenu.status.key === "CANCELED" || eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
+            ["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(eventMenu.status.key) ||
             action === "onDelete" &&
-            (eventMenu.status.key === "FINISHED" || eventMenu.status.key === "ON_GOING") ||
+            ["FINISHED", "ON_GOING"].includes(eventMenu.status.key) ||
             action === "onMove" &&
             (moment().isAfter(eventMenu.time) || ["FINISHED", "ON_GOING"].includes(eventMenu.status.key)) ||
             action === "onPatientNoShow" &&
@@ -213,6 +220,14 @@ function Calendar({...props}) {
         },
         preventScrollOnSwipe: true
     });
+
+    const isHorizontal = () => {
+        if (view === "timeGridDay")
+            return 'left';
+        else if (moment(appointmentData?.dayDate, "DD-MM-YYYY").weekday() > 4)
+            return -305;
+        else return 'right';
+    }
 
     useEffect(() => {
         let days: BusinessHoursInput[] = [];
@@ -237,16 +252,9 @@ function Calendar({...props}) {
                 })
             });
             setDaysOfWeek(days);
-            setLoading(false);
+            setTimeout(() => setLoading(false));
         }
     }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        const calendarEl = calendarRef.current;
-        if (isMounted.current && calendarEl) {
-            OnInit(calendarEl);
-        }
-    }, [OnInit, isMounted]);
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
@@ -256,7 +264,7 @@ function Calendar({...props}) {
                 calendarApi.gotoDate(currentDate.date);
             }
         }
-    }, [currentDate]);
+    }, [currentDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         const calendarEl = calendarRef.current;
@@ -272,22 +280,14 @@ function Calendar({...props}) {
     }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        setEvents(appointments);
-        const calendarEl = calendarRef.current;
-        if (calendarEl) {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.refetchEvents();
-        }
-    }, [appointments]);
+        setTimeout(() => {
+            setEvents(appointments);
+        })
+    }, [appointments]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         setEventGroupByDay(sortedData);
-        const calendarEl = calendarRef.current;
-        if (calendarEl) {
-            const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.refetchEvents();
-        }
-    }, [sortedData]);
+    }, [sortedData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Box bgcolor="#F0FAFF">
@@ -305,7 +305,7 @@ function Calendar({...props}) {
                     {(view === "listWeek" && !isMobile) ? (
                         <Box className="container">
                             <Otable
-                                {...{spinner, refs}}
+                                {...{spinner, refs, mutateAgenda}}
                                 maxHeight={`calc(100vh - 180px)`}
                                 headers={TableHead}
                                 rows={eventGroupByDay}
@@ -345,7 +345,21 @@ function Calendar({...props}) {
                                 }}
                                 moreLinkContent={(event) => `${event.shortText} plus`}
                                 eventContent={(event) =>
-                                    <Event {...{event, openingHours, view, isMobile}} t={translation}/>
+                                    <motion.div
+                                        initial={{opacity: 0}}
+                                        animate={{opacity: 1}}
+                                        transition={{ease: "easeOut", duration: .2}}>
+                                        <Event
+                                            {...{
+                                                isBeta,
+                                                open,
+                                                isEventDragging,
+                                                setAppointmentData,
+                                                event, openingHours,
+                                                view, isMobile, anchorEl, setAnchorEl
+                                            }}
+                                            t={translation}/>
+                                    </motion.div>
                                 }
                                 eventClassNames={(arg) => {
                                     if (arg.event._def.extendedProps.filtered) {
@@ -354,6 +368,8 @@ function Calendar({...props}) {
                                         return ['normal']
                                     }
                                 }}
+                                eventDragStart={() => setIsEventDragging(true)}
+                                eventDragStop={() => setIsEventDragging(false)}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         setEventMenu(mountArg.event._def.publicId);
@@ -365,7 +381,7 @@ function Calendar({...props}) {
                                     if (jsEvent.screenY > window.innerHeight) {
                                         setTimeout(() => {
                                             const popover = document.getElementsByClassName("fc-popover") as HTMLCollectionOf<HTMLElement>;
-                                            if (popover) {
+                                            if (popover && popover.length > 0) {
                                                 popover[0].style.bottom = "0";
                                                 popover[0].style.top = "auto";
                                                 popover[0].style.transition = "bottom 4s ease 0s";
@@ -380,16 +396,18 @@ function Calendar({...props}) {
                                         isMobile
                                     })
                                 }
-                                eventClick={(eventArg) => OnSelectEvent(eventArg.event._def)}
+                                eventClick={(eventArg) => handleOnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);
-                                    setTimeout(() => {
+                                    OnAddAppointment("add-quick");
+                                    OnSelectDate(info);
+                                    /*setTimeout(() => {
                                         setSlotInfoPopover(true);
-                                    }, isMobile ? 100 : 0);
+                                    }, isMobile ? 100 : 0);*/
                                 }}
                                 showNonCurrentDates={true}
-                                rerenderDelay={8}
+                                //rerenderDelay={6}
                                 height={calendarHeight}
                                 initialDate={currentDate.date}
                                 slotMinTime={getSlotsFormat(slotMinTime)}
@@ -406,7 +424,7 @@ function Calendar({...props}) {
                                 slotLabelInterval={{minutes: 30}}
                                 slotDuration="00:15:00"
                                 slotLabelFormat={SlotFormat}
-                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                             />
 
                             {slotInfo && <StyledMenu
@@ -427,35 +445,36 @@ function Calendar({...props}) {
                                     vertical: 'top',
                                     horizontal: 'left',
                                 }}
-                                PaperProps={{
-                                    elevation: 0,
-                                    sx: {
-                                        overflow: 'visible',
-                                        filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
-                                        mt: 1.5,
-                                        '& .MuiAvatar-root': {
-                                            width: 32,
-                                            height: 32,
-                                            ml: -0.5,
-                                            mr: 1,
+                                slotProps={{
+                                    paper: {
+                                        elevation: 0,
+                                        sx: {
+                                            overflow: 'visible',
+                                            filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
+                                            mt: 1.5,
+                                            '& .MuiAvatar-root': {
+                                                width: 32,
+                                                height: 32,
+                                                ml: -0.5,
+                                                mr: 1,
+                                            },
+                                            ...!isMobile && {
+                                                '&:before': {
+                                                    content: '""',
+                                                    display: 'block',
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 14,
+                                                    width: 10,
+                                                    height: 10,
+                                                    bgcolor: 'background.paper',
+                                                    transform: 'translateY(-50%) rotate(45deg)',
+                                                    zIndex: 0,
+                                                }
+                                            },
                                         },
-                                        ...!isMobile && {
-                                            '&:before': {
-                                                content: '""',
-                                                display: 'block',
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 14,
-                                                width: 10,
-                                                height: 10,
-                                                bgcolor: 'background.paper',
-                                                transform: 'translateY(-50%) rotate(45deg)',
-                                                zIndex: 0,
-                                            }
-                                        },
-                                    },
-                                }}
-                            >
+                                    }
+                                }}>
                                 <MenuItem onClick={() => {
                                     setSlotInfoPopover(false);
                                     OnAddAppointment("add-quick");
@@ -505,8 +524,7 @@ function Calendar({...props}) {
                                 transformOrigin={{
                                     vertical: 'top',
                                     horizontal: 'left',
-                                }}
-                            >
+                                }}>
                                 {CalendarContextMenu.filter(data => !MenuContextlog(data.action, events.find(event => event.id === eventMenu) as EventModal)).map((v: any) => (
                                         <IconButton
                                             key={uniqueId()}
@@ -521,8 +539,7 @@ function Calendar({...props}) {
                                                 OnMenuActions(v.action, event);
                                                 handleClose();
                                             }}
-                                            className="popover-item"
-                                        >
+                                            className="popover-item">
                                             {v.icon}
                                             <Typography fontSize={15} sx={{color: "#fff"}}>
                                                 {translation(`${v.title}`, {ns: 'common'})}
@@ -531,6 +548,41 @@ function Calendar({...props}) {
                                     )
                                 )}
                             </Menu>
+
+                            <Popover
+                                id="mouse-over-popover"
+                                sx={{
+                                    pointerEvents: 'none',
+                                    zIndex: 900
+                                }}
+                                open={open}
+                                anchorEl={anchorEl}
+                                anchorOrigin={{
+                                    vertical: view === "timeGridDay" ? 'bottom' : 'top',
+                                    horizontal: isHorizontal()
+                                }}
+                                onClose={() => setAnchorEl(null)}
+                                disableRestoreFocus>
+                                <motion.div
+                                    initial={{opacity: 0}}
+                                    animate={{opacity: 1}}
+                                    transition={{ease: "linear", duration: .2}}>
+                                    {appointmentData?.new &&
+                                        <Chip label={translation("event.new", {ns: 'common'})}
+                                              sx={{
+                                                  position: "absolute",
+                                                  right: 4,
+                                                  top: 4,
+                                                  fontSize: 10
+                                              }}
+                                              size="small"
+                                              color={"primary"}/>}
+                                    <AppointmentPopoverCard
+                                        {...{isBeta, t: translation}}
+                                        style={{width: "300px", border: "none"}}
+                                        data={appointmentData}/>
+                                </motion.div>
+                            </Popover>
                         </Box>
                     )}
                 </CalendarStyled>

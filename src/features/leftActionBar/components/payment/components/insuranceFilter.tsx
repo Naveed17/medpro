@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Avatar, Box, Checkbox, FormControl, MenuItem, TextField, Typography} from "@mui/material";
+import {Box, Checkbox, FormControl, MenuItem, TextField, Typography} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
@@ -28,15 +28,15 @@ function InsuranceFilter({...props}) {
         if (insurances.length === 0) {
             OnSearch({
                 query: {
-                    ...queryState,
-                    insurance: null
+                    ...filterData?.patient,
+                    insurances: null
                 }
             });
         } else {
             OnSearch({
                 query: {
-                    ...queryState,
-                    insurance: insurances.map(insurance => insurance.uuid)
+                    ...filterData?.patient,
+                    insurances: insurances.map(insurance => insurance.uuid).join(",")
                 }
             });
         }
@@ -62,8 +62,7 @@ function InsuranceFilter({...props}) {
                     onSelectAll: (selectedAll) => void handleSelectAll({insurance: selectedAll ? [] : insurancesData}),
                     selectedAll,
                     indeterminate: !!queryState.insurance.length && !selectedAll,
-                }}
-            >
+                }}>
                 <Autocomplete
                     size={"small"}
                     id={"assurance"}
@@ -90,7 +89,7 @@ function InsuranceFilter({...props}) {
                                 sx={{ml: 1}}>{option.name}</Typography>
                         </MenuItem>)}
                     renderInput={(params) => (
-                        <FormControl component="form" fullWidth>
+                        <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
                             <TextField color={"info"}
                                        {...params}
                                        sx={{paddingLeft: 0}}

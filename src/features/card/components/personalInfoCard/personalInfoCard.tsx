@@ -1,4 +1,4 @@
-import React, {memo, useState} from "react";
+import React, {memo, useEffect, useState} from "react";
 // hook
 import {useTranslation} from "next-i18next";
 import {Form, FormikProvider, useFormik} from "formik";
@@ -19,8 +19,7 @@ import {
     useTheme
 } from "@mui/material";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
-import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {useSnackbar} from "notistack";
@@ -32,11 +31,13 @@ import moment from "moment-timezone";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
-import {LoadingScreen} from "@features/loadingScreen";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {dashLayoutSelector} from "@features/base";
-import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
+import {checkObjectChange, flattenObject, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -47,12 +48,12 @@ MyTextInput.displayName = "TextField";
 
 function PersonalInfo({...props}) {
     const {
-        patient, mutatePatientDetails, mutatePatientList = null, mutateAgenda = null, countries_api,
-        loading, editable: defaultEditStatus, setEditable, currentSection, setCurrentSection
+        patient, mutatePatientDetails, mutatePatientList = null,
+        mutateAgenda = null, countries_api,
+        loading = false, editable: defaultEditStatus, setEditable
     } = props;
 
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
@@ -65,7 +66,7 @@ function PersonalInfo({...props}) {
     const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
@@ -86,23 +87,25 @@ function PersonalInfo({...props}) {
         nationality: Yup.string()
     });
 
+    const initialValue = {
+        gender: !loading && patient.gender
+            ? patient.gender === "M" ? "1" : "2"
+            : "",
+        firstName: !loading ? `${patient.firstName.trim()}` : "",
+        lastName: !loading ? `${patient.lastName.trim()}` : "",
+        birthdate: !loading && patient.birthdate ? patient.birthdate : "",
+        old: !loading && patient.birthdate ? getBirthday(patient.birthdate).years : "",
+        email: !loading && patient.email && patient.email !== "null" ? patient.email : "",
+        cin: !loading && patient.idCard && patient.idCard !== "null" ? patient.idCard : "",
+        profession: !loading && patient.profession && patient.profession !== "null" ? patient.profession : "",
+        familyDoctor: !loading && patient.familyDoctor && patient.familyDoctor !== "null" ? patient.familyDoctor : "",
+        nationality: !loading && patient?.nationality && patient.nationality !== "null" ? patient.nationality.uuid : ""
+    };
+    const flattenedObject = flattenObject(initialValue);
+
     const formik = useFormik({
         enableReinitialize: true,
-        initialValues: {
-            gender: !loading && patient.gender
-                ? patient.gender === "M" ? "1" : "2"
-                : "",
-            firstName: !loading ? `${patient.firstName.trim()}` : "",
-            lastName: !loading ? `${patient.lastName.trim()}` : "",
-            birthdate: !loading && patient.birthdate ? patient.birthdate : "",
-            old: !loading && patient.birthdate ? getBirthday(patient.birthdate).years : "",
-            email: !loading && patient.email ? patient.email : "",
-            cin: !loading && patient.idCard ? patient.idCard : "",
-            profession: !loading && patient.profession ? patient.profession : "",
-            familyDoctor: !loading && patient.familyDoctor ? patient.familyDoctor : "",
-            nationality: !loading && patient?.nationality ? patient.nationality.uuid : ""
-
-        },
+        initialValues: initialValue,
         validationSchema: RegisterPatientSchema,
         onSubmit: async () => {
             handleUpdatePatient();
@@ -126,39 +129,46 @@ function PersonalInfo({...props}) {
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            },
             data: params,
-        }).then(() => {
-            setLoadingRequest(false);
-            setEditable(false);
-            mutatePatientDetails && mutatePatientDetails();
-            mutatePatientList && mutatePatientList();
-            mutateAgenda && mutateAgenda();
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                mutatePatientDetails && mutatePatientDetails();
+                mutatePatientList && mutatePatientList();
+                mutateAgenda && mutateAgenda();
 
-            if (appointment) {
-                const event = {
-                    ...appointment,
-                    title: `${values.firstName} ${values.lastName}`,
-                    extendedProps: {
-                        ...appointment.extendedProps,
-                        patient: {
-                            ...appointment.extendedProps.patient,
-                            ...values,
-                            gender: values.gender === '1' ? 'M' : 'F'
+                if (appointment) {
+                    const event = {
+                        ...appointment,
+                        title: `${values.firstName} ${values.lastName}`,
+                        extendedProps: {
+                            ...appointment.extendedProps,
+                            patient: {
+                                ...appointment.extendedProps.patient,
+                                ...values,
+                                gender: values.gender === '1' ? 'M' : 'F'
+                            }
                         }
-                    }
-                } as any;
-                dispatch(setSelectedEvent(event));
+                    } as any;
+                    dispatch(setSelectedEvent(event));
+                }
+                enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
             }
-            enqueueSnackbar(t(`alert.patient-edit`), {variant: "success"});
         });
     }
 
     const {handleSubmit, values, errors, touched, getFieldProps, setFieldValue} = formik;
-    const editable = currentSection === "PersonalInfo" && defaultEditStatus;
-    const disableActions = defaultEditStatus && currentSection !== "PersonalInfo";
+    const editable = defaultEditStatus.personalInfoCard;
+    const disableActions = defaultEditStatus.personalInsuranceCard || defaultEditStatus.patientDetailContactCard;
+
+    useEffect(() => {
+        if (!editable) {
+            const changedValues = checkObjectChange(flattenedObject, values);
+            if (Object.keys(changedValues).length > 0) {
+                handleSubmit();
+            }
+        }
+    }, [editable]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -190,18 +200,18 @@ function PersonalInfo({...props}) {
                                 </Box>
                                 {editable ?
                                     <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
-                                        <Button onClick={() => setEditable(false)}
-                                                color={"error"}
-                                                className='btn-cancel'
-                                                sx={{margin: 'auto'}}
-                                                size='small'
-                                                startIcon={<CloseIcon/>}>
+                                        <Button
+                                            onClick={() => setEditable({...defaultEditStatus, personalInfoCard: false})}
+                                            color={"error"}
+                                            className='btn-cancel'
+                                            sx={{margin: 'auto'}}
+                                            size='small'
+                                            startIcon={<CloseIcon/>}>
                                             {t('cancel')}
                                         </Button>
                                         <LoadingButton
-                                            onClick={() => handleUpdatePatient()}
+                                            onClick={() => setEditable({...defaultEditStatus, personalInfoCard: false})}
                                             disabled={Object.keys(errors).length > 0}
-                                            loading={loadingRequest}
                                             className='btn-add'
                                             sx={{margin: 'auto'}}
                                             size='small'
@@ -210,18 +220,23 @@ function PersonalInfo({...props}) {
                                         </LoadingButton>
                                     </Stack>
                                     :
-                                    <Button
+                                    <LoadingButton
+                                        loading={loadingRequest}
+                                        loadingPosition={"start"}
                                         disabled={disableActions}
                                         onClick={() => {
-                                            setCurrentSection("PersonalInfo");
-                                            setEditable(true);
+                                            setEditable({
+                                                patientDetailContactCard: false,
+                                                personalInsuranceCard: false,
+                                                personalInfoCard: true
+                                            });
                                         }}
                                         startIcon={<IconUrl
                                             {...(disableActions && {color: "white"})}
                                             path={"setting/edit"}/>}
                                         color="primary" size="small">
                                         {t("edit")}
-                                    </Button>
+                                    </LoadingButton>
                                 }
                             </Toolbar>
                         </AppBar>
@@ -229,8 +244,11 @@ function PersonalInfo({...props}) {
                         <Grid container spacing={1}
                               onClick={() => {
                                   if (!editable) {
-                                      setCurrentSection("PersonalInfo");
-                                      setEditable(true);
+                                      setEditable({
+                                          patientDetailContactCard: false,
+                                          personalInsuranceCard: false,
+                                          personalInfoCard: true
+                                      });
                                   }
                               }}
                               sx={{
@@ -388,7 +406,7 @@ function PersonalInfo({...props}) {
                                                     value={values.birthdate ? moment(values.birthdate, "DD-MM-YYYY") : null}
                                                     onChange={date => {
                                                         const dateInput = moment(date);
-                                                        setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : "");
+                                                        setFieldValue("birthdate", dateInput.isValid() ? dateInput.format("DD-MM-YYYY") : null);
                                                         if (dateInput.isValid()) {
                                                             const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
                                                             setFieldValue("old", old > 120 ? "" : old);
@@ -430,11 +448,9 @@ function PersonalInfo({...props}) {
                                                     mr={1}>{commonTranslation(`times.years`)}</Typography>}
                                                 readOnly={!editable}
                                                 error={Boolean(touched.email && errors.email)}
-                                                {...getFieldProps("old")}
                                                 value={values.old ?? ""}
                                                 onChange={event => {
                                                     const old = parseInt(event.target.value);
-                                                    console.log("old", old)
                                                     setFieldValue("old", old ? old : "");
                                                     if (old) {
                                                         setFieldValue("birthdate", (values.birthdate ?

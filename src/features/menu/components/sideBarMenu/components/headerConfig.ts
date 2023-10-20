@@ -12,23 +12,33 @@ export const siteHeader = {
             icon: "ic-agenda",
             name: "agenda",
             href: '/dashboard/agenda',
-            badge: 0
+            badge: 0,
+            enabled: true
         },
         {
             icon: "ic-salle-sidenav",
             name: "room",
             href: '/dashboard/waiting-room',
-            badge: 0
+            badge: 0,
+            enabled: true
         },
         {
             icon: "ic-user2",
             name: "patient",
-            href: '/dashboard/patient'
+            href: '/dashboard/patient',
+            enabled: true
         },
         {
             icon: "ic-payment",
             name: "payment",
-            href: '/dashboard/payment'
+            href: '/dashboard/payment',
+            enabled: true
+        },
+        {
+            icon: "shopping-bag",
+            name: "inventory",
+            href: '/dashboard/inventory',
+            enabled: process.env.NODE_ENV === 'development'
         },
         // {
         //     icon: "ic-messanger-lite",
@@ -45,11 +55,7 @@ export const siteHeader = {
         //     name: "questions",
         //     href: '/dashboard/questions',
         // },
-        // {
-        //     icon: "shopping-bag",
-        //     name: "shop",
-        //     href: '#',
-        // },
+
         // {
         //     icon: "ic-portfeuille",
         //     name: "wallet",

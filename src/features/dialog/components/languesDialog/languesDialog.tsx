@@ -1,37 +1,32 @@
 import {CheckList} from "@features/checkList";
 import {useTranslation} from "next-i18next";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useEffect, useState} from "react";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
-function LanguesDialog(info:any) {
+import dynamic from "next/dynamic";
 
-    const { data: session } = useSession();
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+function LanguesDialog(info: any) {
     const [items, setItems] = useState<InsuranceModel[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     const router = useRouter();
 
-    const headers = {
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json',
-    }
-    const { data } = useRequest({
+    const {data} = useRequestQuery({
         method: "GET",
-        url: "/api/public/languages/"+router.locale,
-        headers
+        url: `/api/public/languages/${router.locale}`
     });
 
     useEffect(() => {
-        if (data !== undefined){
+        if (data !== undefined) {
             setItems((data as any).data);
             setLoading(false);
         }
-    },[data]);
+    }, [data]);
 
     const {t, ready} = useTranslation("settings");
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <CheckList items={items}
@@ -41,4 +36,5 @@ function LanguesDialog(info:any) {
                    search={t('dialogs.search_lang')}/>
     )
 }
+
 export default LanguesDialog

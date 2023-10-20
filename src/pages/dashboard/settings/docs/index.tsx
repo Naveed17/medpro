@@ -3,7 +3,6 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
-import {useSession} from "next-auth/react";
 import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
@@ -24,16 +23,18 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {FileuploadProgress} from "@features/progressUI";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import Zoom from "@mui/material/Zoom";
 import PreviewA4 from "@features/files/components/previewA4";
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
@@ -42,9 +43,9 @@ import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
 import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
 import {Editor} from '@tinymce/tinymce-react';
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function DocsConfig() {
-    const {data: session} = useSession();
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
     const router = useRouter();
     const theme = useTheme();
@@ -75,15 +76,12 @@ function DocsConfig() {
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
 
-    const {trigger} = useRequestMutation(null, "/MP/header");
+    const {trigger: triggerMPHeader} = useRequestQueryMutation("/MP/header");
 
-    const {data: httpData, mutate: mutateDocumentHeader} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpData, mutate: mutateDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        }
-    } : null, SWRNoValidateConfig);
+        url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
 
     const handlePrint = useReactToPrint({
         content: () => componentRef.current,
@@ -158,18 +156,16 @@ function DocsConfig() {
         const form = new FormData();
         data.background.content = "";
         form.append('document_header', JSON.stringify({header: values, data}));
-        trigger({
+        triggerMPHeader({
             method: "PATCH",
             url: `${urlMedicalProfessionalSuffix}/documents_header/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
+            data: form
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t("updated"), {variant: 'success'});
+                mutateDocumentHeader();
             }
-        }, TriggerWithoutValidation).then(() => {
-            mutateDocumentHeader();
-        })
-        enqueueSnackbar(t("updated"), {variant: 'success'})
-
+        });
     }
 
     useEffect(() => {
@@ -204,7 +200,7 @@ function DocsConfig() {
         }
     }, [httpData, setFieldValue])
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

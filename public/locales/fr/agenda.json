@@ -4,6 +4,7 @@
   "leave-waiting-room": "Quitter la salle d’attente",
   "add": "Ajouter RDV",
   "add-quick": "Ajout rapide",
+  "add-quick-drawer": "Ajout rapide d'un rendez-vous",
   "add-complete": "Ajout complet",
   "view": "Voir détails",
   "restore": "Restaurer",
@@ -22,7 +23,7 @@
   },
   "side-bar": {
     "all": "tous",
-    "motif": "Motif de consultation",
+    "motif": "Motif",
     "status": "Statut",
     "type": "Type du RDV"
   },
@@ -44,10 +45,12 @@
     "fiche": "Numéro fiche",
     "next-appointment": "Prochain rendez-vous",
     "last-appointment": "Dernier rendez-vous",
-    "reasons": "Motif de consultation",
+    "reasons": "Motif",
     "status": "Statut",
     "meetingType": "Type de RDV",
     "meetingStatus": "Statut du RDV",
+    "meetingActs": "Acte RDV",
+    "meetingDisease": "Maladie",
     "meeting": {
       "cabinet": "Cabinet",
       "home": "Domicile",
@@ -117,8 +120,8 @@
     "stepper-1": {
       "title": "Réservez un créneau horaire",
       "sub-title": "Créneau horaire",
-      "reason-consultation": "Motif de consultation",
-      "reason-consultation-placeholder": "Choisissez votre motif de consultation",
+      "reason-consultation": "Motif",
+      "reason-consultation-placeholder": "Choisissez votre motif",
       "practitioner": "Praticien",
       "affect-des": "Choisissez le praticien qui affecte cette consultation",
       "time-slot": "Créneau horaire",
@@ -144,7 +147,7 @@
       "add_button": "Ajouter un nouveau patient",
       "search_placeholder": "Chercher un patient",
       "patient": {
-        "personal-info": "Informations personnelles",
+        "personal-info": "Informations",
         "additional-information": "Informations supplémentaires",
         "more-detail": "Afficher plus de détails",
         "less-detail": "Afficher moins de détails",
@@ -287,13 +290,6 @@
     },
     "pending-dialog": {
       "title": "Rendez-vous en attente"
-    },
-    "duplication-dialog": {
-      "title": "Duplicatas détectés",
-      "later": "Le faire plus tard",
-      "no-duplicates": "Ces patients ne sont pas doublons ",
-      "selected": "Patient sélectionné",
-      "save": "Enregistrer"
     }
   },
   "alert": {

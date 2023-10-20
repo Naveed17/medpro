@@ -14,15 +14,14 @@ interface EventModal {
     motif: ConsultationReasonModel[];
     type: AppointmentTypeModel;
     instruction: string;
-    fees: string;
+    payed: boolean;
     id: string;
     dur: number;
-    meeting: boolean;
+    restAmount: number;
     filtered: boolean;
     new: boolean;
     isOnline: boolean;
     hasErrors: Array<string>;
-    addRoom: boolean;
     patient: PatientModel;
     status: AppointmentStatusModel;
 }

@@ -5,16 +5,14 @@ import SaveAsIcon from "@mui/icons-material/SaveAs";
 import IconUrl from "@themes/urlIcon";
 import React, {useState} from "react";
 import PanelCardStyled from "./overrides/panelCardStyled";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function NotesPanel({...props}) {
     const {t, patient, mutatePatientDetails, loading} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -24,7 +22,7 @@ function NotesPanel({...props}) {
     const [requestLoading, setRequestLoading] = useState(false);
     const [notes, setNotes] = useState(patient && patient.note ? patient.note : "");
 
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update/notes");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/notes/update");
 
     const uploadPatientNotes = () => {
         setRequestLoading(true);
@@ -36,13 +34,12 @@ function NotesPanel({...props}) {
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PATCH",
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`
-                },
                 data: params,
-            }).then(() => {
-                setRequestLoading(false);
-                mutatePatientDetails();
+            }, {
+                onSuccess: () => {
+                    setRequestLoading(false);
+                    mutatePatientDetails();
+                }
             });
         }
     }

@@ -7,7 +7,7 @@ import CalendarRowDetail from "@features/table/components/rows/calendarRowDetail
 
 function CalendarRow({...props}) {
     const {row, handleEvent, data, refHeader, t} = props;
-    const {spinner, pendingData = null} = data;
+    const {spinner, pendingData = null, mutateAgenda} = data;
 
     const dispatch = useAppDispatch();
 
@@ -29,8 +29,7 @@ function CalendarRow({...props}) {
                 onClick={() => handleMobileGroupClick(moment(row.date, "DD-MM-YYYY").toDate())}
                 component="tr"
                 color="text.primary"
-                pt={2}
-            >
+                pt={2}>
                 {moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY")) ? (
                     "Today"
                 ) : moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY").add(1, 'days')) ? (
@@ -48,7 +47,7 @@ function CalendarRow({...props}) {
                 key={index}
                 {...{
                     index, data, pendingData,
-                    spinner, t, handleEvent
+                    spinner, t, handleEvent, mutateAgenda
                 }} />))}
         </>
     );

@@ -16,7 +16,10 @@ import rows from '@features/card/components/detailsCard/config'
 import Icon from "@themes/urlIcon";
 import {Theme,} from '@mui/material/styles';
 import {upperFirst} from "lodash";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 const data = [
     {
@@ -49,7 +52,7 @@ function Consultation() {
     const [drawer, setDrawer] = useState(false);
     const [collapse, setCollapse] = useState(false);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
     return (
         <>
             <SubHeader>

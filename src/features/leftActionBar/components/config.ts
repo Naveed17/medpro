@@ -21,9 +21,17 @@ const LeftActionsData = [
   {
     pathname: path(ROOTS.app, "/payment"),
     component: dynamic((): any =>
-        import(
-            "@features/leftActionBar/components/payment/payment"
-            ).then((mod) => mod)
+      import("@features/leftActionBar/components/payment/payment").then(
+        (mod) => mod
+      )
+    ),
+  },
+  {
+    pathname: path(ROOTS.app, "/cashbox"),
+    component: dynamic((): any =>
+      import("@features/leftActionBar/components/cashbox/cashbox").then(
+        (mod) => mod
+      )
     ),
   },
   {
@@ -48,6 +56,14 @@ const LeftActionsData = [
       import(
         "@features/leftActionBar/components/questions/components/questions"
       ).then((mod) => mod)
+    ),
+  },
+  {
+    pathname: path(ROOTS.app, "/inventory"),
+    component: dynamic((): any =>
+      import("@features/leftActionBar/components/inventory/inventory").then(
+        (mod) => mod
+      )
     ),
   },
   {

@@ -22,24 +22,25 @@ import {MotifTypeDialog} from "@features/motifTypeDialog";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
-import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {MotifTypeCard} from "@features/card";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function ConsultationType() {
     const theme: Theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const {data: session} = useSession();
-    const {trigger} = useRequestMutation(null, "/settings/type");
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -100,39 +101,36 @@ function ConsultationType() {
         },
     ];
 
-    const {data, mutate} = useRequest(medicalEntityHasUser ? {
+    const {trigger: triggerTypeDelete} = useRequestQueryMutation("/settings/type/delete");
+
+    const {
+        data: appointmentTypesResponse,
+        mutate: mutateAppointmentTypes
+    } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}${
-            !isMobile
-                ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
-                : "?sort=true"
-        }`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    } : null);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(medicalEntityHasUser && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}})
+    });
 
     const removeAppointmentType = (uuid: any) => {
         setLoading(true)
-        medicalEntityHasUser && trigger({
+        medicalEntityHasUser && triggerTypeDelete({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then(() => {
-            enqueueSnackbar(t("alert.delete-reasonType"), {variant: "success"});
-            setLoading(false)
-            setOpen(false);
-            mutate();
-        }).catch((error) => {
-            const {response: {data}} = error;
-            setOpen(false);
-            setLoading(false)
-            enqueueSnackbar(data.message, {variant: "error"});
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t("alert.delete-reasonType"), {variant: "success"});
+                setLoading(false);
+                setTimeout(() => setOpen(false));
+                mutateAppointmentTypes();
+            }
         });
     }
 
     const handleScroll = () => {
-        const total = (data as HttpResponse)?.data.length;
+        const total = (appointmentTypesResponse as HttpResponse)?.data.length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
             if (total > displayedItems) {
                 setDisplayedItems(displayedItems + 10);
@@ -159,14 +157,15 @@ function ConsultationType() {
     }
 
     useEffect(() => {
-        if (data !== undefined) {
+        if (appointmentTypesResponse !== undefined) {
             if (isMobile) {
-                setRows((data as HttpResponse).data);
+                setRows((appointmentTypesResponse as HttpResponse).data);
             } else {
-                setRows((data as HttpResponse).data?.list);
+                setRows((appointmentTypesResponse as HttpResponse).data?.list);
             }
         }
-    }, [data]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [appointmentTypesResponse]);// eslint-disable-line react-hooks/exhaustive-deps
+
     useEffect(() => {
         // Add scroll listener
         if (isMobile) {
@@ -183,9 +182,9 @@ function ConsultationType() {
 
             return () => window.removeEventListener("scroll", handleScroll);
         }
-    }, [data, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [appointmentTypesResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -218,8 +217,8 @@ function ConsultationType() {
                         pagination
                         t={t}
                         edit={editMotif}
-                        total={(data as HttpResponse)?.data?.total}
-                        totalPages={(data as HttpResponse)?.data?.totalPages}
+                        total={(appointmentTypesResponse as HttpResponse)?.data?.total}
+                        totalPages={(appointmentTypesResponse as HttpResponse)?.data?.totalPages}
                     />
                 </Box>
             </DesktopContainer>
@@ -237,15 +236,16 @@ function ConsultationType() {
             <Drawer anchor={"right"} open={edit} dir={direction} onClose={closeDraw}>
                 <MotifTypeDialog
                     data={selected}
-                    mutateEvent={mutate}
+                    mutateEvent={mutateAppointmentTypes}
                     closeDraw={closeDraw}
                 />
             </Drawer>
-            <Dialog PaperProps={{
-                sx: {
-                    width: "100%"
-                }
-            }} maxWidth="sm" open={open}>
+            <Dialog
+                PaperProps={{
+                    sx: {
+                        width: "100%"
+                    }
+                }} maxWidth="sm" open={open}>
                 <DialogTitle sx={{
                     bgcolor: (theme: Theme) => theme.palette.error.main,
                     px: 1,

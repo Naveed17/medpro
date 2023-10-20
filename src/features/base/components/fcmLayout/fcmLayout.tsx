@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {firebaseCloudSdk} from "@lib/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
@@ -33,9 +33,10 @@ import {setMoveDateTime} from "@features/dialog";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
+import {useRequestQueryMutation} from "@lib/axios";
+import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -45,20 +46,22 @@ function PaperComponent(props: PaperProps) {
 
 function FcmLayout({...props}) {
     const {data: session} = useSession();
+    const {jti} = session?.user as any;
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {mutate: mutateOnGoing, appointmentTypes} = useAppSelector(dashLayoutSelector);
+    const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
     const [notificationData, setNotificationData] = useState<any>(null);
-    const [fcmToken, setFcmToken] = useState("");
     const [noConnection, setNoConnection] = useState<SnackbarKey | undefined>(undefined);
     const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
 
@@ -69,7 +72,7 @@ function FcmLayout({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
 
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
@@ -81,80 +84,88 @@ function FcmLayout({...props}) {
         const messaging = getMessaging(firebaseCloudSdk.firebase);
         onMessage(messaging, (message: any) => {
             const data = JSON.parse(message.data.detail);
-            if (data.type === "no_action") {
-                if (data.mode === "foreground") {
-                    enqueueSnackbar(message.notification.body, {variant: "info"});
-                } else if (data.body.hasOwnProperty('progress')) {
-                    if (data.body.progress === -1 || data.body.progress === 100) {
-                        localStorage.removeItem("import-data");
-                        localStorage.removeItem("import-data-progress");
-                        importData.mutate && importData.mutate();
-                        // refresh on going api
-                        mutateOnGoing && mutateOnGoing();
-                        closeSnackbar();
-                        enqueueSnackbar((data.body.progress === -1 ?
-                                translationCommon.import_data.failed : translationCommon.import_data.end),
-                            {variant: data.body.progress === -1 ? "error" : "success"});
-                    } else {
-                        localStorage.setItem("import-data-progress", data.body.progress.toString());
-                        dispatch(setProgress(parseFloat(data.body.progress)));
-                    }
-                }
-            } else {
-                switch (message.data.root) {
-                    case "agenda":
-                        dispatch(setLastUpdate(data));
-                        if (data.type === "popup") {
-                            if (!data.body.appointment) {
-                                dispatch(resetTimer());
-                            }
-                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
-                            setOpenDialog(true);
-                            setNotificationData(data.body);
-                            const localStorageNotifications = localStorage.getItem("notifications");
-                            const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
-                                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
-                                appointment: data.body,
-                                action: "end-consultation"
-                            }];
-                            localStorage.setItem("notifications", JSON.stringify(notifications));
-                            // Update notifications popup
-                            dispatch(setOngoing({notifications}));
-                        } else if (data.body.action === "update") {
-                            // update pending notifications status
-                            agendaConfig?.mutate[1]();
+            const fcmSession = data.body?.fcm_session ?? "";
+            if (fcmSession !== jti) {
+                if (data.type === "no_action") {
+                    if (data.mode === "foreground") {
+                        enqueueSnackbar(message.notification.body, {variant: "info"});
+                    } else if (data.body.hasOwnProperty('progress')) {
+                        if (data.body.progress === -1 || data.body.progress === 100) {
+                            localStorage.removeItem("import-data");
+                            localStorage.removeItem("import-data-progress");
+                            importData.mutate && importData.mutate();
+                            // refresh on going api
+                            mutateOnGoing();
+                            closeSnackbar();
+                            enqueueSnackbar((data.body.progress === -1 ?
+                                    translationCommon.import_data.failed : translationCommon.import_data.end),
+                                {variant: data.body.progress === -1 ? "error" : "success"});
+                        } else {
+                            localStorage.setItem("import-data-progress", data.body.progress.toString());
+                            dispatch(setProgress(parseFloat(data.body.progress)));
                         }
-                        break;
-                    case "waiting-room":
-                        // refresh agenda
-                        dispatch(setLastUpdate(data));
-                        // refresh on going api
-                        mutateOnGoing && mutateOnGoing();
-                        break;
-                    case "consultation":
-                        // refresh agenda
-                        dispatch(setLastUpdate(data));
-                        // refresh on going api
-                        mutateOnGoing && mutateOnGoing();
-                        const event = {
-                            publicId: data.body.appointment?.uuid,
-                            title: `${data.body.appointment.patient.firstName} ${data.body.appointment.patient.lastName}`,
-                            extendedProps: {
-                                patient: data.body.appointment.patient,
-                                type: data.body.type,
-                                status: AppointmentStatus[data.body.appointment?.status],
-                                time: moment(`${data.body.appointment.dayDate} ${data.body.appointment.startTime}`, "DD-MM-YYYY HH:mm").toDate()
+                    }
+                } else {
+                    switch (message.data.root) {
+                        case "agenda":
+                            dispatch(setLastUpdate(data));
+                            if (data.type === "popup") {
+                                if (!data.body.appointment) {
+                                    dispatch(resetTimer());
+                                }
+                                setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
+                                setOpenDialog(true);
+                                setNotificationData(data.body);
+                                const localStorageNotifications = localStorage.getItem("notifications");
+                                const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
+                                    (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
+                                    appointment: data.body,
+                                    action: "end-consultation"
+                                }];
+                                localStorage.setItem("notifications", JSON.stringify(notifications));
+                                // Update notifications popup
+                                dispatch(setOngoing({notifications}));
+                            } else if (data.body.action === "update") {
+                                // update pending notifications status
+                                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
+                                // refresh on going api
+                                mutateOnGoing();
                             }
-                        } as any;
-                        // start consultation timer
-                        dispatch(setTimer({
-                                isActive: true,
-                                isPaused: false,
-                                event,
-                                startTime: moment().utc().format("HH:mm")
-                            }
-                        ));
-                        break;
+                            break;
+                        case "waiting-room":
+                            // refresh agenda
+                            dispatch(setLastUpdate(data));
+                            // refresh on going api
+                            mutateOnGoing();
+                            break;
+                        case "consultation":
+                            // refresh agenda
+                            dispatch(setLastUpdate(data));
+                            // refresh on going api
+                            mutateOnGoing();
+                            const event = {
+                                publicId: data.body.appointment?.uuid,
+                                title: `${data.body.appointment.patient.firstName} ${data.body.appointment.patient.lastName}`,
+                                extendedProps: {
+                                    patient: data.body.appointment.patient,
+                                    type: data.body.type,
+                                    status: AppointmentStatus[data.body.appointment?.status],
+                                    time: moment(`${data.body.appointment.dayDate} ${data.body.appointment.startTime}`, "DD-MM-YYYY HH:mm").toDate()
+                                }
+                            } as any;
+                            // start consultation timer
+                            dispatch(setTimer({
+                                    isActive: true,
+                                    isPaused: false,
+                                    event,
+                                    startTime: moment().utc().format("HH:mm")
+                                }
+                            ));
+                            break;
+                        default:
+                            data.body.mutate && invalidateQueries([data.body.mutate]);
+                            break;
+                    }
                 }
             }
         });
@@ -164,8 +175,8 @@ function FcmLayout({...props}) {
         try {
             const {token, analytics} = await firebaseCloudSdk.init() as any;
             if (token) {
-                setFcmToken(token as string);
                 getFcmMessage();
+                subscribeToTopic(token, `${roles[0]}-${general_information.uuid}`);
             }
             if (analytics) {
                 // identify firebase analytics user
@@ -186,7 +197,6 @@ function FcmLayout({...props}) {
         const {token: refreshToken} = await firebaseCloudSdk.init() as any;
         if (refreshToken) {
             localStorage.setItem("fcm_token", refreshToken);
-            setFcmToken(refreshToken as string);
             const topicURL = `https://iid.googleapis.com/iid/v1/${refreshToken}/rel/topics/${topicName}`;
             return axios({
                 url: topicURL,
@@ -198,7 +208,7 @@ function FcmLayout({...props}) {
         }
     }
 
-    const subscribeToTopic = useCallback(async (topicName: string) => {
+    const subscribeToTopic = async (fcmToken: string, topicName: string) => {
         if (fcmToken) {
             const {data: fcm_api_key} = await axios({
                 url: "/api/helper/server_env",
@@ -220,36 +230,50 @@ function FcmLayout({...props}) {
                 console.log(`Can't subscribe to ${topicName} topic`);
             });
         }
-    }, [fcmToken]); // eslint-disable-line react-hooks/exhaustive-deps
+    };
 
     useEffect(() => {
         if (general_information) {
-            if (prodEnv) {
-                // identify smartlook user
-                smartlookClient.identify(general_information.uuid, {
-                    name: `${general_information.firstName} ${general_information.lastName}`,
-                    email: general_information.email,
-                    role: roles[0]
+            const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
+            if (prodEnv && remoteConfig) {
+                fetchAndActivate(remoteConfig).then(() => {
+                    const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
+                    if (config.smartlook && config.countries?.includes(process.env.NEXT_PUBLIC_COUNTRY?.toLowerCase())) {
+                        // identify smartlook user
+                        smartlookClient.identify(general_information.uuid, {
+                            name: `${general_information.firstName} ${general_information.lastName}`,
+                            email: general_information.email,
+                            role: roles[0]
+                        });
+                    }
                 });
             }
         }
     }, [general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (general_information) {
-            subscribeToTopic(`${roles[0]}-${general_information.uuid}`);
+        // Update notifications popup
+        const localStorageNotifications = localStorage.getItem("notifications");
+        if (localStorageNotifications) {
+            const notifications = JSON.parse(localStorageNotifications).filter(
+                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day"));
+            dispatch(setOngoing({notifications}))
         }
-    }, [general_information, subscribeToTopic]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [dispatch])
 
     useEffect(() => {
-        setToken();
-        // Event listener that listens for the push notification event in the background
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.addEventListener("message", (event) => {
-                process.env.NODE_ENV === 'development' && console.log("event for the service worker", event);
-            });
+        if (agendaConfig) {
+            setToken();
+            // Event listener that listens for the push notification event in the background
+            if ("serviceWorker" in navigator && process.env.NODE_ENV === "development") {
+                navigator.serviceWorker.addEventListener("message", (event) => {
+                    console.log("event for the service worker", JSON.parse(event.data.data.detail));
+                });
+            }
         }
+    }, [agendaConfig]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
         if (typeof window !== "undefined") {
             window.addEventListener("online", () => {
                 // when we're back online
@@ -266,17 +290,7 @@ function FcmLayout({...props}) {
                 }));
             });
         }
-    });
-
-    useEffect(() => {
-        // Update notifications popup
-        const localStorageNotifications = localStorage.getItem("notifications");
-        if (localStorageNotifications) {
-            const notifications = JSON.parse(localStorageNotifications).filter(
-                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day"));
-            dispatch(setOngoing({notifications}))
-        }
-    }, [dispatch])
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -301,8 +315,7 @@ function FcmLayout({...props}) {
                         }
                     }
                 }}
-                aria-labelledby="draggable-dialog-title"
-            >
+                aria-labelledby="draggable-dialog-title">
                 {dialogAction !== "confirm-dialog" ? <>
                         <DialogTitle sx={{m: 0, p: 2, backgroundColor: theme.palette.primary.main}}>
                             Fin de consultation
@@ -311,13 +324,21 @@ function FcmLayout({...props}) {
                             <ConsultationPopupAction
                                 data={{
                                     id: notificationData?.patient.uuid,
+                                    appUuid: notificationData?.appUuid,
                                     name: `${notificationData?.patient.firstName} ${notificationData?.patient.lastName}`,
-                                    phone: `${notificationData?.patient.contact[0]?.code} ${notificationData?.patient.contact[0]?.value}`,
                                     fees: notificationData?.fees,
                                     instruction: notificationData?.instruction,
                                     devise,
                                     nextAppointment: notificationData?.nextApp,
-                                    control: notificationData?.control
+                                    control: notificationData?.control,
+                                    restAmount: notificationData?.restAmount,
+                                    payed: notificationData?.payed
+                                }}
+                                OnPay={() => {
+                                    handleClose();
+                                    router.push("/dashboard/agenda").then(() => {
+                                        dispatch(openDrawer({type: "pay", open: true}));
+                                    });
                                 }}
                                 OnSchedule={() => {
                                     handleClose();
@@ -365,13 +386,13 @@ function FcmLayout({...props}) {
                         }}
                         OnConfirm={() => {
                             handleClose();
+                            const form = new FormData();
+                            form.append('status', "1");
                             updateAppointmentStatus({
                                 method: "PATCH",
-                                data: {
-                                    status: "1"
-                                },
+                                data: form,
                                 url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${notificationData?.appointment?.uuid}/status/${router.locale}`
-                            } as any);
+                            });
                         }}
                     />}
             </Dialog>

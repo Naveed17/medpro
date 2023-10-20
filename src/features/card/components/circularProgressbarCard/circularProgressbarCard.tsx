@@ -6,7 +6,9 @@ import CollapseCardStyled from "./overrides/circularProgressbarCardStyled";
 import * as React from "react";
 import {FacebookCircularProgress} from "@features/progressUI";
 import {useTranslation} from "next-i18next";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 const CircularProgressbarCard = forwardRef<HTMLDivElement, any>(
     ({id, ...props}, ref) => {

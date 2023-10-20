@@ -3,21 +3,17 @@ import dynamic from "next/dynamic";
 import {
     Box,
     Button,
-    Card,
     CardContent,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     IconButton,
-    List,
-    ListItem,
     ListItemIcon,
     ListItemText,
     MenuItem,
     MenuList,
     Paper,
-    Skeleton,
     Stack,
     Typography,
     useTheme,
@@ -34,6 +30,8 @@ import {useTranslation} from "next-i18next";
 import TeethPreview from "@features/widget/components/teethPreview";
 import ReactDOM from "react-dom/client";
 import {useRouter} from "next/router";
+import {useRequestQueryMutation} from "@lib/axios";
+import OphtPreview from "@features/widget/components/ophtPreview";
 
 const Form: any = dynamic(
     () => import("@formio/react").then((mod: any) => mod.Form),
@@ -58,6 +56,11 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         changes,
         setChanges,
         previousData,
+        selectedModel,
+        trigger,
+        autoUpdate,
+        mutateSheetData,
+        url
     } = props;
 
     if (modal) {
@@ -78,19 +81,36 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         <>
             <Form
                 onChange={(ev: any) => {
-                    localStorage.setItem("Modeldata" + appuuid, JSON.stringify(ev.data));
-                    const item = changes.find(
-                        (change: { name: string }) => change.name === "patientInfo"
-                    );
-                    item.checked =
-                        Object.values(ev.data).filter((val) => val !== "").length > 0;
-                    setChanges([...changes]);
+                    if (Object.keys(ev.data).length !== 0) {
+                        localStorage.setItem(`Modeldata${appuuid}`, JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string), ...ev.data}));
+                        const item = changes.find(
+                            (change: { name: string }) => change.name === "patientInfo"
+                        );
+                        item.checked =
+                            Object.values(ev.data).filter((val) => val !== "").length > 0;
+                        setChanges([...changes]);
+                    }
                 }}
+                {...(autoUpdate && {
+                    onBlur: (ev: { data: any; }) => {
+                        const form = new FormData();
+                        form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string), ...ev.data}));
+                        form.append("modal_uuid", selectedModel?.default_modal.uuid);
+                        trigger({
+                            method: "PUT",
+                            url,
+                            data: form
+                        }, {
+                            onSuccess: () => mutateSheetData()
+                        });
+                    }
+                })}
                 // @ts-ignore
                 submission={{
-                    data: localStorage.getItem(`Modeldata${appuuid}`)
-                        ? JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string)
-                        : data,
+                    data
+                    /*: localStorage.getItem(`Modeldata${appuuid}`)
+                    ? JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string)
+                    : data,*/
                 }}
                 form={{
                     display: "form",
@@ -112,12 +132,15 @@ function Widget({...props}) {
         changes,
         expandButton = true,
         setChanges,
+        autoUpdate,
         isClose,
         handleClosePanel,
         previousData,
-        acts, setActs
+        acts, setActs, selectedModel,
+        url, mutateSheetData,printGlasses
     } = props;
     const router = useRouter();
+    const theme = useTheme();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "widget"});
 
@@ -125,7 +148,6 @@ function Widget({...props}) {
     const [openTeeth, setOpenTeeth] = useState("");
     const [updated, setUpdated] = useState(false);
 
-    const [pageLoading, setPageLoading] = useState(false);
     const [closePanel, setClosePanel] = useState<boolean>(isClose);
     const [closeMobilePanel, setCloseMobilePanel] = useState<boolean>(true);
     const [defaultModal, setDefaultModal] = useState<ModalModel>({
@@ -137,13 +159,15 @@ function Widget({...props}) {
         uuid: "",
     });
 
-    const theme = useTheme();
+
+    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
     useEffect(() => {
         if (modal) {
             setDefaultModal(modal.default_modal);
         }
     }, [modal]);
+
     useEffect(() => {
         if (ready) {
             checkTeethWidget()
@@ -183,8 +207,13 @@ function Widget({...props}) {
                     local: router.locale
                 }}/>)
             }
-        }, 1000)
 
+            const ophtalmo = document.getElementById('opht');
+            if (ophtalmo) {
+                const root = ReactDOM.createRoot(ophtalmo);
+                root.render(<OphtPreview {...{t,printGlasses,appuuid,url,triggerAppointmentEdit,data}}/>)
+            }
+        }, 1000)
     }
     const handleClickAway = () => {
         setOpen(!open);
@@ -192,7 +221,18 @@ function Widget({...props}) {
     const handleClick = (prop: ModalModel) => {
         modal.default_modal = prop;
         setModal(modal);
+
         setDefaultModal(prop);
+
+        const form = new FormData();
+        form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string)}));
+        form.append("modal_uuid", modal?.default_modal.uuid);
+        triggerAppointmentEdit({
+            method: "PUT",
+            url,
+            data: form
+        })
+
         localStorage.setItem(
             `Model-${appuuid}`,
             JSON.stringify({
@@ -216,7 +256,7 @@ function Widget({...props}) {
         <>
             <ConsultationModalStyled
                 sx={{
-                    height: {xs: closeMobilePanel ? "50px" : "30vh", md: "48.9rem"},
+                    height: {xs: closeMobilePanel ? "50px" : "30vh", md: "40.3rem"},
                     position: "relative",
                     width: closePanel ? 50 : "auto",
                 }}>
@@ -318,31 +358,6 @@ function Widget({...props}) {
                         </Paper>
                     </motion.div>
                     <Box>
-                        {pageLoading &&
-                            Array.from({length: 3}).map((_, idx) => (
-                                <Box key={`loading-box-${idx}`} padding={"0 16px"}>
-                                    <Typography alignSelf="center" marginBottom={2} marginTop={2}>
-                                        <Skeleton width={130} variant="text"/>
-                                    </Typography>
-                                    <Card className="loading-card">
-                                        <Stack spacing={2}>
-                                            <List style={{marginTop: 25}}>
-                                                {Array.from({length: 4}).map((_, idx) => (
-                                                    <ListItem
-                                                        key={`skeleton-item-${idx}`}
-                                                        sx={{py: 0.5}}>
-                                                        <Skeleton width={"40%"} variant="text"/>
-                                                        <Skeleton
-                                                            sx={{ml: 1}}
-                                                            width={"50%"}
-                                                            variant="text"/>
-                                                    </ListItem>
-                                                ))}
-                                            </List>
-                                        </Stack>
-                                    </Card>
-                                </Box>
-                            ))}
                         {models?.map(
                             (m: any) =>
                                 m.uuid === modal.default_modal.uuid && (
@@ -353,8 +368,13 @@ function Widget({...props}) {
                                             setChanges,
                                             data,
                                             acts,
+                                            autoUpdate,
                                             setActs,
                                             previousData,
+                                            selectedModel,
+                                            trigger: triggerAppointmentEdit,
+                                            mutateSheetData,
+                                            url
                                         }}
                                         key={m.uuid}
                                         modal={m.structure}></WidgetForm>
@@ -365,9 +385,10 @@ function Widget({...props}) {
             </ConsultationModalStyled>
             <Dialog
                 open={openTeeth !== ""}
+                fullWidth
                 onClose={handleClose}
                 scroll={"paper"}
-                maxWidth={"lg"}>
+                maxWidth={"sm"}>
                 <DialogTitle style={{
                     marginBottom: 15,
                     borderBottom: "1px solid #eeeff1",
@@ -377,20 +398,32 @@ function Widget({...props}) {
                     {t('title')}
                     <Typography fontSize={12} style={{color: "rgb(115, 119, 128)"}}>{t('subtitle')}</Typography>
                 </DialogTitle>
-                <DialogContent>
+                <DialogContent style={{overflow: "hidden"}}>
                     <TeethWidget {...{
                         acts,
                         setActs,
                         t,
                         of: openTeeth,
                         previousData,
-                        appuuid
+                        appuuid,
+                        local: router.locale
                     }}/>
                 </DialogContent>
                 <DialogActions style={{borderTop: "1px solid #eeeff1"}}>
                     <Button onClick={() => {
                         setOpenTeeth("")
                         setUpdated(!updated)
+
+                        const form = new FormData();
+                        form.append("modal_data",(localStorage.getItem(`Modeldata${appuuid}`) as string));
+                        form.append("modal_uuid", selectedModel?.default_modal.uuid);
+                        triggerAppointmentEdit({
+                            method: "PUT",
+                            url,
+                            data: form
+                        }, {
+                            onSuccess: () => mutateSheetData()
+                        });
                     }
                     }>{t('save')}</Button>
                 </DialogActions>

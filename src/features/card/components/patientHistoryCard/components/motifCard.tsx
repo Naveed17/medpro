@@ -1,8 +1,6 @@
 import {Box, Card, CardContent, Grid, List, ListItem, ListItemIcon, Stack, Typography} from '@mui/material'
 import React from 'react'
-
 import RootStled from './overrides/rootStyle';
-import CircleIcon from '@mui/icons-material/Circle';
 
 function MotifCard({...props}) {
     const {data, t} = props;
@@ -10,16 +8,17 @@ function MotifCard({...props}) {
     const notmodels = data?.appointment.appointmentData.find((appData: { type: string }) => appData.type !== 'models')
     const getLabel = (key: string, from: string) => {
         if (from === 'description') {
-            const desc = models.modal.structure[0].components.find((md: any) => md.key === key)?.description
+            const desc = models.modal.structure[0]?.components.find((md: any) => md.key === key)?.description
             return desc ? desc : "";
         } else {
-            const label = models.modal.structure[0].components.find((md: any) => md.key === key)?.label
+            const label = models.modal.structure[0]?.components.find((md: any) => md.key === key)?.label
             return label ? label : key;
         }
     }
     const checkKey = (key: string) => {
-        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth";
+        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth" && key !=="eyes";
     }
+
     return (
         <RootStled>
             <Grid container spacing={2}>
@@ -38,10 +37,6 @@ function MotifCard({...props}) {
                                 <List dense style={{marginLeft: 20, textTransform: 'uppercase'}}>
                                     {Object.keys(models.data).filter(ml => models.data[ml]).map((ml, idx) => (
                                         checkKey(ml) && <ListItem key={'modelData' + idx}>
-
-                                            <ListItemIcon>
-                                                <CircleIcon/>
-                                            </ListItemIcon>
                                             {getLabel(ml, 'label')} : <span style={{
                                             fontWeight: "bold",
                                             margin: '0 2px'
@@ -70,10 +65,7 @@ function MotifCard({...props}) {
                                     </Typography>
                                     <List style={{marginLeft: 20}}>
                                         <ListItem>
-                                            <ListItemIcon>
-                                                <CircleIcon/>
-                                            </ListItemIcon>
-                                            {data.value ? data.value : '-'}
+                                            {data.value ? <div dangerouslySetInnerHTML={{__html:data.value}}></div> : '-'}
                                         </ListItem>
                                     </List>
                                 </Box>

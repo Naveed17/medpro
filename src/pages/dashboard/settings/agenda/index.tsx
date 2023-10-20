@@ -10,14 +10,16 @@ import {Otable} from "@features/table";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppSelector} from "@lib/redux/hooks";
-import {useRequest} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {Theme} from "@mui/material/styles";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {SettingAgendaMobileCard, NoDataCard} from "@features/card";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function Agenda() {
@@ -29,7 +31,6 @@ function Agenda() {
         buttonIcon: "ic-agenda-+",
         buttonVariant: "warning",
     };
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -41,10 +42,9 @@ function Agenda() {
     const [open, setOpen] = useState(false);
     const [rows, setRows] = useState<any>([]);
 
-    const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
+    const {data: httpAgendasResponse} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
     } : null);
 
     const agenda = httpAgendasResponse ? (httpAgendasResponse as HttpResponse).data : undefined;
@@ -63,7 +63,7 @@ function Agenda() {
         setOpen(false);
     };
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     const headCells = [
         {
@@ -142,7 +142,8 @@ function Agenda() {
         } else props[e] = !props[e];
 
         setRows([...rows]);
-    };
+    }
+
     return (
         <>
             <SubHeader>

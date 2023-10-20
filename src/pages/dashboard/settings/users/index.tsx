@@ -22,12 +22,14 @@ import {Otable, resetUser} from "@features/table";
 import {useRouter} from "next/router";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard} from "@features/card";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {LoadingScreen} from "@features/loadingScreen";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import IconUrl from "@themes/urlIcon";
 import {AccessMenage} from "@features/drawer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 import {LoadingButton} from "@mui/lab";
 import CloseIcon from '@mui/icons-material/Close';
 import {useSnackbar} from "notistack";
@@ -98,40 +100,41 @@ const headCells = [
 function Users() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
 
-    const {data: httpUsersResponse, mutate} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    });
-
-    const users = (httpUsersResponse as HttpResponse)?.data as UserModel[];
     const [deleteDialog, setDeleteDialog] = useState(false);
-    const {trigger} = useRequestMutation(null, "/users");
     const [loading, setLoading] = useState(false);
     const [selected, setSelected] = useState<any>("");
     const {direction} = useAppSelector(configSelector);
     const [open, setOpen] = useState(false);
+
+    const {trigger: triggerUserUpdate} = useRequestQueryMutation("/users/update");
+    const {trigger: triggerUserDelete} = useRequestQueryMutation("/users/delete");
+    const {data: httpUsersResponse, mutate} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
+    });
+
+    const users = (httpUsersResponse as HttpResponse)?.data as UserModel[];
+
     const handleChange = (props: any, event: any) => {
         const form = new FormData();
         form.append("attribute", "isActive");
         form.append("value", JSON.stringify(event.target.checked));
-        trigger({
+        triggerUserUpdate({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/edit/user/${props.uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        }).then(() => {
-            mutate();
-            enqueueSnackbar(t("updated"), {variant: "success"});
+            data: form
+        }, {
+            onSuccess: () => {
+                mutate();
+                enqueueSnackbar(t("updated"), {variant: "success"});
+            }
         })
-    };
+    }
+
     const closeDraw = () => {
         setOpen(false);
     }
@@ -140,26 +143,26 @@ function Users() {
         setSelected(props);
         setDeleteDialog(true);
     }
+
     const deleteUser = () => {
         setLoading(true);
-        trigger({
+        triggerUserDelete({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/users/${selected.uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
-            enqueueSnackbar(t("delete_success"), {variant: 'success'})
-            setLoading(false);
-            setDeleteDialog(false);
-            mutate();
-        }).catch(() => {
-            setLoading(false);
+            url: `${urlMedicalEntitySuffix}/users/${selected.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t("delete_success"), {variant: 'success'})
+                setDeleteDialog(false);
+                setTimeout(() => setLoading(false));
+                mutate();
+            },
+            onError: () => setLoading(false)
         });
     }
 
     if (!ready)
         return (
             <LoadingScreen
-
                 button
                 text={"loading-error"}
             />

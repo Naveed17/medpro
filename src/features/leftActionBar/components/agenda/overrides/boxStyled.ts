@@ -1,8 +1,9 @@
 import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
+import { MobileContainer } from "@lib/constants";
 
 const BoxStyled = styled(Box)(({ theme }) => ({
-  [theme.breakpoints.up("sm")]: {
+  [`@media (min-width:${MobileContainer + 1}px)`]: {
     marginLeft: "-20px",
     "& .MuiPickerStaticWrapper-root": {
       marginLeft: "-1.2rem",
@@ -50,7 +51,7 @@ const BoxStyled = styled(Box)(({ theme }) => ({
       minWidth: "auto",
       ".MuiCalendarOrClockPicker-root > div": {
         width: "auto",
-        [theme.breakpoints.down("sm")]: {
+        [`@media (max-width:${MobileContainer}px)`]: {
           width: "100%",
         },
       },
@@ -60,16 +61,22 @@ const BoxStyled = styled(Box)(({ theme }) => ({
       ".MuiPickersDay-root": {
         width: 34,
         height: 34,
-        [theme.breakpoints.down("sm")]: {
+        [`@media (max-width:${MobileContainer}px)`]: {
           width: "100%",
+          height:40,
         },
       },
       ".MuiDayPicker-weekDayLabel": {
-        [theme.breakpoints.down("sm")]: {
+        [`@media (max-width:${MobileContainer}px)`]: {
           width: "100%",
         },
       },
     },
+    ".MuiDayPicker-weekContainer":{
+        [`@media (max-width:${MobileContainer}px)`]: {
+          gap:theme.spacing(2),
+        }
+      }
   },
 }));
 

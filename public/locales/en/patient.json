@@ -1,6 +1,7 @@
 {
   "sub-header": {
     "title": "List of patients",
+    "merge-patient": "Merge patients",
     "add-patient": "Add Patient"
   },
   "patient-details": {
@@ -51,14 +52,26 @@
   },
   "config": {
     "reason_for_consultation": "Reason for Consultation",
+    "acts": "Act",
+    "disease": "Disease",
+    "insurance": "Insurances",
     "keyword": "Keyword",
+    "more": "More",
     "patient": "Patient",
     "place": "Place",
     "doc_detail_title": "Document",
     "treatment_medication": "Treatment (medication)",
+    "assurance-placeholder": "insurance",
     "documents": "Documents",
     "bal_sheet_req": "Balance sheet request",
     "upload_document": "Upload a document",
+    "select-all": "Select all",
+    "load-more": "Read more",
+    "popover-action": {
+      "view_patient_data": "View patient details",
+      "check_duplication_data": "Check for duplicates",
+      "delete_patient_data": "Delete patient"
+    },
     "tabs": {
       "personal-info": "Personal Information",
       "additional-information": "Additional Information",
@@ -67,6 +80,7 @@
       "recap": "Summary",
       "appointment": "Appointment",
       "documents": "Documents",
+      "transactions": "Payments",
       "add-appo": "Add Appointment",
       "import": "Import a Document",
       "time-slot": "Time Slot",
@@ -82,7 +96,8 @@
       "photo": "Photo",
       "video": "Video",
       "audio": "Audio",
-      "history": "History Sheet"
+      "history": "History Sheet",
+      "quotes": "Devis"
     },
     "no-data": {
       "appointment": {
@@ -93,18 +108,24 @@
       "documents": {
         "title": "Add the first document",
         "description": "You have no medical documents. Add documents by clicking on 'Add a Document'",
-        "button-text": "Add a Document"
+        "button-text": "Add a Document",
+        "quote-description": "No quote, Click on 'Add a quote'",
+        "add_quote": "Add quote"
       },
       "consultation": {
         "title": "Add your first consultation",
         "description": "You have no consultations. Add an appointment and start the consultation",
         "button-text": "Add a Consultation"
+      },
+      "patient": {
+        "title": "No patients found",
+        "description": "No patients founds, add a patient and create an appointment"
       }
     },
     "table": {
       "name": "Patient Name",
       "telephone": "Telephone",
-      "insurance": "Insurance",
+      "insurance": "Insurances",
       "city": "city",
       "id": "ID",
       "nextAppointment": "Next app",
@@ -161,6 +182,7 @@
       "name-error": "The name must contain at least 3 characters, without special characters.",
       "first-name": "First Name",
       "first-name-error": "The first name must contain at least 3 characters, without special characters.",
+      "special-text-error": "Only alphabets are allowed for this field.",
       "first-name-placeholder": "Enter the patient's first name",
       "last-name": "Last Name",
       "last-name-error": "The last name must contain at least 3 characters, without special characters.",
@@ -228,6 +250,7 @@
         "title": "Duplicates Detected",
         "later": "Do it later",
         "no-duplicates": "These patients are not duplicates",
+        "no-duplicates-check": "This patient has no duplicates",
         "selected": "Selected Patient"
       },
       "alert": {
@@ -275,11 +298,19 @@
         "alert-msg-duration": "The appointment has been successfully modified",
         "cancel": "Cancel",
         "confirm": "Confirm"
+      },
+      "delete-dialog": {
+        "title": "Delete Patient",
+        "sub-title": "Do you really want to delete this patient?",
+        "description": "You lose the patient's history and documents forever",
+        "cancel": "Cancel",
+        "confirm": "Delete"
       }
     },
     "alert": {
       "cancel-appointment": "The appointment has been successfully canceled",
       "delete-appointment": "The appointment has been successfully deleted",
+      "delete-patient": "The patient has been successfully deleted",
       "leave-waiting-room": "The patient has left the waiting room",
       "on-waiting-room": "The patient has been added to the waiting room",
       "patient-no-show": "The appointment has been marked as a patient no-show",
@@ -341,7 +372,8 @@
       "allergic": "Allergies",
       "father": "Father",
       "mother": "Mother",
-      "both": "Both"
+      "both": "Both",
+      "disease": "Disease"
     }
   },
   "background": {

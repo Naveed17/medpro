@@ -5,7 +5,10 @@ import { TextField, Box, Stack, Typography } from '@mui/material'
 import {SetSubmit} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 function SurgicalHistoryDialog() {
     const {submit,mutate} = useAppSelector(consultationSelector);
     const dispatch = useAppDispatch();

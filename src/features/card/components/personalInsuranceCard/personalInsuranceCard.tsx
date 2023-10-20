@@ -16,7 +16,7 @@ import {
     Toolbar,
     Typography, useTheme
 } from "@mui/material";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -25,7 +25,6 @@ import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
-import {LoadingScreen} from "@features/loadingScreen";
 import {DefaultCountry, SocialInsured} from "@lib/constants";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import AddIcon from '@mui/icons-material/Add';
@@ -37,12 +36,15 @@ import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import dynamic from "next/dynamic";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function PersonalInsuranceCard({...props}) {
     const {
         patient, mutatePatientList = null, contacts,
-        mutateAgenda = null, loading, editable
+        mutateAgenda = null, loading, editable, setEditable
     } = props;
 
     const {data: session} = useSession();
@@ -63,16 +65,15 @@ function PersonalInsuranceCard({...props}) {
     const [requestAction, setRequestAction] = useState("POST");
     const {t, ready} = useTranslation(["patient", "common"]);
 
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
     const {
         data: httpPatientInsurancesResponse,
         mutate: mutatePatientInsurances
-    } = useRequest(medicalEntityHasUser && patient ? {
+    } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/insurances/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/insurances/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
 
     const RegisterPatientSchema = Yup.object().shape({
         insurances: Yup.array().of(
@@ -169,23 +170,31 @@ function PersonalInsuranceCard({...props}) {
     }
 
     const handleDeleteInsurance = (insurance: InsuranceModel) => {
+        setEditable({
+            patientDetailContactCard: false,
+            personalInsuranceCard: false,
+            personalInfoCard: false
+        });
         setLoadingRequest(true);
         medicalEntityHasUser && triggerPatientUpdate({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${insurance.uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${insurance.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                mutatePatientInsurances();
+                mutatePatientList && mutatePatientList();
+                mutateAgenda && mutateAgenda();
             }
-        }).then(() => {
-            setLoadingRequest(false);
-            mutatePatientInsurances();
-            mutatePatientList && mutatePatientList();
-            mutateAgenda && mutateAgenda();
         });
     }
 
-
     const handleEditInsurance = (insurance: PatientInsurancesModel) => {
+        setEditable({
+            patientDetailContactCard: false,
+            personalInsuranceCard: false,
+            personalInfoCard: false
+        });
         const insurances = [prepareInsuranceInstance(insurance)]
         setRequestAction("PUT");
         setFieldValue("insurances", insurances);
@@ -261,16 +270,15 @@ function PersonalInsuranceCard({...props}) {
         medicalEntityHasUser && triggerPatientUpdate({
             method: requestAction,
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${values.insurances[0].insurance_key}/` : ""}${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            },
             data: params
-        }).then(() => {
-            setLoadingRequest(false);
-            mutatePatientInsurances();
-            mutatePatientList && mutatePatientList();
-            mutateAgenda && mutateAgenda();
-            enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                mutatePatientInsurances();
+                mutatePatientList && mutatePatientList();
+                mutateAgenda && mutateAgenda();
+                enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
+            }
         });
     }
 
@@ -311,7 +319,7 @@ function PersonalInsuranceCard({...props}) {
                                     </Typography>
                                 </Box>
                                 <LoadingButton
-                                    disabled={editable}
+                                    disabled={editable.personalInfoCard || editable.patientDetailContactCard}
                                     loading={loadingRequest}
                                     className='btn-add'
                                     onClick={() => {
@@ -374,35 +382,36 @@ function PersonalInsuranceCard({...props}) {
                                                             </Typography>
                                                         </Stack>
                                                     </Grid>
-                                                    {!editable && <Grid pt={.5} pb={.5} item xs={6} md={4}>
-                                                        <Stack direction={"row"} alignItems={"start"} spacing={1}
-                                                               justifyContent={"flex-end"}>
-                                                            <IconButton
-                                                                disabled={loadingRequest}
-                                                                className='btn-add'
-                                                                onClick={() => handleEditInsurance(insurance)}
-                                                                size="small">
-                                                                <IconUrl path={"setting/edit"}/>
-                                                            </IconButton>
-                                                            <IconButton
-                                                                disabled={loadingRequest}
-                                                                className='icon-button'
-                                                                color={"error"}
-                                                                sx={{
-                                                                    paddingTop: .4,
-                                                                    "& svg": {
-                                                                        width: 18,
-                                                                        height: 18
-                                                                    },
-                                                                }}
-                                                                onClick={() => handleDeleteInsurance(insurance)}
-                                                                size="small">
-                                                                <DeleteIcon/>
-                                                            </IconButton>
-                                                        </Stack>
-                                                    </Grid>}
+                                                    {!editable.personalInsuranceCard &&
+                                                        <Grid pt={.5} pb={.5} item xs={6} md={4}>
+                                                            <Stack direction={"row"} alignItems={"start"} spacing={1}
+                                                                   justifyContent={"flex-end"}>
+                                                                <IconButton
+                                                                    disabled={loadingRequest}
+                                                                    className='btn-add'
+                                                                    onClick={() => handleEditInsurance(insurance)}
+                                                                    size="small">
+                                                                    <IconUrl path={"setting/edit"}/>
+                                                                </IconButton>
+                                                                <IconButton
+                                                                    disabled={loadingRequest}
+                                                                    className='icon-button'
+                                                                    color={"error"}
+                                                                    sx={{
+                                                                        paddingTop: .4,
+                                                                        "& svg": {
+                                                                            width: 18,
+                                                                            height: 18
+                                                                        },
+                                                                    }}
+                                                                    onClick={() => handleDeleteInsurance(insurance)}
+                                                                    size="small">
+                                                                    <DeleteIcon/>
+                                                                </IconButton>
+                                                            </Stack>
+                                                        </Grid>}
                                                 </Grid>
-                                                {(values.insurances.length - 1) !== index &&
+                                                {(patientInsurances.length - 1) !== index &&
                                                     <Divider sx={{marginBottom: 1}}/>}
                                             </>
                                         )}

@@ -1,11 +1,10 @@
 // react
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useEffect, useLayoutEffect, useState} from "react";
 // next
 import {GetStaticProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 // material components
 import {
     Box,
@@ -17,7 +16,9 @@ import {
     TextField,
     useMediaQuery,
     Zoom,
-    Fab
+    Fab,
+    Checkbox,
+    FormControlLabel, MenuItem, LinearProgress
 } from "@mui/material";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -25,14 +26,15 @@ import {
     onOpenPatientDrawer,
     Otable,
     tableActionSelector,
+    setSelectedRows
 } from "@features/table";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 // ________________________________
-import {PatientMobileCard, setTimer} from "@features/card";
+import {NoDataCard, PatientMobileCard} from "@features/card";
 import {SubHeader} from "@features/subHeader";
 import {PatientToolbar} from "@features/toolbar";
 import {CustomStepper} from "@features/customStepper";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {instanceAxios, useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {
@@ -48,12 +50,15 @@ import {
     dialogMoveSelector,
     PatientDetail,
 } from "@features/dialog";
-import {leftActionBarSelector} from "@features/leftActionBar";
+import {leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
 import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
-import {toggleSideBar} from "@features/menu";
+import {ActionMenu, toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -71,9 +76,19 @@ import {
     ActionBarState,
     setFilter,
 } from "@features/leftActionBar";
+import {selectCheckboxActionSelector, onSelectCheckbox} from 'src/features/selectCheckboxCard'
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
-import {sendRequest, useInsurances} from "@lib/hooks/rest";
-import useSWRMutation from "swr/mutation";
+import {useInsurances} from "@lib/hooks/rest";
+import {setDuplicated} from "@features/duplicateDetected";
+import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
+import {MobileContainer as MobileWidth} from "@lib/constants";
+import RefreshIcon from '@mui/icons-material/Refresh';
+import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+import Icon from "@themes/urlIcon";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {dehydrate, QueryClient} from "@tanstack/query-core";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -107,6 +122,14 @@ interface HeadCell {
 
 // table head data
 const headCells: readonly HeadCell[] = [
+    {
+        id: "select-all",
+        numeric: false,
+        disablePadding: true,
+        label: "name",
+        sortable: false,
+        align: "left",
+    },
     {
         id: "name",
         numeric: false,
@@ -157,12 +180,24 @@ const headCells: readonly HeadCell[] = [
     },
 ];
 
+const menuPopoverData = [
+    {
+        title: "view_patient_data",
+        icon: <IconUrl color={"white"} path="/ic-voir"/>,
+        action: "onPatientView",
+    },
+    {
+        title: "check_duplication_data",
+        icon: <PeopleOutlineIcon/>,
+        action: "onCheckPatientDuplication",
+    }
+];
+
 function Patient() {
     const dispatch = useAppDispatch();
-    const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const isMobile = useMediaQuery(`(max-width:${MobileWidth}px)`);
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -170,33 +205,38 @@ function Patient() {
     // selectors
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
-    const {tableState} = useAppSelector(tableActionSelector);
+    const {tableState: {patientId, rowsSelected}} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {openViewDrawer, config: agendaConfig} = useAppSelector(agendaSelector);
     const {submitted} = useAppSelector(appointmentSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
-    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     // state hook for details drawer
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [appointmentMoveData, setAppointmentMoveData] = useState<EventDef>();
     const [patientDrawer, setPatientDrawer] = useState<boolean>(false);
     const [isAddAppointment, setAddAppointment] = useState<boolean>(false);
-    const [selectedPatient, setSelectedPatient] = useState<PatientModel | null>(
-        null
-    );
+    const [selectedPatient, setSelectedPatient] = useState<PatientModel | null>(null);
     const [localFilter, setLocalFilter] = useState("");
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
+    const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
     const transitionDuration = {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
     };
-
-    const [loading] = useState<boolean>(status === "loading");
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
+    const [popoverActions, setPopoverActions] = useState(menuPopoverData);
+    const [loading] = useState<boolean>(false);
+    const [rows, setRows] = useState<PatientModel[]>([]);
     const {collapse} = RightActionData.filter;
     const [open, setopen] = useState(false);
+    const {selectedCheckbox} = useAppSelector(selectCheckboxActionSelector);
     const [dataPatient, setDataPatient] = useState([
         {
             heading: {
@@ -267,33 +307,57 @@ function Patient() {
             ),
         },
     ]);
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/patient/appointment/update");
+    const {trigger: triggerDeletePatient} = useRequestQueryMutation("/patient/delete");
+    const {trigger: triggerCheckDuplication} = useRequestQueryMutation("/patient/duplication/check");
 
-    const {data: httpPatientsResponse, mutate} = useRequest(medicalEntityHasUser ? {
+    let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
+
+    const {
+        data: httpPatientsResponse,
+        mutate: mutatePatients,
+        isLoading
+    } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?page=${router.query.page || 1}&limit=10&withPagination=true${localFilter}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(medicalEntityHasUser && {variables: {query: `?page=${page}&limit=10&withPagination=true${router.query.params ?? localFilter}`}})
+    });
 
-    const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/patient/update/appointment");
+    const checkDuplications = (patient: PatientModel, setLoadingRequest: any): PatientModel[] => {
+        setLoadingRequest(true);
+        medicalEntityHasUser && triggerCheckDuplication({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/duplications/${router.locale}`
+        }, {
+            onSuccess: (results) => {
+                setLoadingRequest(false);
+                const duplications = ((results?.data as HttpResponse)?.data ?? []) as PatientModel[];
+                if (duplications?.length > 0) {
+                    dispatch(setDuplicated({
+                        duplications,
+                        duplicationSrc: patient,
+                        duplicationInit: patient,
+                        openDialog: true,
+                        mutate: mutatePatients
+                    }));
+                } else {
+                    enqueueSnackbar(t(`add-patient.dialog.no-duplicates-check`), {variant: "info"});
+                }
+                return duplications;
+            }
+        });
 
-    useEffect(() => {
-        if (filter?.type || filter?.patient) {
-            const query = prepareSearchKeys(filter as any);
-            setLocalFilter(query);
-        }
-    }, [filter]);
-
-    useEffect(() => {
-        if (isMounted.current && !lock) {
-            dispatch(toggleSideBar(false));
-        }
-    }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
+        return [];
+    }
 
     const submitStepper = (index: number) => {
         if (index === 2) {
-            mutate();
+            mutatePatients();
         }
     };
 
@@ -316,26 +380,25 @@ function Patient() {
         updateAppointmentTrigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
-            data: params,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then((result) => {
-            if ((result?.data as HttpResponse).status === "success") {
-                enqueueSnackbar(
-                    t(
-                        `dialogs.move-dialog.${
-                            !event.extendedProps.onDurationChanged
-                                ? "alert-msg"
-                                : "alert-msg-duration"
-                        }`
-                    ),
-                    {variant: "success"}
-                );
+            data: params
+        }, {
+            onSuccess: (result) => {
+                if ((result?.data as HttpResponse).status === "success") {
+                    enqueueSnackbar(
+                        t(
+                            `dialogs.move-dialog.${
+                                !event.extendedProps.onDurationChanged
+                                    ? "alert-msg"
+                                    : "alert-msg-duration"
+                            }`
+                        ),
+                        {variant: "success"}
+                    );
+                }
+                setMoveDialog(false);
+                setLoadingRequest(false);
+                mutatePatients();
             }
-            setMoveDialog(false);
-            setLoadingRequest(false);
-            mutate();
         });
     };
 
@@ -348,29 +411,8 @@ function Patient() {
 
     const onConsultationStart = (event: EventDef) => {
         const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-        router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-            updateAppointmentStatus({
-                method: "PATCH",
-                data: {
-                    status: "4",
-                    start_date: moment().format("DD-MM-YYYY"),
-                    start_time: moment().format("HH:mm")
-                },
-                url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-            } as any).then(() => {
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setTimer({
-                        isActive: true,
-                        isPaused: false,
-                        event,
-                        startTime: moment().utc().format("HH:mm")
-                    }
-                ));
-                // refresh on going api
-                mutateOnGoing && mutateOnGoing();
-            });
-        })
-    };
+        router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
+    }
 
     const onUpdateMoveAppointmentData = () => {
         const timeSplit = moveDialogTime.split(":");
@@ -392,7 +434,7 @@ function Patient() {
         setMoveDialog(true);
     };
 
-    const handleTableActions = (action: string, event: PatientModel) => {
+    const handleTableActions = (action: string, event: PatientModel, mouseEvent?: any, setLoadingRequest?: any) => {
         switch (action) {
             case "PATIENT_DETAILS":
                 setAddAppointment(false);
@@ -423,6 +465,30 @@ function Patient() {
                 dispatch(onResetPatient());
                 setPatientDrawer(false);
                 break;
+            case "OPEN-POPOVER":
+                setSelectedPatient(event);
+                mouseEvent.preventDefault();
+                if (!event.nextAppointment && !event.previousAppointments) {
+                    setPopoverActions([...menuPopoverData, {
+                        title: "delete_patient_data",
+                        icon: <DeleteOutlineRoundedIcon/>,
+                        action: "onDeletePatient",
+                    }]);
+                } else {
+                    setPopoverActions(menuPopoverData);
+                }
+
+                setContextMenu(
+                    contextMenu === null
+                        ? {
+                            mouseX: mouseEvent.clientX + 2,
+                            mouseY: mouseEvent.clientY - 6,
+                        } : null,
+                );
+                break;
+            case "DUPLICATION_CHECK":
+                checkDuplications(event, setLoadingRequest);
+                break;
         }
     }
 
@@ -430,11 +496,107 @@ function Patient() {
         setopen(true);
     }
 
+    const handleCloseMenu = () => {
+        setContextMenu(null);
+    }
+
     const onFilterPatient = (value: string) => {
         dispatch(setFilter({patient: {name: value}}));
     }
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    const handleDeletePatient = () => {
+        setLoadingRequest(true);
+        medicalEntityHasUser && triggerDeletePatient({
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient?.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                setTimeout(() => setDeleteDialog(false));
+                mutatePatients();
+                enqueueSnackbar(t(`alert.delete-patient`), {variant: "success"});
+            }
+        });
+    }
+
+    const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.checked) {
+            const newSelecteds = rows.map(n => n.uuid);
+            dispatch(onSelectCheckbox(newSelecteds));
+            dispatch(setSelectedRows(rows));
+            return;
+        }
+        dispatch(onSelectCheckbox([]));
+        dispatch(setSelectedRows([]));
+
+    };
+
+    const OnMenuActions = (action: string) => {
+        handleCloseMenu();
+        switch (action) {
+            case "onPatientView":
+                dispatch(
+                    onOpenPatientDrawer({
+                        patientId: selectedPatient?.uuid,
+                        patientAction: "PATIENT_DETAILS",
+                    })
+                );
+                setAddAppointment(false);
+                setPatientDetailDrawer(true);
+                break;
+            case "onCheckPatientDuplication":
+                checkDuplications(selectedPatient as PatientModel, setLoadingRequest);
+                break;
+            case "onDeletePatient":
+                setDeleteDialog(true);
+                break;
+        }
+    }
+
+    useLeavePageConfirm((path: string) => {
+        if (!path.includes("/dashboard/patient")) {
+            dispatch(resetFilterPatient());
+        }
+    });
+
+    useLayoutEffect(() => {
+        window.scrollTo(scrollX, scrollY);
+    });
+
+    useEffect(() => {
+        if (httpPatientsResponse) {
+            const patientsResponse = (httpPatientsResponse as HttpResponse)?.data;
+            if (isMobile && localFilter?.length > 0) {
+                setRows(patientsResponse.list)
+            } else {
+                setRows((prev) => [...prev, ...patientsResponse.list]);
+            }
+        }
+    }, [httpPatientsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (filter?.type || filter?.patient || filter?.acts || filter?.reasons || filter?.disease) {
+            const query = prepareSearchKeys(filter as any);
+            setLocalFilter(query);
+        } else if (localFilter.length > 0) {
+            setLocalFilter("")
+        }
+    }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (isMounted.current && !lock) {
+            dispatch(toggleSideBar(false));
+        }
+    }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //remove query params on load from url
+        isMobile && router.replace(router.pathname, undefined, {shallow: true});
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    const patientData = (httpPatientsResponse as HttpResponse)?.data ?? []
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -446,6 +608,7 @@ function Patient() {
                     },
                 }}>
                 <PatientToolbar
+                    {...{mutatePatient: mutatePatients}}
                     onAddPatient={() => {
                         dispatch(onResetPatient());
                         setSelectedPatient(null);
@@ -465,32 +628,112 @@ function Patient() {
                     </Stack>
                 )}
             </SubHeader>
+            <LinearProgress sx={{
+                visibility: loadingRequest || isLoading ? "visible" : "hidden"
+            }} color="warning"/>
             <Box className="container">
                 <DesktopContainer>
-                    <Box display={{xs: "none", md: "block"}}>
-                        <Otable
-                            {...{t, insurances}}
-                            headers={headCells}
-                            handleEvent={handleTableActions}
-                            rows={(httpPatientsResponse as HttpResponse)?.data?.list}
-                            total={(httpPatientsResponse as HttpResponse)?.data?.total}
-                            totalPages={
-                                (httpPatientsResponse as HttpResponse)?.data?.totalPages
-                            }
-                            from={"patient"}
-                            pagination
-                            loading={!Boolean(httpPatientsResponse)}
-                        />
-                    </Box>
+                    <Otable
+                        {...{t, insurances, mutatePatient: mutatePatients}}
+                        headers={headCells}
+                        handleEvent={handleTableActions}
+                        rows={patientData?.list ?? []}
+                        total={patientData?.total ?? 0}
+                        totalPages={patientData?.totalPages ?? 1}
+                        from={"patient"}
+                        pagination
+                        loading={!Boolean(httpPatientsResponse)}
+                    />
                 </DesktopContainer>
                 <MobileContainer>
+                    <Stack direction={"row"} mb={1} justifyContent={"space-between"}>
+                        {
+                            rows.length > 0 &&
+                            <FormControlLabel
+                                sx={{ml: 0}}
+                                control={
+                                    <Checkbox onChange={handleSelectAll}
+                                              indeterminate={selectedCheckbox.length > 0 && selectedCheckbox.length < rows.length}
+                                              checked={selectedCheckbox?.length === rows?.length}/>}
+                                label={t("select-all")}
+
+                            />
+                        }
+
+
+                        {rowsSelected.length > 1 && <Button
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                const duplications = [...rowsSelected];
+                                const firstElement = duplications.shift();
+                                dispatch(setDuplicated({
+                                    duplications,
+                                    duplicationSrc: firstElement,
+                                    duplicationInit: firstElement,
+                                    openDialog: true,
+                                    mutate: mutatePatients
+                                }));
+                            }}
+                            variant="contained"
+                            color="primary"
+                            sx={{p: "4px 16px"}}
+                            startIcon={<ArchiveRoundedIcon/>}>
+                            {t("merge-patient")}
+                        </Button>}
+                    </Stack>
                     <PatientMobileCard
                         ready={ready}
                         handleEvent={handleTableActions}
-                        PatientData={(httpPatientsResponse as HttpResponse)?.data?.list}
+                        PatientData={rows}
+                        {...{insurances}}
+
                     />
+                    {rows.length === 10 &&
+                        <Stack alignItems='center'>
+                            <LoadingButton
+                                loading={isLoading}
+                                loadingPosition={"start"}
+                                startIcon={<RefreshIcon/>}
+                                onClick={() => {
+                                    router.push({
+                                        query: {page: ++page}
+                                    })
+                                }}
+                            >
+                                {t("load-more")}
+                            </LoadingButton>
+                        </Stack>
+                    }
                 </MobileContainer>
+
+                {patientData?.list?.length === 0 && <NoDataCard
+                    t={t}
+                    ns={"patient"}
+                    data={{
+                        mainIcon: "ic-patient",
+                        title: "no-data.patient.title",
+                        description: "no-data.patient.description",
+                    }}/>}
             </Box>
+
+            <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
+                {popoverActions.map(
+                    (v: any, index) => (
+                        <MenuItem
+                            key={index}
+                            className="popover-item"
+                            onClick={() => {
+                                OnMenuActions(v.action);
+                            }}>
+                            {v.icon}
+                            <Typography fontSize={15} sx={{color: "#fff"}}>
+                                {t(`popover-action.${v.title}`)}
+                            </Typography>
+                        </MenuItem>
+                    )
+                )}
+            </ActionMenu>
+
             <Dialog
                 size={"sm"}
                 sx={{
@@ -534,6 +777,51 @@ function Patient() {
                             }>
                             {t(`dialogs.move-dialog.confirm`)}
                         </Button>
+                    </>
+                }
+                PaperProps={{
+                    sx: {
+                        width: {xs: 'calc(100% - 24px)', sm: 'calc(100% - 64px)'},
+                        margin: {xs: 0, sm: 4},
+                    }
+                }}
+            />
+
+            <Dialog
+                color={theme.palette.error.main}
+                contrastText={theme.palette.error.contrastText}
+                {...(!loadingRequest && {dialogClose: () => setDeleteDialog(false)})}
+                sx={{direction: direction}}
+                action={() => {
+                    return (
+                        <Box sx={{minHeight: 150}}>
+                            <Typography sx={{textAlign: "center"}}
+                                        variant="subtitle1">{t(`dialogs.delete-dialog.sub-title`)} </Typography>
+                            <Typography sx={{textAlign: "center"}}
+                                        margin={2}>{t(`dialogs.delete-dialog.description`)}</Typography>
+                        </Box>)
+                }}
+                open={deleteDialog}
+                title={t(`dialogs.delete-dialog.title`)}
+                actionDialog={
+                    <>
+                        <Button
+                            variant="text-primary"
+                            onClick={() => setDeleteDialog(false)}
+                            startIcon={<CloseIcon/>}
+                        >
+                            {t(`dialogs.delete-dialog.cancel`)}
+                        </Button>
+                        <LoadingButton
+                            loading={loadingRequest}
+                            loadingPosition="start"
+                            variant="contained"
+                            onClick={handleDeletePatient}
+                            color={"error"}
+                            startIcon={<Icon height={"18"} width={"18"} color={"white"} path="icdelete"></Icon>}
+                        >
+                            {t(`dialogs.delete-dialog.confirm`)}
+                        </LoadingButton>
                     </>
                 }
             />
@@ -656,7 +944,7 @@ function Patient() {
                 onClose={() => {
                     dispatch(openDrawer({type: "view", open: false}));
                 }}>
-                <AppointmentDetail OnDataUpdated={() => mutate()}/>
+                <AppointmentDetail OnDataUpdated={() => mutatePatients()}/>
             </Drawer>
 
             <Drawer
@@ -671,7 +959,7 @@ function Patient() {
                     }
                 }}>
                 <PatientDetail
-                    {...{isAddAppointment, patientId: tableState.patientId, mutate}}
+                    {...{isAddAppointment, patientId, mutate: mutatePatients}}
                     onCloseDialog={() => {
                         dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);
@@ -739,18 +1027,51 @@ function Patient() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
-    props: {
-        fallback: false,
-        ...(await serverSideTranslations(locale as string, [
-            "patient",
-            "agenda",
-            "consultation",
-            "menu",
-            "common",
-        ])),
-    },
-});
+export const getStaticProps: GetStaticProps = async ({locale}) => {
+    const queryClient = new QueryClient();
+    const countries = `/api/public/places/countries/${locale}?nationality=true`;
+    const insurances = `/api/public/insurances/${locale}`;
+    const contactTypes = `/api/public/contact-type/${locale}`;
+
+    await queryClient.prefetchQuery([countries], async () => {
+        const {data} = await instanceAxios.request({
+            url: countries,
+            method: "GET"
+        });
+        return data
+    });
+
+    await queryClient.prefetchQuery([insurances], async () => {
+        const {data} = await instanceAxios.request({
+            url: insurances,
+            method: "GET"
+        });
+        return data
+    });
+
+    await queryClient.prefetchQuery([contactTypes], async () => {
+        const {data} = await instanceAxios.request({
+            url: contactTypes,
+            method: "GET"
+        });
+        return data
+    });
+
+    return {
+        props: {
+            dehydratedState: dehydrate(queryClient),
+            fallback: false,
+            ...(await serverSideTranslations(locale as string, [
+                "patient",
+                "agenda",
+                "consultation",
+                "menu",
+                "common",
+                'payment'
+            ])),
+        },
+    }
+}
 
 export default Patient;
 

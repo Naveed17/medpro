@@ -1,6 +1,8 @@
 import {GetStaticProps, NextPage} from 'next';
-import {LoadingScreen} from "@features/loadingScreen";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'))
 
 interface Props {
     statusCode?: number

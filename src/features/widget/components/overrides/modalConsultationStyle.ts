@@ -5,7 +5,7 @@ const ConsultationModalStyled = styled(Card)(({ theme }) => ({
     "& .card-header": {
         ".icon-wrapper": {
             borderRadius: "50%",
-            border: `1px solid ${theme.palette.divider}`,
+            border: `0px solid ${theme.palette.divider}`,
             lineHeight: "80%",
             padding: theme.spacing(0.2),
             display: "flex",

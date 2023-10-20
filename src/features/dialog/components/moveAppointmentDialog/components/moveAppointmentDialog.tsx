@@ -3,7 +3,7 @@ import {WeekDayPicker} from "@features/weekDayPicker";
 import Grid from "@mui/material/Grid";
 import {TimeSlot} from "@features/timeSlot";
 import React, {useCallback, useEffect, useState} from "react";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {Moment} from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
@@ -35,23 +35,24 @@ function MoveAppointmentDialog() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {trigger} = useRequestMutation(null, "/calendar/slots");
+    const {trigger: triggerSlots} = useRequestQueryMutation("/agenda/slots");
 
     const getSlots = useCallback(() => {
         setLoading(true);
-        trigger(medicalEntityHasUser && agendaConfig ? {
+        (medicalEntityHasUser && agendaConfig) && triggerSlots({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0].uuid}/professionals/${medical_professional?.uuid}?day=${moveDialogDate?.format('DD-MM-YYYY')}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        } : null).then((result) => {
-            const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
-            const slots = weekTimeSlots.find(slot => slot.date === moveDialogDate?.format("DD-MM-YYYY"))?.slots;
-            if (slots) {
-                setTimeSlots(slots);
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0]}/professionals/${medical_professional?.uuid}?day=${moveDialogDate?.format('DD-MM-YYYY')}`
+        }, {
+            onSuccess: (result) => {
+                const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
+                const slots = weekTimeSlots.find(slot => slot.date === moveDialogDate?.format("DD-MM-YYYY"))?.slots;
+                if (slots) {
+                    setTimeSlots(slots);
+                }
+                setLoading(false)
             }
-            setLoading(false)
         });
-    }, [agendaConfig, medical_entity.uuid, medical_professional?.uuid, moveDialogDate, session?.accessToken, trigger]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [agendaConfig, medical_entity.uuid, medical_professional?.uuid, moveDialogDate, session?.accessToken, triggerSlots]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (isMounted.current && medical_professional?.uuid) {

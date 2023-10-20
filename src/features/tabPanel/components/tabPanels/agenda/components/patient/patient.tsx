@@ -1,28 +1,25 @@
 import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
 import {Box} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {AutoCompleteButton} from "@features/buttons";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-
-import dynamic from "next/dynamic";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
-import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
+import {dashLayoutSelector, setOngoing} from "@features/base";
+import {useMedicalEntitySuffix, prepareInsurancesData, increaseNumberInString} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function Patient({...props}) {
     const {onNext, onBack, select, onPatientSearch, handleAddPatient = null} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -36,15 +33,12 @@ function Patient({...props}) {
 
     const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
 
-    const {data: httpPatientResponse, isValidating, mutate} = useRequest(medicalEntityHasUser ? {
+    const {data: httpPatientResponse, mutate: mutatePatients, isLoading} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?filter=${query}&withPagination=false`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`
+    } : null, ReactQueryNoValidateConfig);
 
-    const {trigger} = useRequestMutation(null, "agenda/add-patient", TriggerWithoutValidation);
-
-    if (!ready) return (<LoadingScreen/>);
+    const {trigger: triggerAddPatient} = useRequestQueryMutation("agenda/patient/add");
 
     const handleOnClick = () => {
         setAddPatient(true);
@@ -100,38 +94,43 @@ function Patient({...props}) {
         patient.note && form.append('note', patient.note);
         form.append('profession', patient.profession);
 
-        medicalEntityHasUser && trigger({
+        medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
             data: form
-        }).then((res: any) => {
-            const {data: patient} = res;
-            const {status, data: patientData} = patient;
-            if (status === "success") {
-                if (!selectedPatient) {
-                    dispatch(setAppointmentPatient(patientData.data));
-                }
-                setAddPatient(false);
-                handleAddPatient && handleAddPatient(false);
-                mutate().then(value => {
-                    const {data} = value?.data as HttpResponse;
-                    if (selectedPatient) {
-                        dispatch(setAppointmentPatient(
-                            data.find((patient: PatientModel) => patient.uuid === selectedPatient.uuid)));
+        }, {
+            onSuccess: (res: any) => {
+                const {data: patient} = res;
+                const {status, data: patientData} = patient;
+                if (status === "success") {
+                    if (!selectedPatient) {
+                        dispatch(setAppointmentPatient(patientData.data));
+                        // mutate last id after creation
+                        dispatch(setOngoing({last_fiche_id: increaseNumberInString(patientData.data.fiche_id)}));
                     }
-                });
+                    setAddPatient(false);
+                    handleAddPatient && handleAddPatient(false);
+                    mutatePatients().then(result => {
+                        const data = (result?.data as any)?.data;
+                        if (selectedPatient) {
+                            dispatch(setAppointmentPatient(
+                                data.find((patient: PatientModel) => patient.uuid === selectedPatient.uuid)));
+                        }
+                    });
+                }
             }
         });
     }
+
+    const patients = (httpPatientResponse as HttpResponse)?.data as PatientModel[] ?? [];
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <div>
             {!addPatient ? <>
                     <Box className="inner-section">
-                        <Typography variant="h6" color="text.primary">
+                        <Typography sx={{fontSize: "1rem", fontWeight: "bold"}} color="text.primary">
                             {t("stepper-2.title")}
                         </Typography>
                         <Typography variant="body1" sx={{textTransform: 'uppercase'}} color="text.primary" mt={3} mb={1}>
@@ -142,8 +141,8 @@ function Patient({...props}) {
                             OnClickAction={handleOnClick}
                             OnOpenSelect={handlePatientSearch}
                             translation={t}
-                            loading={isValidating}
-                            data={(httpPatientResponse as HttpResponse)?.data}/>
+                            loading={isLoading}
+                            data={patients}/>
                     </Box>
                     {!select && <Paper
                         sx={{
@@ -151,8 +150,7 @@ function Patient({...props}) {
                             borderWidth: "0px",
                             textAlign: "right"
                         }}
-                        className="action"
-                    >
+                        className="action">
                         <Button
                             size="medium"
                             variant="text-primary"
@@ -160,8 +158,7 @@ function Patient({...props}) {
                             sx={{
                                 mr: 1,
                             }}
-                            onClick={() => onBack(currentStepper)}
-                        >
+                            onClick={() => onBack(currentStepper)}>
                             {t("back")}
                         </Button>
                         <Button
@@ -169,8 +166,7 @@ function Patient({...props}) {
                             variant="contained"
                             color="primary"
                             onClick={onNextStep}
-                            disabled={!selectedPatient}
-                        >
+                            disabled={!selectedPatient}>
                             {t("next")}
                         </Button>
                     </Paper>}

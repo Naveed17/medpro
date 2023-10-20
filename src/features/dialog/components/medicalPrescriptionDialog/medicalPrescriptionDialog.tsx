@@ -25,8 +25,7 @@ import {useTranslation} from 'next-i18next'
 import {DrugListCard} from '@features/card'
 import AddIcon from '@mui/icons-material/Add';
 import React, {useEffect, useState} from 'react';
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from "@themes/urlIcon";
@@ -34,14 +33,16 @@ import {Dialog} from "@features/dialog";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import {useSnackbar} from "notistack";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {Theme} from "@mui/material/styles";
 import RedoIcon from '@mui/icons-material/Redo';
 import {useMedicalProfessionalSuffix, useLastPrescription} from "@lib/hooks";
 
 function MedicalPrescriptionDialog({...props}) {
     const {data} = props;
-    const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const router = useRouter();
@@ -58,18 +59,19 @@ function MedicalPrescriptionDialog({...props}) {
     const [model, setModel] = useState<string>('');
     const [parentModels, setParentModels] = useState<any[]>([]);
     const [models, setModels] = useState<any[]>([]);
-    const [selectedModel, setSelectedModel] = useState<PrescriptionModalModel | null>(null);
+    const [selectedModel, setSelectedModel] = useState<PrescriptionModalModel | null>(data.model);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [touchedFileds, setTouchedFileds] = useState({name: false, duration: false});
 
     const open = Boolean(anchorEl);
 
-    const {trigger} = useRequestMutation(null, "/drugs");
-
-    const {data: httpModelResponse, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {trigger: triggerDrugsCreate} = useRequestQueryMutation("/drugs/create");
+    const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
+    const {trigger: triggerDrugsDelete} = useRequestQueryMutation("/drugs/delete");
+    const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
+    const {data: httpModelResponse, mutate} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`
     } : null);
 
     const handleSaveDialog = () => {
@@ -77,16 +79,17 @@ function MedicalPrescriptionDialog({...props}) {
         form.append('globalNote', "");
         form.append('name', model);
         form.append('drugs', JSON.stringify(drugs));
-        trigger({
+        triggerDrugsCreate({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then((cnx) => {
-            mutate().then(() => {
-                setDrugsList((cnx?.data as HttpResponse)?.data)
-            });
-        })
+            data: form
+        }, {
+            onSuccess: (cnx: any) => {
+                mutate().then(() => {
+                    setDrugsList((cnx?.data as HttpResponse)?.data)
+                });
+            }
+        });
         setOpenDialog(false);
     }
 
@@ -97,17 +100,18 @@ function MedicalPrescriptionDialog({...props}) {
             form.append('name', selectedModel.name);
             form.append('parent', parentModels.find(parent => parent.prescriptionModels.some((drug: any) => drug.uuid === selectedModel?.uuid))?.uuid);
 
-            trigger({
+            triggerDrugsUpdate({
                 method: "PUT",
                 url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }).then((cnx) => {
-                mutate().then(() => {
-                    setDrugsList((cnx?.data as HttpResponse)?.data)
-                    setSelectedModel(null)
-                    enqueueSnackbar(t("editWithsuccess"), {variant: 'success'})
-                });
+                data: form
+            }, {
+                onSuccess: (cnx: any) => {
+                    mutate().then(() => {
+                        setDrugsList((cnx?.data as HttpResponse)?.data)
+                        setSelectedModel(null)
+                        enqueueSnackbar(t("editWithsuccess"), {variant: 'success'})
+                    });
+                }
             })
             setOpenDialog(false);
         }
@@ -115,18 +119,19 @@ function MedicalPrescriptionDialog({...props}) {
 
     const removeModel = () => {
         if (selectedModel) {
-            trigger({
+            triggerDrugsDelete({
                 method: "DELETE",
-                url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }).then((cnx) => {
-                mutate().then(() => {
-                    setDrugsList((cnx?.data as HttpResponse)?.data)
-                    setDrugs([]);
-                    setSelectedModel(null)
-                    enqueueSnackbar(t("removeWithsuccess"), {variant: 'success'})
-                });
-            })
+                url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${selectedModel?.uuid}/${router.locale}`
+            }, {
+                onSuccess: (cnx: any) => {
+                    mutate().then(() => {
+                        setDrugsList((cnx?.data as HttpResponse)?.data)
+                        setDrugs([]);
+                        setSelectedModel(null)
+                        enqueueSnackbar(t("removeWithsuccess"), {variant: 'success'})
+                    });
+                }
+            });
             setOpenDialog(false);
         }
     }
@@ -245,7 +250,7 @@ function MedicalPrescriptionDialog({...props}) {
             setTouchedFileds({name: true, duration: true})
     }, [errors]);
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <MedicalPrescriptionDialogStyled>
@@ -328,13 +333,11 @@ function MedicalPrescriptionDialog({...props}) {
                                                                         error={touchedFileds.name && drug === null}
                                                                         onChange={(ev) => {
                                                                             if (ev.target.value.length >= 2) {
-                                                                                trigger({
+                                                                                triggerDrugsGet({
                                                                                     method: "GET",
-                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value,
-                                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                                                                                }).then((cnx) => {
-                                                                                    if (cnx?.data as HttpResponse)
-                                                                                        setDrugsList((cnx?.data as HttpResponse).data)
+                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value
+                                                                                }, {
+                                                                                    onSuccess: (cnx) => cnx?.data && setDrugsList((cnx?.data as HttpResponse)?.data ?? [])
                                                                                 })
                                                                             }
                                                                         }}

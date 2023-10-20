@@ -21,12 +21,10 @@ import {useTranslation} from "next-i18next";
 
 import {Form, FormikProvider, useFormik} from "formik";
 import MaskedInput from "react-text-mask";
-import {LoadingScreen} from "@features/loadingScreen";
 import {InputStyled} from "@features/tabPanel";
 import React, {useRef, useState} from "react";
 import {CropImage} from "@features/image";
-import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
@@ -34,14 +32,26 @@ import CloseIcon from "@mui/icons-material/Close";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useSWRConfig} from "swr";
+import dynamic from "next/dynamic";
+import {Label} from "@features/label";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function PatientDetailsCard({...props}) {
-    const {patient, patientPhoto, onConsultation, mutatePatientList, mutateAgenda, loading} = props;
+    const {
+        isBeta,
+        patient,
+        patientPhoto,
+        onConsultation,
+        mutatePatientList,
+        mutateAgenda,
+        loading = false,
+        setEditableSection,
+        rest, devise
+    } = props;
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const ref = useRef(null);
@@ -62,10 +72,11 @@ function PatientDetailsCard({...props}) {
         },
     });
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {mutate} = useSWRConfig();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
+    const {t: commonTranslation} = useTranslation("common");
+    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {values, getFieldProps, setFieldValue} = formik;
@@ -74,7 +85,7 @@ function PatientDetailsCard({...props}) {
     const [editable, setEditable] = useState(false);
     const [requestLoading, setRequestLoading] = useState(false);
 
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update/photo");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update/photo");
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
@@ -93,27 +104,35 @@ function PatientDetailsCard({...props}) {
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PATCH",
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`
-                },
                 data: params
-            }).then(() => {
-                setRequestLoading(false);
-                mutatePatientList && mutatePatientList();
-                mutateAgenda && mutateAgenda();
-                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`);
-                if (appointment) {
-                    const event = {
-                        ...appointment,
-                        extendedProps: {
-                            ...appointment.extendedProps,
-                            photo: values.picture.file
-                        }
-                    } as any;
-                    dispatch(setSelectedEvent(event));
+            }, {
+                onSuccess: () => {
+                    setRequestLoading(false);
+                    mutatePatientList && mutatePatientList();
+                    mutateAgenda && mutateAgenda();
+                    invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`]);
+                    if (appointment) {
+                        const event = {
+                            ...appointment,
+                            extendedProps: {
+                                ...appointment.extendedProps,
+                                photo: values.picture.file
+                            }
+                        } as any;
+                        dispatch(setSelectedEvent(event));
+                    }
                 }
             });
         }
+    }
+
+    const handleUpdateFicheID = () => {
+        setEditableSection({
+            patientDetailContactCard: false,
+            personalInsuranceCard: false,
+            personalInfoCard: false
+        });
+        setEditable(true);
     }
 
     const uploadPatientPhoto = () => {
@@ -126,25 +145,25 @@ function PatientDetailsCard({...props}) {
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PATCH",
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`
-                },
                 data: params
-            }).then(() => {
-                setRequestLoading(false);
-                mutatePatientList && mutatePatientList();
-                mutateAgenda && mutateAgenda();
-                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`);
-                mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`);
-                if (appointment) {
-                    const event = {
-                        ...appointment,
-                        extendedProps: {
-                            ...appointment.extendedProps,
-                            photo: values.picture.file
-                        }
-                    } as any;
-                    dispatch(setSelectedEvent(event));
+            }, {
+                onSuccess: () => {
+                    setRequestLoading(false);
+                    mutatePatientList && mutatePatientList();
+                    mutateAgenda && mutateAgenda();
+                    invalidateQueries([
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`]);
+                    if (appointment) {
+                        const event = {
+                            ...appointment,
+                            extendedProps: {
+                                ...appointment.extendedProps,
+                                photo: values.picture.file
+                            }
+                        } as any;
+                        dispatch(setSelectedEvent(event));
+                    }
                 }
             });
         }
@@ -156,7 +175,7 @@ function PatientDetailsCard({...props}) {
         <FormikProvider value={formik}>
             <Form autoComplete="off" noValidate>
                 <RootStyled direction={"row"} justifyContent={"space-between"}>
-                    <Box sx={{display: "inline-flex"}}>
+                    <Box sx={{display: "inline-flex", width: "100%"}}>
                         {loading ? (
                             <Skeleton
                                 variant="rectangular"
@@ -193,11 +212,15 @@ function PatientDetailsCard({...props}) {
                             </label>
                         )}
 
-                        <Box mx={1}>
+                        <Box mx={1} sx={{width: "100%"}}>
                             {loading ? (
                                 <Skeleton variant="text" width={150}/>
                             ) : (
-                                <Stack direction={"row"} alignItems={"center"} justifyContent={"flex-start"}>
+                                <Stack
+                                    sx={{width: "100%"}}
+                                    direction={"row"}
+                                    alignItems={"center"}
+                                    justifyContent="space-between">
                                     <InputBase
                                         readOnly
                                         {...(patient?.nationality && {
@@ -217,6 +240,19 @@ function PatientDetailsCard({...props}) {
                                         }}
                                         {...getFieldProps("name")}
                                     />
+                                    {isBeta && rest > 0 && <Label
+                                        variant='filled'
+                                        sx={{
+                                            "& .MuiSvgIcon-root": {
+                                                width: 16,
+                                                height: 16,
+                                                pl: 0
+                                            }
+                                        }}
+                                        color={rest > 0 ? "expire" : "success"}>
+                                        <Typography sx={{fontSize: 12}}>
+                                            {commonTranslation(rest > 0 ? "credit" : "wallet")} {`${rest > 0 ? '-' : '+'} ${Math.abs(rest)}`} {devise}</Typography>
+                                    </Label>}
                                 </Stack>
                             )}
 
@@ -395,14 +431,14 @@ function PatientDetailsCard({...props}) {
                                                                     </>)
                                                                 :
                                                                 (isMobile ?
-                                                                    <IconButton onClick={() => setEditable(true)}>
+                                                                    <IconButton onClick={() => handleUpdateFicheID()}>
                                                                         <IconUrl color={theme.palette.primary.main}
                                                                                  path='ic-duotone'/>
                                                                     </IconButton>
                                                                     :
                                                                     <Button size="small"
                                                                             color={"primary"}
-                                                                            onClick={() => setEditable(true)}
+                                                                            onClick={() => handleUpdateFicheID()}
                                                                             startIcon={<IconUrl
                                                                                 color={theme.palette.primary.main}
                                                                                 path='ic-duotone'/>

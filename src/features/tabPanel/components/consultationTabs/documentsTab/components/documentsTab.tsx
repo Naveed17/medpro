@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import {Box, IconButton, Stack, Tooltip, Typography} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {Box, IconButton, CircularProgress, Stack, Tooltip, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
@@ -8,8 +8,19 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import fileDownload from 'js-file-download';
 import axios from "axios";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function DocumentsTab({...props}) {
+    const {
+        medical_professional_uuid,
+        agenda,
+        urlMedicalEntitySuffix,
+        app_uuid,
+        showDoc,
+        router,
+        t,
+    } = props;
 
     const noCardData = {
         mainIcon: "ic-doc",
@@ -20,29 +31,34 @@ function DocumentsTab({...props}) {
     };
 
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
+    const [documents, setDocuments] = useState<MedicalDocuments[]>([]);
+    const [loadingDocs, setLoadingDocs] = useState(true);
 
-    const {
-        documents,
-        mutateDoc,
-        showDoc,
-        router,
-        session,
-        t, trigger
-    } = props;
-
+    const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/document/delete");
+    const {data: httpDocumentResponse, mutate: mutateDoc} = useRequestQuery(medical_professional_uuid && agenda ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
 
     const removeDoc = () => {
-        trigger({
+        triggerDocumentDelete({
             method: "DELETE",
-            url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`,
-            headers: {ContentType: 'multipart/form-data', Authorization: `Bearer ${session?.accessToken}`}
-        }, {revalidate: true, populateCache: true}).then(() => {
-            setSelectedAudio(null)
-            mutateDoc()
+            url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => mutateDoc().then(() => setSelectedAudio(null))
         });
     }
+
+    useEffect(() => {
+        if (httpDocumentResponse) {
+            setDocuments((httpDocumentResponse as HttpResponse).data)
+            setLoadingDocs(false)
+        }
+    }, [httpDocumentResponse])
+
     return (
         <>
+            {loadingDocs && <Stack direction={"row"} justifyContent={"center"}><CircularProgress/></Stack>}
 
             {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 &&
                 <Typography variant='subtitle2' fontWeight={700} mt={3} mb={1} fontSize={16}>
@@ -140,7 +156,7 @@ function DocumentsTab({...props}) {
                     />
                 </Box>}
             </Box>
-            {documents.length === 0 && (
+            {documents.length === 0 && !loadingDocs && (
                 <NoDataCard t={t} ns={"consultation"} data={noCardData}/>
             )}
         </>

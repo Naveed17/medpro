@@ -10,18 +10,19 @@ import {
     Container, DialogActions,
     Drawer,
     LinearProgress, Paper, SpeedDial, SpeedDialAction,
-    Theme,
     Typography,
     useMediaQuery,
     useTheme, Zoom
 } from "@mui/material";
-import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
-import dynamic from "next/dynamic";
 import {useSession} from "next-auth/react";
-import {LoadingScreen} from "@features/loadingScreen";
-import {useRequestMutation} from "@lib/axios";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {instanceAxios, useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
@@ -34,7 +35,9 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     agendaSelector,
     DayOfWeek,
-    openDrawer, setCurrentDate, setGroupedByDayAppointments,
+    openDrawer,
+    setCurrentDate,
+    setGroupedByDayAppointments,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -47,30 +50,40 @@ import {
     setAppointmentRecurringDates, setAppointmentSubmit,
     TimeSchedule
 } from "@features/tabPanel";
-import {TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {
     AppointmentDetail, QuickAddAppointment,
     Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime, preConsultationSelector
 } from "@features/dialog";
-import {AppointmentListMobile, setTimer, timerSelector} from "@features/card";
+import {AppointmentListMobile, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {AgendaFilter, leftActionBarSelector} from "@features/leftActionBar";
+import {AgendaFilter, leftActionBarSelector, cashBoxSelector} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/menu";
-import {appointmentGroupByDate, appointmentPrepareEvent, prepareSearchKeys, useMedicalEntitySuffix} from "@lib/hooks";
+import {
+    appointmentGroupByDate,
+    appointmentPrepareEvent,
+    prepareSearchKeys, useInvalidateQueries,
+    useMedicalEntitySuffix,
+    useMutateOnGoing
+} from "@lib/hooks";
 import {DateClickArg} from "@fullcalendar/interaction";
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import {alpha} from "@mui/material/styles";
 import {DefaultCountry} from "@lib/constants";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import IconUrl from "@themes/urlIcon";
-import {useSWRConfig} from "swr";
+import {MobileContainer} from "@themes/mobileContainer";
+import {DrawerBottom} from "@features/drawerBottom";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import {MobileContainer as smallScreen} from "@lib/constants";
+import {useTransactionEdit, useSendNotification} from "@lib/hooks/rest";
+import {batch} from "react-redux";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {dehydrate, QueryClient} from "@tanstack/query-core";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -85,13 +98,16 @@ function Agenda() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const theme = useTheme();
+    const [filterBottom, setFilterBottom] = useState<boolean>(false)
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const refs = useRef([]);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {mutate} = useSWRConfig();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {trigger: triggerTransactionEdit} = useTransactionEdit();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {t, ready} = useTranslation(['agenda', 'common']);
+    const {t, ready} = useTranslation(['agenda', 'common', 'patient']);
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {
@@ -104,10 +120,10 @@ function Agenda() {
     } = useAppSelector(appointmentSelector);
     const {opened: sidebarOpened} = useAppSelector(sideBarSelector);
     const {model} = useAppSelector(preConsultationSelector);
-    const {waiting_room, mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
-        openViewDrawer, currentStepper, config,
-        selectedEvent, actionSet, openMoveDrawer,
+        openViewDrawer, currentStepper,
+        selectedEvent, actionSet, openMoveDrawer, openPayDialog,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -118,6 +134,7 @@ function Agenda() {
     } = useAppSelector(dialogMoveSelector);
     const {isActive, event: onGoingEvent} = useAppSelector(timerSelector);
     const {config: agenda, lastUpdateNotification, sortedData: groupSortedData} = useAppSelector(agendaSelector);
+    const {paymentTypesList} = useAppSelector(cashBoxSelector);
 
     const [timeRange, setTimeRange] = useState({
         start: moment().startOf('week').format('DD-MM-YYYY'),
@@ -125,15 +142,20 @@ function Agenda() {
     });
     const [nextRefCalendar, setNextRefCalendar] = useState(1);
     const [loading, setLoading] = useState<boolean>(status === 'loading');
-    const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
+    const [moveDialogInfo, setMoveDialogInfo] = useState({info: false, dialog: false});
+    const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
+    const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
+    const [loadingRequest, setLoadingRequest] = useState(false);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
     const [cancelDialog, setCancelDialog] = useState<boolean>(false);
     const [actionDialog, setActionDialog] = useState("cancel");
-    const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
     const [localFilter, setLocalFilter] = useState("");
+    const [query, setQuery] = useState<any>(null);
+    const [selectedPayment, setSelectedPayment] = useState<any>(null);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [eventStepper, setEventStepper] = useState([
         {
             title: "steppers.tabs.tab-1",
@@ -154,11 +176,11 @@ function Agenda() {
         }
     ]);
     const [event, setEvent] = useState<EventDef | null>();
-    const [calendarEl, setCalendarEl] = useState<FullCalendar | null>(null);
     const [openFabAdd, setOpenFabAdd] = useState(false);
 
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
+    const calendarRef = useRef<FullCalendar | null>(null);
     let events: MutableRefObject<EventModal[]> = useRef([]);
     let sortedData: MutableRefObject<GroupEventsModel[]> = useRef([]);
 
@@ -166,19 +188,31 @@ function Agenda() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const {jti} = session?.user as any;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
     const transitionDuration = {
         enter: theme.transitions.duration.enteringScreen,
         exit: theme.transitions.duration.leavingScreen,
     };
-    const openingHours = agenda?.locations[0].openingHours[0].openingHours;
 
-    const {data: httpAppointmentResponse, trigger} = useRequestMutation(null, "/agenda/appointment");
-    const {trigger: addAppointmentTrigger} = useRequestMutation(null, "/agenda/addPatient");
-    const {trigger: updateAppointmentTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {data: httpAppointmentsResponse} = useRequestQuery(agenda && query ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(agenda && query && {variables: {query: `?mode=mini&${query.queryData}`}})
+    });
+
+    const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
+    const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/update/date");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
+    const {trigger: handlePreConsultationData} = useRequestQueryMutation("/agenda/pre-consultation/update");
+    const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
+    const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
+    const {trigger: triggerNotificationPush} = useSendNotification();
 
     const getAppointmentBugs = useCallback((date: Date) => {
+        const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
         const hasDayWorkHours: any = Object.entries(openingHours).find((openingHours: any) =>
             DayOfWeek(openingHours[0], 1) === moment(date).isoWeekday());
         if (hasDayWorkHours) {
@@ -193,62 +227,61 @@ function Agenda() {
             return hasError.every(error => error);
         }
         return true;
-    }, [openingHours]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [agenda]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const getAppointments = (query: string, view = "timeGridWeek", filter?: boolean, history?: boolean) => {
+        setQuery({queryData: query, view, filter, history});
+    }
+
+    const updateCalendarEvents = (result: HttpResponse) => {
         setLoading(true);
-        if (query.includes("format=list")) {
-            dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
+        if (query?.queryData.includes("format=list")) {
             events.current = [];
         }
-        trigger({
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}?${query}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then((result) => {
-            const eventCond = (result?.data as HttpResponse)?.data;
-            const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
-            const eventsUpdated: EventModal[] = [];
-            if (!filter || events.current.length === 0) {
-                appointments?.forEach((appointment) => {
-                    const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
-                    const hasErrors = [
-                        ...(horsWork ? ["event.hors-opening-hours"] : []),
-                        ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
-                    eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
-                });
-            } else {
-                events.current.forEach(event => {
-                    eventsUpdated.push({
-                        ...event,
-                        filtered: !appointments?.find(appointment => appointment.uuid === event.id)
-                    })
+
+        const eventCond = result?.data;
+        const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
+        const eventsUpdated: EventModal[] = [];
+        if (!query?.filter || events.current.length === 0) {
+            appointments?.forEach((appointment) => {
+                const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
+                const hasErrors = [
+                    ...(horsWork ? ["event.hors-opening-hours"] : []),
+                    ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])]
+                eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
+            });
+        } else {
+            events.current.forEach(event => {
+                eventsUpdated.push({
+                    ...event,
+                    filtered: !appointments?.find(appointment => appointment.uuid === event.id)
                 })
-            }
-            if (!history) {
-                events.current = eventsUpdated;
-            } else {
-                events.current = [...eventsUpdated, ...events.current];
-            }
+            })
+        }
+        if (!query?.history) {
+            events.current = eventsUpdated;
+        } else {
+            events.current = [...eventsUpdated, ...events.current];
+        }
 
-            // Edit: to add it in the array format instead
-            const groupArrays = appointmentGroupByDate(events.current);
+        // Edit: to add it in the array format instead
+        const groupArrays = appointmentGroupByDate(events.current);
 
-            dispatch(setGroupedByDayAppointments(groupArrays));
+        dispatch(setGroupedByDayAppointments(groupArrays));
 
-            if (isMobile || view === "listWeek") {
-                // sort grouped data
-                sortedData.current = groupArrays.slice()
-                    .sort((a, b) =>
-                        new Date(a.date).getTime() - new Date(b.date).getTime());
-            }
-            setLoading(false);
-        });
+        if (isMobile || query?.view === "listWeek") {
+            // sort grouped data
+            sortedData.current = groupArrays.slice()
+                .sort((a, b) =>
+                    new Date(a.date).getTime() - new Date(b.date).getTime());
+        }
+        setLoading(false);
     }
 
     const calendarIntervalSlot = () => {
         let localMinSlot = 8; //8h
         let localMaxSlot = 20; //20h
+        const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
         Object.entries(openingHours).forEach((openingHours: any) => {
             openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
                 const min = moment.duration(openingHour?.start_time).asHours();
@@ -275,27 +308,72 @@ function Agenda() {
     }, [lastUpdateNotification])  // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        if (httpAppointmentsResponse) {
+            updateCalendarEvents(httpAppointmentsResponse as HttpResponse);
+        }
+    }, [httpAppointmentsResponse])  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (openMoveDrawer) {
             setEvent(selectedEvent as EventDef);
-            setMoveDialogInfo(true);
+            setTimeout(() => setMoveDialogInfo({...moveDialogInfo, info: true}));
         }
     }, [openMoveDrawer])  // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        if (openPayDialog) {
+            setEvent(selectedEvent as EventDef);
+            let payed_amount = 0;
+            let payments: any[] = [];
+            const transactions = selectedEvent?.extendedProps?.transactions;
+            transactions.forEach((transaction: any) => {
+                payed_amount += transaction.amount - transaction.rest_amount;
+                transaction.transaction_data && payments.push(...transaction.transaction_data.map((td: any) => ({
+                    uuid: td.uuid,
+                    amount: td.amount,
+                    payment_date: moment().format('DD-MM-YYYY'),
+                    payment_time: `${new Date().getHours()}:${new Date().getMinutes()}`,
+                    status_transaction: td.status_transaction_data,
+                    type_transaction: td.type_transaction_data,
+                    data: td.data,
+                    ...(td.insurance && {insurance: td.insurance.uuid}),
+                    ...(td.payment_means && {
+                        payment_means: paymentTypesList.find((pt: {
+                            slug: string;
+                        }) => pt.slug === td.payment_means.slug)
+                    })
+                })))
+            });
+            setSelectedPayment({
+                uuid: transactions[0]?.appointment.uuid,
+                payments,
+                payed_amount,
+                appointment: transactions[0]?.appointment,
+                patient: transactions[0]?.appointment?.patient,
+                total: selectedEvent?.extendedProps?.total,
+                isNew: false
+            });
+            setTimeout(() => setOpenPaymentDialog(true));
+        }
+    }, [openPayDialog])  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (actionSet && actionSet.action === "onConfirm") {
-            onConfirmAppointment(actionSet.event, true);
+            onConfirmAppointment(actionSet.event);
         }
     }, [actionSet]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (calendarEl && currentDate) {
-            const calendarApi = (calendarEl as FullCalendar)?.getApi();
-            calendarApi && calendarApi.gotoDate(currentDate.date);
+        if (calendarRef.current && currentDate) {
+            const calendarApi = (calendarRef.current as FullCalendar)?.getApi();
+            calendarApi && setTimeout(() => {
+                calendarApi.updateSize();
+            }, 0);
         }
     }, [sidebarOpened]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.status || filter?.isOnline) {
+        if (filter?.type && timeRange.start !== "" || filter?.patient || filter?.disease || filter?.status || filter?.acts || filter?.reasons || filter?.isOnline) {
             const query = prepareSearchKeys(filter as any);
             setLocalFilter(query);
             const queryPath = `${view === 'listWeek' ? 'format=list&page=1&limit=50' :
@@ -309,7 +387,6 @@ function Agenda() {
     }, [filter, timeRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleOnRangeChange = (event: DatesSetArg) => {
-        // dispatch(resetFilterPatient());
         const startStr = moment(event.startStr).format('DD-MM-YYYY');
         const endStr = moment(event.endStr).format('DD-MM-YYYY');
         setTimeRange({start: startStr, end: endStr});
@@ -319,28 +396,48 @@ function Agenda() {
     }
 
     const handleOnToday = () => {
-        const calendarApi = (calendarEl as FullCalendar)?.getApi();
+        const calendarApi = (calendarRef.current as FullCalendar)?.getApi();
         if (calendarApi) {
             calendarApi.today();
             dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
         }
     }
 
-    const onLoadCalendar = (event: FullCalendar) => {
-        setCalendarEl(event);
-    }
-
     const onViewChange = (view: string) => {
         const query = prepareSearchKeys(filter as any);
         if (view === 'listWeek' && filter?.patient === undefined) {
+            dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
             getAppointments(`format=list&page=1&limit=50${query}`, view);
         }
     }
 
     const onSelectEvent = (event: EventDef) => {
-        setEvent(event);
-        dispatch(setSelectedEvent(event));
-        dispatch(openDrawer({type: "view", open: true}));
+        setLoadingRequest(true);
+        setTimeout(() => setEvent(event));
+        const query = `?mode=details&appointment=${event.publicId}&start_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&format=week`
+        triggerAppointmentDetails({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
+        }, {
+            onSuccess: (result) => {
+                const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
+                if (appointmentData.length > 0) {
+                    const appointment = appointmentData[0];
+                    const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
+                    const hasErrors = [
+                        ...(horsWork ? ["event.hors-opening-hours"] : []),
+                        ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])];
+                    setLoadingRequest(false);
+                    batch(() => {
+                        dispatch(setSelectedEvent({
+                            ...event,
+                            extendedProps: {...event.extendedProps, ...appointmentPrepareEvent(appointment, horsWork, hasErrors)}
+                        }));
+                        dispatch(openDrawer({type: "view", open: true}));
+                    });
+                }
+            }
+        });
     }
 
     const handleDragEvent = (DateTime: Moment, action: string) => {
@@ -350,7 +447,7 @@ function Agenda() {
             action: action,
             selected: false
         }));
-        setMoveDialog(true);
+        setMoveDialogInfo({...moveDialogInfo, dialog: true});
     }
 
     const onEventChange = (info: EventChangeArg) => {
@@ -408,7 +505,7 @@ function Agenda() {
 
     const handleClickDatePrev = () => {
         if (view !== 'listWeek') {
-            const calendarApi = (calendarEl as FullCalendar)?.getApi();
+            const calendarApi = (calendarRef.current as FullCalendar)?.getApi();
             if (calendarApi) {
                 calendarApi.prev();
                 dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
@@ -416,15 +513,15 @@ function Agenda() {
         } else {
             scrollToView(refs.current[0], 1);
             const prevDate = moment(currentDate.date).clone().subtract(1, "days");
+            dispatch(setCurrentDate({date: prevDate.toDate(), fallback: false}));
             getAppointments(`format=list&page=1&limit=50&start_date=${prevDate.format("DD-MM-YYYY")}`,
                 view, false, true);
-            dispatch(setCurrentDate({date: prevDate.toDate(), fallback: false}));
         }
     };
 
     const handleClickDateNext = () => {
         if (view !== 'listWeek') {
-            const calendarApi = (calendarEl as FullCalendar)?.getApi();
+            const calendarApi = (calendarRef.current as FullCalendar)?.getApi();
             if (calendarApi) {
                 calendarApi.next();
                 dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
@@ -440,36 +537,13 @@ function Agenda() {
         switch (action) {
             case "onCancel":
                 setEvent(event);
-                setActionDialog('cancel');
-                setCancelDialog(true);
+                setTimeout(() => {
+                    setActionDialog('cancel');
+                    setTimeout(() => setCancelDialog(true));
+                });
                 break;
             case "onConsultationDetail":
-                if (!isActive) {
-                    const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-                    router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                        updateAppointmentStatus({
-                            method: "PATCH",
-                            data: {
-                                status: "4",
-                                start_date: moment().format("DD-MM-YYYY"),
-                                start_time: moment().format("HH:mm")
-                            },
-                            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-                        } as any).then(() => {
-                            dispatch(setTimer({
-                                    isActive: true,
-                                    isPaused: false,
-                                    event,
-                                    startTime: moment().utc().format("HH:mm")
-                                }
-                            ));
-                            // refresh on going api
-                            mutateOnGoing && mutateOnGoing();
-                        });
-                    });
-                } else {
-                    setError(true);
-                }
+                onConsultationStart(event)
                 break;
             case "onConsultationView":
                 const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
@@ -485,17 +559,21 @@ function Agenda() {
                 break;
             case "onLeaveWaitingRoom":
                 setEvent(event);
+                setLoading(true);
+                const form = new FormData();
+                form.append("status", "1");
                 updateAppointmentStatus({
                     method: "PATCH",
-                    data: {
-                        status: "1"
-                    },
+                    data: form,
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-                } as any).then(() => {
-                    refreshData();
-                    enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
-                    // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
+                }, {
+                    onSuccess: () => {
+                        refreshData().then(() => setLoading(false));
+                        enqueueSnackbar(t(`alert.leave-waiting-room`), {variant: "success"});
+                        // refresh on going api
+                        mutateOnGoing();
+
+                    }
                 });
                 break;
             case "onPatientNoShow":
@@ -519,13 +597,13 @@ function Agenda() {
                     action: "move",
                     selected: false
                 }));
-                setMoveDialogInfo(true);
+                setTimeout(() => setMoveDialogInfo({...moveDialogInfo, info: true}));
                 break;
             case "onReschedule":
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
                 if (eventStepper.find(stepper => stepper.title === "steppers.tabs.tab-3")) {
-                    setEventStepper(eventStepper.filter(stepper => stepper.title !== "steppers.tabs.tab-3"));
+                    setTimeout(() => setEventStepper(eventStepper.filter(stepper => stepper.title !== "steppers.tabs.tab-3")));
                 }
                 dispatch(resetAppointment());
                 dispatch(setAppointmentPatient(event.extendedProps.patient as any));
@@ -534,51 +612,62 @@ function Agenda() {
             case "onDelete":
                 dispatch(setSelectedEvent(event));
                 setEvent(event);
-                setActionDialog('delete');
-                setCancelDialog(true);
+                setTimeout(() => {
+                    setActionDialog('delete');
+                    setTimeout(() => setCancelDialog(true));
+                })
                 break;
             case "onConfirmAppointment":
                 onConfirmAppointment(event);
                 break;
             case "onPreConsultation":
                 setEvent(event);
-                setOpenPreConsultationDialog(true);
+                setTimeout(() => setOpenPreConsultationDialog(true));
+                break;
+            case "onAddConsultationDocuments":
+                setEvent(event);
+                setTimeout(() => setOpenUploadDialog({...openUploadDialog, dialog: true}));
                 break;
         }
     }
 
     const onOpenWaitingRoom = (event: EventDef) => {
+        setLoading(true);
         const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
         const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
             (event.status.key === "FINISHED" && event.updatedAt.isBefore(moment(), 'year')));
+        const form = new FormData();
+        form.append("status", "3");
+        form.append("is_first_appointment", filteredEvents?.toString() ?? "false");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {
-                status: "3",
-                is_first_appointment: filteredEvents
-            },
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-        } as any).then(
-            () => {
-                refreshData();
+        }, {
+            onSuccess: () => {
+                refreshData().then(() => setLoading(false));
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
-                dispatch(setOngoing({waiting_room: (waiting_room ? waiting_room : 0) + 1}));
+                // refresh on going api
+                mutateOnGoing();
                 // update pending notifications status
-                config?.mutate[1]();
-            });
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/get/pending/${router.locale}`]);
+            }
+        });
     }
 
     const onPatientNoShow = (event: EventDef) => {
+        const form = new FormData();
+        form.append("status", "10");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {
-                status: "10"
-            },
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-        } as any).then(() => {
-            refreshData();
-            enqueueSnackbar(t(`alert.patient-no-show`), {variant: "success"});
-            dispatch(openDrawer({type: "view", open: false}));
+        }, {
+            onSuccess: () => {
+                refreshData();
+                enqueueSnackbar(t(`alert.patient-no-show`), {variant: "success"});
+                dispatch(openDrawer({type: "view", open: false}));
+            }
         });
     }
 
@@ -589,49 +678,33 @@ function Agenda() {
         })
     }
 
-    const onConfirmAppointment = (event: EventDef, refreshBackground?: boolean) => {
+    const onConfirmAppointment = (event: EventDef) => {
         setLoading(true);
+        const form = new FormData();
+        form.append("status", "1");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {
-                status: "1"
-            },
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-        } as any).then(() => {
-            setLoading(false);
-            refreshData();
-            enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
-            dispatch(openDrawer({type: "view", open: false}));
-            // update pending notifications status
-            config?.mutate[1]();
+        }, {
+            onSuccess: () => {
+                refreshData();
+                enqueueSnackbar(t(`alert.confirm-appointment`), {variant: "success"});
+                dispatch(openDrawer({type: "view", open: false}));
+                // update pending notifications status
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/get/pending/${router.locale}`]);
+                setLoading(false);
+            }
         });
     }
 
-    const onConsultationDetail = (event: EventDef) => {
+    const onConsultationStart = (event: EventDef) => {
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-            router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                updateAppointmentStatus({
-                    method: "PATCH",
-                    data: {
-                        status: "4",
-                        start_date: moment().format("DD-MM-YYYY"),
-                        start_time: moment().format("HH:mm")
-                    },
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-                } as any).then(() => {
-                    dispatch(openDrawer({type: "view", open: false}));
-                    dispatch(setTimer({
-                            isActive: true,
-                            isPaused: false,
-                            event,
-                            startTime: moment().utc().format("HH:mm")
-                        }
-                    ));
-                    // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
-                });
-            })
+            router.push({
+                pathname: slugConsultation,
+                query: {inProgress: true}
+            }, slugConsultation, {locale: router.locale})
         } else {
             dispatch(openDrawer({type: "view", open: false}));
             setError(true);
@@ -665,11 +738,10 @@ function Agenda() {
 
     const onMoveAppointment = () => {
         onUpdateDefEvent();
-        setMoveDialogInfo(false);
+        setMoveDialogInfo({dialog: true, info: false});
         if (openMoveDrawer) {
             dispatch(openDrawer({type: "move", open: false}));
         }
-        setMoveDialog(true);
     }
 
     const handleMoveAppointment = (event: EventDef) => {
@@ -682,20 +754,19 @@ function Agenda() {
         updateAppointmentTrigger({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
+            data: form
+        }, {
+            onSuccess: (result) => {
+                if ((result?.data as HttpResponse).status === "success") {
+                    enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
+                        "alert-msg" : "alert-msg-duration"}`), {variant: "success"});
+                }
+                dispatch(openDrawer({type: "view", open: false}));
+                refreshData();
+                setMoveDialogInfo({...moveDialogInfo, dialog: false});
+                // update pending notifications status
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/get/pending/${router.locale}`]);
             }
-        }, TriggerWithoutValidation).then((result) => {
-            if ((result?.data as HttpResponse).status === "success") {
-                enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
-                    "alert-msg" : "alert-msg-duration"}`), {variant: "success"});
-            }
-            dispatch(openDrawer({type: "view", open: false}));
-            refreshData();
-            setMoveDialog(false);
-            // update pending notifications status
-            config?.mutate[1]();
         });
     }
 
@@ -708,17 +779,15 @@ function Agenda() {
         updateAppointmentTrigger({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${eventId}/clone/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
+            data: form
+        }, {
+            onSuccess: (result) => {
+                if ((result?.data as HttpResponse).status === "success") {
+                    enqueueSnackbar(t(`dialogs.reschedule-dialog.alert-msg`), {variant: "success"});
+                }
+                refreshData();
+                setMoveDialogInfo({dialog: false, info: false});
             }
-        }, TriggerWithoutValidation).then((result) => {
-            if ((result?.data as HttpResponse).status === "success") {
-                enqueueSnackbar(t(`dialogs.reschedule-dialog.alert-msg`), {variant: "success"});
-            }
-            refreshData();
-            setMoveDialogInfo(false);
-            setMoveDialog(false);
         });
     }
 
@@ -736,35 +805,43 @@ function Agenda() {
 
     const deleteAppointment = (appointmentUUid: string) => {
         setLoading(true);
+        const form = new FormData();
+        form.append("status", "9");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {status: "9"},
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`
-        } as any).then(() => {
-            dispatch(openDrawer({type: "view", open: false}));
-            setCancelDialog(false);
-            setLoading(false);
-            refreshData();
-            enqueueSnackbar(t(`alert.delete-appointment`), {variant: "success"});
+        }, {
+            onSuccess: () => {
+                dispatch(openDrawer({type: "view", open: false}));
+                setCancelDialog(false);
+                setTimeout(() => setLoading(false));
+                refreshData();
+                enqueueSnackbar(t(`alert.delete-appointment`), {variant: "success"});
+            }
         });
     }
 
     const cancelAppointment = (appointmentUUid: string) => {
         setLoading(true);
+        const form = new FormData();
+        form.append("status", "6");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {status: "6"},
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appointmentUUid}/status/${router.locale}`
-        } as any).then(() => {
-            const eventUpdated: any = {
-                ...event, extendedProps:
-                    {...event?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
-            };
-            dispatch(setSelectedEvent(eventUpdated));
-            setCancelDialog(false);
-            setLoading(false);
-            refreshData();
-            enqueueSnackbar(t(`alert.cancel-appointment`), {variant: "success"});
+        }, {
+            onSuccess: () => {
+                const eventUpdated: any = {
+                    ...event, extendedProps:
+                        {...event?.extendedProps, status: {key: "CANCELED", value: "Annulé"}}
+                };
+                dispatch(setSelectedEvent(eventUpdated));
+                setCancelDialog(false);
+                setTimeout(() => setLoading(false));
+                refreshData();
+                enqueueSnackbar(t(`alert.cancel-appointment`), {variant: "success"});
+            }
         });
     }
 
@@ -807,12 +884,11 @@ function Agenda() {
                 dispatch(openDrawer({type: "add", open: false}));
                 break;
             case "onConsultationStart":
-                onConsultationDetail(event);
+                onConsultationStart(event);
                 dispatch(openDrawer({type: "add", open: false}));
                 break;
         }
     }
-
 
     const submitStepper = (index: number) => {
         const steps: any = eventStepper.map((stepper) => ({...stepper}));
@@ -835,26 +911,26 @@ function Agenda() {
     }
 
     const submitPreConsultationData = () => {
+        setLoadingRequest(true);
+        const form = new FormData();
+        form.append("modal_uuid", model);
+        form.append("modal_data", localStorage.getItem(`Modeldata${event?.publicId}`) as string);
         handlePreConsultationData({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/data/${router.locale}`,
-            data: {
-                "modal_uuid": model,
-                "modal_data": localStorage.getItem(`Modeldata${event?.publicId}`) as string
+            data: form
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                localStorage.removeItem(`Modeldata${event?.publicId}`);
+                setTimeout(() => setOpenPreConsultationDialog(false));
+                medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`]);
             }
-        } as any).then(() => {
-            localStorage.removeItem(`Modeldata${event?.publicId}`);
-            setOpenPreConsultationDialog(false);
-            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`)
         });
     }
 
     const refreshData = () => {
-        if (view === 'listWeek') {
-            getAppointments(`format=list&page=1&limit=50`, view);
-        } else {
-            getAppointments(`start_date=${timeRange.start}&end_date=${timeRange.end}&format=week`);
-        }
+        return invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`]);
     }
 
     const handleAddAppointment = (action: string) => {
@@ -879,6 +955,32 @@ function Agenda() {
         }
     }
 
+    const handleUploadDocuments = () => {
+        setOpenUploadDialog({...openUploadDialog, loading: true});
+        const params = new FormData();
+        documentConfig.files.map((file: any) => {
+            params.append(`files[${file.type}][]`, file.file, file.name.slice(0, 20));
+        });
+        triggerUploadDocuments({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/documents/${router.locale}`,
+            data: params
+        }, {
+            onSuccess: () => {
+                setOpenUploadDialog({loading: false, dialog: false});
+                medicalEntityHasUser && triggerNotificationPush({
+                    action: "push",
+                    root: "all",
+                    message: " ",
+                    content: JSON.stringify({
+                        mutate: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${event?.extendedProps.patient.uuid}/appointments/documents/${router.locale}`,
+                        fcm_session: jti
+                    })
+                });
+            }
+        });
+    }
+
     const handleAddAppointmentRequest = () => {
         setLoading(true);
         const params = new FormData();
@@ -895,21 +997,24 @@ function Agenda() {
         addAppointmentTrigger({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then((value: any) => {
-            setLoading(false);
-            if (value?.data.status === 'success') {
+            data: params
+        }, {
+            onSuccess: (value) => {
+                refreshData();
                 dispatch(setAppointmentSubmit({uuids: value?.data.data}));
                 dispatch(setStepperIndex(0));
-                setQuickAddAppointment(false);
-                refreshData();
+                setTimeout(() => setQuickAddAppointment(false));
+            },
+            onSettled: () => {
+                setLoading(false);
             }
         });
     }
 
     const handleOpenFab = () => setOpenFabAdd(true);
+
     const handleCloseFab = () => setOpenFabAdd(false);
+
     const handleActionFab = (action: any) => {
         setOpenFabAdd(false);
         switch (action.key) {
@@ -920,6 +1025,19 @@ function Agenda() {
                 handleAddAppointment("add-complete");
                 break;
         }
+    }
+
+    const handlePayTransaction = () => {
+        setLoadingRequest(true);
+        const transactions = selectedEvent?.extendedProps?.transactions;
+        triggerTransactionEdit(selectedPayment,
+            transactions && transactions?.length > 0 ? transactions[0] : null,
+            () => {
+                setOpenPaymentDialog(false);
+                setTimeout(() => setLoadingRequest(false));
+                dispatch(openDrawer({type: "pay", open: false}));
+            }
+        );
     }
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -944,12 +1062,11 @@ function Agenda() {
                     OnClickDatePrev={handleClickDatePrev}
                     OnAddAppointment={handleAddAppointment}/>
                 {error &&
-                    <AnimatePresence mode='wait'>
+                    <AnimatePresence>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
-                            transition={{ease: "easeIn", duration: 1}}
-                        >
+                            transition={{ease: "easeIn", duration: 1}}>
                             <Alert variant="filled"
                                    onClick={() => {
                                        const slugConsultation = `/dashboard/consultation/${onGoingEvent?.publicId ? onGoingEvent?.publicId : (onGoingEvent as any)?.id}`;
@@ -970,75 +1087,76 @@ function Agenda() {
                 <Backdrop sx={{zIndex: 100, backgroundColor: alpha(theme.palette.common.white, 0.9)}}
                           open={openFabAdd}/>
                 <LinearProgress sx={{
-                    visibility: !httpAppointmentResponse || loading ? "visible" : "hidden"
+                    visibility: !httpAppointmentsResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
-                <>
-                    {agenda &&
-                        <AnimatePresence mode='wait'>
-                            <motion.div
-                                initial={{opacity: 0}}
-                                animate={{opacity: 1}}
-                                transition={{ease: "easeIn", duration: .5}}
-                            >
-                                <Calendar
-                                    {...{
-                                        events: events.current,
-                                        doctor_country,
-                                        agenda,
-                                        roles,
-                                        refs,
-                                        spinner: loading,
-                                        t,
-                                        sortedData: sortedData.current
+
+                {agenda &&
+                    <motion.div
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        transition={{ease: "easeIn", duration: .5}}>
+                        <Calendar
+                            {...{
+                                isBeta,
+                                events: events.current,
+                                doctor_country,
+                                agenda,
+                                calendarRef,
+                                roles,
+                                refs,
+                                spinner: loading,
+                                t,
+                                sortedData: sortedData.current,
+                                mutate: refreshData
+                            }}
+                            OnAddAppointment={handleAddAppointment}
+                            OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
+                            OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
+                            OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
+                            OnSelectEvent={onSelectEvent}
+                            OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
+                            OnEventChange={onEventChange}
+                            OnOpenPatient={(event: EventDef) => {
+                                setEvent(event);
+                                dispatch(openDrawer({type: "view", open: false}));
+                                dispatch(openDrawer({type: "patient", open: true}));
+                            }}
+                            OnMenuActions={onMenuActions}
+                            OnSelectDate={onSelectDate}
+                            OnViewChange={onViewChange}
+                            OnRangeChange={handleOnRangeChange}/>
+                        {isMobile &&
+                            <Zoom
+                                in={!loading}
+                                timeout={transitionDuration}
+                                style={{
+                                    transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
+                                }}
+                                unmountOnExit>
+                                <SpeedDial
+                                    ariaLabel="SpeedDial tooltip Add"
+                                    sx={{
+                                        position: 'fixed',
+                                        bottom: 50,
+                                        right: 16
                                     }}
-                                    OnInit={onLoadCalendar}
-                                    OnAddAppointment={handleAddAppointment}
-                                    OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
-                                    OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
-                                    OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
-                                    OnSelectEvent={onSelectEvent}
-                                    OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
-                                    OnEventChange={onEventChange}
-                                    OnMenuActions={onMenuActions}
-                                    OnSelectDate={onSelectDate}
-                                    OnViewChange={onViewChange}
-                                    OnRangeChange={handleOnRangeChange}/>
-                                {isMobile &&
-                                    <Zoom
-                                        in={!loading}
-                                        timeout={transitionDuration}
-                                        style={{
-                                            transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
-                                        }}
-                                        unmountOnExit
-                                    >
-                                        <SpeedDial
-                                            ariaLabel="SpeedDial tooltip Add"
-                                            sx={{
-                                                position: 'fixed',
-                                                bottom: 50,
-                                                right: 16
-                                            }}
-                                            icon={<SpeedDialIcon/>}
-                                            onClose={handleCloseFab}
-                                            onOpen={handleOpenFab}
-                                            open={openFabAdd}
-                                        >
-                                            {actions.map((action) => (
-                                                <SpeedDialAction
-                                                    key={action.name}
-                                                    icon={action.icon}
-                                                    tooltipTitle={t(`${action.key}`)}
-                                                    tooltipOpen
-                                                    onClick={() => handleActionFab(action)}
-                                                />
-                                            ))}
-                                        </SpeedDial>
-                                    </Zoom>}
-                            </motion.div>
-                        </AnimatePresence>
-                    }
-                </>
+                                    icon={<SpeedDialIcon/>}
+                                    onClose={handleCloseFab}
+                                    onOpen={handleOpenFab}
+                                    open={openFabAdd}>
+                                    {actions.map((action) => (
+                                        <SpeedDialAction
+                                            key={action.name}
+                                            icon={action.icon}
+                                            tooltipTitle={t(`${action.key}`)}
+                                            tooltipOpen
+                                            onClick={() => handleActionFab(action)}
+                                        />
+                                    ))}
+                                </SpeedDial>
+                            </Zoom>}
+                    </motion.div>
+                }
 
                 {(isMobile && view === "listWeek") && <>
                     {sortedData.current?.map((row, index) => (
@@ -1076,7 +1194,7 @@ function Agenda() {
 
                 <Drawer
                     anchor={"right"}
-                    open={openViewDrawer}
+                    open={openViewDrawer && !openPatientDrawer}
                     dir={direction}
                     onClose={() => {
                         dispatch(openDrawer({type: "view", open: false}));
@@ -1084,10 +1202,16 @@ function Agenda() {
                             setEvent(undefined);
                         }, 300);
                     }}
-                >
+                    PaperProps={{
+                        sx: {
+                            minWidth: "35vw",
+                            maxWidth: "30rem",
+                        }
+                    }}>
                     {((event || selectedEvent) && openViewDrawer) &&
                         <AppointmentDetail
-                            OnConsultation={onConsultationDetail}
+                            {...{isBeta}}
+                            OnConsultation={onConsultationStart}
                             OnConfirmAppointment={onConfirmAppointment}
                             OnConsultationView={onConsultationView}
                             OnDataUpdated={() => refreshData()}
@@ -1106,14 +1230,14 @@ function Agenda() {
                                 dispatch(openDrawer({type: "view", open: false}));
                                 dispatch(openDrawer({type: "patient", open: true}));
                             }}
-                            SetMoveDialog={() => setMoveDialogInfo(true)}
+                            SetMoveDialog={() => setMoveDialogInfo({...moveDialogInfo, info: true})}
                             SetCancelDialog={() => {
                                 setActionDialog('cancel');
-                                setCancelDialog(true)
+                                setTimeout(() => setCancelDialog(true));
                             }}
                             SetDeleteDialog={() => {
                                 setActionDialog('delete');
-                                setCancelDialog(true);
+                                setTimeout(() => setCancelDialog(true));
                             }}
                             OnMoveAppointment={onMoveAppointment}
                             translate={t}
@@ -1125,17 +1249,20 @@ function Agenda() {
                     open={openAddDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(setStepperIndex(0));
-                        if (submitted) {
-                            dispatch(resetSubmitAppointment());
-                        }
+                        batch(() => {
+                            dispatch(openDrawer({type: "add", open: false}));
+                            dispatch(setStepperIndex(0));
+                            if (submitted) {
+                                dispatch(resetSubmitAppointment());
+                            }
+                        })
+
                         eventStepper[0].disabled = false;
-                        dispatch(openDrawer({type: "add", open: false}));
+
                         setTimeout(() => {
                             setEvent(undefined);
                         }, 300);
-                    }}
-                >
+                    }}>
                     <Box height={"100%"}>
                         <CustomStepper
                             currentIndex={currentStepper}
@@ -1154,8 +1281,7 @@ function Agenda() {
                     anchor={"right"}
                     open={openPatientDrawer}
                     dir={direction}
-                    onClose={cleanDrawData}
-                >
+                    onClose={cleanDrawData}>
                     <Box height={"100%"}>
                         {(event && openPatientDrawer) &&
                             <PatientDetail
@@ -1164,7 +1290,10 @@ function Agenda() {
                                 onChangeStepper={(index: number) => console.log("onChangeStepper", index)}
                                 onAddAppointment={() => console.log("onAddAppointment")}
                                 onConsultation={() => onMenuActions('onConsultationView', event)}
-                                onConsultationStart={() => onMenuActions('onConsultationDetail', event)}
+                                onConsultationStart={(eventData: any) => {
+                                    onMenuActions('onConsultationDetail', eventData);
+                                    dispatch(openDrawer({type: "patient", open: false}));
+                                }}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
                 </Drawer>
@@ -1178,9 +1307,9 @@ function Agenda() {
                     dir={direction}
                     onClose={() => {
                         setQuickAddAppointment(false);
-                    }}
-                >
+                    }}>
                     <QuickAddAppointment
+                        {...{t}}
                         handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
                     <Paper
                         sx={{
@@ -1190,25 +1319,25 @@ function Agenda() {
                             textAlign: "right",
                             p: "1rem"
                         }}
-                        className="action"
-                    >
+                        className="action">
                         <Button
                             sx={{
                                 mr: 1
                             }}
                             variant="text-primary"
                             onClick={() => setQuickAddAppointment(false)}
-                            startIcon={<CloseIcon/>}
-                        >
+                            startIcon={<CloseIcon/>}>
                             {t(`dialogs.quick_add_appointment-dialog.cancel`)}
                         </Button>
                         <LoadingButton
                             {...{loading}}
                             variant="contained"
                             color={"primary"}
-                            onClick={handleAddAppointmentRequest}
-                            disabled={recurringDates.length === 0 || type === "" || !patient}
-                        >
+                            onClick={event => {
+                                event.stopPropagation();
+                                handleAddAppointmentRequest();
+                            }}
+                            disabled={recurringDates.length === 0 || type === "" || !patient}>
                             {t(`dialogs.quick_add_appointment-dialog.confirm`)}
                         </LoadingButton>
                     </Paper>
@@ -1219,7 +1348,7 @@ function Agenda() {
                     contrastText={moveDialogAction === "move" ? theme.palette.warning.contrastText : theme.palette.primary.contrastText}
                     dialogClose={() => {
                         event?.extendedProps.revert && event?.extendedProps.revert();
-                        setMoveDialog(false);
+                        setMoveDialogInfo({...moveDialogInfo, dialog: false});
                     }}
                     dir={direction}
                     action={() => (
@@ -1236,12 +1365,11 @@ function Agenda() {
                                     {humanizeDuration(event?.extendedProps.duration * 60000)}
                                 </>
                                 }
-
                             </Typography>
                             <Typography sx={{textAlign: "center"}}
                                         margin={2}>{t(`dialogs.${moveDialogAction}-dialog.description`)}</Typography>
                         </Box>)}
-                    open={moveDialog}
+                    open={moveDialogInfo.dialog}
                     title={t(`dialogs.${moveDialogAction}-dialog.${!event?.extendedProps.onDurationChanged ? "title" : "title-duration"}`)}
                     actionDialog={
                         <>
@@ -1249,10 +1377,9 @@ function Agenda() {
                                 variant="text-primary"
                                 onClick={() => {
                                     event?.extendedProps.revert && event?.extendedProps.revert();
-                                    setMoveDialog(false)
+                                    setMoveDialogInfo({...moveDialogInfo, dialog: false})
                                 }}
-                                startIcon={<CloseIcon/>}
-                            >
+                                startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}
                             </Button>
                             <LoadingButton
@@ -1262,8 +1389,7 @@ function Agenda() {
                                 color={moveDialogAction === "move" ? "warning" : "primary"}
                                 onClick={() => moveDialogAction === "move" ? handleMoveAppointment(event as EventDef) :
                                     handleRescheduleAppointment(event as EventDef)}
-                                startIcon={<IconUrl path="iconfinder"></IconUrl>}
-                            >
+                                startIcon={<IconUrl path="iconfinder"></IconUrl>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>
                         </>
@@ -1293,8 +1419,7 @@ function Agenda() {
                             <Button
                                 variant="text-primary"
                                 onClick={() => setCancelDialog(false)}
-                                startIcon={<CloseIcon/>}
-                            >
+                                startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${actionDialog}-dialog.cancel`)}
                             </Button>
                             <LoadingButton
@@ -1304,8 +1429,7 @@ function Agenda() {
                                 color={"error"}
                                 onClick={() => handleActionDialog(event?.publicId ? event?.publicId as string : (event as any)?.id)}
                                 startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
-                                                    path="icdelete"></IconUrl>}
-                            >
+                                                    path="icdelete"></IconUrl>}>
                                 {t(`dialogs.${actionDialog}-dialog.confirm`)}
                             </LoadingButton>
                         </>
@@ -1334,12 +1458,54 @@ function Agenda() {
                                 {t("cancel", {ns: "common"})}
                             </Button>
                             <LoadingButton
-                                {...{loading}}
+                                loading={loadingRequest}
                                 loadingPosition="start"
                                 variant="contained"
                                 onClick={() => submitPreConsultationData()}
                                 startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                                 {t("save", {ns: "common"})}
+                            </LoadingButton>
+                        </DialogActions>
+                    }
+                />
+
+                <Dialog
+                    {...{direction}}
+                    action={"add_a_document"}
+                    open={openUploadDialog.dialog}
+                    data={{
+                        t,
+                        state: documentConfig,
+                        setState: setDocumentConfig
+                    }}
+                    size={"md"}
+                    sx={{minHeight: 400}}
+                    title={t("config.doc_detail_title", {ns: "patient"})}
+                    {...(!openUploadDialog.loading && {
+                        dialogClose: () => setOpenUploadDialog({
+                            ...openUploadDialog,
+                            dialog: false
+                        })
+                    })}
+                    actionDialog={
+                        <DialogActions>
+                            <Button
+                                onClick={() => {
+                                    setOpenUploadDialog({...openUploadDialog, dialog: false});
+                                }}
+                                startIcon={<CloseIcon/>}>
+                                {t("config.add-patient.cancel", {ns: "patient"})}
+                            </Button>
+                            <LoadingButton
+                                loading={openUploadDialog.loading}
+                                loadingPosition={"start"}
+                                variant="contained"
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleUploadDocuments();
+                                }}
+                                startIcon={<SaveRoundedIcon/>}>
+                                {t("config.add-patient.register", {ns: "patient"})}
                             </LoadingButton>
                         </DialogActions>
                     }
@@ -1357,27 +1523,26 @@ function Agenda() {
                     color={theme.palette.primary.main}
                     contrastText={theme.palette.primary.contrastText}
                     dialogClose={() => {
-                        setMoveDialogInfo(false);
+                        setMoveDialogInfo({...moveDialogInfo, info: false});
                         if (openMoveDrawer) {
                             dispatch(openDrawer({type: "move", open: false}));
                         }
                     }}
                     action={"move_appointment"}
                     dir={direction}
-                    open={moveDialogInfo}
+                    open={moveDialogInfo.info}
                     title={t(`dialogs.${moveDialogAction}-dialog.title`)}
                     actionDialog={
                         <>
                             <Button
                                 variant="text-primary"
                                 onClick={() => {
-                                    setMoveDialogInfo(false);
+                                    setMoveDialogInfo({...moveDialogInfo, info: false});
                                     if (openMoveDrawer) {
                                         dispatch(openDrawer({type: "move", open: false}));
                                     }
                                 }}
-                                startIcon={<CloseIcon/>}
-                            >
+                                startIcon={<CloseIcon/>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.garde-date`)}
                             </Button>
                             <LoadingButton
@@ -1388,25 +1553,104 @@ function Agenda() {
                                 onClick={moveDialogAction === "move" ? onMoveAppointment : onRescheduleAppointment}
                                 color={"primary"}
                                 startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
-                                                    path="iconfinder"></IconUrl>}
-                            >
+                                                    path="iconfinder"></IconUrl>}>
                                 {t(`dialogs.${moveDialogAction}-dialog.confirm`)}
                             </LoadingButton>
                         </>
                     }
                 />
+
+                <Dialog
+                    action={"payment_dialog"}
+                    {...{
+                        direction,
+                        sx: {
+                            minHeight: 380
+                        }
+                    }}
+                    open={openPaymentDialog}
+                    data={{
+                        selectedPayment,
+                        setSelectedPayment,
+                        appointment: event?.extendedProps,
+                        patient: event?.extendedProps.patient
+                    }}
+                    size={"lg"}
+                    fullWidth
+                    title={t("payment_dialog_title", {ns: "common"})}
+                    dialogClose={() => {
+                        setOpenPaymentDialog(false);
+                        dispatch(openDrawer({type: "pay", open: false}));
+                    }}
+                    actionDialog={
+                        <DialogActions>
+                            <Button onClick={event => {
+                                event.stopPropagation();
+                                setOpenPaymentDialog(false);
+                                dispatch(openDrawer({type: "pay", open: false}));
+                            }} startIcon={<CloseIcon/>}>
+                                {t("cancel", {ns: "common"})}
+                            </Button>
+                            <LoadingButton
+                                loading={loadingRequest}
+                                loadingPosition={"start"}
+                                disabled={selectedPayment && selectedPayment.payments.length === 0}
+                                onClick={handlePayTransaction}
+                                variant="contained"
+                                startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                                {t("save", {ns: "common"})}
+                            </LoadingButton>
+                        </DialogActions>
+                    }
+                />
+
+                <MobileContainer>
+                    <Button
+                        startIcon={<IconUrl path="ic-filter"/>}
+                        variant="filter"
+                        onClick={() => setFilterBottom(true)}
+                        sx={{
+                            position: "fixed",
+                            bottom: 50,
+                            transform: "translateX(-50%)",
+                            left: "50%",
+                            zIndex: 999,
+
+                        }}>
+                        {t("filter.title")} (0)
+                    </Button>
+                </MobileContainer>
+                <DrawerBottom
+                    handleClose={() => setFilterBottom(false)}
+                    open={filterBottom}
+                    title={t("filter.title")}>
+                    <AgendaFilter/>
+                </DrawerBottom>
             </Box>
         </div>
     )
 }
 
-export const getStaticProps: GetStaticProps = async (context) => ({
-    props: {
-        fallback: false,
-        ...(await serverSideTranslations(context.locale as string,
-            ['common', 'menu', 'agenda', 'patient', 'consultation']))
+export const getStaticProps: GetStaticProps = async ({locale}) => {
+    const queryClient = new QueryClient();
+    const countries = `/api/public/places/countries/${locale}?nationality=true`;
+
+    await queryClient.prefetchQuery([countries], async () => {
+        const {data} = await instanceAxios.request({
+            url: countries,
+            method: "GET"
+        });
+        return data
+    });
+
+    return {
+        props: {
+            dehydratedState: dehydrate(queryClient),
+            fallback: false,
+            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
+        }
     }
-})
+}
 
 export default Agenda
 

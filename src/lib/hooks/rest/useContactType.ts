@@ -1,24 +1,17 @@
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useEffect, useState} from "react";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function useContactType() {
     const router = useRouter();
-    const [contacts, setContacts] = useState<ContactModel[]>([]);
 
-    const {data: httpContactsResponse} = useRequest({
+    const {data: httpContactsResponse} = useRequestQuery({
         method: "GET",
         url: `/api/public/contact-type/${router.locale}`
-    }, SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
 
-    useEffect(() => {
-        if (httpContactsResponse) {
-            setContacts((httpContactsResponse as HttpResponse)?.data);
-        }
-    }, [httpContactsResponse]);
 
-    return {contacts}
+    return {contacts: (Array.isArray(httpContactsResponse) ? httpContactsResponse : ((httpContactsResponse as HttpResponse)?.data ?? [])) as ContactModel[]}
 }
 
 export default useContactType;

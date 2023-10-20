@@ -1,5 +1,16 @@
 import React, {useEffect, useState} from 'react'
-import {Autocomplete, Box, CardContent, IconButton, MenuItem, Stack, TextField, Typography} from "@mui/material";
+import {
+    Autocomplete,
+    Box,
+    CardContent,
+    Divider,
+    IconButton,
+    MenuItem,
+    Stack,
+    TextField,
+    Typography,
+    useTheme
+} from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
 import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
@@ -7,36 +18,42 @@ import {Form, FormikProvider, useFormik} from "formik";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetExam, SetListen} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {consultationSelector} from "@features/toolbar";
-import {LoadingScreen} from "@features/loadingScreen";
 import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
 import CircularProgress from "@mui/material/CircularProgress";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {RecButton} from "@features/buttons";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+import dynamic from "next/dynamic";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import {debounce} from "lodash";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {Editor} from "@tinymce/tinymce-react";
+import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function CIPPatientHistoryCard({...props}) {
     const {
         exam: defaultExam,
         changes,
         setChanges,
-        uuind,
-        notes,
-        diagnostics,
+        app_uuid,
+        hasDataHistory,
         seeHistory,
-        seeHistoryDiagnostic,
         closed,
         handleClosePanel,
-        isClose
+        isClose,
+        agenda,
+        trigger: triggerAppointmentEdit
     } = props;
     const router = useRouter();
+    const theme = useTheme();
+
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const {transcript, resetTranscript, listening} = useSpeechRecognition();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -50,31 +67,32 @@ function CIPPatientHistoryCard({...props}) {
     let [diseases, setDiseases] = useState<string[]>([]);
     const [closeExam, setCloseExam] = useState<boolean>(closed);
     const [hide, setHide] = useState<boolean>(false);
+    const [editNote, setEditNote] = useState<boolean>(false);
+    const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
 
-    const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
-    const {trigger: triggerDiseases} = useRequestMutation(null, "/diseases");
+    const {trigger: triggerAddReason} = useRequestQueryMutation("/motif/add");
+    const {trigger: triggerDiseases} = useRequestQueryMutation("/diseases");
 
-    const {
-        data: httpConsultReasonResponse,
-        mutate: mutateReasonsData
-    } = useRequest(medicalEntityHasUser ? {
+    const {data: httpConsultReasonResponse, mutate: mutateReasonsData} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
+    });
 
-    const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data;
+
+
     const app_data = defaultExam?.appointment_data;
 
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            motif: storageData?.motif ? storageData.motif :
-                (app_data?.consultation_reason ?
-                    app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
-            notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
-            diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
-            disease: storageData?.disease ? storageData.disease : (app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : []),
+            motif: app_data?.consultation_reason ? app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : [],
+            notes: app_data?.notes ? app_data?.notes.value : "",
+            diagnosis: app_data?.diagnostics ? app_data?.diagnostics.value : "",
+            disease: app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : [],
             treatment: exam.treatment,
         },
         onSubmit: async (values) => {
@@ -103,25 +121,9 @@ function CIPPatientHistoryCard({...props}) {
             setOldNote(values.notes);
         })
     }
-    const handleDiseasesChange = (_diseases: string[]) => {
-        setFieldValue("disease", _diseases);
-        localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-            ...storageData,
-            disease: _diseases
-        }));
-        // set data data from local storage to redux
-        dispatch(
-            SetExam({
-                disease: _diseases
-            })
-        );
-    }
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
+        handleOnChange('consultation_reason', reasons.map(reason => reason.uuid))
         setFieldValue("motif", reasons.map(reason => reason.uuid));
-        localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-            ...storageData,
-            motif: reasons.map(reason => reason.uuid)
-        }));
         // set data data from local storage to redux
         dispatch(
             SetExam({
@@ -142,28 +144,55 @@ function CIPPatientHistoryCard({...props}) {
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutateReasonsData().then((result: any) => {
-            const {status} = result?.data;
-            const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
-            if (status === "success") {
-                handleReasonChange([...reasons.filter(reason => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
-            }
-            setLoadingReq(false);
-        }));
+            data: params
+        }, {
+            onSuccess: () => mutateReasonsData().then((result: any) => {
+                const {status, data} = result?.data?.data;
+                const reasonsUpdated = data as ConsultationReasonModel[];
+                if (status === "success") {
+                    handleReasonChange([...reasons.filter((reason: {
+                        uuid: any;
+                    }) => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
+                }
+                setLoadingReq(false);
+            })
+        });
     }
+
     const findDiseases = (name: string) => {
         triggerDiseases({
             method: "GET",
-            url: `/api/private/diseases/${router.locale}?name=${name}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(res => {
-            let resultats: any[] = [];
-            (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {
-                resultats.push(r.data.title['@value']);
-            });
-            setDiseases(resultats);
+            url: `/api/private/diseases/${router.locale}?name=${name}`
+        }, {
+            onSuccess: res => {
+                let resultats: any[] = [];
+                (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {
+                    resultats.push(r.data.title['@value']);
+                });
+                setDiseases(resultats);
+            }
+        });
+    }
+
+    const handleOnChange = (event: string, newValue: any) => {
+        setFieldValue(event, newValue);
+        // set data data from local storage to redux
+        dispatch(
+            SetExam({
+                [`${event}`]: newValue
+            })
+        );
+        saveChanges(event, newValue);
+    }
+
+    const saveChanges = (ev: string, newValue: any) => {
+        const form = new FormData();
+        form.append(ev === 'diagnosis' ? 'diagnostic' : ev, newValue);
+
+        triggerAppointmentEdit({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+            data: form
         })
     }
 
@@ -174,12 +203,11 @@ function CIPPatientHistoryCard({...props}) {
     useEffect(() => {
         dispatch(
             SetExam({
-                motif: storageData?.motif ? storageData.motif :
-                    (app_data?.consultation_reason ?
-                        app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
-                notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
-                diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
-                disease: storageData?.disease ? storageData.disease : (app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : []),
+                motif: app_data?.consultation_reason ?
+                    app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : [],
+                notes: app_data?.notes ? app_data?.notes.value : "",
+                diagnosis: app_data?.diagnostics ? app_data?.diagnostics.value : "",
+                disease: app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : [],
                 treatment: exam.treatment
             })
         );
@@ -189,11 +217,7 @@ function CIPPatientHistoryCard({...props}) {
         if (isStarted) {
             const notes = `${(oldNote ? oldNote : "")}  ${transcript}`;
             setFieldValue("notes", notes);
-            localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                ...storageData,
-                notes
-            }));
-            // set data data from local storage to redux
+
             dispatch(
                 SetExam({
                     notes
@@ -208,9 +232,7 @@ function CIPPatientHistoryCard({...props}) {
         setChanges([...changes])
     }, [values])// eslint-disable-line react-hooks/exhaustive-deps
 
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
-
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <ConsultationDetailCardStyled>
@@ -225,15 +247,19 @@ function CIPPatientHistoryCard({...props}) {
                        transform: hide ? "rotate(90deg)" : "rotate(0)",
                        transformOrigin: "left",
                        width: hide ? "44.5rem" : "auto",
-                       left: hide ? 32 : 23,
+                       left: 23,
                        top: -26,
                    }}
                    borderColor="divider">
                 {hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
+                        if (isClose) {
+                            return
+                        }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
+
                     }}
                     className="btn-collapse"
                     disableRipple>
@@ -248,8 +274,12 @@ function CIPPatientHistoryCard({...props}) {
                 {!hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
+                        if (isClose) {
+                            return
+                        }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
+
                     }}
                     className="btn-collapse"
                     disableRipple>
@@ -278,7 +308,9 @@ function CIPPatientHistoryCard({...props}) {
                                 autoHighlight
                                 disableClearable
                                 size="small"
-                                value={values.motif && reasons ? reasons.filter(reason => values.motif.includes(reason.uuid)) : []}
+                                value={values.motif && reasons ? reasons.filter((reason: {
+                                    uuid: any;
+                                }) => values.motif.includes(reason.uuid)) : []}
                                 onChange={(e, newValue: any) => {
                                     e.stopPropagation();
                                     const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
@@ -288,10 +320,11 @@ function CIPPatientHistoryCard({...props}) {
                                     } else {
                                         handleReasonChange(newValue);
                                     }
+
                                 }}
                                 filterOptions={(options, params) => filterReasonOptions(options, params, t)}
                                 sx={{color: "text.secondary"}}
-                                options={reasons ? reasons.filter(item => item.isEnabled) : []}
+                                options={reasons ? reasons.filter((item: { isEnabled: any; }) => item.isEnabled) : []}
                                 loading={reasons?.length === 0}
                                 getOptionLabel={(option) => {
                                     // Value selected with enter, right from the input
@@ -307,12 +340,16 @@ function CIPPatientHistoryCard({...props}) {
                                 }}
                                 isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                 renderOption={(props, option) => (
-                                    <MenuItem
-                                        {...props}
-                                        key={option.uuid ? option.uuid : "-1"}
-                                        value={option.uuid}>
-                                        {option.name}
-                                    </MenuItem>
+                                    <Stack key={option.uuid ? option.uuid : "-1"}>
+                                        {!option.uuid && <Divider/>}
+                                        <MenuItem
+                                            {...props}
+                                            {...(!option.uuid && {sx: {color: theme.palette.error.main}})}
+                                            value={option.uuid}>
+                                            {!option.uuid && <AddOutlinedIcon/>}
+                                            {option.name}
+                                        </MenuItem>
+                                    </Stack>
                                 )}
                                 renderInput={params => <TextField color={"info"}
                                                                   {...params}
@@ -338,10 +375,12 @@ function CIPPatientHistoryCard({...props}) {
                                 </Typography>
                                 <Stack direction={"row"} spacing={2} alignItems={"center"}>
                                     {(listen === '' || listen === 'observation') && <>
-                                        {notes?.length > 0 &&
-                                            <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                                seeHistory()
-                                            }}>{t('seeHistory')}</Typography>}
+                                        {hasDataHistory &&
+                                            <Typography
+                                                color={"primary"} style={{cursor: "pointer"}}
+                                                onClick={() => seeHistory()}>
+                                                {t('seeHistory')}
+                                            </Typography>}
                                     </>}
                                     <RecButton
                                         small
@@ -350,59 +389,69 @@ function CIPPatientHistoryCard({...props}) {
                                         }}/>
                                 </Stack>
                             </Stack>
-                            <TextField
-                                fullWidth
-                                multiline
-                                rows={10}
-                                value={values.notes}
-                                onChange={event => {
-                                    setFieldValue("notes", event.target.value);
-                                    localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                                        ...storageData,
-                                        notes: event.target.value
-                                    }));
-                                    // set data data from local storage to redux
-                                    dispatch(
-                                        SetExam({
-                                            notes: event.target.value
-                                        })
-                                    );
-                                }}
-                                placeholder={t("hint_text")}
-                            />
+                            {
+                                !editNote && <div className={"contentPreview"}
+                                                  onClick={() => {
+                                                      setEditNote(true)
+                                                  }}
+                                                  dangerouslySetInnerHTML={{__html: values.notes ? values.notes : '<p class="preview">--</p>'}}/>
+                            }
+                            {
+                                editNote && <Editor
+                                    value={values.notes}
+                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    onEditorChange={(event) => {
+                                        setFieldValue("notes", event);
+                                    }}
+                                    onBlur={() => {
+                                        saveChanges("notes", values.notes)
+                                    }}
+                                    init={{
+                                        branding: false,
+                                        statusbar: false,
+                                        menubar: false,
+                                        height: 200,
+                                        toolbar_mode: 'scrolling',
+                                        plugins: tinymcePlugins,
+                                        toolbar: tinymceToolbar,
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}/>
+                            }
                         </Box>
                         <Box width={1}>
                             <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
                                 <Typography variant="body2" fontWeight={500}>
                                     {t("diagnosis")}
                                 </Typography>
-
-                                {diagnostics.length > 0 &&
-                                    <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                        seeHistoryDiagnostic()
-                                    }}>{t('seeHistory')}</Typography>}
                             </Stack>
-
-                            <TextField
-                                fullWidth
-                                id={"diagnosis"}
-                                size="small"
-                                value={values.diagnosis}
-                                multiline={true}
-                                rows={10}
-                                onChange={event => {
-                                    setFieldValue("diagnosis", event.target.value);
-                                    localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                                        ...storageData,
-                                        diagnosis: event.target.value
-                                    }));
-                                    // set data data from local storage to redux
-                                    dispatch(
-                                        SetExam({
-                                            diagnosis: event.target.value
-                                        })
-                                    );
-                                }}/>
+                            {
+                                !editDiagnosic && <div className={"contentPreview"}
+                                                       onClick={() => {
+                                                           setEditDiagnosic(true)
+                                                       }}
+                                                       dangerouslySetInnerHTML={{__html: values.diagnosis ? values.diagnosis : '<p class="preview">--</p>'}}/>
+                            }
+                            {
+                                editDiagnosic && <Editor
+                                    value={values.diagnosis}
+                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    onEditorChange={(event) => {
+                                        setFieldValue("diagnosis", event)
+                                    }}
+                                    onBlur={() => {
+                                        saveChanges("diagnosis", values.diagnosis)
+                                    }}
+                                    init={{
+                                        branding: false,
+                                        statusbar: false,
+                                        menubar: false,
+                                        height: 200,
+                                        toolbar_mode: 'scrolling',
+                                        plugins: tinymcePlugins,
+                                        toolbar: tinymceToolbar,
+                                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    }}/>
+                            }
                         </Box>
                         <Box width={1}>
                             <Typography variant="body2" paddingBottom={1} fontWeight={500}>
@@ -418,11 +467,12 @@ function CIPPatientHistoryCard({...props}) {
                                 value={values.disease}
                                 onChange={(e, newValue: any) => {
                                     e.stopPropagation();
-                                    handleDiseasesChange(newValue)
+                                    //handleDiseasesChange(newValue)
+                                    handleOnChange("disease", newValue)
                                 }}
                                 filterOptions={(options, params) => {
                                     const {inputValue} = params;
-                                    if (inputValue.length > 0) options.push(inputValue)
+                                    if (inputValue.length > 0) options.unshift(inputValue)
                                     return options
                                 }}
                                 sx={{color: "text.secondary"}}
@@ -447,25 +497,6 @@ function CIPPatientHistoryCard({...props}) {
                                                                   }}
                                                                   variant="outlined" fullWidth/>}/>
                         </Box>
-                        {/*<Box>
-                            <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
-                                {t("treatment")}
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                multiline
-                                rows={5}
-                                placeholder={t("enter_your_dosage")}
-                                value={values.treatment}
-                                onChange={event => {
-                                    setFieldValue("treatment", event.target.value);
-                                    localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                                        ...values,
-                                        treatment: event.target.value
-                                    }));
-                                }}
-                            />
-                        </Box>*/}
                     </Stack>
                 </FormikProvider>
             </CardContent>

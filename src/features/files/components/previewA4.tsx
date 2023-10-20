@@ -6,8 +6,7 @@ import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
 
 function PreviewDialog({...props}) {
-    const {eventHandler, data, values, state, loading, date, t,nbPage} = props;
-
+    const {componentRef, eventHandler, data, values, state, loading, date, t, nbPage} = props;
     const {data: session} = useSession();
 
     const {data: user} = session as Session;
@@ -198,38 +197,28 @@ function PreviewDialog({...props}) {
 
                             let txt = el.name.replaceAll('{patient}', state.patient)
                             txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
+                            txt = txt.replaceAll('[date]', moment().format('DD/MM/YYYY'))
+                            if (state.birthdate) {
+                                txt = txt.replaceAll('{age}', moment().diff(moment(state.birthdate, "DD-MM-YYYY"), "years") + " ans")
+                                txt = txt.replaceAll('{birthdate}', moment(state.birthdate, "DD-MM-YYYY").format('DD-MM-YYYY'))
+                            }
+                            if (state.cin)
+                                txt = txt.replaceAll('{cin}', state.cin)
+                            if (state.tel)
+                                txt = txt.replaceAll('{tel}', state.tel)
                             txt = txt.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
+                            txt = txt.replaceAll('[votre nom]', `${general_information.firstName} ${general_information.lastName}`)
                             txt = txt.replaceAll('&nbsp;', '')
                             const parser = new DOMParser();
                             const noeuds = parser.parseFromString(txt, 'text/html').getElementsByTagName('body')[0];
 
                             noeuds.childNodes.forEach(item => {
-                                /*const nblines = countLines(item);
-                                if ( nblines > 1 ){
-                                const lines = getLines(item);
-                                lines.map((line) => {
-                                    rows.push({
-                                        value: line.row,
-                                        name: "name",
-                                        element: "div",
-                                        style: {}
-                                    })
-                                })*/
                                 rows.push({
                                     value: item,
                                     name: "name",
                                     element: "div",
                                     style: {}
                                 })
-
-                                /*}else{
-                                    rows.push({
-                                        value: item,
-                                        name: "name",
-                                        element: "div",
-                                        style: {}
-                                    })
-                                }*/
                                 certifLine.append(item.cloneNode(true))
                             })
 
@@ -237,6 +226,7 @@ function PreviewDialog({...props}) {
                             setTitle("CERTIFICAT MEDICAL");
                             break;
                         case "fees":
+                        case "quote":
                             const FeesLine = document.createElement('table');
                             FeesLine.append(`${el.fees} • ${el.act.name}`)
                             rows.push({
@@ -252,8 +242,66 @@ function PreviewDialog({...props}) {
                                 style: {}
                             })
                             pageX.appendChild(FeesLine)
-                            setTitle("Note d'honoraires");
+                            setTitle(state.type == "fees" ? "Note d'honoraires" : "Devis");
                             break;
+                        case "glasses":
+                            const prescLine = document.createElement('p');
+                            const subTitle = ['sphere', 'cylindre', 'axe']
+
+                            let od = "";
+                            let og = ""
+                            let odp = "";
+                            let ogp = ""
+
+                            subTitle.map(key => {
+                                od += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
+                                og += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
+                                odp += `${t(key)} : ${el.pfp[0].od[key] ? el.pfp[0].od[key] : ' - '}  `;
+                                ogp += `${t(key)} : ${el.pfp[0].og[key] ? el.pfp[0].og[key] : ' - '}   `
+                            })
+
+                            rows = [
+                                {
+                                    value: t('farvision'),
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0}
+                                },
+                                {
+                                    value: `• OD : ${od}`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0, marginLeft: 30}
+                                },
+                                {
+                                    value: `• OG : ${og}`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0}
+                                },
+
+                                {
+                                    value: t('nearvision'),
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0}
+                                },
+                                {
+                                    value: `• OD : ${odp}`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0}
+                                },
+                                {
+                                    value: `• OG : ${ogp}`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0}
+                                }
+                            ]
+                            pageX.appendChild(prescLine)
+
+                            setTitle("Ordonnance lunette");
                     }
                 } else {
                     const elx = document.createElement('p');
@@ -265,11 +313,14 @@ function PreviewDialog({...props}) {
 
         let lastPos = 0;
         let updatedPages = [];
-        for (let i = 0; i < Math.ceil(pageX.clientHeight / data.content.maxHeight); i++) {
+        const nbPages = Math.ceil(pageX.clientHeight / data.content.maxHeight);
+        for (let i = 0; i < nbPages; i++) {
             const el = document.createElement("div")
             el.id = `page${i}`
-            document.body.appendChild(el)
-            if (state && state.type === 'fees') {
+            el.style.position = "absolute"
+            el.style.top = "0"
+            el.style.opacity = "0"
+            if (state && (state.type === 'fees' || state.type === 'quote')) {
                 let total = 0;
                 const elx = document.createElement("table");
                 elx.style.width = '190mm';
@@ -316,6 +367,12 @@ function PreviewDialog({...props}) {
                 tt.style.textAlign = "center"
                 elx.appendChild(tt)
 
+                if (state.note){
+                    const note = document.createElement("p");
+                    note.append(`Note: ${state.note}`);
+                    elx.appendChild(note)
+                }
+
             } else {
                 for (let i = lastPos; i < rows.length; i++) {
                     const elx = document.createElement(rows[i].element);
@@ -324,57 +381,35 @@ function PreviewDialog({...props}) {
                     elx.append(rows[i].value)
                     Object.assign(elx.style, rows[i].style)
                     el.append(elx)
+                    document.body.append(el)
                     if (el.clientHeight >= data.content.maxHeight) {
                         lastPos = i + 1;
                         break;
                     }
+
+                    document.body.removeChild(el)
                 }
             }
-
             updatedPages.push({page: i, content: el})
         }
+        /*
+                for(let i = 0; i < nbPages; i++){
+                    let p = document.getElementById(`page${i}`)
+                    if(p) {
+                        p.style.height = "0";
+                        document.body.removeChild(p)
+                    }
+                }
+        */
         setPages(updatedPages);
     }
-
-    /*const getLines = (element: any) => {
-        const clone = element.cloneNode(true);
-        const words = clone.innerText.replaceAll('&nbsp;', '').split(' ');
-        const rows = [];
-        let nbLine = 1;
-        const row = document.createElement('p');
-        row.style.lineHeight = '21px';
-        row.style.width = data.content.maxWidth ? `${data.content.maxWidth - 15}mm` : '115mm'
-        document.body.appendChild(row);
-        for (let word of words) {
-            row.innerHTML += word + ' '
-            if (row.clientHeight > 21) {
-                row.innerHTML = row.innerHTML.slice(0, -1)
-                rows.push({nb: nbLine, row: row.innerHTML})
-                nbLine++
-                row.innerText = word + ' '
-            }
-        }
-        rows.push({nb: nbLine, row: row.innerHTML})
-        document.body.removeChild(row);
-        return rows;
-    }*/
-
-    /*     const countLines = (element: any) => {
-            const clone = element.cloneNode(true);
-            document.body.appendChild(clone);
-            clone.style.height = "auto";
-            clone.style.lineHeight = '21px';
-            const divHeight = clone.offsetHeight
-            const lineHeight = parseInt(clone.style.lineHeight);
-             document.body.removeChild(clone);
-             return divHeight / lineHeight;
-        }*/
 
     useEffect(() => {
         const pageX = document.createElement("div")
         pageX.style.visibility = "hidden"
         pageX.style.position = "absolute"
         pageX.style.top = "0"
+        pageX.style.opacity = "0"
         document.body.append(pageX)
         if (state) {
             if (state.info)
@@ -404,9 +439,10 @@ function PreviewDialog({...props}) {
 
     return (
         <>
-            {pages.slice(0,nbPage ?1:pages.length).map((el, idx) => (
+            {pages.slice(0, nbPage ? 1 : pages.length).map((el, idx) => (
                 <div key={idx}>
                     <PrescriptionA4 {...{
+                        componentRef,
                         data,
                         id: idx,
                         eventHandler,
@@ -417,7 +453,7 @@ function PreviewDialog({...props}) {
                         date,
                         loading,
                         pages
-                    }}></PrescriptionA4>
+                    }}/>
                 </div>
             ))}
         </>

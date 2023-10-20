@@ -1,6 +1,7 @@
 {
   "sub-header": {
     "title": "Liste des patients",
+    "merge-patient": "Fusionner les patients",
     "add-patient": "Ajouter Patient"
   },
   "patient-details": {
@@ -22,14 +23,14 @@
     "years": "Ans",
     "months": "Mois",
     "days": "Jours",
-    "reason": "Motif de consultation",
+    "reason": "Motif",
     "date": "Date du RDV",
     "register": "Enregistrer",
     "cancel": "Annuler"
   },
   "add-appointment": {
     "book-a-slot": "Réservez un créneau",
-    "reason-consultation": "Motif de consultation",
+    "reason-consultation": "Motif",
     "practitioner": "Praticien",
     "affect-des": "Choose the practitioner who affects this consultation",
     "time-slot": "Créneau horaire",
@@ -50,23 +51,38 @@
     "description": ""
   },
   "config": {
-    "reason_for_consultation": "Motif de consultation",
+    "reason_for_consultation": "Motif",
+    "acts": "Acte",
+    "disease": "Maladie",
+    "insurance": "Assurances",
     "keyword": "Mot clé",
+    "more": "Plus",
+    "merge-patient": "Fusionner les patients",
+    "duplication": "Détection des doublons",
     "patient": "Patient",
     "place": "Lieu",
     "doc_detail_title": "Document",
     "treatment_medication": "Traitement (médicament)",
+    "assurance-placeholder": "Assurance",
     "documents": "Documents",
     "bal_sheet_req": "Demande de bilan",
     "upload_document": "Télécharger un document",
+    "select-all": "Sélectionner tout",
+    "load-more": "En savoir plus",
+    "popover-action": {
+      "view_patient_data": "Voir les détails du patient",
+      "check_duplication_data": "Vérifier les doublons",
+      "delete_patient_data": "Supprimer le patient"
+    },
     "tabs": {
-      "personal-info": "Informations personnelles",
+      "personal-info": "Informations",
       "additional-information": "Informations supplémentaires",
       "notes": "Notes",
       "fin": "Fin",
       "recap": "Résumé",
       "appointment": "RDV",
       "documents": "Documents",
+      "transactions": "Paiements",
       "add-appo": "Ajouter RDV",
       "import": "Importer un document",
       "time-slot": "Créneau horaire",
@@ -82,7 +98,8 @@
       "photo": "Photo",
       "video": "video",
       "audio": "Audio",
-      "history": "Fiche d'historique"
+      "history": "Historique",
+      "quotes": "Devis"
     },
     "no-data": {
       "appointment": {
@@ -93,12 +110,18 @@
       "documents": {
         "title": "Ajouter le premier document",
         "description": "Vous n'avez pas de document médical Ajoutez les documents en cliquant sur 'Ajouter un document'",
+        "quote-description": "Aucun devis, Cliquez sur 'Ajouter un devis'",
+        "add_quote": "Ajouter devis",
         "button-text": "Ajouter un document"
       },
       "consultation": {
         "title": "Ajouter votre premier consultation",
         "description": "Vous n'avez pas de consultation, ajouter un rendez-vous et commencer la consultation",
         "button-text": "Ajouter une consultation"
+      },
+      "patient": {
+        "title": "Pas de patients trouvés",
+        "description": "Aucun patient trouvé, ajouter un patient et créer un rendez-vous"
       }
     },
     "table": {
@@ -135,7 +158,7 @@
       "created-by": "créé par"
     },
     "add-patient": {
-      "personal-info": "Informations personnelles",
+      "personal-info": "Informations",
       "additional-information": "Informations supplémentaires",
       "fin": "Fin",
       "group": "Groupe",
@@ -161,6 +184,7 @@
       "name-error": "Le nom doit contenir au moins 3 caractères, sans caractères spéciaux.",
       "first-name": "Prénom",
       "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
+      "special-text-error": "Seuement les alphabets sont autorisés pour ce champ.",
       "first-name-placeholder": "Tapez le prénom du patient",
       "last-name": "Nom",
       "last-name-error": "Le nom de famille doit contenir au moins 3 caractères, sans caractères spéciaux.",
@@ -227,7 +251,8 @@
       "dialog": {
         "title": "Duplicatas détectés",
         "later": "Le faire plus tard",
-        "no-duplicates": "Ces patients ne sont pas doublons ",
+        "no-duplicates": "Ces patients ne sont pas doublons",
+        "no-duplicates-check": "Ce patient n'a pas de doublons",
         "selected": "Patient sélectionné"
       },
       "alert": {
@@ -275,11 +300,19 @@
         "alert-msg-duration": "le rendez-vous a été modifié avec succès",
         "cancel": "Annuler",
         "confirm": "Confirmer"
+      },
+      "delete-dialog": {
+        "title": "Supprimer Patient",
+        "sub-title": "Voulez-vous vraiment supprimer ce patient?",
+        "description": "Vous perdez à jamais l'historique et les documents concernant ce patient",
+        "cancel": "Annuler",
+        "confirm": "Supprimer"
       }
     },
     "alert": {
       "cancel-appointment": "le rendez-vous a été annulé avec succès",
       "delete-appointment": "le rendez-vous a été supprimé avec succès",
+      "delete-patient": "le patient a été supprimé avec succès",
       "leave-waiting-room": "le patient a quitté la salle d'attente",
       "on-waiting-room": "le patient est bien ajouté dans la salle d’attente",
       "patient-no-show": "le rendez-vous a été modifié avec succès",
@@ -305,7 +338,7 @@
       "type": "Type",
       "next-appointment": "Prochain rendez-vous",
       "last-appointment": "Dernier rendez-vous",
-      "reasons": "Motif de consultation",
+      "reasons": "Motif",
       "status": "Statut",
       "fiche_id": "Fiche patient",
       "fiche": "Numéro fiche",
@@ -341,7 +374,8 @@
       "allergic": "Allergies",
       "father": "Père",
       "mother": "Mère",
-      "both": "Les deux"
+      "both": "Les deux",
+      "disease": "Maladie"
     }
   },
   "background": {

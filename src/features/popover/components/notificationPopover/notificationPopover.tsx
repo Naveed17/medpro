@@ -13,18 +13,20 @@ import {setAppointmentPatient, setAppointmentType, TabPanel} from "@features/tab
 import {EventDef} from "@fullcalendar/core/internal";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {Dialog, dialogMoveSelector, setMoveDateTime} from "@features/dialog";
 import {Theme} from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
-import {useSession} from "next-auth/react";
 import {useSnackbar} from "notistack";
-import {getDiffDuration, useMedicalEntitySuffix} from "@lib/hooks";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
+import {getDiffDuration, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {useSession} from "next-auth/react";
+import {useRequestQueryMutation} from "@lib/axios";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -45,13 +47,14 @@ function a11yProps(index: number) {
 
 function NotificationPopover({...props}) {
     const {onClose} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {data: session} = useSession();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("common");
     const {config, pendingAppointments: localPendingAppointments, selectedEvent} = useAppSelector(agendaSelector);
@@ -62,14 +65,14 @@ function NotificationPopover({...props}) {
         time: moveDialogTime
     } = useAppSelector(dialogMoveSelector);
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
 
     const [value, setValue] = React.useState(0);
     const [moveDialog, setMoveDialog] = useState<boolean>(false);
     const [moveDialogInfo, setMoveDialogInfo] = useState<boolean>(false);
     const [event, setEvent] = useState<EventDef | null>();
     const [loading, setLoading] = useState<boolean>(false);
-    const [pendingAppointments, setPendingAppointments] = useState<any[]>([...localPendingAppointments.map(appointment => ({
+    const [pendingAppointments] = useState<any[]>([...localPendingAppointments.map(appointment => ({
         ...appointment,
         dur: appointment.duration,
         avatar: `${appointment.patient.firstName.charAt(0).toUpperCase()}${appointment.patient.lastName.charAt(0).toUpperCase()}`,
@@ -89,18 +92,24 @@ function NotificationPopover({...props}) {
             }
         ]
     }))])
-    const [notifications, setNotifications] = useState<any[]>([
+    const [notifications] = useState<any[]>([
         ...pendingAppointments
         , ...(localNotifications ? localNotifications.map(data => ({
             ...data,
             avatar: `${data.appointment?.patient.firstName.charAt(0).toUpperCase()}${data.appointment?.patient.lastName.charAt(0).toUpperCase()}`,
             title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
             icon: <EventIcon/>,
-            buttons: [{
-                text: t("dialogs.finish-dialog.reschedule"),
-                color: "primary",
-                action: "onReschedule"
-            }]
+            buttons: [
+                /*{
+                    text: t("dialogs.finish-dialog.pay"),
+                    color: "primary",
+                    action: "onPay"
+                },*/
+                {
+                    text: t("dialogs.finish-dialog.reschedule"),
+                    color: "primary",
+                    action: "onReschedule"
+                }]
         })) : [])]);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -129,43 +138,47 @@ function NotificationPopover({...props}) {
     const handleMoveAppointment = (event: EventDef) => {
         setLoading(true);
         const eventId = event.publicId ? event.publicId : (event as any).id;
+        const form = new FormData();
+        form.append("duration", event.extendedProps.duration);
+        form.append("start_date", event.extendedProps.newDate.format("DD-MM-YYYY"));
+        form.append("start_time", event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm"));
         updateAppointmentStatus({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${config?.uuid}/appointments/${eventId}/change-date/${router.locale}`,
-            data: {
-                'duration': event.extendedProps.duration,
-                'start_date': event.extendedProps.newDate.format("DD-MM-YYYY"),
-                'start_time': event.extendedProps.newDate.clone().subtract(event.extendedProps.from ? 0 : 1, 'hours').format("HH:mm")
+            data: form
+        }, {
+            onSuccess: (result: any) => {
+                setLoading(false);
+                if ((result?.data as HttpResponse).status === "success") {
+                    enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
+                        "alert-msg" : "alert-msg-duration"}`), {variant: "success"});
+                }
+                dispatch(openDrawer({type: "view", open: false}));
+                setMoveDialog(false);
+                onClose();
+                // update pending notifications status
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${config?.uuid}/appointments/get/pending/${router.locale}`]);
             }
-        } as any).then((result) => {
-            setLoading(false);
-            if ((result?.data as HttpResponse).status === "success") {
-                enqueueSnackbar(t(`dialogs.move-dialog.${!event.extendedProps.onDurationChanged ?
-                    "alert-msg" : "alert-msg-duration"}`), {variant: "success"});
-            }
-            dispatch(openDrawer({type: "view", open: false}));
-            setMoveDialog(false);
-            onClose();
-            // update pending notifications status
-            config?.mutate[1]();
         });
     }
 
     const onConfirmAppointment = (event: EventDef) => {
         setLoading(true);
         const appUuid = event?.publicId ? event?.publicId : (event as any)?.id;
+        const form = new FormData();
+        form.append("status", "1");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {
-                status: "1"
-            },
+            data: form,
             url: `${urlMedicalEntitySuffix}/agendas/${config?.uuid}/appointments/${appUuid}/status/${router.locale}`,
-        } as any).then(() => {
-            setLoading(false);
-            enqueueSnackbar(t(`dialogs.alert.confirm-appointment`), {variant: "success"});
-            onClose();
-            // update pending notifications status
-            config?.mutate[1]();
+        }, {
+            onSuccess: () => {
+                setLoading(false);
+                enqueueSnackbar(t(`dialogs.alert.confirm-appointment`), {variant: "success"});
+                onClose();
+                // update pending notifications status
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${config?.uuid}/appointments/get/pending/${router.locale}`]);
+            }
         });
     }
 
@@ -224,7 +237,7 @@ function NotificationPopover({...props}) {
 
     }
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

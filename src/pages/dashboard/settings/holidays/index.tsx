@@ -12,7 +12,10 @@ import {HolidayDetails} from "@features/holidayDetails";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import moment from "moment-timezone";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function Holidays() {
 

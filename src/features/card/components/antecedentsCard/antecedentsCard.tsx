@@ -11,14 +11,15 @@ import RootStyled from "./overrides/rootStyled";
 import Icon from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {LoadingScreen} from "@features/loadingScreen";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
 import {useAntecedentTypes} from "@lib/hooks/rest";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 const emptyObject = {
     title: "",
@@ -26,9 +27,8 @@ const emptyObject = {
 };
 
 function AntecedentsCard({...props}) {
-    const {loading, patient, antecedentsData, mutateAntecedents} = props;
+    const {loading, patient, antecedentsData, mutateAntecedents, setEditable} = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents: antecedentsType} = useAntecedentTypes();
@@ -43,7 +43,7 @@ function AntecedentsCard({...props}) {
     const [size, setSize] = useState<string>("sm");
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
 
-    const {trigger} = useRequestMutation(null, "/antecedent");
+    const {trigger: triggerAntecedentUpdate} = useRequestQueryMutation("/patient/antecedent");
 
     const isObject = (val: any) => {
         if (val === null) {
@@ -60,24 +60,28 @@ function AntecedentsCard({...props}) {
         const form = new FormData();
         form.append("antecedents", JSON.stringify(state));
         form.append("patient_uuid", patient.uuid);
-        medicalEntityHasUser && trigger({
+        medicalEntityHasUser && triggerAntecedentUpdate({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
                 slug: any;
             }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then(() => {
-            setOpenDialog(false);
-            setInfo("");
-            setInfoDynamic("");
-            mutateAntecedents();
+            data: form
+        }, {
+            onSuccess: () => {
+                setOpenDialog(false);
+                setInfo("");
+                setInfoDynamic("");
+                mutateAntecedents();
+            }
         });
     };
 
     const handleOpen = (action: string) => {
+        setEditable({
+            patientDetailContactCard: false,
+            personalInsuranceCard: false,
+            personalInfoCard: false
+        });
         if (action === "consultation") {
             dispatch(openDrawer({type: "add", open: true}));
             return;
@@ -109,6 +113,7 @@ function AntecedentsCard({...props}) {
         else return [];
 
     }
+
     const getNote = (item: { response: string | any[]; }) => {
         if (item?.response)
             if (typeof item?.response === "string")
@@ -118,7 +123,8 @@ function AntecedentsCard({...props}) {
             else return '-';
         else return '-';
     }
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <RootStyled>
@@ -133,8 +139,7 @@ function AntecedentsCard({...props}) {
                 )}
             </Typography>
             <Grid container spacing={2}>
-                {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map(
-                    (antecedent, idx: number) => (
+                {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map((antecedent: any, idx: number) => (
                         <React.Fragment key={idx}>
                             {antecedent.slug && antecedent.slug !== "antecedents" && antecedent.slug !== "treatment" &&
                                 <Grid item md={6} sm={12} xs={12}>
@@ -221,7 +226,8 @@ function AntecedentsCard({...props}) {
                 <Dialog
                     {...{
                         direction,
-                        size
+                        size,
+                        sx: {px: {xs: 1.2, md: 3}}
                     }}
                     action={info}
                     open={openDialog}

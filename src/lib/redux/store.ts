@@ -4,7 +4,7 @@ import {SideBarReducer, ProfileMenuReducer} from "@features/menu";
 import {CheckListReducer} from "@features/checkList";
 import {userReducer} from "@features/user";
 import {addPatientReducer, appointmentReducer, stepperProfileReducer} from "@features/tabPanel";
-import {QsSidebarReducer, leftActionBarReducer, CashboxReducer} from "@features/leftActionBar";
+import {QsSidebarReducer, leftActionBarReducer} from "@features/leftActionBar";
 import {tableReducer} from "@features/table";
 import {ConsultationReducer} from "@features/toolbar";
 import {AgendaReducer} from "@features/calendar";
@@ -21,6 +21,8 @@ import {AppLockReducer} from "@features/appLock";
 import {DuplicatedReducer} from "@features/duplicateDetected";
 import {navBarReducer} from "@features/topNavBar";
 import {ProgressUIReducer} from "@features/progressUI";
+import {selectCheckboxReducer} from "@features/selectCheckboxCard"
+import {CashboxReducer} from "@features/leftActionBar/components/cashbox";
 
 export const store = configureStore({
     reducer: {
@@ -48,7 +50,8 @@ export const store = configureStore({
         navBar: navBarReducer,
         progressUI: ProgressUIReducer,
         preConsultation: PreConsultationReducer,
-        prescription: PrescriptionReducer
+        prescription: PrescriptionReducer,
+        selectCheckbox: selectCheckboxReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {

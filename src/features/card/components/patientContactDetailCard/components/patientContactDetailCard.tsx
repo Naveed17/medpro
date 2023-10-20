@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import RootStyled from "./overrides/rootStyle";
 import {
     Typography,
@@ -24,17 +24,15 @@ import {useFormik, Form, FormikProvider, FieldArray} from "formik";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from '@mui/icons-material/Close';
 import IconUrl from "@themes/urlIcon";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
 import {Session} from "next-auth";
 import dynamic from "next/dynamic";
 import {countries} from "@features/countrySelect/countries";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import * as Yup from "yup";
 import {LoadingButton} from "@mui/lab";
-import {LoadingScreen} from "@features/loadingScreen";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {DefaultCountry} from "@lib/constants";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
@@ -42,14 +40,17 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CustomInput} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {checkObjectChange, flattenObject, useMedicalEntitySuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 
 function PatientContactDetailCard({...props}) {
     const {
-        patient, mutatePatientList = null, mutateAgenda = null, loading, contacts,
-        countries_api, editable: defaultEditStatus, setEditable, currentSection, setCurrentSection
+        patient, mutatePatientList = null, mutateAgenda = null,
+        loading, contacts, countries_api, editable: defaultEditStatus, setEditable
     } = props;
 
     const dispatch = useAppDispatch();
@@ -93,38 +94,39 @@ function PatientContactDetailCard({...props}) {
             })),
     });
 
-    const {trigger: triggerPatientUpdate} = useRequestMutation(null, "/patient/update");
+    const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update");
 
     const {
         data: httpPatientContactResponse,
         mutate: mutatePatientContact
-    } = useRequest(medicalEntityHasUser && patient ? {
+    } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/contact/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/contact/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
 
     const contactData = (httpPatientContactResponse as HttpResponse)?.data as PatientContactModel;
+    const initialValue = {
+        country: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.country?.uuid : "",
+        region: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.uuid : "",
+        zip_code: !loading && contactData?.address.length > 0 ? (contactData?.address[0]?.postalCode ? contactData?.address[0]?.postalCode : "") : "",
+        address:
+            !loading && contactData?.address[0] ? (contactData?.address[0].street ? contactData?.address[0].street : "") : "",
+        phones:
+            !loading && contactData?.contact?.length > 0
+                ? contactData.contact.map((contact: any) => ({
+                    code: contact.code,
+                    value: `${contact.code}${contact.value}`
+                }))
+                : [{
+                    code: doctor_country?.phone,
+                    value: ""
+                }]
+    }
+    const [flattenedObject, setFlattenedObject] = useState(flattenObject(initialValue));
 
     const formik = useFormik({
         enableReinitialize: true,
-        initialValues: {
-            country: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.country?.uuid : "",
-            region: !loading && contactData?.address.length > 0 && contactData?.address[0]?.city ? contactData?.address[0]?.city?.uuid : "",
-            zip_code: !loading && contactData?.address.length > 0 ? (contactData?.address[0]?.postalCode ? contactData?.address[0]?.postalCode : "") : "",
-            address:
-                !loading && contactData?.address[0] ? (contactData?.address[0].street ? contactData?.address[0].street : "") : "",
-            phones:
-                !loading && contactData?.contact?.length > 0
-                    ? contactData.contact.map((contact: any) => ({
-                        code: contact.code,
-                        value: `${contact.code}${contact.value}`
-                    }))
-                    : [{
-                        code: doctor_country?.phone,
-                        value: ""
-                    }]
-        },
+        initialValues: initialValue,
         validationSchema: RegisterPatientSchema,
         onSubmit: async (values) => {
             console.log("ok", values);
@@ -133,10 +135,10 @@ function PatientContactDetailCard({...props}) {
 
     const {values, errors, getFieldProps, setFieldValue} = formik;
 
-    const {data: httpStatesResponse} = useRequest(values.country ? {
+    const {data: httpStatesResponse} = useRequestQuery(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const handleAddPhone = () => {
         const phone = [...values.phones, {code: doctor_country?.phone, value: ""}];
@@ -174,41 +176,53 @@ function PatientContactDetailCard({...props}) {
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/contact/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
-            },
             data: params
-        }).then(() => {
-            setLoadingRequest(false);
-            setEditable(false);
-            mutatePatientContact();
-            mutatePatientList && mutatePatientList();
-            mutateAgenda && mutateAgenda();
-            if (appointment) {
-                const event = {
-                    ...appointment,
-                    extendedProps: {
-                        ...appointment.extendedProps,
-                        patient: {
-                            ...appointment.extendedProps.patient,
-                            contact: [
-                                {
-                                    ...appointment.extendedProps.patient.contact[0],
-                                    code: values.phones[0].code,
-                                    value: values.phones[0].value
-                                }]
+        }, {
+            onSuccess: () => {
+                setLoadingRequest(false);
+                mutatePatientContact();
+                mutatePatientList && mutatePatientList();
+                mutateAgenda && mutateAgenda();
+                if (appointment) {
+                    const event = {
+                        ...appointment,
+                        extendedProps: {
+                            ...appointment.extendedProps,
+                            patient: {
+                                ...appointment.extendedProps.patient,
+                                contact: [
+                                    {
+                                        ...appointment.extendedProps.patient.contact[0],
+                                        code: values.phones[0].code,
+                                        value: values.phones[0].value
+                                    }]
+                            }
                         }
-                    }
-                } as any;
-                dispatch(setSelectedEvent(event));
+                    } as any;
+                    dispatch(setSelectedEvent(event));
+                }
+                enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
             }
-            enqueueSnackbar(t(`config.add-patient.alert.patient-edit`), {variant: "success"});
         });
     }
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
-    const editable = currentSection === "PatientContactDetailCard" && defaultEditStatus;
-    const disableActions = defaultEditStatus && currentSection !== "PatientContactDetailCard";
+    const editable = defaultEditStatus.patientDetailContactCard;
+    const disableActions = defaultEditStatus.personalInsuranceCard || defaultEditStatus.personalInfoCard;
+
+    useEffect(() => {
+        contactData && setFlattenedObject(flattenObject(initialValue));
+    }, [contactData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (!editable) {
+            const flattenValues = flattenObject(values);
+            const changedValues = checkObjectChange(flattenedObject, flattenValues);
+            if (Object.keys(changedValues).length > 0 || Object.keys(flattenedObject).length !== Object.keys(flattenValues).length) {
+                handleUpdatePatient();
+            }
+        }
+    }, [editable]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -234,17 +248,23 @@ function PatientContactDetailCard({...props}) {
                                     </Box>
                                     {editable ?
                                         <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
-                                            <Button onClick={() => setEditable(false)}
-                                                    color={"error"}
-                                                    className='btn-cancel'
-                                                    sx={{margin: 'auto'}}
-                                                    size='small'
-                                                    startIcon={<CloseIcon/>}>
+                                            <Button
+                                                onClick={() => setEditable({
+                                                    ...defaultEditStatus,
+                                                    patientDetailContactCard: false
+                                                })}
+                                                color={"error"}
+                                                className='btn-cancel'
+                                                sx={{margin: 'auto'}}
+                                                size='small'
+                                                startIcon={<CloseIcon/>}>
                                                 {t('config.add-patient.cancel')}
                                             </Button>
                                             <LoadingButton
-                                                onClick={() => handleUpdatePatient()}
-                                                loading={loadingRequest}
+                                                onClick={() => setEditable({
+                                                    ...defaultEditStatus,
+                                                    patientDetailContactCard: false
+                                                })}
                                                 disabled={Object.keys(errors).length > 0}
                                                 className='btn-add'
                                                 sx={{margin: 'auto'}}
@@ -254,23 +274,37 @@ function PatientContactDetailCard({...props}) {
                                             </LoadingButton>
                                         </Stack>
                                         :
-                                        <Button
+                                        <LoadingButton
+                                            loading={loadingRequest}
+                                            loadingPosition={"start"}
                                             disabled={disableActions}
                                             onClick={() => {
-                                                setCurrentSection("PatientContactDetailCard");
-                                                setEditable(true)
+                                                setEditable({
+                                                    personalInsuranceCard: false,
+                                                    personalInfoCard: false,
+                                                    patientDetailContactCard: true
+                                                });
                                             }}
                                             startIcon={<IconUrl
                                                 {...(disableActions && {color: "white"})}
                                                 path={"setting/edit"}/>}
                                             color="primary" size="small">
                                             {t("config.add-patient.edit")}
-                                        </Button>
+                                        </LoadingButton>
                                     }
                                 </Toolbar>
                             </AppBar>
 
-                            <Grid container spacing={1.2}>
+                            <Grid container spacing={1.2}
+                                  onClick={() => {
+                                      if (!editable) {
+                                          setEditable({
+                                              personalInsuranceCard: false,
+                                              personalInfoCard: false,
+                                              patientDetailContactCard: true
+                                          });
+                                      }
+                                  }}>
                                 <Divider textAlign="left" sx={{width: "100%"}}>
                                     <Typography
                                         mt={-1}
@@ -282,13 +316,6 @@ function PatientContactDetailCard({...props}) {
                                 </Divider>
 
                                 <Grid item md={12} sm={12} xs={12}
-                                      onClick={() => {
-                                          if (!editable) {
-                                              setCurrentSection("PatientContactDetailCard");
-                                              setEditable(true)
-                                          }
-                                      }
-                                      }
                                       sx={{
                                           "& .MuiInputBase-readOnly": {
                                               ml: "0.3rem"

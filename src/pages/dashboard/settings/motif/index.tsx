@@ -23,24 +23,25 @@ import {EditMotifDialog} from "@features/editMotifDialog";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
-import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useDateConverture, useMedicalEntitySuffix} from "@lib/hooks";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import {LoadingScreen} from "@features/loadingScreen";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const MotifListMobile = lazy(
     (): any => import("@features/card/components/motifListMobile/motifListMobile")
 );
 
 function Motif() {
-    const {data: session} = useSession();
     const theme: Theme = useTheme();
     const router = useRouter();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -65,21 +66,16 @@ function Motif() {
     });
     const [selected, setSelected] = useState<null | any>();
 
-    const {trigger} = useRequestMutation(null, "/settings/motifs");
+    const {trigger: triggerMotifUpdate} = useRequestQueryMutation("/settings/motif/update");
+    const {trigger: triggerMotifDelete} = useRequestQueryMutation("/settings/motif/delete");
 
-    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequest(medicalEntityHasUser ? {
+    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}${
-            !isMobile
-                ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true`
-                : "?sort=true"
-        }`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    } : null, SWRNoValidateConfig);
-
-    const closeDraw = () => {
-        setEdit(false);
-    };
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(medicalEntityHasUser && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}})
+    });
 
     const reasons = (httpConsultReasonResponse as HttpResponse)?.data?.list as ConsultationReasonModel[];
     const reasonsMobile = isMobile ? ((httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[]) : [];
@@ -118,6 +114,10 @@ function Motif() {
             sortable: false,
         },
     ];
+
+    const closeDraw = () => {
+        setEdit(false);
+    }
 
     const handleChange = (props: any, event: string, value: string) => {
         const form = new FormData();
@@ -159,19 +159,19 @@ function Motif() {
                 break;
         }
 
-        medicalEntityHasUser && trigger({
+        medicalEntityHasUser && triggerMotifUpdate({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        }).then(() => {
-            mutateConsultReason();
-            enqueueSnackbar(t("updated"), {variant: "success"});
-        }).then(() =>
-            setTimeout(() => {
+            data: form
+        }, {
+            onSuccess: () => {
+                mutateConsultReason();
+                enqueueSnackbar(t("updated"), {variant: "success"});
+            },
+            onSettled: () => setTimeout(() => {
                 closeSnackbar();
             }, 1000)
-        );
+        });
     };
 
     const handleConfig = (props: any, event: string) => {
@@ -196,24 +196,16 @@ function Motif() {
 
     const removeReason = (uuid: any) => {
         setLoading(true);
-        medicalEntityHasUser && trigger({
+        medicalEntityHasUser && triggerMotifDelete({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then(() => {
-            enqueueSnackbar(t("alert.delete-reason"), {variant: "success"});
-            setLoading(false);
-            setOpen(false);
-            mutateConsultReason();
-        }).catch((error) => {
-            const {
-                response: {data},
-            } = error;
-            setLoading(false);
-            setOpen(false);
-            enqueueSnackbar(t("alert." + data.message.replace(/\s/g, '-').toLowerCase()), {variant: "error"});
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t("alert.delete-reason"), {variant: "success"});
+                setLoading(false);
+                setTimeout(() => setOpen(false));
+                mutateConsultReason();
+            }
         });
     };
 
@@ -249,7 +241,7 @@ function Motif() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [httpConsultReasonResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

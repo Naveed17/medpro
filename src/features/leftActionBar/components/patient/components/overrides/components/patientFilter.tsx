@@ -1,4 +1,4 @@
-import React, {Fragment, KeyboardEvent} from "react";
+import React, {Fragment, KeyboardEvent, useCallback} from "react";
 import {
     Typography,
     Box,
@@ -7,7 +7,7 @@ import {
     FormControlLabel,
     Radio,
     TextField,
-    InputLabel, IconButton, Stack,
+    InputLabel, IconButton, Stack, Checkbox,
 } from "@mui/material";
 import _ from "lodash";
 import moment from "moment-timezone";
@@ -20,6 +20,8 @@ import {debounce} from "lodash";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {FormikHelpers, FormikProvider, useFormik} from "formik";
+import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
+import {Label} from "@features/label";
 
 interface Lab {
     label: string;
@@ -38,34 +40,40 @@ function PatientFilter({...props}) {
     const {query: filter} = useAppSelector(leftActionBarSelector);
 
     const formik = useFormik({
-        onSubmit<Values>(values: Values, formikHelpers: FormikHelpers<Values>): void | Promise<any> {
+        onSubmit<Values>(): void | Promise<any> {
             return undefined;
         },
-        enableReinitialize: true,
         initialValues: {
             name: filter?.patient?.name ?? "",
             birthdate: filter?.patient?.birthdate ? moment(filter?.patient?.birthdate, "DD-MM-YYYY").toDate() : null,
-            gender: filter?.patient?.gender ?? null
+            gender: filter?.patient?.gender ?? null,
+            hasDouble: filter?.patient?.hasDouble ?? false,
         }
     });
 
-    const {values: queryState, getFieldProps, setFieldValue} = formik;
+    const {values: queryState, setFieldValue} = formik;
+
+    const onSearchChange = useCallback((value: any) => {
+        OnSearch(value);
+    }, [OnSearch]);
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lab: Lab) => {
         setFieldValue("name", event.target.value);
         if (event.target.value.length >= 1) {
-            OnSearch({
+            onSearchChange({
                 query: {
-                    ...queryState,
+                    ...filter?.patient,
                     ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
                     [lab.label]: (event.target as HTMLInputElement).value
                 },
             });
         } else if (event.target.value.length === 0) {
             const query = _.omit(queryState, [lab.label]);
-            OnSearch({
+            const queryGlobal = _.omit(filter?.patient, [lab.label]);
+            onSearchChange({
                 query: {
                     ...query,
+                    ...queryGlobal,
                     ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")})
                 }
             });
@@ -77,6 +85,38 @@ function PatientFilter({...props}) {
     return (
         <FormikProvider value={formik}>
             <Box component="figure" sx={{m: 0}}>
+                {item.hasDouble && <FormControlLabel
+                    control={
+                        <Checkbox
+                            color="warning"
+                            size="small"
+                            checked={queryState.hasDouble}
+                            onChange={event => {
+                                setFieldValue("hasDouble", event.target.checked);
+                                onSearchChange({
+                                    query: {
+                                        ...filter?.patient,
+                                        ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                        hasDouble: event.target.checked
+                                    }
+                                });
+                            }}
+                        />}
+                    label={<Label
+                        variant="filled"
+                        sx={{
+                            cursor: "pointer",
+                            "& .MuiSvgIcon-root": {
+                                width: 14,
+                                height: 14,
+                                pl: 0,
+                                mr: 1
+                            }
+                        }}
+                        color={"warning"}>
+                        <WarningRoundedIcon/>
+                        <Typography sx={{fontSize: 10}}> {t(item.hasDouble?.heading)}</Typography>
+                    </Label>}/>}
                 <Typography variant="body2" color="text.secondary">
                     {t(`${keyPrefix}${item.gender?.heading}`)}
                 </Typography>
@@ -86,9 +126,9 @@ function PatientFilter({...props}) {
                         aria-label="gender"
                         onChange={(e) => {
                             setFieldValue("gender", e.target.value)
-                            OnSearch({
+                            onSearchChange({
                                 query: {
-                                    ...queryState,
+                                    ...filter?.patient,
                                     ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
                                     gender: e.target.value
                                 }
@@ -118,10 +158,12 @@ function PatientFilter({...props}) {
                         {queryState.gender &&
                             <IconButton size="small" onClick={() => {
                                 const query = _.omit(queryState, "gender");
+                                const queryGlobal = _.omit(filter?.patient, "gender");
                                 setFieldValue("gender", null)
-                                OnSearch({
+                                onSearchChange({
                                     query: {
                                         ...query,
+                                        ...queryGlobal,
                                         ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")}),
                                     },
                                 });
@@ -137,25 +179,30 @@ function PatientFilter({...props}) {
                                     <InputLabel shrink sx={{mt: 2}}>
                                         {t(`${keyPrefix}${lab.label}`)}
                                     </InputLabel>
-                                    <FormControl component="form" fullWidth>
+                                    <FormControl
+                                        component="form"
+                                        fullWidth
+                                        onSubmit={e => e.preventDefault()}>
                                         <TextField
                                             defaultValue={queryState.name}
                                             onChange={(e) => debouncedOnChange(e, lab)}
                                             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
                                                 if (e.key === "Enter") {
                                                     if ((e.target as HTMLInputElement).value) {
-                                                        OnSearch({
+                                                        onSearchChange({
                                                             query: {
-                                                                ...queryState,
+                                                                ...filter?.patient,
                                                                 ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
                                                                 [lab.label]: (e.target as HTMLInputElement).value,
                                                             },
                                                         });
                                                     } else {
                                                         const query = _.omit(queryState, [lab.label]);
-                                                        OnSearch({
+                                                        const queryGlobal = _.omit(filter?.patient, [lab.label]);
+                                                        onSearchChange({
                                                             query: {
                                                                 ...query,
+                                                                ...queryGlobal,
                                                                 ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")})
                                                             }
                                                         });
@@ -185,23 +232,26 @@ function PatientFilter({...props}) {
                                             inputFormat="dd/MM/yyyy"
                                             onChange={date => {
                                                 setFieldValue("birthdate", date);
-
-                                                if (date && date.toString() !== "Invalid Date") {
-                                                    OnSearch({
+                                                if (date && date.toString() !== "Invalid Date" && date.getFullYear() > 1000) {
+                                                    onSearchChange({
                                                         query: {
-                                                            ...queryState,
+                                                            ...filter?.patient,
                                                             birthdate: moment(date).format("DD-MM-YYYY"),
                                                         },
                                                     });
                                                 } else {
                                                     const query = _.omit(queryState, "birthdate");
-                                                    OnSearch({
-                                                        query,
+                                                    const queryGlobal = _.omit(filter?.patient, [lab.label]);
+                                                    onSearchChange({
+                                                        query: {
+                                                            ...query,
+                                                            ...queryGlobal
+                                                        }
                                                     });
                                                 }
                                             }}
                                             renderInput={(params) =>
-                                                <FormControl component="form" fullWidth>
+                                                <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
                                                     <TextField {...params} fullWidth/>
                                                 </FormControl>}
                                         />
@@ -213,7 +263,8 @@ function PatientFilter({...props}) {
                 )}
             </Box>
         </FormikProvider>
-    );
+    )
+        ;
 }
 
 export default PatientFilter;

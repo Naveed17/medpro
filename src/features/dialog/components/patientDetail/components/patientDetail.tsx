@@ -25,14 +25,14 @@ import {
     setAppointmentPatient,
     setOpenUploadDialog,
     TabPanel,
-    TimeSchedule
+    TimeSchedule, TransactionPanel
 } from "@features/tabPanel";
 import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {useRouter} from "next/router";
@@ -41,27 +41,29 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import React, {SyntheticEvent, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {AppointmentDetail, Dialog} from "@features/dialog";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {AppointmentDetail, Dialog, handleDrawerAction} from "@features/dialog";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import moment from "moment-timezone";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
-import {useProfilePhoto, useAntecedentTypes} from "@lib/hooks/rest";
+import {useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {useProfilePhoto, useAntecedentTypes, useSendNotification} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
 import {SwitchPrescriptionUI} from "@features/buttons";
-import {useSWRConfig} from "swr";
+import AddIcon from "@mui/icons-material/Add";
+import {DefaultCountry} from "@lib/constants";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function a11yProps(index: number) {
     return {
@@ -88,14 +90,15 @@ function PatientDetail({...props}) {
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents} = useAntecedentTypes();
-    const {mutate, cache} = useSWRConfig();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
 
     const {direction} = useAppSelector(configSelector);
     const {openUploadDialog} = useAppSelector(addPatientSelector);
-    const {medicalEntityHasUser, mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         config: agenda,
         sortedData: groupSortedData,
@@ -130,33 +133,52 @@ function PatientDetail({...props}) {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
-    const [patient, setPatient] = useState<null | PatientModel>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`)?.data?.data?.data) ?? null);
+    const [antecedentsData, setAntecedentsData] = useState<any[] | null>(null);
+    const [patient, setPatient] = useState<PatientModel | null>(null);
+    const [editable, setEditable] = useState({
+        personalInfoCard: false,
+        personalInsuranceCard: false,
+        patientDetailContactCard: false
+    });
+    const [wallet, setWallet] = useState(0);
+    const [rest, setRest] = useState(0);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
+    const {jti} = session?.user as any;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: triggerUploadDocuments} = useRequestMutation(null, "/patient/documents");
-    const {trigger: triggerUpdate} = useRequestMutation(null, "consultation/data/update");
-    // mutate for patient details
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status");
+    const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/patient/documents");
+    const {trigger: triggerConsultationUpdate} = useRequestQueryMutation("consultation/data/update");
+    const {trigger: triggerNotificationPush} = useSendNotification();
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+
     const {
         data: httpPatientDetailsResponse,
         mutate: mutatePatientDetails
-    } = useRequest(medicalEntityHasUser && patientId ? {
+    } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`
+    } : null);
+
+    const {data: httpPatientWallet, mutate: walletMutate} = useRequestQuery(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
     const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
 
-    const {data: httpAntecedentsResponse, mutate: mutateAntecedents} = useRequest(medicalEntityHasUser && patientId ? {
+    const {
+        data: httpAntecedentsResponse,
+        mutate: mutateAntecedents
+    } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/antecedents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
-    } : null, SWRNoValidateConfig);
-
-    const antecedentsData = (httpAntecedentsResponse as HttpResponse)?.data as any[];
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/antecedents/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
 
     const handleOpenFab = () => setOpenFabAdd(true);
 
@@ -217,11 +239,22 @@ function PatientDetail({...props}) {
         medicalEntityHasUser && triggerUploadDocuments({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
-            mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`);
-            setLoadingRequest(false);
+            data: params
+        }, {
+            onSuccess: () => {
+                const mutateUrl = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`;
+                invalidateQueries([mutateUrl]);
+                triggerNotificationPush({
+                    action: "push",
+                    root: "all",
+                    message: " ",
+                    content: JSON.stringify({
+                        mutate: mutateUrl,
+                        fcm_session: jti
+                    })
+                });
+                setLoadingRequest(false);
+            }
         });
     }
 
@@ -234,36 +267,36 @@ function PatientDetail({...props}) {
                 form.append("isOtherProfessional", "false");
                 form.append("drugs", JSON.stringify(state));
 
-                triggerUpdate({
+                triggerConsultationUpdate({
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/appointments/${selectedDialog.appUuid}/prescriptions/${selectedDialog.uuid}/${router.locale}`,
-                    data: form,
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`
-                    },
-                }).then((result: any) => {
-                    medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`);
-                    medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`);
-                    setOpenDialog(false);
-                    setInfo("document_detail");
-                    const res = result.data.data;
-                    let type = "";
-                    if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                        type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+                    data: form
+                }, {
+                    onSuccess: (result: any) => {
+                        medicalEntityHasUser && invalidateQueries([
+                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`,
+                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`]);
+                        setOpenDialog(false);
+                        setInfo("document_detail");
+                        const res = result.data.data;
+                        let type = "";
+                        if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                            type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
 
-                    setState({
-                        uri: res[1],
-                        name: "prescription",
-                        type: "prescription",
-                        info: res[0].prescription_has_drugs,
-                        uuid: res[0].uuid,
-                        uuidDoc: res[0].uuid,
-                        appUuid: selectedDialog.appUuid,
-                        createdAt: moment().format('DD/MM/YYYY'),
-                        description: "",
-                        patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
-                    });
-                    setOpenDialog(true);
+                        setState({
+                            uri: res[1],
+                            name: "prescription",
+                            type: "prescription",
+                            info: res[0].prescription_has_drugs,
+                            uuid: res[0].uuid,
+                            uuidDoc: res[0].uuid,
+                            appUuid: selectedDialog.appUuid,
+                            createdAt: moment().format('DD/MM/YYYY'),
+                            description: "",
+                            patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                        });
+                        setOpenDialog(true);
+                    }
                 });
                 break;
         }
@@ -273,22 +306,23 @@ function PatientDetail({...props}) {
         const todayEvents = groupSortedData.find(events => events.date === moment().format("DD-MM-YYYY"));
         const filteredEvents = todayEvents?.events.every((event: any) => !["ON_GOING", "WAITING_ROOM"].includes(event.status.key) ||
             (event.status.key === "FINISHED" && event.updatedAt.isBefore(moment(), 'year')));
+        const params = new FormData();
+        params.append("status", "3");
+        params.append("is_first_appointment", filteredEvents?.toString() ?? "false");
         updateAppointmentStatus({
             method: "PATCH",
-            data: {
-                status: "3",
-                is_first_appointment: filteredEvents
-            },
+            data: params,
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId ? event?.publicId : (event as any)?.id}/status/${router.locale}`
-        } as any).then(
-            () => {
+        }, {
+            onSuccess: () => {
                 enqueueSnackbar(t(`alert.on-waiting-room`), {variant: "success"});
                 // mutate ongoing api
-                mutateOnGoing && mutateOnGoing();
+                mutateOnGoing();
                 // update pending notifications status
-                agenda?.mutate[1]();
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/get/pending/${router.locale}`]);
                 closePatientDialog();
-            });
+            }
+        });
     }
 
     const handleSwitchUI = () => {
@@ -300,8 +334,6 @@ function PatientDetail({...props}) {
         setOpenDialog(true);
     }
 
-    const documents = patient && patient.documents ? [...patient.documents].reverse() : [];
-
     const tabsContent = [
         {
             title: "tabs.personal-info",
@@ -311,7 +343,9 @@ function PatientDetail({...props}) {
                 mutatePatientList,
                 antecedentsData,
                 mutateAntecedents,
-                mutateAgenda
+                mutateAgenda,
+                editable,
+                setEditable
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
@@ -332,7 +366,6 @@ function PatientDetail({...props}) {
         {
             title: "tabs.documents",
             children: <DocumentsPanel {...{
-                documents,
                 roles,
                 documentViewIndex,
                 patient, patientId,
@@ -345,6 +378,13 @@ function PatientDetail({...props}) {
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         },
+        ...(isBeta ? [{
+            title: "tabs.transactions",
+            children: <TransactionPanel {...{
+                patient, wallet, rest, walletMutate, devise, router
+            }} />,
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
+        }] : []),
         {
             title: "tabs.notes",
             children: <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />,
@@ -372,9 +412,23 @@ function PatientDetail({...props}) {
 
     useEffect(() => {
         if (httpPatientDetailsResponse) {
-            setPatient((httpPatientDetailsResponse as HttpResponse)?.data as PatientModel);
+            const patientData = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
+            setPatient(patientData);
         }
     }, [httpPatientDetailsResponse]);
+
+    useEffect(() => {
+        if (httpAntecedentsResponse) {
+            setAntecedentsData((httpAntecedentsResponse as HttpResponse)?.data as any[]);
+        }
+    }, [httpAntecedentsResponse])
+
+    useEffect(() => {
+        if (httpPatientWallet) {
+            setWallet((httpPatientWallet as HttpResponse).data.wallet)
+            setRest((httpPatientWallet as HttpResponse).data.rest_amount)
+        }
+    }, [httpPatientWallet])
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -389,6 +443,7 @@ function PatientDetail({...props}) {
                     <PatientDetailsCard
                         loading={!patient}
                         {...{
+                            isBeta,
                             patient,
                             onConsultation,
                             antecedentsData,
@@ -396,7 +451,9 @@ function PatientDetail({...props}) {
                             onConsultationStart,
                             patientPhoto,
                             mutatePatientList,
-                            mutateAgenda
+                            mutateAgenda,
+                            setEditableSection: setEditable,
+                            rest, devise
                         }}
                     />
                     <Box className={"container"} sx={{width: {md: 726, xs: "100%"}}}>
@@ -455,20 +512,25 @@ function PatientDetail({...props}) {
                             p: 2,
                             mt: 'auto',
                             textAlign: "right",
-                            display: {md: "block", xs: "none"},
-                        }}
-                    >
+                            display: {md: "block", xs: "none"}
+                        }}>
                         <LoadingButton
+                            variant={"text"}
+                            color={"black"}
                             loading={loadingRequest}
+                            disabled={!patient}
                             loadingPosition="start"
                             onClick={() => dispatch(setOpenUploadDialog(true))}
                             size="medium"
-                            style={{color: "black"}}
-                            startIcon={<Icon path="ic-doc"/>}>{t('upload_document')}</LoadingButton>
+                            startIcon={<Icon
+                                path="ic-doc"
+                                color={!patient ? "white" : "black"}/>}>{t('upload_document')}
+                        </LoadingButton>
 
                         <Button
                             size="medium"
                             variant="contained"
+                            disabled={!patient}
                             color="primary"
                             startIcon={<Icon path="ic-agenda-+"/>}
                             sx={{
@@ -480,8 +542,7 @@ function PatientDetail({...props}) {
                                 dispatch(resetAppointment());
                                 dispatch(setAppointmentPatient(patient as any));
                                 setIsAdd(!isAdd);
-                            }}
-                        >
+                            }}>
                             {t("tabs.add-appo")}
                         </Button>
                     </Paper>
@@ -501,7 +562,7 @@ function PatientDetail({...props}) {
                             setOpenDialog: setOpenDialog,
                             t: translate
                         }}
-                        size={"lg"}
+                        size={info && ["medical_prescription", "medical_prescription_cycle"].includes(info) ? "xl" : "lg"}
                         dialogClose={handleCloseDialog}
                         {...(info === "document_detail" && {
                             sx: {p: 0},
@@ -527,19 +588,31 @@ function PatientDetail({...props}) {
                                     </Stack>
                                 </DialogTitle>
                             ),
-                            actionDialog: <DialogActions>
-                                <Button
-                                    onClick={handleCloseDialog}
-                                    startIcon={<CloseIcon/>}>
-                                    {translate("cancel")}
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    onClick={handleSaveDialog}
-                                    disabled={info === "medical_prescription_cycle" && state.length === 0}
-                                    startIcon={<SaveRoundedIcon/>}>
-                                    {translate("consultationIP.save")}
-                                </Button>
+                            actionDialog: <DialogActions sx={{width: "100%"}}>
+                                <Stack sx={{width: "100%"}}
+                                       direction={"row"}
+                                       justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
+                                    {info === "medical_prescription_cycle" &&
+                                        <Button startIcon={<AddIcon/>} onClick={() => {
+                                            dispatch(handleDrawerAction("addDrug"));
+                                        }}>
+                                            {translate("consultationIP.add_drug")}
+                                        </Button>}
+                                    <Stack direction={"row"} spacing={1.2}>
+                                        <Button
+                                            onClick={handleCloseDialog}
+                                            startIcon={<CloseIcon/>}>
+                                            {translate("cancel")}
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            onClick={handleSaveDialog}
+                                            disabled={info === "medical_prescription_cycle" && state.length === 0}
+                                            startIcon={<SaveRoundedIcon/>}>
+                                            {translate("consultationIP.save")}
+                                        </Button>
+                                    </Stack>
+                                </Stack>
                             </DialogActions>,
                         })}
                     />

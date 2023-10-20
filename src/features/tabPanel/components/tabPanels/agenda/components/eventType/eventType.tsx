@@ -1,8 +1,8 @@
 import {TextIconRadio} from "@features/buttons";
 import {
     Box,
-    FormControlLabel,
-    LinearProgress,
+    FormControlLabel, Grid,
+    LinearProgress, List, ListItemText,
     MenuItem,
     RadioGroup,
     Select,
@@ -18,7 +18,10 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentType} from "@features/tabPanel";
 import {IconsTypes, openDrawer, setStepperIndex} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {dashLayoutSelector} from "@features/base";
 
 function EventType({...props}) {
@@ -31,14 +34,6 @@ function EventType({...props}) {
     const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers",});
 
     const [typeEvent, setTypeEvent] = useState(type);
-
-    useEffect(() => {
-        if (appointmentTypes && defaultType !== null) {
-            const type = appointmentTypes[defaultType];
-            setTypeEvent(type.uuid);
-            dispatch(setAppointmentType(type.uuid));
-        }
-    }, [appointmentTypes, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleTypeChange = (type: string) => {
         setTypeEvent(type);
@@ -53,8 +48,15 @@ function EventType({...props}) {
         onNext(1);
     };
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    useEffect(() => {
+        if (appointmentTypes && defaultType !== null) {
+            const type = appointmentTypes[defaultType];
+            setTypeEvent(type.uuid);
+            dispatch(setAppointmentType(type.uuid));
+        }
+    }, [appointmentTypes, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -64,22 +66,15 @@ function EventType({...props}) {
                 }}
                 color="warning"
             />
-            <Box className="inner-section type-time-slot">
-                <Typography px={2} variant="h6" color="text.primary">
-                    {t("stepper-0.title")}
-                </Typography>
+
+            <Box className="inner-section type-time-slot" sx={{width: "100%"}}>
                 <FormControlStyled
-                    sx={{
-                        padding: `16px ${!select ? "16px" : "0"} ${
-                            !select ? "32px" : "16px"
-                        } ${!select ? "16px" : "0"}`,
-                    }}
+                    sx={{padding: 0}}
                     fullWidth
                     size="small">
                     {!select ? (
                         <RadioGroup
                             aria-labelledby="type-group-label"
-                            defaultValue="female"
                             name="radio-buttons-group">
                             {appointmentTypes?.map((type, index) => (
                                 <FormControlLabel
@@ -90,9 +85,7 @@ function EventType({...props}) {
                                             item={type}
                                             color={type.color}
                                             selectedValue={typeEvent}
-                                            onChangeValue={(event: string) =>
-                                                handleTypeChange(event)
-                                            }
+                                            onChangeValue={(event: string) => handleTypeChange(event)}
                                             title={type.name}
                                             icon={IconsTypes[type.icon]}
                                         />
@@ -102,57 +95,70 @@ function EventType({...props}) {
                             ))}
                         </RadioGroup>
                     ) : (
-                        <Select
-                            id={"duration"}
-                            value={type}
-                            displayEmpty
-                            sx={{
-                                "& .MuiSelect-select": {
-                                    display: "flex",
-                                },
-                            }}
-                            onChange={(event) => {
-                                handleTypeChange(event.target.value as string);
-                            }}
-                            renderValue={(selected) => {
-                                if (selected.length === 0) {
-                                    return <em>{t("stepper-0.type-placeholder")}</em>;
-                                }
-
-                                const type = appointmentTypes?.find(
-                                    (itemType) => itemType.uuid === selected
-                                );
-                                return (
-                                    <Stack direction={"row"} alignItems={"center"}>
-                                        <ModelDot
-                                            icon={type && IconsTypes[type.icon]}
-                                            color={type?.color}
-                                            selected={false}
-                                            marginRight={10}></ModelDot>
-                                        <Typography sx={{fontSize: "14px", fontWeight: "bold"}}>
-                                            {type?.name}
+                        <List
+                            sx={{width: '100%', p: 0}}
+                            component="nav">
+                            <ListItemText primary={
+                                <Grid container alignItems={"center"}>
+                                    <Grid item md={5} xs={12}>
+                                        <Typography pr={2} sx={{fontSize: "1rem", fontWeight: "bold"}} color="text.primary">
+                                            {t("stepper-0.title")} :
                                         </Typography>
-                                    </Stack>
-                                );
-                            }}>
-                            {appointmentTypes?.map((type) => (
-                                <MenuItem
-                                    sx={{display: "flex"}}
-                                    className="text-inner"
-                                    value={type.uuid}
-                                    key={type.uuid}>
-                                    <ModelDot
-                                        icon={type && IconsTypes[type.icon]}
-                                        color={type?.color}
-                                        selected={false}
-                                        marginRight={10}></ModelDot>
-                                    <Typography sx={{fontSize: "16px"}}>
-                                        {type.name}
-                                    </Typography>
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    )}
+                                    </Grid>
+                                    <Grid item md={7} xs={12}>
+                                        <Select
+                                            id={"duration"}
+                                            value={type}
+                                            size={"small"}
+                                            displayEmpty
+                                            sx={{
+                                                width: "100%",
+                                                "& .MuiSelect-select": {
+                                                    display: "flex",
+                                                },
+                                            }}
+                                            onChange={(event) => handleTypeChange(event.target.value as string)}
+                                            renderValue={(selected) => {
+                                                if (selected.length === 0) {
+                                                    return <em>{t("stepper-0.type-placeholder")}</em>;
+                                                }
+
+                                                const type = appointmentTypes?.find(
+                                                    (itemType) => itemType.uuid === selected
+                                                );
+                                                return (
+                                                    <Stack direction={"row"} alignItems={"center"}>
+                                                        <ModelDot
+                                                            icon={type && IconsTypes[type.icon]}
+                                                            color={type?.color}
+                                                            selected={false}
+                                                            marginRight={10}></ModelDot>
+                                                        <Typography sx={{fontSize: "14px", fontWeight: "bold"}}>
+                                                            {type?.name}
+                                                        </Typography>
+                                                    </Stack>
+                                                );
+                                            }}>
+                                            {appointmentTypes?.map((type) => (
+                                                <MenuItem
+                                                    sx={{display: "flex"}}
+                                                    className="text-inner"
+                                                    value={type.uuid}
+                                                    key={type.uuid}>
+                                                    <ModelDot
+                                                        icon={type && IconsTypes[type.icon]}
+                                                        color={type?.color}
+                                                        selected={false}
+                                                        marginRight={10}></ModelDot>
+                                                    <Typography sx={{fontSize: "16px"}}>
+                                                        {type.name}
+                                                    </Typography>
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </Grid>
+                                </Grid>}/>
+                        </List>)}
                 </FormControlStyled>
             </Box>
 

@@ -6,23 +6,12 @@ import {DetailsCard, NoDataCard, setTimer, timerSelector} from "@features/card";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import {configSelector, DashLayout, dashLayoutSelector, setOngoing} from "@features/base";
-import {
-    Alert,
-    Box,
-    Button,
-    DialogActions,
-    Drawer,
-    LinearProgress,
-    Menu,
-    MenuItem,
-    useTheme
-} from "@mui/material";
+import {Alert, Box, Button, DialogActions, Drawer, LinearProgress, MenuItem} from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
 import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {Session} from "next-auth";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
@@ -34,9 +23,9 @@ import {leftActionBarSelector} from "@features/leftActionBar";
 import moment from "moment-timezone";
 import {useSnackbar} from "notistack";
 import {toggleSideBar} from "@features/menu";
-import {useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
+import {useIsMountedRef, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
 import {Dialog, PatientDetail, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
@@ -44,28 +33,39 @@ import {AddWaitingRoomCardData, DefaultCountry, WaitingHeadCells} from "@lib/con
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
-import {useSWRConfig} from "swr";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
+import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
+import {LoadingButton} from "@mui/lab";
+import {ActionMenu} from "@features/menu";
+import {agendaSelector} from "@features/calendar";
+import {useTransactionEdit} from "@lib/hooks/rest";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
     const router = useRouter();
-    const theme = useTheme();
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
-    const {mutate} = useSWRConfig();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {trigger: triggerTransactionEdit} = useTransactionEdit();
 
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {mutate: mutateOnGoing, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {model} = useAppSelector(preConsultationSelector);
+    const {selectedBoxes, paymentTypesList} = useAppSelector(cashBoxSelector);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
@@ -75,39 +75,21 @@ function WaitingRoom() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    //const [anchorEl, setAnchorEl] = useState<EventTarget | null>(null);
     const [row, setRow] = useState<WaitingRoomModel | null>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
-    const [deals, setDeals] = React.useState<any>({
-        cash: {
-            amount: ""
-        },
-        card: {
-            amount: ""
-        },
-        check: [{
-            amount: "",
-            carrier: "",
-            bank: "",
-            check_number: '',
-            payment_date: new Date(),
-            expiry_date: new Date(),
-        }],
-        selected: null
-    });
     const [popoverActions, setPopoverActions] = useState([
         {
             title: "pre_consultation_data",
             icon: <PendingIcon/>,
             action: "onPreConsultation",
         },
-        {
+        ...(!roles.includes('ROLE_SECRETARY') ? [{
             title: "start_the_consultation",
             icon: <PlayCircleIcon/>,
             action: "onConsultationStart",
-        },
+        }] : []),
         {
             title: "leave_waiting_room",
             icon: <IconUrl color={"white"} path="ic-salle"/>,
@@ -120,46 +102,23 @@ function WaitingRoom() {
         }]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>;
-    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
+    const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
 
-    const {trigger: updateTrigger} = useRequestMutation(null, "/agenda/update/appointment");
-    const {trigger: updateAppointmentStatus} = useSWRMutation(["/agenda/update/appointment/status", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-    const {trigger: handlePreConsultationData} = useSWRMutation(["/pre-consultation/update", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
-
-    const {data: httpAgendasResponse} = useRequest(medicalEntityHasUser ? {
+    const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
-    } : null, SWRNoValidateConfig);
-
-    const {data: httpWaitingRoomsResponse, mutate: mutateWaitingRoom} = useRequest({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`
-        }
+        url: `${urlMedicalEntitySuffix}/waiting-rooms/${router.locale}${filter?.type ? '?type=' + filter?.type : ''}`
     });
-
-    const agenda = (httpAgendasResponse as HttpResponse)?.data.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
 
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
-        //setAnchorEl(event.currentTarget);
         setContextMenu(
             contextMenu === null
                 ? {
                     mouseX: event.clientX + 2,
                     mouseY: event.clientY - 6,
-                }
-                : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-                // Other native context menus might behave different.
-                // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-                null,
+                } : null,
         );
     };
 
@@ -168,16 +127,25 @@ function WaitingRoom() {
     };
 
     const handleSubmit = () => {
-        console.log(selectedPayment.payments);
-    };
+        setLoadingRequest(true)
+        triggerTransactionEdit(selectedPayment,
+            row?.transactions && row?.transactions?.length > 0 ? row?.transactions[0] : null,
+            () => {
+                mutateWaitingRoom().then(() => {
+                    enqueueSnackbar(t("addsuccess"), {variant: 'success'});
+                    setOpenPaymentDialog(false);
+                    setLoadingRequest(false);
+                })
+            }
+        );
+    }
 
     const resetDialog = () => {
         setOpenPaymentDialog(false);
         const actions = [...popoverActions];
-        actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
+        // actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
         setPopoverActions(actions);
     };
-
     const nextConsultation = (row: any) => {
         const form = new FormData();
         form.append('attribute', 'is_next');
@@ -185,53 +153,26 @@ function WaitingRoom() {
         updateTrigger({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row.uuid}/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
-            mutateWaitingRoom();
-            // refresh on going api
-            mutateOnGoing && mutateOnGoing();
-            setLoadingRequest(false);
+            data: form
+        }, {
+            onSuccess: () => {
+                mutateWaitingRoom();
+                // refresh on going api
+                mutateOnGoing();
+                setLoadingRequest(false);
+            }
         });
     }
-
     const startConsultation = (row: any) => {
         if (!isActive) {
-            const event: any = {
-                publicId: (row?.uuid ? row.uuid : row?.publicId ? row?.publicId : (row as any)?.id) as string,
-                extendedProps: {
-                    ...(row?.extendedProps && {...row?.extendedProps}),
-                    ...(row?.patient && {patient: row?.patient})
-                }
-            };
-            const slugConsultation = `/dashboard/consultation/${event.publicId}`;
-            router.push(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                updateAppointmentStatus({
-                    method: "PATCH",
-                    data: {
-                        status: "4",
-                        start_date: moment().format("DD-MM-YYYY"),
-                        start_time: moment().format("HH:mm")
-                    },
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event.publicId}/status/${router.locale}`
-                } as any).then(() => {
-                    dispatch(setTimer({
-                            isActive: true,
-                            isPaused: false,
-                            event,
-                            startTime: moment().utc().format("HH:mm")
-                        }
-                    ));
-                    // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
-                });
-            });
+            const publicId = (row?.uuid ? row.uuid : row?.publicId ? row?.publicId : (row as any)?.id) as string
+            const slugConsultation = `/dashboard/consultation/${publicId}`;
+            router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
         } else {
             setError(true);
             setLoadingRequest(false);
         }
     }
-
     const OnMenuActions = (action: string) => {
         switch (action) {
             case "onConsultationStart":
@@ -244,14 +185,18 @@ function WaitingRoom() {
                 nextConsultation(row);
                 break;
             case "onLeaveWaitingRoom":
+                const form = new FormData();
+                form.append('status', '1');
                 updateAppointmentStatus({
                     method: "PATCH",
-                    data: {status: "1"},
+                    data: form,
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/status/${router.locale}`
-                } as any).then(() => {
-                    // refresh on going api
-                    mutateOnGoing && mutateOnGoing();
-                    mutateWaitingRoom();
+                }, {
+                    onSuccess: () => {
+                        // refresh on going api
+                        mutateOnGoing();
+                        mutateWaitingRoom();
+                    }
                 });
                 break;
             case "onPatientDetail":
@@ -259,23 +204,44 @@ function WaitingRoom() {
                 setPatientDetailDrawer(true);
                 break;
             case "onPay":
+                let payed_amount = 0;//row?.appointment_type.price ? row?.appointment_type.price - row?.rest_amount : 0;
+                let payments: any[] = [];
+                row?.transactions && row.transactions.map(transaction => {
+                    payed_amount += transaction.amount - transaction.rest_amount;
+                    transaction.transaction_data.map((td: any) => {
+                        let pay: any = {
+                            uuid: td.uuid,
+                            amount: td.amount,
+                            payment_date: moment().format('DD-MM-YYYY'),
+                            payment_time: `${new Date().getHours()}:${new Date().getMinutes()}`,
+                            status_transaction: td.status_transaction_data,
+                            type_transaction: td.type_transaction_data,
+                            data: td.data,
+                            ...(td.insurance && {insurance: td.insurance.uuid}),
+                            ...(td.payment_means && {
+                                payment_means: paymentTypesList.find((pt: {
+                                    slug: string;
+                                }) => pt.slug === td.payment_means.slug)
+                            })
+                        }
+                        payments.push(pay)
+                    })
+                });
+
                 setSelectedPayment({
                     uuid: row?.uuid,
-                    date: moment().format("DD-MM-YYYY"),
-                    time: row?.appointment_time,
+                    payments,
+                    payed_amount,
+                    appointment: row,
                     patient: row?.patient,
-                    insurance: "",
-                    type: row?.appointment_type.name,
-                    amount: 40,
-                    total: 60,
-                    payments: []
+                    total: row?.appointment_type.price,
+                    isNew: payed_amount === 0
                 });
                 setOpenPaymentDialog(true);
                 break;
         }
         handleClose();
     }
-
     const handleTableActions = (data: any) => {
         setRow(data.row);
         switch (data.action) {
@@ -290,14 +256,14 @@ function WaitingRoom() {
                 nextConsultation(data.row);
                 break;
             default:
-                if (!data.row.fees &&
-                    popoverActions.findIndex(data => data.action === "onPay") === -1 &&
-                    process.env.NODE_ENV === 'development') {
+                if (data.row.rest_amount >= 0 && demo && !popoverActions.find(data => data.action === "onPay")) {
                     setPopoverActions([{
                         title: "consultation_pay",
                         icon: <IconUrl color={"white"} path="ic-fees"/>,
                         action: "onPay",
                     }, ...popoverActions])
+                } else {
+                    setPopoverActions([...popoverActions]);
                 }
                 handleContextMenu(data.event);
                 break;
@@ -305,17 +271,18 @@ function WaitingRoom() {
     }
 
     const submitPreConsultationData = () => {
+        const form = new FormData();
+        form.append('modal_uuid', model);
+        form.append('modal_data', localStorage.getItem(`Modeldata${row?.uuid}`) as string);
         handlePreConsultationData({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/data/${router.locale}`,
-            data: {
-                "modal_uuid": model,
-                "modal_data": localStorage.getItem(`Modeldata${row?.uuid}`) as string
+            data: form
+        }, {
+            onSuccess: () => {
+                localStorage.removeItem(`Modeldata${row?.uuid}`);
+                setOpenPreConsultationDialog(false);
             }
-        } as any).then(() => {
-            localStorage.removeItem(`Modeldata${row?.uuid}`);
-            setOpenPreConsultationDialog(false);
-            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/consultation-sheet/${router.locale}`)
         });
     }
 
@@ -333,21 +300,6 @@ function WaitingRoom() {
         }
     }, [dispatch, waitingRooms]);
 
-    useEffect(() => {
-        if (roles && roles.includes('ROLE_SECRETARY')) {
-            setPopoverActions([
-                {
-                    title: "pre_consultation_data",
-                    icon: <PendingIcon/>,
-                    action: "onPreConsultation",
-                }, {
-                    title: "leave_waiting_room",
-                    icon: <IconUrl color={"white"} path="ic-salle"/>,
-                    action: "onLeaveWaitingRoom",
-                }])
-        }
-    }, [roles]);
-
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -361,7 +313,7 @@ function WaitingRoom() {
                 <RoomToolbar/>
 
                 {error &&
-                    <AnimatePresence mode='wait'>
+                    <AnimatePresence>
                         <motion.div
                             initial={{opacity: 0}}
                             animate={{opacity: 1}}
@@ -420,61 +372,23 @@ function WaitingRoom() {
                                             data={AddWaitingRoomCardData}/>
                                     }
 
-                                    <Menu
-                                        open={contextMenu !== null}
-                                        onClose={handleClose}
-                                        anchorReference="anchorPosition"
-                                        slotProps={{
-                                            paper: {
-                                                elevation: 0,
-                                                sx: {
-                                                    backgroundColor: theme.palette.text.primary,
-                                                    "& .popover-item": {
-                                                        padding: theme.spacing(2),
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        svg: {
-                                                            color: "#fff",
-                                                            marginRight: theme.spacing(1),
-                                                            fontSize: 20
-                                                        },
-                                                        cursor: "pointer",
-                                                    }
-                                                }
-                                            }
-                                        }}
-                                        anchorPosition={
-                                            contextMenu !== null
-                                                ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
-                                                : undefined
-                                        }
-                                        anchorOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right',
-                                        }}
-                                        transformOrigin={{
-                                            vertical: 'top',
-                                            horizontal: 'right',
-                                        }}
-                                    >
-                                        {
-                                            popoverActions.map(
-                                                (v: any, index) => (
-                                                    <MenuItem
-                                                        key={index}
-                                                        className="popover-item"
-                                                        onClick={() => {
-                                                            OnMenuActions(v.action);
-                                                        }}
-                                                    >
-                                                        {v.icon}
-                                                        <Typography fontSize={15} sx={{color: "#fff"}}>
-                                                            {t(`${v.title}`)}
-                                                        </Typography>
-                                                    </MenuItem>
-                                                )
-                                            )}
-                                    </Menu>
+                                    <ActionMenu {...{contextMenu, handleClose}}>
+                                        {popoverActions.map(
+                                            (v: any, index) => (
+                                                <MenuItem
+                                                    key={index}
+                                                    className="popover-item"
+                                                    onClick={() => {
+                                                        OnMenuActions(v.action);
+                                                    }}>
+                                                    {v.icon}
+                                                    <Typography fontSize={15} sx={{color: "#fff"}}>
+                                                        {t(`${v.title}`)}
+                                                    </Typography>
+                                                </MenuItem>
+                                            )
+                                        )}
+                                    </ActionMenu>
                                 </>
                             }
                         </Box>
@@ -519,10 +433,11 @@ function WaitingRoom() {
                 open={openPaymentDialog}
                 data={{
                     selectedPayment, setSelectedPayment,
-                    deals, setDeals,
+                    appointment: row,
                     patient: row?.patient
                 }}
-                size={"md"}
+                size={"lg"}
+                fullWidth
                 title={t("payment_dialog_title")}
                 dialogClose={resetDialog}
                 actionDialog={
@@ -530,13 +445,14 @@ function WaitingRoom() {
                         <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
                             {t("cancel", {ns: "common"})}
                         </Button>
-                        <Button
+                        <LoadingButton
                             disabled={selectedPayment && selectedPayment.payments.length === 0}
                             variant="contained"
                             onClick={handleSubmit}
+                            loading={loadingRequest}
                             startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                             {t("save", {ns: "common"})}
-                        </Button>
+                        </LoadingButton>
                     </DialogActions>
                 }
             />

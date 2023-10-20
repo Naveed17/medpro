@@ -1,5 +1,9 @@
 @import "./variables";
 
+div.MuiModal-root:has(> div[style*="opacity: 0"]) {
+  pointer-events: none;
+}
+
 body {
   overflow: auto;
 
@@ -20,6 +24,7 @@ main {
 
   &.active-right-actionbar {
     width: calc(100% - 208px);
+
     @media (max-width: 600px) {
       width: 100%;
     }
@@ -51,6 +56,7 @@ main {
   .sm-d-block {
     display: block !important;
   }
+
   .MuiAppBar-root {
     border: none !important;
   }
@@ -70,9 +76,11 @@ main {
   align-items: center;
 }
 
-.form-input-material{
+.form-input-material {
   display: grid !important;
-  width: fit-content;}
+  width: fit-content;
+}
+
 .form-control-material {
   display: flex;
   margin-bottom: 1rem;
@@ -157,6 +165,7 @@ main {
     margin: 0.4rem;
   }
 }
+
 .form-control-title {
   label {
     width: 6rem;
@@ -166,29 +175,35 @@ main {
     font-size: 12px;
     font-weight: bold;
   }
-  input{
+
+  input {
     visibility: hidden;
     height: 0;
     padding: 0;
     margin: 0;
   }
 }
-.checkbox-formio{
+
+.checkbox-formio {
   width: fit-content;
   margin: auto;
 }
-.formio-component-table{
-  .table{
+
+.formio-component-table {
+  .table {
     width: 100%;
   }
-  .sr-only{
+
+  .sr-only {
     visibility: hidden;
     height: 0;
   }
-  p{
+
+  p {
     font-size: 12px;
   }
 }
+
 .form-control-pregnancy {
   label {
     float: left;
@@ -264,14 +279,16 @@ fieldset {
   &::before {
     content: '';
     position: absolute;
-    width: 18px;
+    width: 15px;
     height: 100%;
     border: 1px solid #ddd;
     left: -15px;
     z-index: -1;
     border-right: none;
     top: -46%;
-    border-radius: 6px;
+    border-radius: 8px;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
   }
 }
 
@@ -319,6 +336,7 @@ fieldset {
     margin: 0;
     box-shadow: none;
   }
+
   .portraitA4 {
     margin: 0;
     box-shadow: none;
@@ -358,23 +376,28 @@ fieldset {
   -webkit-box-orient: vertical;
 }
 
-.zoom, .zoom-list {
+.zoom,
+.zoom-list {
   margin: 0 auto;
 }
 
 .zoom:hover {
   z-index: 2;
   margin-left: 2rem;
-  -ms-transform: scale(3); /* IE 9 */
-  -webkit-transform: scale(3); /* Safari 3-8 */
+  -ms-transform: scale(3);
+  /* IE 9 */
+  -webkit-transform: scale(3);
+  /* Safari 3-8 */
   transform: scale(3);
 }
 
 .zoom-list:hover {
   z-index: 100;
   margin-left: 1rem;
-  -ms-transform: scale(2.4); /* IE 9 */
-  -webkit-transform: scale(2.4); /* Safari 3-8 */
+  -ms-transform: scale(2.4);
+  /* IE 9 */
+  -webkit-transform: scale(2.4);
+  /* Safari 3-8 */
   transform: scale(2.4);
 }
 
@@ -405,6 +428,7 @@ fieldset {
       .MuiTypography-root {
         color: #00234B
       }
+
     ;
 
       svg {
@@ -423,7 +447,7 @@ fieldset {
   }
 }
 
-.note-container{
+.note-container {
   background: linear-gradient(181.14deg, #1B2746 41.55%, rgba(27, 39, 70, 0) 84.16%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -436,4 +460,63 @@ fieldset {
 
 .MuiAutocomplete-paper {
   min-width: 200px
+}
+
+.fc-col-header,
+.fc-daygrid-body,
+.fc-scrollgrid-sync-table,
+.fc-timegrid-body,
+.fc-timegrid-body table {
+  width: 100% !important;
+}
+
+.react-draggable > div > div {
+  opacity: 1 !important;
+}
+
+// page controls for pdf lib
+.page-controls {
+  position: absolute;
+  bottom: 18%;
+  left: 16.5%;
+  background: white;
+  transform: translate(-50%);
+  transition: opacity ease-in-out .2s;
+  box-shadow: var(--shadow);
+  border-radius: var(--rounded-corners);
+  z-index: 2
+}
+
+.page-controls span {
+  font: inherit;
+  font-size: .8em;
+  padding: 0 .5em
+}
+
+.page-controls button {
+  width: 22px;
+  height: 22px;
+  background: white;
+  border: 0;
+  font: inherit;
+  font-size: .8em;
+  border-radius: var(--rounded-corners)
+}
+
+.page-controls button:enabled:hover {
+  cursor: pointer
+}
+
+.page-controls button:enabled:hover, .page-controls button:enabled:focus {
+  background-color: #e6e6e6
+}
+
+.page-controls button:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0
+}
+
+.page-controls button:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0
 }

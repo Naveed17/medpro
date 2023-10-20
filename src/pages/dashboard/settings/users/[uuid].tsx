@@ -1,6 +1,6 @@
 import {GetStaticProps, GetStaticPaths} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState, useEffect, memo, useRef} from "react";
+import React, {ReactElement, useState, memo, useRef} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
@@ -26,11 +26,14 @@ import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {DashLayout} from "@features/base";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {addUser, tableActionSelector} from "@features/table";
+import {addUser} from "@features/table";
 import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
-import {LoadingScreen} from "@features/loadingScreen";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {DatePicker} from "@features/datepicker";
 import {LoadingButton} from "@mui/lab";
@@ -55,55 +58,37 @@ function ModifyUser() {
     const router = useRouter();
     const phoneInputRef = useRef(null);
     const {enqueueSnackbar} = useSnackbar()
-    const {uuid} = router.query;
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {data: session} = useSession();
+
     const {t, ready} = useTranslation("settings");
-    const {tableState} = useAppSelector(tableActionSelector);
-    const [loading, setLoading] = useState(false);
     const {agendas} = useAppSelector(agendaSelector);
-    const [profiles, setProfiles] = useState<any[]>([]);
+
+    const [loading, setLoading] = useState(false);
     const [agendaRoles] = useState(agendas);
-    const [user, setUser] = useState<any>({});
-    const {data: userData} = session as Session;
-    const medical_entity = (userData as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const [roles] = useState([
         {id: "read", name: "Accès en lecture"},
         {id: "write", name: "Accès en écriture"}
     ]);
-    const {trigger} = useRequestMutation(null, "/users");
 
-    const {data: httpProfilesResponse,} = useRequest({
+    const {data: userData} = session as Session;
+    const medical_entity = (userData as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const {uuid} = router.query;
+
+    const {trigger: triggerUserUpdate} = useRequestQueryMutation("/user/update");
+    const {data: httpProfilesResponse,} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/profile`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/profile`
     });
-    const {data: httpUserResponse, error} = useRequest({
+    const {data: httpUserResponse} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`
     });
 
-    useEffect(() => {
-        if (httpProfilesResponse) {
-            setProfiles((httpProfilesResponse as HttpResponse)?.data)
-        }
-    }, [httpProfilesResponse]);
-    useEffect(() => {
-        const user = (httpUserResponse as HttpResponse)?.data
-        if (error) {
-            setUser(null)
-        } else if (user) {
-            setUser(user)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [httpUserResponse, error])
+    const user = (httpUserResponse as HttpResponse)?.data ?? null;
+    const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as any[];
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -113,14 +98,10 @@ function ModifyUser() {
         email: Yup.string()
             .email(t("users.mailInvalid"))
             .required(t("users.mailReq")),
-        consultation_fees: Yup.string()
-            .required(),
-        birthdate: Yup.string()
-            .required(),
-        FirstName: Yup.string()
-            .required(),
-        lastName: Yup.string()
-            .required(),
+        consultation_fees: Yup.string().required(),
+        birthdate: Yup.string().required(),
+        FirstName: Yup.string().required(),
+        lastName: Yup.string().required(),
         phones: Yup.array().of(
             Yup.object().shape({
                 dial: Yup.object().shape({
@@ -187,20 +168,22 @@ function ModifyUser() {
                 is_support: false
             }))));
             form.append('profile', values.profile);
-            trigger({
+            triggerUserUpdate({
                 method: "PUT",
                 url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
-                data: form,
-                headers: {Authorization: `Bearer ${session?.accessToken}`}
-            }).then(() => {
-                enqueueSnackbar(t("users.alert.update"), {variant: "error"});
-                setLoading(false)
-                dispatch(addUser({...values}));
-                router.push("/dashboard/settings/users");
-            }).catch((error) => {
-                setLoading(false);
-                enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
-            })
+                data: form
+            }, {
+                onSuccess: () => {
+                    enqueueSnackbar(t("users.alert.update"), {variant: "error"});
+                    setLoading(false)
+                    dispatch(addUser({...values}));
+                    router.push("/dashboard/settings/users");
+                },
+                onError: () => {
+                    setLoading(false);
+                    enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
+                }
+            });
 
         },
     });
@@ -213,7 +196,9 @@ function ModifyUser() {
         getFieldProps,
         setFieldValue,
     } = formik;
+
     if (!ready) return (<LoadingScreen
+        button
         {...(uuid && {
             error: true,
             button: 'loading-error-404-reset',
@@ -221,7 +206,7 @@ function ModifyUser() {
         })}
     />);
 
-    if (!user) return (<LoadingScreen error button={'loading-error-404-reset'} text={"loading-error-data-404"}/>);
+    if (!user) return (<LoadingScreen button text={"loading-error-data-404"}/>);
 
     return (
         <>
@@ -722,13 +707,13 @@ function ModifyUser() {
     );
 }
 
-export const getStaticPaths: GetStaticPaths<{ slug: string }> = async ({...props}) => {
+export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
     return {
         paths: [], //indicates that no page needs be created at build time
         fallback: "blocking", //indicates the type of fallback
     };
 };
-export const getStaticProps: GetStaticProps = async ({locale, params}) => {
+export const getStaticProps: GetStaticProps = async ({locale}) => {
 
     return {
         props: {

@@ -11,7 +11,10 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {InsctructionDetails} from "@features/instructionDetails";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function Instructions() {
 

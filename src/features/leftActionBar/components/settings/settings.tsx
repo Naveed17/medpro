@@ -18,7 +18,10 @@ import {SettingBarStyled} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 
@@ -36,10 +39,10 @@ function Settings() {
 
     return (
         <SettingBarStyled>
-            <Typography variant="h6" className="heading">
+            <Box sx={{width: "100%", bgcolor: "background.paper",height:'100vh'}}>
+                  <Typography variant="h6" className="heading" mb={2}>
                 {t('menu.' + settingsData.title)}
             </Typography>
-            <Box sx={{width: "100%", bgcolor: "background.paper"}}>
                 <nav aria-label="main mailbox folders">
                     <List>
                         {settingsData.data.map((v: any) => (
@@ -59,7 +62,7 @@ function Settings() {
                                 disablePadding>
                                 <ListItemButton
                                     onClick={() => {
-                                        router.push(`${locations && v?.deep === "location" ? `${v.href.replace('[uuid]', '')}${locations[0]?.uuid}` : v.href}`);
+                                        router.push(`${locations && v?.deep === "location" ? `${v.href.replace('[uuid]', '')}${locations && locations[0]}` : v.href}`);
                                     }}
                                     disabled={v.disable}
                                     disableRipple>

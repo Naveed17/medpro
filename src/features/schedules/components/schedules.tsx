@@ -4,7 +4,10 @@ import TimePicker from "@themes/overrides/TimePicker";
 import React, { useState } from "react";
 import { useTranslation } from "next-i18next";
 import { Theme } from '@mui/material/styles';
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 type SchedulesProps = {
     initData: Schedule[]

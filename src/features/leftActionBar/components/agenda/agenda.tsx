@@ -7,15 +7,17 @@ import {
     PatientFilter,
     setFilter,
     AppointmentStatusFilter,
-    AppointmentTypesFilter
+    AppointmentTypesFilter,
 } from "@features/leftActionBar";
-import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {dashLayoutSelector} from "@features/base";
 import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
 
@@ -86,7 +88,7 @@ function Agenda() {
                     },
                     expanded: false,
                     children: (<AppointmentStatusFilter/>)
-                },
+                }
             ]);
         }
     }, [appointmentTypes]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -103,10 +105,7 @@ function Agenda() {
                 }
             />
             <Accordion
-                translate={{
-                    t: t,
-                    ready: ready,
-                }}
+                translate={{t, ready}}
                 data={accordionData}
                 setData={setAccordionData}
             />

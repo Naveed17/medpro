@@ -5,10 +5,9 @@ import {configSelector, DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {Box, Button, DialogActions, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
 import {useRouter} from "next/router";
 import {Otable} from "@features/table";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {Dialog} from "@features/dialog";
@@ -17,7 +16,10 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {LatLngBoundsExpression} from "leaflet";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {DefaultCountry} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
@@ -84,13 +86,12 @@ function Lieux() {
         },
     ];
 
-    const {data, mutate} = useRequest({
+    const {data, mutate} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/locations/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/locations/${router.locale}`
     });
 
-    const {trigger} = useRequestMutation(null, "/settings/places");
+    const {trigger: triggerPlacesUpdate} = useRequestQueryMutation("/settings/places/update");
 
     const {direction} = useAppSelector(configSelector);
 
@@ -100,12 +101,13 @@ function Lieux() {
 
     const dialogSave = () => {
         setLoading(true);
-        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
-            mutate().then(r => {
-                setOpen(false);
-                setLoading(false);
-                console.log('place removed successfully', r);
-            });
+        triggerPlacesUpdate(selected.request, {
+            onSuccess: () => {
+                mutate().then(() => {
+                    setOpen(false);
+                    setTimeout(() => setLoading(false));
+                });
+            }
         });
     }
 
@@ -123,10 +125,9 @@ function Lieux() {
             setRows([...rows]);
             const form = new FormData();
             form.append('attribute', JSON.stringify({attribute: 'is_active', value: props.isActive}));
-            trigger({
+            triggerPlacesUpdate({
                 method: "PATCH",
                 url: `${urlMedicalEntitySuffix}/locations/${props.uuid}`,
-                headers: {Authorization: `Bearer ${session?.accessToken}`},
                 data: form
             });
         } else if (event === 'remove') {
@@ -139,8 +140,7 @@ function Lieux() {
                 data: props,
                 request: {
                     method: "DELETE",
-                    url: `${urlMedicalEntitySuffix}/locations/${props.uuid}`,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
+                    url: `${urlMedicalEntitySuffix}/locations/${props.uuid}`
                 }
             })
             setOpen(true);
@@ -180,7 +180,7 @@ function Lieux() {
         keyPrefix: "lieux.config",
     });
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

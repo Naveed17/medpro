@@ -12,10 +12,13 @@ import {
     Typography,
     useTheme,
 } from "@mui/material";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {ImportDataMobileCard, NoDataCard} from "@features/card";
 import {
     importDataUpdate,
@@ -29,14 +32,12 @@ import {LoadingButton} from "@mui/lab";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useSnackbar} from "notistack";
-import dynamic from "next/dynamic";
 import IconUrl from "@themes/urlIcon";
 import {resetDuplicated} from "@features/duplicateDetected";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const PatientDetail = dynamic(
     () =>
@@ -92,20 +93,18 @@ function Data() {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
-    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
-    const {trigger: triggerDeleteImportData} = useRequestMutation(null, "/import/data/delete");
+    const {trigger: triggerDeleteImportData} = useRequestQueryMutation("/import/data/delete");
 
-    const {data: httpImportDataResponse, mutate: mutateImportData} = useRequest({
+    const {data: httpImportDataResponse, mutate: mutateImportData} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    }, SWRNoValidateConfig);
+        url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`
+    }, ReactQueryNoValidateConfig);
 
     const importData = (httpImportDataResponse as HttpResponse)?.data as {
         currentPage: number;
@@ -149,16 +148,17 @@ function Data() {
         setLoading(true);
         triggerDeleteImportData({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        }).then((value) => {
-            if ((value?.data as any).status === "success") {
-                setDeleteDialog(false);
-                setSelectedRow(null);
-                mutateImportData();
-                enqueueSnackbar(t(`alert.delete-import`), {variant: "success"});
+            url: `${urlMedicalEntitySuffix}/import/data/${uuid}/${router.locale}`
+        }, {
+            onSuccess: (value) => {
+                if ((value?.data as any).status === "success") {
+                    setDeleteDialog(false);
+                    setSelectedRow(null);
+                    mutateImportData();
+                    enqueueSnackbar(t(`alert.delete-import`), {variant: "success"});
+                }
+                setLoading(false);
             }
-            setLoading(false);
         });
     };
 
@@ -176,7 +176,6 @@ function Data() {
     if (!ready)
         return (
             <LoadingScreen
-
                 button
                 text={"loading-error"}
             />

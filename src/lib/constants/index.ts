@@ -158,3 +158,50 @@ export const UrlMedicalProfessionalSuffix: string = '/api/medical-professional';
 export const MedicalFormUnit = data;
 
 export const PrescriptionMultiUnits = MedicalFormUnit.filter(medic => medic.multiple).map(medic => medic.unit);
+
+export const TransactionType = [
+    // Add Payment ( ajout caisse/ Alimenter )
+    {
+        key: "IN",
+        value: "1",
+    },
+    // Cash withdrawal ( retrait du caisse/ Dépense )
+    {
+        key: "OUT",
+        value: "2",
+    },
+    // Appointment transaction (  transaction RDV )
+    {
+        key: "APP",
+        value: "3",
+    },
+    // Collection transaction ( operation d'encaissement/ Encaisser )
+    {
+        key: "ENC",
+        value: "4",
+    },
+    {
+        key: "WAL",
+        value: "5",
+    },
+];
+
+export const TransactionStatus = [
+    {
+        key: "NOT_PAID",
+        value: "1",
+    },
+    {
+        key: "PARTIAL_PAID",
+        value: "2",
+    },
+    {
+        key: "PAID",
+        value: "3",
+    },
+];
+
+export const tinymcePlugins = "advlist anchor autolink autosave charmap codesample directionality  emoticons help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount table"
+export const tinymceToolbar = "blocks fontfamily fontsize | bold italic underline forecolor backcolor | align lineheight checklist bullist numlist | table tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol "
+
+export const MobileContainer: number = 820

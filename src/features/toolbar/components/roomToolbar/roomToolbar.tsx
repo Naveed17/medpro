@@ -7,7 +7,11 @@ import Icon from '@themes/urlIcon'
 import React, {useState} from 'react';
 import SalleIcon from "@themes/overrides/icons/salleIcon";
 import {useSnackbar} from "notistack";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+import { MobileContainer } from '@themes/mobileContainer';
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function RoomToolbar({...props}) {
     const {board, data, handleCollapse, openCalendar} = props;
@@ -60,6 +64,7 @@ function RoomToolbar({...props}) {
                 </Button>*/}
 
             </Stack>
+            <MobileContainer>
             <Button
                 startIcon={<Icon path="ic-filter"/>}
                 variant="filter"
@@ -70,11 +75,12 @@ function RoomToolbar({...props}) {
                     transform: 'translateX(-50%)',
                     left: '50%',
                     zIndex: 999,
-                    display: {xs: 'flex', md: 'none'}
+                    
                 }}
             >
                 Filtrer (0)
             </Button>
+            </MobileContainer>
             <DrawerBottom
                 handleClose={() => set0pen(false)}
                 open={open}

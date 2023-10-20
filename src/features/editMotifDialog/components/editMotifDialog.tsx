@@ -14,16 +14,19 @@ import {
 } from "@mui/material";
 import {styled} from "@mui/material/styles";
 import {useSnackbar} from "notistack";
-import React from "react";
+import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {ModelDot} from "@features/modelDot";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {LoadingButton} from "@mui/lab";
 
 const PaperStyled = styled(Form)(({theme}) => ({
     backgroundColor: theme.palette.background.default,
@@ -75,7 +78,6 @@ const colors = [
 
 function EditMotifDialog({...props}) {
     const {mutateEvent} = props;
-    const {data: session} = useSession();
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -83,13 +85,16 @@ function EditMotifDialog({...props}) {
     const {t, ready} = useTranslation("settings");
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {trigger} = useRequestMutation(null, "/settings/motif");
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const {trigger: triggerMotifUpdate} = useRequestQueryMutation("/settings/motif/update");
+    const {trigger: triggerMotifAdd} = useRequestQueryMutation("/settings/motif/add");
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
             .min(3, t("users.new.ntc"))
             .max(50, t("users.new.ntl"))
-            .required(t("users.new.nameReq")),
+            .required(t("users.nameReq")),
     });
 
     const formik = useFormik({
@@ -104,10 +109,8 @@ function EditMotifDialog({...props}) {
             agendas: props.data ? props.data.agenda : [],
         },
         validationSchema,
-
         onSubmit: async (values) => {
-            //if (values.typeOfMotif.length > 0) {
-            props.closeDraw();
+            setLoading(true);
             const form = new FormData();
             form.append("color", values.color);
             form.append("translations", JSON.stringify({[router.locale as string]: values.name}));
@@ -125,24 +128,30 @@ function EditMotifDialog({...props}) {
             form.append("delay_max", values.maximumDelay);
             form.append("is_enabled", props.data ? props.data.isEnabled : "true");
             if (props.data) {
-                medicalEntityHasUser && trigger({
+                medicalEntityHasUser && triggerMotifUpdate({
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.data.uuid}/${router.locale}`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                }).then(() => {
-                    mutateEvent();
-                    enqueueSnackbar(t("motif.config.alert.updated"), {variant: "success"});
+                    data: form
+                }, {
+                    onSuccess: () => {
+                        mutateEvent();
+                        enqueueSnackbar(t("motif.config.alert.updated"), {variant: "success"});
+                        props.closeDraw();
+                        setLoading(true);
+                    }
                 });
             } else {
-                medicalEntityHasUser && trigger({
+                medicalEntityHasUser && triggerMotifAdd({
                     method: "POST",
                     url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                }).then(() => {
-                    enqueueSnackbar(t("motif.config.alert.add"), {variant: "success"});
-                    mutateEvent();
+                    data: form
+                }, {
+                    onSuccess: () => {
+                        enqueueSnackbar(t("motif.config.alert.add"), {variant: "success"});
+                        mutateEvent();
+                        props.closeDraw();
+                        setLoading(true);
+                    }
                 });
             }
         },
@@ -394,9 +403,14 @@ function EditMotifDialog({...props}) {
                     spacing={2}
                     direction={"row"}>
                     <Button onClick={props.closeDraw}>{t("motif.dialog.cancel")}</Button>
-                    <Button type="submit" variant="contained" color="primary">
+                    <LoadingButton
+                        {...{loading}}
+                        disabled={values.name?.length === 0}
+                        type="submit"
+                        variant="contained"
+                        color="primary">
                         {t("motif.dialog.save")}
-                    </Button>
+                    </LoadingButton>
                 </Stack>
             </PaperStyled>
         </FormikProvider>

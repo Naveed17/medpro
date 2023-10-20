@@ -26,10 +26,13 @@ import LabelStyled from "./overrides/labelStyled";
 import {CropImage} from "@features/image";
 import {InputStyled} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 interface MyFormProps {
     file?: string;
@@ -46,7 +49,7 @@ interface MyFormProps {
 
 function Info({...props}) {
     const {onSubmit} = props;
-    const {data: session, status} = useSession();
+    const {status} = useSession();
     const loading = status === "loading";
     const router = useRouter();
     const {t, ready} = useTranslation("editProfile", {
@@ -78,25 +81,19 @@ function Info({...props}) {
         // handleSubmit();
     }, [onSubmit]);
 
-    const {data: httpResponse, error} = useRequest({
+    const {data: httpResponse, error} = useRequestQuery({
         method: "GET",
-        url: `/api/public/specialties/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/public/specialties/${router.locale}`
     });
 
-    const {data: httpResponseLang, error: errorLang} = useRequest({
+    const {data: httpResponseLang, error: errorLang} = useRequestQuery({
         method: "GET",
-        url: `/api/public/languages/${router.locale}`,
-        headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
+        url: `/api/public/languages/${router.locale}`
     });
 
     if (error || errorLang) return <div>failed to load</div>;
     if (!ready || !httpResponse || !httpResponseLang || loading)
-        return <LoadingScreen/>;
+        return <LoadingScreen button text={"loading-error"}/>;
 
     const specialties = (httpResponse as HttpResponse).data as SpecialtyModel[];
     const languages = (httpResponseLang as HttpResponse).data as LanguageModel[];
@@ -110,7 +107,6 @@ function Info({...props}) {
 
     const handleChangeFiled = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name: specialty, checked} = event.target;
-        console.log(specialty, checked);
         setFieldValue(
             "secondarySpecialties",
             checked

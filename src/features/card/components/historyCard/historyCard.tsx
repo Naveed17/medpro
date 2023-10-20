@@ -6,7 +6,9 @@ import moment from "moment/moment";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {openDrawer} from "@features/dialog";
 import {useAppDispatch} from "@lib/redux/hooks";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 export default function HistoryCard({...props}) {
 
@@ -46,7 +48,7 @@ export default function HistoryCard({...props}) {
                     </Stack>
                 </Box>
                 <Stack spacing={2} direction="row" alignItems='center' ml={'auto !important'}>
-                    <Button className="btn-more" onClick={() => {
+                    {/*<Button className="btn-more" onClick={() => {
                         const event = {
                             title: `${patient.firstName}  ${patient.lastName}`,
                             publicId: row.uuid,
@@ -55,13 +57,12 @@ export default function HistoryCard({...props}) {
                                 patient: patient,
                                 motif: row.consultationReasons,
                                 description: "",
-                                meeting: false,
                                 status
                             }
                         }
                         dispatch(setSelectedEvent(event as any));
                         dispatch(openDrawer(true));
-                    }} size="small">{t('see_details')}</Button>
+                    }} size="small">{t('see_details')}</Button>*/}
                     <IconButton
                         onClick={() => {
                             dispatch(openDrawer(true));

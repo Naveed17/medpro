@@ -3,8 +3,6 @@ import {Paper} from "@mui/material";
 
 const RootStyled = styled(Paper)(({theme}) => ({
     height: "100%",
-    minWidth: "29vw",
-    maxWidth: "30rem",
     backgroundColor: theme.palette.background.default,
     boxShadow: "-5px 14px 26px rgba(0, 150, 214, 0.37)",
     border: "none",
@@ -12,6 +10,9 @@ const RootStyled = styled(Paper)(({theme}) => ({
     "& .MuiInputAdornment-root .MuiSvgIcon-root": {
         color: theme.palette.primary.main,
         fontSize: 16,
+    },
+    "& .edit-button": {
+        marginLeft: 4
     },
     "& .MuiAppBar-root": {
         border: "none",

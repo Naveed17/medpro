@@ -5,7 +5,10 @@ import {Accordion} from '@features/accordion';
 import {useTranslation} from "next-i18next";
 import {AppointmentTypesFilter} from "@features/leftActionBar";
 import {useAppSelector} from "@lib/redux/hooks";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import {dashLayoutSelector} from "@features/base";
 
 function WaitingRoom() {
@@ -38,7 +41,7 @@ function WaitingRoom() {
             <Typography
                 variant="h6"
                 color="text.primary"
-                sx={{py: 5, pl: "10px", mb: "0.21em"}}
+                sx={{py: 1.48, pl: "10px", mb: "0.21em"}}
                 gutterBottom
             >
                 {t(`title`)}

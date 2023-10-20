@@ -1,14 +1,12 @@
 import React from "react";
 
-import {Document, Font, Page, StyleSheet, Text, View} from '@react-pdf/renderer';
+import {Document, Font, Page, PDFViewer, StyleSheet, Text, View} from '@react-pdf/renderer';
 import moment from "moment";
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
-import {PDFViewer} from "@react-pdf/renderer";
 
 Font.register({
     family: 'Poppins',
@@ -96,21 +94,25 @@ const styles = StyleSheet.create({
 
 function PatientFile({...props}) {
     const {patient, antecedentsData, t, allAntecedents} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {data: httpPatientDetailsResponse} = useRequest(medicalEntityHasUser && patient ? {
+    const {data: httpPatientDetailsResponse} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/${router.locale}`
     } : null);
 
     const checkKey = (key: string) => {
-        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth";
+        return key !== "submit" && key !== "adultTeeth" && key !== "childTeeth" && key !== "eyes";
     }
+
+    const extractContent = (s: string) => {
+        var span = document.createElement('span');
+        span.innerHTML = s;
+        return span.textContent || span.innerText;
+    };
 
     const patientData = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
 
@@ -133,11 +135,11 @@ function PatientFile({...props}) {
                         <Text style={{
                             ...styles.info, color: "black"
                         }}>{patientData?.birthdate} - {moment().diff(moment(patientData.birthdate, "DD-MM-YYYY"), 'years')} ans</Text>}
-                    {patientData?.contact &&
+                    {patientData?.contact && patientData?.contact.length > 0 &&
                         <Text style={styles.info}>{patientData?.contact[0].code} {patientData?.contact[0].value}</Text>}
 
                     <View style={styles.separator}></View>
-                    <Text style={styles.subtitle}>Informations personnelles</Text>
+                    <Text style={styles.subtitle}>Informations</Text>
                     {
                         patientData?.address && patientData?.address.length > 0 && <View>
                             <Text style={styles.header}>Adresse</Text>
@@ -293,7 +295,7 @@ function PatientFile({...props}) {
                                             {appointment.appointmentData?.map(data => (
                                                 data.name !== 'models' &&
                                                 <Text style={{...styles.text, marginLeft: 10, marginBottom: 5}}
-                                                      key={`${data.uuid}`}>• {t("filter." + data.name)}: {data.value ? data.value : "--"}</Text>
+                                                      key={`${data.uuid}`}>• {t("filter." + data.name)}: {data.value ? extractContent(data.value) : "--"}</Text>
                                             ))}
                                         </View>
                                         <View style={styles.tableCol}>

@@ -24,7 +24,10 @@ import {
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 import Icon from "@themes/urlIcon";
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {CountrySelect} from "@features/countrySelect";
@@ -38,8 +41,8 @@ import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import PhoneInput from "react-phone-number-input/input";
-import {useRequestMutation} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRequestQueryMutation} from "@lib/axios";
+import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 
 export const PhoneCountry: any = memo(({...props}) => {
@@ -58,36 +61,37 @@ function AddPatientStep1({...props}) {
         translationPrefix = "config.add-patient",
     } = props;
 
-    const {trigger} = useRequestMutation(null, "/detect");
-
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const phoneInputRef = useRef(null);
     const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {t: commonTranslation} = useTranslation("common");
+    const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
+    const {stepsData} = useAppSelector(addPatientSelector);
+    const {last_fiche_id} = useAppSelector(dashLayoutSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const [openUploadPicture, setOpenUploadPicture] = useState(false);
+    const [duplicatedFiche, setDuplicatedFiche] = useState(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
 
-    const {stepsData} = useAppSelector(addPatientSelector);
-    const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
-    const {t: commonTranslation} = useTranslation("common");
-
-    const [openUploadPicture, setOpenUploadPicture] = useState(false);
-    const [duplicatedFiche, setDuplicatedFiche] = useState(false);
-    const {last_fiche_id} = useAppSelector(dashLayoutSelector);
-
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {trigger: triggerDetectFiche} = useRequestQueryMutation("/patient/detect/fiche_id");
 
     const RegisterSchema = Yup.object().shape({
         first_name: Yup.string()
             .min(3, t("first-name-error"))
             .max(50, t("first-name-error"))
+            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
             .required(t("first-name-error")),
         last_name: Yup.string()
             .min(3, t("last-name-error"))
             .max(50, t("last-name-error"))
+            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
             .required(t("last-name-error")),
         phones: Yup.array().of(
             Yup.object().shape({
@@ -107,7 +111,8 @@ function AddPatientStep1({...props}) {
                     .required(t("telephone-error")),
             })
         ),
-        birthdate: Yup.object().shape({
+        old: Yup.string(),
+        birthdate: Yup.object().nullable().shape({
             day: Yup.string(),
             month: Yup.string(),
             year: Yup.string(),
@@ -116,6 +121,7 @@ function AddPatientStep1({...props}) {
     });
 
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
             picture: selectedPatient
                 ? {url: selectedPatient.photo, file: ""}
@@ -127,24 +133,25 @@ function AddPatientStep1({...props}) {
             last_name: selectedPatient
                 ? selectedPatient.lastName
                 : stepsData.step1.last_name,
-            birthdate: selectedPatient?.birthdate && {
+            old: stepsData.step1.old,
+            birthdate: selectedPatient?.birthdate ? {
                 day: selectedPatient.birthdate.split("-")[0] as string,
                 month: selectedPatient.birthdate.split("-")[1] as string,
                 year: selectedPatient.birthdate.split("-")[2] as string,
-            },
+            } : stepsData.step1.birthdate.day !== "" ? {
+                day: stepsData.step1.birthdate.day,
+                month: stepsData.step1.birthdate.month,
+                year: stepsData.step1.birthdate.year
+            } : null,
             phones: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone") ?
                 [
                     {
                         phone: selectedPatient?.contact?.find((contact: ContactModel) => contact.type === "phone").value,
                         dial: doctor_country,
-                    },
+                    }
                 ]
-                : [
-                    {
-                        phone: "",
-                        dial: doctor_country,
-                    },
-                ],
+                : stepsData.step1.phones
+            ,
             gender: selectedPatient
                 ? selectedPatient.gender === "M"
                     ? "1"
@@ -187,16 +194,17 @@ function AddPatientStep1({...props}) {
         setFieldValue("picture.url", URL.createObjectURL(file));
         setFieldValue("picture.file", file);
         setOpenUploadPicture(true);
-    };
+    }
 
     const checkFicheID = () => {
-        trigger(medicalEntityHasUser ? {
+        medicalEntityHasUser && triggerDetectFiche({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/duplicated-field/${router.locale}?attribute=fiche_id&value=${values.fiche_id}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        } : null).then((res: any) => {
-            setDuplicatedFiche(res.data.data.length > 0)
-        })
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/duplicated-field/${router.locale}?attribute=fiche_id&value=${values.fiche_id}`
+        }, {
+            onSuccess: (res: any) => {
+                setDuplicatedFiche(res.data.data.length > 0);
+            }
+        });
     }
 
     const {
@@ -220,7 +228,12 @@ function AddPatientStep1({...props}) {
     return (
         <FormikProvider value={formik}>
             <Stack
-                sx={{height: freeSolo ? "auto" : "100%"}}
+                sx={{
+                    height: freeSolo ? "auto" : "100%",
+                    "& .MuiInputBase-input": {
+                        textOverflow: "ellipsis"
+                    }
+                }}
                 component={Form}
                 autoComplete="off"
                 noValidate
@@ -236,138 +249,144 @@ function AddPatientStep1({...props}) {
                                 {t("personal-info")}
                             </Typography>
                             <Box>
-                                <Stack
-                                    spacing={2}
-                                    direction={{xs: "column", lg: "row"}}
-                                    alignItems={{xs: "center", lg: "stretch"}}
-                                    sx={{
-                                        "& > label": {
-                                            position: "relative",
-                                            zIndex: 1,
-                                            cursor: "pointer",
-                                        },
+                                <Grid container spacing={2}>
+                                    <Grid item md={4} xs={12} sx={{
+                                        display: {xs: 'flex', md: 'block'},
+                                        justifyContent: "center"
+
                                     }}>
-                                    <label htmlFor="contained-button-file">
-                                        <InputStyled
-                                            id="contained-button-file"
-                                            onChange={(e) => handleDrop(e.target.files as FileList)}
-                                            type="file"
-                                        />
-                                        <Avatar
-                                            src={values.picture.url}
-                                            sx={{width: 164, height: 164}}>
-                                            <IconUrl path="ic-user-profile"/>
-                                        </Avatar>
-                                        <IconButton
-                                            color="primary"
-                                            type="button"
-                                            sx={{
-                                                position: "absolute",
-                                                bottom: 10,
-                                                right: 10,
-                                                zIndex: 1,
-                                                pointerEvents: "none",
-                                                bgcolor: "#fff !important",
-                                            }}>
-                                            <IconUrl path="ic-return-photo"/>
-                                        </IconButton>
-                                    </label>
-                                    <Stack direction={"column"} sx={{width: "100%"}}>
-                                        <FormControl
-                                            component="fieldset"
-                                            error={Boolean(touched.gender && errors.gender)}>
-                                            <Typography
-                                                variant="body2"
-                                                color="text.secondary"
-                                                gutterBottom>
-                                                {t("gender")}{" "}
-                                                <Typography component="span" color="error">
-                                                    *
+                                        <label htmlFor="contained-button-file"
+                                               style={{
+                                                   position: "relative",
+                                                   zIndex: 1,
+                                                   cursor: "pointer",
+                                                   display: 'inline-flex'
+                                               }}>
+                                            <InputStyled
+                                                id="contained-button-file"
+                                                onChange={(e) => handleDrop(e.target.files as FileList)}
+                                                type="file"
+                                            />
+                                            <Avatar
+                                                src={values.picture.url}
+                                                sx={{width: 164, height: 164}}>
+                                                <IconUrl path="ic-user-profile"/>
+                                            </Avatar>
+                                            <IconButton
+                                                color="primary"
+                                                type="button"
+                                                sx={{
+                                                    position: "absolute",
+                                                    bottom: 10,
+                                                    padding: .5,
+                                                    marginRight: 1,
+                                                    right: 10,
+                                                    zIndex: 1,
+                                                    pointerEvents: "none",
+                                                    bgcolor: "#fff !important",
+                                                }}>
+                                                <IconUrl path="ic-return-photo"/>
+                                            </IconButton>
+                                        </label>
+                                    </Grid>
+                                    <Grid item md={8} xs={12}>
+                                        <Stack direction={"column"} sx={{width: "100%"}}>
+                                            <FormControl
+                                                component="fieldset"
+                                                error={Boolean(touched.gender && errors.gender)}>
+                                                <Typography
+                                                    variant="body2"
+                                                    color="text.secondary"
+                                                    gutterBottom>
+                                                    {t("gender")}{" "}
+                                                    <Typography component="span" color="error">
+                                                        *
+                                                    </Typography>
                                                 </Typography>
-                                            </Typography>
-                                            <RadioGroup
-                                                row
-                                                aria-label="gender"
-                                                {...getFieldProps("gender")}>
-                                                <FormControlLabel
-                                                    value={1}
-                                                    control={<Radio size="small"/>}
-                                                    label={t("mr")}
-                                                />
-                                                <FormControlLabel
-                                                    value={2}
-                                                    control={<Radio size="small"/>}
-                                                    label={t("mrs")}
-                                                />
-                                            </RadioGroup>
-                                            {touched.gender && errors.gender && (
-                                                <FormHelperText color={"error"}>
-                                                    {String(errors.gender)}
-                                                </FormHelperText>
-                                            )}
-                                        </FormControl>
-                                        <Grid container spacing={1}>
-                                            <Grid item md={6} xs={12} lg={6}>
-                                                <Box>
-                                                    <Typography
-                                                        variant="body2"
-                                                        color="text.secondary"
-                                                        gutterBottom
-                                                        component="span">
-                                                        {t("first-name")}{" "}
-                                                        <Typography component="span" color="error">
-                                                            *
-                                                        </Typography>
-                                                    </Typography>
-                                                    <TextField
-                                                        variant="outlined"
-                                                        placeholder={t("first-name-placeholder")}
-                                                        size="small"
-                                                        fullWidth
-                                                        {...getFieldProps("first_name")}
-                                                        error={Boolean(
-                                                            touched.first_name && errors.first_name
-                                                        )}
-                                                        helperText={
-                                                            Boolean(touched.first_name && errors.first_name)
-                                                                ? String(errors.first_name)
-                                                                : undefined
-                                                        }
+                                                <RadioGroup
+                                                    row
+                                                    aria-label="gender"
+                                                    {...getFieldProps("gender")}>
+                                                    <FormControlLabel
+                                                        value={1}
+                                                        control={<Radio size="small"/>}
+                                                        label={t("mr")}
                                                     />
-                                                </Box>
-                                            </Grid>
-                                            <Grid item md={6} xs={12} lg={6}>
-                                                <Box>
-                                                    <Typography
-                                                        variant="body2"
-                                                        color="text.secondary"
-                                                        gutterBottom
-                                                        component="span">
-                                                        {t("last-name")}{" "}
-                                                        <Typography component="span" color="error">
-                                                            *
-                                                        </Typography>
-                                                    </Typography>
-                                                    <TextField
-                                                        variant="outlined"
-                                                        placeholder={t("last-name-placeholder")}
-                                                        size="small"
-                                                        fullWidth
-                                                        {...getFieldProps("last_name")}
-                                                        error={Boolean(
-                                                            touched.last_name && errors.last_name
-                                                        )}
-                                                        helperText={
-                                                            Boolean(touched.last_name && errors.last_name)
-                                                                ? String(errors.last_name)
-                                                                : undefined
-                                                        }
+                                                    <FormControlLabel
+                                                        value={2}
+                                                        control={<Radio size="small"/>}
+                                                        label={t("mrs")}
                                                     />
-                                                </Box>
+                                                </RadioGroup>
+                                                {touched.gender && errors.gender && (
+                                                    <FormHelperText color={"error"}>
+                                                        {String(errors.gender)}
+                                                    </FormHelperText>
+                                                )}
+                                            </FormControl>
+                                            <Grid container spacing={1}>
+                                                <Grid item md={6} xs={12} lg={6}>
+                                                    <Box>
+                                                        <Typography
+                                                            variant="body2"
+                                                            color="text.secondary"
+                                                            gutterBottom
+                                                            component="span">
+                                                            {t("first-name")}{" "}
+                                                            <Typography component="span" color="error">
+                                                                *
+                                                            </Typography>
+                                                        </Typography>
+                                                        <TextField
+                                                            variant="outlined"
+                                                            placeholder={t("first-name-placeholder")}
+                                                            size="small"
+                                                            fullWidth
+                                                            {...getFieldProps("first_name")}
+                                                            error={Boolean(
+                                                                touched.first_name && errors.first_name
+                                                            )}
+                                                            helperText={
+                                                                Boolean(touched.first_name && errors.first_name)
+                                                                    ? String(errors.first_name)
+                                                                    : undefined
+                                                            }
+                                                        />
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item md={6} xs={12} lg={6}>
+                                                    <Box>
+                                                        <Typography
+                                                            variant="body2"
+                                                            color="text.secondary"
+                                                            gutterBottom
+                                                            component="span">
+                                                            {t("last-name")}{" "}
+                                                            <Typography component="span" color="error">
+                                                                *
+                                                            </Typography>
+                                                        </Typography>
+                                                        <TextField
+                                                            variant="outlined"
+                                                            placeholder={t("last-name-placeholder")}
+                                                            size="small"
+                                                            fullWidth
+                                                            {...getFieldProps("last_name")}
+                                                            error={Boolean(
+                                                                touched.last_name && errors.last_name
+                                                            )}
+                                                            helperText={
+                                                                Boolean(touched.last_name && errors.last_name)
+                                                                    ? String(errors.last_name)
+                                                                    : undefined
+                                                            }
+                                                        />
+                                                    </Box>
+                                                </Grid>
                                             </Grid>
-                                        </Grid>
-                                    </Stack>
-                                </Stack>
+                                        </Stack>
+                                    </Grid>
+                                </Grid>
                                 <Box mt={1}>
                                     <Typography
                                         variant="body2"
@@ -409,35 +428,67 @@ function AddPatientStep1({...props}) {
                                 minWidth: "auto",
                             },
                         }}>
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            gutterBottom
-                            component="span">
-                            {t("date-of-birth")}
-                        </Typography>
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <DatePicker
-                                value={values.birthdate
-                                    ? moment(
-                                        `${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`,
-                                        "DD/MM/YYYY"
-                                    ).toDate()
-                                    : null
-                                }
-                                inputFormat="dd/MM/yyyy"
-                                onChange={(date) => {
-                                    if (moment(date).isValid()) {
-                                        setFieldValue("birthdate", {
-                                            day: moment(date).format("DD"),
-                                            month: moment(date).format("MM"),
-                                            year: moment(date).format("YYYY"),
-                                        });
-                                    }
-                                }}
-                                renderInput={(params) => <TextField {...params} fullWidth/>}
-                            />
-                        </LocalizationProvider>
+                        <Grid container spacing={{xs: 1, md: 2}}>
+                            <Grid item xs={6} md={4}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                    component="span">
+                                    {t("old")}
+                                </Typography>
+                                <TextField
+                                    variant="outlined"
+                                    placeholder={t("old-placeholder")}
+                                    size="small"
+                                    fullWidth
+                                    {...getFieldProps("old")}
+                                    onChange={event => {
+                                        const old = parseInt(event.target.value);
+                                        setFieldValue("old", old ? old : "");
+                                        if (old) {
+                                            const dateInput = (values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old);
+                                            setFieldValue("birthdate", {
+                                                day: dateInput.format("DD"),
+                                                month: dateInput.format("MM"),
+                                                year: dateInput.format("YYYY"),
+                                            });
+                                        }
+                                    }}
+                                />
+                            </Grid>
+                            <Grid item xs={6} md={8}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                    component="span">
+                                    {t("date-of-birth")}
+                                </Typography>
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                    <DatePicker
+                                        value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY") : null}
+                                        inputFormat="dd/MM/yyyy"
+                                        mask="__/__/____"
+                                        onChange={(date) => {
+                                            const dateInput = moment(date);
+                                            setFieldValue("birthdate", dateInput.isValid() ? {
+                                                day: dateInput.format("DD"),
+                                                month: dateInput.format("MM"),
+                                                year: dateInput.format("YYYY"),
+                                            } : null);
+                                            if (dateInput.isValid()) {
+                                                const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                                setFieldValue("old", old > 120 ? "" : old);
+                                            } else {
+                                                setFieldValue("old", "");
+                                            }
+                                        }}
+                                        renderInput={(params) => <TextField {...params} fullWidth/>}
+                                    />
+                                </LocalizationProvider>
+                            </Grid>
+                        </Grid>
                     </Box>
                     <Box>
                         {values.phones.map((phoneObject, index: number) => (

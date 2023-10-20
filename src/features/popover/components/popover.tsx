@@ -7,7 +7,10 @@ import {useTranslation} from "next-i18next";
 // ________________________
 import {uniqueId} from "lodash";
 import {RootStyled} from "@features/popover";
-import {LoadingScreen} from "@features/loadingScreen";
+import dynamic from "next/dynamic";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
 
 function BasicPopover({...props}) {
     const {t, ready} = useTranslation("common");
@@ -23,7 +26,6 @@ function BasicPopover({...props}) {
     if (!ready)
         return (
             <LoadingScreen
-
                 button
                 text={"loading-error"}
             />

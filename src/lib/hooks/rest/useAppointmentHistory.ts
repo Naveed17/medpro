@@ -1,41 +1,30 @@
-import {useRequest} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {useEffect, useState} from "react";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useSWRConfig} from "swr";
 
 function useAppointmentHistory({...props}) {
-    const {patientId = null} = props;
+    const {patientId = null, page = 1, limit = 5} = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {cache} = useSWRConfig();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
-    const [previousAppointmentsData, setPreviousAppointmentsData] = useState<any[]>((medicalEntityHasUser && cache.get(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`)?.data?.data?.data) ?? []);
 
     const {
         data: httpPatientHistoryResponse,
         isLoading,
         mutate: mutatePatientHis
-    } = useRequest(medicalEntityHasUser && patientId ? {
+    } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`
+    } : null, {keepPreviousData: true, variables: {query: `?page=${page}&limit=${limit}`}});
 
-
-    useEffect(() => {
-        if (httpPatientHistoryResponse) {
-            setPreviousAppointmentsData((httpPatientHistoryResponse as HttpResponse)?.data);
-        }
-    }, [httpPatientHistoryResponse])
-
-    return {previousAppointmentsData, mutatePatientHis, isLoading}
+    return {
+        previousAppointmentsData: (httpPatientHistoryResponse as HttpResponse)?.data ?? [] as any[],
+        mutatePatientHis,
+        isLoading
+    }
 }
 
 export default useAppointmentHistory;

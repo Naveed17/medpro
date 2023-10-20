@@ -4,37 +4,33 @@ import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {useTranslation} from "next-i18next";
 import {FileuploadProgress} from "@features/progressUI";
-import {useRequest} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {LoadingScreen} from "@features/loadingScreen";
 import IconUrl from "@themes/urlIcon";
 import Resizer from "react-image-file-resizer";
+import dynamic from "next/dynamic";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function AddDocumentDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);
     const [type, setType] = useState("");
-    const [types, setTypes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [load, setLoad] = useState(false);
     const {data} = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const theme = useTheme() as Theme;
-    const [progress, setProgress] = useState(0);
 
-    const {data: httpTypeResponse} = useRequest({
+    const {t, ready} = useTranslation("common");
+
+    const {data: httpTypeResponse} = useRequestQuery({
         method: "GET",
-        url: `/api/private/document/types/${router.locale}`,
-        headers: {
-            ContentType: "multipart/form-data",
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    });
+        url: `/api/private/document/types/${router.locale}`
+    }, ReactQueryNoValidateConfig);
 
     useEffect(() => {
         if (httpTypeResponse) {
-            setTypes((httpTypeResponse as HttpResponse).data);
             setLoading(false);
         }
     }, [httpTypeResponse]);
@@ -86,13 +82,12 @@ function AddDocumentDialog({...props}) {
         }, 1500);
 
     }
-    const {t, ready} = useTranslation("common");
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <AddDocumentDialogStyled>
-            <Grid container spacing={2}>
+            <Grid container spacing={1}>
                 <Grid item xs={12} md={3}>
                     <Typography fontWeight={600} mb={2} variant="subtitle2">
                         {t("type_of_document")}
@@ -105,14 +100,14 @@ function AddDocumentDialog({...props}) {
                                         selected={""}
                                         height={100}
                                         paddingTop={20}
-                                        loading={true}
+                                        loading
                                         active={data.state.type}
                                     />
                                 </Grid>
                             ))
-                            : types.map(
-                                (item: any, index) => (
-                                    <Grid key={index} item xs={6} md={6}>
+                            : ((httpTypeResponse as HttpResponse)?.data ?? []).map(
+                                (item: any, index: number) => (
+                                    <Grid key={index} item xs={6} sm={4} md={6}>
                                         <DocumentButton
                                             icon={item.logo.url}
                                             active={data.state.type}
@@ -136,7 +131,7 @@ function AddDocumentDialog({...props}) {
                     </Grid>
                 </Grid>
                 <Grid item xs={12} md={9}>
-                    {files.length === 0 && <Stack width={"80%"}
+                    {files.length === 0 && <Stack width={{xs: "100%", md: "80%"}}
                                                   margin={"auto"}
                                                   mt={6}
                                                   spacing={2}
@@ -155,7 +150,7 @@ function AddDocumentDialog({...props}) {
 
                     </Stack>}
                     <Stack spacing={2} maxWidth="90%" width={1} mx="auto" mt={3}>
-                        <Grid container spacing={{lg: 2, xs: 1}} alignItems="flex-start">
+                        <Grid container spacing={1} alignItems="flex-start">
                             <Grid item xs={12} lg={12}>
                                 {files.length > 0 && <Typography
                                     mt={1}
