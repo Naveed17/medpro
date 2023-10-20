@@ -452,6 +452,7 @@ function PatientDetail({...props}) {
                             patientPhoto,
                             mutatePatientList,
                             mutateAgenda,
+                            roles,
                             setEditableSection: setEditable,
                             rest, devise
                         }}
