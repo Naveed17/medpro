@@ -38,6 +38,7 @@ import dynamic from "next/dynamic";
 import {Label} from "@features/label";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import moment from "moment-timezone";
+import {timerSelector} from "@features/card";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -82,6 +83,7 @@ function PatientDetailsCard({...props}) {
     const {t: commonTranslation} = useTranslation("common");
     const {selectedEvent: appointment, config: agendaConfig} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser, appointmentTypes} = useAppSelector(dashLayoutSelector);
+    const {isActive} = useAppSelector(timerSelector);
 
     const {values, getFieldProps, setFieldValue} = formik;
 
@@ -542,6 +544,7 @@ function PatientDetailsCard({...props}) {
                                         <LoadingButton
                                             loading={requestLoading}
                                             onClick={startConsultationFormPatient}
+                                            disabled={isActive}
                                             variant="contained"
                                             sx={{
                                                 ml: {md: "auto", xs: 0},
