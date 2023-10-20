@@ -342,7 +342,7 @@ function SecretaryConsultationDialog({...props}) {
                 {...{
                     direction,
                     sx: {
-                        minHeight: 380
+                        minHeight: 460
                     }
                 }}
                 open={openPaymentDialog}
