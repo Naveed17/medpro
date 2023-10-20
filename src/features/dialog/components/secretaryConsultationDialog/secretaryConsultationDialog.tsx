@@ -93,11 +93,11 @@ function SecretaryConsultationDialog({...props}) {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
             setTransactions(res.transactions ? res.transactions[0] : null);
-            if (total === -1){
+            if (total === -1) {
                 const form = new FormData();
                 form.append("consultation_fees", res.fees ? res.fees : 0);
                 form.append("acts", JSON.stringify([]));
-                form.append("fees",  res.fees ? res.fees : 0);
+                form.append("fees", res.fees ? res.fees : 0);
 
                 triggerAppointmentEdit({
                     method: "PUT",
@@ -214,7 +214,7 @@ function SecretaryConsultationDialog({...props}) {
                                             variant="subtitle1"
                                             mr={0.3}
                                             fontWeight={600}>
-                                            {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total !==-1 ?total : '-'}
+                                            {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total !== -1 ? total : '-'}
                                         </Typography>
                                         {devise}
                                     </Label>
@@ -235,7 +235,7 @@ function SecretaryConsultationDialog({...props}) {
                                     </Button>}
                                 </Stack> :
                                 <Chip
-                                    label={`${total !==-1 ?total : '-'} ${devise}`}
+                                    label={`${total !== -1 ? total : '-'} ${devise}`}
                                     color={"success"}
                                     onDelete={() => {
                                     }}
