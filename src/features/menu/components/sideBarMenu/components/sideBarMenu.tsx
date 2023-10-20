@@ -11,8 +11,7 @@ import {
     useMediaQuery,
     Badge,
     Theme,
-    useTheme,
-    Fade,
+    useTheme
 } from "@mui/material";
 // utils
 import Icon from "@themes/icon";
@@ -63,7 +62,6 @@ function SideBarMenu({children}: LayoutProps) {
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
     const router = useRouter();
-    const theme = useTheme<Theme>();
     const dispatch = useAppDispatch();
 
     const {data: user} = session as Session;
@@ -107,11 +105,7 @@ function SideBarMenu({children}: LayoutProps) {
                 }`
             );
         dispatch(toggleMobileBar(true));
-    };
-    const iconBackgroundVariants = {
-        hidden: {opacity: 0},
-        visible: {opacity: 1},
-    };
+    }
 
     const drawer = (
             <div>
@@ -134,7 +128,7 @@ function SideBarMenu({children}: LayoutProps) {
                     sx={{overflow: 'hidden', px: 1.5}}>
                     {menuItems?.map((item, i) => (
                         <Hidden key={item.name} smUp={item.name === "wallet"}>
-                            <a onClick={(e) => handleRouting(item.href)}>
+                            <a onClick={() => handleRouting(item.href)}>
                                 <ListItem
                                     sx={{
                                         margin: "0.5rem 0",
@@ -190,7 +184,7 @@ function SideBarMenu({children}: LayoutProps) {
                 </List>
                 <List className="list-bottom">
                     <ListItem
-                        onClick={(e) => handleRouting("/dashboard/statistics")}
+                        onClick={() => handleRouting("/dashboard/statistics")}
                         disableRipple
                         button
                         className={
