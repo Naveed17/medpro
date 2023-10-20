@@ -134,7 +134,6 @@ function PatientDetail({...props}) {
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [antecedentsData, setAntecedentsData] = useState<any[] | null>(null);
-    const [patient, setPatient] = useState<PatientModel | null>(null);
     const [editable, setEditable] = useState({
         personalInfoCard: false,
         personalInsuranceCard: false,
@@ -164,6 +163,8 @@ function PatientDetail({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`
     } : null);
+
+    const patient = ((httpPatientDetailsResponse as HttpResponse)?.data as PatientModel) ?? null;
 
     const {data: httpPatientWallet, mutate: walletMutate} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
@@ -411,13 +412,6 @@ function PatientDetail({...props}) {
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (httpPatientDetailsResponse) {
-            const patientData = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
-            setPatient(patientData);
-        }
-    }, [httpPatientDetailsResponse]);
-
-    useEffect(() => {
         if (httpAntecedentsResponse) {
             setAntecedentsData((httpAntecedentsResponse as HttpResponse)?.data as any[]);
         }
@@ -452,6 +446,7 @@ function PatientDetail({...props}) {
                             patientPhoto,
                             mutatePatientList,
                             mutateAgenda,
+                            roles,
                             setEditableSection: setEditable,
                             rest, devise
                         }}

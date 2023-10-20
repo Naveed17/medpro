@@ -72,7 +72,7 @@ function Instruction({...props}) {
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
-    const {trigger: triggerAddPatient} = useRequestQueryMutation("/agenda/patient/add");
+    const {trigger: triggerAddAppointment} = useRequestQueryMutation("/agenda/appointment/add");
 
     const handleLangChange = (event: SelectChangeEvent) => {
         setLang(event.target.value as string);
@@ -118,7 +118,7 @@ function Instruction({...props}) {
             }]))
         }
 
-        triggerAddPatient({
+        triggerAddAppointment({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`,
             data: form
