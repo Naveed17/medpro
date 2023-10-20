@@ -214,7 +214,7 @@ function SecretaryConsultationDialog({...props}) {
                                             variant="subtitle1"
                                             mr={0.3}
                                             fontWeight={600}>
-                                            {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total}
+                                            {getTransactionAmountPayed() > 0 && `${getTransactionAmountPayed()} / `} {total !==-1 ?total : '-'}
                                         </Typography>
                                         {devise}
                                     </Label>
@@ -235,7 +235,7 @@ function SecretaryConsultationDialog({...props}) {
                                     </Button>}
                                 </Stack> :
                                 <Chip
-                                    label={`${total} ${devise}`}
+                                    label={`${total !==-1 ?total : '-'} ${devise}`}
                                     color={"success"}
                                     onDelete={() => {
                                     }}
