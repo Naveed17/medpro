@@ -795,7 +795,7 @@ function ConsultationInProgress() {
 
                 triggerDrugsUpdate({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/documents/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
                     data: form
                 }, {
                     onSuccess: () => mutateDoc()

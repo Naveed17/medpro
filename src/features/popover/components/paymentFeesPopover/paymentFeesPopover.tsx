@@ -6,11 +6,11 @@ import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import {DefaultCountry} from "@lib/constants";
 import {Button, LinearProgress, Stack, Typography} from "@mui/material";
-import React from "react";
+import React, {useCallback} from "react";
 import PaymentFeesPopoverStyled from "./overrides/PaymentFeesPopoverStyled";
 
 function PaymentFeesPopover({...props}) {
-    const {row: appointment, t} = props;
+    const {row: appointment, t, openPutTransactionDialog} = props;
     const {data: session} = useSession();
 
     const {data: user} = session as Session;
@@ -24,6 +24,10 @@ function PaymentFeesPopover({...props}) {
         return payed_amount;
     }
 
+    const handleTransactionDialog = useCallback(() => {
+        openPutTransactionDialog();
+    }, [openPutTransactionDialog]);
+
     return (
         <PaymentFeesPopoverStyled>
             <LinearProgress sx={{visibility: !appointment ? "visible" : "hidden"}} color="warning"/>
@@ -32,6 +36,7 @@ function PaymentFeesPopover({...props}) {
                 <Stack direction={"row"} spacing={1.2}
                        mb={1} {...(appointment.rest_amount === 0 && {justifyContent: "end"})}>
                     {appointment.rest_amount > 0 && <Button
+                        onClick={handleTransactionDialog}
                         size='small'
                         variant='contained'
                         color={"error"}>
@@ -42,6 +47,7 @@ function PaymentFeesPopover({...props}) {
                         {devise}
                     </Button>}
                     <Button
+                        onClick={handleTransactionDialog}
                         size='small'
                         variant='contained'
                         color={appointment.rest_amount === 0 ? "success" : "warning"}>

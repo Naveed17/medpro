@@ -1,9 +1,10 @@
 import {createSvgIcon} from "@mui/material";
 import React from "react";
 
-function TimeIcon(props: any) {
+function TimeIcon({...props}) {
     const CustomIcon = createSvgIcon(
-        <svg width="25" height="26" viewBox="0 0 11 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width={props?.width ?? "25"} height={props?.height ?? "26"} viewBox="0 0 11 12" fill="none"
+             xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M5.49875 1.35785C2.88608 1.35785 0.809982 3.4599 0.809982 5.99911V6.00167C0.809982 8.54089 2.88608 10.6429 5.49875 10.6429H5.50132C8.11398 10.6429 10.1901 8.54089 10.1901 6.00167V5.99911C10.1901 3.4599 8.11398 1.35785 5.50132 1.35785H5.49875ZM0.275024 5.99911C0.275024 3.09005 2.6369 0.775391 5.49875 0.775391H5.50132C8.36316 0.775391 10.725 3.09005 10.725 5.99911V6.00167C10.725 8.91073 8.36316 11.2254 5.50132 11.2254H5.49875C2.6369 11.2254 0.275024 8.91074 0.275024 6.00167V5.99911Z"
                 fill="#7C878E"/>
