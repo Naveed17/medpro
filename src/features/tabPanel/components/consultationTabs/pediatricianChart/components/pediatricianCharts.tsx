@@ -1,88 +1,122 @@
-import React, {useEffect} from "react";
-import {Stack} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {Card, CardContent, Checkbox, FormControlLabel, FormGroup, Grid, Stack, Typography} from "@mui/material";
 import 'react-h5-audio-player/lib/styles.css';
 import dynamic from "next/dynamic";
+import moment from "moment/moment";
+import {height36, weight36} from "@features/tabPanel/components/consultationTabs/pediatricianChart/chartData";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
 
 
 function PediatricianCharts({...props}) {
 
-    const {sheet} = props;
-    useEffect(()=>{
-        if (sheet.poids) {
-            console.log(Object.keys(sheet.poids.data));
+
+    const [state, setState] = useState<any>(null);
+    const [height, setHeight] = useState<boolean>(false);
+    const [weight, setWeight] = useState<boolean>(true);
+
+    const {sheet, birthdate} = props;
+    useEffect(() => {
+        let patientHeight: { x: number, y: number }[] = []
+        let patientWeight: { x: number, y: number }[] = []
+        let series: any[] = [];
+        let colors:string[]=[]
+        if (sheet && sheet.taille && height) {
+            Object.keys(sheet.taille.data).map(date => {
+                patientHeight.push({
+                    x: moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "months"),
+                    y: sheet.taille.data[date]
+                })
+            })
+
+            series = [...series, ...height36, {
+                name: 'taille',
+                data: patientHeight
+            }]
+            colors = [...colors,'#9fc5e8', '#D0E4E0', '#D0E4E0', '#9fc5e8', '#741b47']
         }
-    },[sheet])
-    const state = {
+        if (sheet && sheet.poids && weight) {
+            Object.keys(sheet.poids.data).map(date => {
+                patientWeight.push({
+                    x: moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "months"),
+                    y: sheet.poids.data[date]
+                })
+            })
+            series = [...series, ...weight36, {
+                name: 'poids',
+                data: patientWeight
+            }]
+            colors = [...colors,'#3d85c6', '#ffe599', '#ffe599', '#3d85c6', '#cc0000']
 
-        series: [
+        }
+        setState(
             {
-                name: '-30',
-                data: [2, 7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 26, 33, 38, 41]
-            },
-            {
-                name: '-20',
-                data: [3, 8, 10, 12, 13, 14, 15.5, 17, 18, 20, 21.5, 23, 25, 27, 31, 35.5, 42, 46, 49]
-            },
-            {
-                name: '-10',
-                data: [3, 9, 11, 13, 15, 16, 17.5, 19, 21, 24, 26, 28, 31, 35, 39, 45, 50, 54, 56]
-            },
-            {
-                name: 'M',
-                data: [3, 10, 13, 14, 16, 18, 20, 22, 24.5, 27.5, 31, 33.5, 37, 41.5, 47.5, 54.5, 59, 61.5, 63]
-            },
-            {
-                name: '+10',
-                data: [3, 11, 14, 16, 18, 20, 22, 25, 28, 31, 34, 38, 43, 49, 56, 63.5, 68, 70, 71]
-            },
-            {
-                name: '+20',
-                data: [3, 12, 15, 17, 19, 22, 25, 28, 31, 35, 39, 43, 49, 56, 65, 72, 76, 77, 78]
-            },
-            {
-                name: '+30',
-                data: [3, 13, 16, 18, 21, 24, 27, 31, 35, 39, 43, 48, 55, 64, 74, 80.5, 84, 85, 85.5]
+                series,
+                options: {
+                    chart: {
+                        height: 350,
+                    },
+                    hover: {
+                        filter: {
+                            type: 'none',
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    colors,
+                    markers: {
+                        size: [0, 0, 0, 0, 5, 0, 0, 0, 0, 5]
+                    },
+                    stroke: {
+                        width: 2,
+                        dashArray: [0, 3, 3, 0]//[3, 0, 3, 0, 3, 0, 3]
+                    },
+                    /*yaxis: {
+                        min: 30,
+                        max: 115,
+                        tickAmount: 17
+                    }*/
+                },
             }
-        ],
-        options: {
-            chart: {
-                height: 350,
-
-            },
-            dataLabels: {
-                enabled: false
-            },
-            colors: ['#546E7A', '#2E93fA'],
-            stroke: {
-                width: 2,
-                dashArray: [3, 0, 3, 0, 3, 0, 3]
-            },
-            xaxis: {
-                categories: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
-            }
-        },
-
-
-    };
+        )
+    }, [sheet, birthdate, height, weight])
 
     return (
-        <Stack spacing={1}>
-            {
+        <Grid container spacing={1} marginBottom={2}>
+            <Grid item xs={10}>
+                <Card>
+                    <Typography textAlign={"center"} variant={"subtitle1"} fontWeight={"bold"} marginTop={1}>Croissance</Typography>
+                    <Typography textAlign={"center"} marginBottom={2} fontSize={12} style={{opacity:0.5}}>des filles et des garçons de la naissance à 3ans</Typography>
+                    {state && <ApexChart type="line"
+                                         stroke={{
+                                             curve: 'smooth',
+                                             dashArray: 2,
+                                             width: 1,
 
-                <ApexChart type="line"
-                           stroke={{
-                               curve: 'smooth',
-                               dashArray: 2,
-                               width: 1,
-
-                           }}
-                           options={state.options}
-                           series={state.series}/>
-
-            }
-        </Stack>
+                                         }}
+                                         options={state.options}
+                                         series={state.series}/>}
+                </Card>
+            </Grid>
+            <Grid item xs={2}>
+                <Card>
+                    <CardContent>
+                        <Stack spacing={1}>
+                            <Typography>Filter</Typography>
+                            <FormGroup>
+                                <FormControlLabel control={<Checkbox checked={weight} onChange={(ev) => {
+                                    setWeight(ev.target.checked)
+                                }}/>} label="Poids"/>
+                                <FormControlLabel control={<Checkbox checked={height} onChange={(ev) => {
+                                    setHeight(ev.target.checked)
+                                }}/>} label="Taille"/>
+                            </FormGroup>
+                        </Stack>
+                    </CardContent>
+                </Card>
+            </Grid>
+        </Grid>
     )
 }
 

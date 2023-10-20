@@ -1,6 +1,6 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {Label} from "@features/label";
-import {Box, Card, Collapse, Drawer, Stack, Typography,} from "@mui/material";
+import {Box, Collapse, Drawer, Stack, Typography,} from "@mui/material";
 import {useAppSelector} from "@lib/redux/hooks";
 import {AppointmentDetail, dialogSelector, openDrawer as DialogOpenDrawer,} from "@features/dialog";
 import {useRequestQuery} from "@lib/axios";
@@ -15,6 +15,8 @@ import {AppointmentHistoryContent} from "@features/card/components/appointmentHi
 import Icon from "@themes/icon";
 import moment from "moment/moment";
 import {WidgetCharts} from "@features/tabPanel";
+import PediatricianCharts
+    from "@features/tabPanel/components/consultationTabs/pediatricianChart/components/pediatricianCharts";
 
 function HistoryTab({...props}) {
 
@@ -60,53 +62,10 @@ function HistoryTab({...props}) {
         })
     })
 
-    useEffect(() => {
-        const canvas: HTMLCanvasElement = (document.getElementById("canvas") as HTMLCanvasElement);
-        if (canvas) {
-            canvas.style.width = '100%';
-            canvas.height = 700
-            canvas.width = 700
-
-            const ctx = canvas?.getContext("2d")
-
-            if (ctx) {
-                console.log(canvas.height)
-                const image = new Image(1434, 1260); // Using optional size for image
-                image.onload = () => {
-                    ctx?.drawImage(image, 0, 0, 700, 700)
-
-                    ctx.fillStyle = "blue";
-
-                    for (let x = 34; x < 700; x += 52) {
-                        for (let i = 680; i > 0; i -= 37.795275591) { //26.8
-                            ctx.roundRect(x, i, 8, 8, [30, 30, 30, 30])
-                        }
-                    }
-                    ctx.fill();
-
-                    if (canvas)
-                        canvas.addEventListener('click', (ev) => {
-                            console.log(ev)
-                        })
-
-                }
-                image.src = "/static/img/weight.jpg"
-
-
-            }
-
-
-        }
-    }, [])
-
     return (
         <>
-            <Card style={{width: "50%"}}>
+            <PediatricianCharts {...{sheet, birthdate: patient?.birthdate}}/>
 
-                <canvas id="canvas"></canvas>
-
-
-            </Card>
             {/****** Next appointment ******/}
             {nextAppointment && nextAppointment.length > 0 && (
                 <Stack spacing={2} mb={2} alignItems="flex-start">
