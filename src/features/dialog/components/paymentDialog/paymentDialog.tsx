@@ -20,6 +20,7 @@ import {
   FormGroup,
   Grid,
   IconButton,
+  Menu,
   MenuItem,
   Paper,
   Stack,
@@ -58,6 +59,7 @@ import { dashLayoutSelector } from "@features/base";
 import { useRouter } from "next/router";
 import useBanks from "@lib/hooks/rest/useBanks";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 import ConsultationCard from "./consultationCard";
 import PaymentCard from "./paymentCard";
 const LoadingScreen = dynamic(
@@ -153,7 +155,14 @@ function PaymentDialog({ ...props }) {
       });
     }, 300);
   };
-
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const { data: user } = session as Session;
   const { t, ready } = useTranslation("payment");
   const { paymentTypesList } = useAppSelector(cashBoxSelector);
@@ -272,7 +281,29 @@ function PaymentDialog({ ...props }) {
     ];
     setFieldValue("check", step);
   };
-
+  const handleChangePayment = (props: string) => {
+    setFieldValue("paymentMethods", [
+      ...values.paymentMethods,
+      {
+        selected: props,
+        cash: {
+          amount: 0,
+        },
+        check: [
+          {
+            amount: "",
+            carrier: "",
+            bank: "",
+            check_number: "",
+            payment_date: new Date(),
+            expiry_date: new Date(),
+          },
+        ],
+      },
+    ]);
+    scrollToView();
+    handleClose();
+  };
   const handleDeleteStep = (props: any) => {
     const filter = values.check.filter((item: any) => item !== props);
     setFieldValue("check", filter);
@@ -1045,33 +1076,70 @@ function PaymentDialog({ ...props }) {
                   {t("payment")}
                 </Typography>
                 <Button
-                  onClick={() => {
-                    setFieldValue("paymentMethods", [
-                      ...values.paymentMethods,
-                      {
-                        selected: paymentTypesList[0].slug,
-                        cash: {
-                          amount: 0,
-                        },
-                        check: [
-                          {
-                            amount: "",
-                            carrier: "",
-                            bank: "",
-                            check_number: "",
-                            payment_date: new Date(),
-                            expiry_date: new Date(),
-                          },
-                        ],
-                      },
-                    ]);
-                    scrollToView();
-                  }}
                   startIcon={<AddIcon />}
-                  size="small"
+                  endIcon={<UnfoldMoreRoundedIcon />}
+                  id="basic-button"
+                  variant="contained"
+                  aria-controls={open ? "basic-menu" : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={open ? "true" : undefined}
+                  onClick={handleClick}
                 >
                   {t("add_payment")}
                 </Button>
+                <Menu
+                  id="basic-menu"
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                  MenuListProps={{
+                    "aria-labelledby": "basic-button",
+                    sx: {
+                      minWidth: 200,
+                      padding: 0,
+                      li: {
+                        borderBottom: 1,
+                        borderColor: "divider",
+                        "&:last-child": {
+                          borderBottom: 0,
+                        },
+                      },
+                    },
+                  }}
+                >
+                  {paymentTypesList?.map((payment: any) => (
+                    <MenuItem
+                      onClick={() => handleChangePayment(payment.slug)}
+                      key={payment.uuid}
+                    >
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          style={{ width: 16 }}
+                          src={payment?.logoUrl?.url}
+                          alt={"payment means"}
+                        />
+                        <Typography>{t(payment?.name)}</Typography>
+                      </Stack>
+                    </MenuItem>
+                  ))}
+                  {wallet > 0 ? (
+                    <MenuItem onClick={() => handleChangePayment("wallet")}>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          style={{ width: 16 }}
+                          src={"/static/icons/ic-wallet-money.svg"}
+                          alt={"payment means"}
+                        />
+                        <Typography>{t("wallet")}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {wallet} {devise}
+                        </Typography>
+                      </Stack>
+                    </MenuItem>
+                  ) : null}
+                </Menu>
               </Stack>
               <table className="method-table">
                 <thead>

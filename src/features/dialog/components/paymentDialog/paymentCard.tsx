@@ -17,7 +17,7 @@ import IconUrl from "@themes/urlIcon";
 import AddIcon from "@mui/icons-material/Add";
 import { motion } from "framer-motion";
 import CheckCard from "./checkCard";
-
+import CheckBoxIcon from "@mui/icons-material/Check";
 function PaymentCard({ ...props }) {
   const { t, paymentTypesList, item, i, formik, devise, wallet } = props;
   const { setFieldValue, values } = formik;
@@ -37,48 +37,115 @@ function PaymentCard({ ...props }) {
     <Card className="payment-card">
       <CardContent>
         <Stack spacing={2}>
-          <Typography variant="body2" color="text.secondary">
-            {t("choose_a_payment_method")}
-          </Typography>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <FormControl fullWidth size="small">
-              <Select
-                labelId="select-type"
-                id="select-type"
-                value={values.paymentMethods[i].selected}
-                displayEmpty
-                MenuProps={{
-                  PaperProps: {
-                    sx: {
-                      bgcolor: (theme: Theme) => theme.palette.back.main,
-                      p: 1,
-                      ".MuiMenuItem-root": {
-                        "&:not(:last-child)": {
-                          mb: 1,
-                        },
-                        borderRadius: 1,
-                        border: 1,
-                        borderColor: "divider",
-                        "&:hover": {
-                          bgcolor: (theme: Theme) => theme.palette.primary.main,
-                          color: (theme: Theme) => theme.palette.common.white,
-                          img: {
-                            filter: "brightness(0) invert(1)",
+          <Stack
+            component={motion.div}
+            animate={{ opacity: item?.selected === "cash" ? 1 : 0 }}
+            initial={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            style={{ display: item?.selected === "cash" ? "block" : "none" }}
+          >
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <FormControl
+                size="small"
+                sx={{
+                  minWidth: 60,
+
+                  ".MuiInputBase-root": {
+                    bgcolor: (theme: Theme) =>
+                      theme.palette.primary.main + "!important",
+                    svg: {
+                      path: {
+                        fill: (theme: Theme) => theme.palette.common.white,
+                      },
+                    },
+                    img: {
+                      filter: "brightness(0) invert(1)",
+                    },
+                    "&:focus": {
+                      bgcolor: "primary.main",
+                    },
+                  },
+                }}
+              >
+                <Select
+                  labelId="select-type"
+                  id="select-type"
+                  value={values.paymentMethods[i].selected}
+                  displayEmpty
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: (theme: Theme) => theme.palette.back.main,
+                        p: 1,
+                        ".MuiMenuItem-root": {
+                          "&:not(:last-child)": {
+                            mb: 1,
+                          },
+                          borderRadius: 1,
+                          border: 1,
+                          borderColor: "divider",
+                          "&:hover": {
+                            bgcolor: (theme: Theme) =>
+                              theme.palette.primary.main,
+                            color: (theme: Theme) => theme.palette.common.white,
+                            img: {
+                              filter: "brightness(0) invert(1)",
+                            },
                           },
                         },
                       },
                     },
-                  },
-                }}
-                onChange={(e) =>
-                  setFieldValue(`paymentMethods.${i}.selected`, e.target.value)
-                }
-                renderValue={(selected) => {
-                  const payment = paymentTypesList?.find(
-                    (payment: any) => payment?.slug === selected
-                  );
-                  if (selected === "wallet") {
+                  }}
+                  onChange={(e) =>
+                    setFieldValue(
+                      `paymentMethods.${i}.selected`,
+                      e.target.value
+                    )
+                  }
+                  renderValue={(selected) => {
+                    const payment = paymentTypesList?.find(
+                      (payment: any) => payment?.slug === selected
+                    );
+                    if (selected === "wallet") {
+                      return (
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            style={{ width: 16 }}
+                            src={"/static/icons/ic-wallet-money.svg"}
+                            alt={"payment means"}
+                          />
+                        </Stack>
+                      );
+                    }
+
                     return (
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          style={{ width: 16 }}
+                          src={payment?.logoUrl?.url}
+                          alt={"payment means"}
+                        />
+                      </Stack>
+                    );
+                  }}
+                >
+                  {paymentTypesList?.map((payment: any) => (
+                    <MenuItem value={payment.slug} key={payment.uuid}>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          style={{ width: 16 }}
+                          src={payment?.logoUrl?.url}
+                          alt={"payment means"}
+                        />
+                        <Typography>{t(payment?.name)}</Typography>
+                      </Stack>
+                    </MenuItem>
+                  ))}
+                  {wallet > 0 ? (
+                    <MenuItem value={"wallet"}>
                       <Stack direction="row" alignItems="center" spacing={1}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -91,105 +158,51 @@ function PaymentCard({ ...props }) {
                           {wallet} {devise}
                         </Typography>
                       </Stack>
-                    );
-                  }
-
-                  return (
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        style={{ width: 16 }}
-                        src={payment?.logoUrl?.url}
-                        alt={"payment means"}
-                      />
-                      <Typography>{t(payment?.name)}</Typography>
-                    </Stack>
-                  );
+                    </MenuItem>
+                  ) : null}
+                </Select>
+              </FormControl>
+              <TextField
+                sx={{
+                  input: {
+                    fontWeight: 700,
+                  },
                 }}
-              >
-                {paymentTypesList?.map((payment: any) => (
-                  <MenuItem value={payment.slug} key={payment.uuid}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        style={{ width: 16 }}
-                        src={payment?.logoUrl?.url}
-                        alt={"payment means"}
-                      />
-                      <Typography>{t(payment?.name)}</Typography>
-                    </Stack>
-                  </MenuItem>
-                ))}
-                {wallet > 0 ? (
-                  <MenuItem value={"wallet"}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        style={{ width: 16 }}
-                        src={"/static/icons/ic-wallet-money.svg"}
-                        alt={"payment means"}
-                      />
-                      <Typography>{t("wallet")}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {wallet} {devise}
-                      </Typography>
-                    </Stack>
-                  </MenuItem>
-                ) : null}
-              </Select>
-            </FormControl>
-            {i > 0 && (
-              <IconButton
-                className="btn-del"
-                onClick={() => {
+                size="small"
+                fullWidth
+                value={values.paymentMethods[i].cash.amount}
+                onChange={(e) =>
                   setFieldValue(
-                    "paymentMethods",
-                    values.paymentMethods.filter(
-                      (payment: any, index: number) => index !== i
-                    )
-                  );
+                    `paymentMethods.${i}.cash.amount`,
+                    e.target.value
+                  )
+                }
+                type="number"
+                InputProps={{
+                  inputProps: {
+                    min: 0,
+                  },
                 }}
-              >
-                <IconUrl path={"setting/icdelete"} />
-              </IconButton>
-            )}
-          </Stack>
-          <Stack
-            component={motion.div}
-            animate={{ opacity: item?.selected === "cash" ? 1 : 0 }}
-            initial={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{ display: item?.selected === "cash" ? "block" : "none" }}
-          >
-            <Stack spacing={0.5}>
-              <Typography variant="body2" color="text.secondary">
-                {t("amount")}
-              </Typography>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <TextField
-                  sx={{
-                    input: {
-                      fontWeight: 700,
-                    },
-                  }}
-                  size="small"
-                  fullWidth
-                  value={values.paymentMethods[i].cash.amount}
-                  onChange={(e) =>
+              />
+              <Typography>{devise}</Typography>
+              {i > 0 && (
+                <IconButton
+                  className="btn-del"
+                  onClick={() => {
                     setFieldValue(
-                      `paymentMethods.${i}.cash.amount`,
-                      e.target.value
-                    )
-                  }
-                  type="number"
-                  InputProps={{
-                    inputProps: {
-                      min: 0,
-                    },
+                      "paymentMethods",
+                      values.paymentMethods.filter(
+                        (payment: any, index: number) => index !== i
+                      )
+                    );
                   }}
-                />
-                <Typography>{devise}</Typography>
-              </Stack>
+                >
+                  <IconUrl path={"setting/icdelete"} />
+                </IconButton>
+              )}
+              <IconButton className="btn-check-success">
+                <CheckBoxIcon />
+              </IconButton>
             </Stack>
           </Stack>
           <Stack
@@ -208,7 +221,19 @@ function PaymentCard({ ...props }) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <CheckCard {...{ formik, i, t, devise, item, idx, check }} />
+                <CheckCard
+                  {...{
+                    formik,
+                    i,
+                    t,
+                    devise,
+                    item,
+                    idx,
+                    check,
+                    paymentTypesList,
+                    wallet,
+                  }}
+                />
               </motion.div>
             ))}
 
@@ -223,32 +248,162 @@ function PaymentCard({ ...props }) {
             transition={{ duration: 0.5 }}
             style={{ display: item?.selected === "wallet" ? "block" : "none" }}
           >
-            <Stack spacing={0.5}>
-              <Typography variant="body2" color="text.secondary">
-                {t("amount")}
-              </Typography>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <TextField
-                  sx={{
-                    input: {
-                      fontWeight: 700,
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <FormControl
+                size="small"
+                sx={{
+                  minWidth: 60,
+
+                  ".MuiInputBase-root": {
+                    bgcolor: (theme: Theme) =>
+                      theme.palette.primary.main + "!important",
+                    svg: {
+                      path: {
+                        fill: (theme: Theme) => theme.palette.common.white,
+                      },
+                    },
+                    img: {
+                      filter: "brightness(0) invert(1)",
+                    },
+                    "&:focus": {
+                      bgcolor: "primary.main",
+                    },
+                  },
+                }}
+              >
+                <Select
+                  labelId="select-type"
+                  id="select-type"
+                  value={values.paymentMethods[i].selected}
+                  displayEmpty
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: (theme: Theme) => theme.palette.back.main,
+                        p: 1,
+                        ".MuiMenuItem-root": {
+                          "&:not(:last-child)": {
+                            mb: 1,
+                          },
+                          borderRadius: 1,
+                          border: 1,
+                          borderColor: "divider",
+                          "&:hover": {
+                            bgcolor: (theme: Theme) =>
+                              theme.palette.primary.main,
+                            color: (theme: Theme) => theme.palette.common.white,
+                            img: {
+                              filter: "brightness(0) invert(1)",
+                            },
+                          },
+                        },
+                      },
                     },
                   }}
-                  size="small"
-                  fullWidth
-                  value={values.paymentMethods[i].wallet}
                   onChange={(e) =>
-                    setFieldValue(`paymentMethods.${i}.wallet`, e.target.value)
+                    setFieldValue(
+                      `paymentMethods.${i}.selected`,
+                      e.target.value
+                    )
                   }
-                  type="number"
-                  InputProps={{
-                    inputProps: {
-                      min: 0,
-                    },
+                  renderValue={(selected) => {
+                    const payment = paymentTypesList?.find(
+                      (payment: any) => payment?.slug === selected
+                    );
+                    if (selected === "wallet") {
+                      return (
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            style={{ width: 16 }}
+                            src={"/static/icons/ic-wallet-money.svg"}
+                            alt={"payment means"}
+                          />
+                        </Stack>
+                      );
+                    }
+
+                    return (
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          style={{ width: 16 }}
+                          src={payment?.logoUrl?.url}
+                          alt={"payment means"}
+                        />
+                      </Stack>
+                    );
                   }}
-                />
-                <Typography>{devise}</Typography>
-              </Stack>
+                >
+                  {paymentTypesList?.map((payment: any) => (
+                    <MenuItem value={payment.slug} key={payment.uuid}>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          style={{ width: 16 }}
+                          src={payment?.logoUrl?.url}
+                          alt={"payment means"}
+                        />
+                        <Typography>{t(payment?.name)}</Typography>
+                      </Stack>
+                    </MenuItem>
+                  ))}
+                  {wallet > 0 ? (
+                    <MenuItem value={"wallet"}>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          style={{ width: 16 }}
+                          src={"/static/icons/ic-wallet-money.svg"}
+                          alt={"payment means"}
+                        />
+                        <Typography>{t("wallet")}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {wallet} {devise}
+                        </Typography>
+                      </Stack>
+                    </MenuItem>
+                  ) : null}
+                </Select>
+              </FormControl>
+              <TextField
+                sx={{
+                  input: {
+                    fontWeight: 700,
+                  },
+                }}
+                size="small"
+                fullWidth
+                value={values.paymentMethods[i].wallet}
+                onChange={(e) =>
+                  setFieldValue(`paymentMethods.${i}.wallet`, e.target.value)
+                }
+                type="number"
+                InputProps={{
+                  inputProps: {
+                    min: 0,
+                  },
+                }}
+              />
+              <Typography>{devise}</Typography>
+              {i > 0 && (
+                <IconButton
+                  className="btn-del"
+                  onClick={() => {
+                    setFieldValue(
+                      "paymentMethods",
+                      values.paymentMethods.filter(
+                        (payment: any, index: number) => index !== i
+                      )
+                    );
+                  }}
+                >
+                  <IconUrl path={"setting/icdelete"} />
+                </IconButton>
+              )}
+              <IconButton className="btn-check-success">
+                <CheckBoxIcon />
+              </IconButton>
             </Stack>
           </Stack>
         </Stack>

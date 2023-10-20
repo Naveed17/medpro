@@ -88,9 +88,13 @@ const PaymentDialogStyled = styled(Box)(({ theme }) => ({
     },
   },
   ".payment-card": {
+    backgroundColor: theme.palette.primary.lighter,
     border: `1px dashed ${theme.palette.divider}`,
     ".btn-del": {
       border: `1px solid ${theme.palette.divider}`,
+      width: 32,
+      height: 32,
+      backgroundColor: theme.palette.common.white,
       borderRadius: theme.spacing(0.7),
       svg: {
         path: {
@@ -98,19 +102,13 @@ const PaymentDialogStyled = styled(Box)(({ theme }) => ({
         },
       },
     },
-  },
-  ".check-container": {
-    ".expand-icon": {
-      background: theme.palette.success.main,
-      borderRadius: theme.spacing(0.7),
-      padding: theme.spacing(0.5),
-      svg: {
-        fontSize: 18,
-        path: {
-          fill: theme.palette.common.white,
-        },
+    ".MuiCardContent-root": {
+      "&:last-child": {
+        paddingBottom: theme.spacing(2),
       },
     },
+  },
+  ".check-container": {
     ".MuiCardContent-root": {
       "&:last-child": {
         paddingBottom: theme.spacing(2),
@@ -158,6 +156,19 @@ const PaymentDialogStyled = styled(Box)(({ theme }) => ({
     "td,th": {
       fontSize: 12,
       fontWeight: 400,
+    },
+  },
+  ".btn-check-success": {
+    background: theme.palette.success.main,
+    borderRadius: theme.spacing(0.7),
+    padding: theme.spacing(0.5),
+    width: 30,
+    height: 30,
+    svg: {
+      fontSize: 18,
+      path: {
+        fill: theme.palette.common.white,
+      },
     },
   },
 }));
