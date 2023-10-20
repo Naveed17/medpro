@@ -37,6 +37,7 @@ function PatientToolbar({...props}) {
                 text={"loading-error"}
             />
         );
+
     return (
         <>
             <Stack
