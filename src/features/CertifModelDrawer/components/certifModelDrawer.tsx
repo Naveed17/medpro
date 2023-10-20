@@ -78,7 +78,7 @@ function CertifModelDrawer({...props}) {
             content: data?.content ?? ""
         },
         validationSchema,
-        onSubmit: async (values) => {
+        onSubmit: async () => {
             console.log("values");
         },
     });
