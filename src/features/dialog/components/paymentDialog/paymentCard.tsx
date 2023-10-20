@@ -77,6 +77,22 @@ function PaymentCard({ ...props }) {
                   const payment = paymentTypesList?.find(
                     (payment: any) => payment?.slug === selected
                   );
+                  if (selected === "wallet") {
+                    return (
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          style={{ width: 16 }}
+                          src={"/static/icons/ic-wallet-money.svg"}
+                          alt={"payment means"}
+                        />
+                        <Typography>{t("wallet")}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {wallet} {devise}
+                        </Typography>
+                      </Stack>
+                    );
+                  }
 
                   return (
                     <Stack direction="row" alignItems="center" spacing={1}>
@@ -114,7 +130,6 @@ function PaymentCard({ ...props }) {
                         alt={"payment means"}
                       />
                       <Typography>{t("wallet")}</Typography>
-                      <Typography></Typography>
                       <Typography variant="caption" color="text.secondary">
                         {wallet} {devise}
                       </Typography>
@@ -206,8 +221,36 @@ function PaymentCard({ ...props }) {
             animate={{ opacity: item?.selected === "wallet" ? 1 : 0 }}
             initial={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            style={{ display: item?.selected === "cash" ? "block" : "none" }}
-          ></Stack>
+            style={{ display: item?.selected === "wallet" ? "block" : "none" }}
+          >
+            <Stack spacing={0.5}>
+              <Typography variant="body2" color="text.secondary">
+                {t("amount")}
+              </Typography>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <TextField
+                  sx={{
+                    input: {
+                      fontWeight: 700,
+                    },
+                  }}
+                  size="small"
+                  fullWidth
+                  value={values.paymentMethods[i].wallet}
+                  onChange={(e) =>
+                    setFieldValue(`paymentMethods.${i}.wallet`, e.target.value)
+                  }
+                  type="number"
+                  InputProps={{
+                    inputProps: {
+                      min: 0,
+                    },
+                  }}
+                />
+                <Typography>{devise}</Typography>
+              </Stack>
+            </Stack>
+          </Stack>
         </Stack>
       </CardContent>
     </Card>

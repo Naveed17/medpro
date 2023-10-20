@@ -130,14 +130,24 @@ const PaymentDialogStyled = styled(Box)(({ theme }) => ({
     ".MuiCard-root": {
       table: {
         tableLayout: "fixed",
-        td: {
-          fontSize: 12,
-          width: "20%",
-          "&.bank-data": {
-            maxWidth: 100,
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
+        tr: {
+          [theme.breakpoints.down("sm")]: {
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+          },
+          td: {
+            fontSize: 12,
+            width: "20%",
+            "&.bank-data": {
+              maxWidth: 100,
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+            },
+            [theme.breakpoints.down("sm")]: {
+              width: "100%",
+              textAlign: "left",
+            },
           },
         },
       },

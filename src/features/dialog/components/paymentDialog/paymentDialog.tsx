@@ -1004,8 +1004,8 @@ function PaymentDialog({ ...props }) {
                     }
                 </Grid> */}
 
-        <Grid container spacing={6}>
-          <Grid item xs={12} md={6}>
+        <Grid container spacing={{ xs: 2, md: 6 }}>
+          <Grid item xs={12} sm={6}>
             <Typography fontWeight={600} mb={1}>
               {t("current_consultation")}
             </Typography>
@@ -1025,11 +1025,16 @@ function PaymentDialog({ ...props }) {
               <ConsultationCard {...{ t, devise }} />
             </Stack>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6}>
             <Stack spacing={2} height={1} position={"relative"}>
               <Divider
                 orientation="vertical"
-                sx={{ position: "absolute", height: "100%", left: -20 }}
+                sx={{
+                  position: "absolute",
+                  height: "100%",
+                  left: -24,
+                  display: { xs: "none", md: "block" },
+                }}
               />
               <Stack
                 direction="row"
@@ -1089,7 +1094,11 @@ function PaymentDialog({ ...props }) {
                         {method.selected === "cash"
                           ? method.cash.amount
                           : method.selected === "check"
-                          ? 0
+                          ? method.check.reduce(
+                              (acc: any, curr: any) =>
+                                acc + (curr.amount as number),
+                              0
+                            )
                           : method.wallet}
                       </td>
                     </tr>

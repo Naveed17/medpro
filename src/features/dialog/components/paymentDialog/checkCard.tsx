@@ -190,9 +190,10 @@ function CheckCard({ ...props }) {
           <CardContent>
             <Stack spacing={2}>
               <Stack
-                direction="row"
+                direction={{ xs: "column", sm: "row" }}
                 alignItems="center"
                 justifyContent="space-between"
+                spacing={{ xs: 1, sm: 0 }}
               >
                 <Typography
                   display="inline-flex"
