@@ -148,11 +148,10 @@ function DocumentDetailDialog({...props}) {
             icon: "ic-imprime",
             disabled: multimedias.some(media => media === state?.type)
         },
-        ...(generatedDocs.some(doc => doc == state?.type) ? [{
+        {
             title: 'email',
             icon: "ic-send-mail",
-            disabled: multimedias.some(media => media === state?.type)
-        }] : []),
+        },
         {
             title: data.header.show ? 'hide' : 'show',
             icon: "ic-menu2",
@@ -236,7 +235,7 @@ function DocumentDetailDialog({...props}) {
     })
 
     const downloadF = () => {
-        fetch(file).then(response => {
+        fetch(file.url).then(response => {
             response.blob().then(blob => {
                 const fileURL = window.URL.createObjectURL(blob);
                 let alink = document.createElement('a');
@@ -254,8 +253,18 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "email":
                 setSendEmailDrawer(true);
-                const file = await generatePdfFromHtml(componentRef, "blob");
-                setPreviewDoc(file);
+                if (generatedDocs.some(doc => doc == state?.type)) {
+                    const file = await generatePdfFromHtml(componentRef, "blob");
+                    setPreviewDoc(file);
+                } else {
+                    const fileType = ["png", "jpeg", "jpg"].includes(file.url.split('.').pop().split(/\#|\?/)[0]) ? 'image/png' : 'application/pdf';
+                    fetch(file.url).then(response => {
+                        response.blob().then(blob => {
+                            const file = new File([new Blob([blob])], `report${new Date().toISOString()}`, {type: fileType})
+                            setPreviewDoc(file);
+                        })
+                    })
+                }
                 break;
             case "delete":
                 setOpenRemove(true)
@@ -431,7 +440,7 @@ function DocumentDetailDialog({...props}) {
         form.append('subject', data.subject);
         form.append('content', data.content);
         if (data.withFile) {
-            form.append('files[]', await generatePdfFromHtml(componentRef, "blob") as any);
+            form.append('files[]', previewDoc);
         }
 
         triggerEmilSend({

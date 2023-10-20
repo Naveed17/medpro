@@ -3,8 +3,14 @@ import {Typography} from "@mui/material";
 import WaitingRoomStyled from "./overrides/waitingRoomStyle";
 import {Accordion} from '@features/accordion';
 import {useTranslation} from "next-i18next";
-import {AppointmentTypesFilter} from "@features/leftActionBar";
-import {useAppSelector} from "@lib/redux/hooks";
+import {
+    ActionBarState,
+    AppointmentTypesFilter,
+    FilterRootStyled,
+    PatientFilter,
+    setFilter
+} from "@features/leftActionBar";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
@@ -12,6 +18,7 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 import {dashLayoutSelector} from "@features/base";
 
 function WaitingRoom() {
+    const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'filter'});
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
@@ -21,6 +28,40 @@ function WaitingRoom() {
     useEffect(() => {
         if (appointmentTypes) {
             setAccordionData([
+                {
+                    heading: {
+                        id: "patient",
+                        icon: "ic-patient",
+                        title: "patient",
+                    },
+                    expanded: true,
+                    children: (
+                        <FilterRootStyled>
+                            <PatientFilter
+                                {...{t}}
+                                OnSearch={(data: { query: ActionBarState }) => {
+                                    dispatch(setFilter({patient: data.query}));
+                                }}
+                                item={{
+                                    heading: {
+                                        icon: "ic-patient",
+                                        title: "patient",
+                                    },
+                                    gender: {
+                                        heading: "gender",
+                                        genders: ["male", "female"],
+                                    },
+                                    textField: {
+                                        labels: [
+                                            {label: "name", placeholder: "search"},
+                                            {label: "birthdate", placeholder: "--/--/----"},
+                                        ],
+                                    },
+                                }}
+                            />
+                        </FilterRootStyled>
+                    ),
+                },
                 {
                     heading: {
                         id: "meetingType",

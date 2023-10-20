@@ -140,7 +140,7 @@ function PaymentRow({...props}) {
 
     }
     const openPutTransactionDialog = () => {
-
+        setContextMenu(null);
         let payments: any[] = [];
         let payed_amount = 0
 
@@ -312,9 +312,7 @@ function PaymentRow({...props}) {
                         <Link sx={{cursor: "pointer"}}
                               onClick={(event) => {
                                   event.stopPropagation();
-                                  router.push(`/dashboard/consultation/${row.appointment.uuid}`).then(() => {
-
-                                  })
+                                  router.push(`/dashboard/consultation/${row.appointment.uuid}`);
                               }}
                               underline="none">
                             {row.appointment.type.name}
@@ -374,7 +372,7 @@ function PaymentRow({...props}) {
                                 vertical: "top",
                                 horizontal: "right",
                             }}>
-                            <PaymentFeesPopover {...{row, t}}/>
+                            <PaymentFeesPopover {...{row, t, openPutTransactionDialog}}/>
                         </Menu>}
 
                         <Stack direction={"row"}>
@@ -444,7 +442,7 @@ function PaymentRow({...props}) {
                                             className="collapse-row"
                                             sx={{
                                                 bgcolor: (theme: Theme) => data.filterCB && col.payment_date === data.filterCB.start_date ?
-                                                    theme.palette.background.paper: "#ffffff66",
+                                                    theme.palette.background.paper : "#ffffff66",
                                                 "&::before": {
                                                     ...(idx > 0 && {
                                                         height: "calc(100% + 8px)",
@@ -473,7 +471,7 @@ function PaymentRow({...props}) {
                                                     }}>
                                                     <Icon path="ic-agenda"/>
                                                     <Typography
-                                                        variant="body2">{data.filterCB &&col.payment_date !== data.filterCB.start_date ? t("paidOn"):""}{col.payment_date}</Typography>
+                                                        variant="body2">{data.filterCB && col.payment_date !== data.filterCB.start_date ? t("paidOn") : ""}{col.payment_date}</Typography>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell style={{
@@ -572,7 +570,7 @@ function PaymentRow({...props}) {
                                                 style={{
                                                     backgroundColor: "transparent",
                                                     border: "none",
-                                                    opacity: data.filterCB && col.payment_date === data.filterCB.start_date ? 1:0.5
+                                                    opacity: data.filterCB && col.payment_date === data.filterCB.start_date ? 1 : 0.5
                                                 }}>
                                                 <Typography
                                                     color={

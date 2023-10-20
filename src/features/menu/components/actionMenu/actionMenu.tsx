@@ -40,8 +40,7 @@ function ActionMenu({children, ...props}: LayoutProps) {
             transformOrigin={{
                 vertical: 'top',
                 horizontal: 'right',
-            }}
-        >
+            }}>
             {children}
         </Menu>
     )

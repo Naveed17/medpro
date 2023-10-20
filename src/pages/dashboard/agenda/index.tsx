@@ -414,6 +414,10 @@ function Agenda() {
     const onSelectEvent = (event: EventDef) => {
         setLoadingRequest(true);
         setTimeout(() => setEvent(event));
+        batch(() => {
+            dispatch(setSelectedEvent(event));
+            dispatch(openDrawer({type: "view", open: true}));
+        });
         const query = `?mode=details&appointment=${event.publicId}&start_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&format=week`
         triggerAppointmentDetails({
             method: "GET",
@@ -428,13 +432,10 @@ function Agenda() {
                         ...(horsWork ? ["event.hors-opening-hours"] : []),
                         ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])];
                     setLoadingRequest(false);
-                    batch(() => {
-                        dispatch(setSelectedEvent({
-                            ...event,
-                            extendedProps: {...event.extendedProps, ...appointmentPrepareEvent(appointment, horsWork, hasErrors)}
-                        }));
-                        dispatch(openDrawer({type: "view", open: true}));
-                    });
+                    dispatch(setSelectedEvent({
+                        ...event,
+                        extendedProps: {...event.extendedProps, ...appointmentPrepareEvent(appointment, horsWork, hasErrors)}
+                    }));
                 }
             }
         });

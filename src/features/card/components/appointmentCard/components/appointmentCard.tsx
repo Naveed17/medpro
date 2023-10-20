@@ -183,7 +183,7 @@ function AppointmentCard({...props}) {
                             {t(`appointment-status.${data?.status?.key}`)}
                         </Typography>
                     </Label>
-                    {(!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && data?.status?.key !== "ON_GOING")) &&
+                    {(!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && !["FINISHED", "ON_GOING"].includes(data?.status?.key))) &&
                         <IconButton
                             size="small"
                             onClick={onEditConsultation}
@@ -199,16 +199,17 @@ function AppointmentCard({...props}) {
                     <Box sx={{width: "100%"}}>
                         <List>
                             <ListItem sx={{ml: .8}}>
-                                <Stack {...(onMoveAppointment && {onClick: onMoveAppointment})}
-                                       sx={{cursor: "pointer"}}
-                                       direction="row" spacing={2} alignItems="center">
+                                <Stack
+                                    sx={{cursor: "pointer"}}
+                                    direction="row" spacing={2} alignItems="center">
                                     <Typography fontWeight={400}>
                                         {t("appintment_date")} :
                                     </Typography>
                                     <ConditionalWrapper
-                                        condition={onMoveAppointment}
-                                        wrapper={(children: any) => <Button sx={{p: .5}}>{children}</Button>}
-                                    >
+                                        condition={onMoveAppointment && (!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && data?.status?.key !== "ON_GOING"))}
+                                        wrapper={(children: any) => <Button
+                                            onClick={onMoveAppointment}
+                                            sx={{p: .5}}>{children}</Button>}>
                                         <Stack spacing={2} direction="row" alignItems="center">
                                             <Stack spacing={0.5} direction="row" alignItems="center">
                                                 <IconUrl className="callander" path="ic-agenda-jour"/>
@@ -225,8 +226,8 @@ function AppointmentCard({...props}) {
                                 </Stack>
                             </ListItem>
                             {((data.type && !roles.includes("ROLE_SECRETARY")) ||
-                                (data.type &&
-                                    data?.type.icon !== "ic-control" &&
+                                ((data.type && data?.type.icon !== "ic-control" ||
+                                        data.status && data?.status.key !== "FINISHED") &&
                                     roles.includes("ROLE_SECRETARY"))) && (
                                 <ListItem>
                                     {editConsultation ? (

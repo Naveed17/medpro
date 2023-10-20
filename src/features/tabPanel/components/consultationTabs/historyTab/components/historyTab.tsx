@@ -155,7 +155,7 @@ function HistoryTab({...props}) {
             <WidgetCharts {...{sheet,mini}}/>
 
             {/****** Latest appointment ******/}
-            {latest_appointment && latest_appointment.length > 0 && <Stack spacing={2} mb={2} alignItems="flex-start">
+            {latest_appointment && latest_appointment.length > 0 && <Stack id={'records'} spacing={2} mb={2} alignItems="flex-start">
                 <Label variant="filled" color="warning">
                     {t("history")}
                 </Label>

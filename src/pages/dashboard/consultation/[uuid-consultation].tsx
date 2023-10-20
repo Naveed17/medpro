@@ -221,7 +221,7 @@ function ConsultationInProgress() {
     const [cards, setCards] = useState([[
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
-    ], [{id: 'item-3', content: 'exam', expanded: false, icon: "ic-edit-file-pen"}]]);
+    ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]]);
 
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
@@ -794,7 +794,7 @@ function ConsultationInProgress() {
 
                 triggerDrugsUpdate({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/documents/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
                     data: form
                 }, {
                     onSuccess: () => mutateDoc()
@@ -1014,6 +1014,13 @@ function ConsultationInProgress() {
             })
             setNbDoc(nb);
             setChanges([...changes])
+
+            if (hasDataHistory === false) {
+                setCards([[
+                    {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"}
+                ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]])
+            }
+
         }
     }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1118,6 +1125,7 @@ function ConsultationInProgress() {
 
             {<HistoryAppointementContainer {...{isHistory, loading}}>
                 <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}}
+                     id={"container-tab"}
                      className="container-scroll">
                     <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
                         <HistoryTab
@@ -1218,7 +1226,7 @@ function ConsultationInProgress() {
                                                                                         <Icon className={'card-header'}
                                                                                               path={item.icon}/>
                                                                                         <Typography
-                                                                                            className={'card-title'}>{t(item.content)}</Typography>
+                                                                                            className={'card-title'}>{item.content !== "widget" ? t(item.content) : ""}</Typography>
                                                                                     </MyHeaderCardStyled>}
                                                                                 <IconButton className={"btn-header"}>
                                                                                     {item.expanded ?
@@ -1248,11 +1256,14 @@ function ConsultationInProgress() {
 
                                                                                     />}
                                                                                 {item.content === 'history' && <div
+                                                                                    id={"histo"}
                                                                                     style={{
                                                                                         padding: 10,
                                                                                         borderTop: "1px solid #DDD",
                                                                                         borderBottomRightRadius: 3,
                                                                                         borderBottomLeftRadius: 3,
+                                                                                        maxHeight: "96.4vh",
+                                                                                        overflowY: "auto",
                                                                                         backgroundColor: theme.palette.grey["A10"]
                                                                                     }}>
                                                                                     <HistoryTab

@@ -15,7 +15,7 @@ import {
     Stack,
     Toolbar,
     Typography,
-    useTheme, useMediaQuery,
+    useTheme, useMediaQuery, Skeleton,
 } from "@mui/material";
 import {AppointmentCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
@@ -266,26 +266,27 @@ function AppointmentDetail({...props}) {
                                                     </Stack>
                                                 </ListItem>
                                             )}
-                                            {appointment?.extendedProps.patient.contact?.length >
-                                                0 && (
-                                                    <ListItem className={"appointment-text"}>
-                                                        <IconUrl
-                                                            path="ic-tel-green-filled"
-                                                            className="ic-tell"
-                                                        />
-                                                        <Link
-                                                            underline="none"
-                                                            href={`tel:${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
-                                                            sx={{ml: 1, fontSize: 12}}
-                                                            variant="caption"
-                                                            color="text.primary"
-                                                            fontWeight={400}>
-                                                            <Stack direction={"row"} alignItems={"center"}>
-                                                                {appointment?.extendedProps.patient.contact[0].value}
-                                                            </Stack>
-                                                        </Link>
-                                                    </ListItem>
-                                                )}
+
+                                            <ListItem className={"appointment-text"}>
+                                                <IconUrl
+                                                    path="ic-tel-green-filled"
+                                                    className="ic-tell"
+                                                />
+                                                {appointment?.extendedProps.patient.contact?.length > 0 ?
+                                                    <Link
+                                                        underline="none"
+                                                        href={`tel:${appointment?.extendedProps.patient.contact[0].code}${appointment?.extendedProps.patient.contact[0].value}`}
+                                                        sx={{ml: 1, fontSize: 12}}
+                                                        variant="caption"
+                                                        color="text.primary"
+                                                        fontWeight={400}>
+                                                        <Stack direction={"row"} alignItems={"center"}>
+                                                            {appointment?.extendedProps.patient.contact[0].value}
+                                                        </Stack>
+                                                    </Link>
+                                                    : <Skeleton sx={{ml: 1}} width={100} height={14} variant="rounded"/>
+                                                }
+                                            </ListItem>
                                         </List>
                                     </Stack>
                                 </Stack>
