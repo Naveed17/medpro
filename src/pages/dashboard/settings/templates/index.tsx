@@ -69,9 +69,9 @@ function TemplatesConfig() {
     const [prescriptionTabIndex, setPrescriptionTabIndex] = useState(0);
     const [certificateTabIndex, setCertificateTabIndex] = useState(0);
     const transitionDuration = {
-    enter: theme.transitions.duration.enteringScreen,
-    exit: theme.transitions.duration.leavingScreen,
-  };
+        enter: theme.transitions.duration.enteringScreen,
+        exit: theme.transitions.duration.leavingScreen,
+    };
     const {trigger: triggerModelDelete} = useRequestQueryMutation("/settings/certifModel/delete");
     const {trigger: triggerEditPrescriptionModel} = useRequestQueryMutation("/consultation/prescription/model/edit");
 
@@ -270,12 +270,12 @@ function TemplatesConfig() {
                         marginTop: 25,
                         marginRight: 30,
                         alignItems: "center",
-                        display:'flex',
+                        display: 'flex',
                         justifyContent: "center"
                     }}>
                         <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
                     </Box>
-                    
+
                     {docs.map(res => (
                         <Box key={res.uuid} className={"container"}>
                             <div onMouseOver={() => {
@@ -315,9 +315,8 @@ function TemplatesConfig() {
                                 </Stack>}
                         </Box>
                     ))}
-                    
-          
-        
+
+
                 </TemplateStyled>
             </Box>
 
@@ -361,11 +360,12 @@ function TemplatesConfig() {
                     index={0}
                     value={certificateTabIndex}>
                     <TemplateStyled>
-                        <div className={"portraitA4"} onClick={() => {
-                            setOpen(true)
-                            setData(null);
-                            setAction("editDoc")
-                        }} style={{
+                        <div className={"portraitA4"}
+                             onClick={() => {
+                                 setOpen(true)
+                                 setData(null);
+                                 setAction("editDoc")
+                             }} style={{
                             marginTop: 25,
                             marginRight: 30,
                             alignItems: "center",
@@ -789,8 +789,7 @@ function TemplatesConfig() {
                     </Box>
                 }
 
-                {
-                    action === 'showAnalyses' &&
+                {action === 'showAnalyses' &&
                     <Box padding={2}>
                         <PreviewA4  {...{
                             eventHandler: null,
@@ -818,7 +817,13 @@ function TemplatesConfig() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{state, setState, t: tConsultation, setOpenDialog, model}}
+                    data={{
+                        state,
+                        setState,
+                        t: tConsultation,
+                        setOpenDialog,
+                        model
+                    }}
                     size={["medical_prescription", "medical_prescription_cycle"].includes(info) ? "xl" : "lg"}
                     direction={"ltr"}
                     sx={{height: 400}}
