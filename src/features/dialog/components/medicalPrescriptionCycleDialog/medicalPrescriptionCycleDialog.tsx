@@ -464,7 +464,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         return unit && cycle.dosageTime.some((time: any) => time.value)
             ? `${cycle.dosageQty} ${
                 getFormUnitMedic(unit).unit ?? unit
-            } ${parseFloat(cycle.dosageQty) >= 2 ? "(s)" : ""}, ${cycle.dosageTime
+            }${parseFloat(cycle.dosageQty) >= 2 ? "(s)" : ""}, ${cycle.dosageTime
                 .filter((time: any) => time.value)
                 .map((time: any) => t(time.label))
                 .join("/")} ${
