@@ -1068,9 +1068,10 @@ function PaymentDialog({ ...props }) {
                 }}
               />
               <Stack
-                direction="row"
+                direction={{ xs: "column", sm: "row" }}
                 alignItems="center"
                 justifyContent="space-between"
+                spacing={{ xs: 2, sm: 0 }}
               >
                 <Typography fontWeight={600} mb={1}>
                   {t("payment")}

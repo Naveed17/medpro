@@ -313,9 +313,10 @@ function CheckCard({ ...props }) {
                   display="inline-flex"
                   alignItems="center"
                   variant="subtitle2"
+                  textAlign="center"
                 >
                   #{idx + 1}
-                  <Typography variant="body1" ml={2}>
+                  <Typography variant="body1" ml={{ xs: 1, md: 2 }}>
                     {t("check_title")}
                   </Typography>
                 </Typography>

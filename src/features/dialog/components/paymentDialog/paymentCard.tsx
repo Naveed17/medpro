@@ -268,7 +268,11 @@ function PaymentCard({ ...props }) {
                   <tbody>
                     <tr>
                       <td align="left">
-                        <Stack direction="row" alignItems="center" spacing={1}>
+                        <Stack
+                          direction={{ xs: "column", md: "row" }}
+                          alignItems={{ xs: "flex-start", md: "center" }}
+                          spacing={1}
+                        >
                           <Stack
                             direction="row"
                             alignItems="center"
@@ -566,7 +570,11 @@ function PaymentCard({ ...props }) {
                   <tbody>
                     <tr>
                       <td align="left">
-                        <Stack direction="row" alignItems="center" spacing={1}>
+                        <Stack
+                          direction={{ xs: "column", md: "row" }}
+                          alignItems="center"
+                          spacing={1}
+                        >
                           <Stack
                             direction="row"
                             alignItems="center"

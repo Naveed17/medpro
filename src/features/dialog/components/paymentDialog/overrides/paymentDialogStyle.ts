@@ -157,6 +157,11 @@ const PaymentDialogStyled = styled(Box)(({ theme }) => ({
       fontSize: 12,
       fontWeight: 400,
     },
+    td: {
+      [theme.breakpoints.down("md")]: {
+        verticalAlign: "baseline",
+      },
+    },
   },
   ".btn-check-success": {
     background: theme.palette.success.main,
