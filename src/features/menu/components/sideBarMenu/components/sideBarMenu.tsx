@@ -183,7 +183,7 @@ function SideBarMenu({children}: LayoutProps) {
                     ))}
                 </List>
                 <List className="list-bottom">
-                    <ListItem
+                    {process.env.NODE_ENV === 'development' && <ListItem
                         onClick={() => handleRouting("/dashboard/statistics")}
                         disableRipple
                         button
@@ -198,7 +198,7 @@ function SideBarMenu({children}: LayoutProps) {
                         <Hidden smUp>
                             <ListItemText primary={t("main-menu." + "settings")}/>
                         </Hidden>
-                    </ListItem>
+                    </ListItem>}
                     <ListItem
                         onClick={handleSettingRoute}
                         disableRipple
