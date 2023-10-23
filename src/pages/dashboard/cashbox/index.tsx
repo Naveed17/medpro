@@ -80,14 +80,14 @@ export const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "center",
     },
-    {
+/*    {
         id: "type",
         numeric: true,
         disablePadding: false,
         label: "type",
         sortable: true,
         align: "center",
-    },
+    },*/
     {
         id: "payment_type",
         numeric: true,
@@ -292,7 +292,6 @@ function Cashbox() {
                 data: form
             }, {
                 onSuccess: () => {
-                    console.log("mutateTransactions");
                     enqueueSnackbar(`${t("transactionAdded")}`, {variant: "success"});
                     mutateTransactions();
                 }
@@ -475,7 +474,7 @@ function Cashbox() {
                                 />
                             )}
                         </DesktopContainer>
-                        <MobileContainer>
+                        {/*<MobileContainer>
                             <Stack spacing={2}>
                                 {rows.map((card, idx) => (
                                     <React.Fragment key={idx}>
@@ -490,7 +489,7 @@ function Cashbox() {
                                     </React.Fragment>
                                 ))}
                             </Stack>
-                        </MobileContainer>
+                        </MobileContainer>*/}
                     </React.Fragment>
                 ) : (
                     <Box

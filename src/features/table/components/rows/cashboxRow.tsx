@@ -1,31 +1,15 @@
 import TableCell from "@mui/material/TableCell";
-import {
-    Avatar,
-    Button,
-    Collapse,
-    DialogActions,
-    IconButton,
-    Link,
-    Menu,
-    Stack,
-    Table,
-    TableRow,
-    Tooltip,
-    Typography,
-    useTheme,
-} from "@mui/material";
+import {Button, Collapse, DialogActions, Link, Stack, Table, TableRow, Typography, useTheme,} from "@mui/material";
 import {addBilling, TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 // redux
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {alpha, Theme} from "@mui/material/styles";
 import React, {useEffect, useState} from "react";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import moment from "moment-timezone";
-import {ImageHandler} from "@features/image";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -35,9 +19,10 @@ import {useSnackbar} from "notistack";
 import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {PaymentFeesPopover} from "@features/popover";
-import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import {useTransactionEdit} from "@lib/hooks/rest";
+import {alpha} from "@mui/material/styles";
+import {Theme} from "@mui/system";
+import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
@@ -49,6 +34,7 @@ function PaymentRow({...props}) {
         handleClick,
         isItemSelected
     } = props;
+
     const {insurances, mutateTransactions, pmList, hideName} = data;
     const router = useRouter();
     const theme = useTheme();
@@ -67,6 +53,7 @@ function PaymentRow({...props}) {
     const [selected, setSelected] = useState<any>([]);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [transaction_data, setTransaction_data] = useState<any[]>([]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
     const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
@@ -139,6 +126,20 @@ function PaymentRow({...props}) {
         });
 
     }
+
+    const selectRow = (paymentUuid: string) => {
+        if (!isItemSelected) {
+            triggerPostTransaction({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/transactions/${paymentUuid}/transaction-data/${router.locale}`,
+            }, {
+                onSuccess: (res) => {
+                    setTransaction_data(res.data.data)
+                }
+            })
+        }
+    }
+
     const openPutTransactionDialog = () => {
         setContextMenu(null);
         let payments: any[] = [];
@@ -204,21 +205,18 @@ function PaymentRow({...props}) {
         <>
             <TableRowStyled
                 hover
-                onClick={() => handleClick(row.uuid as string)}
+                onClick={() => {
+                    handleClick(row.uuid as string)
+                    selectRow(row.uuid)
+                }}
                 role="checkbox"
                 aria-checked={isItemSelected}
                 tabIndex={-1}
                 selected={isItemSelected}
                 className="payment-row"
-                sx={{
-                    bgcolor: (theme: Theme) =>
-                        alpha(
-                            (row.type_transaction === 2 && theme.palette.error.main) ||
-                            (row.rest_amount > 0 && theme.palette.expire.main) ||
-                            (row.rest_amount <= 0 && theme.palette.success.main) ||
-                            theme.palette.background.paper, 0.1),
-                    cursor: row.collapse ? "pointer" : "default",
-                }}>
+                sx={{bgcolor: alpha(theme.palette.success.main, 0.1)}}>
+
+                {/***** date_transaction *****/}
                 <TableCell>
                     <Stack
                         direction="row"
@@ -239,8 +237,8 @@ function PaymentRow({...props}) {
                         <Typography variant="body2">{moment(row.date_transaction).format('DD-MM-YYYY')}</Typography>
                     </Stack>
                 </TableCell>
+                {/***** time_transaction *****/}
                 <TableCell>
-
                     <Stack
                         direction="row"
                         alignItems="center"
@@ -258,40 +256,45 @@ function PaymentRow({...props}) {
                         }}>
                         <Icon path="ic-time"/>
                         <Typography
-                            variant="body2">{moment(row.date_transaction).add(1, "hour").format('HH:mm')}</Typography>
+                            variant="body2">{row.payment_time}</Typography>
                     </Stack>
 
                 </TableCell>
-                {!hideName &&
+                {/***** patient name *****/}
+                {!hideName && <TableCell>
+                    {row.patient && (
+                        <Link
+                            sx={{cursor: "pointer"}}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
+                            }}
+                            underline="none">
+                            {`${row.patient.firstName} ${row.patient.lastName}`}
+                        </Link>
+                    )}
+                </TableCell>}
+                {/***** Insurances *****/}
+                <TableCell>
+                    <Typography variant="body2" textAlign={"center"}>-</Typography>
+                </TableCell>
+                {/***** Payments means *****/}
+                <TableCell>
+                    <Typography variant="body2" textAlign={"center"}>-</Typography>
+                </TableCell>
 
-                    <TableCell>
-                        {row.appointment ? (
-                            <Link
-                                sx={{cursor: "pointer"}}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleEvent({action: "PATIENT_DETAILS", row: row.appointment.patient, event});
-                                }}
-                                underline="none">
-                                {`${row.appointment.patient.firstName} ${row.appointment.patient.lastName}`}
-                            </Link>
-                        ) : row.patient ? (
-                            <Link
-                                sx={{cursor: "pointer"}}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
-                                }}
-                                underline="none">
-                                {`${row.patient.firstName} ${row.patient.lastName}`}
-                            </Link>
-                        ) : (
-                            <Link underline="none">{row.transaction_data[0].data.label}</Link>
-                        )}
-                    </TableCell>}
+                <TableCell>
+                    <Typography color={"success.main"} fontWeight={700} textAlign={"center"}>
+                        {row.amount}
+                        <span style={{fontSize: 10}}>{devise}</span>
+                    </Typography>
+                </TableCell>
+
+                {/*
                 <TableCell align={"center"}>
                     <Stack direction={"row"} justifyContent={"center"}>
-                        {row.transaction_data?.filter((td: any) => td.insurance).length > 0 ? getInsurances().map((insurance: any) => (
+                        {
+                            row.transaction_data.filter((td: any) => td.insurance).length > 0 ? getInsurances().map((insurance: any) => (
                                 <Tooltip
                                     key={insurance?.uuid}
                                     title={insurance?.name}>
@@ -306,24 +309,8 @@ function PaymentRow({...props}) {
                         }
                     </Stack>
                 </TableCell>
-                <TableCell align={"center"}>
-                    {row.type_transaction ? row.appointment ? (
-                        <Link sx={{cursor: "pointer"}}
-                              onClick={(event) => {
-                                  event.stopPropagation();
-                                  router.push(`/dashboard/consultation/${row.appointment.uuid}`);
-                              }}
-                              underline="none">
-                            {row.appointment.type.name}
-                        </Link>
-                    ) : (
-                        <Typography variant="body2" color="text.primary">
-                            {t('table.' + row.type_transaction)}
-                        </Typography>
-                    ) : (
-                        <Typography>--</Typography>
-                    )}
-                </TableCell>
+*/}
+                {/*
                 <TableCell align="center">
                     <Stack
                         direction="row"
@@ -340,80 +327,10 @@ function PaymentRow({...props}) {
                         ))}
                     </Stack>
                 </TableCell>
-                <TableCell align="center">
-                    <Stack direction={"row"} alignItems={"center"} spacing={1} justifyContent={"center"}>
-                        <Typography
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                openFeesPopover(event)
-                            }}
-                            color={row.type_transaction === 2 ? "error.main" : row.rest_amount > 0 ? "expire.main" : "success.main"}
-                            fontWeight={700}>
-                            {row.rest_amount != 0 ? `${(row.amount - row.rest_amount).toFixed(3)} / ${row.amount}` : row.amount}
-                            <span
-                                style={{fontSize: 10}}>{devise}</span>
-                        </Typography>
-
-                        {row?.appointment && <Menu
-                            open={contextMenu !== null}
-                            onClose={handleClose}
-                            anchorReference="anchorPosition"
-                            anchorPosition={
-                                contextMenu !== null
-                                    ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
-                                    : undefined
-                            }
-                            anchorOrigin={{
-                                vertical: "top",
-                                horizontal: "right",
-                            }}
-                            transformOrigin={{
-                                vertical: "top",
-                                horizontal: "right",
-                            }}>
-                            <PaymentFeesPopover {...{row, t, openPutTransactionDialog}}/>
-                        </Menu>}
-
-                        <Stack direction={"row"}>
-                            {row.rest_amount > 0 && <Tooltip title={t('settlement')}>
-                                <IconButton sx={!isItemSelected ? {
-                                    background: theme.palette.expire.main,
-                                    borderRadius: 1,
-                                    "&:hover": {
-                                        background: theme.palette.expire.main
-                                    },
-                                } : {}} onClick={(e) => {
-                                    e.stopPropagation();
-                                    openPutTransactionDialog()
-                                }}>
-                                    <Icon path={"ic-argent"}/>
-                                </IconButton>
-                            </Tooltip>}
-                            {isItemSelected && row.appointment && <Tooltip title={t('edit')}>
-                                <IconButton
-                                    size="small"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        openPutTransactionDialog()
-                                    }}>
-                                    <IconUrl path="setting/edit"/>
-                                </IconButton>
-                            </Tooltip>}
-                            {isItemSelected && !row.appointment && <Tooltip title={t('delete')}>
-                                <IconButton
-                                    size="small"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        setOpenDeleteTransactionDialog(true);
-                                    }}>
-                                    <IconUrl path="setting/icdelete"/>
-                                </IconButton>
-                            </Tooltip>}
-                        </Stack>
-                    </Stack>
-                </TableCell>
+*/}
             </TableRowStyled>
-            {row.transaction_data && (
+
+            {transaction_data && (
                 <TableRow>
                     <TableCell
                         colSpan={9}
@@ -431,7 +348,7 @@ function PaymentRow({...props}) {
                             unmountOnExit
                             sx={{pl: 6}}>
                             <Table>
-                                {row.transaction_data?.map((col: any, idx: number) => {
+                                {transaction_data.map((col: any, idx: number) => {
                                     return (
                                         <tbody key={idx}>
                                         <TableRow
@@ -449,10 +366,7 @@ function PaymentRow({...props}) {
                                                     })
                                                 }
                                             }}>
-                                            <TableCell style={{
-                                                backgroundColor: "transparent",
-                                                border: "none",
-                                            }}>
+                                            <TableCell>
                                                 <Stack
                                                     direction="row"
                                                     alignItems="center"
@@ -469,14 +383,10 @@ function PaymentRow({...props}) {
                                                         },
                                                     }}>
                                                     <Icon path="ic-agenda"/>
-                                                    <Typography
-                                                        variant="body2">{data.filterCB && col.payment_date !== data.filterCB.start_date ? t("paidOn") : ""}{col.payment_date}</Typography>
+                                                    <Typography variant="body2">{col.payment_date}</Typography>
                                                 </Stack>
                                             </TableCell>
-                                            <TableCell style={{
-                                                backgroundColor: "transparent",
-                                                border: "none",
-                                            }}>
+                                            <TableCell>
                                                 <Stack
                                                     direction="row"
                                                     alignItems="center"
@@ -496,90 +406,22 @@ function PaymentRow({...props}) {
                                                     <Typography
                                                         variant="body2">{col.payment_time}</Typography>
                                                 </Stack>
-                                            </TableCell>
-                                            <TableCell
-                                                style={{
-                                                    backgroundColor: "transparent",
-                                                    border: "none",
-                                                }}>
-                                                <Stack
-                                                    direction="row"
-                                                    alignItems="center"
-                                                    justifyContent="flex-start"
-                                                    spacing={1}>
-                                                    <Stack
-                                                        direction="row"
-                                                        alignItems="center"
-                                                        spacing={1}>
-                                                        {/*<Icon path={type.icon}/>*/}
-                                                        {col.payment_means && <Typography
-                                                            color="text.primary"
-                                                            variant="body2">
-                                                            {t(col.payment_means.name)}
-                                                            {col.status_transaction_data === 3 &&
-                                                                <CheckCircleOutlineRoundedIcon style={{fontSize: 15}}
-                                                                                               color={"success"}/>}
-                                                        </Typography>}
 
-                                                        {!col.payment_means && col.insurance && <Typography
-                                                            color="text.primary"
-                                                            variant="body2">
-                                                            {col.insurance.insurance.name}
-                                                        </Typography>}
-                                                        {!col.payment_means && !col.insurance && <Typography
-                                                            color="text.primary"
-                                                            variant="body2">
-                                                            {t('wallet')}
-                                                        </Typography>}
-                                                    </Stack>
-                                                </Stack>
                                             </TableCell>
-                                            {col.data.check_number && <TableCell>
-
-                                                <Typography>{col.data.check_number}</Typography>
+                                            {col.appointment && <TableCell>
+                                                <Link sx={{cursor: "pointer"}}
+                                                      onClick={(event) => {
+                                                          event.stopPropagation();
+                                                          router.push(`/dashboard/consultation/${col.appointment.uuid}`);
+                                                      }}
+                                                      underline="none">
+                                                    ok
+                                                </Link>
                                             </TableCell>}
-                                            {col.data.carrier && <TableCell>
-                                                <Typography>{col.data.carrier}</Typography>
-                                            </TableCell>}
-                                            {col.data.bank && <TableCell>
-                                                <Typography>{col.data.bank}</Typography>
-                                            </TableCell>}
-                                            {/*
-                                            <TableCell
-                                                align="left"
-                                                style={{
-                                                    backgroundColor: "transparent",
-                                                    border: "none",
-                                                }}>
-                                                {col.status_transaction_data ? (
-                                                    <Label
-                                                        className="label"
-                                                        variant="ghost"
-                                                        color={
-                                                            col.status_transaction_data === 3 ? "success" : col.status_transaction_data === 2 ? "warning" : "error"
-                                                        }>
-                                                        {t("table." + TransactionStatus.find(ts => ts.value == col.status_transaction_data)?.key)}
-                                                    </Label>
-                                                ) : (
-                                                    <Typography>--</Typography>
-                                                )}
-                                            </TableCell>
-*/}
-                                            <TableCell
-                                                style={{
-                                                    backgroundColor: "transparent",
-                                                    border: "none",
-                                                    opacity: data.filterCB && col.payment_date === data.filterCB.start_date ? 1 : 0.5
-                                                }}>
-                                                <Typography
-                                                    color={
-                                                        (col.amount > 0 && "success.main") ||
-                                                        (col.amount < 0 && "error.main") ||
-                                                        "text.primary"
-                                                    }
-                                                    textAlign={"center"}
-                                                    fontWeight={700}>
-                                                    {col.amount} <span style={{fontSize: 10}}>{devise}</span>
+                                            <TableCell>
+                                                <Typography color={"success.main"} fontWeight={700} textAlign={"center"}>
+                                                    {col.amount}
+                                                    <span style={{fontSize: 10}}>{devise}</span>
                                                 </Typography>
                                             </TableCell>
 
@@ -592,6 +434,7 @@ function PaymentRow({...props}) {
                     </TableCell>
                 </TableRow>
             )}
+
 
             <Dialog
                 action={"payment_dialog"}
