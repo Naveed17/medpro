@@ -5,11 +5,12 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {SubHeader} from "@features/subHeader";
-import {Box, Card, CardContent, Grid, Typography, useTheme} from "@mui/material";
+import {Box, Card, CardContent, Grid, Stack, Typography, useTheme} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {StatsToolbar} from "@features/toolbar";
 import {merge} from 'lodash';
 import {ChartsOption, ChartStyled} from "@features/charts";
+import IconUrl from "@themes/urlIcon";
 
 const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
@@ -35,12 +36,44 @@ function Statistics() {
             <Box className="container">
                 <DesktopContainer>
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={12}>
+                        <Grid item xs={12} md={6}>
                             <Card>
-                                <CardContent>
-                                    <Typography sx={{mb: 4}} variant="subtitle1">
-                                        Vues sur profil
-                                    </Typography>
+                                <CardContent sx={{pb: 0}}>
+                                    <Stack ml={2} direction={"row"} spacing={2}>
+                                        <Stack direction={"row"} spacing={1.2}>
+                                            <IconUrl path={"ic-user3"}/>
+                                            <Stack>
+                                                <Typography fontWeight={600} fontSize={24} variant="caption">
+                                                    1500
+                                                </Typography>
+                                                <Typography fontSize={12} fontWeight={500} variant="body2">
+                                                    Patients
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                        <Stack direction={"row"} spacing={1.2}>
+                                            <IconUrl path={"ic-user4"}/>
+                                            <Stack>
+                                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                    <Typography fontWeight={600} fontSize={24} variant="caption">
+                                                        900
+                                                    </Typography>
+
+                                                    <Stack direction={"row"}>
+                                                        <IconUrl path={"ic-up-right"}/>
+                                                        <Typography fontWeight={700} fontSize={14} color="success.main"
+                                                                    variant="body2">4 % </Typography>
+                                                    </Stack>
+
+                                                </Stack>
+                                                <Typography fontSize={12} fontWeight={500} variant="body2">
+                                                    Nouveaux patients
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                    </Stack>
+
+
                                     <ChartStyled>
                                         <Chart
                                             type="area"
@@ -49,18 +82,19 @@ function Statistics() {
                                             ]}
                                             options={merge(ChartsOption(), {
                                                 xaxis: {
-                                                    type: 'datetime',
+                                                    position: "top",
                                                     categories: [
-                                                        '2018-09-19T00:00:00.000Z',
-                                                        '2018-09-19T01:30:00.000Z',
-                                                        '2018-09-19T02:30:00.000Z',
-                                                        '2018-09-19T03:30:00.000Z',
-                                                        '2018-09-19T04:30:00.000Z',
-                                                        '2018-09-19T05:30:00.000Z',
-                                                        '2018-09-19T06:30:00.000Z'
+                                                        'Jan',
+                                                        'Feb',
+                                                        'Mar',
+                                                        'Apr',
+                                                        'May',
+                                                        'Jun',
+                                                        'Jul',
+                                                        'Aug'
                                                     ]
                                                 },
-                                                tooltip: {x: {format: 'dd/MM/yy HH:mm'}},
+                                                tooltip: {x: {show: false}, marker: {show: false}},
                                                 grid: {
                                                     show: true,
                                                     borderColor: theme.palette.divider,
@@ -92,12 +126,79 @@ function Statistics() {
                                                     },
                                                 }
                                             }) as any}
-                                            height={320}
+                                            height={240}
                                         />
                                     </ChartStyled>
                                 </CardContent>
                             </Card>
                         </Grid>
+                        <Grid item xs={12} md={6}>
+                            <Card>
+                                <CardContent sx={{pb: 0}}>
+                                    <Stack ml={2} direction={"row"} spacing={2}>
+                                        <Stack direction={"row"} spacing={1.2}>
+                                            <IconUrl width={40} height={40} path={"ic-document"}/>
+                                            <Stack>
+                                                <Typography fontWeight={600} fontSize={24} variant="caption">
+                                                    3400
+                                                </Typography>
+                                                <Typography fontSize={12} fontWeight={500} variant="body2">
+                                                    Motif Consultations
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                    </Stack>
+
+                                    <ChartStyled>
+                                        <Chart
+                                            type="bar"
+                                            series={[{
+                                                data: [400, 430, 448, 470]
+                                            }]}
+                                            options={merge(ChartsOption(), {
+                                                plotOptions: {
+                                                    bar: {
+                                                        barHeight: '80%',
+                                                        distributed: true,
+                                                        horizontal: true,
+                                                        borderRadius: 5,
+                                                        borderRadiusOnAllStackedSeries: true
+                                                    }
+                                                },
+                                                colors: ['#33b2df', '#546E7A', '#d4526e', '#13d8aa'],
+                                                stroke: {
+                                                    width: 1,
+                                                    colors: ['#fff']
+                                                },
+                                                xaxis: {
+                                                    categories: ['South Korea', 'Canada', 'United Kingdom', 'Netherlands'],
+                                                },
+                                                yaxis: {
+                                                    labels: {
+                                                        show: false
+                                                    }
+                                                },
+                                                tooltip: {
+                                                    theme: 'dark',
+                                                    x: {
+                                                        show: false
+                                                    },
+                                                    y: {
+                                                        title: {
+                                                            formatter: function () {
+                                                                return ''
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }) as any}
+                                            height={240}
+                                        />
+                                    </ChartStyled>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+
                     </Grid>
                 </DesktopContainer>
             </Box>

@@ -265,33 +265,32 @@ function TopNavBar({...props}) {
                     className={`top-bar ${opened ? "openedSidebar" : ""}`}
                     color="inherit">
                     <Toolbar>
-                        {
-                            isMobile ?
-                                settingHas ? (
-                                    <IconButton
-                                        color={"inherit"}
-                                        edge="start"
-                                        className="btn"
-                                        onClick={() => router.push("/dashboard/settings")}>
-                                        <ArrowBackIcon/>
-                                    </IconButton>
-                                ) : (
-                                    <IconButton
-                                        color="primary"
-                                        edge="start"
-                                        className="btn"
-                                        onClick={() => dispatch(toggleMobileBar(mobileOpened))}>
-                                        <Icon path="ic-toggle"/>
-                                    </IconButton>
-                                ) :
-                                (<IconButton
-                                    disabled={lock}
+                        {isMobile ?
+                            settingHas ? (
+                                <IconButton
+                                    color={"inherit"}
+                                    edge="start"
+                                    className="btn"
+                                    onClick={() => router.push("/dashboard/settings")}>
+                                    <ArrowBackIcon/>
+                                </IconButton>
+                            ) : (
+                                <IconButton
                                     color="primary"
                                     edge="start"
                                     className="btn"
-                                    onClick={() => dispatch(toggleSideBar(opened))}>
+                                    onClick={() => dispatch(toggleMobileBar(mobileOpened))}>
                                     <Icon path="ic-toggle"/>
-                                </IconButton>)
+                                </IconButton>
+                            ) :
+                            (!router.pathname.includes("/statistics") && <IconButton
+                                disabled={lock}
+                                color="primary"
+                                edge="start"
+                                className="btn"
+                                onClick={() => dispatch(toggleSideBar(opened))}>
+                                <Icon path="ic-toggle"/>
+                            </IconButton>)
                         }
 
                         <Hidden mdDown>
