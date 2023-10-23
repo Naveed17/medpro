@@ -13,7 +13,7 @@ import {
     Typography,
     useTheme,
 } from "@mui/material";
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 import {useRouter} from "next/router";
@@ -31,7 +31,7 @@ import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function CertifModelDrawer({...props}) {
-    const {data, editDoc = false, action, isDefault, certificateFolderModel, mutateParentModel, closeDraw} = props;
+    const {data, editDoc = false, action, isDefault, certificateFolderModel, onSubmit, closeDraw} = props;
     const router = useRouter();
     const theme = useTheme();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
@@ -78,7 +78,7 @@ function CertifModelDrawer({...props}) {
             content: data?.content ?? ""
         },
         validationSchema,
-        onSubmit: async (values) => {
+        onSubmit: async () => {
             console.log("values");
         },
     });
@@ -91,6 +91,10 @@ function CertifModelDrawer({...props}) {
         setFieldValue,
         getFieldProps,
     } = formik;
+
+    const handleOnSubmit = useCallback(() => {
+        onSubmit();
+    }, [onSubmit]);
 
     const addVal = (val: string) => {
         (window as any).tinymce.execCommand('mceInsertContent', false, val);
@@ -113,7 +117,7 @@ function CertifModelDrawer({...props}) {
         }, {
             onSuccess: () => {
                 closeDraw();
-                mutateParentModel();
+                handleOnSubmit();
                 enqueueSnackbar(t(data ? "updated" : "created"), {variant: 'success'})
             }
         });

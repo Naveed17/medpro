@@ -94,7 +94,6 @@ function TemplatesConfig() {
 
     const {
         data: httpPrescriptionResponse,
-        isLoading: isPrescriptionLoading,
         mutate: mutatePrescription
     } = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -132,7 +131,8 @@ function TemplatesConfig() {
             method: "DELETE",
             url: `${urlMedicalProfessionalSuffix}/certificate-modals/${res.uuid}/${router.locale}`
         }, {
-            onSuccess: () => mutateParentModel().then(() => enqueueSnackbar(t("removed"), {variant: "success"}))
+            onSuccess: () => (certificateTabIndex === 0 ? mutateCertificate() : mutateParentModel()).then(() =>
+                enqueueSnackbar(t("removed"), {variant: "success"}))
         });
     }
 
@@ -549,7 +549,7 @@ function TemplatesConfig() {
                             <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
                         </div>
 
-                        {isDefault && !isPrescriptionLoading && folder.prescriptionModels.map((card: any) => (
+                        {isDefault && folder.prescriptionModels.map((card: any) => (
                             <Box key={card.uuid} className={"container"}>
                                 <div
                                     onMouseOver={() => {
@@ -755,7 +755,7 @@ function TemplatesConfig() {
                     certificateFolderModel,
                     closeDraw,
                     data,
-                    mutateParentModel
+                    onSubmit: () => certificateTabIndex === 0 ? mutateCertificate() : mutateParentModel()
                 }}/>}
 
                 {action === 'showPrescription' &&

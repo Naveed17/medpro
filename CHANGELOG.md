@@ -1,3 +1,12 @@
+## [4.20.5](https://github.com/SmartMedSA/med-pro/compare/v4.20.4...v4.20.5) (2023-10-20)
+
+
+### Bug Fixes
+
+* Babel vulnerable ([668de2c](https://github.com/SmartMedSA/med-pro/commit/668de2cc00b2686f3534b8dda1ccf00e919eca87))
+* certificate doc config issue ([d8af71d](https://github.com/SmartMedSA/med-pro/commit/d8af71dfc6e142850bc87e2ac27ac934965cda0b))
+* mutate docs behavior ([5d3f908](https://github.com/SmartMedSA/med-pro/commit/5d3f9089ec971c610662dac43ce7149b08770aad))
+
 ## [4.20.4](https://github.com/SmartMedSA/med-pro/compare/v4.20.3...v4.20.4) (2023-10-18)
 
 
