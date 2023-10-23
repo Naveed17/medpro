@@ -291,8 +291,7 @@ function PaymentRow({...props}) {
                     </TableCell>}
                 <TableCell align={"center"}>
                     <Stack direction={"row"} justifyContent={"center"}>
-                        {
-                            row.transaction_data.filter((td: any) => td.insurance).length > 0 ? getInsurances().map((insurance: any) => (
+                        {row.transaction_data?.filter((td: any) => td.insurance).length > 0 ? getInsurances().map((insurance: any) => (
                                 <Tooltip
                                     key={insurance?.uuid}
                                     title={insurance?.name}>
@@ -432,7 +431,7 @@ function PaymentRow({...props}) {
                             unmountOnExit
                             sx={{pl: 6}}>
                             <Table>
-                                {row.transaction_data.map((col: any, idx: number) => {
+                                {row.transaction_data?.map((col: any, idx: number) => {
                                     return (
                                         <tbody key={idx}>
                                         <TableRow
