@@ -30,7 +30,7 @@ function WidgetCharts({...props}) {
 
     const getDesc = (key: string) => {
         let res: string[] = [];
-        res.push(`${sheet[key].label} (${sheet[key].description})`)
+        res.push(`${sheet[key].label} ${sheet[key].description ? `(${sheet[key].description})`:''}`)
         return res
     }
 
@@ -45,7 +45,14 @@ function WidgetCharts({...props}) {
                 },
                 xaxis: {
                     categories: getCategories(key)
-                }
+                },
+                markers: {
+                    size: 5
+                },
+                stroke: {
+                    width: 2
+                },
+                color:"0696D6"
             }, series: [{
                 name: `${getDesc(key)}`,
                 data: getData(key)
