@@ -171,5 +171,16 @@ const PaymentDialogStyled = styled(Box)(({ theme }) => ({
       },
     },
   },
+  ".btn-action": {
+    borderRadius: theme.spacing(0.7),
+    border: `1px solid ${theme.palette.divider}`,
+    minWidth: 32,
+    minHeight: 32,
+    svg: {
+      path: {
+        fill: theme.palette.text.secondary,
+      },
+    },
+  },
 }));
 export default PaymentDialogStyled;

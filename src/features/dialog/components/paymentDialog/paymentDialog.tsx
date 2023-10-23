@@ -1141,39 +1141,7 @@ function PaymentDialog({ ...props }) {
                   ) : null}
                 </Menu>
               </Stack>
-              <table className="method-table">
-                <thead>
-                  <tr>
-                    <th align="left">{t("table.date")}</th>
-                    <th align="center">{t("method")}</th>
-                    <th align="right">{t("amount")} (DT)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {values.paymentMethods.map((method: any, idx: any) => (
-                    <tr key={idx}>
-                      <td align="left">
-                        {moment(new Date(), "DD-MM-YYYY HH:mm").format(
-                          "DD-MM-YYYY"
-                        )}
-                      </td>
-                      <td align="center">{t(method.selected)}</td>
-                      <td align="right">
-                        {method.selected === "cash"
-                          ? method.cash.amount
-                          : method.selected === "check"
-                          ? method.check.reduce(
-                              (acc: any, curr: any) =>
-                                acc + (curr.amount as number),
-                              0
-                            )
-                          : method.wallet}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <Stack maxHeight={300} overflow="auto" spacing={2}>
+              <Stack maxHeight={300} p={1} overflow="auto" spacing={2}>
                 <AnimatePresence>
                   {values.paymentMethods.map((item: any, i: any) => (
                     <motion.div

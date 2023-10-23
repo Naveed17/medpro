@@ -61,6 +61,7 @@
   "choose_a_payment_method": "Choisissez une méthode de paiement",
   "add_check": "Ajouter un Chéque",
   "check_title": "Informations de Chéque",
+  "payment_info": "Informations de Paiement",
   "method": "Méthode",
   "dialogs": {
     "delete-dialog": {

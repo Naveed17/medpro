@@ -82,6 +82,9 @@ function CheckCard({ ...props }) {
                           img: {
                             filter: "brightness(0) invert(1)",
                           },
+                          ".MuiTypography-root": {
+                            color: (theme: Theme) => theme.palette.common.white,
+                          },
                         },
                       },
                     },
@@ -164,7 +167,7 @@ function CheckCard({ ...props }) {
               required
             />
             <Typography>{devise}</Typography>
-            {i > 0 && idx === 0 && (
+            {i > 0 && idx === values.paymentMethods[i].check.length - 1 && (
               <IconButton
                 className="btn-del"
                 onClick={() => {
