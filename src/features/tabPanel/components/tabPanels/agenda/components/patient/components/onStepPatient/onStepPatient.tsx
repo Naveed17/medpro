@@ -126,10 +126,12 @@ function OnStepPatient({...props}) {
         firstName: Yup.string()
             .min(3, t("first-name-error"))
             .max(50, t("first-name-error"))
+            .matches(/^[aA-zZء-ي\s]+$/, t("special-text-error"))
             .required(t("first-name-error")),
         lastName: Yup.string()
             .min(3, t("last-name-error"))
             .max(50, t("last-name-error"))
+            .matches(/^[aA-zZء-ي\s]+$/, t("special-text-error"))
             .required(t("last-name-error")),
         phones: Yup.array().of(
             Yup.object().shape({

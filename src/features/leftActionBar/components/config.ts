@@ -66,16 +66,16 @@ const LeftActionsData = [
       )
     ),
   },
-  {
+/*  {
     pathname: path(ROOTS.app, "/statistics"),
     component: dynamic((): any =>
       import("@features/leftActionBar/components/stats/components/stats").then(
         (mod) => mod
       )
     ),
-  },
+  },*/
   {
-    pathname: path(ROOTS.app, ""),
+    pathname: path(ROOTS.app, "/agenda"),
     component: dynamic((): any =>
       import("@features/leftActionBar/components/agenda/agenda").then(
         (mod) => mod

@@ -95,7 +95,13 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const fractions = [
         "1/4",
         "1/2",
-        ...Array.from({length: 30}, (v, k) => (k + 1).toString()),
+        "1",
+        "1.25",
+        "1.5",
+        "1.75",
+        "2",
+        "2.5",
+        ...Array.from({length: 30}, (v, k) => (k + 3).toString()),
     ];
     const [info, setInfo] = useState("");
     const [loading, setLoading] = useState(false);
@@ -353,44 +359,37 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const handleDosageQty = (prop: string, index: number, idx: number) => {
         setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
+        let dosage = values.data[idx].cycles[index].count;
+
         if (prop === "plus") {
             if (values.data[idx].cycles[index].count < fractions.length - 1) {
-                const dosage = values.data[idx].cycles[index].count + 1;
-                setFieldValue(`data[${idx}].cycles[${index}].count`, dosage);
-                setFieldValue(
-                    `data[${idx}].cycles[${index}].dosageQty`,
-                    fractions[dosage]
-                );
+                dosage += 1;
             }
         } else {
             if (values.data[idx].cycles[index].count > 0) {
-                const dosage = values.data[idx].cycles[index].count - 1;
-                setFieldValue(`data[${idx}].cycles[${index}].count`, dosage);
-                setFieldValue(
-                    `data[${idx}].cycles[${index}].dosageQty`,
-                    fractions[dosage]
-                );
+                dosage -= 1;
             }
         }
+        setFieldValue(`data[${idx}].cycles[${index}].count`, dosage);
+        setFieldValue(
+            `data[${idx}].cycles[${index}].dosageQty`,
+            fractions[dosage]
+        );
     }
 
     const durationCounter = (prop: string, index: number, idx: number) => {
         setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
         const currentDosage = values.data[idx].cycles[index].dosageDuration;
-        let incrDosage = 0.25;
         let sign = -1;
         if (prop === "plus") {
             if (currentDosage < fractions.length - 1) {
                 sign = 1;
-                incrDosage = (currentDosage < 2 ? 0.25 : (currentDosage >= 2 && currentDosage < 3) ? 0.5 : 1)
             }
-        } else {
-            incrDosage = (currentDosage <= 2 ? 0.25 : (currentDosage > 2 && currentDosage <= 3) ? 0.5 : 1)
         }
 
         setFieldValue(
             `data[${idx}].cycles[${index}].dosageDuration`,
-            currentDosage + (incrDosage * sign)
+            currentDosage + (sign)
         );
     }
 
@@ -465,7 +464,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         return unit && cycle.dosageTime.some((time: any) => time.value)
             ? `${cycle.dosageQty} ${
                 getFormUnitMedic(unit).unit ?? unit
-            }, ${cycle.dosageTime
+            }${parseFloat(cycle.dosageQty) >= 2 ? "(s)" : ""}, ${cycle.dosageTime
                 .filter((time: any) => time.value)
                 .map((time: any) => t(time.label))
                 .join("/")} ${
@@ -966,8 +965,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 sx={{mt: 0.5}}
                                                                 value={
                                                                     values.data[idx].cycles[index].dosageInput
-                                                                        ? values.data[idx].cycles[index]
-                                                                            .dosageInputText
+                                                                        ? values.data[idx].cycles[index].dosageInputText
                                                                         : generateDosageText(
                                                                             values.data[idx].cycles[index],
                                                                             values.data[idx].unit
