@@ -172,8 +172,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
             (item) => item.unit === unit
         );
         return (drug.cycles?.length > 0 && drug.cycles[0].dosage.split(",")[0] && hasMedicalFormUnit)
-            ? `${hasMedicalFormUnit.forms[0].form}${hasMultiValues ? `_${unit}` : ""}`
-            : unit;
+            ? `${hasMedicalFormUnit.forms[0].form}${hasMultiValues ? `_${unit}` : ""}`.replace("(s)", "")
+            : unit.replace("(s)", "");
     };
 
     const setInitData = (drugs: DrugModel[]) => {
