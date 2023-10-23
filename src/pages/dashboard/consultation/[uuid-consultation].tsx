@@ -473,6 +473,7 @@ function ConsultationInProgress() {
                         loadingPosition="start"
                         variant="contained"
                         color="error"
+                        disabled={total === -1}
                         onClick={() => {
                             saveConsultation();
                         }}

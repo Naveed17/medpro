@@ -376,22 +376,22 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const durationCounter = (prop: string, index: number, idx: number) => {
         setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
+        const currentDosage = values.data[idx].cycles[index].dosageDuration;
+        let incrDosage = 0.25;
+        let sign = -1;
         if (prop === "plus") {
-            if (
-                values.data[idx].cycles[index].dosageDuration <
-                fractions.length - 1
-            ) {
-                setFieldValue(
-                    `data[${idx}].cycles[${index}].dosageDuration`,
-                    values.data[idx].cycles[index].dosageDuration + 1
-                );
+            if (currentDosage < fractions.length - 1) {
+                sign = 1;
+                incrDosage = (currentDosage < 2 ? 0.25 : (currentDosage >= 2 && currentDosage < 3) ? 0.5 : 1)
             }
         } else {
-            setFieldValue(
-                `data[${idx}].cycles[${index}].dosageDuration`,
-                values.data[idx].cycles[index].dosageDuration - 1
-            );
+            incrDosage = (currentDosage <= 2 ? 0.25 : (currentDosage > 2 && currentDosage <= 3) ? 0.5 : 1)
         }
+
+        setFieldValue(
+            `data[${idx}].cycles[${index}].dosageDuration`,
+            currentDosage + (incrDosage * sign)
+        );
     }
 
     const handleSaveDialog = () => {
