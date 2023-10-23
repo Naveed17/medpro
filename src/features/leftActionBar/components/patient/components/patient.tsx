@@ -17,9 +17,11 @@ import {
 } from "@features/leftActionBar";
 import React, {useState} from "react";
 import {useAppDispatch} from "@lib/redux/hooks";
-import {LoadingScreen} from "@features/loadingScreen";
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 import {setSelectedRows} from "@features/table";
 import {batch} from "react-redux";
+import dynamic from "next/dynamic";
 
 function Patient() {
     const dispatch = useAppDispatch();
@@ -154,7 +156,7 @@ function Patient() {
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
-        <div>
+        <>
             <FilterContainerStyles>
                 <Typography
                     variant="h6"
@@ -174,7 +176,7 @@ function Patient() {
                     setData={setDataPlace}
                 />
             </FilterContainerStyles>
-        </div>
+        </>
     );
 }
 

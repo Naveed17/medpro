@@ -138,6 +138,7 @@
     "traitments": "Traitements ",
     "config": "Configurer",
     "modeles": "Modeles",
+    "model_missing_name": "le nom du modèle est obligatoire",
     "more": "Plus...",
     "search": "Recherche par mots-clés",
     "ureadbleFile": "Fichier fourni n'est pas compatible avec MedLINK",

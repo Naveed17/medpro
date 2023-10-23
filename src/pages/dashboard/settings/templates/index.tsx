@@ -8,13 +8,11 @@ import {
     Button,
     DialogActions,
     Drawer,
-    Fab,
     IconButton,
     LinearProgress,
     Stack, Tab, Tabs,
     Toolbar,
     Typography,
-    Zoom,
     useTheme
 } from "@mui/material";
 import dynamic from "next/dynamic";
@@ -59,6 +57,7 @@ function TemplatesConfig() {
     const [isDefault, setIsDefault] = useState<DocTemplateModel | null>(null);
     const [isHovering, setIsHovering] = useState("");
     const [open, setOpen] = useState(false);
+    const [editDoc, setEditDoc] = useState(false);
     const [data, setData] = useState<any>(null);
     const [analysis, setAnalysis] = useState<AnalysisModel[]>([]);
     const [action, setAction] = useState("");
@@ -68,10 +67,7 @@ function TemplatesConfig() {
     const [model, setModel] = useState<any>(null);
     const [prescriptionTabIndex, setPrescriptionTabIndex] = useState(0);
     const [certificateTabIndex, setCertificateTabIndex] = useState(0);
-    const transitionDuration = {
-    enter: theme.transitions.duration.enteringScreen,
-    exit: theme.transitions.duration.leavingScreen,
-  };
+
     const {trigger: triggerModelDelete} = useRequestQueryMutation("/settings/certifModel/delete");
     const {trigger: triggerEditPrescriptionModel} = useRequestQueryMutation("/consultation/prescription/model/edit");
 
@@ -82,8 +78,7 @@ function TemplatesConfig() {
 
     const {
         data: httpModelResponse,
-        isLoading: isCertificateModelLoading,
-        mutate: mutateCertif
+        mutate: mutateCertificate
     } = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modals/${router.locale}`
@@ -91,7 +86,7 @@ function TemplatesConfig() {
 
     const {
         data: httpParentModelResponse,
-        isLoading: isParentModelLoading
+        mutate: mutateParentModel
     } = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modal-folders/${router.locale}`
@@ -99,7 +94,6 @@ function TemplatesConfig() {
 
     const {
         data: httpPrescriptionResponse,
-        isLoading: isPrescriptionLoading,
         mutate: mutatePrescription
     } = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -113,6 +107,7 @@ function TemplatesConfig() {
 
     const closeDraw = () => {
         setOpen(false);
+        setEditDoc(false);
     };
     const handleMouseOver = (id: string | undefined) => {
         setIsHovering(id ? id : "");
@@ -123,23 +118,21 @@ function TemplatesConfig() {
     const edit = (id: string | undefined) => {
         router.push(`/dashboard/settings/templates/${id}`);
     }
-    const editDoc = (res: CertifModel) => {
+
+    const handleEditDoc = (res: CertifModel) => {
         setOpen(true)
+        setEditDoc(true);
         setData(res);
         setAction("editDoc")
     }
 
     const removeDoc = (res: CertifModel) => {
-        const isFoldedCertificate = certificateModel.findIndex(certificate => certificate.uuid === res.uuid) === -1;
         triggerModelDelete({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/${isFoldedCertificate ? "certificate-modal-folders/" : "certificate-modals/"}/${res.uuid}/${router.locale}`
+            url: `${urlMedicalProfessionalSuffix}/certificate-modals/${res.uuid}/${router.locale}`
         }, {
-            onSuccess: () => {
-                mutateCertif().then(() => {
-                    enqueueSnackbar(t("removed"), {variant: "error"});
-                });
-            }
+            onSuccess: () => (certificateTabIndex === 0 ? mutateCertificate() : mutateParentModel()).then(() =>
+                enqueueSnackbar(t("removed"), {variant: "success"}))
         });
     }
 
@@ -264,18 +257,17 @@ function TemplatesConfig() {
                 bgcolor={'#eff2f9'}
                 sx={{p: {xs: "40px 8px", sm: "30px 8px", md: 2}}}>
                 <TemplateStyled>
-                    <Box className={"portraitA4"} onClick={() => {
+                    <div className={"portraitA4"} onClick={() => {
                         router.push(`/dashboard/settings/templates/new`);
                     }} style={{
                         marginTop: 25,
                         marginRight: 30,
                         alignItems: "center",
-                        display:'flex',
+                        display: "flex",
                         justifyContent: "center"
                     }}>
                         <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
-                    </Box>
-                    
+                    </div>
                     {docs.map(res => (
                         <Box key={res.uuid} className={"container"}>
                             <div onMouseOver={() => {
@@ -315,9 +307,6 @@ function TemplatesConfig() {
                                 </Stack>}
                         </Box>
                     ))}
-                    
-          
-        
                 </TemplateStyled>
             </Box>
 
@@ -363,6 +352,7 @@ function TemplatesConfig() {
                     <TemplateStyled>
                         <div className={"portraitA4"} onClick={() => {
                             setOpen(true)
+                            setEditDoc(false);
                             setData(null);
                             setAction("editDoc")
                         }} style={{
@@ -375,7 +365,7 @@ function TemplatesConfig() {
                             <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
                         </div>
 
-                        {isDefault && !isCertificateModelLoading && certificateModel.map(res => (
+                        {isDefault && certificateModel.map(res => (
                             <Box key={res.uuid} className={"container"}>
                                 <div
                                     onMouseOver={() => {
@@ -411,7 +401,7 @@ function TemplatesConfig() {
                                             <IconUrl path="setting/ic-voir"/>
                                         </IconButton>
                                         <IconButton size="small" onClick={() => {
-                                            editDoc(res)
+                                            handleEditDoc(res)
                                         }}>
                                             <IconUrl path="setting/edit"/>
                                         </IconButton>
@@ -435,7 +425,7 @@ function TemplatesConfig() {
                     </TemplateStyled>
                 </TabPanel>
 
-                {!isParentModelLoading && certificateFolderModel.map((certificate, index: number) =>
+                {certificateFolderModel.map((certificate, index: number) =>
                     <TabPanel
                         padding={.1}
                         key={certificate.uuid}
@@ -490,7 +480,7 @@ function TemplatesConfig() {
                                                 <IconUrl path="setting/ic-voir"/>
                                             </IconButton>
                                             <IconButton size="small" onClick={() => {
-                                                editDoc({...res, folder: certificate.uuid})
+                                                handleEditDoc({...res, folder: certificate.uuid})
                                             }}>
                                                 <IconUrl path="setting/edit"/>
                                             </IconButton>
@@ -559,7 +549,7 @@ function TemplatesConfig() {
                             <AddIcon style={{fontSize: 450, color: theme.palette.primary.main}}/>
                         </div>
 
-                        {isDefault && !isPrescriptionLoading && folder.prescriptionModels.map((card: any) => (
+                        {isDefault && folder.prescriptionModels.map((card: any) => (
                             <Box key={card.uuid} className={"container"}>
                                 <div
                                     onMouseOver={() => {
@@ -761,10 +751,11 @@ function TemplatesConfig() {
                 {(action === 'editDoc' || action === 'showDoc') && <CertifModelDrawer {...{
                     isDefault,
                     action,
+                    editDoc,
                     certificateFolderModel,
                     closeDraw,
                     data,
-                    mutate: mutateCertif
+                    onSubmit: () => certificateTabIndex === 0 ? mutateCertificate() : mutateParentModel()
                 }}/>}
 
                 {action === 'showPrescription' &&
