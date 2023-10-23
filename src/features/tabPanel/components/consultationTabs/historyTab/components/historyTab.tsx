@@ -64,8 +64,6 @@ function HistoryTab({...props}) {
 
     return (
         <>
-            <PediatricianCharts {...{sheet, birthdate: patient?.birthdate}}/>
-
             {/****** Next appointment ******/}
             {nextAppointment && nextAppointment.length > 0 && (
                 <Stack spacing={2} mb={2} alignItems="flex-start">
@@ -159,6 +157,10 @@ function HistoryTab({...props}) {
             {/****** Sheet History ******/}
 
             <WidgetCharts {...{sheet, mini}}/>
+
+            {/****** Pediatrican charts ******/}
+
+            <PediatricianCharts {...{sheet, birthdate: patient?.birthdate,t}}/>
 
             {/****** Latest appointment ******/}
             {latest_appointment && latest_appointment.length > 0 &&
