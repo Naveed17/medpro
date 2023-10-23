@@ -157,6 +157,7 @@
         "nationality": "Nationalité",
         "nationality-placeholder": "Sélectionner la nationalité du patient",
         "gender-error": "Veuillez choisir le genre.",
+        "special-text-error": "Seuement les alphabets sont autorisés pour ce champ.",
         "group-placeholder": "Sélectionner un groupe",
         "civility": "Civilité",
         "mr": "M.",
