@@ -24,8 +24,9 @@ function PediatricianCharts({...props}) {
         let dashArray: number[] = [];
         if (sheet && sheet.taille && height) {
             Object.keys(sheet.taille.data).map(date => {
+                const nbMonth = moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "months");
                 patientHeight.push({
-                    x: moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "months"),
+                    x: patientHeight.find(w => w.x === nbMonth) ? nbMonth+1:nbMonth,
                     y: sheet.taille.data[date]
                 })
             })
@@ -39,8 +40,9 @@ function PediatricianCharts({...props}) {
         }
         if (sheet && sheet.poids && weight) {
             Object.keys(sheet.poids.data).map(date => {
+                const nbMonth = moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "months")
                 patientWeight.push({
-                    x: moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "months"),
+                    x: patientWeight.find(w => w.x === nbMonth) ? nbMonth+1:nbMonth,
                     y: sheet.poids.data[date]
                 })
             })
