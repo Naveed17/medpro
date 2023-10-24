@@ -565,11 +565,11 @@ function Patient() {
 
     useEffect(() => {
         if (httpPatientsResponse) {
-            const patientsResponse = (httpPatientsResponse as HttpResponse)?.data;
+            const patientsResponse = (httpPatientsResponse as HttpResponse)?.data?.list ?? [];
             if (isMobile && localFilter?.length > 0) {
-                setRows(patientsResponse.list)
+                setRows(patientsResponse)
             } else {
-                setRows((prev) => [...prev, ...patientsResponse.list]);
+                setRows((prev) => [...prev, ...patientsResponse]);
             }
         }
     }, [httpPatientsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
