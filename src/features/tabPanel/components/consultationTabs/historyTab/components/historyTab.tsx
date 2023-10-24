@@ -160,8 +160,10 @@ function HistoryTab({...props}) {
 
             {/****** Pediatrican charts ******/}
 
-            <PediatricianCharts {...{sheet, birthdate: patient?.birthdate,t}}/>
-
+            {
+                moment().diff(moment(patient?.birthdate), "years") < 5 &&
+                <PediatricianCharts {...{sheet, birthdate: patient?.birthdate, t}}/>
+            }
             {/****** Latest appointment ******/}
             {latest_appointment && latest_appointment.length > 0 &&
                 <Stack id={'records'} spacing={2} mb={2} alignItems="flex-start">
