@@ -598,6 +598,7 @@
     "weight": "Weight",
     "growth": "Growth",
     "3years": "girls and boys from birth to 3 years old",
-    "filter": "Filter"
+    "filter": "Filter",
+    "perimetreCranien": "Cranial perimeter"
   }
 }
