@@ -116,6 +116,7 @@ function SecretaryConsultationDialog({...props}) {
     const resetDialog = () => {
         setOpenPaymentDialog(false);
     };
+
     const openDialogPayment = () => {
         let payments: any[] = [];
         if (transactions) {
@@ -294,7 +295,6 @@ function SecretaryConsultationDialog({...props}) {
                         </Button>
                     </Stack>
                 </Grid>
-
                 <Grid item md={6} sm={12} xs={12}>
                     <Stack
                         alignItems="center"
@@ -334,7 +334,6 @@ function SecretaryConsultationDialog({...props}) {
 
                     </Stack>
                 </Grid>
-
             </Grid>
 
             <Dialog
