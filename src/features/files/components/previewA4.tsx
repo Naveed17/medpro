@@ -412,7 +412,6 @@ function PreviewDialog({...props}) {
         pageX.style.top = "0";
         pageX.style.opacity = "0";
         document.body.append(pageX);
-        console.log("state", state);
         if (state) {
             if (state.info)
                 createPageContent(pageX, state.info)
