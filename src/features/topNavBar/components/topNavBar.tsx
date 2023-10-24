@@ -200,8 +200,8 @@ function TopNavBar({...props}) {
 
     useEffect(() => {
         if (ongoing) {
-            let events = []
-            ongoing.forEach( event => events.push({
+            let events: any[] = []
+            ongoing.forEach(event => events.push({
                 publicId: event?.uuid as string,
                 extendedProps: {
                     type: event?.type,
