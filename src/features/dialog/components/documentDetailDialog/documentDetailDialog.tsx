@@ -94,7 +94,7 @@ function DocumentDetailDialog({...props}) {
     const [docs, setDocs] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState("");
     const [error, setError] = useState(false);
-    const [docPageOffset, setDocPageOffset] = useState(1);
+    const [docPageOffset] = useState(1);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
         header: {show: true, page: docPageOffset, x: 0, y: 0},
