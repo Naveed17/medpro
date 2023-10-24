@@ -197,7 +197,7 @@ const Prescription = ({...props}) => {
                     position: "absolute",
                     zIndex: lastSelected === "content" ? 999 : 1,
                     opacity: selected === "" || selected === "content" ? 1 : 0.5,
-                    height: `${data.content.maxHeight}px`,
+                    height: `100%`,
                     overflow: "hidden"
                 }}>
                     {state === undefined && <div id={'content' + id} className="box"

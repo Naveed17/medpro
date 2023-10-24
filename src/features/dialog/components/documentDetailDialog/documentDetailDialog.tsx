@@ -420,7 +420,7 @@ function DocumentDetailDialog({...props}) {
     }
 
     const doc = <Document
-        ref={(element) => (componentRef.current as any)[0] = element}
+        {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[0] = element})}
         file={file}
         loading={t('wait')}
         onLoadSuccess={onDocumentLoadSuccess}
