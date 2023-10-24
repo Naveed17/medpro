@@ -96,10 +96,18 @@ function SecretaryConsultationDialog({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });
+    const {data: httpPatientTransactions, mutate:mutatePatientT} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/patients/${patient?.uuid}/transactions/${router.locale}`
+    });
 
+    useEffect(() => {
+        console.log(httpPatientTransactions)
+    },[httpPatientTransactions])
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
+            console.log(res);
             setTransactions(res.transactions ? res.transactions[0] : null);
             if (total === -1)
                 setTotal(res.fees ? res.fees : 0)

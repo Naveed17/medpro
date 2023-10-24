@@ -135,6 +135,7 @@ function PaymentRow({...props}) {
             }, {
                 onSuccess: (res) => {
                     setTransaction_data(res.data.data)
+                    console.log(res.data.data);
                 }
             })
         }
@@ -280,7 +281,19 @@ function PaymentRow({...props}) {
                 </TableCell>
                 {/***** Payments means *****/}
                 <TableCell>
-                    <Typography variant="body2" textAlign={"center"}>-</Typography>
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="center"
+                        spacing={1}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {row.payment_means && <img style={{width: 15}} key={row.uuid}
+                                                  src={pmList.find((pm: {
+                                                      slug: string;
+                                                  }) => pm.slug == row.payment_means.slug).logoUrl.url}
+                                                  alt={"payment means icon"}/>}
+                    </Stack>
+
                 </TableCell>
 
                 <TableCell>
