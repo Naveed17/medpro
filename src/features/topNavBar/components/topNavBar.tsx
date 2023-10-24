@@ -200,24 +200,25 @@ function TopNavBar({...props}) {
 
     useEffect(() => {
         if (ongoing) {
-            const event: any = {
-                publicId: ongoing?.uuid as string,
+            let events = []
+            ongoing.forEach( event => events.push({
+                publicId: event?.uuid as string,
                 extendedProps: {
-                    type: ongoing?.type,
+                    type: event?.type,
                     patient: {
-                        lastName: ongoing?.patient.split(" ")[1],
-                        firstName: ongoing?.patient.split(" ")[0],
-                        ...(ongoing?.patient_uuid && {uuid: ongoing?.patient_uuid})
+                        lastName: event?.patient.split(" ")[1],
+                        firstName: event?.patient.split(" ")[0],
+                        ...(event?.patient_uuid && {uuid: event?.patient_uuid})
                     },
                 },
-            };
+            }));
 
             dispatch(
                 setTimer({
                     isActive: true,
                     isPaused: false,
-                    event,
-                    startTime: ongoing?.start_time,
+                    event: events[0],
+                    startTime: events[0]?.start_time,
                 })
             );
         } else {
