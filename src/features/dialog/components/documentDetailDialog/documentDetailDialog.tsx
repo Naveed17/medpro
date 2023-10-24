@@ -498,15 +498,12 @@ function DocumentDetailDialog({...props}) {
                         uuid: string;
                     }) => template.uuid === state.documentHeader)
                     if (_template) {
-                        console.log("data_template", {
-                            ..._template.header.data,
-                            background: {
-                                show: _template.header.data.background.show,
-                                content: _template.file ? _template.file : ''
-                            }
-                        })
                         setData({
                             ..._template.header.data,
+                            header: {
+                                ..._template.header.data.header,
+                                page: docPageOffset
+                            },
                             background: {
                                 show: _template.header.data.background.show,
                                 content: _template.file ? _template.file : ''
