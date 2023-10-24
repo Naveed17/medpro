@@ -103,6 +103,7 @@ function CIPPatientHistoryCard({...props}) {
     const startStopRec = () => {
         if (listening && isStarted) {
             SpeechRecognition.stopListening();
+            saveChanges("notes",values.notes)
             resetTranscript();
             setIsStarted(false)
             dispatch(SetListen(''));
