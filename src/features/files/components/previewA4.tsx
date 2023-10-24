@@ -313,8 +313,9 @@ function PreviewDialog({...props}) {
 
         let lastPos = 0;
         let updatedPages = [];
-        const nbPages = Math.ceil(pageX.clientHeight / data.content.maxHeight);
-        for (let i = 0; i < nbPages; i++) {
+        const offset = ["write_certif"].includes(state.type) ? 250 : 0;
+        const nbPages = Math.ceil((pageX.clientHeight - offset) / data.content.maxHeight);
+        for (let i = 0; i < (nbPages > 0 ? nbPages : 1); i++) {
             const el = document.createElement("div")
             el.id = `page${i}`
             el.style.position = "absolute"
@@ -405,12 +406,12 @@ function PreviewDialog({...props}) {
     }
 
     useEffect(() => {
-        const pageX = document.createElement("div")
-        pageX.style.visibility = "hidden"
-        pageX.style.position = "absolute"
-        pageX.style.top = "0"
-        pageX.style.opacity = "0"
-        document.body.append(pageX)
+        const pageX = document.createElement("div");
+        pageX.style.visibility = "hidden";
+        pageX.style.position = "absolute";
+        pageX.style.top = "0";
+        pageX.style.opacity = "0";
+        document.body.append(pageX);
         if (state) {
             if (state.info)
                 createPageContent(pageX, state.info)

@@ -335,6 +335,10 @@
     "hide": "Masquer en-tête",
     "showtitle": "Afficher le titre",
     "hidetitle": "Masquer le titre",
+    "hide-header-page": {
+      "show": "Masquer l'en-tête de la deuxième page",
+      "hide": "Afficher l'en-tête de la deuxième page"
+    },
     "showpatient": "Afficher nom patient",
     "hidepatient": "Masquer patient",
     "share": "Partager",
