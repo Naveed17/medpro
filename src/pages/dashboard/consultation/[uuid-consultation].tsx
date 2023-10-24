@@ -858,13 +858,13 @@ function ConsultationInProgress() {
                 if (state.length > 0) {
                     setPrescription(state)
                     if (pdoc.findIndex((pdc) => pdc.id === 2) === -1)
-                        pdoc.push({
+                        if (!selectedDialog?.uuid) pdoc.push({
                             id: 2,
                             name: "requestedPrescription",
                             status: "in_progress",
                             icon: "ic-traitement",
                             state
-                        });
+                        }); else setPrescription([])
                 } else {
                     pdoc = pdoc.filter((obj) => obj.id !== 2);
                 }
