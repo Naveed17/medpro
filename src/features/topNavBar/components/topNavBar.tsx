@@ -213,7 +213,7 @@ function TopNavBar({...props}) {
                     },
                 },
             }));
-            console.log("events", events)
+
             dispatch(
                 setTimer({
                     isActive: true,
