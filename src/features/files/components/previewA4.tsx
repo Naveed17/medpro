@@ -313,7 +313,7 @@ function PreviewDialog({...props}) {
 
         let lastPos = 0;
         let updatedPages = [];
-        const offset = ["write_certif"].includes(state.type) ? 250 : 0;
+        const offset = (state?.type && ["write_certif"].includes(state.type)) ? 250 : 0;
         const nbPages = Math.ceil((pageX.clientHeight - offset) / data.content.maxHeight);
         for (let i = 0; i < (nbPages > 0 ? nbPages : 1); i++) {
             const el = document.createElement("div")

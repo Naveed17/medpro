@@ -2,8 +2,10 @@ import {Card} from '@mui/material'
 import {styled} from '@mui/material/styles'
 
 const CipCardStyled = styled(Card)(({theme}) => ({
+    width: "100%",
     backgroundColor: theme.palette.text.primary,
-    borderRadius: 6,
+    border: "none",
+    borderRadius: 12,
     cursor: 'pointer',
     marginRight: "1rem",
     "& .MuiButtonBase-root": {
@@ -29,6 +31,10 @@ const CipCardStyled = styled(Card)(({theme}) => ({
         overflow: "hidden",
         textOverflow: "ellipsis",
         marginLeft: "4px"
+    },
+    "& .tick-flip-panel": {
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.background.paper
     }
 }));
 export default CipCardStyled
