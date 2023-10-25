@@ -141,7 +141,7 @@ function LoadingScreen({...props}) {
                             }}
                             {...{color}}
                             variant="contained">
-                            <Typography>{t(`${text}.button`)}</Typography>
+                            <Typography>{t(`${text === "loading" ? text : `${text}.button`}`)}</Typography>
                         </Button>
                     )}
                 </Stack>

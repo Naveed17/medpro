@@ -207,9 +207,9 @@
   "rapport": "Rapport",
   "today": "Aujourd’hui",
   "permission": {
-    "title":"Permission d'accéder",
-    "description":"Vous n'avez pas la permission d'accéder à cette ressource",
-    "button":"Retourner"
+    "title": "Permission d'accéder",
+    "description": "Vous n'avez pas la permission d'accéder à cette ressource",
+    "button": "Retourner"
   },
   "back": "Retour",
   "notif_alert": "Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications.",
@@ -344,6 +344,14 @@
       "description": "la fusion n'est pas réversible et toutes les données seront fusionnées avec le patient principal.",
       "cancel": "Annuler",
       "confirm": "Confirmer"
+    },
+    "switch-consultation-dialog": {
+      "title": "Confirmation de Nouvelle Consultation",
+      "sub-title": "Êtes-vous sûr(e) de vouloir démarrer une nouvelle consultation ?",
+      "description": "Pour commencer une nouvelle consultation, vous devez mettre fin ou mettre en pause la consultation actuelle.",
+      "cancel": "Annuler",
+      "finish": "Terminer & Démarrer Nouvelle",
+      "pause": "Mettre en Pause & Démarrer Nouvelle"
     },
     "alert": {
       "cancel-appointment": "le rendez-vous a été annulé avec succès",
