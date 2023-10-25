@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import CloseIcon from '@mui/icons-material/Close';
-import {EditMotifDialog} from "@features/editMotifDialog";
+import {EditMotifDialog} from "@features/dialog";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
