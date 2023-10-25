@@ -428,7 +428,7 @@ function PaymentRow({...props}) {
                                                           router.push(`/dashboard/consultation/${col.appointment.uuid}`);
                                                       }}
                                                       underline="none">
-                                                    ok
+                                                    {col.appointment.type.name}
                                                 </Link>
                                             </TableCell>}
                                             <TableCell>
