@@ -205,6 +205,7 @@ function TopNavBar({...props}) {
                 publicId: event?.uuid as string,
                 extendedProps: {
                     type: event?.type,
+                    startTime: event?.start_time,
                     patient: {
                         lastName: event?.patient.split(" ")[1],
                         firstName: event?.patient.split(" ")[0],
@@ -212,13 +213,13 @@ function TopNavBar({...props}) {
                     },
                 },
             }));
-
+            console.log("events", events)
             dispatch(
                 setTimer({
                     isActive: true,
                     isPaused: false,
                     event: events[0],
-                    startTime: events[0]?.start_time,
+                    startTime: events[0].extendedProps?.startTime,
                 })
             );
         } else {
