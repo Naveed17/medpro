@@ -133,3 +133,7 @@ declare module '@emotion/styled/types' {
         isDragging?: Boolean
     }
 }
+
+declare module '@pqina/flip' {
+
+}
