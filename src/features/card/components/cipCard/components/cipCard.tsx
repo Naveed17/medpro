@@ -7,7 +7,6 @@ import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {capitalizeFirst, useTimer} from "@lib/hooks";
-import IconUrl from "@themes/urlIcon";
 
 function CipCard({...props}) {
     const {openPatientDialog} = props;
@@ -43,15 +42,13 @@ function CipCard({...props}) {
                     badgeContent={
                         <Avatar
                             alt="avatar"
+                            src={'/static/icons/play-1.svg'}
                             sx={{
-                                pt: .2,
                                 width: 16,
                                 height: 16,
                                 borderRadius: 20,
                                 border: `2px solid ${theme.palette.background.paper}`
-                            }}>
-                            <IconUrl width={14} height={16} path={"play-1"}/>
-                        </Avatar>
+                            }}/>
                     }>
                     <Avatar className={"round-avatar"}
                             sx={{width: 30, height: 30}}
@@ -73,17 +70,20 @@ function CipCard({...props}) {
                 <Avatar
                     alt="Small avatar"
                     variant={"square"}
+                    src={'/static/icons/ic-stop.svg'}
                     sx={{
                         width: 30,
                         height: 30,
                         mr: 3,
-                        bgcolor: "white"
-                    }}>
-                    <IconUrl width={20} height={20} path={"ic-stop"}/>
-                </Avatar>
+                        bgcolor: "white",
+                        "& .MuiAvatar-img": {
+                            width: 20,
+                            height: 20
+                        }
+                    }}/>
 
                 <Avatar
-                    alt="Small avatar"
+                    alt="button avatar"
                     sx={{
                         height: 30,
                         pl: .5,
@@ -92,8 +92,14 @@ function CipCard({...props}) {
                         color: theme.palette.warning.contrastText,
                         bgcolor: theme.palette.warning.main
                     }}>
-                    <IconUrl width={20} height={20} path={"ic-pause-mate"}/>
-                    <Typography sx={{width: 80}} ml={1} fontSize={14} fontWeight={600}>{timer}</Typography>
+                    <Avatar
+                        src={'/static/icons/ic-pause-mate.svg'}
+                        sx={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: 20
+                        }}/>
+                    <Typography sx={{width: 80}} ml={0} fontSize={14} fontWeight={600}>{timer}</Typography>
                 </Avatar>
             </Stack>
         </CipCardStyled>

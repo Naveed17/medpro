@@ -3,7 +3,7 @@ import {LoadingButton} from "@mui/lab";
 
 const CipCardStyled = styled(LoadingButton)(({theme}) => ({
     scale: "0.9",
-    marginRight: "1rem",
+    marginRight: 0,
     padding: "6px 12px",
     backgroundColor: theme.palette.text.primary,
     '&:hover': {

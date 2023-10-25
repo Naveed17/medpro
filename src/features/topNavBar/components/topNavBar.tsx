@@ -350,7 +350,7 @@ function TopNavBar({...props}) {
                                     }}
                                     sx={{
                                         scale: "0.96",
-                                        mr: 1,
+                                        mr: 0,
                                         p: "6px 12px",
                                         backgroundColor: (theme) => theme.palette.info.lighter,
                                         '&:hover': {
@@ -382,14 +382,30 @@ function TopNavBar({...props}) {
                                             src={`/static/icons/men-avatar.svg`}/>
                                     </Badge>}
                                     variant={"contained"}>
-                                    <Stack direction={"row"}>
+                                    <Stack direction={"row"} alignItems={"center"}>
                                         {next.patient}
-                                        <CloseRoundedIcon
-                                            sx={{ml: 1}}
+                                        <Avatar
+                                            alt="Small avatar"
+                                            variant={"square"}
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 resetNextConsultation(next.uuid);
-                                            }}/>
+                                            }}
+                                            sx={{
+                                                ml: 1,
+                                                background: "#FFF",
+                                                width: 30,
+                                                height: 30,
+                                                border: `1px solid ${theme.palette.background.paper}`
+                                            }}>
+                                            <CloseRoundedIcon
+                                                sx={{
+                                                    color: theme.palette.text.primary,
+                                                    width: 20,
+                                                    height: 20
+                                                }}/>
+                                        </Avatar>
+
                                     </Stack>
                                 </LoadingButton>
                             }
