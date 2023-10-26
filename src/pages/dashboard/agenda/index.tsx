@@ -21,7 +21,6 @@ import {useSession} from "next-auth/react";
 import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-const AppointmentDetail = dynamic(() => import('@features/dialog/components/appointmentDetail/components/appointmentDetail'));
 
 import {instanceAxios, useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
@@ -53,7 +52,7 @@ import {
 } from "@features/tabPanel";
 import {
     QuickAddAppointment,
-    Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime, preConsultationSelector
+    Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime, preConsultationSelector, AppointmentDetail
 } from "@features/dialog";
 import {AppointmentListMobile, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";

@@ -37,7 +37,7 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function AppointmentCard({...props}) {
-    const {patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
+    const {patientId = null, handleOnDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
@@ -107,14 +107,14 @@ function AppointmentCard({...props}) {
             data: form
         }, {
             onSuccess: () => {
-                if (onDataUpdated) {
-                    onDataUpdated();
+                if (handleOnDataUpdated) {
+                    handleOnDataUpdated();
                 } else {
                     medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`]);
                 }
             }
         });
-    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, invalidateQueries, onDataUpdated, patientId, router.locale, updateAppointmentTrigger, urlMedicalEntitySuffix]);
+    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, invalidateQueries, handleOnDataUpdated, patientId, router.locale, updateAppointmentTrigger, urlMedicalEntitySuffix]);
 
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
         updateDetails({attribute: "consultation_reason", value: reasons.map(reason => reason.uuid)});

@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState,} from "react";
+import React, {useCallback, useEffect, useRef, useState,} from "react";
 import RootStyled from "./overrides/rootStyled";
 import {
     Chip,
@@ -104,6 +104,10 @@ function AppointmentDetail({...props}) {
     const handleCloseDialog = () => {
         setOpenDialog(false);
     };
+
+    const handleOnDataUpdated = useCallback(() => {
+        OnDataUpdated();
+    }, [OnDataUpdated])
 
     useEffect(() => {
         if (appointment && appointment.extendedProps.photo) {
@@ -334,7 +338,7 @@ function AppointmentDetail({...props}) {
                         {t("time_slot")}
                     </Typography>
                     <AppointmentCard
-                        {...{t, roles, patientId, appointment, OnDataUpdated}}
+                        {...{t, roles, patientId, appointment, handleOnDataUpdated}}
                         {...((canManageActions && SetMoveDialog) && {
                             onMoveAppointment: () => setAppointmentDate(appointment?.extendedProps.status.key === "FINISHED" ? "reschedule" : "move")
                         })}
