@@ -36,7 +36,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRouter} from "next/router";
-import {useRequestQuery} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {startCase} from 'lodash'
@@ -56,7 +56,6 @@ function SecretaryConsultationDialog({...props}) {
             t,
             transactions, setTransactions,
             total, setTotal,
-            setRestAmount,
             addInfo,
             changes,
             meeting,
@@ -74,6 +73,7 @@ function SecretaryConsultationDialog({...props}) {
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
     const {data: session} = useSession();
     const {trigger: triggerTransactionEdit} = useTransactionEdit();
+    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
@@ -96,14 +96,37 @@ function SecretaryConsultationDialog({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });
+    const {data: httpPatientTransactions, mutate:mutatePatientT} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/patients/${patient?.uuid}/transactions/${router.locale}`
+    });
 
+
+
+    useEffect(() => {
+        console.log(httpPatientTransactions)
+    },[httpPatientTransactions])
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
+            console.log(res);
             setTransactions(res.transactions ? res.transactions[0] : null);
-            if (total === -1)
-                setTotal(res.fees ? res.fees : 0)
-            setRestAmount(res.rest_amount)
+            if (total === -1) {
+                const form = new FormData();
+                form.append("consultation_fees", res.fees ? res.fees : 0);
+                form.append("acts", JSON.stringify([]));
+                form.append("fees", res.fees ? res.fees : 0);
+
+                triggerAppointmentEdit({
+                    method: "PUT",
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+                    data: form
+                }, {
+                    onSuccess: () => {
+                        setTotal(res.fees ? res.fees : 0)
+                    }
+                })
+            }
         }
     }, [httpAppointmentTransactions, setTotal, setTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
