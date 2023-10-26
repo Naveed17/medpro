@@ -858,13 +858,13 @@ function ConsultationInProgress() {
                 if (state.length > 0) {
                     setPrescription(state)
                     if (pdoc.findIndex((pdc) => pdc.id === 2) === -1)
-                        pdoc.push({
+                        if (!selectedDialog?.uuid) pdoc.push({
                             id: 2,
                             name: "requestedPrescription",
                             status: "in_progress",
                             icon: "ic-traitement",
                             state
-                        });
+                        }); else setPrescription([])
                 } else {
                     pdoc = pdoc.filter((obj) => obj.id !== 2);
                 }
@@ -1155,6 +1155,28 @@ function ConsultationInProgress() {
                         />
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
+{/*                        <Button onClick={() => {
+                            const form = new FormData();
+                            form.append("cash_box", selectedBoxes[0].uuid);
+                            form.append("type_transaction", TransactionType[0].value);
+                            form.append("amount", "150");
+                            form.append("payment_means", "d72700cc-e540-4ace-9e78-bdfa9f71e33e");
+                            form.append("patient", sheet?.patient);
+                            form.append("transaction_data", JSON.stringify([{
+                                appointment: app_uuid,
+                                amount: 80,
+                            }]));
+
+                            triggerAppointmentEdit({
+                                method: "POST",
+                                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+                                data: form
+                            }, {
+                                onSuccess: (res) => {
+                                    console.log(res)
+                                },
+                            });
+                        }}> PAY</Button>*/}
                         <Grid container spacing={0}>
                             <Grid item xs={showDocument ? 10 : 12}>
                                 <div style={{display: "flex", width: "100%"}}>
