@@ -66,7 +66,7 @@ function TopNavBar({...props}) {
     const {t: commonTranslation} = useTranslation("common");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
-    const {config: agendaConfig, pendingAppointments} = useAppSelector(agendaSelector);
+    const {config: agendaConfig, pendingAppointments, selectedEvent} = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
     const {
         ongoing, next, notifications,
@@ -75,6 +75,7 @@ function TopNavBar({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
     const {switchConsultationDialog} = useAppSelector(navBarSelector);
+    const {event} = useAppSelector(timerSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -89,6 +90,7 @@ function TopNavBar({...props}) {
     const [notificationsCount, setNotificationsCount] = useState(0);
     const [installable, setInstallable] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
+    const [loadingReq, setLoadingReq] = useState<boolean>(false);
 
     const dir = router.locale === "ar" ? "rtl" : "ltr";
 
@@ -154,43 +156,27 @@ function TopNavBar({...props}) {
         });
     }
 
+    const handlePauseStartConsultation = () => {
+        setLoadingReq(true)
+        const form = new FormData();
+        form.append('status', '8');
+        updateAppointmentStatus({
+            method: "PATCH",
+            data: form,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId}/status/${router.locale}`
+        }, {
+            onSuccess: () => {
+                dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
+                handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
+            }
+        });
+
+
+    }
+
     const handleStartConsultation = (nextPatient: any) => {
         const slugConsultation = `/dashboard/consultation/${nextPatient.uuid}`;
-        const event: any = {
-            publicId: nextPatient.uuid,
-            extendedProps: {
-                patient: {
-                    uuid: nextPatient?.patient_uuid,
-                    firstName: nextPatient?.patient.split(" ")[0],
-                    lastName: nextPatient?.patient.split(" ")[1]
-                }
-            }
-        };
-        if (router.asPath !== slugConsultation) {
-            router.replace(slugConsultation, slugConsultation, {locale: router.locale}).then(() => {
-                const form = new FormData();
-                form.append('status', '4');
-                form.append('start_date', moment().format("DD-MM-YYYY"));
-                form.append('start_time', moment().format("HH:mm"));
-                updateAppointmentStatus({
-                    method: "PATCH",
-                    data: form,
-                    url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${nextPatient.uuid}/status/${router.locale}`
-                }, {
-                    onSuccess: () => {
-                        dispatch(setTimer({
-                                isActive: true,
-                                isPaused: false,
-                                event,
-                                startTime: moment().utc().format("HH:mm")
-                            }
-                        ));
-                        // refresh on going api
-                        mutateOnGoing();
-                    }
-                });
-            });
-        }
+        return router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
     }
 
     const requestNotificationPermission = () => {
@@ -534,6 +520,7 @@ function TopNavBar({...props}) {
                                     <LoadingButton
                                         {...{loading}}
                                         loadingPosition="start"
+                                        onClick={handlePauseStartConsultation}
                                         variant="contained"
                                         color={"info"}
                                         startIcon={<IconUrl height={"18"} width={"18"}
