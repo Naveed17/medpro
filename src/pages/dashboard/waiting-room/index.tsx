@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import React, {ReactElement, useEffect, useState} from "react";
 //components
-import {NoDataCard, timerSelector} from "@features/card";
+import {NoDataCard, timerSelector, WaitingRoomMobileCard} from "@features/card";
 // next-i18next
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
@@ -16,7 +16,9 @@ import {
     LinearProgress,
     MenuItem,
     Paper,
-    Typography
+    Stack,
+    Typography,
+    useMediaQuery
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {RoomToolbar} from "@features/toolbar";
@@ -46,7 +48,7 @@ import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useTransactionEdit} from "@lib/hooks/rest";
-import {Board} from "@features/board";
+import {Board, BoardItem} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton} from "@features/buttons";
 import AddIcon from "@mui/icons-material/Add";
@@ -70,7 +72,7 @@ function WaitingRoom() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: triggerTransactionEdit} = useTransactionEdit();
-
+    const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
 
     const {config: agenda} = useAppSelector(agendaSelector);
@@ -116,8 +118,7 @@ function WaitingRoom() {
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
     const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
-    const [tabIndex, setTabIndex] = useState<number>(0);
-
+    const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 :0);
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
@@ -515,7 +516,6 @@ function WaitingRoom() {
             dispatch(toggleSideBar(false));
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
-
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -556,21 +556,21 @@ function WaitingRoom() {
                 <LinearProgress sx={{
                     visibility: !httpWaitingRoomsResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
-                <DesktopContainer>
-                    <Box sx={{ml: 2}}>
+                
+                    <Box className="container">
+                        <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
                             <Board
                                 {...{columns, handleDragEvent}}
                                 handleEvent={handleTableActions}
                                 data={waitingRoomsGroup}/>
                         </TabPanel>
+                        </DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={1}>
                             {waitingRoomsGroup[1] ? <>
-                                    <Card sx={{mr: 2, mt: 2, minWidth: 235}}>
+                                    <Card sx={{ mr:{xs:0,sm:2}, mb: 2, minWidth: 235}}>
                                         <CardHeader
-                                            sx={{
-                                                "& .MuiButtonBase-root": {mr: 1}
-                                            }}
+                                           
                                             avatar={columns[0].icon}
                                             {...(columns[0].action && {action: columns[0].action})}
                                             title={<Typography
@@ -580,6 +580,7 @@ function WaitingRoom() {
                                             </Typography>}
                                         />
                                     </Card>
+                                    <DesktopContainer>
                                     <Otable
                                         sx={{mt: 1, pr: 2}}
                                         {...{
@@ -595,6 +596,24 @@ function WaitingRoom() {
                                         pagination
                                         handleEvent={handleTableActions}
                                     />
+                                    </DesktopContainer>
+                                     <MobileContainer>
+                                        <Stack spacing={1}>
+                                        {
+                                        waitingRoomsGroup[1].map((item:any,i:number) =>(
+                                          <React.Fragment key={item.uuid}>
+                                          <WaitingRoomMobileCard 
+                                          quote={item}
+                                          index={i}
+                                          handleEvent={handleTableActions}
+                                        />
+                                          </React.Fragment>  
+                                        ))
+                                        }
+                                        
+                                  </Stack>
+                                   </MobileContainer>
+                                   
                                 </>
                                 :
                                 <NoDataCard
@@ -619,8 +638,8 @@ function WaitingRoom() {
                             }
                         </TabPanel>
                         <TabPanel padding={.1} value={tabIndex} index={2}>
-                            {waitingRoomsGroup ? <>
-                                    <Card sx={{mr: 2, mt: 2, minWidth: 235}}>
+                            {waitingRoomsGroup[3] ? <>
+                                    <Card sx={{mr:{xs:0,sm:2},mb:2, minWidth: 235}}>
                                         <CardHeader
                                             sx={{
                                                 "& .MuiButtonBase-root": {mr: 1}
@@ -634,6 +653,7 @@ function WaitingRoom() {
                                             </Typography>}
                                         />
                                     </Card>
+                                    <DesktopContainer>
                                     <Otable
                                         sx={{mt: 1, pr: 2}}
                                         {...{
@@ -649,6 +669,23 @@ function WaitingRoom() {
                                         pagination
                                         handleEvent={handleTableActions}
                                     />
+                                    </DesktopContainer>
+                                     <MobileContainer>
+                                        <Stack spacing={1}>
+                                        {
+                                        waitingRoomsGroup[3].map((item:any,i:number) =>(
+                                          <React.Fragment key={item.uuid}>
+                                          <WaitingRoomMobileCard 
+                                          quote={item}
+                                          index={i}
+                                          handleEvent={handleTableActions}
+                                        />
+                                          </React.Fragment>  
+                                        ))
+                                        }
+                                        
+                                  </Stack>
+                                   </MobileContainer>
                                 </>
                                 :
                                 <NoDataCard
@@ -673,7 +710,10 @@ function WaitingRoom() {
                             }
                         </TabPanel>
                         <TabPanel padding={.1} value={tabIndex} index={3}>
-                            {waitingRoomsGroup ? <Otable
+                            {waitingRoomsGroup[4] ? 
+                            <>
+                            <DesktopContainer>
+                            <Otable
                                     sx={{mt: 1, pr: 2}}
                                     {...{
                                         doctor_country,
@@ -688,6 +728,24 @@ function WaitingRoom() {
                                     pagination
                                     handleEvent={handleTableActions}
                                 />
+                                </DesktopContainer>
+                                 <MobileContainer>
+                                        <Stack spacing={1}>
+                                        {
+                                        waitingRoomsGroup[4].map((item:any,i:number) =>(
+                                          <React.Fragment key={item.uuid}>
+                                          <WaitingRoomMobileCard 
+                                          quote={item}
+                                          index={i}
+                                          handleEvent={handleTableActions}
+                                        />
+                                          </React.Fragment>  
+                                        ))
+                                        }
+                                        
+                                  </Stack>
+                                   </MobileContainer>
+                                </>
                                 :
                                 <NoDataCard
                                     {...{t}}
@@ -701,7 +759,10 @@ function WaitingRoom() {
                             }
                         </TabPanel>
                         <TabPanel padding={.1} value={tabIndex} index={4}>
-                            {waitingRoomsGroup ? <Otable
+                            {waitingRoomsGroup ? 
+                            <> 
+                            <DesktopContainer>                      
+                            <Otable
                                     sx={{mt: 1, pr: 2}}
                                     {...{
                                         doctor_country,
@@ -720,6 +781,28 @@ function WaitingRoom() {
                                     pagination
                                     handleEvent={handleTableActions}
                                 />
+                                </DesktopContainer>     
+                                 <MobileContainer>
+                                        <Stack spacing={1}>
+                                        {
+                                        [
+                                        ...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : []),
+                                        ...(waitingRoomsGroup[6] ? waitingRoomsGroup[6] : []),
+                                        ...(waitingRoomsGroup[9] ? waitingRoomsGroup[9] : []),
+                                        ...(waitingRoomsGroup[10] ? waitingRoomsGroup[10] : [])].map((item:any,i:number) =>(
+                                          <React.Fragment key={item.uuid}>
+                                          <WaitingRoomMobileCard 
+                                          quote={item}
+                                          index={i}
+                                          handleEvent={handleTableActions}
+                                        />
+                                          </React.Fragment>  
+                                        ))
+                                        }
+                                        
+                                  </Stack>
+                                   </MobileContainer>
+                                </>
                                 :
                                 <NoDataCard
                                     {...{t}}
@@ -751,14 +834,8 @@ function WaitingRoom() {
                             )}
                         </ActionMenu>
                     </Box>
-                </DesktopContainer>
-                <MobileContainer>
-                    {/* <DetailsCard
-                        {...{t}}
-                        waitingRoom
-                        handleEvent={handleTableActions}
-                        rows={waitingRooms}/>*/}
-                </MobileContainer>
+                
+               
             </Box>
 
             <Drawer

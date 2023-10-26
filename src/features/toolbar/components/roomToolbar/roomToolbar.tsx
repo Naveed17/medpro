@@ -9,14 +9,12 @@ import {a11yProps} from "@lib/hooks";
 function RoomToolbar({...props}) {
     const {t, tabIndex, setTabIndex, columns, data, handleCollapse} = props;
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
-
     const [open, set0pen] = useState(false);
-
     const [tabsContent] = useState([
-        {
+            {
             title: "overview",
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
-        },
+            },
         ...columns.map((column: any) => ({
             title: column.name,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
@@ -28,7 +26,9 @@ function RoomToolbar({...props}) {
     }, [setTabIndex]);
 
     return (
-        <Stack direction='row' justifyContent="space-between" mt={2.8} width={1} alignItems="center">
+        <Stack sx={{".tabs-bg-white":{
+            borderTopWidth:0,
+        }}} direction='row' justifyContent="space-between" mt={2.8} width={1} alignItems="center">
             <Tabs
                 value={tabIndex}
                 onChange={handleStepperIndexChange}
@@ -40,7 +40,13 @@ function RoomToolbar({...props}) {
                         key={`tabHeader-${tabHeaderIndex}`}
                         disableRipple
                         label={t(`tabs.${tabHeader.title}`)}
+                        
                         {...a11yProps(tabHeaderIndex)}
+                       {...(isMobile &&{
+                        sx:{
+                           display: tabHeader.title === 'overview' ? 'none' : 'inline-flex' 
+                        }
+                       })} 
                     />)
                 )}
             </Tabs>

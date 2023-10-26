@@ -144,7 +144,6 @@ function Board({...props}) {
             setBoardData(columnDataMap(quotes));
         }
     }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
-
     return (
         <ParentContainer>
             <DragDropContext onDragEnd={handleOnDragBoard}>
@@ -165,10 +164,11 @@ function Board({...props}) {
                                                     isDragging={snapshot.isDragging}
                                                     {...provided.dragHandleProps}
                                                     aria-label={`${key} quote list`}>
-                                                    <Card sx={{mr: 2, minWidth: 235}}>
+                                                    <Card>
                                                         <CardHeader
                                                             avatar={columns[index].icon}
                                                             {...(columns[index].action && {action: columns[index].action})}
+                                                            sx={{minHeight:60,".MuiCardHeader-action":{alignSelf:'center'}}}
                                                             title={<Typography
                                                                 color={"text.primary"} fontWeight={700}
                                                                 fontSize={14}>
