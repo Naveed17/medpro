@@ -1155,16 +1155,16 @@ function ConsultationInProgress() {
                         />
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-                        <Button onClick={()=>{
+{/*                        <Button onClick={() => {
                             const form = new FormData();
                             form.append("cash_box", selectedBoxes[0].uuid);
-                            form.append("type_transaction", TransactionType[4].value);
-                            form.append("amount", "50");
+                            form.append("type_transaction", TransactionType[0].value);
+                            form.append("amount", "150");
                             form.append("payment_means", "d72700cc-e540-4ace-9e78-bdfa9f71e33e");
                             form.append("patient", sheet?.patient);
                             form.append("transaction_data", JSON.stringify([{
                                 appointment: app_uuid,
-                                amount: 30,
+                                amount: 80,
                             }]));
 
                             triggerAppointmentEdit({
@@ -1176,7 +1176,7 @@ function ConsultationInProgress() {
                                     console.log(res)
                                 },
                             });
-                        }}> PAY</Button>
+                        }}> PAY</Button>*/}
                         <Grid container spacing={0}>
                             <Grid item xs={showDocument ? 10 : 12}>
                                 <div style={{display: "flex", width: "100%"}}>

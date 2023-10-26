@@ -100,6 +100,10 @@ function PediatricianCharts({...props}) {
                 dataLabels: {
                     enabled: false
                 },
+                legend: {
+                    verticalAlign:"center",
+                    position: 'right'
+                },
                 colors,
                 markers: {
                     size: [0, 0, 0, 0, 5, 0, 0, 0, 0, 5, 0, 0, 0, 0, 5]
@@ -108,6 +112,7 @@ function PediatricianCharts({...props}) {
                     width: 2,
                     dashArray
                 },
+
             },
         })
     }, [sheet, birthdate, height, weight, perimetreCranien, t])
