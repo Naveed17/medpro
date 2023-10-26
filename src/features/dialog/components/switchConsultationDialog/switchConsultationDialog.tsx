@@ -20,13 +20,14 @@ import {FlipDate} from "@features/FlipDate";
 import {Label} from "@features/label";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
+import SwitchConsultationDialogStyled from "./overrides/switchConsultationDialogStyled";
 
 function SwitchConsultationDialog() {
     const {timer} = useTimer();
     const theme = useTheme();
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
 
-    const {t} = useTranslation("common");
+    const {t} = useTranslation(["common", "consultation"]);
     const {event} = useAppSelector(timerSelector);
 
     const [instruction, setInstruction] = useState("");
@@ -35,7 +36,7 @@ function SwitchConsultationDialog() {
     const [selectedDose, setSelectedDose] = useState("day")
 
     return (
-        <Stack sx={{minHeight: 150}} alignItems={"center"}>
+        <SwitchConsultationDialogStyled sx={{minHeight: 150}} alignItems={"center"}>
             <Typography sx={{textAlign: "center"}}
                         variant="subtitle1">{t(`dialogs.switch-consultation-dialog.sub-title`)} </Typography>
             <Typography sx={{textAlign: "center"}}
@@ -65,7 +66,7 @@ function SwitchConsultationDialog() {
             </Stack>
 
             <Stack className="instruction-box" spacing={1}>
-                <Typography variant="body2" color="text.secondary">{t('note')}</Typography>
+                <Typography variant="body2" color="text.secondary">{startCase(t('note'))}</Typography>
                 <TextField
                     fullWidth
                     multiline
@@ -73,7 +74,7 @@ function SwitchConsultationDialog() {
                     onChange={event => {
                         setInstruction(event.target.value.slice(0, 255));
                     }}
-                    placeholder={t("type_instruction_for_the_secretary")}
+                    placeholder={t("type_instruction_for_the_secretary", {ns: "consultation"})}
                     rows={4}
                     InputProps={{
                         endAdornment: (
@@ -99,7 +100,7 @@ function SwitchConsultationDialog() {
                                })
                            }>
                         <Checkbox checked={checkedNext}/>
-                        <Typography>{t("plan_a_meeting")}</Typography>
+                        <Typography>{t("plan_a_meeting", {ns: "consultation"})}</Typography>
                     </Stack>
                     {checkedNext && (
                         <>
@@ -137,7 +138,7 @@ function SwitchConsultationDialog() {
                                 }
                             />
                             <RadioGroup sx={{ml: 1}} row onClick={(e) => e.stopPropagation()}>
-                                {['day', 'month', 'year'].map((item: string) => (
+                                {[t('times.day'), t('times.month'), t('times.year')].map((item: string) => (
                                     <FormControlLabel
                                         key={item}
                                         onChange={() => {
@@ -154,7 +155,7 @@ function SwitchConsultationDialog() {
                     )}
                 </Button>
             </Stack>
-        </Stack>
+        </SwitchConsultationDialogStyled>
     )
 }
 

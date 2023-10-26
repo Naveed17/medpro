@@ -233,7 +233,10 @@ function Calendar({...props}) {
         let days: BusinessHoursInput[] = [];
         if (openingHours) {
             Object.entries(openingHours).forEach((openingHours: any) => {
-                openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
+                openingHours[1].forEach((openingHour: {
+                    start_time: string,
+                    end_time: string
+                }) => {
                     const min = moment.duration(openingHour?.start_time).asHours();
                     const max = moment.duration(openingHour?.end_time).asHours();
                     if (min < slotMinTime) {

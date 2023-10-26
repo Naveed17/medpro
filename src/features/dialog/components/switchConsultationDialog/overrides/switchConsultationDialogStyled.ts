@@ -1,20 +1,15 @@
-import {Stack} from "@mui/material";
 import {styled} from "@mui/material/styles";
+import {Stack} from "@mui/material";
 
-const RootStyled = styled(Stack)(({theme}) => ({
-    overflow: 'hidden',
-    width: "100%",
-    minWidth: 1028,
-
-    paddingBottom: theme.spacing(2),
+const SwitchConsultationDialogStyled = styled(Stack)(({theme}) => ({
     '.counter-btn': {
         padding: theme.spacing(1),
         alignSelf: 'flex-start',
         backgroundColor: theme.palette.grey["A10"],
         color: "black",
         minHeight: 50,
-        border:0,
-        width:"100%",
+        border: 0,
+        width: "100%",
         justifyContent: "flex-start",
         '.MuiCheckbox-root': {
             width: 20,
@@ -47,29 +42,6 @@ const RootStyled = styled(Stack)(({theme}) => ({
             width: '100%',
             flexDirection: 'column'
         }
-    },
-    '.MuiInputAdornment-root': {
-        alignSelf: 'flex-end'
-    },
-    ".document-card": {
-        borderRadius: 6,
-        width: "100%",
-        '.MuiCardContent-root': {
-            padding: theme.spacing(1),
-            "&:last-child": {
-                paddingBottom: theme.spacing(1)
-            }
-        }
-    },
-    "@media (max-width: 1024px)": {
-        minWidth: 0,
-    },
-    ["input::-webkit-outer-spin-button,input::-webkit-inner-spin-button"]: {
-        //"-webkit-appearance": "none",
-        margin: 0
-    },
-    "input[type=number]": {
-        // "-moz-appearance": "textfield"
     }
 }));
-export default RootStyled;
+export default SwitchConsultationDialogStyled;

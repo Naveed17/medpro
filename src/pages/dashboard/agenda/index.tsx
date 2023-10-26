@@ -21,6 +21,7 @@ import {useSession} from "next-auth/react";
 import dynamic from "next/dynamic";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+const AppointmentDetail = dynamic(() => import('@features/dialog/components/appointmentDetail/components/appointmentDetail'));
 
 import {instanceAxios, useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
@@ -51,7 +52,7 @@ import {
     TimeSchedule
 } from "@features/tabPanel";
 import {
-    AppointmentDetail, QuickAddAppointment,
+    QuickAddAppointment,
     Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime, preConsultationSelector
 } from "@features/dialog";
 import {AppointmentListMobile, timerSelector} from "@features/card";
@@ -284,7 +285,10 @@ function Agenda() {
         let localMaxSlot = 20; //20h
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
         Object.entries(openingHours).forEach((openingHours: any) => {
-            openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
+            openingHours[1].forEach((openingHour: {
+                start_time: string,
+                end_time: string
+            }) => {
                 const min = moment.duration(openingHour?.start_time).asHours();
                 const max = moment.duration(openingHour?.end_time).asHours();
                 if (min < localMinSlot) {
@@ -708,12 +712,10 @@ function Agenda() {
                 query: {inProgress: true}
             }, slugConsultation, {locale: router.locale})
         } else {
-            dispatch(openDrawer({type: "view", open: false}));
-            setError(true);
-            // hide notification after 8000ms
-            setInterval(() => {
-                setError(false);
-            }, 8000);
+            batch(() => {
+                dispatch(openDrawer({type: "view", open: false}));
+                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+            })
         }
     }
 
@@ -961,7 +963,7 @@ function Agenda() {
         setOpenUploadDialog({...openUploadDialog, loading: true});
         const params = new FormData();
         documentConfig.files.map((file: any) => {
-            params.append(`files[${file.type}][]`, file.file, file.name.slice(0, 20));
+            params.append(`files[${file.type}][]`, file.file, file.name);
         });
         triggerUploadDocuments({
             method: "POST",
