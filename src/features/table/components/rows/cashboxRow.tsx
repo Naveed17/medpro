@@ -1,5 +1,15 @@
 import TableCell from "@mui/material/TableCell";
-import {Button, Collapse, DialogActions, Link, Stack, Table, TableRow, Typography, useTheme,} from "@mui/material";
+import {
+    Button,
+    Collapse,
+    DialogActions,
+    Link,
+    Stack,
+    Table,
+    TableRow,
+    Typography,
+    useTheme,
+} from "@mui/material";
 import {addBilling, TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
@@ -21,8 +31,8 @@ import {LoadingButton} from "@mui/lab";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useTransactionEdit} from "@lib/hooks/rest";
 import {alpha} from "@mui/material/styles";
-import {Theme} from "@mui/system";
-import CheckCircleOutlineRoundedIcon from "@mui/icons-material/CheckCircleOutlineRounded";
+import {HtmlTooltip} from "@features/tooltip";
+
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
@@ -135,6 +145,7 @@ function PaymentRow({...props}) {
             }, {
                 onSuccess: (res) => {
                     setTransaction_data(res.data.data)
+                    console.log(res.data.data);
                 }
             })
         }
@@ -280,7 +291,19 @@ function PaymentRow({...props}) {
                 </TableCell>
                 {/***** Payments means *****/}
                 <TableCell>
-                    <Typography variant="body2" textAlign={"center"}>-</Typography>
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="center"
+                        spacing={1}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {row.payment_means && <img style={{width: 15}} key={row.uuid}
+                                                   src={pmList.find((pm: {
+                                                       slug: string;
+                                                   }) => pm.slug == row.payment_means.slug).logoUrl.url}
+                                                   alt={"payment means icon"}/>}
+                    </Stack>
+
                 </TableCell>
 
                 <TableCell>
@@ -357,16 +380,15 @@ function PaymentRow({...props}) {
                                             role="checkbox"
                                             className="collapse-row"
                                             sx={{
-                                                bgcolor: (theme: Theme) => data.filterCB && col.payment_date === data.filterCB.start_date ?
-                                                    theme.palette.background.paper : "#ffffff66",
                                                 "&::before": {
                                                     ...(idx > 0 && {
                                                         height: "calc(100% + 8px)",
                                                         top: '-70%'
                                                     })
-                                                }
+                                                },
+                                                background: alpha((col.appointment && col.appointment.restAmount) ? theme.palette.warning.main : theme.palette.success.main, 0.1)
                                             }}>
-                                            <TableCell>
+                                            <TableCell sx={{background: "transparent"}}>
                                                 <Stack
                                                     direction="row"
                                                     alignItems="center"
@@ -386,7 +408,7 @@ function PaymentRow({...props}) {
                                                     <Typography variant="body2">{col.payment_date}</Typography>
                                                 </Stack>
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell sx={{background: "transparent"}}>
                                                 <Stack
                                                     direction="row"
                                                     alignItems="center"
@@ -408,21 +430,31 @@ function PaymentRow({...props}) {
                                                 </Stack>
 
                                             </TableCell>
-                                            {col.appointment && <TableCell>
+                                            {col.appointment && <TableCell sx={{background: "transparent"}}>
                                                 <Link sx={{cursor: "pointer"}}
                                                       onClick={(event) => {
                                                           event.stopPropagation();
                                                           router.push(`/dashboard/consultation/${col.appointment.uuid}`);
                                                       }}
                                                       underline="none">
-                                                    ok
+                                                    {col.appointment.type.name}
                                                 </Link>
                                             </TableCell>}
-                                            <TableCell>
-                                                <Typography color={"success.main"} fontWeight={700} textAlign={"center"}>
-                                                    {col.amount}
-                                                    <span style={{fontSize: 10}}>{devise}</span>
-                                                </Typography>
+                                            <TableCell sx={{background: "transparent"}}>
+                                                <HtmlTooltip
+                                                    title={
+                                                        <React.Fragment>
+                                                            <Typography color="inherit">{col.appointment.type.name} :<span style={{fontWeight:"bold"}}>{col.appointment.fees}</span><span style={{fontSize:9}}>{devise}</span></Typography>
+
+                                                        </React.Fragment>
+                                                    }>
+                                                    <Typography style={{cursor:"pointer"}}
+                                                        color={(col.appointment && col.appointment.restAmount) ? "black.main" : "success.main"}
+                                                        fontWeight={700} textAlign={"center"}>
+                                                        {(col.appointment && col.appointment.restAmount) ? `${col.amount} /${col.appointment.fees}` : col.amount}
+                                                        <span style={{fontSize: 10}}>{devise}</span>
+                                                    </Typography>
+                                                </HtmlTooltip>
                                             </TableCell>
 
                                         </TableRow>

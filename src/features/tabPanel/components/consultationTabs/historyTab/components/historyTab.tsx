@@ -161,7 +161,7 @@ function HistoryTab({...props}) {
             {/****** Pediatrican charts ******/}
 
             {
-                moment().diff(moment(patient?.birthdate), "years") < 5 &&
+                patient?.birthdate && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") < 5 &&
                 <PediatricianCharts {...{sheet, birthdate: patient?.birthdate, t}}/>
             }
             {/****** Latest appointment ******/}

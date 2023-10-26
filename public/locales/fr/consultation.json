@@ -641,6 +641,7 @@
     "weight": "Poids",
     "growth": "Croissance",
     "3years": "des filles et des garçons de la naissance à 3ans",
-    "filter": "Filter"
+    "filter": "Filter",
+    "perimetreCranien": "Périmètre crânien"
   }
 }
