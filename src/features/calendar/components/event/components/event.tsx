@@ -12,7 +12,7 @@ import {useRouter} from "next/router";
 import {alpha, Theme} from "@mui/material/styles";
 
 function Event({...props}) {
-    const {isBeta, event, view, isMobile, open, setAppointmentData, setAnchorEl, isEventDragging} = props;
+    const {isBeta, event, view, isMobile, open, setAppointmentData, anchorEl, setAnchorEl, isEventDragging} = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -30,7 +30,6 @@ function Event({...props}) {
         }
 
         timeoutId = setTimeout(() => {
-            setAnchorEl(event.target as any);
             setAppointmentData(null);
             const query = `?mode=tooltip&appointment=${appointmentUuid}&start_date=${moment(appointment.time).format("DD-MM-YYYY")}&end_date=${moment(appointment.time).format("DD-MM-YYYY")}&format=week`
             triggerAppointmentTooltip({
@@ -40,11 +39,12 @@ function Event({...props}) {
                 onSuccess: (result) => {
                     const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
                     if (appointmentData.length > 0) {
+                        setAnchorEl(event.target as any);
                         setAppointmentData(appointmentData[0]);
                     }
                 }
             })
-        }, 800);
+        }, 1000);
     }
 
     const handlePopoverClose = () => {
@@ -53,8 +53,10 @@ function Event({...props}) {
     }
 
     useEffect(() => {
-        handlePopoverClose()
-    }, [openViewDrawer]); // eslint-disable-line react-hooks/exhaustive-deps
+        if (anchorEl !== null && openViewDrawer) {
+            handlePopoverClose()
+        }
+    }, [anchorEl]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>

@@ -29,11 +29,12 @@ const CipCardStyled = styled(LoadingButton)(({theme}) => ({
         width: "66px"
     },
     "& .timer-text": {
+        textAlign: "left",
         width: "120px",
         whiteSpace: "nowrap",
         overflow: "hidden",
         textOverflow: "ellipsis",
-        marginLeft: "10px"
+        marginLeft: "4px"
     },
     "& .round-avatar": {
         borderRadius: 20,

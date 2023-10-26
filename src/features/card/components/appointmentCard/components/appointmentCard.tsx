@@ -37,7 +37,7 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function AppointmentCard({...props}) {
-    const {data, patientId = null, onDataUpdated = null, onMoveAppointment = null, t, roles} = props;
+    const {patientId = null, handleOnDataUpdated = null, onMoveAppointment = null, t, roles} = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
@@ -45,11 +45,43 @@ function AppointmentCard({...props}) {
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {appointmentTypes, medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {locale} = useAppSelector(configSelector);
+    const {selectedEvent: appointment} = useAppSelector(agendaSelector);
 
     const [editConsultation, setConsultation] = useState(false);
+    const [data, setData] = useState({
+        uuid: appointment?.publicId
+            ? appointment?.publicId
+            : (appointment as any)?.id,
+        date: moment(appointment?.extendedProps.time).format(
+            "DD-MM-YYYY"
+        ),
+        time: moment(appointment?.extendedProps.time).format("HH:mm"),
+        motif: appointment?.extendedProps.motif,
+        status: appointment?.extendedProps.status,
+        ...(appointment?.extendedProps?.type && {type: appointment?.extendedProps.type}),
+        instruction: appointment?.extendedProps.instruction,
+        reminder: appointment?.extendedProps.reminder
+    });
+    const [instruction, setInstruction] = useState("");
+    const [reminder, setReminder] = useState({
+        init: true,
+        smsLang: "fr",
+        rappel: "1",
+        rappelType: "2",
+        smsRappel: false,
+        timeRappel: moment().toDate()
+    });
+    const [selectedReason, setSelectedReason] = useState<ConsultationReasonModel[]>([]);
+    const [typeEvent, setTypeEvent] = useState("");
+    const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
+
     const onEditConsultation = () => setConsultation(!editConsultation);
 
-    const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequestQuery(medicalEntityHasUser ? {
+    const {
+        data: httpConsultReasonResponse,
+        isLoading: isConsultReasonLoading,
+        mutate: mutateConsultReason
+    } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
     } : null, {
@@ -60,24 +92,12 @@ function AppointmentCard({...props}) {
     const {trigger: triggerAddReason} = useRequestQueryMutation("/agenda/motif/add");
     const {trigger: updateAppointmentTrigger} = useRequestQueryMutation("/agenda/update/appointment/detail");
 
-    const [reason, setReason] = useState(data.motif);
-    const [instruction, setInstruction] = useState(data.instruction);
-    const [reminder, setReminder] = useState({
-        init: true,
-        smsLang: data.reminder?.length > 0 ? data.reminder[0].reminderLanguage : "fr",
-        rappel: data.reminder?.length > 0 ? data.reminder[0].numberOfDay : "1",
-        rappelType: data.reminder?.length > 0 ? data.reminder[0].type : "2",
-        smsRappel: data.reminder?.length > 0,
-        timeRappel: (data.reminder?.length > 0 ? moment(`${data.reminder[0].date} ${data.reminder[0].time}`, 'DD-MM-YYYY HH:mm') : moment()).toDate()
-    });
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data?.filter((item: ConsultationReasonModel) => item.isEnabled) ?? [];
 
-    const [selectedReason, setSelectedReason] = useState(data?.motif ?? null);
-    const [typeEvent, setTypeEvent] = useState(data.type?.uuid);
-    const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
-
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
-
-    const updateDetails = useCallback((input: { attribute: string; value: any }) => {
+    const updateDetails = useCallback((input: {
+        attribute: string;
+        value: any
+    }) => {
         const form = new FormData();
         form.append("attribute", input.attribute);
         form.append("value", input.value as string);
@@ -87,18 +107,17 @@ function AppointmentCard({...props}) {
             data: form
         }, {
             onSuccess: () => {
-                if (onDataUpdated) {
-                    onDataUpdated();
+                if (handleOnDataUpdated) {
+                    handleOnDataUpdated();
                 } else {
                     medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`]);
                 }
             }
         });
-    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, invalidateQueries, onDataUpdated, patientId, router.locale, updateAppointmentTrigger, urlMedicalEntitySuffix]);
+    }, [agendaConfig?.uuid, data?.uuid, medicalEntityHasUser, invalidateQueries, handleOnDataUpdated, patientId, router.locale, updateAppointmentTrigger, urlMedicalEntitySuffix]);
 
     const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
         updateDetails({attribute: "consultation_reason", value: reasons.map(reason => reason.uuid)});
-        setReason(reasons);
         setSelectedReason(reasons);
     }
 
@@ -118,13 +137,12 @@ function AppointmentCard({...props}) {
             data: params
         }, {
             onSuccess: () => mutateConsultReason().then((result: any) => {
-                const {status} = result?.data;
-                const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
+                const {status, data: reasonsUpdated} = result?.data?.data;
                 if (status === "success") {
-                    handleReasonChange([...reason, reasonsUpdated[0]]);
+                    handleReasonChange([...selectedReason, reasonsUpdated[0]]);
                 }
-                setLoadingRequest(false);
-            })
+            }),
+            onSettled: () => setLoadingRequest(false)
         });
     }
 
@@ -136,15 +154,15 @@ function AppointmentCard({...props}) {
     const debouncedOnChange = debounce(handleOnChange, 1000);
 
     useEffect(() => {
-        if (!reminder.init) {
+        if (!reminder?.init) {
             updateDetails({
                 attribute: "reminder",
-                value: JSON.stringify(reminder.smsRappel ? [{
-                    "type": reminder.rappelType,
-                    "time": moment.utc(reminder.timeRappel).format('HH:mm'),
-                    "number_of_day": reminder.rappel,
-                    "reminder_language": reminder.smsLang,
-                    "reminder_message": reminder.smsLang
+                value: JSON.stringify(reminder?.smsRappel ? [{
+                    "type": reminder?.rappelType,
+                    "time": moment.utc(reminder?.timeRappel).format('HH:mm'),
+                    "number_of_day": reminder?.rappel,
+                    "reminder_language": reminder?.smsLang,
+                    "reminder_message": reminder?.smsLang
                 }] : [])
             });
             setReminder({
@@ -153,6 +171,35 @@ function AppointmentCard({...props}) {
             })
         }
     }, [reminder, updateDetails])
+
+    useEffect(() => {
+        const updatedData = {
+            uuid: appointment?.publicId
+                ? appointment?.publicId
+                : (appointment as any)?.id,
+            date: moment(appointment?.extendedProps.time).format(
+                "DD-MM-YYYY"
+            ),
+            time: moment(appointment?.extendedProps.time).format("HH:mm"),
+            motif: appointment?.extendedProps.motif,
+            status: appointment?.extendedProps.status,
+            ...(appointment?.extendedProps?.type && {type: appointment?.extendedProps.type}),
+            instruction: appointment?.extendedProps.instruction ?? "",
+            reminder: appointment?.extendedProps.reminder
+        }
+        updatedData.type?.uuid && setTypeEvent(updatedData.type.uuid);
+        setTimeout(() => setSelectedReason(updatedData.motif));
+        setTimeout(() => setInstruction(updatedData.instruction));
+        setTimeout(() => setReminder({
+            init: true,
+            smsLang: updatedData.reminder?.length > 0 ? updatedData.reminder[0].reminderLanguage : "fr",
+            rappel: updatedData.reminder?.length > 0 ? updatedData.reminder[0].numberOfDay : "1",
+            rappelType: updatedData.reminder?.length > 0 ? updatedData.reminder[0].type : "2",
+            smsRappel: updatedData.reminder?.length > 0,
+            timeRappel: (updatedData.reminder?.length > 0 ? moment(`${updatedData.reminder[0].date} ${updatedData.reminder[0].time}`, 'DD-MM-YYYY HH:mm') : moment()).toDate()
+        }));
+        setTimeout(() => setData(updatedData));
+    }, [appointment])
 
     return (
         <RootStyled>
@@ -261,8 +308,8 @@ function AppointmentCard({...props}) {
                                                         },
                                                     }}
                                                     renderValue={(selected) => {
-                                                        if (selected.length === 0) {
-                                                            return <em>{t("stepper-1.type-placeholder")}</em>;
+                                                        if (selected === null || selected.length === 0) {
+                                                            return <em>{t("steppers.stepper-0.type-placeholder", {ns: "agenda"})}</em>;
                                                         }
 
                                                         const type = appointmentTypes?.find(
@@ -330,87 +377,87 @@ function AppointmentCard({...props}) {
                                 </ListItem>
                             )}
                             {editConsultation && <>
-                                {reasons && <ListItem>
+                                <ListItem>
                                     <Typography fontWeight={400}>
                                         {t("consultation_reson")}
                                     </Typography>
-                                    <FormControl fullWidth size="small">
-                                        <Autocomplete
-                                            id={"motif"}
-                                            disabled={!reasons}
-                                            multiple
-                                            freeSolo
-                                            fullWidth
-                                            autoHighlight
-                                            disableClearable
-                                            size="small"
-                                            value={reason ? reason : []}
-                                            onChange={(e, newValue: any) => {
-                                                e.stopPropagation();
-                                                const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
-                                                if (addReason) {
-                                                    // Create a new value from the user input
-                                                    addNewReason(addReason.inputValue);
-                                                } else {
-                                                    handleReasonChange(newValue);
-                                                }
-                                            }}
-                                            filterOptions={(options, params) => filterReasonOptions(options, params, t)}
-                                            sx={{color: "text.secondary"}}
-                                            options={reasons ? reasons.filter(item => item.isEnabled) : []}
-                                            loading={reasons?.length === 0}
-                                            getOptionLabel={(option) => {
-                                                // Value selected with enter, right from the input
-                                                if (typeof option === 'string') {
-                                                    return option;
-                                                }
-                                                // Add "xxx" option created dynamically
-                                                if (option.inputValue) {
-                                                    return option.inputValue;
-                                                }
-                                                // Regular option
-                                                return option.name;
-                                            }}
-                                            isOptionEqualToValue={(option: any, value) => option.name === value?.name}
-                                            renderOption={(props, option) => (
-                                                <Stack key={option.uuid ? option.uuid : "-1"}>
-                                                    {!option.uuid && <Divider/>}
-                                                    <MenuItem
-                                                        {...props}
-                                                        {...(!option.uuid && {sx: {fontWeight: "bold"}})}
-                                                        value={option.uuid}>
-                                                        {!option.uuid && <AddOutlinedIcon/>}
-                                                        {option.name}
-                                                    </MenuItem>
-                                                </Stack>
-                                            )}
-                                            renderInput={params => <TextField color={"info"}
-                                                                              {...params}
-                                                                              InputProps={{
-                                                                                  ...params.InputProps,
-                                                                                  endAdornment: (
-                                                                                      <React.Fragment>
-                                                                                          {loadingRequest ?
-                                                                                              <CircularProgress
-                                                                                                  color="inherit"
-                                                                                                  size={20}/> : null}
-                                                                                          {params.InputProps.endAdornment}
-                                                                                      </React.Fragment>
-                                                                                  ),
-                                                                              }}
-                                                                              placeholder={t("reason-consultation-placeholder")}
-                                                                              sx={{paddingLeft: 0}}
-                                                                              variant="outlined" fullWidth/>}/>
-                                    </FormControl>
-                                </ListItem>}
+                                    <Autocomplete
+                                        id={"motif"}
+                                        multiple
+                                        freeSolo
+                                        fullWidth
+                                        size="small"
+                                        value={selectedReason}
+                                        onChange={(e, newValue: any) => {
+                                            e.stopPropagation();
+                                            const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
+                                            console.log("addReason", addReason, newValue)
+                                            if (addReason) {
+                                                // Create a new value from the user input
+                                                addNewReason(addReason.inputValue);
+                                            } else if (typeof newValue[newValue.length - 1] === 'string') {
+                                                // Create a new value from the user input
+                                                addNewReason(newValue[newValue.length - 1]);
+                                            } else {
+                                                handleReasonChange(newValue);
+                                            }
+                                        }}
+                                        filterOptions={(options, params) => filterReasonOptions(options, params, t)}
+                                        sx={{color: "text.secondary"}}
+                                        options={reasons}
+                                        getOptionLabel={(option) => {
+                                            // Value selected with enter, right from the input
+                                            if (typeof option === 'string') {
+                                                return option;
+                                            }
+                                            // Add "xxx" option created dynamically
+                                            if (option.inputValue) {
+                                                return option.inputValue;
+                                            }
+                                            // Regular option
+                                            return option.name;
+                                        }}
+                                        isOptionEqualToValue={(option: any, value) => option.name === value?.name}
+                                        renderOption={(props, option) => (
+                                            <Stack key={option.uuid ? option.uuid : "-1"}>
+                                                {!option.uuid && <Divider/>}
+                                                <MenuItem
+                                                    {...props}
+                                                    {...(!option.uuid && {sx: {fontWeight: "bold"}})}
+                                                    value={option.uuid}>
+                                                    {!option.uuid && <AddOutlinedIcon/>}
+                                                    {option.name}
+                                                </MenuItem>
+                                            </Stack>
+                                        )}
+                                        renderInput={params =>
+                                            <TextField color={"info"}
+                                                       {...params}
+                                                       InputProps={{
+                                                           ...params.InputProps,
+                                                           endAdornment: (
+                                                               <React.Fragment>
+                                                                   {(loadingRequest || isConsultReasonLoading) ?
+                                                                       <CircularProgress
+                                                                           color="inherit"
+                                                                           size={20}/> : null}
+                                                                   {params.InputProps.endAdornment}
+                                                               </React.Fragment>
+                                                           ),
+                                                       }}
+                                                       placeholder={t("reason-consultation-placeholder")}
+                                                       sx={{paddingLeft: 0}}
+                                                       variant="outlined" fullWidth/>}/>
+                                </ListItem>
                                 <ListItem>
                                     <Typography fontWeight={400}>
                                         {t("insctruction")}
                                     </Typography>
                                     <FormControl fullWidth size="small">
-                                        <textarea rows={6}
-                                                  onChange={debouncedOnChange}
-                                                  defaultValue={instruction}/>
+                                        <textarea
+                                            rows={6}
+                                            onChange={debouncedOnChange}
+                                            defaultValue={instruction}/>
                                     </FormControl>
                                 </ListItem>
 
@@ -466,8 +513,7 @@ function AppointmentCard({...props}) {
                                                             ...reminder,
                                                             init: false,
                                                             rappel: event.target.value
-                                                        })}
-                                                    >
+                                                        })}>
                                                         <MenuItem
                                                             value={"0"}>{t("steppers.stepper-3.day", {ns: "agenda"})} 0</MenuItem>
                                                         <MenuItem

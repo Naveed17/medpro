@@ -13,7 +13,7 @@ import {
     IconButton, Menu,
     MenuItem,
     MenuList, Stack,
-    Toolbar, Typography,
+    Toolbar,
     useMediaQuery, useTheme
 } from "@mui/material";
 // components
@@ -396,7 +396,7 @@ function TopNavBar({...props}) {
                                                 background: "#FFF",
                                                 width: 30,
                                                 height: 30,
-                                                border: `1px solid ${theme.palette.background.paper}`
+                                                border: `1px solid ${theme.palette.grey["A900"]}`
                                             }}>
                                             <CloseRoundedIcon
                                                 sx={{
@@ -405,7 +405,6 @@ function TopNavBar({...props}) {
                                                     height: 20
                                                 }}/>
                                         </Avatar>
-
                                     </Stack>
                                 </LoadingButton>
                             }
@@ -521,32 +520,37 @@ function TopNavBar({...props}) {
                         open={switchConsultationDialog}
                         title={commonTranslation(`dialogs.switch-consultation-dialog.title`)}
                         actionDialog={
-                            <>
+                            <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
                                 <Button
                                     variant="text-primary"
-                                    onClick={() => dispatch(setDialog({dialog: "switchConsultationDialog", value: false}))}
+                                    onClick={() => dispatch(setDialog({
+                                        dialog: "switchConsultationDialog",
+                                        value: false
+                                    }))}
                                     startIcon={<CloseIcon/>}>
                                     {commonTranslation(`dialogs.switch-consultation-dialog.cancel`)}
                                 </Button>
-                                <LoadingButton
-                                    {...{loading}}
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    color={"info"}
-                                    startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
-                                                        path="Property 1=pause-hover"></IconUrl>}>
-                                    {commonTranslation(`dialogs.switch-consultation-dialog.pause`)}
-                                </LoadingButton>
-                                <LoadingButton
-                                    {...{loading}}
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    color={"error"}
-                                    startIcon={<IconUrl height={"18"} width={"18"} color={"white"}
-                                                        path="Property 1=play"></IconUrl>}>
-                                    {commonTranslation(`dialogs.switch-consultation-dialog.finish`)}
-                                </LoadingButton>
-                            </>
+                                <Stack direction={"row"} spacing={2}>
+                                    <LoadingButton
+                                        {...{loading}}
+                                        loadingPosition="start"
+                                        variant="contained"
+                                        color={"info"}
+                                        startIcon={<IconUrl height={"18"} width={"18"}
+                                                            path="ic-pause-mate"></IconUrl>}>
+                                        {commonTranslation(`dialogs.switch-consultation-dialog.pause`)}
+                                    </LoadingButton>
+                                    <LoadingButton
+                                        {...{loading}}
+                                        loadingPosition="start"
+                                        variant="contained"
+                                        color={"error"}
+                                        startIcon={<IconUrl height={"18"} width={"18"}
+                                                            path="Property 1=play"></IconUrl>}>
+                                        {commonTranslation(`dialogs.switch-consultation-dialog.finish`)}
+                                    </LoadingButton>
+                                </Stack>
+                            </Stack>
                         }
                     />
 
