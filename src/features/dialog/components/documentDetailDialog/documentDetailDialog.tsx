@@ -94,9 +94,10 @@ function DocumentDetailDialog({...props}) {
     const [docs, setDocs] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState("");
     const [error, setError] = useState(false);
+    const [docPageOffset] = useState(1);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
-        header: {show: true, x: 0, y: 0},
+        header: {show: true, page: docPageOffset, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
         date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "right"},
@@ -154,6 +155,11 @@ function DocumentDetailDialog({...props}) {
         },
         {
             title: data.header.show ? 'hide' : 'show',
+            icon: "ic-menu2",
+            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+        },
+        {
+            title: data.header.page === 0 ? 'hide-header-page.hide' : 'hide-header-page.show',
             icon: "ic-menu2",
             disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
@@ -323,13 +329,28 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "hide":
             case "show":
-                data.header.show = !data.header.show
-                setData({...data})
+                setData({
+                    ...data,
+                    header: {
+                        ...data.header,
+                        show: !data.header.show
+                    }
+                });
                 break;
             case "hidetitle":
             case "showtitle":
                 data.title.show = !data.title.show
                 setData({...data})
+                break;
+            case "hide-header-page.hide":
+            case "hide-header-page.show":
+                setData({
+                    ...data,
+                    header: {
+                        ...data.header,
+                        page: (data.header.page === 0 ? 1 : 0)
+                    }
+                });
                 break;
             case "hidepatient":
             case "showpatient":
@@ -420,7 +441,7 @@ function DocumentDetailDialog({...props}) {
     }
 
     const doc = <Document
-        ref={(element) => (componentRef.current as any)[0] = element}
+        {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[0] = element})}
         file={file}
         loading={t('wait')}
         onLoadSuccess={onDocumentLoadSuccess}
@@ -479,6 +500,10 @@ function DocumentDetailDialog({...props}) {
                     if (_template) {
                         setData({
                             ..._template.header.data,
+                            header: {
+                                ..._template.header.data.header,
+                                page: docPageOffset
+                            },
                             background: {
                                 show: _template.header.data.background.show,
                                 content: _template.file ? _template.file : ''
@@ -496,9 +521,13 @@ function DocumentDetailDialog({...props}) {
                             templates.push(di)
                     })
                     if (templates.length > 0) {
-                        setSelectedTemplate(templates[0].uuid)
+                        setSelectedTemplate(templates[0].uuid);
                         setData({
                             ...templates[0].header.data,
+                            header: {
+                                ...templates[0].header.data.header,
+                                page: docPageOffset
+                            },
                             background: {
                                 show: templates[0].header.data.background.show,
                                 content: templates[0].file ? templates[0].file : ''
@@ -513,6 +542,10 @@ function DocumentDetailDialog({...props}) {
                             setSelectedTemplate(defaultdoc.uuid)
                             setData({
                                 ...defaultdoc.header.data,
+                                header: {
+                                    ...defaultdoc.header.data.header,
+                                    page: docPageOffset
+                                },
                                 background: {
                                     show: defaultdoc.header.data.background.show,
                                     content: defaultdoc.file ? defaultdoc.file : ''
@@ -523,6 +556,10 @@ function DocumentDetailDialog({...props}) {
                             setSelectedTemplate(docInfo[0].uuid)
                             setData({
                                 ...docInfo[0].header.data,
+                                header: {
+                                    ...docInfo[0].header.data.header,
+                                    page: docPageOffset
+                                },
                                 background: {
                                     show: docInfo.header?.data.background.show,
                                     content: docInfo.file ? docInfo.file : ''

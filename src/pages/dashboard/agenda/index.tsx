@@ -84,6 +84,7 @@ import {useTransactionEdit, useSendNotification} from "@lib/hooks/rest";
 import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
+import {setDialog} from "@features/topNavBar";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},

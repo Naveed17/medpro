@@ -11,5 +11,6 @@ export * from "./preConsultationDialog";
 export * from "./addVisitorDialog";
 export * from "./medicalPrescriptionCycleDialog";
 export * from "./medicalPrescriptionModelDialog";
+export * from "./editMotifDialog";
 export { default as Dialog } from "./dialog";
 export { default as DialogData } from "./config";

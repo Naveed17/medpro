@@ -26,6 +26,14 @@ const dialogData = [
         ),
     },
     {
+        action: "switch-consultation",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/switchConsultationDialog/switchConsultationDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
         action: "mode",
         component: dynamic((): any =>
             import("@features/dialog/components/modeRegDialog/modeRegDialog").then(

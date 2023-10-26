@@ -36,7 +36,7 @@ import {
     logout,
     ListItemTextStyled,
     MainMenuStyled,
-    MobileDrawerStyled,
+    MobileDrawerStyled, toggleSideBar,
 } from "@features/menu";
 import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";

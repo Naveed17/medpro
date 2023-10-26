@@ -226,6 +226,7 @@ function ConsultationInProgress() {
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
+    const isDemo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -575,7 +576,7 @@ function ConsultationInProgress() {
                     dispatch(resetAppointment());
                     dispatch(openDrawer({type: "view", open: false}));
                 });
-                checkTransactions();
+                isDemo && checkTransactions();
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");

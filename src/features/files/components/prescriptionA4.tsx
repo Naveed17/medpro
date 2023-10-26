@@ -8,11 +8,13 @@ const Prescription = ({...props}) => {
     const {componentRef, eventHandler, data, pages, id, values, state, loading, date, title} = props;
     const content = useRef<HTMLDivElement>(null);
     const footer = useRef<HTMLDivElement>(null);
-    const [backgroundImg, setBackgroundImg] = useState<string | null>(null);
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
+    const [backgroundImg, setBackgroundImg] = useState<string | null>(null);
     const [selected, setSelected] = useState("");
     const [lastSelected, setLastSelected] = useState("");
+
+    const offset = 200;
 
     useEffect(() => {
         content.current?.append(pages[id].content)
@@ -46,14 +48,7 @@ const Prescription = ({...props}) => {
                       backgroundRepeat: "no-repeat",
                       backgroundSize: "100% 100%"
                   }),
-
               }}>
-
-            {/*            {data.background.show && data.background.content !== '' && id === 0 && backgroundImg &&
-                // eslint-disable-next-line @next/next/no-img-element
-                <img className={"portraitA4"}
-                     style={{position: "absolute", height: '100%', width: '100%'}}
-                     src={backgroundImg} alt={'background'}/>}*/}
 
             {data.header.show && id === 0 && <Draggable
                 onStop={(ev, data) => {
@@ -184,7 +179,8 @@ const Prescription = ({...props}) => {
             </>}
 
             <Draggable
-                defaultPosition={{x: data.content.x, y: data.content.y}}
+                defaultPosition={{x: data.content.x, y: ((id > 0 && data.header.page > 0) ? data.content.y - offset : data.content.y)}}
+                position={{x: data.content.x, y: ((id > 0 && data.header.page > 0) ? data.content.y - offset : data.content.y)}}
                 disabled={eventHandler === null}
                 allowAnyClick={false}
                 onStop={(ev, data) => {
@@ -204,7 +200,7 @@ const Prescription = ({...props}) => {
                     position: "absolute",
                     zIndex: lastSelected === "content" ? 999 : 1,
                     opacity: selected === "" || selected === "content" ? 1 : 0.5,
-                    height: `${data.content.maxHeight}px`,
+                    height: `100%`,
                     overflow: "hidden"
                 }}>
                     {state === undefined && <div id={'content' + id} className="box"

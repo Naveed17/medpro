@@ -47,8 +47,7 @@ function CalendarAddButton({...props}) {
                 disableElevation
                 onClick={handleClick}
                 startIcon={<AddEventIcon/>}
-                endIcon={<KeyboardArrowDownIcon/>}
-            >
+                endIcon={<KeyboardArrowDownIcon/>}>
                 {t && <Typography>{t("add")}</Typography>}
             </Button>
             <StyledMenu

@@ -103,8 +103,8 @@ function ChartsOption() {
         legend: {
             show: true,
             fontSize: 13,
-            position: 'top',
-            horizontalAlign: 'right',
+            position: 'bottom',
+            horizontalAlign: 'left',
             markers: {radius: 12},
             itemMargin: {horizontal: 12},
             labels: {

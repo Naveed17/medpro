@@ -1,3 +1,10 @@
+## [4.20.6](https://github.com/SmartMedSA/med-pro/compare/v4.20.5...v4.20.6) (2023-10-23)
+
+
+### Bug Fixes
+
+* save dicto changes ([32da7b9](https://github.com/SmartMedSA/med-pro/commit/32da7b92d83e7bfb149d8b997eb5037cbde57e29))
+
 ## [4.20.5](https://github.com/SmartMedSA/med-pro/compare/v4.20.4...v4.20.5) (2023-10-20)
 
 
