@@ -26,7 +26,7 @@ function RoomToolbar({...props}) {
     }, [setTabIndex]);
 
     return (
-        <Stack sx={{".tabs-bg-white":{
+        <Stack sx={{".tabs-bg-white.tabs-bg-white":{
             borderTopWidth:0,
         }}} direction='row' justifyContent="space-between" mt={2.8} width={1} alignItems="center">
             <Tabs
