@@ -135,7 +135,7 @@ function ConsultationIPToolbar({...props}) {
                 const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
                 if (audios.length > 0) {
                     const form = new FormData();
-                    form.append(`files[${audios[0].uuid}][]`, file, file.name.slice(0, 20));
+                    form.append(`files[${audios[0].uuid}][]`, file, file.name);
                     triggerDrugsCreate({
                         method: "POST",
                         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${appuuid}/documents/${router.locale}`,
