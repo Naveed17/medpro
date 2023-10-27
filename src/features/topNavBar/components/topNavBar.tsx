@@ -170,11 +170,10 @@ function TopNavBar({...props}) {
                 handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
             }
         });
-
-
     }
 
     const handleStartConsultation = (nextPatient: any) => {
+        console.log("nextPatient", nextPatient)
         const slugConsultation = `/dashboard/consultation/${nextPatient.uuid}`;
         return router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
     }
