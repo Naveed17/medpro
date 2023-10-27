@@ -6,10 +6,10 @@ import {
 import {EventDef} from "@fullcalendar/core/internal";
 
 export type TimerProps = {
-    startTime: string | null;
-    isActive: boolean;
-    isPaused: boolean;
-    event: EventDef | null;
+    startTime?: string | null;
+    isActive?: boolean;
+    isPaused?: boolean;
+    event?: EventDef | null;
 };
 
 const initialState: TimerProps = {

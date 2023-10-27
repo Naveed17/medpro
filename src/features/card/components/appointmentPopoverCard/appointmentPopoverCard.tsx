@@ -118,7 +118,7 @@ function AppointmentPopoverCard({...props}) {
                     <Typography
                         sx={{
                             fontSize: 10,
-                            ml: ["WAITING_ROOM", "NOSHOW"].includes(AppointmentStatus[data?.status]?.key) ? .5 : 0
+                            ml: ["WAITING_ROOM", "NOSHOW", "PAUSED"].includes(AppointmentStatus[data?.status]?.key) ? .5 : 0
                         }}>
                         {AppointmentStatus[data?.status] ? t(`appointment-status.${AppointmentStatus[data.status].key}`, {ns: "common"}) :
                             <Skeleton variant="text" width={100}/>}</Typography>

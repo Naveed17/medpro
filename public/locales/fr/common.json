@@ -432,7 +432,7 @@
     "FINISHED": "Effectué",
     "CANCELED": "Annulé",
     "EXPIRED": "Expiré",
-    "PAUSED": "Pausé",
+    "PAUSED": "En pause",
     "NOSHOW": "Patient ne s'est pas présenté",
     "ONLINE": "Rendez-vous depuis le site",
     "PATIENT_CANCELED": "Annulé par le patient"

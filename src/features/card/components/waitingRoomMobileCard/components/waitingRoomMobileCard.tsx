@@ -21,56 +21,9 @@ import {Session} from "next-auth";
 import Icon from "@themes/urlIcon";
 import {AppointmentStatus} from "@features/calendar";
 
-const imageSize: number = 40;
-
-const Container = styled.a`
-  border-radius: 1px;
-  text-decoration: auto;
-  border: 2px solid transparent;
-  box-sizing: border-box;
-  padding: 1px;
-  min-height: ${imageSize}px;
-  margin-bottom: 1px;
-  user-select: none;
-
-  /* anchor overrides */
- 
-
-  &:hover,
-  &:active {
-   
-    text-decoration: none;
-  }
-
-  &:focus {
-    outline: none;
-    
-    box-shadow: none;
-  }
-
-  /* flexbox */
-  display: flex;
-`;
-
-function getStyle(provided: DraggableProvided, style: Object | null) {
-    if (!style) {
-        return provided.draggableProps.style;
-    }
-
-    return {
-        ...provided.draggableProps.style,
-        ...style,
-    };
-}
-
-function BoardItem({...props}) {
+function WaitingRoomMobileCard({...props}) {
     const {
         quote,
-        isDragging,
-        isGroupedOver,
-        provided,
-        style,
-        isClone,
         index,
         handleEvent
     } = props;
@@ -98,20 +51,7 @@ function BoardItem({...props}) {
     }, [time]);
 
     return (
-        <Container
-            isDragging={isDragging}
-            isGroupedOver={isGroupedOver}
-            isClone={isClone}
-            colors={quote?.column?.colors}
-            ref={provided?.innerRef}
-            {...provided?.draggableProps}
-            {...provided?.dragHandleProps}
-            style={getStyle(provided, style)}
-            data-is-dragging={isDragging}
-            data-testid={quote?.id}
-            data-index={index}
-            aria-label={`${quote?.column?.name} quote ${quote?.content}`}>
-            <Card sx={{width:'100%'}}>
+            <Card>
                 <CardContent sx={{p: 1}}>
                     <Stack direction={"row"} spacing={.5} alignItems={"start"} justifyContent={"space-between"}>
                         <Stack spacing={.5}>
@@ -124,14 +64,14 @@ function BoardItem({...props}) {
                                         height: 16
                                     }
                                 }}>
-                                {!isDragging && [1, 3].includes(quote.content.status) ? <Button
+                                {[1, 3].includes(quote?.status) ? <Button
                                     sx={{
                                         p: 0,
                                         minWidth: '2.5rem',
                                         minHeight: '.5rem',
                                         marginRight: '4px'
                                     }} variant={"contained"}
-                                    size={"small"}> AR-{index + 1}</Button> : !isDragging && AppointmentStatus[quote.content.status].icon}
+                                    size={"small"}> AR-{index + 1}</Button> : AppointmentStatus[quote.status].icon}
                                 <Typography
                                     className={"ellipsis"}
                                     sx={{
@@ -139,11 +79,11 @@ function BoardItem({...props}) {
                                         width: "140px"
                                     }}
                                     color={"primary"} fontWeight={400} fontSize={14}>
-                                    {quote.content.patient.lastName} {quote.content.patient.firstName}
+                                    {quote.patient.lastName} {quote.patient.firstName}
                                 </Typography>
                             </Stack>
                             <Stack direction={"row"} spacing={.5} alignItems={"center"}>
-                                {countries.find(country => country.phone === quote.content.patient.contact[0].code) &&
+                                {countries.find(country => country.phone === quote.patient.contact[0].code) &&
                                     <ImageHandler
                                         sx={{
                                             width: 26,
@@ -151,10 +91,10 @@ function BoardItem({...props}) {
                                             borderRadius: 0.4
                                         }}
                                         alt={"flags"}
-                                        src={`https://flagcdn.com/${countries.find(country => country.phone === quote.content.patient.contact[0].code)?.code.toLowerCase()}.svg`}
+                                        src={`https://flagcdn.com/${countries.find(country => country.phone === quote.patient.contact[0].code)?.code.toLowerCase()}.svg`}
                                     />}
                                 <Typography variant="body2" fontWeight={400} fontSize={11} color="text.primary">
-                                    {quote.content.patient.contact[0].code} {quote.content.patient.contact[0].value.replace(/(\d{2})(\d{3})(\d{3})/, '$1 $2 $3')}
+                                    {quote.patient.contact[0].code} {quote.patient.contact[0].value.replace(/(\d{2})(\d{3})(\d{3})/, '$1 $2 $3')}
                                 </Typography>
                             </Stack>
                         </Stack>
@@ -163,7 +103,7 @@ function BoardItem({...props}) {
                             <IconButton
                                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                     action: "OPEN-POPOVER",
-                                    row: quote.content,
+                                    row: quote,
                                     event
                                 })}
                                 sx={{display: "block", ml: "auto"}}
@@ -175,11 +115,11 @@ function BoardItem({...props}) {
 
                     <Stack direction={"row"} alignItems={"center"} mt={1} spacing={1}>
                         <ModelDot
-                            color={quote.content.type?.color}
+                            color={quote.type?.color}
                             selected={false}
                             size={18} sizedot={10} padding={3}></ModelDot>
                         <Typography fontWeight={400} fontSize={12}>
-                            {quote.content.type?.name}
+                            {quote.type?.name}
                         </Typography>
                     </Stack>
                 </CardContent>
@@ -188,20 +128,20 @@ function BoardItem({...props}) {
                         <Stack direction={"row"} spacing={.5} alignItems={"center"}>
                             <AccessTimeIcon sx={{width: 16, height: 16}}/>
                             <Typography variant="body2" fontWeight={700} fontSize={14} color="text.primary">
-                                {quote.content.status === 4 && time ?
+                                {quote.status === 4 && time ?
                                     moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
-                                    quote.content.status !== 3 ?
-                                        quote.content.startTime :
-                                        getDiffDuration(`${quote.content.dayDate} ${quote.content.startTime}`)}
+                                    quote.status !== 3 ?
+                                        quote.startTime :
+                                        getDiffDuration(`${quote.dayDate} ${quote.startTime}`)}
                             </Typography>
                         </Stack>
 
                         <Stack direction={"row"} spacing={1}>
-                            {quote.content.status === 1 && <>
+                            {quote.status === 1 && <>
                                 {!roles.includes('ROLE_SECRETARY') && <IconButton
                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                         action: "START_CONSULTATION",
-                                        row: quote.content,
+                                        row: quote,
                                         event
                                     })}
                                     size={"small"}
@@ -211,7 +151,7 @@ function BoardItem({...props}) {
                                 <IconButton
                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                         action: "ENTER_WAITING_ROOM",
-                                        row: quote.content,
+                                        row: quote,
                                         event
                                     })}
                                     size={"small"}
@@ -220,15 +160,15 @@ function BoardItem({...props}) {
                                     <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
                                 </IconButton>
                             </>}
-                            {(quote.content.status === 3) && <>
+                            {(quote.status === 3) && <>
                                 <IconButton
                                     onClick={(event) => handleEvent({
                                         action: "NEXT_CONSULTATION",
-                                        row: {...quote.content, is_next: !!is_next},
+                                        row: {...quote, is_next: !!is_next},
                                         event
                                     })}
                                     size={"small"}
-                                    disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
+                                    disabled={is_next !== null && is_next?.uuid !== quote.uuid}
                                     sx={{
                                         border: `1px solid ${theme.palette.divider}`,
                                         borderRadius: 1,
@@ -240,7 +180,7 @@ function BoardItem({...props}) {
                                 {!roles.includes('ROLE_SECRETARY') && <CustomIconButton
                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                         action: "START_CONSULTATION",
-                                        row: quote.content,
+                                        row: quote,
                                         event
                                     })}
                                     variant="filled"
@@ -249,11 +189,11 @@ function BoardItem({...props}) {
                                     <PlayCircleIcon fontSize={"small"}/>
                                 </CustomIconButton>}
                             </>}
-                            {quote.content.status === 5 && <>
+                            {quote.status === 5 && <>
                                 <IconButton
                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                         action: "ON_PAY",
-                                        row: quote.content,
+                                        row: quote,
                                         event
                                     })}
                                     size={"small"}
@@ -266,8 +206,8 @@ function BoardItem({...props}) {
                     </Stack>
                 </CardActions>
             </Card>
-        </Container>
+
     );
 }
 
-export default React.memo<any>(BoardItem);
+export default WaitingRoomMobileCard;
