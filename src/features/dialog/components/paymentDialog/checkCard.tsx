@@ -23,8 +23,7 @@ import { DatePicker } from "@features/datepicker";
 import { filterReasonOptions } from "@lib/hooks";
 import moment from "moment-timezone";
 function CheckCard({ ...props }) {
-  const { t, idx, check, devise, formik, i, wallet, paymentTypesList } = props;
-  const { getFieldProps, values, setFieldValue } = formik;
+  const { t, devise, item, wallet, paymentTypesList,updatePaymentMeans } = props;
   const [expand, setExpand] = useState(true);
   const { banks } = useBanks();
   return (
@@ -62,7 +61,7 @@ function CheckCard({ ...props }) {
               <Select
                 labelId="select-type"
                 id="select-type"
-                value={values.paymentMethods[i].selected}
+                value={item.selected}
                 displayEmpty
                 MenuProps={{
                   PaperProps: {
@@ -91,7 +90,7 @@ function CheckCard({ ...props }) {
                   },
                 }}
                 onChange={(e) =>
-                  setFieldValue(`paymentMethods.${i}.selected`, e.target.value)
+                  {}
                 }
                 renderValue={(selected) => {
                   const payment = paymentTypesList?.find(
@@ -123,8 +122,11 @@ function CheckCard({ ...props }) {
                 }}
               >
                 {paymentTypesList?.map((payment: any) => (
-                  <MenuItem value={payment.slug} key={payment.uuid}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
+                  <MenuItem value={payment.slug}
+                            onClick={()=>updatePaymentMeans(payment.slug)}
+                            key={payment.uuid}>
+                    <Stack direction="row" alignItems="center"
+                           spacing={1}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         style={{ width: 16 }}
@@ -137,7 +139,10 @@ function CheckCard({ ...props }) {
                 ))}
                 {wallet > 0 ? (
                   <MenuItem value={"wallet"}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
+                    <Stack direction="row"
+                           alignItems="center"
+                           onClick={()=>updatePaymentMeans("wallet")}
+                           spacing={1}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         style={{ width: 16 }}
@@ -161,27 +166,12 @@ function CheckCard({ ...props }) {
               }}
               variant="outlined"
               placeholder={t("amount")}
-              {...getFieldProps(`paymentMethods[${i}].check[${idx}].amount`)}
+              value={item.amount}
               fullWidth
               type="number"
               required
             />
             <Typography>{devise}</Typography>
-            {i > 0 && idx === values.paymentMethods[i].check.length - 1 && (
-              <IconButton
-                className="btn-del"
-                onClick={() => {
-                  setFieldValue(
-                    "paymentMethods",
-                    values.paymentMethods.filter(
-                      (payment: any, index: number) => index !== i
-                    )
-                  );
-                }}
-              >
-                <IconUrl path={"setting/icdelete"} />
-              </IconButton>
-            )}
             <IconButton
               className="btn-check-success"
               onClick={() => setExpand(false)}
@@ -204,7 +194,7 @@ function CheckCard({ ...props }) {
                 placeholder={t("carrier")}
                 fullWidth
                 type="text"
-                {...getFieldProps(`paymentMethods[${i}].check[${idx}].carrier`)}
+                value={'carrier'}
                 required
               />
             </Stack>
@@ -212,7 +202,7 @@ function CheckCard({ ...props }) {
               <Typography variant="body2" color="text.secondary">
                 {t("bank")}
               </Typography>
-              <Autocomplete
+{/*              <Autocomplete
                 id={"banks"}
                 freeSolo
                 fullWidth
@@ -220,13 +210,10 @@ function CheckCard({ ...props }) {
                 disableClearable
                 placeholder={t("bank")}
                 size="small"
-                value={values[`paymentMethods[${i}].check[${idx}].bank`]}
+                value={""}
                 onChange={(e, newValue: any) => {
                   e.stopPropagation();
-                  let res: string;
-                  if (newValue.inputValue) res = newValue.inputValue;
-                  else res = newValue.name;
-                  setFieldValue(`paymentMethods[${i}]check[${idx}].bank`, res);
+
                 }}
                 filterOptions={(options, params) =>
                   filterReasonOptions(options, params, t)
@@ -259,7 +246,7 @@ function CheckCard({ ...props }) {
                     fullWidth
                   />
                 )}
-              />
+              />*/}
             </Stack>
           </Stack>
           <Stack
@@ -276,9 +263,7 @@ function CheckCard({ ...props }) {
                 placeholder={t("check_number")}
                 fullWidth
                 type="number"
-                {...getFieldProps(
-                  `paymentMethods[${i}].check[${idx}].check_number`
-                )}
+                value={'check_number'}
                 required
               />
             </Stack>
@@ -287,12 +272,8 @@ function CheckCard({ ...props }) {
                 {t("payment_date")}
               </Typography>
               <DatePicker
-                value={values.paymentMethods[i].check[idx].payment_date}
+                value={item.data?.payment_date}
                 onChange={(newValue: any) => {
-                  setFieldValue(
-                    `paymentMethods[${i}].check[${idx}].payment_date`,
-                    new Date(newValue)
-                  );
                 }}
               />
             </Stack>
@@ -315,7 +296,7 @@ function CheckCard({ ...props }) {
                   variant="subtitle2"
                   textAlign="center"
                 >
-                  #{idx + 1}
+                  #{ 1}
                   <Typography variant="body1" ml={{ xs: 1, md: 2 }}>
                     {t("check_title")}
                   </Typography>
@@ -328,41 +309,38 @@ function CheckCard({ ...props }) {
                   >
                     <IconUrl path="ic-edit" />
                   </IconButton>
-                  {idx > 0 && (
+
                     <IconButton
                       size="small"
                       className="btn-action"
-                      onClick={() =>
-                        setFieldValue(
-                          `paymentMethods[${i}].check`,
-                          values.paymentMethods[i].check.splice(0, idx)
-                        )
+                      onClick={() => {
+
+                      }
                       }
                     >
                       <IconUrl path="setting/icdelete" />
                     </IconButton>
-                  )}
                 </Stack>
               </Stack>
               <table>
                 <tbody>
                   <tr>
                     <td align="left">
-                      {moment(check.payment_date, "DD-MM-YYYY HH:mm").format(
+                      {moment().format(
                         "DD-MM-YYYY"
                       )}
                     </td>
                     <td className="bank-data" align="center">
-                      {check.bank ? check.bank : "--"}
+                      {item.data ? item.data.bank : "--"}
                     </td>
                     <td align="center">
-                      {check.carrier ? check.carrier : "--"}
+                      {item.data ? item.data.carrier : "--"}
                     </td>
                     <td align="center">
-                      {check.check_number ? "N° " + check.check_number : "--"}
+                      {item.data ? "N° " + item.data.check_number : "--"}
                     </td>
                     <td align="right">
-                      {check.amount ? check.amount + " DT" : "--"}
+                      {item.data ? item.data.amount + " DT" : "--"}
                     </td>
                   </tr>
                 </tbody>

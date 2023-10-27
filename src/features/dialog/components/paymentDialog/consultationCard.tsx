@@ -16,9 +16,10 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Label } from "@features/label";
 import IconUrl from "@themes/urlIcon";
 function ConsultationCard({ ...props }) {
-  const { t, devise } = props;
+  const { t, devise,appointment,addTransactions,rest } = props;
   const theme: Theme = useTheme();
   const [collapse, setCollapse] = useState<boolean>(false);
+
   return (
     <Card className="consultation-card">
       <CardContent>
@@ -54,18 +55,18 @@ function ConsultationCard({ ...props }) {
                 fontWeight={700}
                 component="strong"
               >
-                100
+                {appointment?.fees}
               </Typography>{" "}
               {devise}
             </Label>
             <Label
-              color="primary"
+              color="error"
               variant="filled"
               sx={{ alignItems: "center" }}
             >
               {t("amount_paid")}{" "}
               <Typography mx={0.5} variant="body2" component="strong">
-                100
+                {appointment?.rest_amount}
               </Typography>{" "}
               {devise}
             </Label>
@@ -77,6 +78,7 @@ function ConsultationCard({ ...props }) {
             <Stack width={1} direction="row" alignItems="center" spacing={1}>
               <TextField
                 fullWidth
+                value={rest > appointment?.rest_amount ?appointment?.rest_amount:rest}
                 size="small"
                 type="number"
                 sx={{ input: { fontWeight: 700 } }}

@@ -214,7 +214,6 @@ function ConsultationInProgress() {
     const [openChat, setOpenChat] = useState<boolean>(false);
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [transactions, setTransactions] = useState(null);
-    const [restAmount, setRestAmount] = useState(0);
     const [addFinishAppointment, setAddFinishAppointment] = useState<boolean>(false);
     const [showDocument, setShowDocument] = useState(false);
     const [nbDoc, setNbDoc] = useState(0);
@@ -1155,28 +1154,6 @@ function ConsultationInProgress() {
                         />
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-{/*                        <Button onClick={() => {
-                            const form = new FormData();
-                            form.append("cash_box", selectedBoxes[0].uuid);
-                            form.append("type_transaction", TransactionType[0].value);
-                            form.append("amount", "150");
-                            form.append("payment_means", "d72700cc-e540-4ace-9e78-bdfa9f71e33e");
-                            form.append("patient", sheet?.patient);
-                            form.append("transaction_data", JSON.stringify([{
-                                appointment: app_uuid,
-                                amount: 80,
-                            }]));
-
-                            triggerAppointmentEdit({
-                                method: "POST",
-                                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                                data: form
-                            }, {
-                                onSuccess: (res) => {
-                                    console.log(res)
-                                },
-                            });
-                        }}> PAY</Button>*/}
                         <Grid container spacing={0}>
                             <Grid item xs={showDocument ? 10 : 12}>
                                 <div style={{display: "flex", width: "100%"}}>
@@ -1603,7 +1580,6 @@ function ConsultationInProgress() {
                     t,
                     transactions, setTransactions,
                     total, setTotal,
-                    setRestAmount,
                     addInfo,
                     changes,
                     meeting,
