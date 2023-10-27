@@ -90,7 +90,7 @@ export const CustomNode = ({...props}) => {
                             setAnchorEl(null);
                             handleDeleteModel(props);
                         }}>
-                        <IconUrl color="red" width={14} height={14} path="ic-delete"/>
+                        <IconUrl color="red" width={16} height={16} path="ic-delete"/>
                     </IconButton>}
 
 
@@ -164,7 +164,7 @@ export const CustomNode = ({...props}) => {
                             setAnchorEl(null);
                             handleDeleteModel(props);
                         }}>
-                        <IconUrl color="red" width={14} height={14} path="ic-delete"/>
+                        <IconUrl color="red" width={16} height={16} path="ic-delete"/>
                         {t("delete")}
                     </MenuItem>}
                 </StyledMenu>
