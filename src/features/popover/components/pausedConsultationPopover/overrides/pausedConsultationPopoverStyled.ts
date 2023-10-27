@@ -20,15 +20,15 @@ const PausedConsultationPopoverStyled = styled(Box)(({theme}) => ({
         borderRadius: 20,
         border: `2px solid ${theme.palette.background.paper}`
     },
-    "& .Mui-selected": {
-        color: theme.palette.text.primary
-    },
     "& .tab-item": {
         fontSize: "18px",
         fontWeight: 600
     },
     '& .MuiTabs-indicator': {
         backgroundColor: theme.palette.text.primary,
+    },
+    "& .tab-item.Mui-selected": {
+        color: theme.palette.text.primary
     }
 }))
 export default PausedConsultationPopoverStyled;
