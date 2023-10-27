@@ -32,7 +32,8 @@ function PausedConsultationPopover({...props}) {
             }}>
 
             <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                <Tabs aria-label="basic tabs example">
+                <Tabs value={0}
+                      aria-label="basic tabs example">
                     <Tab className={"tab-item"} label={t("En pause")} {...a11yProps(0)} />
                 </Tabs>
             </Box>

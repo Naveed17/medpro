@@ -22,7 +22,11 @@ const PausedConsultationPopoverStyled = styled(Box)(({theme}) => ({
     },
     "& .tab-item": {
         fontSize: "18px",
-        fontWeight: 600
+        fontWeight: 600,
+        color: theme.palette.text.primary
+    },
+    '& .MuiTabs-indicator': {
+        backgroundColor: theme.palette.text.primary,
     }
 }))
 export default PausedConsultationPopoverStyled;
