@@ -1,17 +1,15 @@
 // Material
 import {
+    Badge,
     Box,
     Drawer,
+    Hidden,
     List,
     ListItem,
     ListItemIcon,
     ListItemText,
-    Hidden,
     Toolbar,
-    useMediaQuery,
-    Badge,
-    Theme,
-    useTheme
+    useMediaQuery
 } from "@mui/material";
 // utils
 import Icon from "@themes/icon";
@@ -22,8 +20,6 @@ import {useTranslation} from "next-i18next";
 
 import {useRouter} from "next/router";
 import Link from "next/link";
-
-const {sidebarItems} = siteHeader;
 //style
 import "@styles/sidebarMenu.module.scss";
 import Image from "next/image";
@@ -31,12 +27,12 @@ import SettingsIcon from "@themes/overrides/icons/settingsIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import React, {useEffect, useRef, useState} from "react";
 import {
+    ListItemTextStyled,
+    logout,
+    MainMenuStyled,
+    MobileDrawerStyled,
     sideBarSelector,
     toggleMobileBar,
-    logout,
-    ListItemTextStyled,
-    MainMenuStyled,
-    MobileDrawerStyled, toggleSideBar,
 } from "@features/menu";
 import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";
@@ -45,17 +41,18 @@ import {useSession} from "next-auth/react";
 import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(
-    () => import("@features/loadingScreen/components/loadingScreen")
-);
-
 import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
 import StatsIcon from "@themes/overrides/icons/statsIcon";
+
+const {sidebarItems} = siteHeader;
+
+const LoadingScreen = dynamic(
+    () => import("@features/loadingScreen/components/loadingScreen")
+);
 
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
@@ -183,7 +180,7 @@ function SideBarMenu({children}: LayoutProps) {
                     ))}
                 </List>
                 <List className="list-bottom">
-                    {process.env.NODE_ENV === 'development' && <ListItem
+                    <ListItem
                         onClick={() => handleRouting("/dashboard/statistics")}
                         disableRipple
                         button
@@ -198,7 +195,7 @@ function SideBarMenu({children}: LayoutProps) {
                         <Hidden smUp>
                             <ListItemText primary={t("main-menu." + "settings")}/>
                         </Hidden>
-                    </ListItem>}
+                    </ListItem>
                     <ListItem
                         onClick={handleSettingRoute}
                         disableRipple
