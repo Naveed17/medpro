@@ -74,12 +74,13 @@ function Event({...props}) {
                 {...((!isMobile && !isEventDragging) && {onMouseLeave: handlePopoverClose})}
                 className="fc-event-main-box">
                 {appointment.new && <Box className="badge"/>}
-                <Typography variant="body2"
-                            {...((appointment.status.key === "WAITING_ROOM" &&
-                                    appointment.hasErrors.length === 0) &&
-                                {className: "ic-waiting"})}
-                            component={"span"}
-                            color="text.primary">
+                <Typography
+                    variant="body2"
+                    {...((appointment.status.key === "WAITING_ROOM" &&
+                            appointment.hasErrors.length === 0) &&
+                        {className: "ic-waiting"})}
+                    component={"span"}
+                    color="text.primary">
                     {appointment?.status.icon}
                     {appointment.hasErrors.length > 0 && <DangerIcon className={"ic-danger"}/>}
                 </Typography>

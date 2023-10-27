@@ -49,7 +49,7 @@ function WaitingRoomMobileCard({...props}) {
             clearInterval(interval);
         };
     }, [time]);
-console.log(quote)
+
     return (
             <Card>
                 <CardContent sx={{p: 1}}>
@@ -206,7 +206,7 @@ console.log(quote)
                     </Stack>
                 </CardActions>
             </Card>
-       
+
     );
 }
 

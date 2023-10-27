@@ -25,7 +25,7 @@ import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {CipCard, resetTimer, setTimer, timerSelector} from "@features/card";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {AppointmentStatsPopover, NotificationPopover,} from "@features/popover";
+import {AppointmentStatsPopover, NotificationPopover, PausedConsultationPopover} from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
 import {appLockSelector} from "@features/appLock";
 import {agendaSelector} from "@features/calendar";
@@ -38,13 +38,14 @@ import {useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
-import moment from "moment-timezone";
 import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
 import {WarningTooltip} from "./warningTooltip";
 import {useMedicalEntitySuffix, useMutateOnGoing, useInvalidateQueries} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {MobileContainer} from "@lib/constants";
 import CloseIcon from "@mui/icons-material/Close";
+import {batch} from "react-redux";
+import {resetAppointment} from "@features/tabPanel";
 
 const ProfilMenuIcon = dynamic(() => import("@features/menu/components/profilMenu/components/profilMenu"));
 
@@ -66,7 +67,12 @@ function TopNavBar({...props}) {
     const {t: commonTranslation} = useTranslation("common");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
     const {lock} = useAppSelector(appLockSelector);
-    const {config: agendaConfig, pendingAppointments, selectedEvent} = useAppSelector(agendaSelector);
+    const {
+        config: agendaConfig,
+        pendingAppointments,
+        selectedEvent,
+        sortedData: groupSortedData
+    } = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
     const {
         ongoing, next, notifications,
@@ -82,12 +88,14 @@ function TopNavBar({...props}) {
 
     const {trigger: triggerAppointmentUpdate} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
+    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("/agenda/appointment/edit");
 
     const [patientId, setPatientId] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [popoverAction, setPopoverAction] = useState("");
     const [notificationsCount, setNotificationsCount] = useState(0);
+    const [pausedConsultation, setPausedConsultation] = useState<any[]>([]);
     const [installable, setInstallable] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
@@ -103,6 +111,7 @@ function TopNavBar({...props}) {
     } = {
         "appointment-stats": <AppointmentStatsPopover/>,
         notification: <NotificationPopover onClose={() => setAnchorEl(null)}/>,
+        paused: <PausedConsultationPopover {...{pausedConsultation}}/>,
     };
 
     const handleClick = (event: React.MouseEvent<any>, action: string) => {
@@ -172,10 +181,53 @@ function TopNavBar({...props}) {
         });
     }
 
+    const handleSaveStartConsultation = () => {
+        setLoadingReq(true);
+        const form = new FormData();
+        form.append("status", "5");
+        form.append("action", "end_consultation");
+        form.append("root", "agenda");
+        console.log("event", event);
+        form.append("content", JSON.stringify({
+            fees: event?.extendedProps.total,
+            restAmount: event?.extendedProps.restAmount,
+            instruction: "",
+            control: true,
+            edited: false,
+            payed: true,
+            nextApp: "0",
+            appUuid: event?.publicId,
+            dayDate: event?.extendedProps.startTime,
+            patient: {
+                uuid: event?.extendedProps.patient?.uuid,
+                firstName: event?.extendedProps.patient?.firstName,
+                lastName: event?.extendedProps.patient?.lastName,
+            },
+        }));
+        triggerAppointmentEdit({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId}/data/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                batch(() => {
+                    dispatch(resetTimer());
+                    dispatch(resetAppointment());
+                    dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
+                });
+                handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
+            },
+            onSettled: () => setLoadingReq(false)
+        });
+    }
+
     const handleStartConsultation = (nextPatient: any) => {
         console.log("nextPatient", nextPatient)
         const slugConsultation = `/dashboard/consultation/${nextPatient.uuid}`;
-        return router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
+        return router.push({
+            pathname: slugConsultation,
+            query: {inProgress: true}
+        }, slugConsultation, {locale: router.locale});
     }
 
     const requestNotificationPermission = () => {
@@ -220,6 +272,14 @@ function TopNavBar({...props}) {
     useEffect(() => {
         setNotificationsCount((notifications ?? []).length + (pendingAppointments ?? []).length);
     }, [notifications, pendingAppointments]);
+
+    useEffect(() => {
+        if (groupSortedData) {
+            setPausedConsultation(groupSortedData.reduce((sorted: any[], data: any) =>
+                [...(sorted ?? []), ...data.events.filter((event: any) =>
+                    event.status.key === "PAUSED")], []));
+        }
+    }, [groupSortedData]);
 
     useEffect(() => {
         const appInstall = localStorage.getItem('Medlink-install');
@@ -400,6 +460,16 @@ function TopNavBar({...props}) {
                                         setPatientDetailDrawer(true);
                                     }}/>
                             }
+                            <Badge
+                                color="warning"
+                                badgeContent={pausedConsultation.length}
+                                sx={{ml: 1}}
+                                onClick={(event) => handleClick(event, "paused")}
+                                className="custom-badge badge">
+                                <IconButton color="primary" edge="start">
+                                    <Icon path={"ic-consultation-pause"}/>
+                                </IconButton>
+                            </Badge>
                             {(installable && !isMobile) &&
                                 <Button sx={{mr: 2, p: "6px 12px"}}
                                         onClick={handleInstallClick}
@@ -456,7 +526,7 @@ function TopNavBar({...props}) {
                                                 display: 'block',
                                                 position: 'absolute',
                                                 top: 0,
-                                                right: 14,
+                                                right: 8,
                                                 width: 10,
                                                 height: 10,
                                                 bgcolor: 'background.paper',
@@ -470,21 +540,6 @@ function TopNavBar({...props}) {
                                 anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}>
                                 {popovers[popoverAction]}
                             </Menu>
-                            {/*<Badge
-                                badgeContent={null}
-                                onClick={() => {
-                                    if (localStorage.getItem("app_lock")) {
-                                        openAppLock()
-                                    } else {
-                                        enqueueSnackbar(t("app-lock.update-pass"), {variant: 'info'})
-                                        router.push('/dashboard/settings/app-lock');
-                                    }
-                                }}
-                                className="custom-badge badge">
-                                <IconButton color="primary" edge="start">
-                                    <Icon path={"ic-cloc"}/>
-                                </IconButton>
-                            </Badge>*/}
                         </MenuList>
                         <LangButton/>
                         {!isMobile && <MenuList className="topbar-account">
@@ -517,7 +572,7 @@ function TopNavBar({...props}) {
                                 </Button>
                                 <Stack direction={"row"} spacing={2}>
                                     <LoadingButton
-                                        {...{loading}}
+                                        loading={loadingReq}
                                         loadingPosition="start"
                                         onClick={handlePauseStartConsultation}
                                         variant="contained"
@@ -527,8 +582,9 @@ function TopNavBar({...props}) {
                                         {commonTranslation(`dialogs.switch-consultation-dialog.pause`)}
                                     </LoadingButton>
                                     <LoadingButton
-                                        {...{loading}}
+                                        loading={loadingReq}
                                         loadingPosition="start"
+                                        onClick={handleSaveStartConsultation}
                                         variant="contained"
                                         color={"error"}
                                         startIcon={<IconUrl height={"18"} width={"18"}

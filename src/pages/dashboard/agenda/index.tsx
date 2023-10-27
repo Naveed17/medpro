@@ -704,6 +704,7 @@ function Agenda() {
     }
 
     const onConsultationStart = (event: EventDef) => {
+        dispatch(setSelectedEvent(event));
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
             router.push({

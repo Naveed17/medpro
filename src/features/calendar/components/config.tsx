@@ -90,7 +90,7 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
     },
     8: {
         key: "PAUSED",
-        value: "Pausé",
+        value: "En pause",
         color: "#ff6660",
         classColor: "warning",
         icon: <PauseIcon/>
