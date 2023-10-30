@@ -106,6 +106,10 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({ theme }) => ({
             },
           },
         },
+        "&.dosage-wrapper":{
+          justifyContent:'flex-start',
+          minWidth:90
+        }
       },
       ".btn-del": {
         position: "absolute",
@@ -134,6 +138,13 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({ theme }) => ({
       [theme.breakpoints.down("md")]: {
         paddingTop: theme.spacing(3),
       },
+      ".btn-dosage-time-counter":{
+        "&.btn-dosage-time-counter":{
+        width:'auto',
+        marginLeft: theme.spacing(1),
+        height:25,
+        }
+      }
     },
   },
   ".model-collapse": {
