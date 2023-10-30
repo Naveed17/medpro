@@ -9,30 +9,64 @@ import {
     Stack, TextField,
     Typography, useMediaQuery, useTheme
 } from "@mui/material";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {startCase} from 'lodash'
-import {useAppSelector} from "@lib/redux/hooks";
-import {timerSelector} from "@features/card";
-import {capitalizeFirst, useTimer} from "@lib/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {setTimer, timerSelector} from "@features/card";
+import {capitalizeFirst, useMedicalEntitySuffix, useTimer} from "@lib/hooks";
 import {FlipDate} from "@features/FlipDate";
 import {Label} from "@features/label";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import SwitchConsultationDialogStyled from "./overrides/switchConsultationDialogStyled";
+import {useRequestQuery} from "@lib/axios";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {agendaSelector, setSelectedEvent} from "@features/calendar";
+import {useRouter} from "next/router";
+import moment from "moment-timezone";
 
 function SwitchConsultationDialog() {
     const {timer} = useTimer();
     const theme = useTheme();
+    const router = useRouter();
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const dispatch = useAppDispatch();
 
     const {t} = useTranslation(["common", "consultation"]);
     const {event} = useAppSelector(timerSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [instruction, setInstruction] = useState("");
     const [checkedNext, setCheckedNext] = useState(false);
     const [meeting, setMeeting] = useState<number>(15);
     const [selectedDose, setSelectedDose] = useState("day")
+
+    const {data: httpTransactionsResponse} = useRequestQuery(agendaConfig && event ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId}/transactions/${router.locale}`,
+    } : null, ReactQueryNoValidateConfig);
+
+    useEffect(() => {
+        if (httpTransactionsResponse) {
+            const transactionsData = (httpTransactionsResponse as HttpResponse)?.data;
+            dispatch(setTimer({
+                event: {
+                    ...event,
+                    extendedProps: {
+                        ...event?.extendedProps,
+                        ...(transactionsData.transactions && {
+                            patient: transactionsData.transactions[0]?.appointment?.patient,
+                            transactions: transactionsData.transactions
+                        }),
+                        total: transactionsData?.fees ? transactionsData.fees : 0,
+                        restAmount: transactionsData?.rest_amount ? transactionsData.rest_amount : 0
+                    }
+                }
+            }));
+        }
+    }, [httpTransactionsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SwitchConsultationDialogStyled sx={{minHeight: 150}} alignItems={"center"}>

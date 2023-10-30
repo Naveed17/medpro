@@ -1,5 +1,5 @@
 import React, {ReactElement, useEffect} from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
@@ -15,7 +15,12 @@ import {useSession} from "next-auth/react";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {toggleSideBar} from "@features/menu";
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useRequestQuery} from "@lib/axios";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useRouter} from "next/router";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {agendaSelector} from "@features/calendar";
 
 const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
@@ -26,15 +31,39 @@ function Statistics() {
     const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation("stats");
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const {config: agenda} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
+    const {data: statsAppointmentHttp} = useRequestQuery(agenda ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointment-per-period/${router.locale}?format=month`
+    } : null, ReactQueryNoValidateConfig);
+
+    const {data: statsMotifHttp} = useRequestQuery(agenda ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointment-per-motif/${router.locale}?format=month`
+    } : null, ReactQueryNoValidateConfig);
+
+    const {data: statsPatientHttp} = useRequestQuery(medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patient-per-period/${router.locale}?format=month`
+    } : null, ReactQueryNoValidateConfig);
+
     useEffect(() => {
         dispatch(toggleSideBar(true));
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const patientPerPeriod = ((statsPatientHttp as HttpResponse)?.data?? [] )as any[]
+    const appointmentPerPeriod = ((statsAppointmentHttp as HttpResponse)?.data?? []) as any[]
+    const motifPerPeriod = ((statsMotifHttp as HttpResponse)?.data?? []) as any[]
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -65,7 +94,7 @@ function Statistics() {
                                             <IconUrl path={"ic-user3"}/>
                                             <Stack>
                                                 <Typography fontWeight={600} fontSize={24} variant="caption">
-                                                    1500
+                                                    {patientPerPeriod && Object.values(patientPerPeriod).reduce((total:number,val:number) =>total+val,0)}
                                                 </Typography>
                                                 <Typography fontSize={12} fontWeight={500} variant="body2">
                                                     Patients
@@ -77,7 +106,7 @@ function Statistics() {
                                             <Stack>
                                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                                     <Typography fontWeight={600} fontSize={24} variant="caption">
-                                                        900
+                                                        {Object.values(patientPerPeriod)[Object.values(patientPerPeriod)?.length -1] ?? 0}
                                                     </Typography>
 
                                                     <Stack direction={"row"}>
@@ -98,7 +127,8 @@ function Statistics() {
                                         <Chart
                                             type="area"
                                             series={[
-                                                {name: 'series1', data: [31, 40, 28, 51, 42, 109, 100]},
+                                                {name: 'patients', data: Object.values(patientPerPeriod)},
+                                                {name: 'appointments', data: Object.values(appointmentPerPeriod)},
                                             ]}
                                             options={merge(ChartsOption(), {
                                                 xaxis: {
@@ -111,7 +141,9 @@ function Statistics() {
                                                         'May',
                                                         'Jun',
                                                         'Jul',
-                                                        'Aug'
+                                                        'Aug',
+                                                        'SEP',
+                                                        'OCT'
                                                     ]
                                                 },
                                                 tooltip: {x: {show: false}, marker: {show: false}},
@@ -164,7 +196,7 @@ function Statistics() {
                                             <IconUrl width={40} height={40} path={"ic-document"}/>
                                             <Stack>
                                                 <Typography fontWeight={600} fontSize={24} variant="caption">
-                                                    3400
+                                                    {motifPerPeriod.length}
                                                 </Typography>
                                                 <Typography fontSize={12} fontWeight={500} variant="body2">
                                                     Motif Consultations
@@ -177,7 +209,7 @@ function Statistics() {
                                         <Chart
                                             type="bar"
                                             series={[{
-                                                data: [400, 430, 448, 470]
+                                                data: motifPerPeriod?.reduce((motifs,item) =>[...(motifs ?? []),item.doc_count],[]).splice(0,5)
                                             }]}
                                             options={merge(ChartsOption(), {
                                                 plotOptions: {
@@ -212,7 +244,7 @@ function Statistics() {
                                                 },
                                                 xaxis: {
                                                     position: "top",
-                                                    categories: ['Motif 1', 'Motif 2', 'Motif 3', 'Motif 4'],
+                                                    categories: motifPerPeriod?.reduce((motifs,item) =>[...(motifs ?? []),item.key],[]).splice(0,5),
                                                 },
                                                 yaxis: {
                                                     labels: {
@@ -344,7 +376,8 @@ function Statistics() {
                                 <CardContent sx={{pb: 0}}>
                                     <Stack ml={2} direction={"row"} spacing={2}>
                                         <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
-                                            <IconUrl color={theme.palette.primary.main} width={40} height={40} path={"ic-payment"}/>
+                                            <IconUrl color={theme.palette.primary.main} width={40} height={40}
+                                                     path={"ic-payment"}/>
                                             <Stack>
                                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                                     <Typography fontWeight={600} fontSize={24} variant="caption">

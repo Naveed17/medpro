@@ -23,6 +23,7 @@ import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlin
 import PersonOffIcon from '@mui/icons-material/PersonOff';
 import {Avatar} from "@mui/material";
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import PauseIcon from "@themes/overrides/icons/pauseIcon";
 
 export const IconsTypes: any = {
     "ic-consultation": <EventOutlinedIcon/>,
@@ -87,7 +88,13 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
         classColor: "expire",
         icon: <ExpiredCircleIcon/>,
     },
-    8: {key: "PAUSED", value: "Pausé", color: "#ff6660", classColor: "warning"},
+    8: {
+        key: "PAUSED",
+        value: "En pause",
+        color: "#ff6660",
+        classColor: "warning",
+        icon: <PauseIcon/>
+    },
     9: {
         key: "DELETED",
         value: "Supprimé",
@@ -155,12 +162,12 @@ export const TableHead = [
         align: "center",
         sortable: true,
     },
-/*    {
-        id: "agenda",
-        label: "header.agenda",
-        align: "center",
-        sortable: true,
-    },*/
+    /*    {
+            id: "agenda",
+            label: "header.agenda",
+            align: "center",
+            sortable: true,
+        },*/
     {
         id: "fees",
         label: "header.fees",
