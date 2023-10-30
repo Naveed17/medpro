@@ -48,6 +48,9 @@ export const CustomNode = ({...props}) => {
                 className={`tree-node`}
                 style={{paddingInlineStart: indent, ...((props.node.parent !== 0 || props.node.parent === 0 && !props.node.hasOwnProperty("isDefault")) && selectedNode && selectedNode !== props.node.id && {opacity: 0.6})}}>
                 <div
+                style={{
+                    display: props.node.parent === 0 ? "block":'none'
+                }}
                     className={`expandIconWrapper ${
                         props.isOpen ? "isOpen" : ""
                     }`}>
@@ -58,16 +61,10 @@ export const CustomNode = ({...props}) => {
                     )}
                 </div>
                 <div>
-                    {data?.color || props.node?.color ?
-                        <ModelDot
-                            size={20}
-                            sizedot={12}
-                            padding={3}
-                            marginRight={5}
-                            key={data?.color ?? props.node?.color}
-                            color={data?.color ?? props.node?.color}>
-                        </ModelDot> :
-                        <TypeIcon droppable={droppable} fileType={data?.fileType}/>}
+                    {
+                        props.node.parent === 0 && <TypeIcon droppable={droppable} fileType={data?.fileType}/>
+                    }
+                        
                 </div>
                 <div className={"labelGridItem"} {...(props.node.droppable && {onClick: handleToggle})}>
                     <Typography {...(props.node.parent !== 0 && {color: "primary", sx: {cursor: "pointer"}})}
@@ -93,7 +90,7 @@ export const CustomNode = ({...props}) => {
                             setAnchorEl(null);
                             handleDeleteModel(props);
                         }}>
-                        <IconUrl color="red" width={12} height={12} path="icdelete"/>
+                        <IconUrl color="red" width={16} height={16} path="ic-delete"/>
                     </IconButton>}
 
 
@@ -167,7 +164,7 @@ export const CustomNode = ({...props}) => {
                             setAnchorEl(null);
                             handleDeleteModel(props);
                         }}>
-                        <IconUrl color="red" width={12} height={12} path="icdelete"/>
+                        <IconUrl color="red" width={16} height={16} path="ic-delete"/>
                         {t("delete")}
                     </MenuItem>}
                 </StyledMenu>
