@@ -421,6 +421,8 @@
     "configure": "Configurer",
     "date": "Date",
     "dosge_time": "Durée du dosage",
+    "add_model": "Ajouter le modèle",
+    "model_list": "Liste des modèles",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",
