@@ -1,6 +1,7 @@
 import { styled } from '@mui/material/styles';
 
 const RootStyled = styled('div')(({ theme }) => ({
+    marginLeft: "auto",
     '& .MuiButton-root': {
         height: "36px",
         paddingLeft: theme.spacing(1.5),

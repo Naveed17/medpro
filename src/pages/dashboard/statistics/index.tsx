@@ -1,11 +1,11 @@
-import React, {ReactElement, useEffect} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {DashLayout, dashLayoutSelector} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {SubHeader} from "@features/subHeader";
-import {Box, Card, CardContent, Grid, Stack, Typography, useTheme} from "@mui/material";
+import {Box, Card, CardContent, Grid, IconButton, Stack, Typography, useTheme} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {StatsToolbar} from "@features/toolbar";
 import {merge} from 'lodash';
@@ -21,6 +21,14 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector} from "@features/calendar";
+import {CalendarViewButton} from "@features/buttons";
+import TodayIcon from "@themes/overrides/icons/todayIcon";
+import DayIcon from "@themes/overrides/icons/dayIcon";
+import WeekIcon from "@themes/overrides/icons/weekIcon";
+import moment from "moment-timezone";
+import {startCase} from 'lodash';
+import OpenInFullRoundedIcon from '@mui/icons-material/OpenInFullRounded';
+import CloseFullscreenRoundedIcon from '@mui/icons-material/CloseFullscreenRounded';
 
 const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
@@ -30,13 +38,15 @@ function Statistics() {
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
 
-    const {t, ready} = useTranslation("stats");
+    const {t, ready} = useTranslation(["stats", "common"]);
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
 
+    const [viewChart, setViewChart] = useState('month');
+    const [fullChart, setFullChart] = useState<any>({"act": false, "motif": false});
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -44,12 +54,7 @@ function Statistics() {
 
     const {data: statsAppointmentHttp} = useRequestQuery(agenda ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointment-per-period/${router.locale}?format=month`
-    } : null, ReactQueryNoValidateConfig);
-
-    const {data: statsMotifHttp} = useRequestQuery(agenda ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointment-per-motif/${router.locale}?format=month`
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointment-stats/${router.locale}?format=${viewChart}`
     } : null, ReactQueryNoValidateConfig);
 
     const {data: statsPatientHttp} = useRequestQuery(medicalEntityHasUser ? {
@@ -61,10 +66,16 @@ function Statistics() {
         dispatch(toggleSideBar(true));
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const patientPerPeriod = ((statsPatientHttp as HttpResponse)?.data?? [] )as any[]
-    const appointmentPerPeriod = ((statsAppointmentHttp as HttpResponse)?.data?? []) as any[]
-    const motifPerPeriod = ((statsMotifHttp as HttpResponse)?.data?? []) as any[]
-
+    const patientPerPeriod = ((statsPatientHttp as HttpResponse)?.data ?? []) as any[];
+    const appointmentStats = ((statsAppointmentHttp as HttpResponse)?.data ?? []) as any;
+    const appointmentPerPeriod = (appointmentStats?.period ?? []) as any[];
+    const motifPerPeriod = (appointmentStats?.motif ?? []) as any[];
+    const actPerPeriod = (appointmentStats?.act ?? []) as any[];
+    const VIEW_OPTIONS = [
+        {value: "day", label: "Day", text: "Jour", icon: TodayIcon, format: "D"},
+        {value: "week", label: "Weeks", text: "Semaine", icon: DayIcon, format: "do"},
+        {value: "month", label: "Months", text: "Mois", icon: WeekIcon, format: "MMM"}
+    ];
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
@@ -81,7 +92,7 @@ function Statistics() {
             <Box className="container">
                 <DesktopContainer>
                     <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                        {(!fullChart.motif && !fullChart.act) && <Grid item xs={12} md={6}>
                             <Card
                                 sx={{
                                     borderRadius: "12px",
@@ -89,62 +100,67 @@ function Statistics() {
                                     boxShadow: theme.shadows[5]
                                 }}>
                                 <CardContent sx={{pb: 0}}>
-                                    <Stack ml={2} direction={"row"} spacing={2}>
-                                        <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
-                                            <IconUrl path={"ic-user3"}/>
-                                            <Stack>
-                                                <Typography fontWeight={600} fontSize={24} variant="caption">
-                                                    {patientPerPeriod && Object.values(patientPerPeriod).reduce((total:number,val:number) =>total+val,0)}
-                                                </Typography>
-                                                <Typography fontSize={12} fontWeight={500} variant="body2">
-                                                    Patients
-                                                </Typography>
-                                            </Stack>
-                                        </Stack>
-                                        <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
-                                            <IconUrl path={"ic-user4"}/>
-                                            <Stack>
-                                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                    <Stack ml={2} direction={"row"} spacing={2} justifyContent={"space-between"}>
+                                        <Stack direction={"row"} spacing={2}>
+                                            <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
+                                                <IconUrl path={"ic-user3"}/>
+                                                <Stack>
                                                     <Typography fontWeight={600} fontSize={24} variant="caption">
-                                                        {Object.values(patientPerPeriod)[Object.values(patientPerPeriod)?.length -1] ?? 0}
+                                                        {patientPerPeriod && Object.values(patientPerPeriod).reduce((total: number, val: number) => total + val, 0)}
                                                     </Typography>
-
-                                                    <Stack direction={"row"}>
-                                                        <IconUrl path={"ic-up-right"}/>
-                                                        <Typography fontWeight={700} fontSize={14} color="success.main"
-                                                                    variant="body2">4 % </Typography>
-                                                    </Stack>
+                                                    <Typography fontSize={12} fontWeight={500} variant="body2">
+                                                        Patients
+                                                    </Typography>
                                                 </Stack>
-                                                <Typography fontSize={12} fontWeight={500} variant="body2">
-                                                    Nouveaux patients
-                                                </Typography>
+                                            </Stack>
+                                            <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
+                                                <IconUrl path={"ic-user4"}/>
+                                                <Stack>
+                                                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                        <Typography fontWeight={600} fontSize={24} variant="caption">
+                                                            {Object.values(patientPerPeriod)[Object.values(patientPerPeriod)?.length - 1] ?? 0}
+                                                        </Typography>
+
+                                                        <Stack direction={"row"}>
+                                                            <IconUrl path={"ic-up-right"}/>
+                                                            <Typography fontWeight={700} fontSize={14}
+                                                                        color="success.main"
+                                                                        variant="body2">4 % </Typography>
+                                                        </Stack>
+                                                    </Stack>
+                                                    <Typography fontSize={12} fontWeight={500} variant="body2">
+                                                        Nouveaux patients
+                                                    </Typography>
+                                                </Stack>
                                             </Stack>
                                         </Stack>
+                                        <CalendarViewButton
+                                            {...{t}}
+                                            view={viewChart}
+                                            sx={{
+                                                "& .MuiButtonBase-root": {
+                                                    marginRight: '1rem'
+                                                },
+                                                "& .MuiButton-startIcon>*:nth-of-type(1)": {
+                                                    fontSize: 20
+                                                }
+                                            }}
+                                            views={VIEW_OPTIONS}
+                                            onSelect={(viewOption: string) => setViewChart(viewOption)}
+                                        />
                                     </Stack>
-
-
                                     <ChartStyled>
                                         <Chart
                                             type="area"
                                             series={[
-                                                {name: 'patients', data: Object.values(patientPerPeriod)},
-                                                {name: 'appointments', data: Object.values(appointmentPerPeriod)},
+                                                {name: 'patients', data: Object.values(patientPerPeriod).splice(0, 12)},
+                                                {name: 'appointments', data: Object.values(appointmentPerPeriod).splice(0, 12)},
                                             ]}
                                             options={merge(ChartsOption(), {
                                                 xaxis: {
                                                     position: "top",
-                                                    categories: [
-                                                        'Jan',
-                                                        'Feb',
-                                                        'Mar',
-                                                        'Apr',
-                                                        'May',
-                                                        'Jun',
-                                                        'Jul',
-                                                        'Aug',
-                                                        'SEP',
-                                                        'OCT'
-                                                    ]
+                                                    categories: Object.keys(appointmentPerPeriod).map(date =>
+                                                        startCase(moment(date, "DD-MM-YYYY HH:mm").format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', ''))).splice(0, 12)
                                                 },
                                                 tooltip: {x: {show: false}, marker: {show: false}},
                                                 grid: {
@@ -182,8 +198,8 @@ function Statistics() {
                                     </ChartStyled>
                                 </CardContent>
                             </Card>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
+                        </Grid>}
+                        {!fullChart.act && <Grid item xs={12} md={fullChart.motif ? 12 : 6}>
                             <Card
                                 sx={{
                                     borderRadius: "12px",
@@ -191,7 +207,8 @@ function Statistics() {
                                     boxShadow: theme.shadows[5]
                                 }}>
                                 <CardContent sx={{pb: 0}}>
-                                    <Stack ml={2} direction={"row"} spacing={2}>
+                                    <Stack ml={2} alignItems={"center"} direction={"row"} spacing={2}
+                                           justifyContent={"space-between"}>
                                         <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
                                             <IconUrl width={40} height={40} path={"ic-document"}/>
                                             <Stack>
@@ -203,13 +220,16 @@ function Statistics() {
                                                 </Typography>
                                             </Stack>
                                         </Stack>
+                                        <IconButton
+                                            onClick={() => setFullChart({...fullChart, motif: !fullChart.motif})}>
+                                            {fullChart.motif ? <CloseFullscreenRoundedIcon/> : <OpenInFullRoundedIcon/>}
+                                        </IconButton>
                                     </Stack>
-
                                     <ChartStyled>
                                         <Chart
                                             type="bar"
                                             series={[{
-                                                data: motifPerPeriod?.reduce((motifs,item) =>[...(motifs ?? []),item.doc_count],[]).splice(0,5)
+                                                data: motifPerPeriod?.reduce((motifs, item) => [...(motifs ?? []), item.doc_count], []).splice(0, fullChart.motif ? motifPerPeriod.length : 5)
                                             }]}
                                             options={merge(ChartsOption(), {
                                                 plotOptions: {
@@ -244,7 +264,7 @@ function Statistics() {
                                                 },
                                                 xaxis: {
                                                     position: "top",
-                                                    categories: motifPerPeriod?.reduce((motifs,item) =>[...(motifs ?? []),item.key],[]).splice(0,5),
+                                                    categories: motifPerPeriod?.reduce((motifs, item) => [...(motifs ?? []), item.key], []).splice(0, fullChart.motif ? motifPerPeriod.length : 5),
                                                 },
                                                 yaxis: {
                                                     labels: {
@@ -265,13 +285,13 @@ function Statistics() {
                                                     }
                                                 }
                                             }) as any}
-                                            height={240}
+                                            height={fullChart.motif ? 480 : 240}
                                         />
                                     </ChartStyled>
                                 </CardContent>
                             </Card>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
+                        </Grid>}
+                        {!fullChart.motif && <Grid item xs={12} md={fullChart.act ? 12 : 6}>
                             <Card
                                 sx={{
                                     borderRadius: "12px",
@@ -279,7 +299,8 @@ function Statistics() {
                                     boxShadow: theme.shadows[5]
                                 }}>
                                 <CardContent sx={{pb: 0}}>
-                                    <Stack ml={2} direction={"row"} spacing={2}>
+                                    <Stack ml={2} alignItems={"center"} direction={"row"} spacing={2}
+                                           justifyContent={"space-between"}>
                                         <Stack direction={"row"} spacing={1.2}>
                                             <Stack>
                                                 <Typography fontWeight={600} fontSize={24} variant="caption">
@@ -291,13 +312,18 @@ function Statistics() {
                                                 </Typography>
                                             </Stack>
                                         </Stack>
+
+                                        <IconButton
+                                            onClick={() => setFullChart({...fullChart, act: !fullChart.act})}>
+                                            {fullChart.act ? <CloseFullscreenRoundedIcon/> : <OpenInFullRoundedIcon/>}
+                                        </IconButton>
                                     </Stack>
 
                                     <ChartStyled>
                                         <Chart
                                             type="bar"
                                             series={[{
-                                                data: [1400, 5430, 8448, 22470]
+                                                data: actPerPeriod?.reduce((motifs, item) => [...(motifs ?? []), item.doc_count], []).splice(0, fullChart.act ? actPerPeriod.length : 5)
                                             }]}
                                             options={merge(ChartsOption(), {
                                                 chart: {
@@ -339,7 +365,7 @@ function Statistics() {
                                                 },
                                                 xaxis: {
                                                     position: "top",
-                                                    categories: ['acte 1', 'acte 2', 'acte 3', 'acte 4'],
+                                                    categories: actPerPeriod?.reduce((motifs, item) => [...(motifs ?? []), item.key], []).splice(0, fullChart.act ? actPerPeriod.length : 5),
                                                 },
                                                 yaxis: {
                                                     labels: {
@@ -360,13 +386,13 @@ function Statistics() {
                                                     }
                                                 }
                                             }) as any}
-                                            height={240}
+                                            height={fullChart.act ? 480 : 240}
                                         />
                                     </ChartStyled>
                                 </CardContent>
                             </Card>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
+                        </Grid>}
+                        {(!fullChart.motif && !fullChart.act) && <Grid item xs={12} md={6}>
                             <Card
                                 sx={{
                                     borderRadius: "12px",
@@ -374,7 +400,8 @@ function Statistics() {
                                     boxShadow: theme.shadows[5]
                                 }}>
                                 <CardContent sx={{pb: 0}}>
-                                    <Stack ml={2} direction={"row"} spacing={2}>
+                                    <Stack ml={2} alignItems={"center"} direction={"row"} spacing={2}
+                                           justifyContent={"space-between"}>
                                         <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
                                             <IconUrl color={theme.palette.primary.main} width={40} height={40}
                                                      path={"ic-payment"}/>
@@ -478,7 +505,7 @@ function Statistics() {
                                     </ChartStyled>
                                 </CardContent>
                             </Card>
-                        </Grid>
+                        </Grid>}
                     </Grid>
                 </DesktopContainer>
             </Box>
