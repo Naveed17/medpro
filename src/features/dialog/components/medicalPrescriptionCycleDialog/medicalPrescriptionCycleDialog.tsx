@@ -36,7 +36,7 @@ import {LoadingButton} from "@mui/lab";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import MedicalPrescriptionCycleStyled from "./overrides/medicalPrescriptionCycleStyled";
+import MedicalPrescriptionCycleStyled,{ButtonWhite} from "./overrides/medicalPrescriptionCycleStyled";
 import IconUrl from "@themes/urlIcon";
 import {
     Dialog as CustomDialog,
@@ -934,6 +934,7 @@ console.log(values)
                                                                                 multiple
                                                                                 displayEmpty={true}
                                                                                 size="small"
+                                                                               
                                                                                 value={
                                                                                     values.data[idx].cycles[
                                                                                         index
@@ -964,6 +965,7 @@ console.log(values)
                                                                                 {innerItem.dosageTime.map(
                                                                                     (subitem: any, i: number) => (
                                                                                         <MenuItem
+                                                                                        disableRipple
                                                                                             key={subitem.label}
                                                                                             value={t(subitem.label, {
                                                                                                 ns: "consultation",
@@ -992,6 +994,61 @@ console.log(values)
                                                                                                     ns: "consultation",
                                                                                                 })}
                                                                                             />
+                                                                                            {
+                                                                                        values.data[idx].cycles[index]
+                                                                                                    .dosageTime[i].value && (
+                                                                                                        <ButtonWhite
+                                                                                                        
+                                                                        sx={{
+                                                                            justifyContent:'space-between',
+                                                                            marginLeft:'auto'
+
+                                                                        }}
+
+                                                                        onClick={(event: any) => {
+                                                                            event.stopPropagation();
+                                                                            event.preventDefault();
+                                                                        }}
+                                                                        component="label"
+                                                                        endIcon={
+                                                                            <IconButton
+                                                                                disabled={
+                                                                                    innerItem.dosageQty ===
+                                                                                    fractions[fractions.length - 1]
+                                                                                }
+                                                                                onClick={(e) =>{
+                                                                                    e.stopPropagation();
+                                                                                    handleDosageQty("plus", index, idx)
+                                                                                }
+                                                                                }
+                                                                                size="small"
+                                                                                disableRipple>
+                                                                                <AddIcon/>
+                                                                            </IconButton>
+                                                                        }
+                                                                        startIcon={
+                                                                            <IconButton
+                                                                                disabled={
+                                                                                    innerItem.dosageQty === fractions[0]
+                                                                                }
+                                                                                onClick={(e) =>{
+                                                                                    e.stopPropagation();
+                                                                                    handleDosageQty("minus", index, idx);
+                                                                                    
+                                                                                }
+                                                                                }
+                                                                                size="small"
+                                                                                disableRipple>
+                                                                                <RemoveIcon/>
+                                                                            </IconButton>
+                                                                        }
+                                                                        variant="white"
+                                                                        disableRipple>
+                                                                        {subitem.dosageQty}
+                                                                    </ButtonWhite>
+                                                                                                    )
+                                                                                    }
+                                                                                            
                                                                                         </MenuItem>
                                                                                     )
                                                                                 )}

@@ -1,5 +1,7 @@
-import { Stack, styled } from "@mui/material";
-
+import { Button, Stack, styled,ButtonProps } from "@mui/material";
+interface Props extends ButtonProps {
+  component: string
+}
 const MedicalPrescriptionCycleStyled = styled(Stack)(({ theme }) => ({
   "& .MuiContainer-root": {
     padding: 0,
@@ -182,3 +184,52 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({ theme }) => ({
   },
 }));
 export default MedicalPrescriptionCycleStyled;
+export const ButtonWhite = styled(Button)<Props>(({theme})=>({
+        border: `1px solid ${theme.palette.grey[300]}`,
+        cursor: "default",
+        padding: theme.spacing(0.5, 1),
+        minWidth: 56,
+        [theme.breakpoints.up("sm")]:{
+          minWidth: 100
+        },
+        
+        [theme.breakpoints.up("md")]:{
+          minWidth: 56
+        },
+        ".MuiIconButton-root": {
+          ".MuiSvgIcon-root": {
+            fontSize: "1rem",
+            path: {
+              fill: theme.palette.primary.main,
+            },
+          },
+          "&.Mui-disabled": {
+            ".MuiSvgIcon-root": {
+              path: {
+                fill: theme.palette.divider,
+              },
+            },
+          },
+        },
+        "&:hover": {
+          backgroundColor: theme.palette.common.white,
+        },
+        ".MuiButtonBase-root": {
+          width: 25,
+          height: 25,
+          svg: {
+            path: {
+              fill: theme.palette.divider,
+            },
+          },
+          ".react-svg": {
+            svg: {
+              path: {
+                fill: theme.palette.common.white,
+              },
+            },
+          },
+        },
+       
+      
+}))
