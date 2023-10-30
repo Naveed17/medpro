@@ -33,9 +33,7 @@ const humanizeDuration = require("humanize-duration");
 const popoverNotificationData = {
     mainIcon: <NotificationsOffIcon/>,
     title: "notification.empty",
-    description: "notification.desc",
-    buttonText: "notification.button",
-    buttonVariant: "primary"
+    description: "notification.desc"
 };
 
 function a11yProps(index: number) {

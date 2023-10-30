@@ -1,12 +1,20 @@
 import React from 'react'
 import CipCardStyled from './overrides/cipCardStyle'
-import {Stack, Typography, Avatar, Badge, useTheme} from '@mui/material';
-import {useAppSelector} from "@lib/redux/hooks";
+import {Stack, Typography, Avatar, useTheme} from '@mui/material';
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {timerSelector} from "@features/card";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {capitalizeFirst, useTimer} from "@lib/hooks";
+import {capitalizeFirst, getDiffDuration, getMilliseconds, useTimer} from "@lib/hooks";
+import {setDialog} from "@features/topNavBar";
+import {setSelectedEvent} from "@features/calendar";
+import {batch} from "react-redux";
+
+const humanizeDuration = require("humanize-duration");
+import {humanizerConfig} from "@lib/constants";
+
+const shortEnglishHumanizer = humanizeDuration.humanizer(humanizerConfig);
 
 function CipCard({...props}) {
     const {openPatientDialog} = props;
@@ -14,6 +22,7 @@ function CipCard({...props}) {
     const router = useRouter();
     const {timer} = useTimer();
     const theme = useTheme();
+    const dispatch = useAppDispatch();
 
     const {event} = useAppSelector(timerSelector);
 
@@ -30,32 +39,11 @@ function CipCard({...props}) {
     const openPatientDetail = () => {
         event?.extendedProps.patient?.uuid && openPatientDialog(event?.extendedProps.patient?.uuid);
     }
-
+   
     return (
         <CipCardStyled
             disableRipple
             variant={"contained"}
-            startIcon={
-                <Badge
-                    overlap="circular"
-                    anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                    badgeContent={
-                        <Avatar
-                            alt="avatar"
-                            src={'/static/icons/play-1.svg'}
-                            sx={{
-                                width: 16,
-                                height: 16,
-                                borderRadius: 20,
-                                border: `2px solid ${theme.palette.background.paper}`
-                            }}/>
-                    }>
-                    <Avatar className={"round-avatar"}
-                            sx={{width: 30, height: 30}}
-                            variant={"circular"}
-                            src={`/static/icons/men-avatar.svg`}/>
-                </Badge>
-            }
             onClick={!roles.includes('ROLE_SECRETARY') ? handleConsultation : openPatientDetail}>
             <Stack spacing={{xs: 1, md: 2}} direction='row' alignItems="center" px={{xs: 0.7, md: 0}}>
                 <Typography
@@ -71,6 +59,13 @@ function CipCard({...props}) {
                     alt="Small avatar"
                     variant={"square"}
                     src={'/static/icons/ic-stop.svg'}
+                    onClick={event => {
+                        event.stopPropagation();
+                        batch(() => {
+                            dispatch(setSelectedEvent(null));
+                            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+                        });
+                    }}
                     sx={{
                         width: 30,
                         height: 30,
@@ -84,11 +79,18 @@ function CipCard({...props}) {
 
                 <Avatar
                     alt="button avatar"
+                    onClick={event => {
+                        event.stopPropagation();
+                        batch(() => {
+                            dispatch(setSelectedEvent(null));
+                            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+                        });
+                    }}
                     sx={{
                         height: 30,
                         pl: .5,
                         borderRadius: 1,
-                        width: 120,
+                        width: 100,
                         color: theme.palette.warning.contrastText,
                         bgcolor: theme.palette.warning.main
                     }}>
@@ -99,7 +101,8 @@ function CipCard({...props}) {
                             height: 20,
                             borderRadius: 20
                         }}/>
-                    <Typography sx={{width: 80}} ml={0} fontSize={14} fontWeight={600}>{timer}</Typography>
+                    <Typography sx={{width: 60}} ml={0} fontSize={14}
+                                fontWeight={600}>{shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {largest: 2, round: true})}</Typography>
                 </Avatar>
             </Stack>
         </CipCardStyled>

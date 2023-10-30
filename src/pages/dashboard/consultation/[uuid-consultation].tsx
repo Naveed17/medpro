@@ -307,7 +307,6 @@ function ConsultationInProgress() {
             type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
         if (card.documentType === "medical-certificate") {
             setInfo("document_detail");
-
             setState({
                 uuid: card.uuid,
                 certifUuid: card.certificate[0].uuid,
@@ -1155,7 +1154,7 @@ function ConsultationInProgress() {
                         />
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-{/*                        <Button onClick={() => {
+                        {/*                        <Button onClick={() => {
                             const form = new FormData();
                             form.append("cash_box", selectedBoxes[0].uuid);
                             form.append("type_transaction", TransactionType[0].value);

@@ -15,16 +15,14 @@ import {startCase} from 'lodash'
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {setTimer, timerSelector} from "@features/card";
 import {capitalizeFirst, useMedicalEntitySuffix, useTimer} from "@lib/hooks";
-import {FlipDate} from "@features/FlipDate";
 import {Label} from "@features/label";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import SwitchConsultationDialogStyled from "./overrides/switchConsultationDialogStyled";
 import {useRequestQuery} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {agendaSelector, setSelectedEvent} from "@features/calendar";
+import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
-import moment from "moment-timezone";
 
 function SwitchConsultationDialog() {
     const {timer} = useTimer();
@@ -86,7 +84,7 @@ function SwitchConsultationDialog() {
                                 {capitalizeFirst(`${event?.extendedProps.patient.firstName} ${event?.extendedProps.patient.lastName}`)}
                             </Typography>
                         </Stack>
-                        <FlipDate value={timer.split(" : ").map(time => parseInt(time))}/>
+                        <Typography fontSize={14} fontWeight={600}>{timer}</Typography>
                     </Stack>
 
                     {(event?.extendedProps.type?.name || typeof event?.extendedProps.type === "string") &&
