@@ -39,7 +39,7 @@ function CipCard({...props}) {
     const openPatientDetail = () => {
         event?.extendedProps.patient?.uuid && openPatientDialog(event?.extendedProps.patient?.uuid);
     }
-   
+
     return (
         <CipCardStyled
             disableRipple
@@ -102,7 +102,7 @@ function CipCard({...props}) {
                             borderRadius: 20
                         }}/>
                     <Typography sx={{width: 60}} ml={0} fontSize={14}
-                                fontWeight={600}>{shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {largest: 2, round: true})}</Typography>
+                                fontWeight={600}>{shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {largest: 1, round: true})}</Typography>
                 </Avatar>
             </Stack>
         </CipCardStyled>

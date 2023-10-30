@@ -1280,7 +1280,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                 </Stack>
                                     </Stack>
                                     <TabPanel value={prescriptionTabIndex} index={0}>
-                                        
+
                                         <List
                                             className={"prescription-preview"}
                                             subheader={
@@ -1300,7 +1300,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         </Stack>
 
 
-                                               
+
                                             }>
                                             {drugs.map((drug: DrugCycleModel, index: number) => (
                                                 <ListItemButton
@@ -1405,9 +1405,10 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                             <Typography fontWeight={700}>
                                                 {t("model_list")}
                                             </Typography>
-                                            <IconButton className="btn-list-action">
+                                            <IconButton
+                                                onClick={() => setOpenAddParentDialog(true)}
+                                                className="btn-list-action">
                                                 <IconUrl path="ic-folder-add" width={20} height={20}/>
-
                                             </IconButton>
                                         </Stack>
                                         <ModelPrescriptionList
@@ -1420,14 +1421,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 setOpenAddParentDialog
                                             }}
                                         />
-                                        <Button
-                                            size={"small"}
-                                            onClick={() => setOpenAddParentDialog(true)}
-                                            sx={{alignSelf: "flex-start", mb: 1}}
-                                            color={"primary"}
-                                            startIcon={<AddRoundedIcon/>}>
-                                            {t("new_file", {ns: "consultation"})}
-                                        </Button>
                                     </TabPanel>
                                 </Box>
                             </Stack>
