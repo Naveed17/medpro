@@ -4,5 +4,10 @@
   },
   "filter": {
     "title": "Filtre"
+  },
+  "agenda-view": {
+    "day": "Jour",
+    "week": "Semaine",
+    "month": "Mois"
   }
 }

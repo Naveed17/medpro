@@ -1199,7 +1199,25 @@ function MedicalPrescriptionCycleDialog({...props}) {
                             spacing={{xs: 1, md: 2}}
                             {...(!isMobile && {sx: {position: "sticky", top: "0"}})}>
                             <Stack direction={"column"} sx={{width: "100%"}}>
-                                <Stack direction={"row"} spacing={1.2}>
+
+                                <Box sx={{width: "100%", "& .MuiBox-root": {p: 0}}}>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{borderBottom: 1, borderColor: "divider"}}>
+                                        <Tabs
+                                            value={prescriptionTabIndex}
+                                            onChange={handlePrescriptionTabChange}
+                                            aria-label="prescription tabs">
+                                            <Tab
+                                                disableFocusRipple
+                                                label={t("preview")}
+                                                {...a11yProps(0)}
+                                            />
+                                            <Tab
+                                                disableFocusRipple
+                                                label={t("modeles")}
+                                                {...a11yProps(1)}
+                                            />
+                                        </Tabs>
+                                         <Stack direction={"row"} spacing={1.2}>
                                     {!editModel ? (
                                         <ModelSwitchButton
                                             {...{t, editModel, lastPrescriptions, drugs}}
@@ -1260,48 +1278,34 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         </Button>
                                     )}
                                 </Stack>
-                                <Divider
-                                    sx={{
-                                        display: {xs: "block", md: "none"},
-                                        mt: 2,
-                                        width: "calc(100% + 48px)",
-                                        position: "relative",
-                                        left: -24,
-                                    }}
-                                />
-
-                                <Box sx={{width: "100%", "& .MuiBox-root": {p: 0}}}>
-                                    <Box sx={{borderBottom: 1, borderColor: "divider"}}>
-                                        <Tabs
-                                            value={prescriptionTabIndex}
-                                            onChange={handlePrescriptionTabChange}
-                                            aria-label="prescription tabs">
-                                            <Tab
-                                                disableFocusRipple
-                                                label={t("preview")}
-                                                {...a11yProps(0)}
-                                            />
-                                            <Tab
-                                                disableFocusRipple
-                                                label={t("modeles")}
-                                                {...a11yProps(1)}
-                                            />
-                                        </Tabs>
-                                    </Box>
+                                    </Stack>
                                     <TabPanel value={prescriptionTabIndex} index={0}>
+
                                         <List
                                             className={"prescription-preview"}
                                             subheader={
-                                                <ListSubheader
+
+                                            <Stack mt={2} direction='row' alignItems="center" justifyContent='space-between'>
+                                             <ListSubheader
+                                             sx={{pl:0}}
                                                     disableSticky
                                                     component="div"
                                                     id="nested-list-subheader">
                                                     {t("drug_list", {ns: "consultation"})}
                                                 </ListSubheader>
+                                            <IconButton className="btn-list-action" sx={{"&.btn-list-action":{px:.8}}}>
+                                                <IconUrl path="ic-eye-scan" width={16} height={16}/>
+
+                                            </IconButton>
+                                        </Stack>
+
+
+
                                             }>
                                             {drugs.map((drug: DrugCycleModel, index: number) => (
                                                 <ListItemButton
                                                     key={drug.drugUuid}
+                                                    className="drug-list-item"
                                                     onClick={(event) => {
                                                         event.stopPropagation();
                                                         setTimeout(() => {
@@ -1361,6 +1365,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         }
                                                     />
                                                     <IconButton
+                                                    className="btn-edit"
                                                         onClick={(event) => {
                                                             event.stopPropagation();
                                                             setTimeout(() => {
@@ -1388,7 +1393,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                             color="red"
                                                             width={12}
                                                             height={12}
-                                                            path="icdelete"
+                                                            path="ic-delete"
                                                         />
                                                     </IconButton>
                                                 </ListItemButton>
@@ -1396,6 +1401,16 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         </List>
                                     </TabPanel>
                                     <TabPanel value={prescriptionTabIndex} index={1}>
+                                        <Stack mt={2} direction='row' alignItems="center" justifyContent='space-between'>
+                                            <Typography fontWeight={700}>
+                                                {t("model_list")}
+                                            </Typography>
+                                            <IconButton
+                                                onClick={() => setOpenAddParentDialog(true)}
+                                                className="btn-list-action">
+                                                <IconUrl path="ic-folder-add" width={20} height={20}/>
+                                            </IconButton>
+                                        </Stack>
                                         <ModelPrescriptionList
                                             {...{
                                                 models,
@@ -1406,14 +1421,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 setOpenAddParentDialog
                                             }}
                                         />
-                                        <Button
-                                            size={"small"}
-                                            onClick={() => setOpenAddParentDialog(true)}
-                                            sx={{alignSelf: "flex-start", mb: 1}}
-                                            color={"primary"}
-                                            startIcon={<AddRoundedIcon/>}>
-                                            {t("new_file", {ns: "consultation"})}
-                                        </Button>
                                     </TabPanel>
                                 </Box>
                             </Stack>

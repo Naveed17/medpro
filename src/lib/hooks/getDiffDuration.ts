@@ -1,22 +1,10 @@
 import moment from "moment-timezone";
+import {humanizerConfig} from "@lib/constants";
+
 const humanizeDuration = require("humanize-duration");
 
-export const getDiffDuration = (date: string) => {
-    const shortEnglishHumanizer = humanizeDuration.humanizer({
-        language: "shortEn",
-        languages: {
-            shortEn: {
-                y: () => "y",
-                mo: () => "mo",
-                w: () => "w",
-                d: () => "d",
-                h: () => "h",
-                m: () => "min",
-                s: () => "s",
-                ms: () => "ms",
-            },
-        },
-    });
+export const getDiffDuration = (date: string, largest = 2) => {
+    const shortEnglishHumanizer = humanizeDuration.humanizer(humanizerConfig);
     const duration: any = moment.duration(moment.utc().diff(moment.utc(date, "DD-MM-YYYY HH:mm")));
-    return shortEnglishHumanizer(duration, {largest: 2, round: true});
+    return shortEnglishHumanizer(duration, {largest, round: true});
 }

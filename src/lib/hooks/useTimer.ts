@@ -4,7 +4,7 @@ import {timerSelector} from "@features/card";
 import moment from "moment-timezone";
 
 function useTimer() {
-    const {startTime: initTimer, isActive, isPaused, event} = useAppSelector(timerSelector);
+    const {startTime: initTimer, isActive, isPaused} = useAppSelector(timerSelector);
 
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
