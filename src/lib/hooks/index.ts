@@ -25,6 +25,7 @@ export * from "./conditionalWrapper";
 export * from "./getBirthday";
 export * from "./getBirthdayFormat";
 export * from "./getDifference";
+export * from "./getMilliseconds";
 export * from "./generatePdfFromHtml";
 export * from "./a11yProps";
 export * from './rest/useContactType';

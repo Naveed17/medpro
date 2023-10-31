@@ -5,7 +5,7 @@ const PausedConsultationPopoverStyled = styled(Box)(({theme}) => ({
     height: "100%",
     pt: '.5rem',
     '& .MuiList-root': {
-        height: 200,
+        height: 125,
         overflow: "auto"
     },
     '& .avatar-badge': {

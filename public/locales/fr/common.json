@@ -353,6 +353,14 @@
       "finish": "Terminer & Démarrer Nouvelle",
       "pause": "Mettre en Pause & Démarrer Nouvelle"
     },
+    "manage-consultation-dialog": {
+      "title": "Consultation",
+      "sub-title": "Vous devez mettre fin ou mettre en pause la consultation actuelle.",
+      "description": "",
+      "cancel": "Annuler",
+      "finish": "Terminer",
+      "pause": "Mettre en Pause"
+    },
     "alert": {
       "cancel-appointment": "le rendez-vous a été annulé avec succès",
       "delete-appointment": "le rendez-vous a été supprimé avec succès",
@@ -403,6 +411,10 @@
     "empty": "Aucune notification pour le moment",
     "desc": "Lorsque vous recevrez des notification, elles apparaîtront ici",
     "button": "Actualiser"
+  },
+  "paused-consultation-notification": {
+    "empty": "Aucune consultation en pause pour le moment",
+    "desc": "Lorsque vous mettez les consultations en pause, elles apparaissent ici"
   },
   "popover-info": {
     "title": "Statut du rendez-vous",

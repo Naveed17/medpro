@@ -220,3 +220,19 @@ export const tinymceToolbar = "blocks fontfamily fontsize | bold italic underlin
 export const tinymceToolbarNotes = " bold italic underline forecolor backcolor | align lineheight checklist bullist numlist | blocks fontfamily fontsize"
 
 export const MobileContainer: number = 820
+
+export const humanizerConfig = {
+    language: "shortEn",
+    languages: {
+        shortEn: {
+            y: () => "y",
+            mo: () => "mo",
+            w: () => "w",
+            d: () => "d",
+            h: () => "h",
+            m: () => "min",
+            s: () => "s",
+            ms: () => "ms",
+        },
+    },
+}

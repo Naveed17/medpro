@@ -36,6 +36,12 @@ function ModelSwitchButton({...props}) {
                 }
             }}>
             <Button
+            sx={{
+                ".MuiButton-startIcon":{
+                    mr:{xs:0,md:1},
+                    ml:{xs:0,md:-0.5}
+                }
+            }}
                 {...rest}
                 id="switch-button"
                 aria-controls={open ? 'switch-button' : undefined}
@@ -44,8 +50,8 @@ function ModelSwitchButton({...props}) {
                 variant="contained"
                 disableElevation
                 onClick={handleClick}
-                endIcon={<KeyboardArrowDownIcon/>}>
-                <Typography>{t('model_prescription')}</Typography>
+                startIcon={<AddIcon/>}>
+                <Typography display={{xs:'none',md:'block'}}>{t('add_model')}</Typography>
             </Button>
             <StyledMenu
                 id="switch-button"

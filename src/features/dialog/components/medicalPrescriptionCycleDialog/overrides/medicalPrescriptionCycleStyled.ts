@@ -157,11 +157,42 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({ theme }) => ({
   "& .prescription-preview": {
     width: "100%",
     "& .MuiListItemButton-root": {
-      paddingTop: 0,
-      paddingRight: 0,
+      border:`1px solid ${theme.palette.divider}`,
+      borderRadius:8,
+      alignItems:'center',
+      marginBottom:theme.spacing(1),
+      "&:last-child":{
+        marginBottom:0,
+      },
+      ".MuiListItemText-root":{
+        margin:0,
+      },
+      button:{
+        border:`1px solid ${theme.palette.divider}`,
+        borderRadius:8,
+        padding:5,
+        width:32,
+        height:32,
+        svg:{
+          width:16,
+          height:16,
+          path:{
+            fill:theme.palette.text.secondary,
+          }
+        },
+        "&.btn-del":{
+          marginLeft:theme.spacing(1),
+          svg:{
+            path:{
+              fill:theme.palette.text.primary
+            }
+          }
+        },
+      }
     },
     "& .MuiListItemText-primary": {
-      fontWeight: "bold",
+      fontWeight: 500,
+     
     },
   },
   "& .custom-button": {
@@ -169,5 +200,10 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({ theme }) => ({
     fontSize: { xs: 12, md: 14 },
     alignSelf: "flex-start",
   },
+'.btn-list-action':{
+  border:`1px solid ${theme.palette.divider}`,
+  borderRadius:8,
+  padding:5,
+}
 }));
 export default MedicalPrescriptionCycleStyled;

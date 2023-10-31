@@ -106,14 +106,6 @@ function TopNavBar({...props}) {
     const open = Boolean(anchorEl);
     const id = open ? "simple-popover" : undefined;
 
-    const popovers: {
-        [key: string]: EmotionJSX.Element
-    } = {
-        "appointment-stats": <AppointmentStatsPopover/>,
-        notification: <NotificationPopover onClose={() => setAnchorEl(null)}/>,
-        paused: <PausedConsultationPopover {...{pausedConsultation}}/>,
-    };
-
     const handleClick = (event: React.MouseEvent<any>, action: string) => {
         setAnchorEl(event.currentTarget);
         setPopoverAction(action);
@@ -165,6 +157,15 @@ function TopNavBar({...props}) {
         });
     }
 
+    const refreshAgendaData = () => {
+        // refresh on going api
+        mutateOnGoing();
+        router.push("/dashboard/agenda").then(() => {
+            // invalidate agenda query
+            invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`]).then(() => setLoadingReq(false));
+        });
+    }
+
     const handlePauseStartConsultation = () => {
         setLoadingReq(true)
         const form = new FormData();
@@ -176,8 +177,13 @@ function TopNavBar({...props}) {
         }, {
             onSuccess: () => {
                 dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
-                handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
-            }
+                if (selectedEvent) {
+                    handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
+                } else {
+                    refreshAgendaData();
+                }
+            },
+            onSettled: () => setLoadingReq(false)
         });
     }
 
@@ -187,7 +193,6 @@ function TopNavBar({...props}) {
         form.append("status", "5");
         form.append("action", "end_consultation");
         form.append("root", "agenda");
-        console.log("event", event);
         form.append("content", JSON.stringify({
             fees: event?.extendedProps.total,
             restAmount: event?.extendedProps.restAmount,
@@ -215,7 +220,11 @@ function TopNavBar({...props}) {
                     dispatch(resetAppointment());
                     dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
                 });
-                handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
+                if (selectedEvent) {
+                    handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
+                } else {
+                    refreshAgendaData();
+                }
             },
             onSettled: () => setLoadingReq(false)
         });
@@ -307,6 +316,18 @@ function TopNavBar({...props}) {
             setInstallable(false);
         }
     }, []);
+
+
+    const popovers: {
+        [key: string]: EmotionJSX.Element
+    } = {
+        "appointment-stats": <AppointmentStatsPopover/>,
+        notification: <NotificationPopover onClose={() => setAnchorEl(null)}/>,
+        paused: <PausedConsultationPopover
+            {...{pausedConsultation}}
+            refresh={refreshAgendaData}
+            onClose={() => setAnchorEl(null)}/>,
+    };
 
     return (
         <>
@@ -558,7 +579,7 @@ function TopNavBar({...props}) {
                         }}
                         action={"switch-consultation"}
                         open={switchConsultationDialog}
-                        title={commonTranslation(`dialogs.switch-consultation-dialog.title`)}
+                        title={commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.title`)}
                         actionDialog={
                             <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
                                 <Button
@@ -568,7 +589,7 @@ function TopNavBar({...props}) {
                                         value: false
                                     }))}
                                     startIcon={<CloseIcon/>}>
-                                    {commonTranslation(`dialogs.switch-consultation-dialog.cancel`)}
+                                    {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.cancel`)}
                                 </Button>
                                 <Stack direction={"row"} spacing={2}>
                                     <LoadingButton
@@ -579,7 +600,7 @@ function TopNavBar({...props}) {
                                         color={"info"}
                                         startIcon={<IconUrl height={"18"} width={"18"}
                                                             path="ic-pause-mate"></IconUrl>}>
-                                        {commonTranslation(`dialogs.switch-consultation-dialog.pause`)}
+                                        {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
                                     </LoadingButton>
                                     <LoadingButton
                                         loading={loadingReq}
@@ -589,7 +610,7 @@ function TopNavBar({...props}) {
                                         color={"error"}
                                         startIcon={<IconUrl height={"18"} width={"18"}
                                                             path="Property 1=play"></IconUrl>}>
-                                        {commonTranslation(`dialogs.switch-consultation-dialog.finish`)}
+                                        {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.finish`)}
                                     </LoadingButton>
                                 </Stack>
                             </Stack>

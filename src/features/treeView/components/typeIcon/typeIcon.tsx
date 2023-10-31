@@ -3,6 +3,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import ImageIcon from "@mui/icons-material/Image";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import DescriptionIcon from "@mui/icons-material/Description";
+import IconUrl from "@themes/urlIcon";
 
 type Props = {
     droppable?: boolean;
@@ -11,7 +12,7 @@ type Props = {
 
 export const TypeIcon: React.FC<Props> = (props) => {
     if (props.droppable) {
-        return <FolderIcon/>;
+        return <IconUrl path="ic-folder-with-files" width={20} height={20}/>;
     }
 
     switch (props.fileType) {
