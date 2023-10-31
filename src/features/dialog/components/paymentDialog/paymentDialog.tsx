@@ -20,7 +20,7 @@ import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
-import {DefaultCountry, TransactionType,} from "@lib/constants";
+import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import AddIcon from "@mui/icons-material/Add";
@@ -33,7 +33,6 @@ import {useRouter} from "next/router";
 import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 import ConsultationCard from "./consultationCard";
 import PaymentCard from "./paymentCard";
-import moment from "moment/moment";
 import {agendaSelector} from "@features/calendar";
 
 const LoadingScreen = dynamic(
@@ -96,7 +95,7 @@ function PaymentDialog({...props}) {
         ? medical_entity.country
         : DefaultCountry;
     const devise = doctor_country.currency?.name;
-    const deals={
+    const deals = {
         cash: {
             amount: rest,
         },
@@ -148,7 +147,7 @@ function PaymentDialog({...props}) {
             : null
     );
 
-    const {data: httpPatientTransactions, mutate:mutatePatientT} = useRequestQuery({
+    const {data: httpPatientTransactions, mutate: mutatePatientT} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/patients/${patient?.uuid}/transactions/${router.locale}`
     });
@@ -161,8 +160,9 @@ function PaymentDialog({...props}) {
     const handleChangePayment = (props: string) => {
 
         scrollToView();
-        let data = {selected:props,amount:0}
-
+        let data:any = {selected: props, amount: 0}
+        if (props === 'check')
+            data = {...data, data:{bank: '', carrier: '', nb: '', date: new Date()}}
         setPayments([...payments,data])
         handleClose();
     };
@@ -171,8 +171,8 @@ function PaymentDialog({...props}) {
         return 0
     };
 
-    const addTransactions = (item:{amount:number}) =>{
-        const form = new FormData();
+    const addTransactions = (item: { amount: number }) => {
+        /*const form = new FormData();
         form.append("cash_box", selectedBoxes[0].uuid);
         form.append("type_transaction", TransactionType[0].value);
         form.append("amount", item.amount.toString());
@@ -189,7 +189,9 @@ function PaymentDialog({...props}) {
                 console.log(res)
                 mutate();
             },
-        });
+        });*/
+        console.log(payments)
+        console.log(payments.reduce((total:number,val:any) =>total + parseInt(val.amount),0))
     }
 
     /*const checkCheques = () => {
@@ -229,20 +231,20 @@ function PaymentDialog({...props}) {
 
     useEffect(() => {
         console.log(httpPatientTransactions)
-    },[httpPatientTransactions])
+    }, [httpPatientTransactions])
 
-    useEffect(()=>{
+    useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse).data
             console.log(res)
-            setRest(r => r+res.rest_amount)
+            setRest(r => r + res.rest_amount)
             setAppointment({uuid: app_uuid, ...res})
         }
-    },[app_uuid, httpAppointmentTransactions])
+    }, [app_uuid, httpAppointmentTransactions])
 
-    useEffect(()=>{
-        setPayments([{selected:'cash',amount:rest}])
-    },[rest])
+    useEffect(() => {
+        setPayments([{selected: 'cash', amount: rest}])
+    }, [rest])
 
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
@@ -367,7 +369,7 @@ function PaymentDialog({...props}) {
                             {t("current_consultation")}
                         </Typography>
                         <Stack spacing={1}>
-                            <ConsultationCard {...{t, devise,appointment,addTransactions,rest}} />
+                            <ConsultationCard {...{t, devise, appointment, addTransactions, rest}} />
                         </Stack>
                         <Typography my={1} fontWeight={700}>
                             {t("other_consultation")}
@@ -483,7 +485,7 @@ function PaymentDialog({...props}) {
                                                     t,
                                                     devise,
                                                     paymentTypesList,
-                                                    payments,setPayments,
+                                                    payments, setPayments,
                                                     addTransactions,
                                                     item,
                                                     i,
