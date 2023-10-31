@@ -1,0 +1,21 @@
+{
+  "sub-header": {
+    "title": "Documents",
+    "add-doc": "Ajouter un document"
+  },
+  "no-data": {
+    "docs": {
+      "title": "Ajouter le premier document",
+      "description": "Vous n'avez pas de document médical\nAjoutez vos documents en cliquant sur Ajouter un document",
+      "import": "Importer un document"
+    }
+  },
+  "dialogs": {
+    "add-dialog": {
+      "title": "Ajouter un  nouveau document",
+      "cancel": "Annuler",
+      "later": "Classer plus tard",
+      "confirm": "Classer"
+    }
+  }
+}

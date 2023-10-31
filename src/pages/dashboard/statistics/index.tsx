@@ -6,7 +6,6 @@ import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {SubHeader} from "@features/subHeader";
 import {Box, Button, Card, CardContent, Grid, IconButton, Stack, Typography, useTheme} from "@mui/material";
-import {DesktopContainer} from "@themes/desktopConainter";
 import {StatsToolbar} from "@features/toolbar";
 import {merge} from 'lodash';
 import {ChartsOption, ChartStyled} from "@features/charts";
