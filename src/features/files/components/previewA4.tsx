@@ -4,6 +4,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
+import {getBirthdayFormat} from "@lib/hooks";
 
 function PreviewDialog({...props}) {
     const {previewDocRef, componentRef, eventHandler, data, values, state, loading, date, t, nbPage} = props;
@@ -199,7 +200,7 @@ function PreviewDialog({...props}) {
                             txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
                             txt = txt.replaceAll('[date]', moment().format('DD/MM/YYYY'))
                             if (state.birthdate) {
-                                txt = txt.replaceAll('{age}', moment().diff(moment(state.birthdate, "DD-MM-YYYY"), "years") + " ans")
+                                txt = txt.replaceAll('{age}', getBirthdayFormat({birthdate:state.birthdate}, t))
                                 txt = txt.replaceAll('{birthdate}', moment(state.birthdate, "DD-MM-YYYY").format('DD-MM-YYYY'))
                             }
                             if (state.cin)
