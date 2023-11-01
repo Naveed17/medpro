@@ -2,15 +2,15 @@ import {useTranslation} from "next-i18next";
 import React, {useEffect, useState} from "react";
 import {
     Box,
-    Button,
-    Checkbox,
+    Button, Collapse,
+    Dialog as MuiDialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    Dialog as MuiDialog,
-    FormControlLabel,
     Grid,
-    List, MenuItem, Select,
+    List,
+    MenuItem,
+    Select,
     Stack,
     TextField,
     Tooltip,
@@ -18,7 +18,6 @@ import {
     useTheme
 } from "@mui/material";
 import dynamic from "next/dynamic";
-import {ModelDot} from "@features/modelDot";
 import AddIcon from "@mui/icons-material/Add";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -28,8 +27,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog, prescriptionSelector, setParentModel} from "@features/dialog";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {configSelector} from "@features/base";
-import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from "@tinymce/tinymce-react";
 import {RecButton} from "@features/buttons";
 import {useSnackbar} from "notistack";
@@ -43,6 +42,9 @@ import IconUrl from "@themes/urlIcon";
 import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 import EditIcon from "@mui/icons-material/Edit";
 import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import {agendaSelector} from "@features/calendar";
+import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -58,12 +60,16 @@ function CertifDialog({...props}) {
     } = useSpeechRecognition();
     const {enqueueSnackbar} = useSnackbar();
     const dispatch = useAppDispatch();
-
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {t, ready} = useTranslation("consultation");
     const {direction} = useAppSelector(configSelector);
     const {parent: modelParent} = useAppSelector(prescriptionSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
 
-    let [colors, setColors] = useState(["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"]);
+    /*
+        let [colors, setColors] = useState(["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"]);
+    */
     const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
@@ -85,6 +91,8 @@ function CertifDialog({...props}) {
     const [dialogAction, setDialogAction] = useState<string>("");
     const [openCertificateModelDialog, setOpenCertificateModelDialog] = useState(false);
     const [height, setHeight] = React.useState(440);
+    const [expanded, setExpanded] = useState(false);
+    const [traking, setTraking] = useState<any[]>([]);
 
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
@@ -100,6 +108,7 @@ function CertifDialog({...props}) {
     const {trigger: triggerModelParent} = useRequestQueryMutation("consultation/certif-models/parent");
     const {trigger: triggerFolderSwitch} = useRequestQueryMutation("/certif-models/folder/edit");
     const {trigger: triggerFolderDelete} = useRequestQueryMutation("/certif-models/delete");
+    const {trigger: triggerGetData} = useRequestQueryMutation("/patient/data");
 
     const {data: httpModelResponse, mutate: mutateModel} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -330,9 +339,8 @@ function CertifDialog({...props}) {
     }, [data])
 
     useEffect(() => {
-        if (isStarted) {
+        if (isStarted)
             setValue(oldNote + ' ' + transcript)
-        }
     }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -371,21 +379,6 @@ function CertifDialog({...props}) {
                                                 data.state.title = ev.target.value;
                                                 data.setState(data.state)
                                             }}/>
-                                        {/*{selectedColor.map(color => (
-                                            <ModelDot
-                                                key={color}
-                                                color={color}
-                                                onClick={() => {
-                                                    if (selectedColor.length === 1)
-                                                        setSelectedColor([...colors])
-                                                    else {
-                                                        setSelectedColor([color])
-                                                        colors.splice(colors.findIndex(c => c === color), 1)
-                                                        setColors([...colors, color])
-                                                    }
-                                                }}>
-                                            </ModelDot>
-                                        ))}*/}
                                     </Stack>
                                 </Stack>
 
@@ -430,6 +423,27 @@ function CertifDialog({...props}) {
                                                 addVal(cb.name)
                                             }} size={"small"}> <AddIcon/> {t(`consultationIP.${cb.title}`)}</Button>
                                         </Tooltip>))}
+                                    <Button onClick={() => {
+                                        medicalEntityHasUser && !expanded && traking.length === 0 && triggerGetData({
+                                            method: "GET",
+                                            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${data.appuuid}/consultation-sheet/${router.locale}`
+                                        }, {
+                                            onSuccess: (result) => {
+                                                const data =result.data.data.modal.data
+                                                if (data){
+                                                    let res: { key:string,value:string }[] = [];
+                                                    Object.keys(data).filter(key =>data[key] !== "").map(key =>{
+                                                        res.push({key,value:data[key]})
+                                                    })
+                                                    setTraking(res)
+                                                }
+                                            }
+                                        })
+                                        setExpanded(!expanded)
+                                    }}
+                                            size={"small"}>  {t(`consultationIP.tracking_data`)} {expanded ?<KeyboardArrowUpRoundedIcon/>:<KeyboardArrowDownRoundedIcon/>}
+                                    </Button>
+
                                 </Stack>
                                 <RecButton
                                     small
@@ -437,6 +451,16 @@ function CertifDialog({...props}) {
                                         startStopRec();
                                     }}/>
                             </Stack>
+                            <Collapse in={expanded} timeout="auto" unmountOnExit>
+                                {traking.map(item => (
+                                    <Button onClick={()=>{
+                                        addVal(item.value.toString())
+                                    }}
+                                            key={item.key}
+                                            size={"small"}> <AddIcon/>  {item.key} ({item.value})
+                                    </Button>
+                                ))}
+                            </Collapse>
                             <div style={{height, paddingBottom: "1rem"}}>
                                 <Editor
                                     value={value}
