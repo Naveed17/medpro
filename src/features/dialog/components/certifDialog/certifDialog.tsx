@@ -2,7 +2,8 @@ import {useTranslation} from "next-i18next";
 import React, {useEffect, useState} from "react";
 import {
     Box,
-    Button, Collapse,
+    Button,
+    Collapse,
     Dialog as MuiDialog,
     DialogActions,
     DialogContent,
@@ -300,6 +301,25 @@ function CertifDialog({...props}) {
         setEditModel(true);
     }
 
+    const showTrakingData = () => {
+        medicalEntityHasUser && !expanded && traking.length === 0 && triggerGetData({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${data.appuuid}/consultation-sheet/${router.locale}`
+        }, {
+            onSuccess: (result) => {
+                const data = result.data.data.modal.data
+                if (data) {
+                    let res: { key: string, value: string }[] = [];
+                    Object.keys(data).filter(key => data[key] !== "").map(key => {
+                        res.push({key, value: data[key]})
+                    })
+                    setTraking(res)
+                }
+            }
+        })
+        setExpanded(!expanded)
+    }
+
     const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
     const modelsList = (httpModelResponse as HttpResponse)?.data ?? [];
 
@@ -423,25 +443,10 @@ function CertifDialog({...props}) {
                                                 addVal(cb.name)
                                             }} size={"small"}> <AddIcon/> {t(`consultationIP.${cb.title}`)}</Button>
                                         </Tooltip>))}
-                                    <Button onClick={() => {
-                                        medicalEntityHasUser && !expanded && traking.length === 0 && triggerGetData({
-                                            method: "GET",
-                                            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${data.appuuid}/consultation-sheet/${router.locale}`
-                                        }, {
-                                            onSuccess: (result) => {
-                                                const data =result.data.data.modal.data
-                                                if (data){
-                                                    let res: { key:string,value:string }[] = [];
-                                                    Object.keys(data).filter(key =>data[key] !== "").map(key =>{
-                                                        res.push({key,value:data[key]})
-                                                    })
-                                                    setTraking(res)
-                                                }
-                                            }
-                                        })
-                                        setExpanded(!expanded)
-                                    }}
-                                            size={"small"}>  {t(`consultationIP.tracking_data`)} {expanded ?<KeyboardArrowUpRoundedIcon/>:<KeyboardArrowDownRoundedIcon/>}
+                                    <Button onClick={() => showTrakingData()}
+                                            size={"small"}>
+                                        {t(`consultationIP.tracking_data`)}
+                                        {expanded ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
                                     </Button>
 
                                 </Stack>
@@ -453,11 +458,11 @@ function CertifDialog({...props}) {
                             </Stack>
                             <Collapse in={expanded} timeout="auto" unmountOnExit>
                                 {traking.map(item => (
-                                    <Button onClick={()=>{
+                                    <Button onClick={() => {
                                         addVal(item.value.toString())
                                     }}
                                             key={item.key}
-                                            size={"small"}> <AddIcon/>  {item.key} ({item.value})
+                                            size={"small"}> <AddIcon/> {item.key} ({item.value})
                                     </Button>
                                 ))}
                             </Collapse>
