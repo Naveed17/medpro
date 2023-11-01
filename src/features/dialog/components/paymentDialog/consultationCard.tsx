@@ -16,7 +16,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Label } from "@features/label";
 import IconUrl from "@themes/urlIcon";
 function ConsultationCard({ ...props }) {
-  const { t, devise,appointment,addTransactions,rest } = props;
+  const { t, devise,transactionData,setTransactionData,index,rest } = props;
   const theme: Theme = useTheme();
   const [collapse, setCollapse] = useState<boolean>(false);
 
@@ -53,9 +53,8 @@ function ConsultationCard({ ...props }) {
                 mx={0.5}
                 variant="body2"
                 fontWeight={700}
-                component="strong"
-              >
-                {appointment?.fees}
+                component="strong">
+                {transactionData && transactionData[index]?.fees}
               </Typography>{" "}
               {devise}
             </Label>
@@ -66,7 +65,7 @@ function ConsultationCard({ ...props }) {
             >
               {t("amount_paid")}{" "}
               <Typography mx={0.5} variant="body2" component="strong">
-                {appointment?.rest_amount}
+                {transactionData && transactionData[index]?.rest_amount}
               </Typography>{" "}
               {devise}
             </Label>
@@ -76,13 +75,16 @@ function ConsultationCard({ ...props }) {
               {t("pay_now")}
             </Typography>
             <Stack width={1} direction="row" alignItems="center" spacing={1}>
-              <TextField
-                fullWidth
-                value={rest > appointment?.rest_amount ?appointment?.rest_amount:rest}
-                size="small"
-                type="number"
-                sx={{ input: { fontWeight: 700 } }}
-              />
+              {transactionData && <TextField
+                  fullWidth
+                  value={transactionData[index].toPay}
+                  size="small"
+                  type="number"
+                  onChange={(e)=>{
+                    transactionData[index].toPay = e.target.value
+                    setTransactionData([...transactionData])
+                  }}
+                  sx={{input: {fontWeight: 700}}}/>}
               <Typography>{devise}</Typography>
             </Stack>
           </Stack>

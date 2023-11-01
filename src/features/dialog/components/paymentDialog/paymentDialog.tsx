@@ -57,7 +57,7 @@ function PaymentDialog({...props}) {
     const [wallet, setWallet] = useState(0);
     const [rest, setRest] = useState(0);
     const [appointment, setAppointment] = useState(null);
-    const [transactionData, setTransactionData] = useState([]);
+    const [transactionData, setTransactionData] = useState<any[]>([]);
 
     const open = Boolean(anchorEl);
     const {data: user} = session as Session;
@@ -194,33 +194,6 @@ function PaymentDialog({...props}) {
         console.log(payments.reduce((total:number,val:any) =>total + parseInt(val.amount),0))
     }
 
-    /*const checkCheques = () => {
-        if (selectedPayment.uuid !== "") {
-            let total = 0;
-            let hasEmpty = false;
-            values.check.map((check: { amount: number }) => {
-                if (check.amount.toString() === "") hasEmpty = true;
-                else total += check.amount;
-            });
-            return hasEmpty ? hasEmpty : total > rest;
-        } else {
-            let hasEmpty = false;
-            let total = 0;
-            values.check.map((check: { amount: number }) => {
-                if (check.amount.toString() === "") hasEmpty = true;
-                else total += check.amount;
-            });
-            return hasEmpty;
-        }
-    };*/
-
-    /*
-        const getHours = () => {
-            return `${new Date().getHours()}:${new Date().getMinutes()}`;
-        };
-    */
-
-
     useEffect(() => {
         if (httpPatientWallet) {
             const data = (httpPatientWallet as HttpResponse).data;
@@ -236,9 +209,9 @@ function PaymentDialog({...props}) {
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse).data
-            console.log(res)
+
             setRest(r => r + res.rest_amount)
-            setAppointment({uuid: app_uuid, ...res})
+            setTransactionData([...transactionData,{uuid: app_uuid, ...res,toPay:res?.rest_amount}])
         }
     }, [app_uuid, httpAppointmentTransactions])
 
@@ -363,25 +336,13 @@ function PaymentDialog({...props}) {
                     </Stack>
                 )}
 
-                <Grid container spacing={{xs: 2, md: 6}}>
+                <Grid container spacing={{xs: 2, md: 6}} style={{minHeight:'60vh'}}>
                     <Grid item xs={12} sm={6}>
                         <Typography fontWeight={600} mb={1}>
                             {t("current_consultation")}
                         </Typography>
                         <Stack spacing={1}>
-                            <ConsultationCard {...{t, devise, appointment, addTransactions, rest}} />
-                        </Stack>
-                        <Typography my={1} fontWeight={700}>
-                            {t("other_consultation")}
-                        </Typography>
-                        <Stack
-                            spacing={1}
-                            borderRadius={0.5}
-                            maxHeight={244}
-                            p={1}
-                            sx={{overflowY: "auto", bgcolor: theme.palette.back.main}}
-                        >
-                            <ConsultationCard {...{t, devise}} />
+                            {transactionData.map((td,index) =>(<ConsultationCard key={index} {...{t, devise, transactionData, setTransactionData,index, rest}} />))}
                         </Stack>
                     </Grid>
                     <Grid item xs={12} sm={6}>
