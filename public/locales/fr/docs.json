@@ -13,6 +13,10 @@
   "dialogs": {
     "add-dialog": {
       "title": "Ajouter un  nouveau document",
+      "upload-title": "Glisser un ou plusieurs",
+      "upload-sub-title": "Parcourir sur mon ordinateur",
+      "notification-title": "Notification de traitement de document",
+      "notification-desc": "Ce document peut prendre quelques instants pour être classifié. Vous avez le choix d'attendre qu'il se termine ou de le classer ultérieurement, à votre convenance.",
       "cancel": "Annuler",
       "later": "Classer plus tard",
       "confirm": "Classer"

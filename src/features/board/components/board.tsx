@@ -11,8 +11,9 @@ import styled from '@emotion/styled';
 import {BoardList} from "@features/board";
 import {Card, CardHeader, Grid, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
-import { useAppSelector } from "@lib/redux/hooks";
-import { sideBarSelector } from "@features/menu";
+import {useAppSelector} from "@lib/redux/hooks";
+import {sideBarSelector} from "@features/menu";
+
 const ParentContainer = styled.div`
   padding-bottom: 1rem;
   overflow-x: hidden;
@@ -47,7 +48,7 @@ const Title = styled.h4`
 
 function Board({...props}) {
     const {columns, data, handleEvent, handleDragEvent} = props;
-const { opened } = useAppSelector(sideBarSelector);
+    const {opened} = useAppSelector(sideBarSelector);
 
     const {t} = useTranslation('waitingRoom', {keyPrefix: 'config.tabs'});
 
@@ -170,19 +171,20 @@ const { opened } = useAppSelector(sideBarSelector);
                                                         <CardHeader
                                                             avatar={columns[index].icon}
                                                             {...(columns[index].action && {action: columns[index].action})}
-                                                            sx={{minHeight:60,".MuiCardHeader-action":{alignSelf:'center'}}}
+                                                            sx={{
+                                                                minHeight: 60,
+                                                                ".MuiCardHeader-action": {alignSelf: 'center'}
+                                                            }}
                                                             title={<Typography
                                                                 color={"text.primary"} fontWeight={700}
                                                                 fontSize={14}
-                                                                 sx={{
-                                                                      whiteSpace: "nowrap",
-                                                                     overflow: "hidden",
-                                                                      textOverflow: "ellipsis",
-                                                                      width:columns[index].action && opened ? 110 :"auto",
-                                                                    }
+                                                                sx={{
+                                                                    whiteSpace: "nowrap",
+                                                                    overflow: "hidden",
+                                                                    textOverflow: "ellipsis",
+                                                                    width: columns[index].action && opened ? 110 : "auto",
                                                                 }
-                                                               
-                                                                >
+                                                                }>
                                                                 {t(key)} {boardData[key].length > 0 && index < 3 ? `(${boardData[key].length})` : ""}
                                                             </Typography>}
                                                         />
