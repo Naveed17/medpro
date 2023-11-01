@@ -256,7 +256,7 @@ export default function Button(theme) {
               backgroundColor: theme.palette.common.white,
             },
             "&:active,&:focus": {
-              backgroundColor: theme.palette.primary.dark,
+              backgroundColor: "transparent",
             },
           },
         },

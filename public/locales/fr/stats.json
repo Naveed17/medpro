@@ -9,5 +9,7 @@
     "day": "Jour",
     "week": "Semaine",
     "month": "Mois"
-  }
+  },
+  "see-more": "voir plus",
+  "see-less": "voir moins"
 }
