@@ -29,6 +29,22 @@ const PausedConsultationPopoverStyled = styled(Box)(({theme}) => ({
     },
     "& .tab-item.Mui-selected": {
         color: theme.palette.text.primary
+    },
+    ".MuiToolbar-root":{
+        minHeight:48,
+        paddingLeft:theme.spacing(2),
+        paddingRight:theme.spacing(2)
+    },
+    ".btn-next-appointment":{
+        justifyContent:'flex-start',
+        '.avatar-ic-next':{
+            width:16,
+            height:16
+        },
+        ".avatar-close":{
+            margin:0,
+            marginLeft:'auto'
+        }
     }
 }))
 export default PausedConsultationPopoverStyled;

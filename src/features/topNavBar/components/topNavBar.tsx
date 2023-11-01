@@ -324,7 +324,7 @@ function TopNavBar({...props}) {
         "appointment-stats": <AppointmentStatsPopover/>,
         notification: <NotificationPopover onClose={() => setAnchorEl(null)}/>,
         paused: <PausedConsultationPopover
-            {...{pausedConsultation}}
+            {...{pausedConsultation,next,roles,loading,resetNextConsultation,setPatientId,setPatientDetailDrawer,handleStartConsultation}}
             refresh={refreshAgendaData}
             onClose={() => setAnchorEl(null)}/>,
     };
