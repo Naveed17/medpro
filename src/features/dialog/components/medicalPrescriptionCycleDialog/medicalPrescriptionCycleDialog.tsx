@@ -69,10 +69,11 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {SetSelectedDialog} from "@features/toolbar";
+import moment from "moment/moment";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
-    const {setState: setDrugs, state: drugs, pendingDocuments, setPendingDocuments, setPrescription} = data;
+    const {setState: setDrugs, state: drugs, pendingDocuments, setPendingDocuments, setPrescription,patient} = data;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
@@ -488,6 +489,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
             state: {
                 name: 'card.title',
                 type: 'prescription',
+                createdAt:moment().format('DD/MM/YYYY'),
+                patient: `${patient.firstName} ${patient.lastName}`,
                 info: drugs,
             },
             uuid: "",
