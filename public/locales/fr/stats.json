@@ -11,5 +11,12 @@
     "month": "Mois"
   },
   "see-more": "voir plus",
-  "see-less": "voir moins"
+  "see-less": "voir moins",
+  "activity": "Activité",
+  "patients": "Patients",
+  "new-patients": "Nouveaux patients",
+  "appointments": "Rendez-vous",
+  "new-appointments": "Nouveaux rendez-vous",
+  "Reason": "Motif par Consultations",
+  "act": "Acte par Consultations"
 }
