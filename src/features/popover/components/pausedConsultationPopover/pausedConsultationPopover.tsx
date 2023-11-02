@@ -2,8 +2,10 @@ import {
     Avatar,
     Badge,
     Box,
+    Divider,
     List,
     ListItem, Stack,
+    Toolbar,
     Typography,
     useMediaQuery,
     useTheme
@@ -16,7 +18,7 @@ import {useTranslation} from "next-i18next";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import {a11yProps, useMedicalEntitySuffix} from "@lib/hooks";
-import {NoDataCard, resetTimer, timerSelector} from "@features/card";
+import {CipCard, CipCard2nd, NoDataCard, resetTimer, timerSelector} from "@features/card";
 import Icon from "@themes/icon";
 import {EventDef} from "@fullcalendar/core/internal";
 import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
@@ -26,9 +28,11 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRouter} from "next/router";
 import {resetAppointment} from "@features/tabPanel";
 import {useRequestQueryMutation} from "@lib/axios";
-
+import IconUrl from "@themes/urlIcon";
+import { LoadingButton } from "@mui/lab";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 function PausedConsultationPopover({...props}) {
-    const {pausedConsultation, onClose, refresh} = props;
+    const {pausedConsultation, onClose, refresh,loading,next,roles,resetNextConsultation,setPatientId,setPatientDetailDrawer,handleStartConsultation} = props;
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const theme = useTheme();
     const router = useRouter();
@@ -78,19 +82,132 @@ function PausedConsultationPopover({...props}) {
             }
         });
     }
-
+console.log(next)
     return (
         <PausedConsultationPopoverStyled
             sx={{
                 width: isMobile ? 320 : 400
             }}>
-
-            <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                <Tabs value={0}
-                      aria-label="basic tabs example">
-                    <Tab className={"tab-item"} label={t("En pause")} {...a11yProps(0)} />
-                </Tabs>
-            </Box>
+              {next && (
+                <>
+                <Toolbar>
+                <Typography variant="subtitle2" fontWeight={700}>
+                    {t("pending")}
+                </Typography>
+                </Toolbar>
+                <Stack px={2}>
+                 <LoadingButton
+                 className="btn-next-appointment"
+                 fullWidth
+                                    {...{loading}}
+                                    disableRipple
+                                    color={"black"}
+                                    onClick={() => {
+                                        if (isActive || roles.includes('ROLE_SECRETARY')) {
+                                            setPatientId(next.patient_uuid);
+                                            setPatientDetailDrawer(true);
+                                           
+                                            
+                                        } else {
+                                            handleStartConsultation(next);
+                                           
+                                        }
+                                        onClose()
+                                    }}
+                                    sx={{
+                                        mr: 0,
+                                        p: "6px 12px",
+                                        backgroundColor: (theme) => theme.palette.info.lighter,
+                                        '&:hover': {
+                                            backgroundColor: (theme) => theme.palette.info.lighter,
+                                        }
+                                    }}
+                                    loadingPosition={"start"}
+                                    startIcon={<Badge
+                                        overlap="circular"
+                                        anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                                        badgeContent={
+                                            <Avatar className="avatar-ic-next" alt="Small avatar" sx={{
+                                                pt: .2,
+                                                width: 16,
+                                                height: 16,
+                                                borderRadius: 20,
+                                                border: `2px solid ${theme.palette.background.paper}`
+                                            }}>
+                                                <IconUrl width={14} height={16} path={"ic-next"}/>
+                                            </Avatar>
+                                        }>
+                                        <Avatar
+                                            sx={{
+                                                width: 30,
+                                                height: 30,
+                                                borderRadius: 20,
+                                                border: `2px solid ${theme.palette.background.paper}`
+                                            }} variant={"circular"}
+                                            src={`/static/icons/men-avatar.svg`}/>
+                                    </Badge>}
+                                    variant={"contained"}>
+                                    <Stack direction={"row"} alignItems={"center"} width={1}>
+                                        <Stack alignItems='flex-start'>
+                                            <Typography variant="body1" fontWeight={600}>
+                                             {next.patient}
+                                            </Typography>
+                                            <Label variant="filled" color={next.type === 'Consultation' ? "primary":"warning"}>
+                                                {next.type}
+                                            </Label>
+                                        </Stack>
+                                        
+                                        <Avatar
+                                        className="avatar-close"
+                                            alt="Small avatar"
+                                            variant={"square"}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                resetNextConsultation(next.uuid);
+                                            }}
+                                            sx={{
+                                        
+                                                background: "#FFF",
+                                                width: 30,
+                                                height: 30,
+                                                border: `1px solid ${theme.palette.grey["A900"]}`
+                                            }}>
+                                            <CloseRoundedIcon
+                                                sx={{
+                                                    color: theme.palette.text.primary,
+                                                    width: 20,
+                                                    height: 20
+                                                }}/>
+                                        </Avatar>
+                                    </Stack>
+                                </LoadingButton>
+                               
+                                <Divider sx={{mt:2}}/>
+                                
+                                </Stack>
+                </>
+              )}  
+            {isActive &&(
+                <Stack px={2}>
+                <Toolbar>
+                <Typography variant="subtitle2" fontWeight={700}>
+                    {t("appointment-status.ON_GOING")}
+                </Typography>
+                </Toolbar>
+                                <CipCard2nd
+                                    openPatientDialog={(uuid: string) => {
+                                        setPatientId(uuid);
+                                        setPatientDetailDrawer(true);
+                                    }}/>
+                                    <Divider sx={{mt:2}}/>
+                                    </Stack>
+                            )}
+                    
+                 <Toolbar>
+                <Typography variant="subtitle2" fontWeight={700}>
+                    {t("appointment-status.PAUSED")}
+                </Typography>
+                </Toolbar>
             <List>
                 {pausedConsultation.map((paused: any, index: number) => <ListItem key={index}>
                     <Badge
