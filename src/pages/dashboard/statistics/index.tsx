@@ -10,9 +10,6 @@ import {StatsToolbar} from "@features/toolbar";
 import {merge} from 'lodash';
 import {ChartsOption, ChartStyled} from "@features/charts";
 import IconUrl from "@themes/urlIcon";
-import {useSession} from "next-auth/react";
-import {DefaultCountry} from "@lib/constants";
-import {Session} from "next-auth";
 import {toggleSideBar} from "@features/menu";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery} from "@lib/axios";
@@ -34,7 +31,6 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 function Statistics() {
     const theme = useTheme();
-    const {data: session} = useSession();
     const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation(["stats", "common"]);
@@ -46,10 +42,6 @@ function Statistics() {
 
     const [viewChart, setViewChart] = useState('month');
     const [fullChart, setFullChart] = useState<any>({"act": false, "motif": false});
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
-    const devise = doctor_country.currency?.name;
 
     const {data: statsAppointmentHttp} = useRequestQuery(agenda ? {
         method: "GET",

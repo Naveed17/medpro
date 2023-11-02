@@ -2,7 +2,7 @@ import {GetStaticPaths, GetStaticProps} from "next";
 import React, {ReactElement} from "react";
 import {DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
-import {DocsToolbar, DocToolbar} from "@features/toolbar";
+import {DocToolbar} from "@features/toolbar";
 import {Box} from "@mui/material";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 
@@ -16,7 +16,7 @@ function Document() {
                         py: {md: 0, xs: 2},
                     },
                 }}>
-                <DocToolbar />
+                <DocToolbar/>
             </SubHeader>
             <Box className="container">
             </Box>

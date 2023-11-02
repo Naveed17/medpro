@@ -1,7 +1,5 @@
-import {Button, Stack, Typography} from "@mui/material";
+import {Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
-import IconUrl from "@themes/urlIcon";
-import {useCallback} from "react";
 
 function DocToolbar() {
     const {t} = useTranslation("docs");
