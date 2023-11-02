@@ -122,6 +122,14 @@ const dialogData = [
         ),
     },
     {
+        action: "ocr_docs",
+        component: dynamic((): any =>
+            import("@features/dialog/components/ocrDocsDialog/ocrDocsDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "balance_sheet_pending",
         component: dynamic((): any =>
             import(
@@ -321,7 +329,7 @@ const dialogData = [
         action: "patient_observation_history",
         component: dynamic((): any =>
             import(
-                "@features/dialog/components/ObservationHistoryDialog/ObservationHistoryDialog"
+                "@features/dialog/components/observationHistoryDialog/observationHistoryDialog"
                 ).then((mod) => mod)
         ),
     },

@@ -111,6 +111,8 @@ export const GREY = {
     A700: "#E7F5FB",
     A800: "#FCFCFC",
     A900: "#EEEEEE",
+    B900: "#F89C47",
+    B901: "#7E8299",
     500_8: alpha("#919EAB", 0.08),
     500_12: alpha("#919EAB", 0.12),
     500_16: alpha("#919EAB", 0.16),
@@ -118,7 +120,7 @@ export const GREY = {
     500_32: alpha("#919EAB", 0.32),
     500_48: alpha("#919EAB", 0.48),
     500_56: alpha("#919EAB", 0.56),
-    500_80: alpha("#919EAB", 0.8)
+    500_80: alpha("#919EAB", 0.8),
 };
 
 const GRADIENTS = {
