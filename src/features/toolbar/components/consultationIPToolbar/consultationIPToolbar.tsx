@@ -504,6 +504,12 @@ function ConsultationIPToolbar({...props}) {
                     setOpenDialog(true);
                     setActions(true);
                     break;
+                case "document_detail":
+                    setInfo("document_detail");
+                    setState(selectedDialog.state);
+                    setAnchorEl(null);
+                    setOpenDialog(true);
+                    setActions(true);
             }
         }
     }, [selectedDialog])// eslint-disable-line react-hooks/exhaustive-deps
