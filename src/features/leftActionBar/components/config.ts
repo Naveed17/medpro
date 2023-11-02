@@ -43,6 +43,14 @@ const LeftActionsData = [
     ),
   },
   {
+    pathname: path(ROOTS.app, "/documents/[...document]"),
+    component: dynamic((): any =>
+      import(
+        "@features/leftActionBar/components/document/components/document"
+      ).then((mod) => mod)
+    ),
+  },
+  {
     pathname: path(ROOTS.app, "/patient"),
     component: dynamic((): any =>
       import(

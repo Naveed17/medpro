@@ -1774,17 +1774,19 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
             ])),
         },
     };
-};
+}
+
 export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
     return {
         paths: [], //indicates that no page needs be created at build time
         fallback: "blocking", //indicates the type of fallback
     };
-};
+}
+
 export default ConsultationInProgress;
 
 ConsultationInProgress.auth = true;
 
 ConsultationInProgress.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
-};
+}

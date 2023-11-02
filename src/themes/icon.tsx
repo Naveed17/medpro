@@ -15,6 +15,7 @@ import LogoutIcon from "@themes/overrides/icons/logoutIcon";
 import MenuIcon from "@themes/overrides/icons/MenuIcon";
 import PaymentIcon from '@themes/overrides/icons/PaymentIcon'
 import ConsultationPausedIcon from "@themes/overrides/icons/consultationPausedIcon";
+import DocsIcon from "@themes/overrides/icons/docsIcon";
 
 interface IconProps {
     path: string;
@@ -74,6 +75,9 @@ export default function Icon({path, className, ...props}: IconProps) {
             break;
         case 'ic-consultation-pause':
             selectedIcon = <ConsultationPausedIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
+            break;
+        case 'ic-docs':
+            selectedIcon = <DocsIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
             break;
     }
     return selectedIcon;
