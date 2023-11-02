@@ -1,10 +1,11 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {configSelector, DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocsToolbar} from "@features/toolbar";
 import {
+    Backdrop,
     Box,
     Button,
     Card,
@@ -13,10 +14,15 @@ import {
     Divider,
     Grid,
     IconButton,
+    SpeedDial,
+    SpeedDialAction,
     Stack,
     Typography,
+    Zoom,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
+import {alpha} from "@mui/material/styles";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {NoDataCard} from "@features/card";
@@ -28,22 +34,58 @@ import IconUrl from "@themes/urlIcon";
 import {useAppSelector} from "@lib/redux/hooks";
 import {InputStyled} from "@features/tabPanel";
 import BorderLinearProgress from "@features/dialog/components/ocrDocsDialog/overrides/BorderLinearProgress";
-
+import {MobileContainer as smallScreen} from "@lib/constants";
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import NoteAddOutlinedIcon from '@mui/icons-material/NoteAddOutlined';
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
+const actions = [
+    
+    {icon: <FastForwardOutlinedIcon/>, name: 'Ajout Rapide', key: 'add-quick'},
+    {icon: <AddOutlinedIcon/>, name: 'Ajout complet', key: 'add-complete'},
+    {icon: <NoteAddOutlinedIcon/>, name: 'Ajouter un document', key: 'add-doc'},
+];
 function Documents() {
     const theme = useTheme();
-
     const {t, ready} = useTranslation(["docs", "common"]);
     const {direction} = useAppSelector(configSelector);
-
+    const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
     const [filesInProgress, setFilesInProgress] = useState<File[]>([]);
     const [openAddOCRDocDialog, setOpenAddOCRDocDialog] = useState<boolean>(false);
-
+    const [loading,setLoading] = useState<boolean>(true)
+    const [openFabAdd, setOpenFabAdd] = useState(false);
     const handleDeleteDoc = (index: number) => {
         setFilesInProgress([...filesInProgress.slice(0, index), ...filesInProgress.slice(index + 1)]);
     }
-
+ const transitionDuration = {
+        enter: theme.transitions.duration.enteringScreen,
+        exit: theme.transitions.duration.leavingScreen,
+    };
+    const handleOpenFab = () => setOpenFabAdd(true);
+    const handleCloseFab = () => setOpenFabAdd(false);
+    const handleActionFab = (action: any) => {
+        setOpenFabAdd(false);
+        switch (action.key) {
+            case "add-doc" :
+                setOpenAddOCRDocDialog(true);
+                handleCloseFab();
+            case "add-quick" :
+                
+                break;
+            case "add-complete" :
+                
+                break;
+        }
+    }
+    useEffect(() => {
+      setTimeout(
+          () => {
+            setLoading(false)
+          },2000)
+      
+    }, [])
+    
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
     console.log("filesInProgress", filesInProgress);
     return (
@@ -55,7 +97,7 @@ function Documents() {
                         py: {md: 0, xs: 2},
                     },
                 }}>
-                <DocsToolbar onUploadOcrDoc={() => setOpenAddOCRDocDialog(true)}/>
+                <DocsToolbar {...{isMobile}} onUploadOcrDoc={() => setOpenAddOCRDocDialog(true)}/>
             </SubHeader>
             <Box className="container">
                 {filesInProgress.length > 0 ?
@@ -138,6 +180,38 @@ function Documents() {
                             }]
                         }}
                     />}
+                    {isMobile &&
+                            <Zoom
+                                in={!loading}
+                                timeout={transitionDuration}
+                                style={{
+                                    transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
+                                }}
+                                unmountOnExit>
+                                <SpeedDial
+                                    ariaLabel="SpeedDial tooltip Add"
+                                    sx={{
+                                        position: 'fixed',
+                                        bottom: 50,
+                                        right: 16
+                                    }}
+                                    icon={<SpeedDialIcon/>}
+                                    onClose={handleCloseFab}
+                                    onOpen={handleOpenFab}
+                                    open={openFabAdd}>
+                                    {actions.map((action) => (
+                                        <SpeedDialAction
+                                            key={action.name}
+                                            icon={action.icon}
+                                            tooltipTitle={t(`${action.key}`)}
+                                            tooltipOpen
+                                            onClick={() => handleActionFab(action)}
+                                        />
+                                    ))}
+                                </SpeedDial>
+                            </Zoom>}
+                             <Backdrop sx={{zIndex: 100, backgroundColor: alpha(theme.palette.common.white, 0.9)}}
+                          open={openFabAdd}/>
             </Box>
 
             <Dialog
@@ -152,7 +226,8 @@ function Documents() {
                     t,
                     handleDeleteDoc,
                     files: filesInProgress,
-                    setFiles: setFilesInProgress
+                    setFiles: setFilesInProgress,
+                    isMobile,
                 }}
                 open={openAddOCRDocDialog}
                 size={"md"}
@@ -174,12 +249,17 @@ function Documents() {
                                     startIcon={<IconUrl path="ic-temps"/>}>
                                     {t("dialogs.add-dialog.later")}
                                 </LoadingButton>
+                                {
+                                    !isMobile &&(
                                 <LoadingButton
                                     loadingPosition="start"
                                     variant="contained"
                                     startIcon={<IconUrl path="add-doc"/>}>
                                     {t("dialogs.add-dialog.confirm")}
                                 </LoadingButton>
+                                    )
+                                }
+                                
                             </Stack>
                         </Stack>
                     </DialogActions>

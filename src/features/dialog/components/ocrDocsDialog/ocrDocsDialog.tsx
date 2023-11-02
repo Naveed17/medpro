@@ -1,5 +1,6 @@
 import {Box, Grid, IconButton, Stack, Typography} from "@mui/material";
 import OcrDocsDialogStyled from "./overrides/ocrDocsDialogStyled";
+import MobileUi from "./mobileUi";
 import IconUrl from "@themes/urlIcon";
 import {InputStyled} from "@features/tabPanel";
 import React, {useState} from "react";
@@ -11,8 +12,7 @@ import BorderLinearProgress from "./overrides/BorderLinearProgress";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function OcrDocsDialog({...props}) {
-    const {t, files, setFiles, handleDeleteDoc} = props.data;
-
+    const {t, files, setFiles, handleDeleteDoc,isMobile} = props.data;
     const handleDrop = (acceptedFiles: FileList) => {
         setFiles([...files, acceptedFiles[0]]);
     }
@@ -23,6 +23,7 @@ function OcrDocsDialog({...props}) {
 
     return (
         <OcrDocsDialogStyled>
+            {!isMobile ? (
             <Grid container spacing={1.2}>
                 {files.map((file: File, index: number) =>
                     <Grid key={index} item xs={12} md={3.5}>
@@ -68,7 +69,12 @@ function OcrDocsDialog({...props}) {
                     </label>
                 </Grid>
             </Grid>
-            <Stack className={'alert-card'} direction={"row"} alignItems={"center"} spacing={1.2}>
+            ):(
+                <MobileUi {...{files,handleDrop,handleDeleteDoc,t}}/>
+            )}
+            {
+                files.length > 0 && (
+              <Stack className={'alert-card'} direction={"row"} alignItems={"center"} spacing={1.2}>
                 <IconUrl path={'ic-warning'}/>
                 <Stack spacing={1.2}>
                     <Typography fontSize={14} fontWeight={500}>{t('dialogs.add-dialog.notification-title')}</Typography>
@@ -76,6 +82,9 @@ function OcrDocsDialog({...props}) {
                                 fontWeight={400}>{t('dialogs.add-dialog.notification-desc')}</Typography>
                 </Stack>
             </Stack>
+                )
+            }
+            
         </OcrDocsDialogStyled>
     )
 }

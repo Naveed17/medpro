@@ -30,6 +30,11 @@ const OcrDocsDialogStyled = styled(Box)(({theme}) => ({
         background: alpha(theme.palette.grey['B900'], 0.2),
         '& .alert-card-description': {
             color: theme.palette.grey['B901']
+        },
+        [theme.breakpoints.down('md')]:{
+            margin:0,
+            marginTop:theme.spacing(1.2),
+            
         }
     },
     '& .react-pdf__Page': {
