@@ -43,7 +43,6 @@ function CipCard2nd({...props}) {
     }
 
     return (
-        <Stack px={2}>
         <CipCard2ndStyled
             disableRipple
             variant={"contained"}
@@ -140,7 +139,7 @@ function CipCard2nd({...props}) {
                
             </Stack>
         </CipCard2ndStyled>
-        </Stack>
+        
     )
 }
 

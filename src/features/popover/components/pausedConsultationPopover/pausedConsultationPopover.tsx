@@ -188,7 +188,7 @@ console.log(next)
                 </>
               )}  
             {isActive &&(
-                <Stack>
+                <Stack px={2}>
                 <Toolbar>
                 <Typography variant="subtitle2" fontWeight={700}>
                     {t("appointment-status.ON_GOING")}
@@ -199,14 +199,15 @@ console.log(next)
                                         setPatientId(uuid);
                                         setPatientDetailDrawer(true);
                                     }}/>
+                                    <Divider sx={{mt:2}}/>
                                     </Stack>
                             )}
-            <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                <Tabs value={0}
-                      aria-label="basic tabs example">
-                    <Tab className={"tab-item"} label={t("En pause")} {...a11yProps(0)} />
-                </Tabs>
-            </Box>
+                    
+                 <Toolbar>
+                <Typography variant="subtitle2" fontWeight={700}>
+                    {t("appointment-status.PAUSED")}
+                </Typography>
+                </Toolbar>
             <List>
                 {pausedConsultation.map((paused: any, index: number) => <ListItem key={index}>
                     <Badge
