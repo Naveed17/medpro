@@ -20,7 +20,7 @@ const headCells: readonly HeadCell[] = [
         id: "name",
         numeric: false,
         disablePadding: true,
-        label: "name",
+        label: "header.name",
         sortable: true,
         align: "left"
     },
@@ -28,7 +28,7 @@ const headCells: readonly HeadCell[] = [
         id: "value",
         numeric: false,
         disablePadding: true,
-        label: "value",
+        label: "header.value",
         sortable: true,
         align: "left"
     }
@@ -103,12 +103,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
-            ...(await serverSideTranslations(locale as string, [
-                "menu",
-                "common",
-                "docs",
-                "agenda"
-            ])),
+            ...(await serverSideTranslations(locale as string, ["menu", "common", "docs", "agenda"])),
         },
     };
 }

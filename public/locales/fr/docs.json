@@ -5,7 +5,17 @@
     "add-doc": "Ajouter un document"
   },
   "filter": {
-    "title": "Détails du document"
+    "title": "Détails du document",
+    "sub-title": "Filtre",
+    "caption": "Document",
+    "name": "Nom du document",
+    "name-placeholder": "Tapez le nom du document",
+    "status": "Statut du document"
+  },
+  "doc-status": {
+    "pending": "Traitement en cours",
+    "finish": "Traitement terminé",
+    "failed": "Traitement échoué"
   },
   "table": {
     "header": {

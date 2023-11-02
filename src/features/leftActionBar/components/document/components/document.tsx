@@ -26,8 +26,8 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 function Document() {
     const router = useRouter();
 
-    const {t, ready} = useTranslation("docs");
-
+    const {t, ready} = useTranslation(["docs"]);
+    const {t: translate, ready: readyTranslate} = useTranslation("agenda", {keyPrefix: "steppers"});
     const [name, setName] = useState("");
     const [type, setType] = useState(null);
     const [appointment, setAppointment] = useState<any>(null);
@@ -53,13 +53,14 @@ function Document() {
 
     const types = ((httpTypeResponse as HttpResponse)?.data ?? []) as any[];
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready || !readyTranslate) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
         <>
             <FilterContainerStyles>
                 <Typography
-                    variant="h6"
+                    fontSize={18}
+                    fontWeight={600}
                     color="text.primary"
                     sx={{py: 1.48, pl: "10px", mb: "0.21em"}}
                     gutterBottom>
@@ -71,10 +72,11 @@ function Document() {
                         Suggérés</Typography>
 
                     <AutoCompleteButton
+                        size={"small"}
                         onSearchChange={handleSearchChange}
                         OnClickAction={handleOnClick}
                         OnOpenSelect={handlePatientSearch}
-                        translation={t}
+                        translation={translate}
                         loading={false}
                         data={[]}/>
 

@@ -45,7 +45,7 @@ function Documents() {
     }
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
-    console.log("filesInProgress", filesInProgress);
+
     return (
         <>
             <SubHeader
@@ -193,7 +193,7 @@ function Documents() {
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'docs']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'docs', "agenda"]))
     }
 })
 
