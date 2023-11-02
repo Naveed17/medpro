@@ -110,16 +110,6 @@ const stepperData = [
     },
 ];
 
-// interface
-interface HeadCell {
-    disablePadding: boolean;
-    id: string;
-    label: string;
-    numeric: boolean;
-    sortable: boolean;
-    align: "left" | "right" | "center";
-}
-
 // table head data
 const headCells: readonly HeadCell[] = [
     {

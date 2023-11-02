@@ -4,10 +4,19 @@
     "sub-title": "Resultat analyse de sang",
     "add-doc": "Ajouter un document"
   },
+  "filter": {
+    "title": "Détails du document"
+  },
+  "table": {
+    "header": {
+      "name": "Nom",
+      "value": "Valeur energistrée"
+    }
+  },
   "no-data": {
     "docs": {
       "title": "Ajouter le premier document",
-      "description": "Vous n'avez pas de document médical\nAjoutez vos documents en cliquant sur Ajouter un document",
+      "description": "Vous n'avez pas de document médical Ajoutez vos documents en cliquant sur Ajouter un document",
       "import": "Importer un document"
     }
   },
