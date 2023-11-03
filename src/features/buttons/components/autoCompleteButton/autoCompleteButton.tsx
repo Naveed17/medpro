@@ -2,7 +2,7 @@ import RootStyled from './overrides/RootStyled'
 import {Box, Button, ClickAwayListener} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {PatientAppointmentCard} from "@features/card";
 import {AutoComplete} from "@features/autoComplete";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -13,7 +13,15 @@ import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function AutoCompleteButton({...props}) {
-    const {translation, data, loading, OnClickAction, onSearchChange, OnOpenSelect = null, size = 'medium'} = props;
+    const {
+        translation,
+        data,
+        loading,
+        OnClickAction,
+        onSearchChange,
+        OnOpenSelect = null,
+        size = 'medium'
+    } = props;
 
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -90,7 +98,7 @@ function AutoCompleteButton({...props}) {
                     key={patient.uuid}
                     item={patient}
                     listing
-                    onEdit={onEditPatient}
+                    {...(size === 'medium' && {onEdit: onEditPatient})}
                     onReset={onSubmitPatient}/>}
         </RootStyled>
     )

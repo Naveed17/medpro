@@ -44,6 +44,12 @@ const rowsActionsData = [
     ),
   },
   {
+    action: "ocrDocument",
+    component: dynamic((): any =>
+      import("@features/table/components/rows/ocrDocumentRow").then((mod) => mod)
+    ),
+  },
+  {
     action: "trash",
     component: dynamic((): any =>
       import("@features/table/components/rows/trashRow").then((mod) => mod)

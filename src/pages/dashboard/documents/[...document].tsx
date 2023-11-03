@@ -5,14 +5,16 @@ import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
 import {Box, Stack} from "@mui/material";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {toggleSideBar} from "@features/menu";
-import {useAppDispatch} from "@lib/redux/hooks";
+import {sideBarSelector, toggleSideBar} from "@features/menu";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {SubFooter} from "@features/subFooter";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
+import {useRouter} from "next/router";
+import {ocrDocumentSelector, setOcrData} from "@features/leftActionBar";
 
 // table head data
 const headCells: readonly HeadCell[] = [
@@ -38,11 +40,27 @@ const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/l
 
 function Document() {
     const dispatch = useAppDispatch();
+    const router = useRouter();
 
     const {t, ready} = useTranslation("docs");
+    const ocrData = useAppSelector(ocrDocumentSelector);
+    const documentData = JSON.parse(router.query.data as any);
+
+    const handleAssignOcrDocument = () => {
+        console.log("ocrData", ocrData);
+    }
 
     useEffect(() => {
-        dispatch(toggleSideBar(true));
+        if (documentData) {
+            dispatch(setOcrData({
+                name: documentData.title,
+                appointment: documentData.appointment,
+                type: documentData.documentType,
+                target: documentData.title,
+                patient: documentData.patientData,
+                date: new Date()
+            }))
+        }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
@@ -62,10 +80,10 @@ function Document() {
                 <Otable
                     {...{t}}
                     headers={headCells}
-                    rows={[]}
+                    rows={documentData?.medicalData}
                     total={0}
                     totalPages={1}
-                    from={"patient"}
+                    from={"ocrDocument"}
                     pagination
                 />
 
@@ -81,9 +99,7 @@ function Document() {
 
                             <LoadingButton
                                 loadingPosition={"start"}
-                                onClick={() => {
-
-                                }}
+                                onClick={handleAssignOcrDocument}
                                 color={"primary"}
                                 className="btn-action"
                                 startIcon={<IconUrl path="add-doc"/>}

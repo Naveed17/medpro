@@ -1,4 +1,4 @@
-import {FilterContainerStyles} from "@features/leftActionBar";
+import {FilterContainerStyles, ocrDocumentSelector, setOcrData} from "@features/leftActionBar";
 import {
     Autocomplete,
     Box,
@@ -10,7 +10,7 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {AutoCompleteButton} from "@features/buttons";
@@ -20,38 +20,65 @@ import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {appointmentSelector} from "@features/tabPanel";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function Document() {
     const router = useRouter();
+    const dispatch = useAppDispatch();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(["docs"]);
     const {t: translate, ready: readyTranslate} = useTranslation("agenda", {keyPrefix: "steppers"});
-    const [name, setName] = useState("");
-    const [type, setType] = useState(null);
-    const [appointment, setAppointment] = useState<any>(null);
-    const [target, setTarget] = useState<string | null>(null);
-    const [date, setDate] = useState(moment().toDate());
+    const {name, type, appointment, target, date, patient} = useAppSelector(ocrDocumentSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {patient: initData} = useAppSelector(appointmentSelector);
+
+    const [query, setQuery] = useState(patient?.name ?? "");
+    const [selectedPatient, setSelectedPatient] = useState<PatientModel | null>(null);
+
+    const {data: httpPatientResponse} = useRequestQuery(medicalEntityHasUser && patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(medicalEntityHasUser && patient && query && {variables: {query: `?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`}})
+    });
+
+    const {data: httpPatientHistoryResponse} = useRequestQuery(medicalEntityHasUser && selectedPatient && target === 'appointment' ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient.uuid}/appointments/list/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
 
     const {data: httpTypeResponse} = useRequestQuery({
         method: "GET",
         url: `/api/private/document/types/${router.locale}`
-    }, {variables: {query: "?is_active=0"}});
+    }, {
+        ...ReactQueryNoValidateConfig,
+        variables: {query: "?is_active=0"}
+    });
 
     const handleSearchChange = (search: string) => {
-
+        setQuery(search);
     }
 
     const handleOnClick = () => {
 
     }
 
-    const handlePatientSearch = () => {
-
-    }
+    useEffect(() => {
+        setSelectedPatient(initData as any);
+    }, [initData]);
 
     const types = ((httpTypeResponse as HttpResponse)?.data ?? []) as any[];
+    const patients = (httpPatientResponse as HttpResponse)?.data as PatientModel[] ?? [];
+    const patientHistories = ((httpPatientHistoryResponse as HttpResponse)?.data ?? []) as any;
+    const histories = patientHistories.hasOwnProperty('nextAppointments') || patientHistories.hasOwnProperty('previousAppointments') ? [...patientHistories.nextAppointments, ...patientHistories.previousAppointments] : []
 
     if (!ready || !readyTranslate) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -75,10 +102,10 @@ function Document() {
                         size={"small"}
                         onSearchChange={handleSearchChange}
                         OnClickAction={handleOnClick}
-                        OnOpenSelect={handlePatientSearch}
+                        OnOpenSelect={() => console.log("OnOpenSelect")}
                         translation={translate}
                         loading={false}
-                        data={[]}/>
+                        data={patients}/>
 
                     <InputLabel shrink sx={{mt: 2}}>
                         {t(`Nom du document`)}
@@ -90,7 +117,7 @@ function Document() {
                         <TextField
                             fullWidth
                             value={name}
-                            onChange={event => setName(event.target.value)}
+                            onChange={event => dispatch(setOcrData({name: event.target.value}))}
                             placeholder={t(`Tapez le nom du document`)}
                         />
                     </FormControl>
@@ -107,9 +134,10 @@ function Document() {
                             autoHighlight
                             disableClearable
                             size="small"
-                            value={type}
+                            value={null}
                             onChange={(e, newValue: any[]) => {
                                 e.stopPropagation();
+                                dispatch(setOcrData({type: newValue}));
                             }}
                             sx={{color: "text.secondary"}}
                             options={types}
@@ -140,7 +168,7 @@ function Document() {
                         row
                         aria-label="gender"
                         onChange={(e) => {
-                            setTarget(e.target.value);
+                            dispatch(setOcrData({target: e.target.value}));
                         }}
                         value={target}
                         name="row-radio-buttons-group"
@@ -178,17 +206,19 @@ function Document() {
                             value={appointment}
                             onChange={(e, newValue: any[]) => {
                                 e.stopPropagation();
+                                console.log("newValue", newValue);
+                                dispatch(setOcrData({appointment: newValue}));
                             }}
                             sx={{color: "text.secondary"}}
-                            options={[]}
-                            getOptionLabel={option => option?.name ? option.name : ""}
-                            isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                            options={histories}
+                            getOptionLabel={option => option?.dayDate ? `${option.dayDate} ${option.startTime}` : ""}
+                            isOptionEqualToValue={(option: any, value) => option.dayDate === value.dayDate}
                             renderOption={(props, option) => (
                                 <Stack key={option.uuid}>
                                     <MenuItem
                                         {...props}
                                         value={option.uuid}>
-                                        {option.name}
+                                        {`${option.dayDate} ${option.startTime}`}
                                     </MenuItem>
                                 </Stack>
                             )}
@@ -209,7 +239,7 @@ function Document() {
                             value={date}
                             inputFormat="dd/MM/yyyy"
                             onChange={date => {
-
+                                dispatch(setOcrData({date}));
                             }}
                             renderInput={(params) =>
                                 <FormControl

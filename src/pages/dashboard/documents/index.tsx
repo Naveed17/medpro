@@ -1,7 +1,7 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
-import {configSelector, DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocsToolbar} from "@features/toolbar";
 import {
@@ -12,7 +12,7 @@ import {
     DialogActions,
     Divider,
     Grid,
-    IconButton,
+    IconButton, LinearProgress,
     Stack,
     Typography,
     useTheme
@@ -28,21 +28,91 @@ import IconUrl from "@themes/urlIcon";
 import {useAppSelector} from "@lib/redux/hooks";
 import {InputStyled} from "@features/tabPanel";
 import BorderLinearProgress from "@features/dialog/components/ocrDocsDialog/overrides/BorderLinearProgress";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRouter} from "next/router";
+import {Label} from "@features/label";
+import DefaultCircleIcon from "@themes/overrides/icons/defaultCircleIcon";
+import ConfirmCircleIcon from "@themes/overrides/icons/confirmCircleIcon";
+import CancelCircleIcon from "@themes/overrides/icons/cancelCircleIcon";
+import FinishedCircleIcon from "@themes/overrides/icons/finishedCircleIcon";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function Documents() {
+    const router = useRouter();
     const theme = useTheme();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(["docs", "common"]);
     const {direction} = useAppSelector(configSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const [filesInProgress, setFilesInProgress] = useState<File[]>([]);
     const [openAddOCRDocDialog, setOpenAddOCRDocDialog] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
+    const [docTypes] = useState<any>({
+        0: {
+            label: "pending",
+            classColor: "warning",
+            icon: <DefaultCircleIcon/>,
+        },
+        1: {
+            label: "finish",
+            classColor: "success",
+            icon: <ConfirmCircleIcon/>,
+        },
+        2: {
+            label: "affected",
+            classColor: "primary",
+            icon: <FinishedCircleIcon/>,
+        },
+        3: {
+            label: "failed",
+            classColor: "error",
+            icon: <CancelCircleIcon/>,
+        }
+    });
+
+    let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
+
+    const {
+        data: httpOcrDocumentsResponse,
+        mutate: mutateOcrDocuments,
+        isLoading: isOcrDocumentsLoading
+    } = useRequestQuery(medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(medicalEntityHasUser && {variables: {query: `?page=${page}&limit=10`}})
+    });
+
+    const {trigger: triggerOcrDocUpload} = useRequestQueryMutation("/ocr/document/upload");
+
+    const handleUploadDoc = (file: File) => {
+        setLoading(true);
+        const form = new FormData();
+        form.append("files", file, file.name);
+        medicalEntityHasUser && triggerOcrDocUpload({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                mutateOcrDocuments();
+            },
+            onSettled: () => setLoading(false)
+        });
+    }
 
     const handleDeleteDoc = (index: number) => {
-        setFilesInProgress([...filesInProgress.slice(0, index), ...filesInProgress.slice(index + 1)]);
+
     }
+
+    const ocdDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data ?? []) as OcrDocument[];
+    const filesInProgress = ocdDocs.filter(doc => doc.status === 0) as OcrDocument[];
+    const filesTreated = ocdDocs.filter(doc => doc.status !== 0) as OcrDocument[];
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -57,8 +127,13 @@ function Documents() {
                 }}>
                 <DocsToolbar onUploadOcrDoc={() => setOpenAddOCRDocDialog(true)}/>
             </SubHeader>
+
+            <LinearProgress sx={{
+                visibility: isOcrDocumentsLoading || loading ? "visible" : "hidden"
+            }} color="warning"/>
+
             <Box className="container">
-                {filesInProgress.length > 0 ?
+                {filesInProgress.length > 0 || filesTreated.length > 0 ?
                     <Stack spacing={2}>
                         <CardStyled>
                             <CardContent sx={{pb: 0}}>
@@ -66,7 +141,7 @@ function Documents() {
                                     traitement</Typography>
                                 <Divider/>
                                 <Grid sx={{mt: 0}} container spacing={2}>
-                                    {filesInProgress.map((file: File, index: number) =>
+                                    {filesInProgress.map((file: OcrDocument, index: number) =>
                                         <Grid key={index} item xs={12} md={4}>
                                             <Card>
                                                 <CardContent>
@@ -74,7 +149,7 @@ function Documents() {
                                                         <IconUrl path={'ic-doc-upload'}/>
                                                         <Stack alignItems={"start"} spacing={.5} sx={{width: '75%'}}>
                                                             <Typography fontSize={12}
-                                                                        fontWeight={400}>{file.name}</Typography>
+                                                                        fontWeight={400}>{file.title}</Typography>
                                                             <BorderLinearProgress variant="determinate" value={30}/>
                                                         </Stack>
                                                         <IconButton
@@ -95,7 +170,7 @@ function Documents() {
                                                 <label htmlFor="contained-button-file">
                                                     <InputStyled
                                                         id="contained-button-file"
-                                                        onChange={(e) => setFilesInProgress([...filesInProgress, (e.target.files as FileList)[0]])}
+                                                        onChange={(e) => handleUploadDoc((e.target.files as FileList)[0])}
                                                         type="file"
                                                     />
                                                     <Stack direction={"row"} alignItems={"center"} spacing={2}>
@@ -114,30 +189,73 @@ function Documents() {
                                 </Grid>
                             </CardContent>
                         </CardStyled>
-                        <CardStyled sx={{minHeight: '400px'}}>
+                        {filesTreated.length > 0 && <CardStyled sx={{minHeight: '400px'}}>
                             <CardContent sx={{pb: 0}}>
                                 <Typography fontSize={14} fontWeight={600} mb={1}>Documents Traiter</Typography>
                                 <Divider/>
+                                <Grid sx={{mt: 0}} container spacing={2}>
+                                    {filesTreated.map((file: OcrDocument, index: number) =>
+                                        <Grid
+                                            key={index} item xs={12} md={4}
+                                            {...(file.status !== 3 && {
+                                                onClick: () => router.push({
+                                                    pathname: `/dashboard/documents/${file.uuid}`,
+                                                    query: {data: JSON.stringify(file)}
+                                                }, `/dashboard/documents/${file.uuid}`)
+                                            })}>
+                                            <Card>
+                                                <CardContent>
+                                                    <Stack direction={"row"} alignItems={"center"} spacing={2}>
+                                                        <IconUrl path={'ic-doc-upload'}/>
+                                                        <Stack alignItems={"start"} spacing={0} sx={{width: '75%'}}>
+                                                            <Typography fontSize={12}
+                                                                        fontWeight={400}>{file.title}</Typography>
+                                                            <Label variant='filled'
+                                                                   sx={{
+                                                                       "& .MuiSvgIcon-root": {
+                                                                           width: 16,
+                                                                           height: 16,
+                                                                           pl: 0
+                                                                       }
+                                                                   }}
+                                                                   color={docTypes[file?.status]?.classColor}>
+                                                                {docTypes[file?.status]?.icon}
+                                                                <Typography
+                                                                    sx={{
+                                                                        fontSize: 10,
+                                                                    }}>
+                                                                    {t(`doc-status.${docTypes[file.status].label}`)}</Typography>
+                                                            </Label>
+                                                        </Stack>
+                                                        {file.status !== 3 && <IconButton
+                                                            disableRipple sx={{p: 0}}>
+                                                            <IconUrl path="ic-more" width={30} height={30}/>
+                                                        </IconButton>}
+                                                    </Stack>
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>)}
+                                </Grid>
                             </CardContent>
-                        </CardStyled>
+                        </CardStyled>}
                     </Stack>
-                    : <NoDataCard
-                        {...{t}}
-                        sx={{mt: "8%"}}
-                        ns={"docs"}
-                        onHandleClick={() => setOpenAddOCRDocDialog(true)}
-                        data={{
-                            mainIcon: "add-doc",
-                            title: "no-data.docs.title",
-                            description: "no-data.docs.description",
-                            buttons: [{
-                                text: "no-data.docs.import",
-                                icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"}/>,
-                                variant: "primary",
-                                color: "white"
-                            }]
-                        }}
-                    />}
+                    : !isOcrDocumentsLoading && <NoDataCard
+                    {...{t}}
+                    sx={{mt: "8%"}}
+                    ns={"docs"}
+                    onHandleClick={() => setOpenAddOCRDocDialog(true)}
+                    data={{
+                        mainIcon: "add-doc",
+                        title: "no-data.docs.title",
+                        description: "no-data.docs.description",
+                        buttons: [{
+                            text: "no-data.docs.import",
+                            icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"}/>,
+                            variant: "primary",
+                            color: "white"
+                        }]
+                    }}
+                />}
             </Box>
 
             <Dialog
@@ -150,9 +268,9 @@ function Documents() {
                 }}
                 data={{
                     t,
-                    handleDeleteDoc,
-                    files: filesInProgress,
-                    setFiles: setFilesInProgress
+                    onDeleteDoc: handleDeleteDoc,
+                    onSaveDoc: handleUploadDoc,
+                    data: filesInProgress
                 }}
                 open={openAddOCRDocDialog}
                 size={"md"}
@@ -175,6 +293,7 @@ function Documents() {
                                     {t("dialogs.add-dialog.later")}
                                 </LoadingButton>
                                 <LoadingButton
+                                    {...{loading}}
                                     loadingPosition="start"
                                     variant="contained"
                                     startIcon={<IconUrl path="add-doc"/>}>

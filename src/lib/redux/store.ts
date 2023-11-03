@@ -4,7 +4,7 @@ import {SideBarReducer, ProfileMenuReducer} from "@features/menu";
 import {CheckListReducer} from "@features/checkList";
 import {userReducer} from "@features/user";
 import {addPatientReducer, appointmentReducer, stepperProfileReducer} from "@features/tabPanel";
-import {QsSidebarReducer, leftActionBarReducer} from "@features/leftActionBar";
+import {QsSidebarReducer, leftActionBarReducer, ocrDocumentReducer} from "@features/leftActionBar";
 import {tableReducer} from "@features/table";
 import {ConsultationReducer} from "@features/toolbar";
 import {AgendaReducer} from "@features/calendar";
@@ -51,7 +51,8 @@ export const store = configureStore({
         progressUI: ProgressUIReducer,
         preConsultation: PreConsultationReducer,
         prescription: PrescriptionReducer,
-        selectCheckbox: selectCheckboxReducer
+        selectCheckbox: selectCheckboxReducer,
+        ocrDocument: ocrDocumentReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {

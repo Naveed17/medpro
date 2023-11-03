@@ -1,15 +1,16 @@
-import { useRouter } from "next/router";
-import { LeftActionsData } from "@features/leftActionBar";
+import {useRouter} from "next/router";
+import {LeftActionsData} from "@features/leftActionBar";
 
-function LeftActionBar({ ...props }) {
-  const router = useRouter();
-  const selected = LeftActionsData.find((item) =>
-    router.pathname.startsWith(item.pathname)
-  );
+function LeftActionBar({...props}) {
+    const router = useRouter();
 
-  const Component: any = selected?.component;
+    const selected = LeftActionsData.find((item) =>
+        router.pathname === item.pathname ?? router.pathname.startsWith(item.pathname)
+    );
 
-  return selected ? <Component {...props} /> : null;
+    const Component: any = selected?.component;
+
+    return selected ? <Component {...props} /> : null;
 }
 
 export default LeftActionBar;
