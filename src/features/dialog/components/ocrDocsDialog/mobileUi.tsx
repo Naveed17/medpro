@@ -70,6 +70,7 @@ function MobileUi({ ...props }) {
                     id="contained-button-file"
                     onChange={(e) => handleDrop(e.target.files as FileList)}
                     type="file"
+                    capture="user"
                   />
                   <Stack direction={"row"} alignItems={"center"} spacing={2}>
                     <IconUrl
@@ -139,6 +140,8 @@ function MobileUi({ ...props }) {
             <InputStyled
               onChange={(e) => handleDrop(e.target.files as FileList)}
               type="file"
+              capture="user"
+             
             />
           </Button>
         </Stack>

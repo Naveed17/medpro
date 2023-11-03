@@ -41,11 +41,42 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import NoteAddOutlinedIcon from '@mui/icons-material/NoteAddOutlined';
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 const actions = [
-    
-    {icon: <FastForwardOutlinedIcon/>, name: 'Ajout Rapide', key: 'add-quick'},
-    {icon: <AddOutlinedIcon/>, name: 'Ajout complet', key: 'add-complete'},
     {icon: <NoteAddOutlinedIcon/>, name: 'Ajouter un document', key: 'add-doc'},
 ];
+const DialogAction = ({...props})=>{
+    const {isMobile, t,setOpenAddOCRDocDialog} = props;
+    return (
+       <DialogActions sx={{width: "100%"}}>
+                        <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
+                            <Button variant="text-primary" onClick={() => setOpenAddOCRDocDialog(false)}
+                                    startIcon={<CloseIcon/>}>
+                                {t("cancel", {ns: "common"})}
+                            </Button>
+                            <Stack direction={"row"} spacing={1.2}>
+                                <LoadingButton
+                                    sx={{ml: "auto"}}
+                                    loadingPosition="start"
+                                    variant="contained"
+                                    color={"info"}
+                                    startIcon={<IconUrl path="ic-temps"/>}>
+                                    {t("dialogs.add-dialog.later")}
+                                </LoadingButton>
+                                {
+                                    !isMobile &&(
+                                <LoadingButton
+                                    loadingPosition="start"
+                                    variant="contained"
+                                    startIcon={<IconUrl path="add-doc"/>}>
+                                    {t("dialogs.add-dialog.confirm")}
+                                </LoadingButton>
+                                    )
+                                }
+                                
+                            </Stack>
+                        </Stack>
+                    </DialogActions>
+    )
+}
 function Documents() {
     const theme = useTheme();
     const {t, ready} = useTranslation(["docs", "common"]);
@@ -85,7 +116,7 @@ function Documents() {
           },2000)
       
     }, [])
-    
+    console.log(openFabAdd)
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
     console.log("filesInProgress", filesInProgress);
     return (
@@ -217,9 +248,10 @@ function Documents() {
             <Dialog
                 action={"ocr_docs"}
                 {...{
+                    
                     direction,
                     sx: {
-                        minHeight: 500
+                        minHeight: 400
                     }
                 }}
                 data={{
@@ -231,39 +263,23 @@ function Documents() {
                 }}
                 open={openAddOCRDocDialog}
                 size={"md"}
-                title={t("dialogs.add-dialog.title")}
+                
                 dialogClose={() => setOpenAddOCRDocDialog(false)}
-                actionDialog={
-                    <DialogActions sx={{width: "100%"}}>
-                        <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
-                            <Button variant="text-primary" onClick={() => setOpenAddOCRDocDialog(false)}
-                                    startIcon={<CloseIcon/>}>
-                                {t("cancel", {ns: "common"})}
-                            </Button>
-                            <Stack direction={"row"} spacing={1.2}>
-                                <LoadingButton
-                                    sx={{ml: "auto"}}
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    color={"info"}
-                                    startIcon={<IconUrl path="ic-temps"/>}>
-                                    {t("dialogs.add-dialog.later")}
-                                </LoadingButton>
-                                {
-                                    !isMobile &&(
-                                <LoadingButton
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    startIcon={<IconUrl path="add-doc"/>}>
-                                    {t("dialogs.add-dialog.confirm")}
-                                </LoadingButton>
-                                    )
-                                }
-                                
-                            </Stack>
-                        </Stack>
-                    </DialogActions>
+
+               
+                {...(isMobile ? {
+                    fullScreenDialog:true,
+                    headerDialog:true,
+                    actionDialog: filesInProgress.length > 0 && <DialogAction {...{t,isMobile,setOpenAddOCRDocDialog}}/>
+                }: {
+                    fullScreenDialog:false,
+                    headerDialog:null,
+                    title:t("dialogs.add-dialog.title"),
+                    actionDialog: <DialogAction {...{t,isMobile,setOpenAddOCRDocDialog}}/>
                 }
+                
+                )}
+                
             />
         </>
     )
