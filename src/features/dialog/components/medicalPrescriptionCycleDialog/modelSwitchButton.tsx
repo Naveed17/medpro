@@ -76,7 +76,7 @@ function ModelSwitchButton({...props}) {
                                 display: 'block',
                                 position: 'absolute',
                                 top: 0,
-                                left: 14,
+                                right: 30,
                                 width: 10,
                                 height: 10,
                                 bgcolor: 'background.paper',

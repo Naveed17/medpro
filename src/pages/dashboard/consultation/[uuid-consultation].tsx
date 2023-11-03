@@ -1599,7 +1599,7 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{appuuid: app_uuid, patient, state, setState, t, setOpenDialog}}
+                    data={{appuuid: app_uuid, patient, state, setState, t, setOpenDialog,setPendingDocuments,pendingDocuments,setPrescription}}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
                     direction={"ltr"}
                     sx={{height: info === "insurance_document_print" ? 600 : 480}}
@@ -1750,17 +1750,19 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
             ])),
         },
     };
-};
+}
+
 export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
     return {
         paths: [], //indicates that no page needs be created at build time
         fallback: "blocking", //indicates the type of fallback
     };
-};
+}
+
 export default ConsultationInProgress;
 
 ConsultationInProgress.auth = true;
 
 ConsultationInProgress.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
-};
+}
