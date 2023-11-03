@@ -52,7 +52,6 @@ import {
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
-import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import {AnimatePresence, motion} from "framer-motion";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -69,10 +68,12 @@ import {search} from "fast-fuzzy";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {SetSelectedDialog} from "@features/toolbar";
+import moment from "moment/moment";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
-    const {setState: setDrugs, state: drugs} = data;
+    const {setState: setDrugs, state: drugs, pendingDocuments, setPendingDocuments, setPrescription,patient} = data;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
@@ -350,10 +351,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
         ]);
     }
 
-    const handlePrescriptionTabChange = (
-        event: React.SyntheticEvent,
-        newValue: number
-    ) => {
+    const handlePrescriptionTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setPrescriptionTabIndex(newValue);
     }
 
@@ -475,6 +473,32 @@ function MedicalPrescriptionCycleDialog({...props}) {
             : "";
     }
 
+    const showPreview = () => {
+        let pdoc = [...pendingDocuments]
+        pdoc.push({
+            id: 2,
+            name: "requestedPrescription",
+            status: "in_progress",
+            icon: "ic-traitement",
+            state: drugs
+        })
+        setPendingDocuments(pdoc);
+        setPrescription(drugs)
+        dispatch(SetSelectedDialog({
+            action: 'document_detail',
+            state: {
+                name: 'card.title',
+                type: 'prescription',
+                createdAt:moment().format('DD/MM/YYYY'),
+                patient: `${patient.firstName} ${patient.lastName}`,
+                info: drugs,
+            },
+            uuid: "",
+            appUuid: ""
+        }))
+
+    }
+
     const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
 
     useEffect(() => {
@@ -513,6 +537,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         cycles,
                         drugUuid: drug?.uuid,
                         name: drug?.commercial_name,
+                        standard_drug: {commercial_name: drug?.commercial_name}
                     });
                 }
             });
@@ -1201,7 +1226,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                             <Stack direction={"column"} sx={{width: "100%"}}>
 
                                 <Box sx={{width: "100%", "& .MuiBox-root": {p: 0}}}>
-                                    <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{borderBottom: 1, borderColor: "divider"}}>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between'
+                                           sx={{borderBottom: 1, borderColor: "divider"}}>
                                         <Tabs
                                             value={prescriptionTabIndex}
                                             onChange={handlePrescriptionTabChange}
@@ -1217,90 +1243,87 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 {...a11yProps(1)}
                                             />
                                         </Tabs>
-                                         <Stack direction={"row"} spacing={1.2}>
-                                    {!editModel ? (
-                                        <ModelSwitchButton
-                                            {...{t, editModel, lastPrescriptions, drugs}}
-                                            {...(isMobile && {
-                                                fullWidth: true,
-                                            })}
-                                            className="custom-button"
-                                            variant="contained"
-                                            onClickEvent={(action: string) => {
-                                                switch (action) {
-                                                    case "last-prescription":
-                                                        const last: any[] = [];
-                                                        lastPrescriptions[0].prescription_has_drugs.map(
-                                                            (drug: any) => {
-                                                                last.push({
-                                                                    cycles: drug.cycles,
-                                                                    drugUuid: drug.standard_drug.uuid,
-                                                                    name: drug.standard_drug.commercial_name,
-                                                                });
-                                                            }
-                                                        );
-                                                        switchModel([...last]);
-                                                        break;
-                                                    case "set-prescription":
-                                                        setInfo("medical_prescription_model");
-                                                        setOpenDialog(true);
-                                                        break;
-                                                }
-                                            }}
-                                        />
-                                    ) : (
-                                        <LoadingButton
-                                            {...{loading}}
-                                            loadingPosition="start"
-                                            disabled={drugs?.length === 0}
-                                            {...(isMobile && {
-                                                fullWidth: true,
-                                            })}
-                                            color="warning"
-                                            onClick={() => {
-                                                editPrescriptionAction();
-                                            }}
-                                            className="custom-button"
-                                            variant="contained"
-                                            startIcon={<EditIcon/>}>
-                                            {t("editModel", {ns: "consultation"})}{" "}
-                                            {`${editModel?.text} ${t("model")}`}
-                                        </LoadingButton>
-                                    )}
-                                    {editModel && (
-                                        <Button
-                                            disabled={loading}
-                                            onClick={() => setEditModel(null)}
-                                            color={"error"}
-                                            className="custom-button"
-                                            variant="contained">
-                                            {t("cancel")}
-                                        </Button>
-                                    )}
-                                </Stack>
+                                        <Stack direction={"row"} spacing={1.2}>
+                                            {!editModel ? (
+                                                <ModelSwitchButton
+                                                    {...{t, editModel, lastPrescriptions, drugs}}
+                                                    {...(isMobile && {
+                                                        fullWidth: true,
+                                                    })}
+                                                    className="custom-button"
+                                                    variant="contained"
+                                                    onClickEvent={(action: string) => {
+                                                        switch (action) {
+                                                            case "last-prescription":
+                                                                const last: any[] = [];
+                                                                lastPrescriptions[0].prescription_has_drugs.map(
+                                                                    (drug: any) => {
+                                                                        last.push({
+                                                                            cycles: drug.cycles,
+                                                                            drugUuid: drug.standard_drug.uuid,
+                                                                            name: drug.standard_drug.commercial_name,
+                                                                        });
+                                                                    }
+                                                                );
+                                                                switchModel([...last]);
+                                                                break;
+                                                            case "set-prescription":
+                                                                setInfo("medical_prescription_model");
+                                                                setOpenDialog(true);
+                                                                break;
+                                                        }
+                                                    }}
+                                                />
+                                            ) : (
+                                                <LoadingButton
+                                                    {...{loading}}
+                                                    loadingPosition="start"
+                                                    disabled={drugs?.length === 0}
+                                                    {...(isMobile && {
+                                                        fullWidth: true,
+                                                    })}
+                                                    color="warning"
+                                                    onClick={() => {
+                                                        editPrescriptionAction();
+                                                    }}
+                                                    className="custom-button"
+                                                    variant="contained"
+                                                    startIcon={<EditIcon/>}>
+                                                    {t("editModel", {ns: "consultation"})}{" "}
+                                                    {`${editModel?.text} ${t("model")}`}
+                                                </LoadingButton>
+                                            )}
+                                            {editModel && (
+                                                <Button
+                                                    disabled={loading}
+                                                    onClick={() => setEditModel(null)}
+                                                    color={"error"}
+                                                    className="custom-button"
+                                                    variant="contained">
+                                                    {t("cancel")}
+                                                </Button>
+                                            )}
+                                        </Stack>
                                     </Stack>
                                     <TabPanel value={prescriptionTabIndex} index={0}>
 
                                         <List
                                             className={"prescription-preview"}
                                             subheader={
-
-                                            <Stack mt={2} direction='row' alignItems="center" justifyContent='space-between'>
-                                             <ListSubheader
-                                             sx={{pl:0}}
-                                                    disableSticky
-                                                    component="div"
-                                                    id="nested-list-subheader">
-                                                    {t("drug_list", {ns: "consultation"})}
-                                                </ListSubheader>
-                                            <IconButton className="btn-list-action" sx={{"&.btn-list-action":{px:.8}}}>
-                                                <IconUrl path="ic-eye-scan" width={16} height={16}/>
-
-                                            </IconButton>
-                                        </Stack>
-
-
-
+                                                <Stack mt={2} direction='row' alignItems="center"
+                                                       justifyContent='space-between'>
+                                                    <ListSubheader
+                                                        sx={{pl: 0}}
+                                                        disableSticky
+                                                        component="div"
+                                                        id="nested-list-subheader">
+                                                        {t("drug_list", {ns: "consultation"})}
+                                                    </ListSubheader>
+                                                    <IconButton onClick={showPreview} className="btn-list-action"
+                                                                sx={{"&.btn-list-action": {px: .8}}}>
+                                                        <IconUrl path="ic-eye-scan" width={16} height={16}/>
+                                                    </IconButton>
+                                                </Stack>
                                             }>
                                             {drugs.map((drug: DrugCycleModel, index: number) => (
                                                 <ListItemButton
@@ -1365,7 +1388,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         }
                                                     />
                                                     <IconButton
-                                                    className="btn-edit"
+                                                        className="btn-edit"
                                                         onClick={(event) => {
                                                             event.stopPropagation();
                                                             setTimeout(() => {
@@ -1401,7 +1424,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         </List>
                                     </TabPanel>
                                     <TabPanel value={prescriptionTabIndex} index={1}>
-                                        <Stack mt={2} direction='row' alignItems="center" justifyContent='space-between'>
+                                        <Stack mt={2} direction='row' alignItems="center"
+                                               justifyContent='space-between'>
                                             <Typography fontWeight={700}>
                                                 {t("model_list")}
                                             </Typography>

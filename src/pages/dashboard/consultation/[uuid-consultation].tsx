@@ -1623,7 +1623,7 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{appuuid: app_uuid, patient, state, setState, t, setOpenDialog}}
+                    data={{appuuid: app_uuid, patient, state, setState, t, setOpenDialog,setPendingDocuments,pendingDocuments,setPrescription}}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
                     direction={"ltr"}
                     sx={{height: info === "insurance_document_print" ? 600 : 480}}

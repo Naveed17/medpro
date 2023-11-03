@@ -437,7 +437,7 @@ function DocumentsPanel({...props}) {
                                                     style={{fontSize: 15, color: "grey"}}/>
                                                 <Typography whiteSpace={"nowrap"} fontSize={12}
                                                             sx={{color: "grey", cursor: "pointer"}}>
-                                                    {moment(card.date_quote, 'DD-MM-YYYY HH:mm').format('DD-MM-YYYY')}
+                                                    {moment(card.date_quote, 'YYYY-MM-DD HH:mm').format('DD-MM-YYYY')}
                                                 </Typography>
 
                                                 <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>

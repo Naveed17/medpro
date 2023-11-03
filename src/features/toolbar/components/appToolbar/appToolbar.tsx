@@ -262,6 +262,11 @@ function AppToolbar({...props}) {
                     setAnchorEl(null);
                     setOpenDialog(true);
                     break;
+                case "document_detail":
+                    setInfo("document_detail");
+                    setState(selectedDialog.state);
+                    setAnchorEl(null);
+                    setOpenDialog(true);
             }
         }
     }, [selectedDialog])// eslint-disable-line react-hooks/exhaustive-deps
