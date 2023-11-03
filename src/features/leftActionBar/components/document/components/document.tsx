@@ -14,7 +14,6 @@ import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {AutoCompleteButton} from "@features/buttons";
-import moment from "moment-timezone";
 import MenuItem from "@mui/material/MenuItem";
 import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -35,7 +34,7 @@ function Document() {
 
     const {t, ready} = useTranslation(["docs"]);
     const {t: translate, ready: readyTranslate} = useTranslation("agenda", {keyPrefix: "steppers"});
-    const {name, type, appointment, target, date, patient} = useAppSelector(ocrDocumentSelector);
+    const {name, appointment, target, date, patient} = useAppSelector(ocrDocumentSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {patient: initData} = useAppSelector(appointmentSelector);
 

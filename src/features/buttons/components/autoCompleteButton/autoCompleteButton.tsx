@@ -2,7 +2,7 @@ import RootStyled from './overrides/RootStyled'
 import {Box, Button, ClickAwayListener} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
-import {useCallback, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {PatientAppointmentCard} from "@features/card";
 import {AutoComplete} from "@features/autoComplete";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";

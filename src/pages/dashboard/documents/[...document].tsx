@@ -5,7 +5,6 @@ import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
 import {Box, Stack} from "@mui/material";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {sideBarSelector, toggleSideBar} from "@features/menu";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {useTranslation} from "next-i18next";
