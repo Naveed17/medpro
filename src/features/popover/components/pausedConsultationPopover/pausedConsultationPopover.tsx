@@ -82,7 +82,7 @@ function PausedConsultationPopover({...props}) {
             }
         });
     }
-console.log(next)
+
     return (
         <PausedConsultationPopoverStyled
             sx={{
@@ -106,11 +106,11 @@ console.log(next)
                                         if (isActive || roles.includes('ROLE_SECRETARY')) {
                                             setPatientId(next.patient_uuid);
                                             setPatientDetailDrawer(true);
-                                           
-                                            
+
+
                                         } else {
                                             handleStartConsultation(next);
-                                           
+
                                         }
                                         onClose()
                                     }}
@@ -156,7 +156,7 @@ console.log(next)
                                                 {next.type}
                                             </Label>
                                         </Stack>
-                                        
+
                                         <Avatar
                                         className="avatar-close"
                                             alt="Small avatar"
@@ -166,7 +166,7 @@ console.log(next)
                                                 resetNextConsultation(next.uuid);
                                             }}
                                             sx={{
-                                        
+
                                                 background: "#FFF",
                                                 width: 30,
                                                 height: 30,
@@ -181,12 +181,12 @@ console.log(next)
                                         </Avatar>
                                     </Stack>
                                 </LoadingButton>
-                               
+
                                 <Divider sx={{mt:2}}/>
-                                
+
                                 </Stack>
                 </>
-              )}  
+              )}
             {isActive &&(
                 <Stack px={2}>
                 <Toolbar>
@@ -202,7 +202,7 @@ console.log(next)
                                     <Divider sx={{mt:2}}/>
                                     </Stack>
                             )}
-                    
+
                  <Toolbar>
                 <Typography variant="subtitle2" fontWeight={700}>
                     {t("appointment-status.PAUSED")}
