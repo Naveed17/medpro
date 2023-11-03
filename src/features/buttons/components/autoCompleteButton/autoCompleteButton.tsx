@@ -13,7 +13,15 @@ import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function AutoCompleteButton({...props}) {
-    const {translation, data, loading, OnClickAction, onSearchChange, OnOpenSelect = null} = props;
+    const {
+        translation,
+        data,
+        loading,
+        OnClickAction,
+        onSearchChange,
+        OnOpenSelect = null,
+        size = 'medium'
+    } = props;
 
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -76,7 +84,7 @@ function AutoCompleteButton({...props}) {
                             <ClickAwayListener onClickAway={handleClickAway}>
                                 <Box sx={{mb: 4}} className="autocomplete-container">
                                     <AutoComplete
-                                        {...{data, loading, onSearchChange}}
+                                        {...{data, loading, onSearchChange, size}}
                                         onAddPatient={OnClickAction}
                                         t={translation}
                                         onSelectData={onSubmitPatient}
@@ -90,7 +98,7 @@ function AutoCompleteButton({...props}) {
                     key={patient.uuid}
                     item={patient}
                     listing
-                    onEdit={onEditPatient}
+                    {...(size === 'medium' && {onEdit: onEditPatient})}
                     onReset={onSubmitPatient}/>}
         </RootStyled>
     )

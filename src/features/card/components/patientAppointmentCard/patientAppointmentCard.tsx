@@ -52,7 +52,15 @@ function PatientAppointmentCard({...props}) {
                        sx={{width: "100%"}}>
                     <Box>
                         <Stack spacing={.5} direction="row" alignItems='center'>
-                            <Typography color="primary" sx={{fontWeight: 500, display: 'flex'}}>
+                            <Typography
+                                sx={{
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    width: "148px"
+                                }}
+                                fontWeight={500}
+                                color="primary">
                                 {patient.firstName} {patient.lastName}
                             </Typography>
                         </Stack>
@@ -65,22 +73,21 @@ function PatientAppointmentCard({...props}) {
                     </Box>
                     {listing && (
                         <Box>
-                            <IconButton
+                            {onEdit && <IconButton
                                 size="small"
                                 sx={{mr: 1}}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setLoading(true);
                                     onEdit(patient);
-                                }}
-                            >
+                                }}>
                                 {!loading ?
                                     <IconUrl color={"white"} path="setting/edit"/> :
                                     <Box sx={{display: 'flex'}}>
                                         <CircularProgress size={"20px"} color={"white"}/>
                                     </Box>
                                 }
-                            </IconButton>
+                            </IconButton>}
                             <IconButton
                                 size="small"
                                 onClick={(e) => {

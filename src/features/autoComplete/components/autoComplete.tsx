@@ -10,7 +10,7 @@ import {onResetPatient} from "@features/tabPanel";
 import {useAppDispatch} from "@lib/redux/hooks";
 
 function AutoComplete({...props}) {
-    const {data, loading, onSelectData, onSearchChange, t, onAddPatient} = props;
+    const {data, loading, onSelectData, onSearchChange, t, onAddPatient, size} = props;
 
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
@@ -56,7 +56,7 @@ function AutoComplete({...props}) {
                     inputProps={{'aria-label': 'Chercher un patient'}}
                 />
                 <Divider sx={{height: 28, m: 0.5}} orientation="vertical"/>
-                {isMobile ?
+                {isMobile || size === "small" ?
                     <IconButton
                         size="small"
                         color="primary"

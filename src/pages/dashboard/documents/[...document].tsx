@@ -1,12 +1,69 @@
 import {GetStaticPaths, GetStaticProps} from "next";
-import React, {ReactElement} from "react";
+import React, {ReactElement, useEffect} from "react";
 import {DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
-import {Box} from "@mui/material";
+import {Box, Stack} from "@mui/material";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {Otable} from "@features/table";
+import {useTranslation} from "next-i18next";
+import dynamic from "next/dynamic";
+import {SubFooter} from "@features/subFooter";
+import IconUrl from "@themes/urlIcon";
+import {LoadingButton} from "@mui/lab";
+import {useRouter} from "next/router";
+import {ocrDocumentSelector, setOcrData} from "@features/leftActionBar";
+
+// table head data
+const headCells: readonly HeadCell[] = [
+    {
+        id: "name",
+        numeric: false,
+        disablePadding: true,
+        label: "header.name",
+        sortable: true,
+        align: "left"
+    },
+    {
+        id: "value",
+        numeric: false,
+        disablePadding: true,
+        label: "header.value",
+        sortable: true,
+        align: "left"
+    }
+]
+
+const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function Document() {
+    const dispatch = useAppDispatch();
+    const router = useRouter();
+
+    const {t, ready} = useTranslation("docs");
+    const ocrData = useAppSelector(ocrDocumentSelector);
+    const documentData = JSON.parse(router.query.data as any);
+
+    const handleAssignOcrDocument = () => {
+        console.log("ocrData", ocrData);
+    }
+
+    useEffect(() => {
+        if (documentData) {
+            dispatch(setOcrData({
+                name: documentData.title,
+                appointment: documentData.appointment,
+                type: documentData.documentType,
+                target: documentData.title,
+                patient: documentData.patientData,
+                date: new Date()
+            }))
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+
     return (
         <>
             <SubHeader
@@ -14,11 +71,44 @@ function Document() {
                     ".MuiToolbar-root": {
                         flexDirection: {xs: "column", md: "row"},
                         py: {md: 0, xs: 2},
-                    },
+                    }
                 }}>
                 <DocToolbar/>
             </SubHeader>
             <Box className="container">
+                <Otable
+                    {...{t}}
+                    headers={headCells}
+                    rows={documentData?.medicalData}
+                    total={0}
+                    totalPages={1}
+                    from={"ocrDocument"}
+                    pagination
+                />
+
+                <Box pt={8}>
+                    <SubFooter>
+                        <Stack
+                            width={1}
+                            spacing={{xs: 1, md: 0}}
+                            padding={{xs: 1, md: 0}}
+                            direction={{xs: "column", md: "row"}}
+                            alignItems="flex-end"
+                            justifyContent={"flex-end"}>
+
+                            <LoadingButton
+                                loadingPosition={"start"}
+                                onClick={handleAssignOcrDocument}
+                                color={"primary"}
+                                className="btn-action"
+                                startIcon={<IconUrl path="add-doc"/>}
+                                variant="contained"
+                                sx={{".react-svg": {mr: 1}}}>
+                                {t("Classer le document")}
+                            </LoadingButton>
+                        </Stack>
+                    </SubFooter>
+                </Box>
             </Box>
         </>
     )
@@ -28,11 +118,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
-            ...(await serverSideTranslations(locale as string, [
-                "menu",
-                "common",
-                "docs"
-            ])),
+            ...(await serverSideTranslations(locale as string, ["menu", "common", "docs", "agenda"])),
         },
     };
 }

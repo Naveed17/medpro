@@ -66,6 +66,11 @@ const OcrDocsDialogStyled = styled(Box)(({theme}) => ({
         zIndex: 3,
         marginTop: '15rem'
     },
+    '& .document_actions_': {
+        width: '86%',
+        zIndex: 3,
+        marginTop: '1rem'
+    },
     '& .document_name': {
         paddingLeft: 8,
         textAlign: 'center',
