@@ -1,21 +1,6 @@
-import React, {useEffect, useRef, useState,} from "react";
-import PaymentDialogStyled from "./overrides/paymentDialogStyle";
-import {
-    Avatar,
-    Box,
-    Button,
-    Divider,
-    Grid,
-    Menu,
-    MenuItem,
-    Stack,
-    Theme,
-    Typography,
-    useMediaQuery,
-    useTheme,
-} from "@mui/material";
+import React, {useEffect, useState,} from "react";
+import {Avatar, Button, Grid, Stack, Theme, Typography, useMediaQuery, useTheme,} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import {AnimatePresence, motion} from "framer-motion";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {FormikProvider, useFormik} from "formik";
@@ -23,17 +8,15 @@ import * as Yup from "yup";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import AddIcon from "@mui/icons-material/Add";
 import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useRequestQuery} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
-import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
-import ConsultationCard from "./consultationCard";
-import PaymentCard from "./paymentCard";
 import {agendaSelector} from "@features/calendar";
+import PaymentCard from "@features/dialog/components/paymentDialog/paymentCard";
+import PaymentDialogStyled from "./overrides/paymentDialogStyle";
+import ConsultationCard from "@features/dialog/components/paymentDialog/consultationCard";
 
 const LoadingScreen = dynamic(
     () => import("@features/loadingScreen/components/loadingScreen")
@@ -43,47 +26,23 @@ function PaymentDialog({...props}) {
     const {data} = props;
     const theme = useTheme<Theme>();
     const {data: session} = useSession();
-    const ref = useRef(null);
-    const scrollToView = () => {
-        setTimeout(() => {
-            (ref.current as unknown as HTMLElement)?.scrollIntoView({
-                behavior: "smooth",
-            });
-        }, 300);
-    };
 
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [payments, setPayments] = useState<any>([]);
     const [wallet, setWallet] = useState(0);
     const [rest, setRest] = useState(0);
-    const [appointment, setAppointment] = useState(null);
-    const [transactionData, setTransactionData] = useState<any[]>([]);
+    const [appointment, setAppointment] = useState<any>(null);
+    const [openDialog, setOpenDialog] = useState(false);
 
-    const open = Boolean(anchorEl);
     const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
-    /*
-        const {banks} = useBanks();
-        const {insurances} = useInsurances();
-    */
-    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
 
     const {app_uuid, patient} = data;
-
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
 
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("sm")
@@ -138,34 +97,10 @@ function PaymentDialog({...props}) {
         },
     });
 
-    const {data: httpPatientWallet} = useRequestQuery(
-        medicalEntityHasUser
-            ? {
-                method: "GET",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`,
-            }
-            : null
-    );
-
-    const {data: httpPatientTransactions, mutate: mutatePatientT} = useRequestQuery({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/patients/${patient?.uuid}/transactions/${router.locale}`
-    });
-
     const {data: httpAppointmentTransactions, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/transactions/${router.locale}`
     });
-
-    const handleChangePayment = (props: string) => {
-
-        scrollToView();
-        let data:any = {selected: props, amount: 0}
-        if (props === 'check')
-            data = {...data, data:{bank: '', carrier: '', nb: '', date: new Date()}}
-        setPayments([...payments,data])
-        handleClose();
-    };
 
     const calculInsurance = () => {
         return 0
@@ -190,34 +125,36 @@ function PaymentDialog({...props}) {
                 mutate();
             },
         });*/
-        console.log(payments)
-        console.log(payments.reduce((total:number,val:any) =>total + parseInt(val.amount),0))
     }
-
-    useEffect(() => {
-        if (httpPatientWallet) {
-            const data = (httpPatientWallet as HttpResponse).data;
-            setWallet(data.wallet);
-            setRest(data.rest_amount)
-        }
-    }, [httpPatientWallet]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        console.log(httpPatientTransactions)
-    }, [httpPatientTransactions])
 
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse).data
-
-            setRest(r => r + res.rest_amount)
-            setTransactionData([...transactionData,{uuid: app_uuid, ...res,toPay:res?.rest_amount}])
+            setAppointment({uuid: app_uuid, ...res})
+            let amount = res.rest_amount;
+            console.log(res)
+            let transaction_data = [{
+                appointment: app_uuid,
+                amount: res.rest_amount,
+                current: true
+                //data:{fees:res.fees,date:'Aujourd\'hui'}
+            }]
+            res.appointments.map((app: { rest_amount: number; uuid: string; }) => {
+                amount += app.rest_amount
+                transaction_data = [...transaction_data, {
+                    appointment: app.uuid,
+                    amount: app.rest_amount,
+                    current: false
+                    //data:{fees:app.fees,date:app.day_date}
+                }]
+            })
+            setPayments([{selected: 'cash', amount, transaction_data}])
         }
     }, [app_uuid, httpAppointmentTransactions])
 
     useEffect(() => {
-        setPayments([{selected: 'cash', amount: rest}])
-    }, [rest])
+        //console.log(payments)
+    }, [payments])
 
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
@@ -336,132 +273,52 @@ function PaymentDialog({...props}) {
                     </Stack>
                 )}
 
-                <Grid container spacing={{xs: 2, md: 6}} style={{minHeight:'60vh'}}>
+                <Grid container spacing={{xs: 2, md: 6}}>
                     <Grid item xs={12} sm={6}>
                         <Typography fontWeight={600} mb={1}>
                             {t("current_consultation")}
                         </Typography>
                         <Stack spacing={1}>
-                            {transactionData.map((td,index) =>(<ConsultationCard key={index} {...{t, devise, transactionData, setTransactionData,index, rest}} />))}
+                            {appointment &&
+                                <ConsultationCard {...{t, devise, appointment, setOpenDialog, rest, payments}} />}
                         </Stack>
+
+                        {appointment?.appointments.length > 0 && <Typography fontWeight={700}>
+                            {t("other_consultation")}
+                        </Typography>}
+                        {appointment?.appointments.length > 0 && <Stack
+                            spacing={1}
+                            borderRadius={0.5}
+                            maxHeight={244}
+                            p={1}
+                            sx={{overflowY: "auto", bgcolor: theme.palette.back.main}}>
+                            {appointment && appointment.appointments.map((app: { uuid: string }, index: number) => (
+                                <ConsultationCard key={`${app.uuid}-${index}`} {...{t, devise, appointment: app}} />))}
+                        </Stack>}
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                        <Stack spacing={2} height={1} position={"relative"}>
-                            <Divider
-                                orientation="vertical"
-                                sx={{
-                                    position: "absolute",
-                                    height: "100%",
-                                    left: -24,
-                                    display: {xs: "none", md: "block"},
-                                }}
-                            />
-                            <Stack
-                                direction={{xs: "column", sm: "row"}}
-                                alignItems="center"
-                                justifyContent="space-between"
-                                spacing={{xs: 2, sm: 0}}
-                            >
-                                <Typography fontWeight={600} mb={1}>
-                                    {t("payment")}
-                                </Typography>
-                                <Button
-                                    startIcon={<AddIcon/>}
-                                    endIcon={<UnfoldMoreRoundedIcon/>}
-                                    id="basic-button"
-                                    variant="contained"
-                                    aria-controls={open ? "basic-menu" : undefined}
-                                    aria-haspopup="true"
-                                    aria-expanded={open ? "true" : undefined}
-                                    onClick={handleClick}
-                                >
-                                    {t("add_payment")}
-                                </Button>
-                                <Menu
-                                    id="basic-menu"
-                                    anchorEl={anchorEl}
-                                    open={open}
-                                    onClose={handleClose}
-                                    MenuListProps={{
-                                        "aria-labelledby": "basic-button",
-                                        sx: {
-                                            minWidth: 200,
-                                            padding: 0,
-                                            li: {
-                                                borderBottom: 1,
-                                                borderColor: "divider",
-                                                "&:last-child": {
-                                                    borderBottom: 0,
-                                                },
-                                            },
-                                        },
-                                    }}
-                                >
-                                    {paymentTypesList?.map((payment: any) => (
-                                        <MenuItem
-                                            onClick={() => handleChangePayment(payment.slug)}
-                                            key={payment.uuid}
-                                        >
-                                            <Stack direction="row" alignItems="center" spacing={1}>
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img
-                                                    style={{width: 16}}
-                                                    src={payment?.logoUrl?.url}
-                                                    alt={"payment means"}
-                                                />
-                                                <Typography>{t(payment?.name)}</Typography>
-                                            </Stack>
-                                        </MenuItem>
-                                    ))}
-                                    {wallet > 0 ? (
-                                        <MenuItem onClick={() => handleChangePayment("wallet")}>
-                                            <Stack direction="row" alignItems="center" spacing={1}>
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                <img
-                                                    style={{width: 16}}
-                                                    src={"/static/icons/ic-wallet-money.svg"}
-                                                    alt={"payment means"}
-                                                />
-                                                <Typography>{t("wallet")}</Typography>
-                                                <Typography variant="caption" color="text.secondary">
-                                                    {wallet} {devise}
-                                                </Typography>
-                                            </Stack>
-                                        </MenuItem>
-                                    ) : null}
-                                </Menu>
-                            </Stack>
-                            <Stack maxHeight={300} p={1} overflow="auto" spacing={2}>
-                                <AnimatePresence>
-                                    {payments.map((item: any, i: any) => (
-                                        <motion.div
-                                            key={i}
-                                            initial={{opacity: 0}}
-                                            animate={{opacity: 1}}
-                                            exit={{opacity: 0}}
-                                            transition={{duration: 0.3}}
-                                        >
-                                            <PaymentCard
-                                                {...{
-                                                    t,
-                                                    devise,
-                                                    paymentTypesList,
-                                                    payments, setPayments,
-                                                    addTransactions,
-                                                    item,
-                                                    i,
-                                                    wallet,
-                                                }}
-                                            />
-                                        </motion.div>
-                                    ))}
-                                </AnimatePresence>
-                                <Box ref={ref}/>
-                            </Stack>
-                        </Stack>
+                        <Typography fontWeight={600} mb={1}>
+                            {t("payment")}
+                        </Typography>
+                        {payments.map((item: any, i: number) => (
+                            <PaymentCard key={i} {...{
+                                t,
+                                paymentTypesList,
+                                item,
+                                i,
+                                devise,
+                                wallet,
+                                payments,
+                                setPayments,
+                                appointment,
+                                setAppointment,
+                                addTransactions
+                            }}/>
+                        ))}
                     </Grid>
                 </Grid>
             </PaymentDialogStyled>
+
         </FormikProvider>
     );
 }

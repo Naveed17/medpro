@@ -413,6 +413,7 @@ function PatientDetail({...props}) {
 
     useEffect(() => {
         if (httpAntecedentsResponse) {
+            console.log(httpAntecedentsResponse)
             setAntecedentsData((httpAntecedentsResponse as HttpResponse)?.data as any[]);
         }
     }, [httpAntecedentsResponse])

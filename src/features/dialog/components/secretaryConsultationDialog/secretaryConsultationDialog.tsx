@@ -426,21 +426,6 @@ function SecretaryConsultationDialog({...props}) {
                         fullWidth
                         title={t("payment_dialog_title", {ns: "payment"})}
                         dialogClose={resetDialog}
-                        actionDialog={
-                            <DialogActions>
-                                <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
-                                    {t("cancel", {ns: "common"})}
-                                </Button>
-                                <LoadingButton
-                                    disabled={false}
-                                    variant="contained"
-                                    loading={loading}
-                                    onClick={handleOnGoingPaymentDialog}
-                                    startIcon={<Icon path="ic-dowlaodfile"/>}>
-                                    {t("save", {ns: "common"})}
-                                </LoadingButton>
-                            </DialogActions>
-                        }
                     />
                 </RootStyled>
             )}

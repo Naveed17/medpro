@@ -23,12 +23,15 @@ import {DatePicker} from "@features/datepicker";
 import {filterReasonOptions} from "@lib/hooks";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import useBanks from "@lib/hooks/rest/useBanks";
+import {Label} from "@features/label";
+import BorderLinearProgress from "@features/dialog/components/ocrDocsDialog/overrides/BorderLinearProgress";
 
 function PaymentCard({...props}) {
-    const {t, paymentTypesList, item, i, devise, wallet, payments, setPayments, addTransactions} = props;
+    const {t, paymentTypesList, item, i, devise, wallet, payments, setPayments, addTransactions, appointment,setAppointment} = props;
     const theme: Theme = useTheme();
     const [cashCollapse, setCashCollapse] = useState(true);
     const [walletCollapse, setWalletCollapse] = useState(true);
+    const [editField, setEditField] = useState("");
 
     const {banks} = useBanks();
 
@@ -54,289 +57,407 @@ function PaymentCard({...props}) {
                         initial={{opacity: 0}}
                         transition={{duration: 0.5}}>
                         <Collapse in={cashCollapse} timeout="auto" unmountOnExit>
-                            <Stack direction="row" alignItems="center" spacing={1}>
-                                <FormControl
-                                    size="small"
-                                    sx={{
-                                        minWidth: 60,
-                                        ".MuiInputBase-root": {
-                                            bgcolor: (theme: Theme) =>
-                                                theme.palette.primary.main + "!important",
-                                            svg: {
-                                                path: {
-                                                    fill: (theme: Theme) => theme.palette.common.white,
+                            <Stack spacing={1}>
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                    <FormControl
+                                        size="small"
+                                        sx={{
+                                            minWidth: 60,
+                                            ".MuiInputBase-root": {
+                                                bgcolor: (theme: Theme) =>
+                                                    theme.palette.primary.main + "!important",
+                                                svg: {
+                                                    path: {
+                                                        fill: (theme: Theme) => theme.palette.common.white,
+                                                    },
+                                                },
+                                                img: {
+                                                    filter: "brightness(0) invert(1)",
+                                                },
+                                                "&:focus": {
+                                                    bgcolor: "primary.main",
                                                 },
                                             },
-                                            img: {
-                                                filter: "brightness(0) invert(1)",
-                                            },
-                                            "&:focus": {
-                                                bgcolor: "primary.main",
-                                            },
-                                        },
-                                    }}
-                                >
-                                    <Select
-                                        labelId="select-type"
-                                        id="select-type"
-                                        value={item.selected}
-                                        displayEmpty
-                                        MenuProps={{
-                                            PaperProps: {
-                                                sx: {
-                                                    bgcolor: (theme: Theme) => theme.palette.back.main,
-                                                    p: 1,
-                                                    ".MuiMenuItem-root": {
-                                                        "&:not(:last-child)": {
-                                                            mb: 1,
-                                                        },
-                                                        borderRadius: 1,
-                                                        border: 1,
-                                                        borderColor: "divider",
-                                                        "&:hover": {
-                                                            bgcolor: (theme: Theme) =>
-                                                                theme.palette.primary.main,
-                                                            color: (theme: Theme) =>
-                                                                theme.palette.common.white,
-                                                            img: {
-                                                                filter: "brightness(0) invert(1)",
+                                        }}
+                                    >
+                                        <Select
+                                            labelId="select-type"
+                                            id="select-type"
+                                            value={item.selected}
+                                            displayEmpty
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    sx: {
+                                                        bgcolor: (theme: Theme) => theme.palette.back.main,
+                                                        p: 1,
+                                                        ".MuiMenuItem-root": {
+                                                            "&:not(:last-child)": {
+                                                                mb: 1,
                                                             },
-                                                            ".MuiTypography-root": {
-                                                                color: theme.palette.common.white,
+                                                            borderRadius: 1,
+                                                            border: 1,
+                                                            borderColor: "divider",
+                                                            "&:hover": {
+                                                                bgcolor: (theme: Theme) =>
+                                                                    theme.palette.primary.main,
+                                                                color: (theme: Theme) =>
+                                                                    theme.palette.common.white,
+                                                                img: {
+                                                                    filter: "brightness(0) invert(1)",
+                                                                },
+                                                                ".MuiTypography-root": {
+                                                                    color: theme.palette.common.white,
+                                                                },
                                                             },
                                                         },
                                                     },
                                                 },
-                                            },
-                                        }}
-                                        onChange={(e) => {
-                                        }
+                                            }}
+                                            onChange={(e) => {
+                                            }
 
-                                        }
-                                        renderValue={(selected) => {
-                                            const payment = paymentTypesList?.find(
-                                                (payment: any) => payment?.slug === selected
-                                            );
-                                            if (selected === "wallet") {
+                                            }
+                                            renderValue={(selected) => {
+                                                const payment = paymentTypesList?.find(
+                                                    (payment: any) => payment?.slug === selected
+                                                );
+                                                if (selected === "wallet") {
+                                                    return (
+                                                        <Stack
+                                                            direction="row"
+                                                            alignItems="center"
+                                                            spacing={1}
+                                                        >
+                                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                            <img
+                                                                style={{width: 16}}
+                                                                src={"/static/icons/ic-wallet-money.svg"}
+                                                                alt={"payment means"}
+                                                            />
+                                                        </Stack>
+                                                    );
+                                                }
+
                                                 return (
-                                                    <Stack
-                                                        direction="row"
-                                                        alignItems="center"
-                                                        spacing={1}
-                                                    >
+                                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                        <img
+                                                            style={{width: 16}}
+                                                            src={payment?.logoUrl?.url}
+                                                            alt={"payment means"}
+                                                        />
+                                                    </Stack>
+                                                );
+                                            }}
+                                        >
+                                            {paymentTypesList?.map((payment: any) => (
+                                                <MenuItem value={payment.slug} key={payment.uuid}>
+                                                    <Stack direction="row"
+                                                           alignItems="center"
+                                                           onClick={() => {
+                                                               updatePaymentMeans(payment.slug)
+                                                           }}
+                                                           spacing={1}>
+                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                        <img
+                                                            style={{width: 16}}
+                                                            src={payment?.logoUrl?.url}
+                                                            alt={"payment means"}
+                                                        />
+                                                        <Typography>{t(payment?.name)}</Typography>
+                                                    </Stack>
+                                                </MenuItem>
+                                            ))}
+                                            {wallet > 0 ? (
+                                                <MenuItem value={"wallet"}>
+                                                    <Stack direction="row" alignItems="center"
+                                                           onClick={() => updatePaymentMeans("wallet")} spacing={1}>
                                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                                         <img
                                                             style={{width: 16}}
                                                             src={"/static/icons/ic-wallet-money.svg"}
                                                             alt={"payment means"}
                                                         />
+                                                        <Typography>{t("wallet")} x</Typography>
+                                                        <Typography variant="caption" color="text.secondary">
+                                                            {wallet} {devise}
+                                                        </Typography>
                                                     </Stack>
-                                                );
-                                            }
-
-                                            return (
-                                                <Stack direction="row" alignItems="center" spacing={1}>
-                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img
-                                                        style={{width: 16}}
-                                                        src={payment?.logoUrl?.url}
-                                                        alt={"payment means"}
-                                                    />
-                                                </Stack>
-                                            );
+                                                </MenuItem>
+                                            ) : null}
+                                        </Select>
+                                    </FormControl>
+                                    <TextField
+                                        sx={{
+                                            input: {
+                                                fontWeight: 700,
+                                            },
                                         }}
-                                    >
-                                        {paymentTypesList?.map((payment: any) => (
-                                            <MenuItem value={payment.slug} key={payment.uuid}>
-                                                <Stack direction="row"
-                                                       alignItems="center"
-                                                       onClick={() => {
-                                                           updatePaymentMeans(payment.slug)
-                                                       }}
-                                                       spacing={1}>
-                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img
-                                                        style={{width: 16}}
-                                                        src={payment?.logoUrl?.url}
-                                                        alt={"payment means"}
-                                                    />
-                                                    <Typography>{t(payment?.name)}</Typography>
-                                                </Stack>
-                                            </MenuItem>
-                                        ))}
-                                        {wallet > 0 ? (
-                                            <MenuItem value={"wallet"}>
-                                                <Stack direction="row" alignItems="center"
-                                                       onClick={() => updatePaymentMeans("wallet")} spacing={1}>
-                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img
-                                                        style={{width: 16}}
-                                                        src={"/static/icons/ic-wallet-money.svg"}
-                                                        alt={"payment means"}
-                                                    />
-                                                    <Typography>{t("wallet")} x</Typography>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        {wallet} {devise}
-                                                    </Typography>
-                                                </Stack>
-                                            </MenuItem>
-                                        ) : null}
-                                    </Select>
-                                </FormControl>
-                                <TextField
-                                    sx={{
-                                        input: {
-                                            fontWeight: 700,
-                                        },
-                                    }}
-                                    size="small"
-                                    fullWidth
-                                    value={item.amount}
-                                    onChange={(e) => {
-                                        payments[i].amount = e.target.value
-                                        setPayments([...payments])
-                                    }
-                                    }
-                                    type="number"
-                                    InputProps={{
-                                        inputProps: {
-                                            min: 0,
-                                        },
-                                    }}
-                                />
-                                <Typography>{devise}</Typography>
-                                {i > 0 && (
-                                    <IconButton
-                                        className="btn-del"
-                                        onClick={() => {
-                                            payments.splice(i, 1)
+                                        size="small"
+                                        fullWidth
+                                        value={item.amount}
+                                        onChange={(e) => {
+                                            payments[i].amount = e.target.value
                                             setPayments([...payments])
+                                        }
+                                        }
+                                        type="number"
+                                        InputProps={{
+                                            inputProps: {
+                                                min: 0,
+                                            },
                                         }}
+                                    />
+                                    <Typography>{devise}</Typography>
+                                    {i > 0 && (
+                                        <IconButton
+                                            className="btn-del"
+                                            onClick={() => {
+                                                payments.splice(i, 1)
+                                                setPayments([...payments])
+                                            }}
+                                        >
+                                            <IconUrl path={"setting/icdelete"}/>
+                                        </IconButton>
+                                    )}
+                                    <IconButton
+                                        onClick={() => {
+                                            setCashCollapse(false);
+                                            addTransactions(item);
+                                        }}
+                                        className="btn-check-success"
+                                        style={{opacity: !item.amount || item.amount <= 0 || (item.selected === 'wallet' && item.amount > wallet) ? 0.5 : 1}}
+                                        disabled={!item.amount || item.amount <= 0 || (item.selected === 'wallet' && item.amount > wallet)}
                                     >
-                                        <IconUrl path={"setting/icdelete"}/>
+                                        <CheckBoxIcon/>
                                     </IconButton>
-                                )}
-                                <IconButton
-                                    onClick={() => {
-                                        setCashCollapse(false);
-                                        addTransactions(item);
-                                    }}
-                                    className="btn-check-success"
-                                    style={{opacity: !item.amount || item.amount <= 0 || (item.selected === 'wallet' && item.amount > wallet) ? 0.5 : 1}}
-                                    disabled={!item.amount || item.amount <= 0 || (item.selected === 'wallet' && item.amount > wallet)}
-                                >
-                                    <CheckBoxIcon/>
-                                </IconButton>
-                            </Stack>
-                            {item.selected === 'check' && <Stack>
-                                <Stack
-                                    direction={{xs: "column", sm: "row"}}
-                                    alignItems="center"
-                                    spacing={2}
-                                >
-                                    <Stack spacing={0.5} width={1}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {t("carrier")}
-                                        </Typography>
-                                        <TextField
-                                            variant="outlined"
-                                            placeholder={t("carrier")}
-                                            fullWidth
-                                            type="text"
-                                            onChange={(e) => {
-                                                payments[i].data.carrier = e.target.value
-                                                setPayments([...payments])
-                                            }}
-                                            value={item.data.carrier}
-                                            required
-                                        />
+                                </Stack>
+                                {item.selected === 'check' && <Stack>
+                                    <Stack
+                                        direction={{xs: "column", sm: "row"}}
+                                        alignItems="center"
+                                        spacing={2}
+                                    >
+                                        <Stack spacing={0.5} width={1}>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {t("carrier")}
+                                            </Typography>
+                                            <TextField
+                                                variant="outlined"
+                                                placeholder={t("carrier")}
+                                                fullWidth
+                                                type="text"
+                                                onChange={(e) => {
+                                                    payments[i].data.carrier = e.target.value
+                                                    setPayments([...payments])
+                                                }}
+                                                value={item.data.carrier}
+                                                required
+                                            />
+                                        </Stack>
+                                        <Stack spacing={0.5} width={1}>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {t("bank")}
+                                            </Typography>
+
+
+                                            <Autocomplete
+                                                id={"banks"}
+                                                freeSolo
+                                                fullWidth
+                                                autoHighlight
+                                                disableClearable
+                                                placeholder={t("bank")}
+                                                size="small"
+                                                value={item.data.bank}
+                                                onChange={(e, newValue: any) => {
+                                                    e.stopPropagation();
+                                                    payments[i].data.bank = newValue;
+                                                    setPayments([...payments])
+                                                }}
+                                                filterOptions={(options, params) => filterReasonOptions(options, params, t)}
+                                                sx={{color: "text.secondary"}}
+                                                options={banks ? banks : []}
+                                                loading={banks?.length === 0}
+                                                getOptionLabel={(option) => {
+                                                    return option.name || "";
+                                                }}
+                                                isOptionEqualToValue={(option: any, value) => option.uuid === value?.uuid}
+                                                renderOption={(props, option) => (
+                                                    <Stack
+                                                        key={option.uuid ? option.uuid : "-1"}>
+                                                        {!option.uuid && <Divider/>}
+                                                        <MenuItem
+                                                            {...props}
+                                                            value={option.uuid}>
+                                                            {!option.uuid && <AddOutlinedIcon/>}
+                                                            {option.name}
+                                                        </MenuItem>
+                                                    </Stack>
+                                                )}
+                                                renderInput={params => <TextField color={"info"}
+                                                                                  {...params}
+                                                                                  placeholder={"--"}
+                                                                                  sx={{paddingLeft: 0}}
+                                                                                  variant="outlined"
+                                                                                  fullWidth/>}/>
+
+
+                                        </Stack>
                                     </Stack>
-                                    <Stack spacing={0.5} width={1}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {t("bank")}
-                                        </Typography>
+                                    <Stack
+                                        direction={{xs: "column", sm: "row"}}
+                                        alignItems="center"
+                                        spacing={2}
+                                    >
+                                        <Stack spacing={0.5} width={1}>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {t("check_number")}
+                                            </Typography>
+                                            <TextField
+                                                variant="outlined"
+                                                placeholder={t("check_number")}
+                                                fullWidth
+                                                type="number"
+                                                value={item.data.nb}
+                                                onChange={(e) => {
+                                                    payments[i].data.nb = e.target.value;
+                                                    setPayments([...payments])
+                                                }}
+                                                required
+                                            />
+                                        </Stack>
+                                        <Stack spacing={0.5} width={1}>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {t("payment_date")}
+                                            </Typography>
+                                            <DatePicker
+                                                value={item.data.date}
+                                                onChange={(newValue: any) => {
+                                                    payments[i].data.date = newValue
+                                                    setPayments([...payments])
+                                                }}
+                                            />
+                                        </Stack>
+                                    </Stack>
+                                </Stack>}
 
+                                <Typography mb={1} fontSize={13} style={{opacity: 0.8}}>
+                                    {t("to_pay_appointments")} (<span style={{fontWeight: 600}}>30</span> TND)
+                                </Typography>
+                                {item.transaction_data.map((td: any, index: number) => (
+                                    <Card key={td.appointment}>
+                                        <Collapse in={editField !== td.appointment} timeout="auto" unmountOnExit>
+                                            <CardContent style={{padding: "8px 15px"}}>
+                                                <Stack direction={"row"} justifyContent={"space-between"}
+                                                       alignItems={"center"}>
+                                                    <Stack spacing={1} alignItems={"center"} direction={"row"}>
+                                                        <Typography style={{fontSize: 12}}><span style={{
+                                                            fontWeight: "bold",
+                                                            fontSize: 14,
+                                                            marginRight: 5
+                                                        }}>{t("consultation")}</span>{td.current ? t('today') : appointment.appointments.filter((app: {
+                                                            uuid: string
+                                                        }) => app.uuid === td.appointment)[0].day_date}</Typography>
+                                                        <Label
+                                                            color="success"
+                                                            variant="filled"
+                                                            sx={{alignItems: "center", width: "fit-content"}}
+                                                        >
+                                                            <Typography
+                                                                mx={0.5}
+                                                                variant="body2"
+                                                                fontWeight={700}
+                                                                component="strong">
+                                                                {td.amount}
+                                                            </Typography>{" "}
+                                                            {devise}
+                                                        </Label>
+                                                    </Stack>
+                                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                                        <IconButton
+                                                            size="small"
+                                                            className="btn-action"
+                                                            onClick={() => {
+                                                                setEditField(td.appointment)
+                                                            }}>
+                                                            <IconUrl path="ic-edit"/>
+                                                        </IconButton>
 
-                                        <Autocomplete
-                                            id={"banks"}
-                                            freeSolo
-                                            fullWidth
-                                            autoHighlight
-                                            disableClearable
-                                            placeholder={t("bank")}
-                                            size="small"
-                                            value={item.data.bank}
-                                            onChange={(e, newValue: any) => {
-                                                e.stopPropagation();
-                                                payments[i].data.bank = newValue;
-                                                setPayments([...payments])
-                                            }}
-                                            filterOptions={(options, params) => filterReasonOptions(options, params, t)}
-                                            sx={{color: "text.secondary"}}
-                                            options={banks ? banks : []}
-                                            loading={banks?.length === 0}
-                                            getOptionLabel={(option) => {
-                                                return option.name || "";
-                                            }}
-                                            isOptionEqualToValue={(option: any, value) => option.uuid === value?.uuid}
-                                            renderOption={(props, option) => (
-                                                <Stack
-                                                    key={option.uuid ? option.uuid : "-1"}>
-                                                    {!option.uuid && <Divider/>}
-                                                    <MenuItem
-                                                        {...props}
-                                                        value={option.uuid}>
-                                                        {!option.uuid && <AddOutlinedIcon/>}
-                                                        {option.name}
-                                                    </MenuItem>
+                                                        <IconButton
+                                                            size="small"
+                                                            className="btn-action"
+                                                            onClick={() => {
+                                                                payments[i].transaction_data.splice(index, 1)
+                                                                setPayments([...payments])
+                                                            }}>
+                                                            <IconUrl path="setting/icdelete"/>
+                                                        </IconButton>
+                                                    </Stack>
                                                 </Stack>
-                                            )}
-                                            renderInput={params => <TextField color={"info"}
-                                                                              {...params}
-                                                                              placeholder={"--"}
-                                                                              sx={{paddingLeft: 0}}
-                                                                              variant="outlined"
-                                                                              fullWidth/>}/>
+                                            </CardContent>
+                                        </Collapse>
+                                        <Collapse in={editField === td.appointment} timeout="auto" unmountOnExit>
+                                            <Stack padding={2} spacing={1}>
+                                                <Typography color="text.secondary" fontSize={12}>Montant a
+                                                    payé</Typography>
 
+                                                <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                                                    <TextField
+                                                        sx={{
+                                                            input: {
+                                                                fontWeight: 700,
+                                                            },
+                                                        }}
+                                                        size="small"
+                                                        fullWidth
+                                                        value={td.amount}
+                                                        onChange={(e) => {
+                                                            const rest = td.current ? appointment.rest_amount : appointment.appointments.filter((app: {
+                                                                uuid: string
+                                                            }) => app.uuid === td.appointment)[0].rest_amount;
+                                                            if (rest >= e.target.value) {
+                                                                payments[i].transaction_data[index].amount = e.target.value
+                                                                setPayments([...payments])
+                                                            }
+                                                        }
+                                                        }
+                                                        type="number"
+                                                        InputProps={{
+                                                            inputProps: {
+                                                                min: 0,
+                                                            },
+                                                        }}
+                                                    />
+                                                    <Typography>{devise}</Typography>
 
-                                    </Stack>
-                                </Stack>
-                                <Stack
-                                    direction={{xs: "column", sm: "row"}}
-                                    alignItems="center"
-                                    spacing={2}
-                                >
-                                    <Stack spacing={0.5} width={1}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {t("check_number")}
-                                        </Typography>
-                                        <TextField
-                                            variant="outlined"
-                                            placeholder={t("check_number")}
-                                            fullWidth
-                                            type="number"
-                                            value={item.data.nb}
-                                            onChange={(e) => {
-                                                payments[i].data.nb = e.target.value;
-                                                setPayments([...payments])
-                                            }}
-                                            required
-                                        />
-                                    </Stack>
-                                    <Stack spacing={0.5} width={1}>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {t("payment_date")}
-                                        </Typography>
-                                        <DatePicker
-                                            value={item.data.date}
-                                            onChange={(newValue: any) => {
-                                                payments[i].data.date = newValue
-                                                setPayments([...payments])
-                                            }}
-                                        />
-                                    </Stack>
-                                </Stack>
-                            </Stack>}
+                                                    <IconButton
+                                                        onClick={() => {
+                                                            setEditField("")
+                                                        }}
+                                                        className="btn-check-success"
+                                                        style={{opacity: !td.amount || td.amount <= 0 ? 0.5 : 1}}
+                                                        disabled={!td.amount || td.amount <= 0}
+                                                    >
+                                                        <CheckBoxIcon/>
+                                                    </IconButton>
+                                                </Stack>
+                                                <Stack direction={"row"} spacing={1} alignItems={"center"} flex={5}>
+                                                    <BorderLinearProgress variant="determinate"
+                                                                          value={100 * td.amount / (td.current ? appointment.rest_amount : appointment.appointments.filter((app: {
+                                                                              uuid: string
+                                                                          }) => app.uuid === td.appointment)[0].rest_amount)}
+                                                                          style={{flex: 4}}/>
+                                                    <Typography fontSize={12} textAlign={"center"}
+                                                                flex={1}>Total: {td.current ? appointment.rest_amount : appointment.appointments.filter((app: {
+                                                        uuid: string
+                                                    }) => app.uuid === td.appointment)[0].rest_amount} TND</Typography>
+                                                </Stack>
+                                            </Stack>
+                                        </Collapse>
+                                    </Card>
+                                ))}
+                            </Stack>
                         </Collapse>
                         <Collapse in={!cashCollapse} timeout="auto" unmountOnExit>
                             <Stack spacing={2}>
@@ -422,7 +543,7 @@ function PaymentCard({...props}) {
                                             </Stack>
                                         </td>
                                         <td align="center">{t(item.selected)}</td>
-                                        <td align="right" style={{fontWeight:"bold"}}>{item?.amount}</td>
+                                        <td align="right" style={{fontWeight: "bold"}}>{item?.amount}</td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -433,7 +554,8 @@ function PaymentCard({...props}) {
                 </Stack>
             </CardContent>
         </Card>
-    );
+    )
+        ;
 }
 
 export default PaymentCard;

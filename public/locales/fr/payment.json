@@ -50,7 +50,7 @@
   "consultation": "Consultation",
   "today": "Aujourd’hui",
   "amount_paid": "Montant a payé",
-  "pay_now": "Payez maintenant",
+  "pay_now": "Payer",
   "act": "Act",
   "qte": "Qte",
   "print": "Imprimer",
@@ -147,5 +147,9 @@
   "alert-5": "Votre contribution et votre retour d'expérience sont inestimables pour nous aider à créer une fonctionnalité de caisse exceptionnelle. Nous vous remercions de votre collaboration dans cette phase cruciale de développement. Votre engagement contribuera à façonner l'avenir de notre logiciel de gestion de cabinet.",
   "alert-6": "Nous vous remercions pour votre confiance et votre soutien continu.",
   "alert-7": "Cordialement,",
-  "alert-8": "L'équipe du support technique"
+  "alert-8": "L'équipe du support technique",
+  "no_transaction": "Aucun paiement effectué",
+  "pay_all_tr": "Effectuez vos paiements en un clic",
+  "pay_all": "Payer tout",
+  "to_pay_appointments": "payer des rendez-vous"
 }
