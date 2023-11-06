@@ -8,6 +8,7 @@ import {SidebarCheckboxStyled} from "@features/sidebarCheckbox";
 import DefaultCircleIcon from "@themes/overrides/icons/defaultCircleIcon";
 import CancelCircleIcon from "@themes/overrides/icons/cancelCircleIcon";
 import ConfirmCircleIcon from "@themes/overrides/icons/confirmCircleIcon";
+import {debounce} from "lodash";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -25,6 +26,14 @@ function Docs() {
     const handlePatientSearch = () => {
 
     }
+
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        console.log("value", event);
+        setName(event.target.value);
+    }
+
+    const debouncedOnChange = debounce(handleOnChange, 500);
+
     const [name, setName] = useState("");
     const [docTypes, setDocTypes] = useState([
         {
@@ -62,7 +71,7 @@ function Docs() {
                         <TextField
                             fullWidth
                             value={name}
-                            onChange={event => setName(event.target.value)}
+                            onChange={event => debouncedOnChange(event)}
                             placeholder={t(`filter.name-placeholder`)}
                         />
                     </FormControl>
