@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocsToolbar} from "@features/toolbar";
@@ -30,13 +30,11 @@ import {InputStyled} from "@features/tabPanel";
 import BorderLinearProgress from "@features/dialog/components/ocrDocsDialog/overrides/BorderLinearProgress";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {prepareSearchKeys, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {Label} from "@features/label";
-import DefaultCircleIcon from "@themes/overrides/icons/defaultCircleIcon";
-import ConfirmCircleIcon from "@themes/overrides/icons/confirmCircleIcon";
-import CancelCircleIcon from "@themes/overrides/icons/cancelCircleIcon";
-import FinishedCircleIcon from "@themes/overrides/icons/finishedCircleIcon";
+import {docTypes, leftActionBarSelector} from "@features/leftActionBar";
+import {Pagination} from "@features/pagination";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -48,31 +46,11 @@ function Documents() {
     const {t, ready} = useTranslation(["docs", "common"]);
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {query: filter} = useAppSelector(leftActionBarSelector);
 
     const [openAddOCRDocDialog, setOpenAddOCRDocDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
-    const [docTypes] = useState<any>({
-        0: {
-            label: "pending",
-            classColor: "warning",
-            icon: <DefaultCircleIcon/>,
-        },
-        1: {
-            label: "finish",
-            classColor: "success",
-            icon: <ConfirmCircleIcon/>,
-        },
-        2: {
-            label: "affected",
-            classColor: "primary",
-            icon: <FinishedCircleIcon/>,
-        },
-        3: {
-            label: "failed",
-            classColor: "error",
-            icon: <CancelCircleIcon/>,
-        }
-    });
+    const [localFilter, setLocalFilter] = useState("");
 
     let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
 
@@ -85,7 +63,7 @@ function Documents() {
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        ...(medicalEntityHasUser && {variables: {query: `?page=${page}&limit=10`}})
+        ...(medicalEntityHasUser && {variables: {query: `?page=${page}&limit=12${prepareSearchKeys(filter as any)}`}})
     });
 
     const {trigger: triggerOcrDocUpload} = useRequestQueryMutation("/ocr/document/upload");
@@ -110,9 +88,22 @@ function Documents() {
 
     }
 
-    const ocdDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data ?? []) as OcrDocument[];
-    const filesInProgress = ocdDocs.filter(doc => doc.status === 0) as OcrDocument[];
-    const filesTreated = ocdDocs.filter(doc => doc.status !== 0) as OcrDocument[];
+
+    useEffect(() => {
+        if (filter?.document?.name || filter?.document?.status) {
+            const query = prepareSearchKeys(filter as any);
+            setLocalFilter(query);
+        } else if (localFilter.length > 0) {
+            setLocalFilter("")
+        }
+    }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+
+    const ocrDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data?.list ?? []) as OcrDocument[];
+    const totalOcrDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data?.total ?? 0) as number;
+    const totalPagesOcrDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data?.totalPages ?? 0) as number;
+    const filesInProgress = ocrDocs.filter(doc => doc.status === 0) as OcrDocument[];
+    const filesTreated = ocrDocs.filter(doc => doc.status !== 0) as OcrDocument[];
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -236,6 +227,11 @@ function Documents() {
                                             </Card>
                                         </Grid>)}
                                 </Grid>
+                                {(!isOcrDocumentsLoading && totalPagesOcrDocs > 1) && <Pagination
+                                    sx={{m: ".8rem"}}
+                                    pageTotal={12}
+                                    count={totalPagesOcrDocs}
+                                    total={totalOcrDocs}/>}
                             </CardContent>
                         </CardStyled>}
                     </Stack>

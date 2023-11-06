@@ -1,6 +1,6 @@
 import {GetStaticPaths, GetStaticProps} from "next";
 import React, {ReactElement, useEffect} from "react";
-import {DashLayout} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
 import {Box, Stack} from "@mui/material";
@@ -14,7 +14,9 @@ import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {useRouter} from "next/router";
 import {ocrDocumentSelector, setOcrData} from "@features/leftActionBar";
-
+import {useRequestQuery} from "@lib/axios";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 // table head data
 const headCells: readonly HeadCell[] = [
     {
@@ -38,29 +40,12 @@ const headCells: readonly HeadCell[] = [
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function Document() {
-    const dispatch = useAppDispatch();
-    const router = useRouter();
-
     const {t, ready} = useTranslation("docs");
-    const ocrData = useAppSelector(ocrDocumentSelector);
-    const documentData = JSON.parse(router.query.data as any);
+    const {data} = useAppSelector(ocrDocumentSelector);
 
     const handleAssignOcrDocument = () => {
-        console.log("ocrData", ocrData);
-    }
 
-    useEffect(() => {
-        if (documentData) {
-            dispatch(setOcrData({
-                name: documentData.title,
-                appointment: documentData.appointment,
-                type: documentData.documentType,
-                target: documentData.title,
-                patient: documentData.patientData,
-                date: new Date()
-            }))
-        }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -79,7 +64,7 @@ function Document() {
                 <Otable
                     {...{t}}
                     headers={headCells}
-                    rows={documentData?.medicalData}
+                    rows={data}
                     total={0}
                     totalPages={1}
                     from={"ocrDocument"}

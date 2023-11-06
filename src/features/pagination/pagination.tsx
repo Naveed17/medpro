@@ -7,7 +7,7 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 
 export default function Pagination({...props}) {
-    const {total, count} = props;
+    const {total, count, pageTotal = 10, ...rest} = props;
     const router = useRouter();
     const currentPage = parseInt((new URL(location.href)).searchParams.get("page") || "1");
     const [page, setPage] = React.useState<number>(currentPage);
@@ -18,9 +18,9 @@ export default function Pagination({...props}) {
     }, [currentPage]);
 
     return (
-        <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box display="flex" justifyContent="space-between" alignItems="center" {...rest}>
             <Typography variant="body1" color="text.primary">
-                {page * 10 - 9} - {total < page * 10 ? total : page * 10} {t('of')} {total}
+                {page * pageTotal - (pageTotal - 1)} - {total < page * pageTotal ? total : page * pageTotal} {t('of')} {total}
             </Typography>
             <Stack spacing={2}>
                 <BasicPagination

@@ -22,8 +22,9 @@ import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {prepareSearchKeys, useMedicalEntitySuffix} from "@lib/hooks";
 import {appointmentSelector} from "@features/tabPanel";
+import {FormikProvider, useFormik} from "formik";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -34,22 +35,49 @@ function Document() {
 
     const {t, ready} = useTranslation(["docs"]);
     const {t: translate, ready: readyTranslate} = useTranslation("agenda", {keyPrefix: "steppers"});
-    const {name, appointment, target, date, patient} = useAppSelector(ocrDocumentSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {patient: initData} = useAppSelector(appointmentSelector);
 
-    const [query, setQuery] = useState(patient?.name ?? "");
+    const [query, setQuery] = useState("");
+
+    const formik = useFormik({
+        enableReinitialize: false,
+        initialValues: {
+            name: "",
+            appointment: null,
+            type: null,
+            target: "dir",
+            patient: null,
+            date: new Date()
+        },
+        onSubmit: async (values) => {
+            console.log('ok', values);
+        },
+    });
+
+    const {setFieldValue, values, setValues, errors, touched} = formik;
+
     const [selectedPatient, setSelectedPatient] = useState<PatientModel | null>(null);
 
-    const {data: httpPatientResponse} = useRequestQuery(medicalEntityHasUser && patient ? {
+    const documentUuid = router.query.document ?? null;
+
+    const {
+        data: httpOcrDocumentResponse,
+        isLoading: isOcrDocumentLoading
+    } = useRequestQuery(medicalEntityHasUser && documentUuid ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${documentUuid}/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
+
+    const {data: httpPatientResponse} = useRequestQuery(medicalEntityHasUser && values.patient?.name ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        ...(medicalEntityHasUser && patient && query && {variables: {query: `?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`}})
+        ...((medicalEntityHasUser && values.patient?.name && query) && {variables: {query: `?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`}})
     });
 
-    const {data: httpPatientHistoryResponse} = useRequestQuery(medicalEntityHasUser && selectedPatient && target === 'appointment' ? {
+    const {data: httpPatientHistoryResponse} = useRequestQuery(medicalEntityHasUser && selectedPatient && values.target === 'appointment' ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient.uuid}/appointments/list/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -59,7 +87,7 @@ function Document() {
         url: `/api/private/document/types/${router.locale}`
     }, {
         ...ReactQueryNoValidateConfig,
-        variables: {query: "?is_active=0"}
+        variables: {query: "?is_active=1"}
     });
 
     const handleSearchChange = (search: string) => {
@@ -79,10 +107,30 @@ function Document() {
     const patientHistories = ((httpPatientHistoryResponse as HttpResponse)?.data ?? []) as any;
     const histories = patientHistories.hasOwnProperty('nextAppointments') || patientHistories.hasOwnProperty('previousAppointments') ? [...patientHistories.nextAppointments, ...patientHistories.previousAppointments] : []
 
+    useEffect(() => {
+        if (httpOcrDocumentResponse) {
+            const documentData = ((httpOcrDocumentResponse as HttpResponse)?.data ?? null) as OcrDocument;
+            if (documentData) {
+                setQuery(documentData?.patientData?.name ?? "");
+                const data = {
+                    name: documentData.title,
+                    appointment: documentData.appointment,
+                    type: documentData.documentType,
+                    target: documentData.title,
+                    patient: documentData.patientData,
+                    date: new Date(),
+                    data: documentData.medicalData
+                }
+                setValues(data);
+                dispatch(setOcrData(data));
+            }
+        }
+    }, [httpOcrDocumentResponse]); // eslint-disable-line react-hooks/exhaustive-deps
+    console.log("values", documentUuid, values)
     if (!ready || !readyTranslate) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
-        <>
+        <FormikProvider value={formik}>
             <FilterContainerStyles>
                 <Typography
                     fontSize={18}
@@ -115,7 +163,7 @@ function Document() {
                         onSubmit={e => e.preventDefault()}>
                         <TextField
                             fullWidth
-                            value={name}
+                            value={values?.name}
                             onChange={event => dispatch(setOcrData({name: event.target.value}))}
                             placeholder={t(`Tapez le nom du document`)}
                         />
@@ -133,7 +181,7 @@ function Document() {
                             autoHighlight
                             disableClearable
                             size="small"
-                            value={null}
+                            value={types.find(ty => ty.slug === values?.type) ?? null}
                             onChange={(e, newValue: any[]) => {
                                 e.stopPropagation();
                                 dispatch(setOcrData({type: newValue}));
@@ -169,7 +217,7 @@ function Document() {
                         onChange={(e) => {
                             dispatch(setOcrData({target: e.target.value}));
                         }}
-                        value={target}
+                        value={values?.target}
                         name="row-radio-buttons-group"
                         sx={{
                             ml: .5,
@@ -193,7 +241,7 @@ function Document() {
                         />
                     </RadioGroup>
 
-                    {target === 'appointment' && <FormControl
+                    {values?.target === 'appointment' && <FormControl
                         component="form"
                         fullWidth
                         onSubmit={e => e.preventDefault()}>
@@ -202,7 +250,7 @@ function Document() {
                             autoHighlight
                             disableClearable
                             size="small"
-                            value={appointment}
+                            value={values?.appointment}
                             onChange={(e, newValue: any[]) => {
                                 e.stopPropagation();
                                 console.log("newValue", newValue);
@@ -235,7 +283,7 @@ function Document() {
                     </InputLabel>
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <DatePicker
-                            value={date}
+                            value={values?.date}
                             inputFormat="dd/MM/yyyy"
                             onChange={date => {
                                 dispatch(setOcrData({date}));
@@ -256,7 +304,7 @@ function Document() {
                     </LocalizationProvider>
                 </Box>
             </FilterContainerStyles>
-        </>
+        </FormikProvider>
     )
 }
 

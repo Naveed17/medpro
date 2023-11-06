@@ -15,7 +15,8 @@
   "doc-status": {
     "pending": "Traitement en cours",
     "finish": "Traitement terminé",
-    "failed": "Traitement échoué"
+    "failed": "Traitement échoué",
+    "affected": "Traitement effectué"
   },
   "table": {
     "header": {
