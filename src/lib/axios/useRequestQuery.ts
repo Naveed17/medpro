@@ -2,7 +2,6 @@ import {useQuery} from "@tanstack/react-query";
 import {GetRequest} from "@lib/axios/config";
 import {instanceAxios} from "@lib/axios/index";
 import {useSession} from "next-auth/react";
-import axios from "axios";
 
 export const ReactQueryNoValidateConfig = {
     refetchOnMount: false,

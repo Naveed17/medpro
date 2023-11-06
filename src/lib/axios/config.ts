@@ -1,5 +1,4 @@
 import axios, {AxiosRequestConfig} from "axios";
-import {useSession} from "next-auth/react";
 
 const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 

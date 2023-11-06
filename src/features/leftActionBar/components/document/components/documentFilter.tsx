@@ -1,7 +1,7 @@
 import {Checkbox, FormControl, FormControlLabel, InputLabel, Stack, TextField, Typography} from "@mui/material";
 import {SidebarCheckboxStyled} from "@features/sidebarCheckbox";
 import React, {useCallback} from "react";
-import _, {debounce} from "lodash";
+import {debounce} from "lodash";
 
 import {useAppSelector} from "@lib/redux/hooks";
 import {docTypes, leftActionBarSelector} from "@features/leftActionBar";
