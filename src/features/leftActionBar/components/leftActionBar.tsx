@@ -4,9 +4,11 @@ import {LeftActionsData} from "@features/leftActionBar";
 function LeftActionBar({...props}) {
     const router = useRouter();
 
-    const selected = LeftActionsData.find((item) =>
-        router.pathname === item.pathname ?? router.pathname.startsWith(item.pathname)
-    );
+    const selected = LeftActionsData.find((item) => {
+        if (router.pathname === item.pathname) {
+            return true
+        } else return router.pathname.includes(item.pathname)
+    });
 
     const Component: any = selected?.component;
 
