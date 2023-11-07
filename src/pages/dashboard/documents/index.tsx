@@ -2,10 +2,7 @@ import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
-import CircularProgress, {
-    circularProgressClasses,
-    CircularProgressProps,
-} from '@mui/material/CircularProgress';
+import CircularProgress, {circularProgressClasses} from '@mui/material/CircularProgress';
 import {SubHeader} from "@features/subHeader";
 import {DocsToolbar} from "@features/toolbar";
 import {
