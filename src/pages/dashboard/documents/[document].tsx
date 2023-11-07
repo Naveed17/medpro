@@ -1,12 +1,12 @@
 import {GetStaticPaths, GetStaticProps} from "next";
 import React, {ReactElement, useState} from "react";
-import { DashLayout, dashLayoutSelector} from "@features/base";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
 import {Box, Stack} from "@mui/material";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import { Otable} from "@features/table";
+import {Otable} from "@features/table";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {SubFooter} from "@features/subFooter";
@@ -19,7 +19,7 @@ import {
     resetAppointment
 } from "@features/tabPanel";
 import {instanceAxios, useRequestQueryMutation} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {batch} from "react-redux";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
@@ -49,6 +49,7 @@ function Document() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("docs");
     const ocrData = useAppSelector(ocrDocumentSelector);
@@ -75,7 +76,7 @@ function Document() {
             url: `${urlMedicalEntitySuffix}/ocr/documents/${documentUuid}/${router.locale}`,
             data: form
         }, {
-            onSuccess: () => router.push('/dashboard/documents'),
+            onSuccess: () => router.push('/dashboard/documents').then(() => medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`])),
             onSettled: () => setLoading(false)
         });
     }

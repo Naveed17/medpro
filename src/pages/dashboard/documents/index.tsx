@@ -2,6 +2,10 @@ import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState} from "react";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
+import CircularProgress, {
+    circularProgressClasses,
+    CircularProgressProps,
+} from '@mui/material/CircularProgress';
 import {SubHeader} from "@features/subHeader";
 import {DocsToolbar} from "@features/toolbar";
 import {
@@ -27,7 +31,6 @@ import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {InputStyled} from "@features/tabPanel";
-import BorderLinearProgress from "@features/dialog/components/ocrDocsDialog/overrides/BorderLinearProgress";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {prepareSearchKeys, useMedicalEntitySuffix} from "@lib/hooks";
@@ -138,11 +141,41 @@ function Documents() {
                                             <Card>
                                                 <CardContent>
                                                     <Stack direction={"row"} alignItems={"center"} spacing={2}>
-                                                        <IconUrl path={'ic-doc-upload'}/>
+                                                        <Box sx={{position: 'relative'}}>
+                                                            <CircularProgress
+                                                                variant="determinate"
+                                                                sx={{
+                                                                    color: (theme) =>
+                                                                        theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
+                                                                }}
+                                                                size={40}
+                                                                thickness={4}
+                                                                value={100}
+                                                            />
+                                                            <CircularProgress
+                                                                variant="indeterminate"
+                                                                disableShrink
+                                                                sx={{
+                                                                    color: (theme) => (theme.palette.mode === 'light' ? '#1a90ff' : '#308fe8'),
+                                                                    animationDuration: '550ms',
+                                                                    position: 'absolute',
+                                                                    left: 0,
+                                                                    [`& .${circularProgressClasses.circle}`]: {
+                                                                        strokeLinecap: 'round',
+                                                                    },
+                                                                }}
+                                                                size={40}
+                                                                thickness={4}
+                                                            />
+                                                        </Box>
                                                         <Stack alignItems={"start"} spacing={.5} sx={{width: '75%'}}>
                                                             <Typography fontSize={12}
                                                                         fontWeight={400}>{file.title}</Typography>
-                                                            <BorderLinearProgress variant="determinate" value={30}/>
+                                                            <Typography
+                                                                color={"gray"}
+                                                                fontSize={10}
+                                                                fontWeight={400}>{t('doc-status.pending')}</Typography>
+
                                                         </Stack>
                                                         <IconButton
                                                             onClick={() => handleDeleteDoc(index)}
