@@ -98,7 +98,6 @@ function Documents() {
         }
     }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
 
-
     const ocrDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data?.list ?? []) as OcrDocument[];
     const totalOcrDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data?.total ?? 0) as number;
     const totalPagesOcrDocs = ((httpOcrDocumentsResponse as HttpResponse)?.data?.totalPages ?? 0) as number;
