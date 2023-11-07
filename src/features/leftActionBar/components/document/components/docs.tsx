@@ -23,7 +23,14 @@ function Docs() {
             children: (
                 <DocumentFilter
                     {...{t}}
-                    OnSearch={(data: { query: any }) => dispatch(setFilter(data))}/>
+                    OnSearch={(data: { query: any }) => {
+                        window.history.replaceState({
+                            ...window.history.state,
+                            as: "/dashboard/documents?page=1",
+                            url: "/dashboard/documents?page=1"
+                        }, '', "/dashboard/documents?page=1");
+                        dispatch(setFilter(data));
+                    }}/>
             )
         }
     ]);

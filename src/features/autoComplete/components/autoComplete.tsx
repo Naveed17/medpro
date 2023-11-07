@@ -2,7 +2,16 @@ import React, {useCallback, useState} from "react";
 import RootStyled from './overrides/rootStyled';
 import Box from "@mui/material/Box";
 import MenuList from "@mui/material/MenuList";
-import {Button, Divider, IconButton, InputBase, LinearProgress, Paper, Theme, useMediaQuery} from "@mui/material";
+import {
+    Button,
+    Divider,
+    IconButton,
+    InputBase,
+    LinearProgress,
+    Paper,
+    Theme,
+    useMediaQuery
+} from "@mui/material";
 import {PatientAppointmentCard} from "@features/card";
 import AddIcon from '@mui/icons-material/Add';
 import {debounce} from "lodash";
@@ -10,7 +19,7 @@ import {onResetPatient} from "@features/tabPanel";
 import {useAppDispatch} from "@lib/redux/hooks";
 
 function AutoComplete({...props}) {
-    const {data, loading, onSelectData, onSearchChange, t, onAddPatient, size} = props;
+    const {data, defaultValue, loading, onSelectData, onSearchChange, t, onAddPatient, size} = props;
 
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
@@ -44,10 +53,11 @@ function AutoComplete({...props}) {
                 component="form"
                 sx={{p: '2px 4px', display: 'flex', alignItems: 'center', width: 400}}>
                 <InputBase
+                    key={`${defaultValue}-input`}
+                    {...{defaultValue}}
                     sx={{ml: 1, flex: 1}}
                     placeholder={t("stepper-2.search_placeholder")}
                     autoFocus
-                    onFocus={() => setFocus(true)}
                     onKeyDown={onKeyDown}
                     onChange={event => {
                         event.stopPropagation();

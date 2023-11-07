@@ -25,7 +25,7 @@ import {CardStyled, Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
-import {useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {InputStyled} from "@features/tabPanel";
 import BorderLinearProgress from "@features/dialog/components/ocrDocsDialog/overrides/BorderLinearProgress";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -35,12 +35,14 @@ import {useRouter} from "next/router";
 import {Label} from "@features/label";
 import {docTypes, leftActionBarSelector} from "@features/leftActionBar";
 import {Pagination} from "@features/pagination";
+import {toggleSideBar} from "@features/menu";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function Documents() {
     const router = useRouter();
     const theme = useTheme();
+    const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(["docs", "common"]);
@@ -127,8 +129,8 @@ function Documents() {
                     <Stack spacing={2}>
                         <CardStyled>
                             <CardContent sx={{pb: 0}}>
-                                <Typography fontSize={14} fontWeight={600} mb={1}>Documents en cours de
-                                    traitement</Typography>
+                                <Typography fontSize={14} fontWeight={600}
+                                            mb={1}>{t('document-in-progress')}</Typography>
                                 <Divider/>
                                 <Grid sx={{mt: 0}} container spacing={2}>
                                     {filesInProgress.map((file: OcrDocument, index: number) =>
@@ -163,7 +165,8 @@ function Documents() {
                                                         onChange={(e) => handleUploadDoc((e.target.files as FileList)[0])}
                                                         type="file"
                                                     />
-                                                    <Stack direction={"row"} alignItems={"center"} spacing={2}>
+                                                    <Stack sx={{cursor: "pointer"}} direction={"row"}
+                                                           alignItems={"center"} spacing={2}>
                                                         <IconUrl path={'ic-upload-square'}/>
                                                         <Stack alignItems={"start"} alignContent={"center"}>
                                                             <Typography fontSize={12}
@@ -181,7 +184,7 @@ function Documents() {
                         </CardStyled>
                         {filesTreated.length > 0 && <CardStyled sx={{minHeight: '400px'}}>
                             <CardContent sx={{pb: 0}}>
-                                <Typography fontSize={14} fontWeight={600} mb={1}>Documents Traiter</Typography>
+                                <Typography fontSize={14} fontWeight={600} mb={1}>{t('document-treated')}</Typography>
                                 <Divider/>
                                 <Grid sx={{mt: 0}} container spacing={2}>
                                     {filesTreated.map((file: OcrDocument, index: number) =>
@@ -191,10 +194,10 @@ function Documents() {
                                                 onClick: () => router.push({
                                                     pathname: `/dashboard/documents/${file.uuid}`,
                                                     query: {data: JSON.stringify(file)}
-                                                }, `/dashboard/documents/${file.uuid}`)
+                                                }, `/dashboard/documents/${file.uuid}`).then(() => dispatch(toggleSideBar(false)))
                                             })}>
                                             <Card>
-                                                <CardContent>
+                                                <CardContent sx={{cursor: "pointer"}}>
                                                     <Stack direction={"row"} alignItems={"center"} spacing={2}>
                                                         <IconUrl path={'ic-doc-upload'}/>
                                                         <Stack alignItems={"start"} spacing={0} sx={{width: '75%'}}>

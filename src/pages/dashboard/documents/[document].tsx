@@ -1,22 +1,28 @@
 import {GetStaticPaths, GetStaticProps} from "next";
-import React, {ReactElement, useEffect} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
+import React, {ReactElement, useState} from "react";
+import { DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
 import {Box, Stack} from "@mui/material";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {Otable} from "@features/table";
+import { Otable} from "@features/table";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {SubFooter} from "@features/subFooter";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
-import {useRouter} from "next/router";
-import {ocrDocumentSelector, setOcrData} from "@features/leftActionBar";
-import {useRequestQuery} from "@lib/axios";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {ocrDocumentSelector} from "@features/leftActionBar";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+import {
+    appointmentSelector, onResetPatient,
+    resetAppointment
+} from "@features/tabPanel";
+import {instanceAxios, useRequestQueryMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRouter} from "next/router";
+import {batch} from "react-redux";
+import {dehydrate, QueryClient} from "@tanstack/query-core";
 // table head data
 const headCells: readonly HeadCell[] = [
     {
@@ -40,12 +46,46 @@ const headCells: readonly HeadCell[] = [
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 function Document() {
+    const router = useRouter();
+    const dispatch = useAppDispatch();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
     const {t, ready} = useTranslation("docs");
-    const {data} = useAppSelector(ocrDocumentSelector);
+    const ocrData = useAppSelector(ocrDocumentSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {patient} = useAppSelector(appointmentSelector);
+
+    const [loading, setLoading] = useState(false);
+
+    const {trigger: triggerOcrEdit} = useRequestQueryMutation("document/ocr/edit");
 
     const handleAssignOcrDocument = () => {
+        setLoading(true);
+        const documentUuid = router.query.document ?? null;
+        const form = new FormData();
+        form.append("type", ocrData.type?.uuid ?? ocrData.type);
+        form.append("name", ocrData.name);
+        form.append("patient", ocrData.patient.uuid);
+        if (ocrData?.target === "appointment" && ocrData?.appointment) {
+            form.append("appointment", ocrData.appointment.uuid);
+        }
 
+        medicalEntityHasUser && triggerOcrEdit({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/ocr/documents/${documentUuid}/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => router.push('/dashboard/documents'),
+            onSettled: () => setLoading(false)
+        });
     }
+
+    useLeavePageConfirm(() => {
+        batch(() => {
+            dispatch(onResetPatient());
+            dispatch(resetAppointment());
+        });
+    });
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -64,7 +104,7 @@ function Document() {
                 <Otable
                     {...{t}}
                     headers={headCells}
-                    rows={data}
+                    rows={ocrData?.data ?? []}
                     total={0}
                     totalPages={1}
                     from={"ocrDocument"}
@@ -80,8 +120,9 @@ function Document() {
                             direction={{xs: "column", md: "row"}}
                             alignItems="flex-end"
                             justifyContent={"flex-end"}>
-
                             <LoadingButton
+                                {...{loading}}
+                                disabled={patient === null || ocrData?.name?.length === 0}
                                 loadingPosition={"start"}
                                 onClick={handleAssignOcrDocument}
                                 color={"primary"}
@@ -100,10 +141,21 @@ function Document() {
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => {
+    const queryClient = new QueryClient();
+    const countries = `/api/public/places/countries/${locale}?nationality=true`;
+
+    await queryClient.prefetchQuery([countries], async () => {
+        const {data} = await instanceAxios.request({
+            url: countries,
+            method: "GET"
+        });
+        return data
+    });
     return {
         props: {
+            dehydratedState: dehydrate(queryClient),
             fallback: false,
-            ...(await serverSideTranslations(locale as string, ["menu", "common", "docs", "agenda"])),
+            ...(await serverSideTranslations(locale as string, ["menu", "common", "docs", "agenda", "patient"])),
         },
     };
 }

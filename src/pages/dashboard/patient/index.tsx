@@ -225,7 +225,7 @@ function Patient() {
     const [loading] = useState<boolean>(false);
     const [rows, setRows] = useState<PatientModel[]>([]);
     const {collapse} = RightActionData.filter;
-    const [open, setopen] = useState(false);
+    const [open, setOpen] = useState(false);
     const {selectedCheckbox} = useAppSelector(selectCheckboxActionSelector);
     const [dataPatient, setDataPatient] = useState([
         {
@@ -483,7 +483,7 @@ function Patient() {
     }
 
     const handleClickOpen = () => {
-        setopen(true);
+        setOpen(true);
     }
 
     const handleCloseMenu = () => {
@@ -999,7 +999,7 @@ function Patient() {
                 />
             </Drawer>
             <DrawerBottom
-                handleClose={() => setopen(false)}
+                handleClose={() => setOpen(false)}
                 open={open}
                 title={t("filter.title")}>
                 <Accordion

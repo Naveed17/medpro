@@ -46,7 +46,6 @@ function DocumentFilter({...props}) {
                 />
             </FormControl>
 
-
             <InputLabel shrink sx={{mt: 2}}>
                 {t(`filter.status`)}
             </InputLabel>

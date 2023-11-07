@@ -5,8 +5,8 @@ import {
 
 export type ActionOcrDocumentState = {
     name: string;
-    type: string | null;
-    appointment: string | null;
+    type: any;
+    appointment: any;
     target: string | null;
     patient?: any;
     date: Date,
