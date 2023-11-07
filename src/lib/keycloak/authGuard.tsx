@@ -11,7 +11,6 @@ import {toggleSideBar} from "@features/menu";
 import {useAppDispatch} from "../redux/hooks";
 
 function AuthGuard({children}: LayoutProps) {
-
     const {data: session, status} = useSession();
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -49,7 +48,7 @@ function AuthGuard({children}: LayoutProps) {
     // This is because when status becomes `unathenticated` the component renders,
     // returns children and then the useEffect redirect is fired afterward,
     // hence the temporary flash of the child content.
-    if (!session?.user?.jti && (status === "loading" || status === "unauthenticated")) {
+    if (!session?.user?.hasOwnProperty('jti') && (status === "loading" || status === "unauthenticated")) {
         return <LoadingScreen/>
     }
 
