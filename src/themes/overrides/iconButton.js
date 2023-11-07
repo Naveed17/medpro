@@ -27,15 +27,7 @@ export default function IconButton(theme) {
               boxShadow: theme.shadows[4],
               background: theme.palette.info.main,
             },
-            "&:active, &:focus": {
-              background: theme.palette.primary.main,
-              color: theme.palette.common.white,
-              "& svg": {
-                "& path": {
-                  fill: theme.palette.common.white,
-                },
-              },
-            },
+
           },
           "&.success-light": {
             backgroundColor: alpha(theme.palette.success.main, 0.3),
@@ -48,7 +40,7 @@ export default function IconButton(theme) {
                 fill: theme.palette.text.primary,
               },
             },
-            "&.Mui-disabled":{
+            "&.Mui-disabled": {
               backgroundColor: theme.palette.grey[100]
             }
           },
@@ -64,7 +56,7 @@ export default function IconButton(theme) {
                 fill: theme.palette.error.main,
               },
             },
-            "&.Mui-disabled":{
+            "&.Mui-disabled": {
               backgroundColor: theme.palette.grey[100]
             }
           },

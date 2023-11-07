@@ -4,10 +4,29 @@
     "sub-title": "Resultat analyse de sang",
     "add-doc": "Ajouter un document"
   },
+  "filter": {
+    "title": "Détails du document",
+    "sub-title": "Filtre",
+    "caption": "Document",
+    "name": "Nom du document",
+    "name-placeholder": "Tapez le nom du document",
+    "status": "Statut du document"
+  },
+  "doc-status": {
+    "pending": "Traitement en cours",
+    "finish": "Traitement terminé",
+    "failed": "Traitement échoué"
+  },
+  "table": {
+    "header": {
+      "name": "Nom",
+      "value": "Valeur energistrée"
+    }
+  },
   "no-data": {
     "docs": {
       "title": "Ajouter le premier document",
-      "description": "Vous n'avez pas de document médical\nAjoutez vos documents en cliquant sur Ajouter un document",
+      "description": "Vous n'avez pas de document médical Ajoutez vos documents en cliquant sur Ajouter un document",
       "import": "Importer un document"
     }
   },

@@ -193,7 +193,7 @@ function SideBarMenu({children}: LayoutProps) {
                             <StatsIcon/>
                         </ListItemIcon>
                         <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "settings")}/>
+                            <ListItemText primary={t("main-menu." + "stats")}/>
                         </Hidden>
                     </ListItem>
                     <ListItem
