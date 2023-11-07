@@ -4,18 +4,29 @@
     "sub-title": "Resultat analyse de sang",
     "add-doc": "Ajouter un document"
   },
+  "document-in-progress": "Documents en cours de traitement",
+  "document-treated": "Documents Traiter",
+  "patient-Suggested": "Patient Suggérés",
   "filter": {
     "title": "Détails du document",
     "sub-title": "Filtre",
     "caption": "Document",
     "name": "Nom du document",
     "name-placeholder": "Tapez le nom du document",
+    "type": "Type de document",
+    "type-placeholder": "Séléctionnez le type",
+    "assign": "Destination",
+    "assign-patient": "Dossier patient",
+    "assign-appointment": "Consultation",
+    "selected-appointment": "Séléctionnez la consultation",
+    "date": "Date du document",
     "status": "Statut du document"
   },
   "doc-status": {
     "pending": "Traitement en cours",
     "finish": "Traitement terminé",
-    "failed": "Traitement échoué"
+    "failed": "Traitement échoué",
+    "affected": "Traitement effectué"
   },
   "table": {
     "header": {
