@@ -90,7 +90,6 @@ function Documents() {
 
     }
 
-
     useEffect(() => {
         if (filter?.document?.name || filter?.document?.status) {
             const query = prepareSearchKeys(filter as any);

@@ -3,7 +3,7 @@ import React, {ReactElement, useState} from "react";
 import {DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
-import {Box, Stack} from "@mui/material";
+import {Box, Button, Stack} from "@mui/material";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
@@ -12,7 +12,7 @@ import dynamic from "next/dynamic";
 import {SubFooter} from "@features/subFooter";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
-import {ocrDocumentSelector} from "@features/leftActionBar";
+import {DocFilter, ocrDocumentSelector} from "@features/leftActionBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {
     appointmentSelector, onResetPatient,
@@ -23,6 +23,8 @@ import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {batch} from "react-redux";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
+import {MobileContainer} from "@themes/mobileContainer";
+import {DrawerBottom} from "@features/drawerBottom";
 // table head data
 const headCells: readonly HeadCell[] = [
     {
@@ -57,6 +59,7 @@ function Document() {
     const {patient} = useAppSelector(appointmentSelector);
 
     const [loading, setLoading] = useState(false);
+    const [filterBottom, setFilterBottom] = useState<boolean>(false)
 
     const {trigger: triggerOcrEdit} = useRequestQueryMutation("document/ocr/edit");
 
@@ -136,6 +139,29 @@ function Document() {
                         </Stack>
                     </SubFooter>
                 </Box>
+
+                <MobileContainer>
+                    <Button
+                        startIcon={<IconUrl path="ic-filter"/>}
+                        variant="filter"
+                        onClick={() => setFilterBottom(true)}
+                        sx={{
+                            position: "fixed",
+                            bottom: 80,
+                            transform: "translateX(-50%)",
+                            left: "50%",
+                            zIndex: 999,
+
+                        }}>
+                        {t("filter.title")}
+                    </Button>
+                </MobileContainer>
+                <DrawerBottom
+                    handleClose={() => setFilterBottom(false)}
+                    open={filterBottom}
+                    title={t("filter.title")}>
+                    <DocFilter/>
+                </DrawerBottom>
             </Box>
         </>
     )
