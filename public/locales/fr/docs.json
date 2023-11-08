@@ -1,4 +1,8 @@
 {
+  "add-doc": "Ajouter un document",
+  "add-complete": "Ajout Complet",
+  "add-quick": "Ajout Rapide",
+  "scanner": "Scanner",
   "sub-header": {
     "title": "Documents",
     "sub-title": "Resultat analyse de sang",
@@ -50,6 +54,13 @@
       "upload-sub-title": "Parcourir sur mon ordinateur",
       "notification-title": "Notification de traitement de document",
       "notification-desc": "Ce document peut prendre quelques instants pour être classifié. Vous avez le choix d'attendre qu'il se termine ou de le classer ultérieurement, à votre convenance.",
+      "scan-more": "Scanner plus",
+      "scan-doc": "Scanner un document",
+      "scan-doc-desc": "Prenez en photo votre document, il sera recadré automatiquement",
+      "list-title": "Pour garantir la qualité de vos documents",
+      "list-1": "Utilisez un fond uni.",
+      "list-2": "Assurez une bonne luminosité.",
+      "add-img-or-file": "Ajouter une image ou un fichier",
       "cancel": "Annuler",
       "later": "Classer plus tard",
       "confirm": "Classer"

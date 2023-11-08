@@ -6,6 +6,7 @@ import CircularProgress, {circularProgressClasses} from '@mui/material/CircularP
 import {SubHeader} from "@features/subHeader";
 import {DocsToolbar} from "@features/toolbar";
 import {
+    Backdrop,
     Box,
     Button,
     Card,
@@ -13,11 +14,18 @@ import {
     DialogActions,
     Divider,
     Grid,
-    IconButton, LinearProgress, MenuItem,
+    LinearProgress,
+    MenuItem,
+    IconButton,
+    SpeedDial,
+    SpeedDialAction,
     Stack,
     Typography,
+    Zoom,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
+import {alpha} from "@mui/material/styles";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {NoDataCard} from "@features/card";
@@ -41,12 +49,49 @@ import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import {Theme} from "@mui/material/styles";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+const actions = [
+    {icon: <NoteAddOutlinedIcon/>, name: 'Ajouter un document', key: 'add-doc'},
+];
+const DialogAction = ({...props})=>{
+    const {isMobile, t,setOpenAddOCRDocDialog} = props;
+    return (
+       <DialogActions sx={{width: "100%"}}>
+                        <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
+                            <Button variant="text-primary" onClick={() => setOpenAddOCRDocDialog(false)}
+                                    startIcon={<CloseIcon/>}>
+                                {t("cancel", {ns: "common"})}
+                            </Button>
+                            <Stack direction={"row"} spacing={1.2}>
+                                <LoadingButton
+                                    sx={{ml: "auto"}}
+                                    loadingPosition="start"
+                                    variant="contained"
+                                    color={"info"}
+                                    startIcon={<IconUrl path="ic-temps"/>}>
+                                    {t("dialogs.add-dialog.later")}
+                                </LoadingButton>
+                                {
+                                    !isMobile &&(
+                                <LoadingButton
+                                    loadingPosition="start"
+                                    variant="contained"
+                                    startIcon={<IconUrl path="add-doc"/>}>
+                                    {t("dialogs.add-dialog.confirm")}
+                                </LoadingButton>
+                                    )
+                                }
 
+                            </Stack>
+                        </Stack>
+                    </DialogActions>
+    )
+}
 function Documents() {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const {t, ready} = useTranslation(["docs", "common"]);
     const {direction} = useAppSelector(configSelector);
@@ -62,6 +107,7 @@ function Documents() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
+    const [openFabAdd, setOpenFabAdd] = useState(false);
 
     let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
 
@@ -121,6 +167,24 @@ function Documents() {
         console.log("uuid", uuid);
     }
 
+    const transitionDuration = {
+        enter: theme.transitions.duration.enteringScreen,
+        exit: theme.transitions.duration.leavingScreen,
+    };
+
+    const handleOpenFab = () => setOpenFabAdd(true);
+
+    const handleCloseFab = () => setOpenFabAdd(false);
+
+    const handleActionFab = (action: any) => {
+        setOpenFabAdd(false);
+        switch (action.key) {
+            case "add-doc" :
+                setOpenAddOCRDocDialog(true);
+                handleCloseFab();
+        }
+    }
+
     const handleCloseMenu = () => {
         setContextMenu(null);
     }
@@ -163,7 +227,7 @@ function Documents() {
                         py: {md: 0, xs: 2},
                     },
                 }}>
-                <DocsToolbar onUploadOcrDoc={() => setOpenAddOCRDocDialog(true)}/>
+                <DocsToolbar {...{isMobile}} onUploadOcrDoc={() => setOpenAddOCRDocDialog(true)}/>
             </SubHeader>
 
             <LinearProgress sx={{
@@ -345,6 +409,39 @@ function Documents() {
                         }]
                     }}
                 />}
+
+                {isMobile &&
+                    <Zoom
+                        in={!loading}
+                        timeout={transitionDuration}
+                        style={{
+                            transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
+                        }}
+                        unmountOnExit>
+                        <SpeedDial
+                            ariaLabel="SpeedDial tooltip Add"
+                            sx={{
+                                position: 'fixed',
+                                bottom: 50,
+                                right: 16
+                            }}
+                            icon={<SpeedDialIcon/>}
+                            onClose={handleCloseFab}
+                            onOpen={handleOpenFab}
+                            open={openFabAdd}>
+                            {actions.map((action) => (
+                                <SpeedDialAction
+                                    key={action.name}
+                                    icon={action.icon}
+                                    tooltipTitle={t(`${action.key}`)}
+                                    tooltipOpen
+                                    onClick={() => handleActionFab(action)}
+                                />
+                            ))}
+                        </SpeedDial>
+                    </Zoom>}
+                <Backdrop sx={{zIndex: 100, backgroundColor: alpha(theme.palette.common.white, 0.9)}}
+                          open={openFabAdd}/>
             </Box>
 
             <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
@@ -414,12 +511,25 @@ function Documents() {
                     t,
                     onDeleteDoc: handleDeleteDocument,
                     onSaveDoc: handleUploadDoc,
-                    data: filesInProgress
+                    data: filesInProgress,
+                    isMobile
                 }}
                 open={openAddOCRDocDialog}
                 size={"md"}
-                title={t("dialogs.add-dialog.title")}
                 dialogClose={() => setOpenAddOCRDocDialog(false)}
+                {...(isMobile ? {
+                        fullScreenDialog: true,
+                        headerDialog: true,
+                        actionDialog: filesInProgress.length > 0 &&
+                            <DialogAction {...{t, isMobile, setOpenAddOCRDocDialog}}/>
+                    } : {
+                        fullScreenDialog: false,
+                        headerDialog: null,
+                        title: t("dialogs.add-dialog.title"),
+                        actionDialog: <DialogAction {...{t, isMobile, setOpenAddOCRDocDialog}}/>
+                    }
+
+                )}
                 actionDialog={
                     <DialogActions sx={{width: "100%"}}>
                         <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
