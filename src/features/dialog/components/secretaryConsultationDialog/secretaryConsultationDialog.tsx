@@ -98,7 +98,6 @@ function SecretaryConsultationDialog({...props}) {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
             setAppData(res);
-            console.log(res)
             setTransactions(res.transactions ? res.transactions[0] : null);
             if (total === -1) {
                 const form = new FormData();
