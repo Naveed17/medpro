@@ -30,7 +30,7 @@ import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {NoDataCard} from "@features/card";
 import Icon from "@themes/urlIcon";
-import {CardStyled, Dialog as CustomDialog, Dialog} from "@features/dialog";
+import {CardStyled, Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
@@ -47,45 +47,55 @@ import {ActionMenu, toggleSideBar} from "@features/menu";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import {Theme} from "@mui/material/styles";
+import {MobileContainer as smallScreen} from "@lib/constants";
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 const actions = [
-    {icon: <NoteAddOutlinedIcon/>, name: 'Ajouter un document', key: 'add-doc'},
+    {
+        icon: <IconUrl color={"gray"}
+                       path={"add-doc"}/>, name: 'Ajouter un document', label: 'sub-header.add-doc', key: 'add-doc'
+    },
 ];
-const DialogAction = ({...props})=>{
-    const {isMobile, t,setOpenAddOCRDocDialog} = props;
-    return (
-       <DialogActions sx={{width: "100%"}}>
-                        <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
-                            <Button variant="text-primary" onClick={() => setOpenAddOCRDocDialog(false)}
-                                    startIcon={<CloseIcon/>}>
-                                {t("cancel", {ns: "common"})}
-                            </Button>
-                            <Stack direction={"row"} spacing={1.2}>
-                                <LoadingButton
-                                    sx={{ml: "auto"}}
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    color={"info"}
-                                    startIcon={<IconUrl path="ic-temps"/>}>
-                                    {t("dialogs.add-dialog.later")}
-                                </LoadingButton>
-                                {
-                                    !isMobile &&(
-                                <LoadingButton
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    startIcon={<IconUrl path="add-doc"/>}>
-                                    {t("dialogs.add-dialog.confirm")}
-                                </LoadingButton>
-                                    )
-                                }
+const DialogAction = ({...props}) => {
+    const {isMobile, t, setOpenAddOCRDocDialog, loading} = props;
 
-                            </Stack>
-                        </Stack>
-                    </DialogActions>
+    return (
+        <DialogActions sx={{width: "100%"}}>
+            <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
+                <Button variant="text-primary" onClick={() => setOpenAddOCRDocDialog(false)}
+                        startIcon={<CloseIcon/>}>
+                    {t("cancel", {ns: "common"})}
+                </Button>
+                <Stack direction={"row"} spacing={1.2}>
+                    <LoadingButton
+                        onClick={() => setOpenAddOCRDocDialog(false)}
+                        sx={{ml: "auto"}}
+                        loadingPosition="start"
+                        variant="contained"
+                        color={"info"}
+                        startIcon={<IconUrl path="ic-temps"/>}>
+                        {t("dialogs.add-dialog.later")}
+                    </LoadingButton>
+                    {
+                        !isMobile && (
+                            <LoadingButton
+                                {...{loading}}
+                                onClick={() => setOpenAddOCRDocDialog(false)}
+                                loadingPosition="start"
+                                variant="contained"
+                                startIcon={<IconUrl path="add-doc"/>}>
+                                {t("dialogs.add-dialog.confirm")}
+                            </LoadingButton>
+                        )
+                    }
+
+                </Stack>
+            </Stack>
+        </DialogActions>
     )
 }
+
 function Documents() {
     const router = useRouter();
     const theme = useTheme();
@@ -131,8 +141,8 @@ function Documents() {
         setLoading(true);
         const files: File[] = Array.from(fileList);
         const form = new FormData();
-        files.forEach((file: any, index: number) => {
-            form.append(`files[${index}][]`, file, file.name);
+        files.forEach((file: any) => {
+            form.append(`files[]`, file, file.name);
         });
         medicalEntityHasUser && triggerOcrDocUpload({
             method: "POST",
@@ -181,7 +191,7 @@ function Documents() {
         switch (action.key) {
             case "add-doc" :
                 setOpenAddOCRDocDialog(true);
-                handleCloseFab();
+                setTimeout(() => handleCloseFab());
         }
     }
 
@@ -422,7 +432,7 @@ function Documents() {
                             ariaLabel="SpeedDial tooltip Add"
                             sx={{
                                 position: 'fixed',
-                                bottom: 50,
+                                bottom: 20,
                                 right: 16
                             }}
                             icon={<SpeedDialIcon/>}
@@ -433,7 +443,7 @@ function Documents() {
                                 <SpeedDialAction
                                     key={action.name}
                                     icon={action.icon}
-                                    tooltipTitle={t(`${action.key}`)}
+                                    tooltipTitle={t(`${action.label}`)}
                                     tooltipOpen
                                     onClick={() => handleActionFab(action)}
                                 />
@@ -472,7 +482,7 @@ function Documents() {
                 )}
             </ActionMenu>
 
-            <CustomDialog
+            <Dialog
                 action={"remove"}
                 direction={direction}
                 open={openRemoveDialog}
@@ -501,6 +511,7 @@ function Documents() {
 
             <Dialog
                 action={"ocr_docs"}
+                margin={0}
                 {...{
                     direction,
                     sx: {
@@ -510,7 +521,12 @@ function Documents() {
                 data={{
                     t,
                     onDeleteDoc: handleDeleteDocument,
-                    onSaveDoc: handleUploadDoc,
+                    onUploadDoc: handleUploadDoc,
+                    onRetryDoc: handleRetryUpload,
+                    onClose: () => {
+                        handleCloseFab();
+                        setTimeout(() => setOpenAddOCRDocDialog(false));
+                    },
                     data: filesInProgress,
                     isMobile
                 }}
@@ -521,44 +537,14 @@ function Documents() {
                         fullScreenDialog: true,
                         headerDialog: true,
                         actionDialog: filesInProgress.length > 0 &&
-                            <DialogAction {...{t, isMobile, setOpenAddOCRDocDialog}}/>
+                            <DialogAction {...{t, isMobile, setOpenAddOCRDocDialog, loading}}/>
                     } : {
                         fullScreenDialog: false,
                         headerDialog: null,
                         title: t("dialogs.add-dialog.title"),
-                        actionDialog: <DialogAction {...{t, isMobile, setOpenAddOCRDocDialog}}/>
+                        actionDialog: <DialogAction {...{t, isMobile, setOpenAddOCRDocDialog, loading}}/>
                     }
-
                 )}
-                actionDialog={
-                    <DialogActions sx={{width: "100%"}}>
-                        <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
-                            <Button variant="text-primary" onClick={() => setOpenAddOCRDocDialog(false)}
-                                    startIcon={<CloseIcon/>}>
-                                {t("cancel", {ns: "common"})}
-                            </Button>
-                            <Stack direction={"row"} spacing={1.2}>
-                                <LoadingButton
-                                    onClick={() => setOpenAddOCRDocDialog(false)}
-                                    sx={{ml: "auto"}}
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    color={"info"}
-                                    startIcon={<IconUrl path="ic-temps"/>}>
-                                    {t("dialogs.add-dialog.later")}
-                                </LoadingButton>
-                                <LoadingButton
-                                    {...{loading}}
-                                    onClick={() => setOpenAddOCRDocDialog(false)}
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    startIcon={<IconUrl path="add-doc"/>}>
-                                    {t("dialogs.add-dialog.confirm")}
-                                </LoadingButton>
-                            </Stack>
-                        </Stack>
-                    </DialogActions>
-                }
             />
         </>
     )

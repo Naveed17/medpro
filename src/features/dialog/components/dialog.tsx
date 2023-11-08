@@ -22,9 +22,10 @@ function Dialogs({...props}) {
         headerDialog = null,
         onClose,
         icon,
+        margin = 1,
         size = "md",
         enableFullScreen = false,
-        fullScreenDialog= false,
+        fullScreenDialog = false,
         sx,
         ...rest
     } = props;
@@ -54,7 +55,7 @@ function Dialogs({...props}) {
                     PaperProps: {
                         sx: {
                             width: '100%',
-                            m: 1,
+                            m: margin
                         }
 
                     }
