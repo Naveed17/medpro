@@ -25,6 +25,7 @@ import {
 import dynamic from "next/dynamic";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
+import { AddButton } from "@features/pfTemplateDetail";
 import { RootStyled, SetSelectedDialog } from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
 import { SubHeader } from "@features/subHeader";
@@ -285,7 +286,23 @@ function TemplatesConfig() {
     []) as CertifModel[];
   const certificateFolderModel = ((httpParentModelResponse as HttpResponse)
     ?.data ?? []) as any[];
-
+const onClickEventCertificate =  (prop:any) => {
+  console.log(prop)
+switch(prop)
+  {
+    case "unfolded":
+      setOpen(true);
+      setEditDoc(false);
+      setData(null);
+      setAction("editDoc");
+      break;
+    default:
+      setOpen(true);
+      setData({ folder: prop.uuid });
+      setAction("editDoc");
+      
+  }
+}
   if (!ready) return <LoadingScreen button text={"loading-error"} />;
 
   return (
@@ -330,7 +347,7 @@ function TemplatesConfig() {
           )}
 
           <CardContent>
-            <Stack spacing={2}>
+            <Stack spacing={2} className="add-doc-wrapper">
               <div
                 className={"portraitA4"}
                 onClick={() => {
@@ -341,6 +358,8 @@ function TemplatesConfig() {
                   border: `1px dashed ${theme.palette.primary.main}`,
                   height: "100%",
                   transform: "scale(1)",
+                  backgroundColor: theme.palette.background.default,
+                  borderRadius:25,
                 }}
               >
                 <Card
@@ -350,12 +369,10 @@ function TemplatesConfig() {
                     justifyContent: "center",
                     height: "100%",
                     border: "none",
-                    transform: "scale(.8)",
+                    transform: {xs:"scale(1)",md:"scale(.8)"},
                   }}
                 >
-                  <AddIcon
-                    style={{ fontSize: 450, color: theme.palette.primary.main }}
-                  />
+                  
                 </Card>
               </div>
               <Typography variant="caption" fontSize={10}>
@@ -424,7 +441,7 @@ function TemplatesConfig() {
         <TemplateStyled>
           <Box p={2}>
             <Stack
-              direction="row"
+              direction={{xs:'column-reverse',sm:'row'}}
               alignItems="center"
               justifyContent="space-between"
               borderBottom={1}
@@ -471,24 +488,13 @@ function TemplatesConfig() {
                     ),
                   }}
                 />
-                <Button
-                  onClick={() => {
-                    setOpen(true);
-                    setEditDoc(false);
-                    setData(null);
-                    setAction("editDoc");
-                  }}
-                  variant="contained"
-                  startIcon={<IconUrl path={"ic-doc-add"} />}
-                >
-                  {t("btnAdd")}
-                </Button>
+                <AddButton {...{t,onClickEvent:onClickEventCertificate,list:[{name:"unfolded"},...certificateFolderModel]}} />
               </Stack>
             </Stack>
           </Box>
           <TabPanel padding={0.1} index={0} value={certificateTabIndex}>
             <CardContent>
-              <Stack spacing={2}>
+              <Stack spacing={2} className="add-doc-wrapper">
                 <div
                   className={"portraitA4"}
                   onClick={() => {
@@ -502,6 +508,8 @@ function TemplatesConfig() {
                     height: "100%",
                     transform: "scale(1)",
                     border: `1px dashed ${theme.palette.primary.main}`,
+                    backgroundColor: theme.palette.background.default,
+                    borderRadius:25,
                   }}
                 >
                   <Card
@@ -511,15 +519,9 @@ function TemplatesConfig() {
                       justifyContent: "center",
                       height: "100%",
                       border: "none",
-                      transform: "scale(.8)",
+                      transform: {xs:"scale(1)",md:"scale(.8)"},
                     }}
                   >
-                    <AddIcon
-                      style={{
-                        fontSize: 450,
-                        color: theme.palette.primary.main,
-                      }}
-                    />
                   </Card>
                 </div>
                 <Typography variant="caption" fontSize={10}>
@@ -612,7 +614,7 @@ function TemplatesConfig() {
               value={certificateTabIndex}
             >
               <CardContent>
-                <Stack spacing={2}>
+                <Stack spacing={2} className="add-doc-wrapper">
                   <div
                     className={"portraitA4"}
                     onClick={() => {
@@ -625,6 +627,8 @@ function TemplatesConfig() {
                       border: `1px dashed ${theme.palette.primary.main}`,
                       height: "100%",
                       transform: "scale(1)",
+                      backgroundColor: theme.palette.background.default,
+                      borderRadius:25,
                     }}
                   >
                     <Card
@@ -634,15 +638,9 @@ function TemplatesConfig() {
                         justifyContent: "center",
                         height: "100%",
                         border: "none",
-                        transform: "scale(.8)",
+                        transform: {xs:"scale(1)",md:"scale(.8)"},
                       }}
                     >
-                      <AddIcon
-                        style={{
-                          fontSize: 450,
-                          color: theme.palette.primary.main,
-                        }}
-                      />
                     </Card>
                   </div>
                   <Typography variant="caption" fontSize={10}>
@@ -740,7 +738,7 @@ function TemplatesConfig() {
         <TemplateStyled>
           <Box px={2} pt={2}>
             <Stack
-              direction="row"
+              direction={{xs:'column-reverse',sm:'row'}}
               alignItems="center"
               justifyContent="space-between"
               sx={{ borderBottom: 1, borderColor: "divider" }}
@@ -762,6 +760,7 @@ function TemplatesConfig() {
               </Tabs>
               <Button
                 variant="contained"
+                sx={{width:{xs:'100%',sm:'auto'}}}
                 startIcon={<IconUrl path={"ic-doc-add"} />}
               >
                 {t("btnAdd")}
@@ -776,7 +775,7 @@ function TemplatesConfig() {
               {...{ index }}
             >
               <CardContent>
-                <Stack spacing={2}>
+                <Stack spacing={2} className="add-doc-wrapper">
                   <div
                     className={"portraitA4"}
                     onClick={() => {
@@ -789,6 +788,8 @@ function TemplatesConfig() {
                       border: `1px dashed ${theme.palette.primary.main}`,
                       height: "100%",
                       transform: "scale(1)",
+                      backgroundColor: theme.palette.background.default,
+                      borderRadius:25,
                     }}
                   >
                     <Card
@@ -798,15 +799,10 @@ function TemplatesConfig() {
                         justifyContent: "center",
                         height: "100%",
                         border: "none",
-                        transform: "scale(.8)",
+                        transform: {xs:"scale(1)",md:"scale(.8)"},
                       }}
                     >
-                      <AddIcon
-                        style={{
-                          fontSize: 450,
-                          color: theme.palette.primary.main,
-                        }}
-                      />
+                  
                     </Card>
                   </div>
                   <Typography variant="caption" fontSize={10}>
@@ -972,7 +968,7 @@ function TemplatesConfig() {
             <Divider sx={{ mt: 2 }} />
           </Box>
           <CardContent>
-            <Stack spacing={2}>
+            <Stack spacing={2} className="add-doc-wrapper">
               <div
                 className={"portraitA4"}
                 onClick={() => {
@@ -984,6 +980,8 @@ function TemplatesConfig() {
                   border: `1px dashed ${theme.palette.primary.main}`,
                   height: "100%",
                   transform: "scale(1)",
+                  backgroundColor: theme.palette.background.default,
+                  borderRadius:25,
                 }}
               >
                 <Card
@@ -993,12 +991,10 @@ function TemplatesConfig() {
                     justifyContent: "center",
                     height: "100%",
                     border: "none",
-                    transform: "scale(.8)",
+                    transform: {xs:"scale(1)",md:"scale(.8)"},
                   }}
                 >
-                  <AddIcon
-                    style={{ fontSize: 450, color: theme.palette.primary.main }}
-                  />
+                  
                 </Card>
               </div>
               <Typography variant="caption" fontSize={10}>

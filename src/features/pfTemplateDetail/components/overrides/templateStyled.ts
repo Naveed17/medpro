@@ -37,11 +37,13 @@ const TemplateStyled = styled(Card)(({theme}) => ({
         display: "flex",
         flexDirection: "column",
         alignItems:'center',
+        minHeight:168,
          ".portraitA4":{
             minHeight:400,
         [theme.breakpoints.down("md")]:{
             width:'100%',
             margin:'0 !important',
+
            
         },
       
@@ -74,15 +76,18 @@ const TemplateStyled = styled(Card)(({theme}) => ({
         fontSize: 10
     },
     "& .portraitA4": {
-        backgroundColor: theme.palette.background.default,
+        backgroundColor: theme.palette.background.paper,
         padding: theme.spacing(3,2),
-        minHeight:400,
         zoom: "18%",
         margin:0,
         transform:'scale(.9)',
         '&:hover': {
             boxShadow: "0 8px 36px rgba(152,180,234,.19), 0 11px 33px rgba(122,152,210,.12)"
-        }
+        },
+        [theme.breakpoints.down("md")]:{
+            zoom:'100%'
+
+        },
     },
     "& .edit-btn": {
         position: "absolute",
@@ -120,6 +125,16 @@ const TemplateStyled = styled(Card)(({theme}) => ({
             height:'calc(100% - 200px)',
             marginBottom:0,
         },
+    },
+    ".add-doc-wrapper":{
+        ".portraitA4":{
+            minHeight:1300,
+            [theme.breakpoints.down("md")]:{
+                minHeight:400,
+                borderRadius:'6px !important',
+                
+            }
+        }
     }
 }
 }));
