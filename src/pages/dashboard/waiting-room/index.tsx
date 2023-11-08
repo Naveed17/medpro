@@ -9,7 +9,8 @@ import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Alert,
     Box,
-    Button, Card,
+    Button,
+    Card,
     CardHeader,
     DialogActions,
     Drawer,
@@ -40,6 +41,7 @@ import dynamic from "next/dynamic";
 import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
 import {DefaultCountry, WaitingHeadCells} from "@lib/constants";
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
@@ -48,14 +50,13 @@ import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useTransactionEdit} from "@lib/hooks/rest";
-import {Board, BoardItem} from "@features/board";
+import {Board} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton} from "@features/buttons";
 import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
 import {appointmentSelector, setAppointmentSubmit, TabPanel} from "@features/tabPanel";
-import Icon from "@themes/urlIcon";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
@@ -82,7 +83,6 @@ function WaitingRoom() {
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {model} = useAppSelector(preConsultationSelector);
-    const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {
         motif,
         duration,
@@ -118,7 +118,7 @@ function WaitingRoom() {
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
     const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
-    const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 :0);
+    const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
@@ -271,50 +271,8 @@ function WaitingRoom() {
     }
 
     const handleTransactionData = () => {
-        appointmentTransactionsTrigger({
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${row?.uuid}/transactions/${router.locale}`
-        }, {
-            onSuccess: (result) => {
-                const appointmentData = (result?.data as HttpResponse)?.data;
-                const transaction = appointmentData.transactions ? appointmentData.transactions[0] : null;
-                setRow({...row, transactions: appointmentData?.transactions ?? null} as any);
-                let payed_amount = 0;
-                let payments: any[] = [];
-                if (transaction) {
-                    payed_amount += transaction.amount;
-                    transaction.transaction_data.map((td: any) => {
-                        let pay: any = {
-                            uuid: td.uuid,
-                            amount: td.amount,
-                            payment_date: moment().format('DD-MM-YYYY'),
-                            payment_time: `${new Date().getHours()}:${new Date().getMinutes()}`,
-                            status_transaction: td.status_transaction_data,
-                            type_transaction: td.type_transaction_data,
-                            data: td.data,
-                            ...(td.insurance && {insurance: td.insurance.uuid}),
-                            ...(td.payment_means && {
-                                payment_means: paymentTypesList.find((pt: {
-                                    slug: string;
-                                }) => pt.slug === td.payment_means.slug)
-                            })
-                        }
-                        payments.push(pay)
-                    })
-                }
-
-                setSelectedPayment({
-                    uuid: row?.uuid,
-                    payments,
-                    payed_amount,
-                    appointment: row,
-                    patient: row?.patient,
-                    total: appointmentData?.fees ? appointmentData.fees : 0,
-                    isNew: payed_amount === 0
-                });
-                setOpenPaymentDialog(true);
-            }
-        })
+        console.log(row)
+        setOpenPaymentDialog(true)
     }
 
     const OnMenuActions = (action: string) => {
@@ -556,31 +514,31 @@ function WaitingRoom() {
                 <LinearProgress sx={{
                     visibility: !httpWaitingRoomsResponse || loading ? "visible" : "hidden"
                 }} color="warning"/>
-                
-                    <Box className="container">
-                        <DesktopContainer>
+
+                <Box className="container">
+                    <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
                             <Board
                                 {...{columns, handleDragEvent}}
                                 handleEvent={handleTableActions}
                                 data={waitingRoomsGroup}/>
                         </TabPanel>
-                        </DesktopContainer>
-                        <TabPanel padding={.1} value={tabIndex} index={1}>
-                            {waitingRoomsGroup[1] ? <>
-                                    <Card sx={{ mr:{xs:0,sm:2}, mb: 2, minWidth: 235}}>
-                                        <CardHeader
-                                           
-                                            avatar={columns[0].icon}
-                                            {...(columns[0].action && {action: columns[0].action})}
-                                            title={<Typography
-                                                color={"text.primary"} fontWeight={700}
-                                                fontSize={14}>
-                                                {t(`tabs.${columns[0].name}`)} {`(${waitingRoomsGroup[1].length})`}
-                                            </Typography>}
-                                        />
-                                    </Card>
-                                    <DesktopContainer>
+                    </DesktopContainer>
+                    <TabPanel padding={.1} value={tabIndex} index={1}>
+                        {waitingRoomsGroup[1] ? <>
+                                <Card sx={{mr: {xs: 0, sm: 2}, mb: 2, minWidth: 235}}>
+                                    <CardHeader
+
+                                        avatar={columns[0].icon}
+                                        {...(columns[0].action && {action: columns[0].action})}
+                                        title={<Typography
+                                            color={"text.primary"} fontWeight={700}
+                                            fontSize={14}>
+                                            {t(`tabs.${columns[0].name}`)} {`(${waitingRoomsGroup[1].length})`}
+                                        </Typography>}
+                                    />
+                                </Card>
+                                <DesktopContainer>
                                     <Otable
                                         sx={{mt: 1, pr: 2}}
                                         {...{
@@ -596,64 +554,64 @@ function WaitingRoom() {
                                         pagination
                                         handleEvent={handleTableActions}
                                     />
-                                    </DesktopContainer>
-                                     <MobileContainer>
-                                        <Stack spacing={1}>
+                                </DesktopContainer>
+                                <MobileContainer>
+                                    <Stack spacing={1}>
                                         {
-                                        waitingRoomsGroup[1].map((item:any,i:number) =>(
-                                          <React.Fragment key={item.uuid}>
-                                          <WaitingRoomMobileCard 
-                                          quote={item}
-                                          index={i}
-                                          handleEvent={handleTableActions}
-                                        />
-                                          </React.Fragment>  
-                                        ))
+                                            waitingRoomsGroup[1].map((item: any, i: number) => (
+                                                <React.Fragment key={item.uuid}>
+                                                    <WaitingRoomMobileCard
+                                                        quote={item}
+                                                        index={i}
+                                                        handleEvent={handleTableActions}
+                                                    />
+                                                </React.Fragment>
+                                            ))
                                         }
-                                        
-                                  </Stack>
-                                   </MobileContainer>
-                                   
-                                </>
-                                :
-                                <NoDataCard
-                                    {...{t}}
-                                    sx={{mt: 8}}
-                                    onHandleClick={() => {
-                                        setQuickAddAppointment(true);
-                                        setTimeout(() => setQuickAddAppointmentTab(1));
-                                    }}
-                                    ns={"waitingRoom"}
-                                    data={{
-                                        mainIcon: "ic_waiting_room",
-                                        title: "empty",
-                                        description: "desc",
-                                        buttons: [{
-                                            text: "table.no-data.event.title",
-                                            icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"}/>,
-                                            variant: "warning",
-                                            color: "white"
-                                        }]
-                                    }}/>
-                            }
-                        </TabPanel>
-                        <TabPanel padding={.1} value={tabIndex} index={2}>
-                            {waitingRoomsGroup[3] ? <>
-                                    <Card sx={{mr:{xs:0,sm:2},mb:2, minWidth: 235}}>
-                                        <CardHeader
-                                            sx={{
-                                                "& .MuiButtonBase-root": {mr: 1}
-                                            }}
-                                            avatar={columns[1].icon}
-                                            {...(columns[1].action && {action: columns[1].action})}
-                                            title={<Typography
-                                                color={"text.primary"} fontWeight={700}
-                                                fontSize={14}>
-                                                {t(`tabs.${columns[1].name}`)} {`(${waitingRoomsGroup[3]?.length ?? ""})`}
-                                            </Typography>}
-                                        />
-                                    </Card>
-                                    <DesktopContainer>
+
+                                    </Stack>
+                                </MobileContainer>
+
+                            </>
+                            :
+                            <NoDataCard
+                                {...{t}}
+                                sx={{mt: 8}}
+                                onHandleClick={() => {
+                                    setQuickAddAppointment(true);
+                                    setTimeout(() => setQuickAddAppointmentTab(1));
+                                }}
+                                ns={"waitingRoom"}
+                                data={{
+                                    mainIcon: "ic_waiting_room",
+                                    title: "empty",
+                                    description: "desc",
+                                    buttons: [{
+                                        text: "table.no-data.event.title",
+                                        icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"}/>,
+                                        variant: "warning",
+                                        color: "white"
+                                    }]
+                                }}/>
+                        }
+                    </TabPanel>
+                    <TabPanel padding={.1} value={tabIndex} index={2}>
+                        {waitingRoomsGroup[3] ? <>
+                                <Card sx={{mr: {xs: 0, sm: 2}, mb: 2, minWidth: 235}}>
+                                    <CardHeader
+                                        sx={{
+                                            "& .MuiButtonBase-root": {mr: 1}
+                                        }}
+                                        avatar={columns[1].icon}
+                                        {...(columns[1].action && {action: columns[1].action})}
+                                        title={<Typography
+                                            color={"text.primary"} fontWeight={700}
+                                            fontSize={14}>
+                                            {t(`tabs.${columns[1].name}`)} {`(${waitingRoomsGroup[3]?.length ?? ""})`}
+                                        </Typography>}
+                                    />
+                                </Card>
+                                <DesktopContainer>
                                     <Otable
                                         sx={{mt: 1, pr: 2}}
                                         {...{
@@ -669,173 +627,173 @@ function WaitingRoom() {
                                         pagination
                                         handleEvent={handleTableActions}
                                     />
-                                    </DesktopContainer>
-                                     <MobileContainer>
-                                        <Stack spacing={1}>
-                                        {
-                                        waitingRoomsGroup[3].map((item:any,i:number) =>(
-                                          <React.Fragment key={item.uuid}>
-                                          <WaitingRoomMobileCard 
-                                          quote={item}
-                                          index={i}
-                                          handleEvent={handleTableActions}
-                                        />
-                                          </React.Fragment>  
-                                        ))
-                                        }
-                                        
-                                  </Stack>
-                                   </MobileContainer>
-                                </>
-                                :
-                                <NoDataCard
-                                    {...{t}}
-                                    sx={{mt: 8}}
-                                    onHandleClick={() => {
-                                        setQuickAddAppointment(true);
-                                        setTimeout(() => setQuickAddAppointmentTab(3));
-                                    }}
-                                    ns={"waitingRoom"}
-                                    data={{
-                                        mainIcon: "ic_waiting_room",
-                                        title: "empty",
-                                        description: "desc",
-                                        buttons: [{
-                                            text: "table.no-data.event.title",
-                                            icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"}/>,
-                                            variant: "warning",
-                                            color: "white"
-                                        }]
-                                    }}/>
-                            }
-                        </TabPanel>
-                        <TabPanel padding={.1} value={tabIndex} index={3}>
-                            {waitingRoomsGroup[4] ? 
-                            <>
-                            <DesktopContainer>
-                            <Otable
-                                    sx={{mt: 1, pr: 2}}
-                                    {...{
-                                        doctor_country,
-                                        roles,
-                                        loading: loadingRequest,
-                                        setLoading: setLoadingRequest
-                                    }}
-                                    headers={WaitingHeadCells}
-                                    rows={waitingRoomsGroup[4]}
-                                    from={"waitingRoom"}
-                                    t={t}
-                                    pagination
-                                    handleEvent={handleTableActions}
-                                />
                                 </DesktopContainer>
-                                 <MobileContainer>
-                                        <Stack spacing={1}>
+                                <MobileContainer>
+                                    <Stack spacing={1}>
                                         {
-                                        waitingRoomsGroup[4].map((item:any,i:number) =>(
-                                          <React.Fragment key={item.uuid}>
-                                          <WaitingRoomMobileCard 
-                                          quote={item}
-                                          index={i}
-                                          handleEvent={handleTableActions}
-                                        />
-                                          </React.Fragment>  
-                                        ))
+                                            waitingRoomsGroup[3].map((item: any, i: number) => (
+                                                <React.Fragment key={item.uuid}>
+                                                    <WaitingRoomMobileCard
+                                                        quote={item}
+                                                        index={i}
+                                                        handleEvent={handleTableActions}
+                                                    />
+                                                </React.Fragment>
+                                            ))
                                         }
-                                        
-                                  </Stack>
-                                   </MobileContainer>
-                                </>
-                                :
-                                <NoDataCard
-                                    {...{t}}
-                                    sx={{mt: 8}}
-                                    ns={"waitingRoom"}
-                                    data={{
-                                        mainIcon: "ic_waiting_room",
-                                        title: "empty",
-                                        description: "desc"
-                                    }}/>
-                            }
-                        </TabPanel>
-                        <TabPanel padding={.1} value={tabIndex} index={4}>
-                            {waitingRoomsGroup ? 
-                            <> 
-                            <DesktopContainer>                      
-                            <Otable
-                                    sx={{mt: 1, pr: 2}}
-                                    {...{
-                                        doctor_country,
-                                        roles,
-                                        loading: loadingRequest,
-                                        setLoading: setLoadingRequest
-                                    }}
-                                    headers={WaitingHeadCells}
-                                    rows={[
-                                        ...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : []),
-                                        ...(waitingRoomsGroup[6] ? waitingRoomsGroup[6] : []),
-                                        ...(waitingRoomsGroup[9] ? waitingRoomsGroup[9] : []),
-                                        ...(waitingRoomsGroup[10] ? waitingRoomsGroup[10] : [])]}
-                                    from={"waitingRoom"}
-                                    t={t}
-                                    pagination
-                                    handleEvent={handleTableActions}
-                                />
-                                </DesktopContainer>     
-                                 <MobileContainer>
-                                        <Stack spacing={1}>
-                                        {
-                                        [
-                                        ...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : []),
-                                        ...(waitingRoomsGroup[6] ? waitingRoomsGroup[6] : []),
-                                        ...(waitingRoomsGroup[9] ? waitingRoomsGroup[9] : []),
-                                        ...(waitingRoomsGroup[10] ? waitingRoomsGroup[10] : [])].map((item:any,i:number) =>(
-                                          <React.Fragment key={item.uuid}>
-                                          <WaitingRoomMobileCard 
-                                          quote={item}
-                                          index={i}
-                                          handleEvent={handleTableActions}
-                                        />
-                                          </React.Fragment>  
-                                        ))
-                                        }
-                                        
-                                  </Stack>
-                                   </MobileContainer>
-                                </>
-                                :
-                                <NoDataCard
-                                    {...{t}}
-                                    sx={{mt: 8}}
-                                    ns={"waitingRoom"}
-                                    data={{
-                                        mainIcon: "ic_waiting_room",
-                                        title: "empty",
-                                        description: "desc"
-                                    }}/>
-                            }
-                        </TabPanel>
 
-                        <ActionMenu {...{contextMenu, handleClose}}>
-                            {popoverActions.map(
-                                (v: any, index) => (
-                                    <MenuItem
-                                        key={index}
-                                        className="popover-item"
-                                        onClick={() => {
-                                            OnMenuActions(v.action);
-                                        }}>
-                                        {v.icon}
-                                        <Typography fontSize={15} sx={{color: "#fff"}}>
-                                            {t(`${v.title}`)}
-                                        </Typography>
-                                    </MenuItem>
-                                )
-                            )}
-                        </ActionMenu>
-                    </Box>
-                
-               
+                                    </Stack>
+                                </MobileContainer>
+                            </>
+                            :
+                            <NoDataCard
+                                {...{t}}
+                                sx={{mt: 8}}
+                                onHandleClick={() => {
+                                    setQuickAddAppointment(true);
+                                    setTimeout(() => setQuickAddAppointmentTab(3));
+                                }}
+                                ns={"waitingRoom"}
+                                data={{
+                                    mainIcon: "ic_waiting_room",
+                                    title: "empty",
+                                    description: "desc",
+                                    buttons: [{
+                                        text: "table.no-data.event.title",
+                                        icon: <Icon path={"ic-agenda-+"} width={"18"} height={"18"}/>,
+                                        variant: "warning",
+                                        color: "white"
+                                    }]
+                                }}/>
+                        }
+                    </TabPanel>
+                    <TabPanel padding={.1} value={tabIndex} index={3}>
+                        {waitingRoomsGroup[4] ?
+                            <>
+                                <DesktopContainer>
+                                    <Otable
+                                        sx={{mt: 1, pr: 2}}
+                                        {...{
+                                            doctor_country,
+                                            roles,
+                                            loading: loadingRequest,
+                                            setLoading: setLoadingRequest
+                                        }}
+                                        headers={WaitingHeadCells}
+                                        rows={waitingRoomsGroup[4]}
+                                        from={"waitingRoom"}
+                                        t={t}
+                                        pagination
+                                        handleEvent={handleTableActions}
+                                    />
+                                </DesktopContainer>
+                                <MobileContainer>
+                                    <Stack spacing={1}>
+                                        {
+                                            waitingRoomsGroup[4].map((item: any, i: number) => (
+                                                <React.Fragment key={item.uuid}>
+                                                    <WaitingRoomMobileCard
+                                                        quote={item}
+                                                        index={i}
+                                                        handleEvent={handleTableActions}
+                                                    />
+                                                </React.Fragment>
+                                            ))
+                                        }
+
+                                    </Stack>
+                                </MobileContainer>
+                            </>
+                            :
+                            <NoDataCard
+                                {...{t}}
+                                sx={{mt: 8}}
+                                ns={"waitingRoom"}
+                                data={{
+                                    mainIcon: "ic_waiting_room",
+                                    title: "empty",
+                                    description: "desc"
+                                }}/>
+                        }
+                    </TabPanel>
+                    <TabPanel padding={.1} value={tabIndex} index={4}>
+                        {waitingRoomsGroup ?
+                            <>
+                                <DesktopContainer>
+                                    <Otable
+                                        sx={{mt: 1, pr: 2}}
+                                        {...{
+                                            doctor_country,
+                                            roles,
+                                            loading: loadingRequest,
+                                            setLoading: setLoadingRequest
+                                        }}
+                                        headers={WaitingHeadCells}
+                                        rows={[
+                                            ...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : []),
+                                            ...(waitingRoomsGroup[6] ? waitingRoomsGroup[6] : []),
+                                            ...(waitingRoomsGroup[9] ? waitingRoomsGroup[9] : []),
+                                            ...(waitingRoomsGroup[10] ? waitingRoomsGroup[10] : [])]}
+                                        from={"waitingRoom"}
+                                        t={t}
+                                        pagination
+                                        handleEvent={handleTableActions}
+                                    />
+                                </DesktopContainer>
+                                <MobileContainer>
+                                    <Stack spacing={1}>
+                                        {
+                                            [
+                                                ...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : []),
+                                                ...(waitingRoomsGroup[6] ? waitingRoomsGroup[6] : []),
+                                                ...(waitingRoomsGroup[9] ? waitingRoomsGroup[9] : []),
+                                                ...(waitingRoomsGroup[10] ? waitingRoomsGroup[10] : [])].map((item: any, i: number) => (
+                                                <React.Fragment key={item.uuid}>
+                                                    <WaitingRoomMobileCard
+                                                        quote={item}
+                                                        index={i}
+                                                        handleEvent={handleTableActions}
+                                                    />
+                                                </React.Fragment>
+                                            ))
+                                        }
+
+                                    </Stack>
+                                </MobileContainer>
+                            </>
+                            :
+                            <NoDataCard
+                                {...{t}}
+                                sx={{mt: 8}}
+                                ns={"waitingRoom"}
+                                data={{
+                                    mainIcon: "ic_waiting_room",
+                                    title: "empty",
+                                    description: "desc"
+                                }}/>
+                        }
+                    </TabPanel>
+
+                    <ActionMenu {...{contextMenu, handleClose}}>
+                        {popoverActions.map(
+                            (v: any, index) => (
+                                <MenuItem
+                                    key={index}
+                                    className="popover-item"
+                                    onClick={() => {
+                                        OnMenuActions(v.action);
+                                    }}>
+                                    {v.icon}
+                                    <Typography fontSize={15} sx={{color: "#fff"}}>
+                                        {t(`${v.title}`)}
+                                    </Typography>
+                                </MenuItem>
+                            )
+                        )}
+                    </ActionMenu>
+                </Box>
+
+
             </Box>
 
             <Drawer
@@ -906,34 +864,19 @@ function WaitingRoom() {
                 {...{
                     direction,
                     sx: {
-                        minHeight: 380
+                        minHeight: 460
                     }
                 }}
                 open={openPaymentDialog}
                 data={{
-                    selectedPayment, setSelectedPayment,
-                    appointment: row,
-                    patient: row?.patient
+                    app_uuid: row?.uuid,
+                    patient: row?.patient,
+                    setOpenPaymentDialog
                 }}
                 size={"lg"}
                 fullWidth
                 title={t("payment_dialog_title")}
                 dialogClose={resetDialog}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
-                            {t("cancel", {ns: "common"})}
-                        </Button>
-                        <LoadingButton
-                            disabled={selectedPayment && selectedPayment.payments.length === 0}
-                            variant="contained"
-                            onClick={handleSubmit}
-                            loading={loadingRequest}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
-                            {t("save", {ns: "common"})}
-                        </LoadingButton>
-                    </DialogActions>
-                }
             />
 
             <Dialog

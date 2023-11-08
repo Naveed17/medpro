@@ -70,7 +70,7 @@ function DocumentsTab({...props}) {
             }
 
             {documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').length > 0 &&
-                <Typography variant='subtitle2' fontWeight={700} mb={3} fontSize={16}>
+                <Typography variant='subtitle2' fontWeight={700} fontSize={16}>
                     {t('docs')}
                 </Typography>}
 
