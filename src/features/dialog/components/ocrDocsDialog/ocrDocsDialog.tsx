@@ -7,6 +7,7 @@ import {Document, Page, pdfjs} from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import BorderLinearProgress from "./overrides/BorderLinearProgress";
+import {ImageHandler} from "@features/image";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -15,17 +16,17 @@ function OcrDocsDialog({...props}) {
 
     const [files, setFiles] = useState([...data]);
 
-    const handleUploadDoc = useCallback((file: File) => {
-        onSaveDoc(file);
+    const handleUploadDoc = useCallback((files: FileList) => {
+        onSaveDoc(files);
     }, [onSaveDoc]);
 
-    const handleDeleteDoc = useCallback((index: number) => {
-        onDeleteDoc(index);
+    const handleDeleteDoc = useCallback((uuid: string) => {
+        onDeleteDoc(uuid);
     }, [onDeleteDoc]);
 
     const handleDrop = (acceptedFiles: FileList) => {
-        setFiles([...files, acceptedFiles[0]]);
-        handleUploadDoc(acceptedFiles[0]);
+        setFiles([...files, ...acceptedFiles]);
+        handleUploadDoc(acceptedFiles);
     }
 
     return (
@@ -34,13 +35,21 @@ function OcrDocsDialog({...props}) {
                 {files.map((file: any, index: number) =>
                     <Grid key={index} item xs={12} md={3.5}>
                         <Stack className={'container__document'} sx={{position: 'relative'}} alignItems={"center"}>
-                            {file instanceof File &&
+                            {(file instanceof File && file.type !== "image/png") ?
                                 <Document {...{file}} className={'textLayer'}>
                                     <Page pageNumber={1}/>
                                 </Document>
-                            }
-                            <Stack className={`document_actions${file instanceof File ? "" : "_"}`} spacing={1}
-                                   alignItems={"center"}>
+                                :
+                                file.type === "image/png" && <Box p={6}>
+                                    <ImageHandler
+                                        width={130} height={130}
+                                        alt={"image/png"}
+                                        src={URL.createObjectURL(file)}
+                                    /></Box>}
+                            <Stack
+                                className={`document_actions${file instanceof File && file.type !== "image/png" ? "" : "_"}`}
+                                spacing={1}
+                                alignItems={"center"}>
                                 {!(file instanceof File) && <Box p={6}>
                                     <IconUrl width={120} height={120} path={'ic-doc-upload'}/>
                                 </Box>}
@@ -52,14 +61,18 @@ function OcrDocsDialog({...props}) {
                                         <IconUrl path="ic-rotate" width={20} height={20}/>
                                     </IconButton>
                                     <IconButton
-                                        onClick={() => handleDeleteDoc(index)}
+                                        onClick={() => handleDeleteDoc(file?.uuid)}
                                         color={"error"}
                                         className="btn-list-action">
                                         <IconUrl path="ic-delete" width={20} height={20}/>
                                     </IconButton>
                                 </Stack>
-                                <Typography className={"document_name"}>{file instanceof File ? file.name: file.title}</Typography>
-                                <BorderLinearProgress variant="determinate" value={30}/>
+                                <Typography
+                                    className={"document_name"}>{file instanceof File ? file.name : file.title}</Typography>
+                                <Typography
+                                    color={"gray"}
+                                    fontSize={10}
+                                    fontWeight={400}>{t('doc-status.pending')}</Typography>
                             </Stack>
                         </Stack>
                     </Grid>)}
@@ -69,6 +82,7 @@ function OcrDocsDialog({...props}) {
                             id="contained-button-file-dialog"
                             onChange={(e) => handleDrop(e.target.files as FileList)}
                             type="file"
+                            multiple
                         />
                         <Box className={"upload-trigger"}>
                             <Stack className={'upload-icon'} alignItems={"center"}>

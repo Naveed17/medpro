@@ -13,7 +13,7 @@ import {
     DialogActions,
     Divider,
     Grid,
-    IconButton, LinearProgress,
+    IconButton, LinearProgress, MenuItem,
     Stack,
     Typography,
     useTheme
@@ -22,7 +22,7 @@ import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {NoDataCard} from "@features/card";
 import Icon from "@themes/urlIcon";
-import {CardStyled, Dialog} from "@features/dialog";
+import {CardStyled, Dialog as CustomDialog, Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import IconUrl from "@themes/urlIcon";
@@ -35,7 +35,10 @@ import {useRouter} from "next/router";
 import {Label} from "@features/label";
 import {docTypes, leftActionBarSelector} from "@features/leftActionBar";
 import {Pagination} from "@features/pagination";
-import {toggleSideBar} from "@features/menu";
+import {ActionMenu, toggleSideBar} from "@features/menu";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
+import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
+import {Theme} from "@mui/material/styles";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -53,6 +56,12 @@ function Documents() {
     const [openAddOCRDocDialog, setOpenAddOCRDocDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
     const [localFilter, setLocalFilter] = useState("");
+    const [selectedDoc, setSelectedDoc] = useState<OcrDocument | null>(null);
+    const [openRemoveDialog, setOpenRemoveDialog] = useState(false);
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
 
     let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
 
@@ -69,11 +78,16 @@ function Documents() {
     });
 
     const {trigger: triggerOcrDocUpload} = useRequestQueryMutation("/ocr/document/upload");
+    const {trigger: triggerRetryDocUpload} = useRequestQueryMutation("/ocr/document/retry");
+    const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/documents/delete");
 
-    const handleUploadDoc = (file: File) => {
+    const handleUploadDoc = (fileList: FileList) => {
         setLoading(true);
+        const files: File[] = Array.from(fileList);
         const form = new FormData();
-        form.append("files", file, file.name);
+        files.forEach((file: any, index: number) => {
+            form.append(`files[${index}][]`, file, file.name);
+        });
         medicalEntityHasUser && triggerOcrDocUpload({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`,
@@ -86,8 +100,41 @@ function Documents() {
         });
     }
 
-    const handleDeleteDoc = (index: number) => {
+    const handleRetryUpload = (uuid: string) => {
+        setLoading(true);
+        const form = new FormData();
+        form.append("attribute", "resend");
+        form.append("value", "true");
+        triggerRetryDocUpload({
+            method: "PATCH",
+            url: `${urlMedicalEntitySuffix}/ocr/documents/${uuid}/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                mutateOcrDocuments();
+            },
+            onSettled: () => setLoading(false)
+        });
+    }
 
+    const handleDeleteDocument = (uuid: string) => {
+        console.log("uuid", uuid);
+    }
+
+    const handleCloseMenu = () => {
+        setContextMenu(null);
+    }
+
+    const OnMenuActions = (action: string) => {
+        handleCloseMenu();
+        switch (action) {
+            case "onDelete":
+                handleDeleteDocument(selectedDoc?.uuid as string);
+                break;
+            case "onRetry":
+                handleRetryUpload(selectedDoc?.uuid as string);
+                break;
+        }
     }
 
     useEffect(() => {
@@ -174,7 +221,7 @@ function Documents() {
 
                                                         </Stack>
                                                         <IconButton
-                                                            onClick={() => handleDeleteDoc(index)}
+                                                            onClick={() => handleDeleteDocument(file.uuid)}
                                                             disableRipple sx={{p: 0}}>
                                                             <IconUrl path="ic-close-btn" width={40} height={40}/>
                                                         </IconButton>
@@ -191,8 +238,9 @@ function Documents() {
                                                 <label htmlFor="contained-button-file">
                                                     <InputStyled
                                                         id="contained-button-file"
-                                                        onChange={(e) => handleUploadDoc((e.target.files as FileList)[0])}
+                                                        onChange={(e) => handleUploadDoc(e.target.files as FileList)}
                                                         type="file"
+                                                        multiple
                                                     />
                                                     <Stack sx={{cursor: "pointer"}} direction={"row"}
                                                            alignItems={"center"} spacing={2}>
@@ -219,7 +267,7 @@ function Documents() {
                                     {filesTreated.map((file: OcrDocument, index: number) =>
                                         <Grid
                                             key={index} item xs={12} md={4}
-                                            {...(file.status !== 3 && {
+                                            {...(![3, 2].includes(file.status) && {
                                                 onClick: () => router.push({
                                                     pathname: `/dashboard/documents/${file.uuid}`,
                                                     query: {data: JSON.stringify(file)}
@@ -230,8 +278,11 @@ function Documents() {
                                                     <Stack direction={"row"} alignItems={"center"} spacing={2}>
                                                         <IconUrl path={'ic-doc-upload'}/>
                                                         <Stack alignItems={"start"} spacing={0} sx={{width: '75%'}}>
-                                                            <Typography fontSize={12}
-                                                                        fontWeight={400}>{file.title}</Typography>
+                                                            <Typography
+                                                                className={'ellipsis'}
+                                                                width={220}
+                                                                fontSize={12}
+                                                                fontWeight={400}>{file.title}</Typography>
                                                             <Label variant='filled'
                                                                    sx={{
                                                                        "& .MuiSvgIcon-root": {
@@ -249,10 +300,21 @@ function Documents() {
                                                                     {t(`doc-status.${docTypes[file.status].label}`)}</Typography>
                                                             </Label>
                                                         </Stack>
-                                                        {file.status !== 3 && <IconButton
+                                                        <IconButton
+                                                            onClick={event => {
+                                                                event.stopPropagation();
+                                                                setSelectedDoc(file);
+                                                                setContextMenu(
+                                                                    contextMenu === null
+                                                                        ? {
+                                                                            mouseX: event.clientX + 2,
+                                                                            mouseY: event.clientY - 6,
+                                                                        } : null,
+                                                                );
+                                                            }}
                                                             disableRipple sx={{p: 0}}>
                                                             <IconUrl path="ic-more" width={30} height={30}/>
-                                                        </IconButton>}
+                                                        </IconButton>
                                                     </Stack>
                                                 </CardContent>
                                             </Card>
@@ -285,6 +347,61 @@ function Documents() {
                 />}
             </Box>
 
+            <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
+                {[
+                    {
+                        title: "delete-document",
+                        icon: <DeleteOutlineRoundedIcon/>,
+                        action: "onDelete",
+                    },
+                    ...(selectedDoc?.status === 3 ? [{
+                        title: "retry-ocr",
+                        icon: <ReplayRoundedIcon/>,
+                        action: "onRetry",
+                    }] : [])].map(
+                    (v: any, index) => (
+                        <MenuItem
+                            key={index}
+                            className="popover-item"
+                            onClick={() => {
+                                OnMenuActions(v.action);
+                            }}>
+                            {v.icon}
+                            <Typography fontSize={15} sx={{color: "#fff"}}>
+                                {t(`${v.title}`)}
+                            </Typography>
+                        </MenuItem>
+                    )
+                )}
+            </ActionMenu>
+
+            <CustomDialog
+                action={"remove"}
+                direction={direction}
+                open={openRemoveDialog}
+                data={{
+                    title: t('askRemovedoc'),
+                    subtitle: t('subtitleRemovedoc'),
+                    icon: "/static/icons/ic-text.svg",
+                    name1: selectedDoc?.title,
+                    name2: selectedDoc?.documentType,
+                }}
+                color={(theme: Theme) => theme.palette.error.main}
+                title={t('removedoc')}
+                t={t}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => {
+                            setOpenRemoveDialog(false);
+                        }}
+                                startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                        <LoadingButton variant="contained"
+                                       sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                       onClick={() => handleDeleteDocument(selectedDoc?.uuid as string)}>{t('remove')}</LoadingButton>
+                    </DialogActions>
+                }
+            />
+
             <Dialog
                 action={"ocr_docs"}
                 {...{
@@ -295,7 +412,7 @@ function Documents() {
                 }}
                 data={{
                     t,
-                    onDeleteDoc: handleDeleteDoc,
+                    onDeleteDoc: handleDeleteDocument,
                     onSaveDoc: handleUploadDoc,
                     data: filesInProgress
                 }}
@@ -312,6 +429,7 @@ function Documents() {
                             </Button>
                             <Stack direction={"row"} spacing={1.2}>
                                 <LoadingButton
+                                    onClick={() => setOpenAddOCRDocDialog(false)}
                                     sx={{ml: "auto"}}
                                     loadingPosition="start"
                                     variant="contained"
@@ -321,6 +439,7 @@ function Documents() {
                                 </LoadingButton>
                                 <LoadingButton
                                     {...{loading}}
+                                    onClick={() => setOpenAddOCRDocDialog(false)}
                                     loadingPosition="start"
                                     variant="contained"
                                     startIcon={<IconUrl path="add-doc"/>}>

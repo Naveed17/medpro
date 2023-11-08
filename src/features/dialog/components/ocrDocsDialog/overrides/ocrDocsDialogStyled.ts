@@ -20,6 +20,7 @@ const OcrDocsDialogStyled = styled(Box)(({theme}) => ({
         backgroundColor: theme.palette.background.default,
         height: '98%',
         borderRadius: 6,
+        cursor: 'pointer',
         border: `1px dashed ${theme.palette.primary.main}`
     },
     '& .alert-card': {

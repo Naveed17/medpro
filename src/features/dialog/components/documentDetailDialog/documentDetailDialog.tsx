@@ -419,7 +419,6 @@ function DocumentDetailDialog({...props}) {
                     setOpenDialog && setOpenDialog(false);
                 }
             });
-
         } else {
             medicalEntityHasUser && triggerDocumentDelete({
                 method: "DELETE",
