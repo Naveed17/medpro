@@ -1,5 +1,18 @@
 import React, {useEffect, useState,} from "react";
-import {Avatar, Button, Grid, Menu, MenuItem, Stack, Theme, Typography, useMediaQuery, useTheme,} from "@mui/material";
+import {
+    Avatar,
+    Button,
+    Card,
+    CardContent,
+    Grid,
+    Menu,
+    MenuItem,
+    Stack,
+    Theme,
+    Typography,
+    useMediaQuery,
+    useTheme,
+} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {FormikProvider, useFormik} from "formik";
@@ -37,6 +50,7 @@ function PaymentDialog({...props}) {
     const [rest, setRest] = useState(0);
     const [appointments, setAppointments] = useState<any>(['', '', '']);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [patientTransactions, setPatientTransactions] = React.useState([]);
 
     const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
@@ -171,7 +185,6 @@ function PaymentDialog({...props}) {
     };
 
     const handleChangePayment = (props: string) => {
-        console.log(props)
         const amount = getTotalApps() - getTotalPayments();
         let pay = props === 'check' ? {
             selected: props,
@@ -198,6 +211,8 @@ function PaymentDialog({...props}) {
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse).data
+            console.log(res.patient_transaction)
+            setPatientTransactions(res.patient_transaction)
             let total = res.rest_amount;
             let apps = [{
                 uuid: app_uuid,
@@ -248,7 +263,7 @@ function PaymentDialog({...props}) {
                                             <Stack direction="row" spacing={0.5} alignItems="center">
                                                 <IconUrl path="ic-tel" color={theme.palette.text.primary}/>
                                                 <Typography variant="body2" alignItems="center">
-                                                    {patient.contact[0]}
+                                                    {patient.contact[0].value ? patient.contact[0].value : patient.contact[0]}
                                                 </Typography>
                                             </Stack>
                                         )}
@@ -343,6 +358,42 @@ function PaymentDialog({...props}) {
                                     ) : null}
                                 </Menu>
                             </Stack>
+
+                            {patientTransactions.map((transaction,index) =>(<Card key={index} className={"payment-card"}>
+                                <CardContent>
+                                    <Stack spacing={1}>
+                                        <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.avance')}</Typography>
+                                        <Card style={{padding: "10px 20px"}}>
+                                            <Stack direction={"row"} justifyContent={"space-between"}>
+                                                <Stack>
+                                                    <Typography fontSize={12}>Espece</Typography>
+                                                    <Stack
+                                                        direction="row"
+                                                        alignItems="center"
+                                                        spacing={0.5}
+                                                    >
+                                                        <IconUrl
+                                                            path={"ic-agenda"}
+                                                            width={12}
+                                                            height={12}
+                                                            color={theme.palette.text.secondary}
+                                                        />
+                                                        <Typography variant="body2">
+                                                            {moment(new Date(), "DD-MM-YYYY HH:mm").format(
+                                                                "DD-MM-YYYY"
+                                                            )}
+                                                        </Typography>
+                                                    </Stack>
+                                                </Stack>
+                                                <Button size={"small"}
+                                                        variant={"contained"}
+                                                        startIcon={<IconUrl path={"ic-argent"}/>}
+                                                >Utiliser 150 TND</Button>
+                                            </Stack>
+                                        </Card>
+                                    </Stack>
+                                </CardContent>
+                            </Card>))}
 
                             {payments.map((item: any, i: number) => (
                                 <PaymentCard key={i} {...{

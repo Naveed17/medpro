@@ -158,6 +158,7 @@
     "amount": "Montant",
     "total": "Total à payer",
     "pay": "Payer",
-    "error": "Veuillez entrer un montant"
+    "error": "Veuillez entrer un montant",
+    "avance": "Avance"
   }
 }
