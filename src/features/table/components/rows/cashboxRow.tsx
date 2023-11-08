@@ -149,7 +149,6 @@ function PaymentRow({...props}) {
             }, {
                 onSuccess: (res) => {
                     setTransaction_data(res.data.data)
-                    console.log(res.data.data);
                 }
             })
         }

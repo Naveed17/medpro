@@ -198,7 +198,6 @@ function PaymentDialog({...props}) {
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse).data
-            console.log(res);
             let total = res.rest_amount;
             let apps = [{
                 uuid: app_uuid,
