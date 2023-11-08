@@ -98,7 +98,6 @@ function SecretaryConsultationDialog({...props}) {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
             setAppData(res);
-            console.log(res)
             setTransactions(res.transactions ? res.transactions[0] : null);
             if (total === -1) {
                 const form = new FormData();
@@ -125,19 +124,6 @@ function SecretaryConsultationDialog({...props}) {
 
     const openDialogPayment = () => {
         setOpenPaymentDialog(true);
-    }
-
-    const handleOnGoingPaymentDialog = () => {
-        /* setLoading(true);
-         triggerTransactionEdit(selectedPayment,
-             transactions,
-             () => {
-                 mutate().then(() => {
-                     setOpenPaymentDialog(false);
-                     setLoading(false)
-                 })
-             });*/
-        setOpenPaymentDialog(false);
     }
 
     return (
@@ -295,7 +281,6 @@ function SecretaryConsultationDialog({...props}) {
                                                 startIcon={<IconUrl path={'ic-argent'}/>}
                                                 variant="contained"
                                                 color={"primary"}
-                                                //size={"small"}
                                                 style={{marginLeft: 5}}
                                                 {...(isMobile && {
                                                     sx: {minWidth: 40},

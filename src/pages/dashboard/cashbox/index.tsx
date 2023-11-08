@@ -18,7 +18,7 @@ import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {CashBoxMobileCard, NoDataCard} from "@features/card";
+import {NoDataCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -80,14 +80,14 @@ export const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "center",
     },
-/*    {
-        id: "type",
-        numeric: true,
-        disablePadding: false,
-        label: "type",
-        sortable: true,
-        align: "center",
-    },*/
+    /*    {
+            id: "type",
+            numeric: true,
+            disablePadding: false,
+            label: "type",
+            sortable: true,
+            align: "center",
+        },*/
     {
         id: "payment_type",
         numeric: true,
@@ -233,19 +233,6 @@ function Cashbox() {
         }
     }
 
-    const openPop = (ev: string) => {
-        setAction(ev);
-        setSelectedPayment({
-            uuid: "",
-            payments: [],
-            payed_amount: 0,
-            total: 0,
-            isNew: true,
-        });
-        setActionDialog("payment_dialog");
-        setOpenPaymentDialog(true);
-    }
-
     const resetDialog = () => {
         setChecksToCashout([]);
         setCollectedCash(0)
@@ -267,7 +254,7 @@ function Cashbox() {
                             ? TransactionType[0].value
                             : TransactionType[1].value,
                     payment_date: moment(sp.payment_date).format('DD-MM-YYYY'),
-                    payment_time:moment(sp.payment_date).format('HH:mm'),
+                    payment_time: moment(sp.payment_date).format('HH:mm'),
                     data: {label: sp.designation, ...sp.data},
                 });
                 amount += sp.amount;
@@ -388,70 +375,7 @@ function Cashbox() {
                             <Typography variant="h6">
                                 {total} <span style={{fontSize: 10}}>{devise}</span>
                             </Typography>
-                            {/*<Typography variant="h6" display={{xs: "none", md: "block"}}>
-                                I
-                            </Typography>
-                            <Stack>
-                                <Typography fontSize={10}>
-                                    {t('check')} : <span
-                                    style={{fontSize: 12, fontWeight: "bold"}}>{totalCheck}</span> {devise}
-                                </Typography>
-                                <Typography fontSize={10}>
-                                    {t('cash')} : <span
-                                    style={{fontSize: 12, fontWeight: "bold"}}>{totalCash}</span> {devise}
-                                </Typography>
-                            </Stack>*/}
                         </Stack>
-                        {/*
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            {!isMobile && <Typography variant="h6">I</Typography>}
-
-                            <Button
-                                variant="contained"
-                                color="error"
-                                onClick={() => {
-                                    openPop("btn_header_1");
-                                }}
-                                {...(isMobile && {
-                                    size: "small",
-                                    sx: {minWidth: 40},
-                                })}
-                            >
-                                - {!isMobile && t("btn_header_1")}
-                            </Button>
-                            {!roles.includes('ROLE_SECRETARY') && <><Button
-                                variant="contained"
-                                color="success"
-                                {...(isMobile && {
-                                    size: "small",
-                                    sx: {minWidth: 40},
-                                })}
-                                onClick={() => {
-                                    openPop("btn_header_2");
-                                }}
-                            >
-                                + {!isMobile && t("btn_header_2")}
-                            </Button>
-                                <Typography variant="h6" display={{xs: "none", md: "block"}}>
-                                    I
-                                </Typography>
-                                <Button
-                                    variant="contained"
-                                    {...(isMobile && {
-                                        size: "small",
-                                        sx: {minWidth: 40},
-                                    })}
-                                    onClick={() => {
-                                        setAction("cashout");
-                                        setActionDialog("cashout");
-                                        setOpenPaymentDialog(true);
-                                    }}
-                                >
-                                    {!isMobile && `${t("cashout")} ( ${collected} ${devise} )`}{" "}
-                                    {isMobile && <KeyboardArrowDownIcon/>}
-                                </Button></>}
-                        </Stack>
-*/}
                     </Stack>
                 </Stack>
             </SubHeader>
@@ -467,29 +391,13 @@ function Cashbox() {
                         <DesktopContainer>
                             {!loading && (
                                 <Otable
-                                    {...{rows, t, insurances, pmList, mutateTransactions,filterCB}}
+                                    {...{rows, t, insurances, pmList, mutateTransactions, filterCB}}
                                     headers={headCells}
                                     from={"cashbox"}
                                     handleEvent={handleTableActions}
                                 />
                             )}
                         </DesktopContainer>
-                        {/*<MobileContainer>
-                            <Stack spacing={2}>
-                                {rows.map((card, idx) => (
-                                    <React.Fragment key={idx}>
-                                        <CashBoxMobileCard
-                                            data={card}
-                                            handleEvent={handleTableActions}
-                                            t={t}
-                                            insurances={insurances}
-                                            pmList={pmList}
-                                            mutateTransactions={mutateTransactions}
-                                        />
-                                    </React.Fragment>
-                                ))}
-                            </Stack>
-                        </MobileContainer>*/}
                     </React.Fragment>
                 ) : (
                     <Box

@@ -107,7 +107,7 @@ function Otable({...props}) {
         }
         setSelected(newSelected);
     }
-    
+
     const selectted = rowsActionsData.find((item) => from === item.action);
 
     const Component: any = selectted?.component;
@@ -202,7 +202,6 @@ function Otable({...props}) {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <Box py={1}/>
             {!loading && pagination && parseInt(totalPages) > 1 && (
                 <Pagination total={total} count={totalPages}/>
             )}

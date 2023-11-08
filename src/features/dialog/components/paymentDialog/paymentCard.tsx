@@ -119,10 +119,6 @@ function PaymentCard({...props}) {
                                                     },
                                                 },
                                             }}
-                                            onChange={(e) => {
-                                            }
-
-                                            }
                                             renderValue={(selected) => {
                                                 const payment = paymentTypesList?.find(
                                                     (payment: any) => payment?.slug === selected
@@ -150,8 +146,7 @@ function PaymentCard({...props}) {
                                                         <img
                                                             style={{width: 16}}
                                                             src={payment?.logoUrl?.url}
-                                                            alt={"payment means"}
-                                                        />
+                                                            alt={"payment means"}/>
                                                     </Stack>
                                                 );
                                             }}
@@ -227,7 +222,8 @@ function PaymentCard({...props}) {
                                         </IconButton>
                                     )}
                                 </Stack>
-                                {!item.amount && <Typography color={theme.palette.error.main} fontSize={12}>{t('dialog.error')}</Typography>}
+                                {!item.amount && <Typography color={theme.palette.error.main}
+                                                             fontSize={12}>{t('dialog.error')}</Typography>}
 
                                 {item.selected === 'check' && <Stack>
                                     <Stack

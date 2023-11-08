@@ -69,14 +69,7 @@ function PaymentRow({...props}) {
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
     const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
-    /*
-        const [contextMenu, setContextMenu] = useState<{
-            mouseX: number;
-            mouseY: number;
-        } | null>(null);
 
-        const {paymentTypesList} = useAppSelector(cashBoxSelector);
-    */
     const {direction} = useAppSelector(configSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -153,64 +146,6 @@ function PaymentRow({...props}) {
             })
         }
     }
-
-    /*
-        const openPutTransactionDialog = () => {
-            setContextMenu(null);
-            let payments: any[] = [];
-            let payed_amount = 0
-
-            row.transaction_data.map((td: any) => {
-                payed_amount += td.amount;
-                let pay: any = {
-                    uuid: td.uuid,
-                    amount: td.amount,
-                    payment_date: td.payment_date,
-                    payment_time: td.payment_time,
-                    status_transaction: td.status_transaction_data,
-                    type_transaction: td.type_transaction_data,
-                    data: td.data
-                }
-                if (td.insurance)
-                    pay["insurance"] = td.insurance.uuid
-                if (td.payment_means)
-                    pay["payment_means"] = paymentTypesList.find((pt: {
-                        slug: string;
-                    }) => pt.slug === td.payment_means.slug)
-                payments.push(pay)
-            })
-            setSelectedPayment({
-                uuid: row.uuid,
-                payments,
-                payed_amount,
-                appointment: row.appointment,
-                patient: row.patient,
-                total: row?.amount,
-                isNew: false
-            });
-            setOpenPaymentDialog(true);
-        }
-        const handleClose = () => {
-            setContextMenu(null);
-        };
-        const openFeesPopover = (event: React.MouseEvent<any>) => {
-            event.stopPropagation();
-            setContextMenu(
-                contextMenu === null
-                    ? {
-                        mouseX: event.clientX + 2,
-                        mouseY: event.clientY - 6,
-                    }
-                    : null
-            );
-        };
-
-        const getInsurances = () => {
-            let _res: string[] = [];
-            row.transaction_data.filter((td: any) => td.insurance).map((insc: any) => _res.push(insc.insurance.insurance.uuid))
-            return insurances.filter((insurance: { uuid: string; }) => _res.includes(insurance.uuid))
-        }
-    */
 
     useEffect(() => {
         dispatch(addBilling(selected));

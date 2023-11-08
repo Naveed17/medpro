@@ -224,10 +224,6 @@ function PaymentDialog({...props}) {
         }
     }, [app_uuid, httpAppointmentTransactions])
 
-    useEffect(() => {
-        //console.log(payments)
-    }, [payments])
-
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
     return (
