@@ -22,14 +22,16 @@ function Dialogs({...props}) {
         headerDialog = null,
         onClose,
         icon,
+        margin = 1,
         size = "md",
         enableFullScreen = false,
+        fullScreenDialog = false,
         sx,
         ...rest
     } = props;
     const selected = DialogData.find((item) => item.action === action);
     const [fullWidth] = useState(true);
-    const [fullScreen, setFullScreen] = useState(false);
+    const [fullScreen, setFullScreen] = useState(fullScreenDialog);
     const [maxWidth, setMaxWidth] = useState<DialogProps["maxWidth"]>(size);
     const Component: any = selected ? selected.component : action;
     const smScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
@@ -53,7 +55,7 @@ function Dialogs({...props}) {
                     PaperProps: {
                         sx: {
                             width: '100%',
-                            m: 1,
+                            m: margin
                         }
 
                     }

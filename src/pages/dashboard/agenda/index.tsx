@@ -962,6 +962,7 @@ function Agenda() {
     const handleUploadDocuments = () => {
         setOpenUploadDialog({...openUploadDialog, loading: true});
         const params = new FormData();
+        console.log("documentConfig", documentConfig);
         documentConfig.files.map((file: any) => {
             params.append(`files[${file.type}][]`, file.file, file.name);
         });
