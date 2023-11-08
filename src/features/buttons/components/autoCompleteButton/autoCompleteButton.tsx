@@ -16,6 +16,7 @@ function AutoCompleteButton({...props}) {
     const {
         translation,
         data,
+        defaultValue = "",
         loading,
         OnClickAction,
         onSearchChange,
@@ -84,7 +85,7 @@ function AutoCompleteButton({...props}) {
                             <ClickAwayListener onClickAway={handleClickAway}>
                                 <Box sx={{mb: 4}} className="autocomplete-container">
                                     <AutoComplete
-                                        {...{data, loading, onSearchChange, size}}
+                                        {...{data,defaultValue, loading, onSearchChange, size}}
                                         onAddPatient={OnClickAction}
                                         t={translation}
                                         onSelectData={onSubmitPatient}

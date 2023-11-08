@@ -10,28 +10,36 @@ export const ReactQueryNoValidateConfig = {
 }
 
 function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {variables, ...config}: any = {}) {
-    const {data: session} = useSession();
+    const {data: session, update} = useSession();
     const {jti} = session?.user as any;
     const queryKey: string[] = [...(request?.url ? [request.url] : []), ...(variables?.query ? [variables.query] : [])];
 
     const {isFetching, error, data: response, refetch} = useQuery(
-            queryKey,
-            ({signal}) => ((request?.url?.length ?? 0) > 0 && queryKey.length > 0) ? instanceAxios.request<Data>({
-                ...request,
-                ...(variables?.query && {url: `${request?.url}${variables.query}`}),
-                ...(!request?.url?.includes("/api/public") && {
-                    headers: {
-                        Authorization: `Bearer ${session?.accessToken}`,
-                        "Fcm-session": jti
-                    }
-                }),
-                signal
-            }) : null, {
-                enabled: (request?.url?.length ?? 0) > 0 && queryKey.length > 0,
-                ...config
+        queryKey,
+        ({signal}) => ((request?.url?.length ?? 0) > 0 && queryKey.length > 0) ? instanceAxios.request<Data>({
+            ...request,
+            ...(variables?.query && {url: `${request?.url}${variables.query}`}),
+            ...(!request?.url?.includes("/api/public") && {
+                headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                    "Fcm-session": jti
+                }
+            }),
+            signal
+        }).catch(async (error) => {
+            const originalRequest = error.config;
+            if (error.response?.data?.code === 4000 && !originalRequest._retry) {
+                const refresh = await update();
+                originalRequest._retry = true;
+                originalRequest.headers.Authorization = `Bearer ${refresh?.accessToken}`;
+                return instanceAxios(originalRequest);
             }
-        )
-    ;
+            return Promise.reject(error);
+        }) : null, {
+            enabled: (request?.url?.length ?? 0) > 0 && queryKey.length > 0,
+            ...config
+        }
+    );
 
     return {
         isLoading: isFetching,

@@ -11,7 +11,7 @@ declare global {
         session?: any;
         dehydratedState?: any;
         sx?: any;
-    };
+    }
 
     interface Array<T> {
         group(fn: Function): Array<T>;
@@ -56,6 +56,7 @@ declare module "@mui/material/CircularProgress" {
         white: true
     }
 }
+
 declare module "@mui/material/Chip" {
     interface ChipPropsVariantOverrides {
         contained: true;
@@ -71,7 +72,6 @@ declare module "@mui/material/SvgIcon" {
 }
 
 declare module "@mui/material" {
-
     interface Color {
         0: number | string;
         "500_32": string;

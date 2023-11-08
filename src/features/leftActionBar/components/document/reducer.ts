@@ -5,19 +5,21 @@ import {
 
 export type ActionOcrDocumentState = {
     name: string;
-    type: string | null;
-    appointment: string | null;
+    type: any;
+    appointment: any;
     target: string | null;
     patient?: any;
-    date: Date;
+    date: Date,
+    data: any[]
 };
 
 const initialState: ActionOcrDocumentState = {
     name: "",
     type: "",
     appointment: "",
-    target: "",
-    date: new Date()
+    target: null,
+    date: new Date(),
+    data: []
 };
 
 export const ocrDocumentReducer = createReducer(initialState, (builder) => {

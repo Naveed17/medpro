@@ -19,7 +19,7 @@ import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import {debounce} from "lodash";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
-import {FormikHelpers, FormikProvider, useFormik} from "formik";
+import { FormikProvider, useFormik} from "formik";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import {Label} from "@features/label";
 
@@ -141,8 +141,7 @@ function PatientFilter({...props}) {
                             "& .MuiRadio-root": {
                                 width: 36, height: 36
                             }
-                        }}
-                    >
+                        }}>
                         {item.gender?.genders.map((gender: string, i: number) => (
                             <FormControlLabel
                                 key={`gender-${i}`}
