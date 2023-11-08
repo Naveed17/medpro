@@ -1,12 +1,14 @@
 import TableCell from "@mui/material/TableCell";
 import {
+    Avatar,
     Button,
     Collapse,
-    DialogActions,
+    DialogActions, IconButton,
     Link,
     Stack,
     Table,
     TableRow,
+    Tooltip,
     Typography,
     useTheme,
 } from "@mui/material";
@@ -32,6 +34,7 @@ import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useTransactionEdit} from "@lib/hooks/rest";
 import {alpha} from "@mui/material/styles";
 import {HtmlTooltip} from "@features/tooltip";
+import {ImageHandler} from "@features/image";
 
 
 function PaymentRow({...props}) {
@@ -45,7 +48,7 @@ function PaymentRow({...props}) {
         isItemSelected
     } = props;
 
-    const {insurances, mutateTransactions, pmList, hideName} = data;
+    const {mutateTransactions, pmList, hideName} = data;
     const router = useRouter();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
@@ -59,7 +62,6 @@ function PaymentRow({...props}) {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-
     const [selected, setSelected] = useState<any>([]);
     const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
@@ -67,12 +69,14 @@ function PaymentRow({...props}) {
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
     const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
-    const [contextMenu, setContextMenu] = useState<{
-        mouseX: number;
-        mouseY: number;
-    } | null>(null);
+    /*
+        const [contextMenu, setContextMenu] = useState<{
+            mouseX: number;
+            mouseY: number;
+        } | null>(null);
 
-    const {paymentTypesList} = useAppSelector(cashBoxSelector);
+        const {paymentTypesList} = useAppSelector(cashBoxSelector);
+    */
     const {direction} = useAppSelector(configSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -151,61 +155,63 @@ function PaymentRow({...props}) {
         }
     }
 
-    const openPutTransactionDialog = () => {
-        setContextMenu(null);
-        let payments: any[] = [];
-        let payed_amount = 0
+    /*
+        const openPutTransactionDialog = () => {
+            setContextMenu(null);
+            let payments: any[] = [];
+            let payed_amount = 0
 
-        row.transaction_data.map((td: any) => {
-            payed_amount += td.amount;
-            let pay: any = {
-                uuid: td.uuid,
-                amount: td.amount,
-                payment_date: td.payment_date,
-                payment_time: td.payment_time,
-                status_transaction: td.status_transaction_data,
-                type_transaction: td.type_transaction_data,
-                data: td.data
-            }
-            if (td.insurance)
-                pay["insurance"] = td.insurance.uuid
-            if (td.payment_means)
-                pay["payment_means"] = paymentTypesList.find((pt: {
-                    slug: string;
-                }) => pt.slug === td.payment_means.slug)
-            payments.push(pay)
-        })
-        setSelectedPayment({
-            uuid: row.uuid,
-            payments,
-            payed_amount,
-            appointment: row.appointment,
-            patient: row.patient,
-            total: row?.amount,
-            isNew: false
-        });
-        setOpenPaymentDialog(true);
-    }
-    const handleClose = () => {
-        setContextMenu(null);
-    };
-    const openFeesPopover = (event: React.MouseEvent<any>) => {
-        event.stopPropagation();
-        setContextMenu(
-            contextMenu === null
-                ? {
-                    mouseX: event.clientX + 2,
-                    mouseY: event.clientY - 6,
+            row.transaction_data.map((td: any) => {
+                payed_amount += td.amount;
+                let pay: any = {
+                    uuid: td.uuid,
+                    amount: td.amount,
+                    payment_date: td.payment_date,
+                    payment_time: td.payment_time,
+                    status_transaction: td.status_transaction_data,
+                    type_transaction: td.type_transaction_data,
+                    data: td.data
                 }
-                : null
-        );
-    };
+                if (td.insurance)
+                    pay["insurance"] = td.insurance.uuid
+                if (td.payment_means)
+                    pay["payment_means"] = paymentTypesList.find((pt: {
+                        slug: string;
+                    }) => pt.slug === td.payment_means.slug)
+                payments.push(pay)
+            })
+            setSelectedPayment({
+                uuid: row.uuid,
+                payments,
+                payed_amount,
+                appointment: row.appointment,
+                patient: row.patient,
+                total: row?.amount,
+                isNew: false
+            });
+            setOpenPaymentDialog(true);
+        }
+        const handleClose = () => {
+            setContextMenu(null);
+        };
+        const openFeesPopover = (event: React.MouseEvent<any>) => {
+            event.stopPropagation();
+            setContextMenu(
+                contextMenu === null
+                    ? {
+                        mouseX: event.clientX + 2,
+                        mouseY: event.clientY - 6,
+                    }
+                    : null
+            );
+        };
 
-    const getInsurances = () => {
-        let _res: string[] = [];
-        row.transaction_data.filter((td: any) => td.insurance).map((insc: any) => _res.push(insc.insurance.insurance.uuid))
-        return insurances.filter((insurance: { uuid: string; }) => _res.includes(insurance.uuid))
-    }
+        const getInsurances = () => {
+            let _res: string[] = [];
+            row.transaction_data.filter((td: any) => td.insurance).map((insc: any) => _res.push(insc.insurance.insurance.uuid))
+            return insurances.filter((insurance: { uuid: string; }) => _res.includes(insurance.uuid))
+        }
+    */
 
     useEffect(() => {
         dispatch(addBilling(selected));
@@ -287,7 +293,23 @@ function PaymentRow({...props}) {
                 </TableCell>}
                 {/***** Insurances *****/}
                 <TableCell>
-                    <Typography variant="body2" textAlign={"center"}>-</Typography>
+
+                        <Stack direction={"row"} justifyContent={"center"}>
+                            {
+                                row.patient.insurances ? row.patient.insurances.map((insurance: any) => (
+                                    <Tooltip
+                                        key={insurance?.uuid}
+                                        title={insurance?.name}>
+                                        <Avatar variant={"circular"}>
+                                            <ImageHandler
+                                                alt={insurance?.name}
+                                                src={insurance.logoUrl.url}
+                                            />
+                                        </Avatar>
+                                    </Tooltip>
+                                )) : <Typography>-</Typography>
+                            }
+                        </Stack>
                 </TableCell>
                 {/***** Payments means *****/}
                 <TableCell>
@@ -296,61 +318,39 @@ function PaymentRow({...props}) {
                         alignItems="center"
                         justifyContent="center"
                         spacing={1}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        {row.payment_means && <img style={{width: 15}} key={row.uuid}
-                                                   src={pmList.find((pm: {
-                                                       slug: string;
-                                                   }) => pm.slug == row.payment_means.slug).logoUrl.url}
-                                                   alt={"payment means icon"}/>}
-                    </Stack>
-
-                </TableCell>
-
-                <TableCell>
-                    <Typography color={"success.main"} fontWeight={700} textAlign={"center"}>
-                        {row.amount}
-                        <span style={{fontSize: 10}}>{devise}</span>
-                    </Typography>
-                </TableCell>
-
-                {/*
-                <TableCell align={"center"}>
-                    <Stack direction={"row"} justifyContent={"center"}>
-                        {
-                            row.transaction_data.filter((td: any) => td.insurance).length > 0 ? getInsurances().map((insurance: any) => (
-                                <Tooltip
-                                    key={insurance?.uuid}
-                                    title={insurance?.name}>
-                                    <Avatar variant={"circular"}>
-                                        <ImageHandler
-                                            alt={insurance?.name}
-                                            src={insurance.logoUrl.url}
-                                        />
-                                    </Avatar>
-                                </Tooltip>
-                            )) : <Typography>--</Typography>
+                        {row.payment_means && row.payment_means.map((mean: any) => (
+                            <Tooltip key={mean.slug} title={`${mean.amount} ${devise}`}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img style={{width: 15}} key={mean.slug}
+                                     src={pmList.find((pm: {
+                                         slug: string;
+                                     }) => pm.slug == mean.paymentMeans.slug).logoUrl.url}
+                                     alt={"payment means icon"}/>
+                            </Tooltip>
+                        ))
                         }
                     </Stack>
+
                 </TableCell>
-*/}
-                {/*
-                <TableCell align="center">
-                    <Stack
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="center"
-                        spacing={1}>
-                        {row.transaction_data && row.transaction_data.map((td: TransactionDataModel) => (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            td.payment_means && <img style={{width: 15}} key={td.uuid}
-                                                     src={pmList.find((pm: {
-                                                         slug: string;
-                                                     }) => pm.slug == td.payment_means.slug).logoUrl.url}
-                                                     alt={"payment means icon"}/>
-                        ))}
+                {/***** Amount *****/}
+                <TableCell>
+                    <Stack direction={"row"} spacing={1}  alignItems={"center"} justifyContent={"center"}>
+                        <Typography color={"success.main"} fontWeight={700} textAlign={"center"}>
+                            {row.amount}
+                            <span style={{fontSize: 10}}>{devise}</span>
+                        </Typography>
+                        {isItemSelected && <IconButton
+                            size="small"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                setOpenDeleteTransactionDialog(true);
+                            }}>
+                            <IconUrl path="setting/icdelete"/>
+                        </IconButton>}
+
                     </Stack>
                 </TableCell>
-*/}
+
             </TableRowStyled>
 
             {transaction_data && (
@@ -444,13 +444,23 @@ function PaymentRow({...props}) {
                                                 <HtmlTooltip
                                                     title={
                                                         <React.Fragment>
-                                                            <Typography color="inherit">{col.appointment.type.name} :<span style={{fontWeight:"bold"}}>{col.appointment.fees}</span><span style={{fontSize:9}}>{devise}</span></Typography>
-
+                                                            <Typography
+                                                                color="inherit">{col.appointment.type.name} :<span
+                                                                style={{fontWeight: "bold"}}>{col.appointment.fees}</span><span
+                                                                style={{fontSize: 9}}>{devise}</span></Typography>
+                                                            {col.appointment.acts.map((act: {
+                                                                act_uuid: string;
+                                                                name: string;
+                                                                price: number
+                                                            }) => (<Typography
+                                                                key={act.act_uuid}>{act.name} :<span
+                                                                style={{fontWeight: "bold"}}>{act.price}</span><span
+                                                                style={{fontSize: 9}}>{devise}</span></Typography>))}
                                                         </React.Fragment>
                                                     }>
-                                                    <Typography style={{cursor:"pointer"}}
-                                                        color={(col.appointment && col.appointment.restAmount) ? "black.main" : "success.main"}
-                                                        fontWeight={700} textAlign={"center"}>
+                                                    <Typography style={{cursor: "pointer"}}
+                                                                color={(col.appointment && col.appointment.restAmount) ? "black.main" : "success.main"}
+                                                                fontWeight={700} textAlign={"center"}>
                                                         {(col.appointment && col.appointment.restAmount) ? `${col.amount} /${col.appointment.fees}` : col.amount}
                                                         <span style={{fontSize: 10}}>{devise}</span>
                                                     </Typography>

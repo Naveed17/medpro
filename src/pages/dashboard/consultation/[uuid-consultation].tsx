@@ -502,35 +502,10 @@ function ConsultationInProgress() {
         setIsViewerOpen("");
     }
 
-    const getTransactionAmountPayed = (): number => {
-        let payed_amount = 0;
-        (transactions as any)?.transaction_data.forEach((td: { amount: number }) => payed_amount += td.amount);
-        return payed_amount;
-    }
-
-    const checkTransactions = () => {
-        if (!transactions && app_uuid) {
-            const form = new FormData();
-            form.append("type_transaction", TransactionType[2].value);
-            form.append("status_transaction", TransactionStatus[1].value);
-            form.append("cash_box", selectedBoxes[0]?.uuid);
-            form.append("amount", total.toString());
-            form.append("rest_amount", total.toString());
-            form.append("appointment", app_uuid.toString());
-            form.append("transaction_data", JSON.stringify([]));
-
-            triggerTransactionCreate({
-                method: "POST",
-                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                data: form
-            })
-        }
-    }
-
     const saveConsultation = () => {
         setLoading(true);
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
-        const restAmount = getTransactionAmountPayed();
+        const restAmount = 0;
         const form = new FormData();
         form.append("status", "5");
         form.append("action", "end_consultation");
@@ -574,7 +549,6 @@ function ConsultationInProgress() {
                     dispatch(resetAppointment());
                     dispatch(openDrawer({type: "view", open: false}));
                 });
-                isDemo && checkTransactions();
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
@@ -1589,7 +1563,7 @@ function ConsultationInProgress() {
                     showCheckedDoc,
                     showPreview
                 }}
-                size={addFinishAppointment ? "md" : "lg"}
+                size={addFinishAppointment ? "md" : "md"}
                 color={theme.palette.error.main}
                 actionDialog={<DialogAction/>}
             />

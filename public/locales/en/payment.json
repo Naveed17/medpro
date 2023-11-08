@@ -44,6 +44,7 @@
   "delete": "Supprimer",
   "addsuccess": "Paiement ajouté",
   "cashout": "Collect",
+  "add_payment": "Add payment",
   "dialogs":{
     "delete-dialog": {
       "title":"Delete transaction",
@@ -130,6 +131,14 @@
   "to_pay_appointments": "To pay appointments",
   "no_transaction": "No payment made",
   "pay_all_tr": "Complete your payments in one click",
-  "pay_all": "Pay all"
+  "pay_all": "Pay all",
+  "dialog": {
+    "leftPay": "Left to pay",
+    "date": "Date",
+    "amount": "Amount",
+    "total": "Total",
+    "pay": "Pay",
+    "error": "Please enter an amount"
+  }
 
 }

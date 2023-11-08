@@ -45,14 +45,6 @@ const headCells = [
         align: "center",
     },
     {
-        id: "type",
-        numeric: true,
-        disablePadding: false,
-        label: "type",
-        sortable: true,
-        align: "center",
-    },
-    {
         id: "payment_type",
         numeric: true,
         disablePadding: false,

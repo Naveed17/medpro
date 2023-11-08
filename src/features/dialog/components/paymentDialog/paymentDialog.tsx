@@ -1,22 +1,26 @@
 import React, {useEffect, useState,} from "react";
-import {Avatar, Button, Grid, Stack, Theme, Typography, useMediaQuery, useTheme,} from "@mui/material";
-import IconUrl from "@themes/urlIcon";
+import {Avatar, Button, Grid, Menu, MenuItem, Stack, Theme, Typography, useMediaQuery, useTheme,} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry, TransactionType} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import {useRequestQuery} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {agendaSelector} from "@features/calendar";
 import PaymentCard from "@features/dialog/components/paymentDialog/paymentCard";
 import PaymentDialogStyled from "./overrides/paymentDialogStyle";
 import ConsultationCard from "@features/dialog/components/paymentDialog/consultationCard";
+import AddIcon from "@mui/icons-material/Add";
+import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
+import IconUrl from "@themes/urlIcon";
+import moment from "moment/moment";
+import {Box} from "@mui/system";
 
 const LoadingScreen = dynamic(
     () => import("@features/loadingScreen/components/loadingScreen")
@@ -26,12 +30,13 @@ function PaymentDialog({...props}) {
     const {data} = props;
     const theme = useTheme<Theme>();
     const {data: session} = useSession();
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
 
     const [payments, setPayments] = useState<any>([]);
     const [wallet, setWallet] = useState(0);
     const [rest, setRest] = useState(0);
-    const [appointment, setAppointment] = useState<any>(null);
-    const [openDialog, setOpenDialog] = useState(false);
+    const [appointments, setAppointments] = useState<any>(['', '', '']);
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
     const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
@@ -40,9 +45,10 @@ function PaymentDialog({...props}) {
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
+    const open = Boolean(anchorEl);
+    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
-
-    const {app_uuid, patient} = data;
+    const {app_uuid, patient, setOpenPaymentDialog} = data;
 
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("sm")
@@ -102,18 +108,48 @@ function PaymentDialog({...props}) {
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/transactions/${router.locale}`
     });
 
-    const calculInsurance = () => {
-        return 0
-    };
+    const addTransactions = () => {
+        let amount = 0;
+        let payment_means: any[] = []
+        let transaction_data: any[] = []
+        payments.map((pay: { amount: number; selected: boolean; data: any }) => {
+            amount += pay.amount
+            payment_means.push({
+                uuid: paymentTypesList.find((p: { slug: boolean; }) => p.slug === pay.selected).uuid,
+                amount: pay.amount, ...(pay.data && {data: pay.data})
+            })
+        })
 
-    const addTransactions = (item: { amount: number }) => {
-        /*const form = new FormData();
+        let _amount = amount;
+        appointments.filter((app: { checked: boolean; }) => app.checked).map((app: {
+            rest_amount: number;
+            uuid: string;
+        }) => {
+
+            if (_amount === 0)
+                return;
+            if (_amount >= app.rest_amount) {
+                _amount -= app.rest_amount
+                transaction_data.push({
+                    appointment: app.uuid,
+                    amount: app.rest_amount
+                })
+            } else {
+                transaction_data.push({
+                    appointment: app.uuid,
+                    amount: _amount
+                })
+                _amount = 0
+            }
+        })
+
+        const form = new FormData();
         form.append("cash_box", selectedBoxes[0].uuid);
         form.append("type_transaction", TransactionType[0].value);
-        form.append("amount", item.amount.toString());
-        form.append("payment_means", "d72700cc-e540-4ace-9e78-bdfa9f71e33e");
+        form.append("amount", amount.toString());
+        form.append("payment_means", JSON.stringify(payment_means));
         form.append("patient", patient.uuid);
-        form.append("transaction_data", JSON.stringify(transactionData));
+        form.append("transaction_data", JSON.stringify(transaction_data));
 
         triggerAppointmentEdit({
             method: "POST",
@@ -121,34 +157,71 @@ function PaymentDialog({...props}) {
             data: form
         }, {
             onSuccess: (res) => {
-                console.log(res)
-                mutate();
+                mutate().then(() => setOpenPaymentDialog(false));
             },
-        });*/
+        });
     }
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleChangePayment = (props: string) => {
+        console.log(props)
+        const amount = getTotalApps() - getTotalPayments();
+        let pay = props === 'check' ? {
+            selected: props,
+            amount: amount > 0 ? amount : 0,
+            data: {carrier: '', bank: '', nb: '', date: moment()}
+        } : {selected: props, amount: amount > 0 ? amount : 0};
+        let _payments = [...payments, pay]
+        setPayments(_payments)
+        handleClose();
+    };
+
+    const getTotalApps = () => {
+        return appointments.filter((app: { checked: boolean; }) => app.checked).reduce((total: number, val: {
+            rest_amount: number
+        }) => total + val.rest_amount, 0);
+    }
+
+    const getTotalPayments = () => {
+        return payments.reduce((total: number, val: { amount: number }) => total + val.amount, 0);
+
+    }
+
 
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse).data
-            setAppointment({uuid: app_uuid, ...res})
-            let amount = res.rest_amount;
-            console.log(res)
-            let transaction_data = [{
-                appointment: app_uuid,
-                amount: res.rest_amount,
-                current: true
-                //data:{fees:res.fees,date:'Aujourd\'hui'}
-            }]
-            res.appointments.map((app: { rest_amount: number; uuid: string; }) => {
-                amount += app.rest_amount
-                transaction_data = [...transaction_data, {
-                    appointment: app.uuid,
-                    amount: app.rest_amount,
-                    current: false
-                    //data:{fees:app.fees,date:app.day_date}
-                }]
+            console.log(res);
+            let total = res.rest_amount;
+            let apps = [{
+                uuid: app_uuid,
+                fees: res.fees,
+                rest_amount: res.rest_amount,
+                checked: true,
+                day_date: moment().format('DD-MM-YYYY'),
+                start_date: moment().format('HH:mm')
+            }];
+            res.appointments.map((app: any) => {
+                apps.push({
+                    uuid: app.uuid,
+                    rest_amount: app.rest_amount,
+                    fees: app.fees,
+
+                    start_date: app.start_date,
+                    day_date: app.day_date,
+                    checked: true
+                })
+                total += app.rest_amount
             })
-            setPayments([{selected: 'cash', amount, transaction_data}])
+            setAppointments(apps.sort((a, b) => (a.day_date > b.day_date) ? 1 : -1));
+            setPayments([{selected: 'cash', amount: total}])
         }
     }, [app_uuid, httpAppointmentTransactions])
 
@@ -161,164 +234,151 @@ function PaymentDialog({...props}) {
     return (
         <FormikProvider value={formik}>
             <PaymentDialogStyled>
-                {patient && (
-                    <Stack
-                        spacing={2}
-                        direction={{xs: patient ? "column" : "row", sm: "row"}}
-                        alignItems="center"
-                        justifyContent={patient ? "space-between" : "flex-end"}
-                        mb={2}
-                    >
-                        <Stack spacing={2} direction="row" alignItems="center">
-                            <Avatar
-                                sx={{width: 42, height: 42}}
-                                src={`/static/icons/${
-                                    patient?.gender !== "O" ? "men" : "women"
-                                }-avatar.svg`}
-                            />
-                            <Stack>
-                                <Stack direction="row" spacing={0.5} alignItems="center">
-                                    <Typography fontWeight={700}>
-                                        {patient.firstName} {patient.lastName}
-                                    </Typography>
-                                </Stack>
-
-                                {patient.contact.length && (
-                                    <Stack direction="row" spacing={0.5} alignItems="center">
-                                        <IconUrl path="ic-tel" color={theme.palette.text.primary}/>
-                                        <Typography variant="body2" alignItems="center">
-                                            {patient.contact[0]}
-                                        </Typography>
-                                    </Stack>
-                                )}
-                            </Stack>
-                        </Stack>
-
-                        {appointment && (
-                            <Stack
-                                direction={{xs: "column", sm: "row"}}
-                                alignItems="center"
-                                justifyContent={{xs: "center", sm: "flex-start"}}
-                                sx={{
-                                    "& .MuiButtonBase-root": {
-                                        fontSize: 13,
-                                    },
-                                }}
-                                {...(wallet > 0 && {
-                                    sx: {
-                                        flexWrap: "wrap",
-                                    },
-                                })}
-                                spacing={1}
-                            >
-                                {wallet > 0 && (
-                                    <Button
-                                        size="small"
-                                        variant="contained"
-                                        color="success"
-                                        {...(isMobile && {
-                                            fullWidth: true,
-                                        })}
-                                    >
-                                        {t("wallet")}
-                                        <Typography fontWeight={700} component="strong" mx={1}>
-                                            {wallet}
-                                        </Typography>
-                                        {devise}
-                                    </Button>
-                                )}
-                                {calculInsurance() > 0 &&
-                                    <Button
-                                        size="small"
-                                        variant="contained"
-                                        color="primary"
-                                        {...(isMobile && {
-                                            fullWidth: true,
-                                        })}
-                                    >
-                                        {t("insurance_total")}
-                                        <Typography fontWeight={700} component="strong" mx={1}>
-                                            {calculInsurance().toFixed(3)}
-                                        </Typography>
-                                        {devise}
-                                    </Button>}
-
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color={rest === 0 ? "success" : "error"}
-                                    {...(isMobile && {fullWidth: true})}>
-                                    {t("btn_remain")}
-                                    <Typography fontWeight={700} component="strong" mx={1}>
-                                        {rest.toFixed(3)}
-                                    </Typography>
-                                    {devise}
-                                </Button>
-
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    color={rest === 0 ? "success" : "warning"}
-                                    {...(isMobile && {
-                                        fullWidth: true,
-                                    })}>
-                                    {t("total")}
-                                    <Typography fontWeight={700} component="strong" mx={1}>
-                                        0
-                                    </Typography>
-                                    {devise}
-                                </Button>
-                            </Stack>
-                        )}
-                    </Stack>
-                )}
-
                 <Grid container spacing={{xs: 2, md: 6}}>
                     <Grid item xs={12} sm={6}>
-                        <Typography fontWeight={600} mb={1}>
-                            {t("current_consultation")}
-                        </Typography>
                         <Stack spacing={1}>
-                            {appointment &&
-                                <ConsultationCard {...{t, devise, appointment, setOpenDialog, rest, payments}} />}
-                        </Stack>
+                            <Stack direction={"row"} justifyContent={"space-between"}>
+                                <Stack spacing={2} direction="row" alignItems="center">
+                                    <Avatar
+                                        sx={{width: 42, height: 42}}
+                                        src={`/static/icons/${patient?.gender !== "O" ? "men" : "women"}-avatar.svg`}/>
+                                    <Stack>
+                                        <Stack direction="row" spacing={0.5} alignItems="center">
+                                            <Typography fontWeight={700}>
+                                                {patient.firstName} {patient.lastName}
+                                            </Typography>
+                                        </Stack>
 
-                        {appointment?.appointments.length > 0 && <Typography fontWeight={700}>
-                            {t("other_consultation")}
-                        </Typography>}
-                        {appointment?.appointments.length > 0 && <Stack
-                            spacing={1}
-                            borderRadius={0.5}
-                            maxHeight={244}
-                            p={1}
-                            sx={{overflowY: "auto", bgcolor: theme.palette.back.main}}>
-                            {appointment && appointment.appointments.map((app: { uuid: string }, index: number) => (
-                                <ConsultationCard key={`${app.uuid}-${index}`} {...{t, devise, appointment: app}} />))}
-                        </Stack>}
+                                        {patient.contact.length && (
+                                            <Stack direction="row" spacing={0.5} alignItems="center">
+                                                <IconUrl path="ic-tel" color={theme.palette.text.primary}/>
+                                                <Typography variant="body2" alignItems="center">
+                                                    {patient.contact[0]}
+                                                </Typography>
+                                            </Stack>
+                                        )}
+                                    </Stack>
+                                </Stack>
+                            </Stack>
+
+                            <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.leftPay')}</Typography>
+                            <ConsultationCard {...{
+                                appointments,
+                                setAppointments,
+                                payments,
+                                getTotalApps,
+                                getTotalPayments,
+                                t,
+                                theme,
+                                devise
+                            }}/>
+                        </Stack>
                     </Grid>
                     <Grid item xs={12} sm={6}>
-                        <Typography fontWeight={600} mb={1}>
-                            {t("payment")}
-                        </Typography>
-                        {payments.map((item: any, i: number) => (
-                            <PaymentCard key={i} {...{
-                                t,
-                                paymentTypesList,
-                                item,
-                                i,
-                                devise,
-                                wallet,
-                                payments,
-                                setPayments,
-                                appointment,
-                                setAppointment,
-                                addTransactions
-                            }}/>
-                        ))}
+                        <Stack spacing={1}>
+                            <Stack direction={{xs: "column", sm: "row"}}
+                                   alignItems="center"
+                                   justifyContent="space-between"
+                                   spacing={{xs: 2, sm: 0}}>
+                                <Typography fontWeight={600} mb={1}>
+                                    {t("payment")}
+                                </Typography>
+                                <Button startIcon={<AddIcon/>}
+                                        endIcon={<UnfoldMoreRoundedIcon/>}
+                                        id="basic-button"
+                                        variant="contained"
+                                        aria-controls={open ? "basic-menu" : undefined}
+                                        aria-haspopup="true"
+                                        aria-expanded={open ? "true" : undefined}
+                                        onClick={handleClick}
+                                >
+                                    {t("add_payment")}
+                                </Button>
+                                <Menu
+                                    id="basic-menu"
+                                    anchorEl={anchorEl}
+                                    open={open}
+                                    onClose={handleClose}
+                                    MenuListProps={{
+                                        "aria-labelledby": "basic-button",
+                                        sx: {
+                                            minWidth: 200,
+                                            padding: 0,
+                                            li: {
+                                                borderBottom: 1,
+                                                borderColor: "divider",
+                                                "&:last-child": {
+                                                    borderBottom: 0,
+                                                },
+                                            },
+                                        },
+                                    }}
+                                >
+                                    {paymentTypesList?.map((payment: any) => (
+                                        <MenuItem
+                                            onClick={() => handleChangePayment(payment.slug)}
+                                            key={payment.uuid}
+                                        >
+                                            <Stack direction="row" alignItems="center" spacing={1}>
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    style={{width: 16}}
+                                                    src={payment?.logoUrl?.url}
+                                                    alt={"payment means"}
+                                                />
+                                                <Typography>{t(payment?.name)}</Typography>
+                                            </Stack>
+                                        </MenuItem>
+                                    ))}
+                                    {wallet > 0 ? (
+                                        <MenuItem onClick={() => handleChangePayment("wallet")}>
+                                            <Stack direction="row" alignItems="center" spacing={1}>
+                                                eslint-disable-next-line @next/next/no-img-element
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    style={{width: 16}}
+                                                    src={"/static/icons/ic-wallet-money.svg"}
+                                                    alt={"payment means"}/>
+                                                <Typography>{t("wallet")}</Typography>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    {wallet} {devise}
+                                                </Typography>
+                                            </Stack>
+                                        </MenuItem>
+                                    ) : null}
+                                </Menu>
+                            </Stack>
+
+                            {payments.map((item: any, i: number) => (
+                                <PaymentCard key={i} {...{
+                                    t,
+                                    paymentTypesList,
+                                    item,
+                                    i,
+                                    devise,
+                                    wallet,
+                                    payments,
+                                    setPayments,
+                                    addTransactions
+                                }}/>
+                            ))}
+                        </Stack>
                     </Grid>
                 </Grid>
+                <Box style={{height: 70}}/>
+                <Stack direction={"row"} style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    width: "95%",
+                    borderTop: "1px solid #ddd",
+                    backgroundColor: "white",
+                    padding: "15px 0"
+                }} justifyContent={"flex-end"} spacing={1}>
+                    <Button onClick={() => setOpenPaymentDialog(false)}>{t('cancel')}</Button>
+                    <Button startIcon={<IconUrl path={'ic-argent'}/>} variant={"contained"}
+                            onClick={() => addTransactions()}>{t('dialog.pay')} {getTotalPayments()} {devise}</Button>
+                </Stack>
             </PaymentDialogStyled>
-
         </FormikProvider>
     );
 }

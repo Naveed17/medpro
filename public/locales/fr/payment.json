@@ -151,5 +151,13 @@
   "no_transaction": "Aucun paiement effectué",
   "pay_all_tr": "Effectuez vos paiements en un clic",
   "pay_all": "Payer tout",
-  "to_pay_appointments": "payer des rendez-vous"
+  "to_pay_appointments": "payer des rendez-vous",
+  "dialog": {
+    "leftPay": "Reste à payer",
+    "date": "Date",
+    "amount": "Montant",
+    "total": "Total à payer",
+    "pay": "Payer",
+    "error": "Veuillez entrer un montant"
+  }
 }

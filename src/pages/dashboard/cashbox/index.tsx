@@ -389,7 +389,7 @@ function Cashbox() {
                             <Typography variant="h6">
                                 {total} <span style={{fontSize: 10}}>{devise}</span>
                             </Typography>
-                            <Typography variant="h6" display={{xs: "none", md: "block"}}>
+                            {/*<Typography variant="h6" display={{xs: "none", md: "block"}}>
                                 I
                             </Typography>
                             <Stack>
@@ -401,7 +401,7 @@ function Cashbox() {
                                     {t('cash')} : <span
                                     style={{fontSize: 12, fontWeight: "bold"}}>{totalCash}</span> {devise}
                                 </Typography>
-                            </Stack>
+                            </Stack>*/}
                         </Stack>
                         {/*
                         <Stack direction="row" spacing={1} alignItems="center">

@@ -17,21 +17,27 @@ import {
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {motion} from "framer-motion";
-import CheckBoxIcon from "@mui/icons-material/Check";
 import moment from "moment-timezone";
 import {DatePicker} from "@features/datepicker";
 import {filterReasonOptions} from "@lib/hooks";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import useBanks from "@lib/hooks/rest/useBanks";
-import {Label} from "@features/label";
-import BorderLinearProgress from "@features/dialog/components/ocrDocsDialog/overrides/BorderLinearProgress";
 
 function PaymentCard({...props}) {
-    const {t, paymentTypesList, item, i, devise, wallet, payments, setPayments, addTransactions, appointment,setAppointment} = props;
+    const {
+        t,
+        paymentTypesList,
+        item,
+        i,
+        devise,
+        wallet,
+        payments,
+        setPayments,
+    } = props;
     const theme: Theme = useTheme();
+
     const [cashCollapse, setCashCollapse] = useState(true);
     const [walletCollapse, setWalletCollapse] = useState(true);
-    const [editField, setEditField] = useState("");
 
     const {banks} = useBanks();
 
@@ -197,7 +203,7 @@ function PaymentCard({...props}) {
                                         fullWidth
                                         value={item.amount}
                                         onChange={(e) => {
-                                            payments[i].amount = e.target.value
+                                            payments[i].amount = e.target.value ? parseInt(e.target.value, 10) : ''
                                             setPayments([...payments])
                                         }
                                         }
@@ -220,18 +226,9 @@ function PaymentCard({...props}) {
                                             <IconUrl path={"setting/icdelete"}/>
                                         </IconButton>
                                     )}
-                                    <IconButton
-                                        onClick={() => {
-                                            setCashCollapse(false);
-                                            addTransactions(item);
-                                        }}
-                                        className="btn-check-success"
-                                        style={{opacity: !item.amount || item.amount <= 0 || (item.selected === 'wallet' && item.amount > wallet) ? 0.5 : 1}}
-                                        disabled={!item.amount || item.amount <= 0 || (item.selected === 'wallet' && item.amount > wallet)}
-                                    >
-                                        <CheckBoxIcon/>
-                                    </IconButton>
                                 </Stack>
+                                {!item.amount && <Typography color={theme.palette.error.main} fontSize={12}>{t('dialog.error')}</Typography>}
+
                                 {item.selected === 'check' && <Stack>
                                     <Stack
                                         direction={{xs: "column", sm: "row"}}
@@ -341,122 +338,6 @@ function PaymentCard({...props}) {
                                         </Stack>
                                     </Stack>
                                 </Stack>}
-
-                                <Typography mb={1} fontSize={13} style={{opacity: 0.8}}>
-                                    {t("to_pay_appointments")} (<span style={{fontWeight: 600}}>30</span> TND)
-                                </Typography>
-                                {item.transaction_data.map((td: any, index: number) => (
-                                    <Card key={td.appointment}>
-                                        <Collapse in={editField !== td.appointment} timeout="auto" unmountOnExit>
-                                            <CardContent style={{padding: "8px 15px"}}>
-                                                <Stack direction={"row"} justifyContent={"space-between"}
-                                                       alignItems={"center"}>
-                                                    <Stack spacing={1} alignItems={"center"} direction={"row"}>
-                                                        <Typography style={{fontSize: 12}}><span style={{
-                                                            fontWeight: "bold",
-                                                            fontSize: 14,
-                                                            marginRight: 5
-                                                        }}>{t("consultation")}</span>{td.current ? t('today') : appointment.appointments.filter((app: {
-                                                            uuid: string
-                                                        }) => app.uuid === td.appointment)[0].day_date}</Typography>
-                                                        <Label
-                                                            color="success"
-                                                            variant="filled"
-                                                            sx={{alignItems: "center", width: "fit-content"}}
-                                                        >
-                                                            <Typography
-                                                                mx={0.5}
-                                                                variant="body2"
-                                                                fontWeight={700}
-                                                                component="strong">
-                                                                {td.amount}
-                                                            </Typography>{" "}
-                                                            {devise}
-                                                        </Label>
-                                                    </Stack>
-                                                    <Stack direction="row" alignItems="center" spacing={1}>
-                                                        <IconButton
-                                                            size="small"
-                                                            className="btn-action"
-                                                            onClick={() => {
-                                                                setEditField(td.appointment)
-                                                            }}>
-                                                            <IconUrl path="ic-edit"/>
-                                                        </IconButton>
-
-                                                        <IconButton
-                                                            size="small"
-                                                            className="btn-action"
-                                                            onClick={() => {
-                                                                payments[i].transaction_data.splice(index, 1)
-                                                                setPayments([...payments])
-                                                            }}>
-                                                            <IconUrl path="setting/icdelete"/>
-                                                        </IconButton>
-                                                    </Stack>
-                                                </Stack>
-                                            </CardContent>
-                                        </Collapse>
-                                        <Collapse in={editField === td.appointment} timeout="auto" unmountOnExit>
-                                            <Stack padding={2} spacing={1}>
-                                                <Typography color="text.secondary" fontSize={12}>Montant a
-                                                    payé</Typography>
-
-                                                <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                                                    <TextField
-                                                        sx={{
-                                                            input: {
-                                                                fontWeight: 700,
-                                                            },
-                                                        }}
-                                                        size="small"
-                                                        fullWidth
-                                                        value={td.amount}
-                                                        onChange={(e) => {
-                                                            const rest = td.current ? appointment.rest_amount : appointment.appointments.filter((app: {
-                                                                uuid: string
-                                                            }) => app.uuid === td.appointment)[0].rest_amount;
-                                                            if (rest >= e.target.value) {
-                                                                payments[i].transaction_data[index].amount = e.target.value
-                                                                setPayments([...payments])
-                                                            }
-                                                        }
-                                                        }
-                                                        type="number"
-                                                        InputProps={{
-                                                            inputProps: {
-                                                                min: 0,
-                                                            },
-                                                        }}
-                                                    />
-                                                    <Typography>{devise}</Typography>
-
-                                                    <IconButton
-                                                        onClick={() => {
-                                                            setEditField("")
-                                                        }}
-                                                        className="btn-check-success"
-                                                        style={{opacity: !td.amount || td.amount <= 0 ? 0.5 : 1}}
-                                                        disabled={!td.amount || td.amount <= 0}
-                                                    >
-                                                        <CheckBoxIcon/>
-                                                    </IconButton>
-                                                </Stack>
-                                                <Stack direction={"row"} spacing={1} alignItems={"center"} flex={5}>
-                                                    <BorderLinearProgress variant="determinate"
-                                                                          value={100 * td.amount / (td.current ? appointment.rest_amount : appointment.appointments.filter((app: {
-                                                                              uuid: string
-                                                                          }) => app.uuid === td.appointment)[0].rest_amount)}
-                                                                          style={{flex: 4}}/>
-                                                    <Typography fontSize={12} textAlign={"center"}
-                                                                flex={1}>Total: {td.current ? appointment.rest_amount : appointment.appointments.filter((app: {
-                                                        uuid: string
-                                                    }) => app.uuid === td.appointment)[0].rest_amount} TND</Typography>
-                                                </Stack>
-                                            </Stack>
-                                        </Collapse>
-                                    </Card>
-                                ))}
                             </Stack>
                         </Collapse>
                         <Collapse in={!cashCollapse} timeout="auto" unmountOnExit>

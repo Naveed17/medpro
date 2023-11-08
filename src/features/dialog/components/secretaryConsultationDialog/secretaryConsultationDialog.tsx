@@ -169,17 +169,17 @@ function SecretaryConsultationDialog({...props}) {
             </Stack> : (
                 <RootStyled>
                     <Grid container spacing={3}>
-                        <Grid item md={6} sm={12} xs={12}>
+                        <Grid item md={4} sm={12} xs={12}>
                             <Stack
                                 alignItems="center"
                                 spacing={1}
                                 mx="auto"
                                 width={1}>
-                                <Typography mt={{xs: 3, md: 0}} variant="subtitle1">
+                                <Typography mt={{xs: 3, md: 0}} >
                                     {t("recap")}
                                 </Typography>
                                 <Typography
-                                    style={{opacity: .7, fontSize: 13, marginBottom: 10}}>{t("docs")}</Typography>
+                                    style={{opacity: .7, fontSize: 11, marginBottom: 10}}>{t("docs")}</Typography>
                                 <Box display='grid'
                                      sx={{
                                          width: '100%',
@@ -245,7 +245,7 @@ function SecretaryConsultationDialog({...props}) {
                                 </Box>
                             </Stack>
                         </Grid>
-                        <Grid item md={6} sm={12} xs={12}>
+                        <Grid item md={8} sm={12} xs={12}>
                             <Stack
                                 alignItems="center"
                                 spacing={1}
@@ -286,22 +286,23 @@ function SecretaryConsultationDialog({...props}) {
                                     </Stack>
                                     {total &&  total > -1 &&
                                         <Stack direction={"row"} alignItems={"center"}>
-                                            {demo && <Button
+                                            {demo && appData?.rest_amount > 0 && <Button
                                                 endIcon={
-                                                    <Typography sx={{fontSize: '16px !important'}}>
+                                                    <Typography sx={{fontSize: '12px !important'}}>
                                                         {devise}
                                                     </Typography>
                                                 }
+                                                startIcon={<IconUrl path={'ic-argent'}/>}
                                                 variant="contained"
-                                                color={appData?.rest_amount == total ? "error" : "warning"}
-                                                size={"small"}
+                                                color={"primary"}
+                                                //size={"small"}
                                                 style={{marginLeft: 5}}
                                                 {...(isMobile && {
                                                     sx: {minWidth: 40},
                                                 })}
                                                 onClick={openDialogPayment}>
 
-                                                <Typography ml={1}>{t("amount_to_paid")}</Typography>
+                                                <Typography >{t("pay")}</Typography>
                                                 <Typography component='span' fontWeight={700} variant="subtitle2"
                                                             ml={1}>
                                                     {appData?.rest_amount == total ?total : `${appData?.rest_amount} / ${total}`}
@@ -420,7 +421,8 @@ function SecretaryConsultationDialog({...props}) {
                         open={openPaymentDialog}
                         data={{
                             app_uuid,
-                            patient
+                            patient,
+                            setOpenPaymentDialog
                         }}
                         size={"lg"}
                         fullWidth

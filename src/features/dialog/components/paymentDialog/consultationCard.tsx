@@ -1,127 +1,87 @@
-import React, {useEffect, useState} from "react";
-import {Button, Card, CardContent, Collapse, Divider, IconButton, Stack, Typography,} from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import {Label} from "@features/label";
-import IconUrl from "@themes/urlIcon";
+import React from "react";
+import {Card, CardContent, Checkbox, Stack, Typography,} from "@mui/material";
+import Icon from "@themes/urlIcon";
 
 function ConsultationCard({...props}) {
-    const {t, devise, appointment} = props;
+    const {t, devise, appointments, setAppointments, getTotalApps, getTotalPayments, theme} = props;
 
-    const [collapse, setCollapse] = useState<boolean>(false);
     return (
-        <Card className="consultation-card">
+        <Card>
             <CardContent>
-                <Stack spacing={1}>
-                    <Stack direction="row" alignItems="center">
-                        <Typography fontWeight={700}>{t("consultation")}</Typography>
-                        <Typography ml={0.5} color="text.secondary" variant="body2">
-                            {t("today")}
-                        </Typography>
-                        <IconButton
-                            size="small"
-                            className="btn-collapse"
-                            onClick={() => setCollapse(!collapse)}>
-                            <ExpandMoreIcon
-                                sx={{
-                                    transform: collapse ? "scaleY(-1)" : "scaleY(1)",
-                                    transition: "all .3s ease",
-                                }}/>
-                        </IconButton>
+                <Stack spacing={2}>
+                    <Stack direction={"row"} alignItems={"center"} flex={3} pb={1}
+                           borderBottom={`1px solid ${theme.palette.grey[200]}`}>
+                        <Stack direction={"row"} alignItems={"center"} flex={1}>
+                            <Checkbox checked={appointments.filter((app: {
+                                checked: boolean
+                            }) => app.checked).length === appointments.length}
+                                      onChange={(e) => {
+                                          appointments.map((app: {
+                                              checked: boolean
+                                          }) => app.checked = e.target.checked)
+                                          setAppointments([...appointments])
+                                      }}/>
+                            <Typography fontSize={12}>{t('dialog.date')}</Typography>
+                        </Stack>
+
+                        <Typography flex={1} fontSize={12}>{t('dialog.amount')}</Typography>
+                        <Typography flex={1} fontSize={12}>{t('dialog.leftPay')}</Typography>
                     </Stack>
-                    <Stack direction={"row"} justifyContent={"space-between"} alignItems="center">
-                        <Stack spacing={1}>
-                            <Stack direction="row" spacing={1}>
-                                <Label
-                                    color="warning"
-                                    variant="filled"
-                                    sx={{alignItems: "center"}}
-                                >
-                                    {t("total")}{" "}
-                                    <Typography
-                                        mx={0.5}
-                                        variant="body2"
-                                        fontWeight={700}
-                                        component="strong">
-                                        {appointment?.fees}
-                                    </Typography>{" "}
-                                    {devise}
-                                </Label>
-                                <Label
-                                    color="error"
-                                    variant="filled"
-                                    sx={{alignItems: "center"}}
-                                >
-                                    {t("amount_paid")}{" "}
-                                    <Typography mx={0.5} variant="body2" component="strong">
-                                        {appointment?.rest_amount}
-                                    </Typography>{" "}
-                                    {devise}
-                                </Label>
+
+                    {appointments.map((app: any, index: number) => (
+                        <Stack key={index} direction={"row"} alignItems={"center"} style={{flex: 3}} pb={1}
+                               borderBottom={index === appointments.length - 1 ? "" : `1px solid ${theme.palette.grey[200]}`}>
+                            <Stack direction={"row"} alignItems={"center"} flex={1}>
+                                <Checkbox checked={app.checked || false} onChange={(e) => {
+                                    app.checked = e.target.checked;
+                                    setAppointments([...appointments])
+                                }}/>
+                                <Stack spacing={0} sx={{
+                                    ".react-svg": {
+                                        svg: {
+                                            width: 11,
+                                            height: 11,
+                                            path: {
+                                                fill: (theme) => theme.palette.text.primary,
+                                            },
+                                        },
+                                    },
+                                }}>
+                                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                        <Icon path="ic-agenda"/>
+                                        <Typography fontSize={12} fontWeight={"bold"}>{app.day_date}</Typography>
+                                    </Stack>
+
+                                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                        <Icon path="ic-time"/>
+                                        <Typography fontSize={11}>{app.start_date}</Typography>
+                                    </Stack>
+                                </Stack>
                             </Stack>
 
-                            {/*
-                            <BorderLinearProgress variant="determinate" value={50} />
-*/}
-                        </Stack>
-                        <Button variant={"contained"}
-                            /* onClick={()=>{setOpenDialog(true)}}*/
-                                startIcon={<IconUrl color={"white"} path="ic-fees"/>}>
-                            {t('pay_now')}
-                        </Button>
-                    </Stack>
-                </Stack>
-            </CardContent>
-            {collapse && <Divider/>}
+                            <Typography flex={1}><span style={{fontWeight: "bold"}}>{app.fees}</span> <span
+                                style={{fontSize: 12}}>{devise}</span></Typography>
+                            <Typography flex={1}><span style={{fontWeight: "bold"}}>{app.rest_amount}</span> <span
+                                style={{fontSize: 12}}>{devise}</span></Typography>
+                        </Stack>))}
 
-            <Collapse in={collapse}>
-                <CardContent>
-                    <table className="data-table">
-                        <thead>
-                        <tr>
-                            <th align="left">{t("act")}</th>
-                            <th>{t("qte")}</th>
-                            <th align="right">{t("amount")}(DT)</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td align="left">Consultation</td>
-                            <td align="center">1</td>
-                            <td align="right">70</td>
-                        </tr>
-                        <tr>
-                            <td align="right" colSpan={2}>
-                                {t("total")} (DT)
-                            </td>
-                            <td align="right">100</td>
-                        </tr>
-                        <tr>
-                            <td align="right" colSpan={2}>
-                                {t("amount_paid")}
-                            </td>
-                            <td align="right">100</td>
-                        </tr>
-                        <tr>
-                            <td align="right" colSpan={2}>
-                                <Typography fontWeight={600} variant="subtitle1">
-                                    {t("rest_pay")}
-                                </Typography>
-                            </td>
-                            <td align="right">100</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <Stack alignItems="flex-end" mt={2}>
-                        <Button
-                            className="btn-print"
-                            variant="outlined"
-                            startIcon={<IconUrl path="ic-printer"/>}
-                        >
-                            {t("print")}
-                        </Button>
-                    </Stack>
-                </CardContent>
-            </Collapse>
+                </Stack>
+
+                <Stack direction={"row"} pl={3} pr={3} mt={2} borderRadius={1} justifyContent={"space-between"}
+                       style={{backgroundColor: "#F0FAFF"}}>
+                    <Typography fontSize={16} color={theme.palette.secondary.main}>{t('dialog.total')}</Typography>
+                    <Typography color={theme.palette.secondary.main} fontSize={18}
+                                fontWeight={"bold"}>{getTotalApps()} {devise}</Typography>
+                </Stack>
+
+                {getTotalApps() - getTotalPayments() > 0 &&
+                    <Stack direction={"row"} pl={3} pr={3} mt={1} borderRadius={1} justifyContent={"space-between"}
+                           style={{backgroundColor: theme.palette.error.main}}>
+                        <Typography fontSize={16} style={{color: "white"}}>{t('dialog.leftPay')}</Typography>
+                        <Typography style={{color: "white"}} fontSize={18}
+                                    fontWeight={"bold"}>{getTotalApps() - getTotalPayments()} {devise}</Typography>
+                    </Stack>}
+            </CardContent>
         </Card>
     );
 }
