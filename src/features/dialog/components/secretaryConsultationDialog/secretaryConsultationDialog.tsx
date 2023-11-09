@@ -7,7 +7,6 @@ import {
     Card,
     CardContent,
     Checkbox,
-    DialogActions,
     FormControlLabel,
     Grid,
     IconButton,
@@ -25,18 +24,14 @@ import RootStyled from "./overrides/rootSyled";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {useAppSelector} from "@lib/redux/hooks";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import CloseIcon from "@mui/icons-material/Close";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {startCase} from 'lodash'
 import {EventType, TimeSchedule} from "@features/tabPanel";
@@ -77,7 +72,7 @@ function SecretaryConsultationDialog({...props}) {
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
     const [selectedDose, setSelectedDose] = useState("day")
-    const [appData, setAppData] = useState({rest_amount:0,fees:0})
+    const [appData, setAppData] = useState({rest_amount: 0, fees: 0})
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -92,8 +87,6 @@ function SecretaryConsultationDialog({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });
-
-    console.log(patient)
 
     useEffect(() => {
         if (httpAppointmentTransactions) {
@@ -163,7 +156,7 @@ function SecretaryConsultationDialog({...props}) {
                                 spacing={1}
                                 mx="auto"
                                 width={1}>
-                                <Typography mt={{xs: 3, md: 0}} >
+                                <Typography mt={{xs: 3, md: 0}}>
                                     {t("recap")}
                                 </Typography>
                                 <Typography
@@ -272,9 +265,9 @@ function SecretaryConsultationDialog({...props}) {
                                             }
                                         </Stack>
                                     </Stack>
-                                    {total &&  total > -1 && patient.rest_amount &&
+                                    {total && total > -1 && patient.rest_amount + appData.rest_amount > 0 &&
                                         <Stack direction={"row"} alignItems={"center"}>
-                                            {demo  && <Button
+                                            {demo && <Button
                                                 endIcon={
                                                     <Typography sx={{fontSize: '12px !important'}}>
                                                         {devise}
@@ -289,10 +282,10 @@ function SecretaryConsultationDialog({...props}) {
                                                 })}
                                                 onClick={openDialogPayment}>
 
-                                                <Typography >{t("pay")}</Typography>
+                                                <Typography>{t("pay")}</Typography>
                                                 <Typography component='span' fontWeight={700} variant="subtitle2"
                                                             ml={1}>
-                                                    {patient.rest_amount}
+                                                    {patient.rest_amount + appData.rest_amount}
                                                 </Typography>
                                             </Button>
                                             }

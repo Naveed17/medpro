@@ -196,8 +196,20 @@ function PaymentDialog({...props}) {
         handleClose();
     };
 
-    const payWithAvance = (tr) => {
+    const payWithAvance = (tr:any) => {
         console.log(tr)
+        const form = new FormData();
+        form.append("appointment", '');
+        form.append("amount", '');
+        triggerAppointmentEdit({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/transactions/${tr.uuid}/transaction-data/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: (res) => {
+                mutate().then(() => setOpenPaymentDialog(false));
+            },
+        });
     }
 
     const getTotalApps = () => {
@@ -215,14 +227,13 @@ function PaymentDialog({...props}) {
             const res = (httpAppointmentTransactions as HttpResponse).data
             console.log(res.patient_transaction)
             setPatientTransactions(res.patient_transaction)
-            let total = res.rest_amount;
-            let apps = [];
+            let total = 0;
+            let apps:any[] = [];
             res.appointments.map((app: any) => {
                 apps.push({
                     uuid: app.uuid,
                     rest_amount: app.rest_amount,
                     fees: app.fees,
-
                     start_date: app.start_date,
                     day_date: app.day_date,
                     checked: true
@@ -363,18 +374,14 @@ function PaymentDialog({...props}) {
                                             <Card key={index} style={{padding: 10}}>
                                                 <Stack direction={"row"} justifyContent={"space-between"}>
                                                     <Stack>
-                                                        <Typography fontSize={12}>Espece</Typography>
-                                                        <Stack
-                                                            direction="row"
+                                                        <Typography fontSize={12}>{transaction.payment_means.map(tr=>(tr.paymentMeans.name+' '))}</Typography>
+                                                        <Stack direction="row"
                                                             alignItems="center"
-                                                            spacing={0.5}
-                                                        >
-                                                            <IconUrl
-                                                                path={"ic-agenda"}
+                                                            spacing={0.5}>
+                                                            <IconUrl path={"ic-agenda"}
                                                                 width={12}
                                                                 height={12}
-                                                                color={theme.palette.text.secondary}
-                                                            />
+                                                                color={theme.palette.text.secondary}/>
                                                             <Typography variant="body2">
                                                                 {moment(transaction.date_transaction, 'YYYY-MM-DD HH:mm').format('DD-MM-YYYY')}
                                                             </Typography>
@@ -382,9 +389,11 @@ function PaymentDialog({...props}) {
                                                     </Stack>
                                                     <Button size={"small"}
                                                             variant={"contained"}
+                                                            disabled={true}
                                                             onClick={() => payWithAvance(transaction)}
-                                                            startIcon={<IconUrl path={"ic-argent"}/>}
-                                                    >{t('dialog.use')} {transaction.restAmount} {devise}</Button>
+                                                            startIcon={<IconUrl path={"ic-argent"}/>}>
+                                                        {t('dialog.use')} {transaction.restAmount} {devise}
+                                                    </Button>
                                                 </Stack>
                                             </Card>
                                         ))}
