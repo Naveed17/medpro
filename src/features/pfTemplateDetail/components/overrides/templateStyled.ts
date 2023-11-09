@@ -1,11 +1,14 @@
 import {styled} from "@mui/material/styles";
+import {Card} from '@mui/material'
 
-const TemplateStyled = styled("div")(({theme}) => ({
+const TemplateStyled = styled(Card)(({theme}) => ({
+    border:'none',
+    ".MuiCardContent-root":{
+    padding:theme.spacing(2),
     position:'relative',
-    display: "inline-flex",
-    flexWrap: "wrap",
-    columnGap: 0,
-    rowGap: 0,
+    display:'grid',
+    gridTemplateColumns:'repeat(auto-fill, minmax(160px, 1fr))',    
+    gap:theme.spacing(3),
     [theme.breakpoints.down("md")]:{
         width:"100%",
     },
@@ -15,10 +18,10 @@ const TemplateStyled = styled("div")(({theme}) => ({
         gap:20,
     },
     "& > .portraitA4":{
+        minHeight:400,
          [theme.breakpoints.down("md")]:{
             width:'100%',
             marginRight:'0 !important',
-            marginBottom:150,
             
         },
         [theme.breakpoints.between("sm", "md")]:{
@@ -27,15 +30,26 @@ const TemplateStyled = styled("div")(({theme}) => ({
         },
     },
     "& .container": {
-        padding: 5,
+        backgroundColor: theme.palette.background.default,
+        padding: theme.spacing(2),
+        borderRadius:6,
         position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        alignItems:'center',
+        minHeight:168,
          ".portraitA4":{
+            minHeight:400,
         [theme.breakpoints.down("md")]:{
             width:'100%',
-            marginLeft:'0 !important',
+            margin:'0 !important',
+
            
         },
       
+    },
+    "& div":{
+        width:'100%',
     },
       [theme.breakpoints.down("md")]:{
             width:'100%',
@@ -62,10 +76,18 @@ const TemplateStyled = styled("div")(({theme}) => ({
         fontSize: 10
     },
     "& .portraitA4": {
+        backgroundColor: theme.palette.background.paper,
+        padding: theme.spacing(3,2),
         zoom: "18%",
+        margin:0,
+        transform:'scale(.9)',
         '&:hover': {
             boxShadow: "0 8px 36px rgba(152,180,234,.19), 0 11px 33px rgba(122,152,210,.12)"
-        }
+        },
+        [theme.breakpoints.down("md")]:{
+            zoom:'100%'
+
+        },
     },
     "& .edit-btn": {
         position: "absolute",
@@ -75,9 +97,6 @@ const TemplateStyled = styled("div")(({theme}) => ({
         zIndex: 999
     },
     "& .title-content": {
-        position: 'absolute',
-        bottom: 13,
-        left: 10,
         width: "85%",
         justifyContent: 'space-between',
         alignItems: "center"
@@ -87,8 +106,8 @@ const TemplateStyled = styled("div")(({theme}) => ({
         overflow: "hidden",
         display: "-webkit-box",
         maxWidth: 110,
-        //"-webkit-line-clamp": "1",
-        //"-webkit-box-orient": "vertical"
+        "-webkit-line-clamp": "1",
+        "-webkit-box-orient": "vertical"
     },
     "& .color-content": {
         width: 15,
@@ -98,15 +117,26 @@ const TemplateStyled = styled("div")(({theme}) => ({
     ".portraitA4.MuiBox-root":{
         [theme.breakpoints.down("md")]:{
             width:'100%',
-            marginRight:'0 !important',
-            marginBottom:150,
+            margin:'0 !important',
+            minHeight:400,
             
         },
         [theme.breakpoints.between("sm", "md")]:{
             height:'calc(100% - 200px)',
             marginBottom:0,
         },
+    },
+    ".add-doc-wrapper":{
+        ".portraitA4":{
+            minHeight:1300,
+            [theme.breakpoints.down("md")]:{
+                minHeight:400,
+                borderRadius:'6px !important',
+                
+            }
+        }
     }
+}
 }));
 
 export default TemplateStyled;
