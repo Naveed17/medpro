@@ -116,7 +116,6 @@ function PaymentDialog({...props}) {
             onSuccess: () => {
                 mutate().then(() => {
                     mutatePatient && mutatePatient();
-                    setOpenPaymentDialog(false)
                 });
             },
         });
@@ -191,7 +190,6 @@ function PaymentDialog({...props}) {
     useEffect(() => {
         if (httpPatientTransactions) {
             const res = (httpPatientTransactions as HttpResponse).data
-            console.log(res.patient_transaction)
             setPatientTransactions(res.patient_transaction)
             let total = 0;
             let apps: any[] = [];
