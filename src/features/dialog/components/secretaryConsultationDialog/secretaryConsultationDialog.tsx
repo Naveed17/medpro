@@ -57,7 +57,8 @@ function SecretaryConsultationDialog({...props}) {
             setCheckedNext,
             addFinishAppointment,
             showCheckedDoc,
-            showPreview
+            showPreview,
+            mutatePatient
         }
     } = props;
     const router = useRouter();
@@ -70,7 +71,6 @@ function SecretaryConsultationDialog({...props}) {
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
-    const [loading, setLoading] = useState(false);
     const [selectedDose, setSelectedDose] = useState("day")
     const [appData, setAppData] = useState({rest_amount: 0, fees: 0})
 
@@ -83,7 +83,7 @@ function SecretaryConsultationDialog({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {data: httpAppointmentTransactions, mutate} = useRequestQuery({
+    const {data: httpAppointmentTransactions} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });
@@ -91,8 +91,8 @@ function SecretaryConsultationDialog({...props}) {
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
+            console.log(res)
             setAppData(res);
-            console.log(res);
             setTransactions(res.transactions ? res.transactions[0] : null);
             if (total === -1) {
                 const form = new FormData();
@@ -399,9 +399,9 @@ function SecretaryConsultationDialog({...props}) {
                         }}
                         open={openPaymentDialog}
                         data={{
-                            app_uuid,
                             patient,
-                            setOpenPaymentDialog
+                            setOpenPaymentDialog,
+                            mutatePatient
                         }}
                         size={"lg"}
                         fullWidth
