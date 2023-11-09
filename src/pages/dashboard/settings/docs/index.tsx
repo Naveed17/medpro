@@ -3,7 +3,6 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
-import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
     Box,
@@ -46,7 +45,6 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function DocsConfig() {
-    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
     const router = useRouter();
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
