@@ -2,7 +2,7 @@
   "path": "Caisse",
   "total": "Total",
   "wallet": "Avance",
-  "credit": "Reste à payer",
+  "credit": "Reste",
   "paid_total": "Total payé",
   "insurance": "Assurance",
   "btn_header_1": "Dépense",
@@ -63,6 +63,13 @@
   "check_title": "Informations de Chéque",
   "payment_info": "Informations de Paiement",
   "method": "Méthode",
+  "history": "Historique",
+  "paid_amount": "Montant payé",
+  "from": "De",
+  "to": "jusqu’à",
+  "status": "Status",
+  "paid": "Payé",
+  "unpaid": "Non Payé",
   "dialogs": {
     "delete-dialog": {
       "title": "Supprimer transaction",
