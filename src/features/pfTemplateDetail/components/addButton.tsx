@@ -2,7 +2,9 @@ import React from "react";
 import StyledMenu from "./overrides/styledMenu";
 import {Box, Button, MenuItem} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-
+import {
+  capitalizeFirst,
+} from "@lib/hooks";
 function AddButton({...props}) {
     const {onClickEvent, t,list, ...rest} = props;
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -77,7 +79,7 @@ function AddButton({...props}) {
                  {
                     list.map((menu:any,idx:number)=> (
                 <MenuItem disableRipple key={idx} onClick={() => handleEvent(menu)}>
-                    { menu.name === "unfolded" ? t(menu.name):menu.name}
+                    { menu.name === "unfolded" ? capitalizeFirst(t(menu.name)):capitalizeFirst(menu.name)}
                 </MenuItem>
                     ))
                  }   

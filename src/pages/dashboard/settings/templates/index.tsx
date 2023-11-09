@@ -21,6 +21,7 @@ import {
   Toolbar,
   Typography,
   useTheme,
+  useMediaQuery
 } from "@mui/material";
 import dynamic from "next/dynamic";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
@@ -84,7 +85,7 @@ function TemplatesConfig() {
   const [model, setModel] = useState<any>(null);
   const [prescriptionTabIndex, setPrescriptionTabIndex] = useState(0);
   const [certificateTabIndex, setCertificateTabIndex] = useState(0);
-
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"))
   const { trigger: triggerModelDelete } = useRequestQueryMutation(
     "/settings/certifModel/delete"
   );
@@ -287,7 +288,6 @@ function TemplatesConfig() {
   const certificateFolderModel = ((httpParentModelResponse as HttpResponse)
     ?.data ?? []) as any[];
 const onClickEventCertificate =  (prop:any) => {
-  console.log(prop)
 switch(prop)
   {
     case "unfolded":
@@ -302,6 +302,11 @@ switch(prop)
       setAction("editDoc");
       
   }
+}
+const onClickEventPrescription = () => {
+  setInfo(getPrescriptionUI());
+  setModel(null);
+  setOpenDialog(true);
 }
   if (!ready) return <LoadingScreen button text={"loading-error"} />;
 
@@ -441,19 +446,26 @@ switch(prop)
         <TemplateStyled>
           <Box p={2}>
             <Stack
+              width={1}
               direction={{xs:'column-reverse',sm:'row'}}
               alignItems="center"
               justifyContent="space-between"
-              borderBottom={1}
-              borderColor="divider"
+              borderBottom={{xs:0,sm:`1px solid ${theme.palette.divider}`}}
+              display={{xs:"grid",sm:'flex'}}
+              
             >
               <Tabs
                 value={certificateTabIndex}
                 onChange={(event, value) => setCertificateTabIndex(value)}
                 aria-label="balance sheet tabs"
+                 variant={isMobile ? "scrollable":'standard'}
+                 scrollButtons={false}
+                 sx={{mb:{xs:2,sm:0},
+                  borderBottom:{xs:`1px solid ${theme.palette.divider}`,sm:0},
+                  
+                }}
               >
                 <Tab
-                  iconPosition="start"
                   disableFocusRipple
                   disableRipple
                   label={t("unfolded")}
@@ -462,7 +474,6 @@ switch(prop)
                 {certificateFolderModel.map((folder) => (
                   <Tab
                     key={folder.uuid}
-                    iconPosition="start"
                     disableFocusRipple
                     disableRipple
                     label={capitalizeFirst(folder.name)}
@@ -470,7 +481,7 @@ switch(prop)
                   />
                 ))}
               </Tabs>
-              <Stack direction={"row"} spacing={1} alignItems={"center"}>
+              <Stack ml={{sm:2}} direction={"row"} spacing={1} alignItems={"center"}>
                 <TextField
                   sx={{
                     ".MuiSvgIcon-root": {
@@ -741,12 +752,19 @@ switch(prop)
               direction={{xs:'column-reverse',sm:'row'}}
               alignItems="center"
               justifyContent="space-between"
-              sx={{ borderBottom: 1, borderColor: "divider" }}
+              borderBottom={{xs:0,sm:`1px solid ${theme.palette.divider}`}}
+              display={{xs:"grid",sm:'flex'}}
             >
               <Tabs
                 value={prescriptionTabIndex}
                 onChange={(event, value) => setPrescriptionTabIndex(value)}
                 aria-label="balance sheet tabs"
+                variant={isMobile ? "scrollable":'standard'}
+                 scrollButtons={false}
+                 sx={{mb:{xs:2,sm:0},
+                  borderBottom:{xs:`1px solid ${theme.palette.divider}`,sm:0},
+                  
+                }}
               >
                 {prescriptionFolders.map((folder) => (
                   <Tab
@@ -758,13 +776,7 @@ switch(prop)
                   />
                 ))}
               </Tabs>
-              <Button
-                variant="contained"
-                sx={{width:{xs:'100%',sm:'auto'}}}
-                startIcon={<IconUrl path={"ic-doc-add"} />}
-              >
-                {t("btnAdd")}
-              </Button>
+               <AddButton {...{t,onClickEvent:onClickEventPrescription,list:prescriptionFolders}} />
             </Stack>
           </Box>
           {prescriptionFolders.map((folder, index: number) => (
