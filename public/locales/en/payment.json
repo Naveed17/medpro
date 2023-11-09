@@ -44,6 +44,7 @@
   "delete": "Supprimer",
   "addsuccess": "Paiement ajouté",
   "cashout": "Collect",
+  "add_payment": "Add payment",
   "dialogs":{
     "delete-dialog": {
       "title":"Delete transaction",
@@ -125,5 +126,20 @@
   "alert-5": "Your input and feedback is invaluable in helping us create great checkout functionality. We thank you for your collaboration in this crucial phase of development. Your commitment will help shape the future of our practice management software.",
   "alert-6": "We thank you for your trust and continued support.",
   "alert-7": "Sincerely,",
-  "alert-8": "The technical support team"
+  "alert-8": "The technical support team",
+  "pay_now": "Pay",
+  "to_pay_appointments": "To pay appointments",
+  "no_transaction": "No payment made",
+  "pay_all_tr": "Complete your payments in one click",
+  "pay_all": "Pay all",
+  "dialog": {
+    "leftPay": "Left to pay",
+    "date": "Date",
+    "amount": "Amount",
+    "total": "Total",
+    "pay": "Pay",
+    "error": "Please enter an amount",
+    "avance": "Avance"
+  }
+
 }

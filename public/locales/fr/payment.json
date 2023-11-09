@@ -34,7 +34,7 @@
   "receive": "Assurance",
   "somme": "Somme",
   "more": "Plus",
-  "betav":"Utiliser la nouvelle version de la caisse (bêta)",
+  "betav": "Utiliser la nouvelle version de la caisse (bêta)",
   "payment_dialog_title": "Paiement",
   "paidOn": "Payé le ",
   "payment_edit_dialog_title": "Modifier une transaction",
@@ -46,6 +46,23 @@
   "cashout": "Décaisser",
   "appointment_date": "Date du RDV",
   "remainder_to_pay": "Reste a payé",
+  "current_consultation": "Consultation actuelle",
+  "consultation": "Consultation",
+  "today": "Aujourd’hui",
+  "amount_paid": "Montant a payé",
+  "pay_now": "Payer",
+  "act": "Act",
+  "qte": "Qte",
+  "print": "Imprimer",
+  "rest_pay": "Reste a Payé",
+  "other_consultation": "Autre consultations",
+  "payment": "Paiement",
+  "add_payment": "Ajouter un paiement",
+  "choose_a_payment_method": "Choisissez une méthode de paiement",
+  "add_check": "Ajouter un Chéque",
+  "check_title": "Informations de Chéque",
+  "payment_info": "Informations de Paiement",
+  "method": "Méthode",
   "dialogs": {
     "delete-dialog": {
       "title": "Supprimer transaction",
@@ -130,5 +147,18 @@
   "alert-5": "Votre contribution et votre retour d'expérience sont inestimables pour nous aider à créer une fonctionnalité de caisse exceptionnelle. Nous vous remercions de votre collaboration dans cette phase cruciale de développement. Votre engagement contribuera à façonner l'avenir de notre logiciel de gestion de cabinet.",
   "alert-6": "Nous vous remercions pour votre confiance et votre soutien continu.",
   "alert-7": "Cordialement,",
-  "alert-8": "L'équipe du support technique"
+  "alert-8": "L'équipe du support technique",
+  "no_transaction": "Aucun paiement effectué",
+  "pay_all_tr": "Effectuez vos paiements en un clic",
+  "pay_all": "Payer tout",
+  "to_pay_appointments": "payer des rendez-vous",
+  "dialog": {
+    "leftPay": "Reste à payer",
+    "date": "Date",
+    "amount": "Montant",
+    "total": "Total à payer",
+    "pay": "Payer",
+    "error": "Veuillez entrer un montant",
+    "avance": "Avance"
+  }
 }

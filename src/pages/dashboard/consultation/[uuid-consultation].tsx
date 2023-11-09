@@ -214,7 +214,6 @@ function ConsultationInProgress() {
     const [openChat, setOpenChat] = useState<boolean>(false);
     const [isViewerOpen, setIsViewerOpen] = useState<string>("");
     const [transactions, setTransactions] = useState(null);
-    const [restAmount, setRestAmount] = useState(0);
     const [addFinishAppointment, setAddFinishAppointment] = useState<boolean>(false);
     const [showDocument, setShowDocument] = useState(false);
     const [nbDoc, setNbDoc] = useState(0);
@@ -503,35 +502,10 @@ function ConsultationInProgress() {
         setIsViewerOpen("");
     }
 
-    const getTransactionAmountPayed = (): number => {
-        let payed_amount = 0;
-        (transactions as any)?.transaction_data.forEach((td: { amount: number }) => payed_amount += td.amount);
-        return payed_amount;
-    }
-
-    const checkTransactions = () => {
-        if (!transactions && app_uuid) {
-            const form = new FormData();
-            form.append("type_transaction", TransactionType[2].value);
-            form.append("status_transaction", TransactionStatus[1].value);
-            form.append("cash_box", selectedBoxes[0]?.uuid);
-            form.append("amount", total.toString());
-            form.append("rest_amount", total.toString());
-            form.append("appointment", app_uuid.toString());
-            form.append("transaction_data", JSON.stringify([]));
-
-            triggerTransactionCreate({
-                method: "POST",
-                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                data: form
-            })
-        }
-    }
-
     const saveConsultation = () => {
         setLoading(true);
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
-        const restAmount = getTransactionAmountPayed();
+        const restAmount = 0;
         const form = new FormData();
         form.append("status", "5");
         form.append("action", "end_consultation");
@@ -575,7 +549,6 @@ function ConsultationInProgress() {
                     dispatch(resetAppointment());
                     dispatch(openDrawer({type: "view", open: false}));
                 });
-                isDemo && checkTransactions();
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
@@ -1154,28 +1127,6 @@ function ConsultationInProgress() {
                         />
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-                        {/*                        <Button onClick={() => {
-                            const form = new FormData();
-                            form.append("cash_box", selectedBoxes[0].uuid);
-                            form.append("type_transaction", TransactionType[0].value);
-                            form.append("amount", "150");
-                            form.append("payment_means", "d72700cc-e540-4ace-9e78-bdfa9f71e33e");
-                            form.append("patient", sheet?.patient);
-                            form.append("transaction_data", JSON.stringify([{
-                                appointment: app_uuid,
-                                amount: 80,
-                            }]));
-
-                            triggerAppointmentEdit({
-                                method: "POST",
-                                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                                data: form
-                            }, {
-                                onSuccess: (res) => {
-                                    console.log(res)
-                                },
-                            });
-                        }}> PAY</Button>*/}
                         <Grid container spacing={0}>
                             <Grid item xs={showDocument ? 10 : 12}>
                                 <div style={{display: "flex", width: "100%"}}>
@@ -1602,7 +1553,6 @@ function ConsultationInProgress() {
                     t,
                     transactions, setTransactions,
                     total, setTotal,
-                    setRestAmount,
                     addInfo,
                     changes,
                     meeting,
@@ -1613,7 +1563,7 @@ function ConsultationInProgress() {
                     showCheckedDoc,
                     showPreview
                 }}
-                size={addFinishAppointment ? "md" : "lg"}
+                size={addFinishAppointment ? "md" : "md"}
                 color={theme.palette.error.main}
                 actionDialog={<DialogAction/>}
             />
