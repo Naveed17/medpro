@@ -196,6 +196,10 @@ function PaymentDialog({...props}) {
         handleClose();
     };
 
+    const payWithAvance = (tr) => {
+        console.log(tr)
+    }
+
     const getTotalApps = () => {
         return appointments.filter((app: { checked: boolean; }) => app.checked).reduce((total: number, val: {
             rest_amount: number
@@ -204,9 +208,7 @@ function PaymentDialog({...props}) {
 
     const getTotalPayments = () => {
         return payments.reduce((total: number, val: { amount: number }) => total + val.amount, 0);
-
     }
-
 
     useEffect(() => {
         if (httpAppointmentTransactions) {
@@ -214,14 +216,7 @@ function PaymentDialog({...props}) {
             console.log(res.patient_transaction)
             setPatientTransactions(res.patient_transaction)
             let total = res.rest_amount;
-            let apps = [{
-                uuid: app_uuid,
-                fees: res.fees,
-                rest_amount: res.rest_amount,
-                checked: true,
-                day_date: moment().format('DD-MM-YYYY'),
-                start_date: moment().format('HH:mm')
-            }];
+            let apps = [];
             res.appointments.map((app: any) => {
                 apps.push({
                     uuid: app.uuid,
@@ -359,41 +354,43 @@ function PaymentDialog({...props}) {
                                 </Menu>
                             </Stack>
 
-                            {patientTransactions.map((transaction,index) =>(<Card key={index} className={"payment-card"}>
+
+                            <Card  className={"payment-card"}>
                                 <CardContent>
                                     <Stack spacing={1}>
                                         <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.avance')}</Typography>
-                                        <Card style={{padding: "10px 20px"}}>
-                                            <Stack direction={"row"} justifyContent={"space-between"}>
-                                                <Stack>
-                                                    <Typography fontSize={12}>Espece</Typography>
-                                                    <Stack
-                                                        direction="row"
-                                                        alignItems="center"
-                                                        spacing={0.5}
-                                                    >
-                                                        <IconUrl
-                                                            path={"ic-agenda"}
-                                                            width={12}
-                                                            height={12}
-                                                            color={theme.palette.text.secondary}
-                                                        />
-                                                        <Typography variant="body2">
-                                                            {moment(new Date(), "DD-MM-YYYY HH:mm").format(
-                                                                "DD-MM-YYYY"
-                                                            )}
-                                                        </Typography>
+                                        {patientTransactions.map((transaction:any, index) => (
+                                            <Card key={index} style={{padding: 10}}>
+                                                <Stack direction={"row"} justifyContent={"space-between"}>
+                                                    <Stack>
+                                                        <Typography fontSize={12}>Espece</Typography>
+                                                        <Stack
+                                                            direction="row"
+                                                            alignItems="center"
+                                                            spacing={0.5}
+                                                        >
+                                                            <IconUrl
+                                                                path={"ic-agenda"}
+                                                                width={12}
+                                                                height={12}
+                                                                color={theme.palette.text.secondary}
+                                                            />
+                                                            <Typography variant="body2">
+                                                                {moment(transaction.date_transaction, 'YYYY-MM-DD HH:mm').format('DD-MM-YYYY')}
+                                                            </Typography>
+                                                        </Stack>
                                                     </Stack>
+                                                    <Button size={"small"}
+                                                            variant={"contained"}
+                                                            onClick={() => payWithAvance(transaction)}
+                                                            startIcon={<IconUrl path={"ic-argent"}/>}
+                                                    >{t('dialog.use')} {transaction.restAmount} {devise}</Button>
                                                 </Stack>
-                                                <Button size={"small"}
-                                                        variant={"contained"}
-                                                        startIcon={<IconUrl path={"ic-argent"}/>}
-                                                >Utiliser 150 TND</Button>
-                                            </Stack>
-                                        </Card>
+                                            </Card>
+                                        ))}
                                     </Stack>
                                 </CardContent>
-                            </Card>))}
+                            </Card>
 
                             {payments.map((item: any, i: number) => (
                                 <PaymentCard key={i} {...{

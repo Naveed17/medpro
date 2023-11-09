@@ -86,7 +86,6 @@ function SecretaryConsultationDialog({...props}) {
     const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {direction} = useAppSelector(configSelector);
-    const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {data: httpAppointmentTransactions, mutate} = useRequestQuery({
@@ -94,10 +93,13 @@ function SecretaryConsultationDialog({...props}) {
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });
 
+    console.log(patient)
+
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
             setAppData(res);
+            console.log(res);
             setTransactions(res.transactions ? res.transactions[0] : null);
             if (total === -1) {
                 const form = new FormData();
@@ -270,9 +272,9 @@ function SecretaryConsultationDialog({...props}) {
                                             }
                                         </Stack>
                                     </Stack>
-                                    {total &&  total > -1 &&
+                                    {total &&  total > -1 && patient.rest_amount &&
                                         <Stack direction={"row"} alignItems={"center"}>
-                                            {demo && appData?.rest_amount > 0 && <Button
+                                            {demo  && <Button
                                                 endIcon={
                                                     <Typography sx={{fontSize: '12px !important'}}>
                                                         {devise}
@@ -290,8 +292,7 @@ function SecretaryConsultationDialog({...props}) {
                                                 <Typography >{t("pay")}</Typography>
                                                 <Typography component='span' fontWeight={700} variant="subtitle2"
                                                             ml={1}>
-                                                    {appData?.rest_amount == total ?total : `${appData?.rest_amount} / ${total}`}
-                                                    {" "}
+                                                    {patient.rest_amount}
                                                 </Typography>
                                             </Button>
                                             }

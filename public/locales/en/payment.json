@@ -139,7 +139,9 @@
     "total": "Total",
     "pay": "Pay",
     "error": "Please enter an amount",
-    "avance": "Avance"
+    "avance": "Avance",
+    "use": "Use"
+
   }
 
 }
