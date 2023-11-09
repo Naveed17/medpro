@@ -4,7 +4,7 @@ import IconUrl from "@themes/urlIcon";
 import {useCallback} from "react";
 
 function DocsToolbar({...props}) {
-    const {onUploadOcrDoc} = props;
+    const {onUploadOcrDoc, isMobile} = props;
     const {t} = useTranslation("docs");
 
     const handleUploadOcrDoc = useCallback(() => {
@@ -20,14 +20,19 @@ function DocsToolbar({...props}) {
             <Typography variant="subtitle2" color="text.primary">
                 {t("sub-header.title")}
             </Typography>
-            <Button
-                variant="contained"
-                onClick={() => handleUploadOcrDoc()}
-                color="success"
-                sx={{ml: "auto"}}
-                startIcon={<IconUrl path={"add-doc"}/>}>
-                {t("sub-header.add-doc")}
-            </Button>
+            {
+                !isMobile && (
+                    <Button
+                        variant="contained"
+                        onClick={() => handleUploadOcrDoc()}
+                        color="success"
+                        sx={{ml: "auto"}}
+                        startIcon={<IconUrl path={"add-doc"}/>}>
+                        {t("sub-header.add-doc")}
+                    </Button>
+                )
+            }
+
         </Stack>
     )
 }

@@ -296,7 +296,7 @@ function ConsultationIPToolbar({...props}) {
                 //form.append("title", state.name);
                 //form.append("description", state.description);
                 state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
-                    form.append(`files[${file.type}][]`, file?.file as any, file?.name?.slice(0, 20));
+                    form.append(`files[${file.type}][]`, file?.file as any, file?.name);
                 });
 
                 triggerDrugsCreate({

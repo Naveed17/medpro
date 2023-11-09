@@ -6,6 +6,7 @@ import CircularProgress, {circularProgressClasses} from '@mui/material/CircularP
 import {SubHeader} from "@features/subHeader";
 import {DocsToolbar} from "@features/toolbar";
 import {
+    Backdrop,
     Box,
     Button,
     Card,
@@ -13,11 +14,18 @@ import {
     DialogActions,
     Divider,
     Grid,
-    IconButton, LinearProgress,
+    LinearProgress,
+    MenuItem,
+    IconButton,
+    SpeedDial,
+    SpeedDialAction,
     Stack,
     Typography,
+    Zoom,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
+import {alpha} from "@mui/material/styles";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {NoDataCard} from "@features/card";
@@ -35,15 +43,65 @@ import {useRouter} from "next/router";
 import {Label} from "@features/label";
 import {docTypes, leftActionBarSelector} from "@features/leftActionBar";
 import {Pagination} from "@features/pagination";
-import {toggleSideBar} from "@features/menu";
+import {ActionMenu, toggleSideBar} from "@features/menu";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
+import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
+import {Theme} from "@mui/material/styles";
+import {MobileContainer as smallScreen} from "@lib/constants";
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+const actions = [
+    {
+        icon: <IconUrl color={"gray"}
+                       path={"add-doc"}/>, name: 'Ajouter un document', label: 'sub-header.add-doc', key: 'add-doc'
+    },
+];
+const DialogAction = ({...props}) => {
+    const {isMobile, t, setOpenAddOCRDocDialog, loading} = props;
+
+    return (
+        <DialogActions sx={{width: "100%"}}>
+            <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
+                <Button variant="text-primary" onClick={() => setOpenAddOCRDocDialog(false)}
+                        startIcon={<CloseIcon/>}>
+                    {t("cancel", {ns: "common"})}
+                </Button>
+                <Stack direction={"row"} spacing={1.2}>
+                    <LoadingButton
+                        onClick={() => setOpenAddOCRDocDialog(false)}
+                        sx={{ml: "auto"}}
+                        loadingPosition="start"
+                        variant="contained"
+                        color={"info"}
+                        startIcon={<IconUrl path="ic-temps"/>}>
+                        {t("dialogs.add-dialog.later")}
+                    </LoadingButton>
+                    {
+                        !isMobile && (
+                            <LoadingButton
+                                {...{loading}}
+                                onClick={() => setOpenAddOCRDocDialog(false)}
+                                loadingPosition="start"
+                                variant="contained"
+                                startIcon={<IconUrl path="add-doc"/>}>
+                                {t("dialogs.add-dialog.confirm")}
+                            </LoadingButton>
+                        )
+                    }
+
+                </Stack>
+            </Stack>
+        </DialogActions>
+    )
+}
 
 function Documents() {
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const {t, ready} = useTranslation(["docs", "common"]);
     const {direction} = useAppSelector(configSelector);
@@ -53,6 +111,13 @@ function Documents() {
     const [openAddOCRDocDialog, setOpenAddOCRDocDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
     const [localFilter, setLocalFilter] = useState("");
+    const [selectedDoc, setSelectedDoc] = useState<OcrDocument | null>(null);
+    const [openRemoveDialog, setOpenRemoveDialog] = useState(false);
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
+    const [openFabAdd, setOpenFabAdd] = useState(false);
 
     let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
 
@@ -69,11 +134,16 @@ function Documents() {
     });
 
     const {trigger: triggerOcrDocUpload} = useRequestQueryMutation("/ocr/document/upload");
+    const {trigger: triggerRetryDocUpload} = useRequestQueryMutation("/ocr/document/retry");
+    const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/documents/delete");
 
-    const handleUploadDoc = (file: File) => {
+    const handleUploadDoc = (fileList: FileList) => {
         setLoading(true);
+        const files: File[] = Array.from(fileList);
         const form = new FormData();
-        form.append("files", file, file.name);
+        files.forEach((file: any) => {
+            form.append(`files[]`, file, file.name);
+        });
         medicalEntityHasUser && triggerOcrDocUpload({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`,
@@ -86,8 +156,59 @@ function Documents() {
         });
     }
 
-    const handleDeleteDoc = (index: number) => {
+    const handleRetryUpload = (uuid: string) => {
+        setLoading(true);
+        const form = new FormData();
+        form.append("attribute", "resend");
+        form.append("value", "true");
+        triggerRetryDocUpload({
+            method: "PATCH",
+            url: `${urlMedicalEntitySuffix}/ocr/documents/${uuid}/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                mutateOcrDocuments();
+            },
+            onSettled: () => setLoading(false)
+        });
+    }
 
+    const handleDeleteDocument = (uuid: string) => {
+        console.log("uuid", uuid);
+    }
+
+    const transitionDuration = {
+        enter: theme.transitions.duration.enteringScreen,
+        exit: theme.transitions.duration.leavingScreen,
+    };
+
+    const handleOpenFab = () => setOpenFabAdd(true);
+
+    const handleCloseFab = () => setOpenFabAdd(false);
+
+    const handleActionFab = (action: any) => {
+        setOpenFabAdd(false);
+        switch (action.key) {
+            case "add-doc" :
+                setOpenAddOCRDocDialog(true);
+                setTimeout(() => handleCloseFab());
+        }
+    }
+
+    const handleCloseMenu = () => {
+        setContextMenu(null);
+    }
+
+    const OnMenuActions = (action: string) => {
+        handleCloseMenu();
+        switch (action) {
+            case "onDelete":
+                handleDeleteDocument(selectedDoc?.uuid as string);
+                break;
+            case "onRetry":
+                handleRetryUpload(selectedDoc?.uuid as string);
+                break;
+        }
     }
 
     useEffect(() => {
@@ -116,7 +237,7 @@ function Documents() {
                         py: {md: 0, xs: 2},
                     },
                 }}>
-                <DocsToolbar onUploadOcrDoc={() => setOpenAddOCRDocDialog(true)}/>
+                <DocsToolbar {...{isMobile}} onUploadOcrDoc={() => setOpenAddOCRDocDialog(true)}/>
             </SubHeader>
 
             <LinearProgress sx={{
@@ -174,7 +295,7 @@ function Documents() {
 
                                                         </Stack>
                                                         <IconButton
-                                                            onClick={() => handleDeleteDoc(index)}
+                                                            onClick={() => handleDeleteDocument(file.uuid)}
                                                             disableRipple sx={{p: 0}}>
                                                             <IconUrl path="ic-close-btn" width={40} height={40}/>
                                                         </IconButton>
@@ -191,8 +312,9 @@ function Documents() {
                                                 <label htmlFor="contained-button-file">
                                                     <InputStyled
                                                         id="contained-button-file"
-                                                        onChange={(e) => handleUploadDoc((e.target.files as FileList)[0])}
+                                                        onChange={(e) => handleUploadDoc(e.target.files as FileList)}
                                                         type="file"
+                                                        multiple
                                                     />
                                                     <Stack sx={{cursor: "pointer"}} direction={"row"}
                                                            alignItems={"center"} spacing={2}>
@@ -219,7 +341,7 @@ function Documents() {
                                     {filesTreated.map((file: OcrDocument, index: number) =>
                                         <Grid
                                             key={index} item xs={12} md={4}
-                                            {...(file.status !== 3 && {
+                                            {...(![3, 2].includes(file.status) && {
                                                 onClick: () => router.push({
                                                     pathname: `/dashboard/documents/${file.uuid}`,
                                                     query: {data: JSON.stringify(file)}
@@ -230,8 +352,11 @@ function Documents() {
                                                     <Stack direction={"row"} alignItems={"center"} spacing={2}>
                                                         <IconUrl path={'ic-doc-upload'}/>
                                                         <Stack alignItems={"start"} spacing={0} sx={{width: '75%'}}>
-                                                            <Typography fontSize={12}
-                                                                        fontWeight={400}>{file.title}</Typography>
+                                                            <Typography
+                                                                className={'ellipsis'}
+                                                                width={220}
+                                                                fontSize={12}
+                                                                fontWeight={400}>{file.title}</Typography>
                                                             <Label variant='filled'
                                                                    sx={{
                                                                        "& .MuiSvgIcon-root": {
@@ -249,10 +374,21 @@ function Documents() {
                                                                     {t(`doc-status.${docTypes[file.status].label}`)}</Typography>
                                                             </Label>
                                                         </Stack>
-                                                        {file.status !== 3 && <IconButton
+                                                        <IconButton
+                                                            onClick={event => {
+                                                                event.stopPropagation();
+                                                                setSelectedDoc(file);
+                                                                setContextMenu(
+                                                                    contextMenu === null
+                                                                        ? {
+                                                                            mouseX: event.clientX + 2,
+                                                                            mouseY: event.clientY - 6,
+                                                                        } : null,
+                                                                );
+                                                            }}
                                                             disableRipple sx={{p: 0}}>
                                                             <IconUrl path="ic-more" width={30} height={30}/>
-                                                        </IconButton>}
+                                                        </IconButton>
                                                     </Stack>
                                                 </CardContent>
                                             </Card>
@@ -283,10 +419,99 @@ function Documents() {
                         }]
                     }}
                 />}
+
+                {isMobile &&
+                    <Zoom
+                        in={!loading}
+                        timeout={transitionDuration}
+                        style={{
+                            transitionDelay: `${!loading ? transitionDuration.exit : 0}ms`,
+                        }}
+                        unmountOnExit>
+                        <SpeedDial
+                            ariaLabel="SpeedDial tooltip Add"
+                            sx={{
+                                position: 'fixed',
+                                bottom: 20,
+                                right: 16
+                            }}
+                            icon={<SpeedDialIcon/>}
+                            onClose={handleCloseFab}
+                            onOpen={handleOpenFab}
+                            open={openFabAdd}>
+                            {actions.map((action) => (
+                                <SpeedDialAction
+                                    key={action.name}
+                                    icon={action.icon}
+                                    tooltipTitle={t(`${action.label}`)}
+                                    tooltipOpen
+                                    onClick={() => handleActionFab(action)}
+                                />
+                            ))}
+                        </SpeedDial>
+                    </Zoom>}
+                <Backdrop sx={{zIndex: 100, backgroundColor: alpha(theme.palette.common.white, 0.9)}}
+                          open={openFabAdd}/>
             </Box>
+
+            <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
+                {[
+                    {
+                        title: "delete-document",
+                        icon: <DeleteOutlineRoundedIcon/>,
+                        action: "onDelete",
+                    },
+                    ...(selectedDoc?.status === 3 ? [{
+                        title: "retry-ocr",
+                        icon: <ReplayRoundedIcon/>,
+                        action: "onRetry",
+                    }] : [])].map(
+                    (v: any, index) => (
+                        <MenuItem
+                            key={index}
+                            className="popover-item"
+                            onClick={() => {
+                                OnMenuActions(v.action);
+                            }}>
+                            {v.icon}
+                            <Typography fontSize={15} sx={{color: "#fff"}}>
+                                {t(`${v.title}`)}
+                            </Typography>
+                        </MenuItem>
+                    )
+                )}
+            </ActionMenu>
+
+            <Dialog
+                action={"remove"}
+                direction={direction}
+                open={openRemoveDialog}
+                data={{
+                    title: t('askRemovedoc'),
+                    subtitle: t('subtitleRemovedoc'),
+                    icon: "/static/icons/ic-text.svg",
+                    name1: selectedDoc?.title,
+                    name2: selectedDoc?.documentType,
+                }}
+                color={(theme: Theme) => theme.palette.error.main}
+                title={t('removedoc')}
+                t={t}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => {
+                            setOpenRemoveDialog(false);
+                        }}
+                                startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                        <LoadingButton variant="contained"
+                                       sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                                       onClick={() => handleDeleteDocument(selectedDoc?.uuid as string)}>{t('remove')}</LoadingButton>
+                    </DialogActions>
+                }
+            />
 
             <Dialog
                 action={"ocr_docs"}
+                margin={0}
                 {...{
                     direction,
                     sx: {
@@ -295,41 +520,31 @@ function Documents() {
                 }}
                 data={{
                     t,
-                    onDeleteDoc: handleDeleteDoc,
-                    onSaveDoc: handleUploadDoc,
-                    data: filesInProgress
+                    onDeleteDoc: handleDeleteDocument,
+                    onUploadDoc: handleUploadDoc,
+                    onRetryDoc: handleRetryUpload,
+                    onClose: () => {
+                        handleCloseFab();
+                        setTimeout(() => setOpenAddOCRDocDialog(false));
+                    },
+                    data: filesInProgress,
+                    isMobile
                 }}
                 open={openAddOCRDocDialog}
                 size={"md"}
-                title={t("dialogs.add-dialog.title")}
                 dialogClose={() => setOpenAddOCRDocDialog(false)}
-                actionDialog={
-                    <DialogActions sx={{width: "100%"}}>
-                        <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
-                            <Button variant="text-primary" onClick={() => setOpenAddOCRDocDialog(false)}
-                                    startIcon={<CloseIcon/>}>
-                                {t("cancel", {ns: "common"})}
-                            </Button>
-                            <Stack direction={"row"} spacing={1.2}>
-                                <LoadingButton
-                                    sx={{ml: "auto"}}
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    color={"info"}
-                                    startIcon={<IconUrl path="ic-temps"/>}>
-                                    {t("dialogs.add-dialog.later")}
-                                </LoadingButton>
-                                <LoadingButton
-                                    {...{loading}}
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    startIcon={<IconUrl path="add-doc"/>}>
-                                    {t("dialogs.add-dialog.confirm")}
-                                </LoadingButton>
-                            </Stack>
-                        </Stack>
-                    </DialogActions>
-                }
+                {...(isMobile ? {
+                        fullScreenDialog: true,
+                        headerDialog: true,
+                        actionDialog: filesInProgress.length > 0 &&
+                            <DialogAction {...{t, isMobile, setOpenAddOCRDocDialog, loading}}/>
+                    } : {
+                        fullScreenDialog: false,
+                        headerDialog: null,
+                        title: t("dialogs.add-dialog.title"),
+                        actionDialog: <DialogAction {...{t, isMobile, setOpenAddOCRDocDialog, loading}}/>
+                    }
+                )}
             />
         </>
     )

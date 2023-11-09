@@ -183,8 +183,7 @@ function Board({...props}) {
                                                                     overflow: "hidden",
                                                                     textOverflow: "ellipsis",
                                                                     width: columns[index].action && opened ? 110 : "auto",
-                                                                }
-                                                                }>
+                                                                }}>
                                                                 {t(key)} {boardData[key].length > 0 && index < 3 ? `(${boardData[key].length})` : ""}
                                                             </Typography>}
                                                         />

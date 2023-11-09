@@ -208,7 +208,7 @@ function Document() {
                     </Typography>
                     <Divider/>
                     <Box m={2.5}>
-                        <Typography mb={1} color={"text.primary"} fontSize={14} fontWeight={400}>{t('patient-Suggested')}</Typography>
+                        <Typography mb={1} color={"text.primary"} fontSize={14} fontWeight={400}>{t('filter.patient-suggested')}</Typography>
                         <AutoCompleteButton
                             size={"small"}
                             defaultValue={query}
