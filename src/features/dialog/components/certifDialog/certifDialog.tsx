@@ -340,7 +340,6 @@ function CertifDialog({...props}) {
     }
 
     const showActsData = () => {
-        console.log(data)
         medicalEntityHasUser && !expandedActs && agenda && acts.length === 0 && triggerGetData({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${data.appuuid}/acts/${router.locale}`
