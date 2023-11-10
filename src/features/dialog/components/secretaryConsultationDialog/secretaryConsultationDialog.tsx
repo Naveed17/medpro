@@ -400,10 +400,7 @@ function SecretaryConsultationDialog({...props}) {
                         data={{
                             patient,
                             setOpenPaymentDialog,
-                            mutatePatient: () => {
-                                mutatePatient();
-                                mutate()
-                            }
+                            mutatePatient
                         }}
                         size={"lg"}
                         fullWidth

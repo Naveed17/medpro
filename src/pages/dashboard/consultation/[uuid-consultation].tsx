@@ -57,12 +57,12 @@ import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
 import {useSession} from "next-auth/react";
 import {DrawerBottom} from "@features/drawerBottom";
-import {cashBoxSelector, ConsultationFilter} from "@features/leftActionBar";
+import {ConsultationFilter} from "@features/leftActionBar";
 import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
 import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
-import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
+import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useWidgetModels} from "@lib/hooks/rest";
@@ -121,7 +121,7 @@ function ConsultationInProgress() {
         medicalEntityHasUser,
         medicalProfessionalData
     } = useAppSelector(dashLayoutSelector);
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
+
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {selectedDialog} = useAppSelector(consultationSelector);
@@ -141,7 +141,6 @@ function ConsultationInProgress() {
     const general_information = (user as UserDataResponse).general_information;
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
-    const {trigger: triggerTransactionCreate} = useRequestQueryMutation("transaction/create");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
     const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
     const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
@@ -225,7 +224,6 @@ function ConsultationInProgress() {
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
-    const isDemo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -1048,7 +1046,7 @@ function ConsultationInProgress() {
                     <Stack spacing={1.5} direction="row" alignItems="center">
                         <IconUrl path={'ic-speaker'}/>
                         {!isMobile &&
-                            <Typography>{t('consultationIP.updateHistory')} <b>{sheet?.date}</b>.</Typography>}
+                            <Typography>{t('consultationIP.updateHistory')} {patient?.firstName} {patient?.lastName}, <b>{sheet?.date}</b>.</Typography>}
                     </Stack>
                     <LoadingButton
                         disabled={false}
@@ -1098,8 +1096,7 @@ function ConsultationInProgress() {
 
 
             {<HistoryAppointementContainer {...{isHistory, loading}}>
-                <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}}
-                     id={"container-tab"}
+                <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}} id={"container-tab"}
                      className="container-scroll">
                     <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
                         <HistoryTab
@@ -1345,8 +1342,7 @@ function ConsultationInProgress() {
                                     theme,
                                     showPreview,
                                     t,
-                                }}/>
-                                }
+                                }}/>}
                             </Grid>
                         </Grid>
                     </TabPanel>
@@ -1574,7 +1570,18 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{appuuid: app_uuid, patient, state, setState, t, setOpenDialog,setPendingDocuments,pendingDocuments,setPrescription}}
+                    data={{
+                        appuuid: app_uuid,
+                        patient,
+                        sheetExam,
+                        state,
+                        setState,
+                        t,
+                        setOpenDialog,
+                        setPendingDocuments,
+                        pendingDocuments,
+                        setPrescription
+                    }}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
                     direction={"ltr"}
                     sx={{height: info === "insurance_document_print" ? 600 : 480}}
