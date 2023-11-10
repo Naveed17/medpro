@@ -121,7 +121,6 @@ function Document() {
                     showPreview={() => {
                         const url = ocrData.uri?.url
                         const extension = getUrlExtension(url, '?');
-                        console.log("extension", extension);
                         setPreview({
                             type: extension,
                             url
