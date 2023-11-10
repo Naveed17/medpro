@@ -32,6 +32,8 @@ function PaymentCard({...props}) {
         devise,
         payments,
         setPayments,
+        selectedPayment,
+        setSelectedPayment,
     } = props;
     const theme: Theme = useTheme();
 
@@ -43,14 +45,13 @@ function PaymentCard({...props}) {
             payments[i] = {
                 ...payments[i],
                 selected: slug,
-                data: {bank: null, carrier: '', nb: '343321', date: new Date()}
+                data: {bank: null, carrier: '', nb: '', date: new Date()}
             }
-
         setPayments([...payments])
     }
 
     return (
-        <Card className={"payment-card"}>
+        <Card className={"payment-card"} style={{borderColor:selectedPayment === i ?theme.palette.primary.main:''}}>
             <CardContent>
                 <Stack spacing={2}>
                     <Stack
@@ -159,6 +160,8 @@ function PaymentCard({...props}) {
                                         }}
                                         size="small"
                                         fullWidth
+                                        autoFocus={true}
+                                        onFocus={()=> setSelectedPayment(i)}
                                         value={item.amount}
                                         onChange={(e) => {
                                             payments[i].amount = e.target.value ? parseInt(e.target.value, 10) : ''

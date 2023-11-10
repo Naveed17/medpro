@@ -140,7 +140,9 @@
     "pay": "Pay",
     "error": "Please enter an amount",
     "avance": "Avance",
-    "use": "Use"
+    "use": "Use",
+    "no_transaction": "No consultation to pay",
+    "add_now": "you have the option to add an advance payment"
 
   }
 
