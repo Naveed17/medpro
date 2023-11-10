@@ -1561,6 +1561,7 @@ function ConsultationInProgress() {
                     setCheckedNext,
                     addFinishAppointment,
                     showCheckedDoc,
+                    mutatePatient,
                     showPreview
                 }}
                 size={addFinishAppointment ? "md" : "md"}

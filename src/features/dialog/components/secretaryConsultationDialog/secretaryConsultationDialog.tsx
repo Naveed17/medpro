@@ -57,7 +57,8 @@ function SecretaryConsultationDialog({...props}) {
             setCheckedNext,
             addFinishAppointment,
             showCheckedDoc,
-            showPreview
+            showPreview,
+            mutatePatient
         }
     } = props;
     const router = useRouter();
@@ -71,7 +72,7 @@ function SecretaryConsultationDialog({...props}) {
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedDose, setSelectedDose] = useState("day")
-    const [appData, setAppData] = useState({rest_amount:0,fees:0})
+    const [appData, setAppData] = useState<any>(null)
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -154,7 +155,7 @@ function SecretaryConsultationDialog({...props}) {
                                 spacing={1}
                                 mx="auto"
                                 width={1}>
-                                <Typography mt={{xs: 3, md: 0}} >
+                                <Typography mt={{xs: 3, md: 0}}>
                                     {t("recap")}
                                 </Typography>
                                 <Typography
@@ -263,9 +264,9 @@ function SecretaryConsultationDialog({...props}) {
                                             }
                                         </Stack>
                                     </Stack>
-                                    {total &&  total > -1 &&
+                                    {total && total > -1 &&
                                         <Stack direction={"row"} alignItems={"center"}>
-                                            {demo && appData?.rest_amount > 0 && <Button
+                                            {demo && <Button
                                                 endIcon={
                                                     <Typography sx={{fontSize: '12px !important'}}>
                                                         {devise}
@@ -279,13 +280,12 @@ function SecretaryConsultationDialog({...props}) {
                                                     sx: {minWidth: 40},
                                                 })}
                                                 onClick={openDialogPayment}>
-
-                                                <Typography >{t("pay")}</Typography>
-                                                <Typography component='span' fontWeight={700} variant="subtitle2"
-                                                            ml={1}>
-                                                    {appData?.rest_amount == total ?total : `${appData?.rest_amount} / ${total}`}
-                                                    {" "}
-                                                </Typography>
+                                                <Typography>{t("pay")}</Typography>
+                                                {/*{appData.patient.rest_amount + appData.rest_amount > 0 &&
+                                                    <Typography component='span' fontWeight={700} variant="subtitle2"
+                                                                ml={1}>
+                                                        {appData.patient.rest_amount + appData.rest_amount}
+                                                    </Typography>}*/}
                                             </Button>
                                             }
                                         </Stack>
@@ -398,9 +398,12 @@ function SecretaryConsultationDialog({...props}) {
                         }}
                         open={openPaymentDialog}
                         data={{
-                            app_uuid,
                             patient,
-                            setOpenPaymentDialog
+                            setOpenPaymentDialog,
+                            mutatePatient: () => {
+                                mutatePatient();
+                                mutate()
+                            }
                         }}
                         size={"lg"}
                         fullWidth
