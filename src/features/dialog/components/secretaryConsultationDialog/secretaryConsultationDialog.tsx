@@ -7,7 +7,6 @@ import {
     Card,
     CardContent,
     Checkbox,
-    DialogActions,
     FormControlLabel,
     Grid,
     IconButton,
@@ -25,18 +24,14 @@ import RootStyled from "./overrides/rootSyled";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {useAppSelector} from "@lib/redux/hooks";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import CloseIcon from "@mui/icons-material/Close";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {startCase} from 'lodash'
 import {EventType, TimeSchedule} from "@features/tabPanel";
@@ -75,7 +70,6 @@ function SecretaryConsultationDialog({...props}) {
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
-    const [loading, setLoading] = useState(false);
     const [selectedDose, setSelectedDose] = useState("day")
     const [appData, setAppData] = useState({rest_amount:0,fees:0})
 
@@ -86,10 +80,9 @@ function SecretaryConsultationDialog({...props}) {
     const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {direction} = useAppSelector(configSelector);
-    const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {data: httpAppointmentTransactions, mutate} = useRequestQuery({
+    const {data: httpAppointmentTransactions} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });
