@@ -82,7 +82,7 @@ function SecretaryConsultationDialog({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {data: httpAppointmentTransactions, mutate} = useRequestQuery({
+    const {data: httpAppointmentTransactions} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });

@@ -10,7 +10,7 @@ const settingsData = {
         {
             name: "horaire",
             deep: "location",
-            icon: "setting/ic-time",
+            icon: "setting/ic-times",
             href: "/dashboard/settings/places/[uuid]",
             disable: false
         },
@@ -22,19 +22,19 @@ const settingsData = {
         },
         {
             name: "actfees",
-            icon: "setting/fees",
+            icon: "setting/ic-caisse",
             href: "/dashboard/settings/actfees",
             disable: false
         },
         {
             name: "motif",
-            icon: "setting/ic-patient-file",
+            icon: "setting/ic-motifs",
             href: "/dashboard/settings/motif",
             disable: false
         },
         {
             name: "consultation",
-            icon: "setting/medical-history",
+            icon: "setting/ic-fiche",
             href: "/dashboard/settings/patient-file-templates",
             disable: false
         },
@@ -46,13 +46,13 @@ const settingsData = {
         },
         {
             name: "configdoc",
-            icon: "setting/ic-doc",
+            icon: "setting/ic-document",
             href: "/dashboard/settings/templates",
             disable: false
         },
         {
             name: "type",
-            icon: "setting/c-type",
+            icon: "setting/ic-reasons",
             href: "/dashboard/settings/consultation-type",
             disable: false
         },
@@ -82,7 +82,7 @@ const settingsData = {
         },
         {
             name: "users",
-            icon: "setting/ic-user",
+            icon: "setting/ic-users",
             href: "/dashboard/settings/users",
             disable: false
         },
@@ -101,7 +101,7 @@ const settingsData = {
         },
         {
             name: "import-data",
-            icon: "setting/ic-dowlaodfile",
+            icon: "setting/ic-import",
             fill: "default",
             href: "/dashboard/settings/data",
             disable: false

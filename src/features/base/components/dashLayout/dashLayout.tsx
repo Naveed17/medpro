@@ -25,10 +25,13 @@ import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {setCashBoxes, setPaymentTypesList, setSelectedBoxes} from "@features/leftActionBar/components/cashbox";
 import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {pdfjs} from "react-pdf";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
 type PageTransitionRef = React.ForwardedRef<HTMLDivElement>
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const router = useRouter();

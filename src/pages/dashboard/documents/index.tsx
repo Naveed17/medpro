@@ -174,7 +174,16 @@ function Documents() {
     }
 
     const handleDeleteDocument = (uuid: string) => {
-        console.log("uuid", uuid);
+        setLoading(true);
+        medicalEntityHasUser && triggerDocumentDelete({
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/ocr/documents/${uuid}/${router.locale}`,
+        }, {
+            onSuccess: () => {
+                mutateOcrDocuments();
+            },
+            onSettled: () => setLoading(false)
+        });
     }
 
     const transitionDuration = {
