@@ -65,7 +65,6 @@ function CIPPatientHistoryCard({...props}) {
     let [oldNote, setOldNote] = useState('');
     let [diseases, setDiseases] = useState<string[]>([]);
     const [hide, setHide] = useState<boolean>(false);
-    const [editNote, setEditNote] = useState<boolean>(false);
     const [showToolbar, setShowToolbar] = useState<boolean>(false);
     const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
 
@@ -97,7 +96,6 @@ function CIPPatientHistoryCard({...props}) {
             console.log('ok', values);
         },
     });
-
 
     const {handleSubmit, values, setFieldValue} = formik;
     const startStopRec = () => {
@@ -314,6 +312,7 @@ function CIPPatientHistoryCard({...props}) {
                                     uuid: any;
                                 }) => values.motif.includes(reason.uuid)) : []}
                                 onChange={(e, newValue: any) => {
+
                                     e.stopPropagation();
                                     const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
                                     if (addReason) {
@@ -322,6 +321,9 @@ function CIPPatientHistoryCard({...props}) {
                                     } else {
                                         handleReasonChange(newValue);
                                     }
+                                    setTimeout(()=>{
+                                        mutateSheetData()
+                                    },2000)
 
                                 }}
                                 filterOptions={(options, params) => filterReasonOptions(options, params, t)}
