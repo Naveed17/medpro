@@ -57,6 +57,15 @@ function Board({...props}) {
     const getByColumn = (column: any, items: any[]): any[] =>
         items.filter((data: any) => data.column === column);
 
+    // a little function to help us with reordering the result
+    const reorder = (list: any[], startIndex: number, endIndex: number): any[] => {
+        const result = Array.from(list);
+        const [removed] = result.splice(startIndex, 1);
+        result.splice(endIndex, 0, removed);
+
+        return result;
+    };
+
     const reorderQuoteMap = ({
                                  quoteMap,
                                  source,
@@ -71,6 +80,25 @@ function Board({...props}) {
                 status: parseInt(columns.find((column: BoardColumnsModel) => column.name === destination.droppableId)?.id)
             }
         };
+
+        // moving to same list
+        if (source.droppableId === destination.droppableId) {
+            const reordered: any[] = reorder(
+                current,
+                source.index,
+                destination.index,
+            );
+            const result: any = {
+                ...quoteMap,
+                [source.droppableId]: reordered,
+            };
+            return {
+                quoteMap: result,
+            };
+        }
+
+        // moving to different list
+
         // remove from original
         current.splice(source.index, 1);
         // insert into next

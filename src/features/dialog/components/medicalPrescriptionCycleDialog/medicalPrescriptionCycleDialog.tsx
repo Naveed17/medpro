@@ -36,7 +36,7 @@ import {LoadingButton} from "@mui/lab";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import MedicalPrescriptionCycleStyled,{ButtonWhite} from "./overrides/medicalPrescriptionCycleStyled";
+import MedicalPrescriptionCycleStyled, {ButtonWhite} from "./overrides/medicalPrescriptionCycleStyled";
 import IconUrl from "@themes/urlIcon";
 import {
     Dialog as CustomDialog,
@@ -73,7 +73,7 @@ import moment from "moment/moment";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
-    const {setState: setDrugs, state: drugs, pendingDocuments, setPendingDocuments, setPrescription,patient} = data;
+    const {setState: setDrugs, state: drugs, pendingDocuments, setPendingDocuments, setPrescription, patient} = data;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
@@ -129,8 +129,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 unit: Yup.string().nullable(),
                 cycles: Yup.array().of(
                     Yup.object().shape({
-                        count: Yup.number(),
-                        dosageQty: Yup.string(),
                         dosageDuration: Yup.number(),
                         dosageMealValue: Yup.string(),
                         durationValue: Yup.string(),
@@ -143,6 +141,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                 Yup.object().shape({
                                     label: Yup.string(),
                                     value: Yup.boolean(),
+                                    count: Yup.number(),
+                                    qty: Yup.string()
                                 })
                             )
                             .compact((v) => !v.value)
@@ -176,7 +176,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             ? `${hasMedicalFormUnit.forms[0].form}${hasMultiValues ? `_${unit}` : ""}`.replace("(s)", "")
             : unit.replace("(s)", "");
     };
-
+    console.log("drugs", drugs);
     const setInitData = (drugs: DrugModel[]) => {
         const data: any[] =
             drugs?.length === 0
@@ -202,62 +202,42 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 cycles: (drug.cycles?.length === 0 && (drug.duration === "" || drug.duration === null) && drug.durationType === "")
                     ? []
                     : drug.cycles.map((cycle: PrescriptionCycleModel) => ({
-                        count: cycle.dosage.split(" ")[0]
-                            ? cycle.dosage.split(" ")[0] === fractions[0]
-                                ? 0
-                                : cycle.dosage.split(" ")[0] === fractions[1]
-                                    ? 1
-                                    : parseInt(cycle.dosage.split(" ")[0]) + 1
-                            : 2,
-                        dosageQty: cycle.dosage.split(" ")[0]
-                            ? cycle.dosage.split(" ")[0]
-                            : "1",
                         dosageDuration: cycle.duration ? cycle.duration : 1,
                         dosageMealValue:
                             cycle.dosage !== "" &&
-                            cycle.dosage.split(",")[2] &&
-                            cycle.dosage.split(",")[2].length > 0
+                            cycle.dosage.split("•").length === 1 &&
+                            cycle.dosage.split(",")[2] && cycle.dosage.split(",")[2].length > 0
                                 ? dosageMeal.find((meal) =>
                                     cycle.dosage.split(",")[2].includes(t(meal.label))
                                 )?.label
-                                : "",
+                                :
+                                cycle.dosage.split("•").length > 0 &&
+                                cycle.dosage.split("•")[cycle.dosage.split("•").length - 1] &&
+                                cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(",")[2] &&
+                                cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(",")[2].length > 0 ?
+                                    dosageMeal.find((meal) =>
+                                        cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(",")[2].includes(t(meal.label))
+                                    )?.label
+                                    :
+                                    "",
                         durationValue: cycle.durationType ? cycle.durationType : "",
                         dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
                         cautionaryNoteInput: cycle.note?.length > 0,
                         dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
                         cautionaryNote: cycle.note !== "" ? cycle.note : "",
-                        dosageTime: [
-                            {
-                                label: "morning",
-                                value: cycle.dosage.split(",")[1]
-                                    ? cycle.dosage.split(",")[1].includes(t("morning"))
-                                    : false,
-                                    
-                            },
-                            {
-                                label: "mid_day",
-                                value: cycle.dosage.split(",")[1]
-                                    ? cycle.dosage.split(",")[1].includes(t("mid_day"))
-                                    : false,
-                                    
-                            },
-                            {
-                                label: "evening",
-                                value: cycle.dosage.split(",")[1]
-                                    ? cycle.dosage.split(",")[1].includes(t("evening"))
-                                    : false,
-                                
-                            },
-                            {
-                                label: "before_sleeping",
-                                value: cycle.dosage.split(",")[1]
-                                    ? cycle.dosage
-                                        .split(",")[1]
-                                        .includes(t("before_sleeping"))
-                                    : false,
-                                    
-                            },
-                        ],
+                        dosageTime: ["morning", "mid_day", "evening", "before_sleeping"].map(time =>
+                            ({
+                                label: time,
+                                value: cycle.dosage.split("•").findIndex(dosage => dosage.includes(t(time))) !== -1,
+                                count: cycle.dosage.split("•").find(dosage => dosage.includes(t(time)))
+                                    ? cycle.dosage.split("•").find(dosage => dosage.includes(t(time)))?.trim().split(" ")[0] === fractions[0]
+                                        ? 0
+                                        : cycle.dosage.split("•").find(dosage => dosage.includes(t(time)))?.trim().split(" ")[0] === fractions[1]
+                                            ? 1
+                                            : parseInt(cycle.dosage.split("•").find(dosage => dosage.includes(t(time)))?.trim().split(" ")[0] ?? "0") + 1
+                                    : 2,
+                                qty: cycle.dosage.split("•").find(dosage => dosage.includes(t(time)))?.trim().split(" ")[0] ?? "1"
+                            })),
                         dosageMeal,
                         duration,
                     })),
@@ -358,24 +338,24 @@ function MedicalPrescriptionCycleDialog({...props}) {
         setPrescriptionTabIndex(newValue);
     }
 
-    const handleDosageQty = (prop: string, index: number, idx: number) => {
+    const handleDosageQty = (prop: string, index: number, idx: number, indexDosage: number) => {
         setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
-        let dosage = values.data[idx].cycles[index].count;
+        let dosage = values.data[idx].cycles[index].dosageTime[indexDosage].count;
 
         if (prop === "plus") {
-            if (values.data[idx].cycles[index].count < fractions.length - 1) {
+            if (dosage < fractions.length - 1) {
                 dosage += 1;
             }
         } else {
-            if (values.data[idx].cycles[index].count > 0) {
+            if (dosage > 0) {
                 dosage -= 1;
             }
         }
-        setFieldValue(`data[${idx}].cycles[${index}].count`, dosage);
-        setFieldValue(
-            `data[${idx}].cycles[${index}].dosageQty`,
-            fractions[dosage]
-        );
+        setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${indexDosage}]`, {
+            ...values.data[idx].cycles[index].dosageTime[indexDosage],
+            count: dosage,
+            qty: fractions[dosage]
+        });
     }
 
     const durationCounter = (prop: string, index: number, idx: number) => {
@@ -463,15 +443,10 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const generateDosageText = (cycle: any, unit?: string) => {
         return unit && cycle.dosageTime.some((time: any) => time.value)
-            ? `${cycle.dosageQty} ${
-                getFormUnitMedic(unit).unit ?? unit
-            }${parseFloat(cycle.dosageQty) >= 2 ? "(s)" : ""}, ${cycle.dosageTime
-                .filter((time: any) => time.value)
-                .map((time: any) => t(time.label))
-                .join("/")} ${
-                cycle.dosageMealValue && cycle.dosageMealValue.length > 0
-                    ? `, ${t(cycle.dosageMealValue)}`
-                    : ""
+            ? `${Object.entries(cycle.dosageTime.filter((time: any) => time.value).group((diag: any) => diag.qty))
+                .map((time: any) => `${time[0]} ${getFormUnitMedic(unit).unit ?? unit}${parseFloat(time[0]) >= 2 ? "(s)" : ""}, ${time[1].map((dosage: any) => t(dosage.label)).join(`/`)}`).join(" • ")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0
+                ? `, ${t(cycle.dosageMealValue)}`
+                : ""
             }`
             : "";
     }
@@ -492,7 +467,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             state: {
                 name: 'card.title',
                 type: 'prescription',
-                createdAt:moment().format('DD/MM/YYYY'),
+                createdAt: moment().format('DD/MM/YYYY'),
                 patient: `${patient.firstName} ${patient.lastName}`,
                 info: drugs,
             },
@@ -549,7 +524,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             }
         }
     }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
-console.log(values)
+    console.log(values)
     return (
         <MedicalPrescriptionCycleStyled>
             <Container fixed>
@@ -777,179 +752,119 @@ console.log(values)
                                                                     spacing={0.5}
                                                                     mb={0.5}
                                                                     direction={{xs: "column", sm: "row"}}
-                                                                    alignItems="center" 
+                                                                    alignItems="center"
                                                                     sx={{
-                                                            overflowX:'auto',
-                                                            scrollSnapType:'x mandatory',
-                                                            overflowY:'hidden'
-                                                            
-                                                        }}
-                                                                    >
-                                                                    {/* <Button
-                                                                        sx={{
-                                                                            justifyContent: {
-                                                                                xs: "space-between",
-                                                                                md: "center",
-                                                                                width: {xs: '100%', md: 'auto'},
+                                                                        overflowX: 'auto',
+                                                                        scrollSnapType: 'x mandatory',
+                                                                        overflowY: 'hidden'
 
-                                                                            },
-
-                                                                        }}
-
-                                                                        onClick={(event: any) => {
-                                                                            event.stopPropagation();
-                                                                            event.preventDefault();
-                                                                        }}
-                                                                        component="label"
-                                                                        endIcon={
-                                                                            <IconButton
-                                                                                disabled={
-                                                                                    innerItem.dosageQty ===
-                                                                                    fractions[fractions.length - 1]
-                                                                                }
-                                                                                onClick={() =>
-                                                                                    handleDosageQty("plus", index, idx)
-                                                                                }
-                                                                                size="small"
-                                                                                disableRipple>
-                                                                                <AddIcon/>
-                                                                            </IconButton>
-                                                                        }
-                                                                        startIcon={
-                                                                            <IconButton
-                                                                                disabled={
-                                                                                    innerItem.dosageQty === fractions[0]
-                                                                                }
-                                                                                onClick={() =>
-                                                                                    handleDosageQty("minus", index, idx)
-                                                                                }
-                                                                                size="small"
-                                                                                disableRipple>
-                                                                                <RemoveIcon/>
-                                                                            </IconButton>
-                                                                        }
-                                                                        variant="white"
-                                                                        disableRipple>
-                                                                        {innerItem.dosageQty}
-                                                                    </Button> */}
-                                                                    {!isMobile ? (
-                                                                        innerItem.dosageTime.map(
-                                                                            (subitem: any, i: number) => (
-                                                                                <Button
+                                                                    }}>
+                                                                    {!isMobile ? (innerItem.dosageTime.map((subItem: any, i: number) => (
+                                                                            <Button
                                                                                 sx={{
-                                                                                 
-                                                                                 scrollSnapAlign:'center',
+                                                                                    scrollSnapAlign: 'center',
                                                                                 }}
-                                                                                    component="label"
-                                                                                    variant="white"
-                                                                                    className="dosage-wrapper"
-                                                                                    {...(values.data[idx].cycles[index]
-                                                                                                    .dosageTime[i].value && {
-                                                                                                        variant:"contained",
-                                                                                                        color:'primary',
-                                                                                                        size:'small',
-                                                                                                        sx:{
-                                                                                                            minWidth:180,
-                                                                                                           
-                                                                                                        }
-                                                                                                    })}
-                                                                                    disableRipple
-                                                                                    startIcon={
-                                                                                        <Checkbox
-                                                                                            checked={
-                                                                                                values.data[idx].cycles[index]
-                                                                                                    .dosageTime[i].value
-                                                                                            }
-                                                                                            onChange={(event) => {
-                                                                                                setFieldValue(
-                                                                                                    `data[${idx}].cycles[${index}].dosageInput`,
-                                                                                                    false
-                                                                                                );
-                                                                                                setFieldValue(
-                                                                                                    `data[${idx}].cycles[${index}].dosageTime[${i}].value`,
-                                                                                                    event.target.checked
-                                                                                                );
-                                                                                            }}
-                                                                                        />
+                                                                                component="label"
+                                                                                variant="white"
+                                                                                className="dosage-wrapper"
+                                                                                {...(values.data[idx].cycles[index]
+                                                                                    .dosageTime[i].value && {
+                                                                                    variant: "contained",
+                                                                                    color: 'primary',
+                                                                                    size: 'small',
+                                                                                    sx: {
+                                                                                        minWidth: 180,
+
                                                                                     }
-                                                                                    key={subitem.label}>
-                                                                                     <Typography sx={{
+                                                                                })}
+                                                                                disableRipple
+                                                                                startIcon={
+                                                                                    <Checkbox
+                                                                                        checked={
+                                                                                            values.data[idx].cycles[index]
+                                                                                                .dosageTime[i].value
+                                                                                        }
+                                                                                        onChange={(event) => {
+                                                                                            setFieldValue(
+                                                                                                `data[${idx}].cycles[${index}].dosageInput`,
+                                                                                                false
+                                                                                            );
+                                                                                            setFieldValue(
+                                                                                                `data[${idx}].cycles[${index}].dosageTime[${i}].value`,
+                                                                                                event.target.checked
+                                                                                            );
+                                                                                        }}
+                                                                                    />
+                                                                                }
+                                                                                key={subItem.label}>
+                                                                                <Typography
+                                                                                    sx={{
                                                                                         whiteSpace: "nowrap",
                                                                                         overflow: "hidden",
                                                                                         textOverflow: "ellipsis",
-                                                                                           ...(values.data[idx].cycles[index]
-                                                                                                    .dosageTime[i].value && {
-                                                                                                   
-                                                                                                   width:50,
-                                                                                     
-                                                                                                    })
-
-                                                                                     }} component='span' variant="body2" 
-                                                                                     >
-                                                                                        {t(subitem.label, {
+                                                                                        ...(values.data[idx].cycles[index]
+                                                                                            .dosageTime[i].value && {
+                                                                                            width: 50,
+                                                                                        })
+                                                                                    }}
+                                                                                    component='span'
+                                                                                    variant="body2">
+                                                                                    {t(subItem.label, {
                                                                                         ns: "consultation",
                                                                                     })}
-                                                                                        </Typography>   
-                                                                                    
-                                                                                    
-                                                                                    {
-                                                                                        values.data[idx].cycles[index]
-                                                                                                    .dosageTime[i].value && (
-                                                                                                        <Button
-                                                                                                        className="btn-dosage-time-counter"
-                                                                        sx={{
-                                                                            justifyContent: {
-                                                                                xs: "space-between",
-                                                                                md: "center",
-                                                                                width: {xs: '100%', md: 'auto'},
+                                                                                </Typography>
 
-                                                                            },
+                                                                                {values.data[idx].cycles[index].dosageTime[i].value && (
+                                                                                    <Button
+                                                                                        className="btn-dosage-time-counter"
+                                                                                        sx={{
+                                                                                            justifyContent: {
+                                                                                                xs: "space-between",
+                                                                                                md: "center",
+                                                                                                width: {xs: '100%', md: 'auto'},
 
-                                                                        }}
+                                                                                            },
 
-                                                                        onClick={(event: any) => {
-                                                                            event.stopPropagation();
-                                                                            event.preventDefault();
-                                                                        }}
-                                                                        component="label"
-                                                                        endIcon={
-                                                                            <IconButton
-                                                                                disabled={
-                                                                                    innerItem.dosageQty ===
-                                                                                    fractions[fractions.length - 1]
-                                                                                }
-                                                                                onClick={() =>
-                                                                                    handleDosageQty("plus", index, idx)
-                                                                                }
-                                                                                size="small"
-                                                                                disableRipple>
-                                                                                <AddIcon/>
-                                                                            </IconButton>
-                                                                        }
-                                                                        startIcon={
-                                                                            <IconButton
-                                                                                disabled={
-                                                                                    innerItem.dosageQty === fractions[0]
-                                                                                }
-                                                                                onClick={() =>
-                                                                                    handleDosageQty("minus", index, idx)
-                                                                                }
-                                                                                size="small"
-                                                                                disableRipple>
-                                                                                <RemoveIcon/>
-                                                                            </IconButton>
-                                                                        }
-                                                                        variant="white"
-                                                                        disableRipple>
-                                                                        {subitem.dosageQty}
-                                                                    </Button>
-                                                                                                    )
-                                                                                    }
-
-
-                                                                                </Button>
-                                                                            )
-                                                                        )
+                                                                                        }}
+                                                                                        onClick={(event: any) => {
+                                                                                            event.stopPropagation();
+                                                                                            event.preventDefault();
+                                                                                        }}
+                                                                                        component="label"
+                                                                                        endIcon={
+                                                                                            <IconButton
+                                                                                                disabled={
+                                                                                                    innerItem.dosageQty ===
+                                                                                                    fractions[fractions.length - 1]
+                                                                                                }
+                                                                                                onClick={() =>
+                                                                                                    handleDosageQty("plus", index, idx, i)
+                                                                                                }
+                                                                                                size="small"
+                                                                                                disableRipple>
+                                                                                                <AddIcon/>
+                                                                                            </IconButton>
+                                                                                        }
+                                                                                        startIcon={
+                                                                                            <IconButton
+                                                                                                disabled={
+                                                                                                    innerItem.dosageQty === fractions[0]
+                                                                                                }
+                                                                                                onClick={() =>
+                                                                                                    handleDosageQty("minus", index, idx, i)
+                                                                                                }
+                                                                                                size="small"
+                                                                                                disableRipple>
+                                                                                                <RemoveIcon/>
+                                                                                            </IconButton>
+                                                                                        }
+                                                                                        variant="white"
+                                                                                        disableRipple>
+                                                                                        {subItem.qty}
+                                                                                    </Button>
+                                                                                )}
+                                                                            </Button>
+                                                                        ))
                                                                     ) : (
                                                                         <FormControl fullWidth>
                                                                             <Select
@@ -959,7 +874,7 @@ console.log(values)
                                                                                 multiple
                                                                                 displayEmpty={true}
                                                                                 size="small"
-                                                                               
+
                                                                                 value={
                                                                                     values.data[idx].cycles[
                                                                                         index
@@ -990,7 +905,7 @@ console.log(values)
                                                                                 {innerItem.dosageTime.map(
                                                                                     (subitem: any, i: number) => (
                                                                                         <MenuItem
-                                                                                        disableRipple
+                                                                                            disableRipple
                                                                                             key={subitem.label}
                                                                                             value={t(subitem.label, {
                                                                                                 ns: "consultation",
@@ -1020,60 +935,60 @@ console.log(values)
                                                                                                 })}
                                                                                             />
                                                                                             {
-                                                                                        values.data[idx].cycles[index]
+                                                                                                values.data[idx].cycles[index]
                                                                                                     .dosageTime[i].value && (
-                                                                                                        <ButtonWhite
-                                                                                                        
-                                                                        sx={{
-                                                                            justifyContent:'space-between',
-                                                                            marginLeft:'auto'
+                                                                                                    <ButtonWhite
 
-                                                                        }}
+                                                                                                        sx={{
+                                                                                                            justifyContent: 'space-between',
+                                                                                                            marginLeft: 'auto'
 
-                                                                        onClick={(event: any) => {
-                                                                            event.stopPropagation();
-                                                                            event.preventDefault();
-                                                                        }}
-                                                                        component="label"
-                                                                        endIcon={
-                                                                            <IconButton
-                                                                                disabled={
-                                                                                    innerItem.dosageQty ===
-                                                                                    fractions[fractions.length - 1]
-                                                                                }
-                                                                                onClick={(e) =>{
-                                                                                    e.stopPropagation();
-                                                                                    handleDosageQty("plus", index, idx)
-                                                                                }
-                                                                                }
-                                                                                size="small"
-                                                                                disableRipple>
-                                                                                <AddIcon/>
-                                                                            </IconButton>
-                                                                        }
-                                                                        startIcon={
-                                                                            <IconButton
-                                                                                disabled={
-                                                                                    innerItem.dosageQty === fractions[0]
-                                                                                }
-                                                                                onClick={(e) =>{
-                                                                                    e.stopPropagation();
-                                                                                    handleDosageQty("minus", index, idx);
-                                                                                    
-                                                                                }
-                                                                                }
-                                                                                size="small"
-                                                                                disableRipple>
-                                                                                <RemoveIcon/>
-                                                                            </IconButton>
-                                                                        }
-                                                                        variant="white"
-                                                                        disableRipple>
-                                                                        {subitem.dosageQty}
-                                                                    </ButtonWhite>
-                                                                                                    )
-                                                                                    }
-                                                                                            
+                                                                                                        }}
+
+                                                                                                        onClick={(event: any) => {
+                                                                                                            event.stopPropagation();
+                                                                                                            event.preventDefault();
+                                                                                                        }}
+                                                                                                        component="label"
+                                                                                                        endIcon={
+                                                                                                            <IconButton
+                                                                                                                disabled={
+                                                                                                                    innerItem.dosageQty ===
+                                                                                                                    fractions[fractions.length - 1]
+                                                                                                                }
+                                                                                                                onClick={(e) => {
+                                                                                                                    e.stopPropagation();
+                                                                                                                    handleDosageQty("plus", index, idx, i)
+                                                                                                                }
+                                                                                                                }
+                                                                                                                size="small"
+                                                                                                                disableRipple>
+                                                                                                                <AddIcon/>
+                                                                                                            </IconButton>
+                                                                                                        }
+                                                                                                        startIcon={
+                                                                                                            <IconButton
+                                                                                                                disabled={
+                                                                                                                    innerItem.dosageQty === fractions[0]
+                                                                                                                }
+                                                                                                                onClick={(e) => {
+                                                                                                                    e.stopPropagation();
+                                                                                                                    handleDosageQty("minus", index, idx, i);
+
+                                                                                                                }
+                                                                                                                }
+                                                                                                                size="small"
+                                                                                                                disableRipple>
+                                                                                                                <RemoveIcon/>
+                                                                                                            </IconButton>
+                                                                                                        }
+                                                                                                        variant="white"
+                                                                                                        disableRipple>
+                                                                                                        {subitem.dosageQty}
+                                                                                                    </ButtonWhite>
+                                                                                                )
+                                                                                            }
+
                                                                                         </MenuItem>
                                                                                     )
                                                                                 )}
