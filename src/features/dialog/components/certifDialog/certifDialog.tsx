@@ -90,9 +90,11 @@ function CertifDialog({...props}) {
     const [expanded, setExpanded] = useState(false);
     const [expandedAntecedent, setExpandedAntecedent] = useState(false);
     const [expandedMotif, setExpandedMotif] = useState(false);
+    const [expandedActs, setExpandedActs] = useState(false);
     const [traking, setTraking] = useState<any[]>([]);
-    const [antecedents, setAntecedents] = useState<any[]>([]);
-    const [motifs, setMotifs] = useState<any[]>([]);
+    const [antecedents, setAntecedents] = useState<string[]>([]);
+    const [motifs, setMotifs] = useState<string[]>([]);
+    const [acts, setActs] = useState<string[]>([]);
     const hasAntecedents = Object.keys(data.patient.antecedents).reduce((total,key)=>total+data.patient.antecedents[key],0) > 0
     const hasMotif = data.sheetExam.appointment_data.consultation_reason.length > 0
     const contentBtns = [
@@ -337,6 +339,22 @@ function CertifDialog({...props}) {
         setExpandedMotif(!expandedMotif)
     }
 
+    const showActsData = () => {
+        console.log(data)
+        medicalEntityHasUser && !expandedActs && agenda && acts.length === 0 && triggerGetData({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${data.appuuid}/acts/${router.locale}`
+        }, {
+            onSuccess: (result) => {
+                const res = result.data.data
+                const _acts:string[] = [];
+                res.acts.map((act: { name: string; }) => _acts.push(act.name))
+                setActs(_acts)
+            }
+        })
+        setExpandedActs(!expandedActs)
+    }
+
     const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
     const modelsList = (httpModelResponse as HttpResponse)?.data ?? [];
 
@@ -478,6 +496,12 @@ function CertifDialog({...props}) {
                                             <KeyboardArrowDownRoundedIcon/>}
                                     </Button>}
 
+                                    <Button onClick={() => showActsData()} size={"small"}>
+                                        {t(`consultationIP.acts`)}
+                                        {expandedActs ? <KeyboardArrowUpRoundedIcon/> :
+                                            <KeyboardArrowDownRoundedIcon/>}
+                                    </Button>
+
                                 </Stack>
                                 <RecButton
                                     small
@@ -507,6 +531,16 @@ function CertifDialog({...props}) {
                             </Collapse>
                             <Collapse in={expandedMotif} timeout="auto" unmountOnExit>
                                 {motifs.map((item,index) => (
+                                    <Button onClick={() => {
+                                        addVal(item.toString())
+                                    }}
+                                            key={`motif${index}`}
+                                            size={"small"}> <AddIcon/> {item}
+                                    </Button>
+                                ))}
+                            </Collapse>
+                            <Collapse in={expandedActs} timeout="auto" unmountOnExit>
+                                {acts.map((item,index) => (
                                     <Button onClick={() => {
                                         addVal(item.toString())
                                     }}

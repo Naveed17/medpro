@@ -1046,7 +1046,7 @@ function ConsultationInProgress() {
                     <Stack spacing={1.5} direction="row" alignItems="center">
                         <IconUrl path={'ic-speaker'}/>
                         {!isMobile &&
-                            <Typography>{t('consultationIP.updateHistory')} <b>{sheet?.date}</b>.</Typography>}
+                            <Typography>{t('consultationIP.updateHistory')} {patient?.firstName} {patient?.lastName}, <b>{sheet?.date}</b>.</Typography>}
                     </Stack>
                     <LoadingButton
                         disabled={false}
