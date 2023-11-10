@@ -62,7 +62,7 @@ import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
 import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
-import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
+import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useWidgetModels} from "@lib/hooks/rest";
@@ -1574,7 +1574,17 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{appuuid: app_uuid, patient, state, setState, t, setOpenDialog,setPendingDocuments,pendingDocuments,setPrescription}}
+                    data={{
+                        appuuid: app_uuid,
+                        patient,
+                        state,
+                        setState,
+                        t,
+                        setOpenDialog,
+                        setPendingDocuments,
+                        pendingDocuments,
+                        setPrescription
+                    }}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
                     direction={"ltr"}
                     sx={{height: info === "insurance_document_print" ? 600 : 480}}
