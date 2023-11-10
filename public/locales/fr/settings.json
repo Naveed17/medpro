@@ -463,7 +463,7 @@
     "add_act": "Nouveau act",
     "placeholder_act": "Ex: le nom de l'acte",
     "name": "Nom",
-    "betav":"Utiliser la nouvelle version de la caisse (bêta)",
+    "betav": "Utiliser la nouvelle version de la caisse (bêta)",
     "price": "Prix",
     "cancel": "Annuler",
     "table": {
@@ -678,6 +678,8 @@
       "A5": "A5",
       "A4": "A4",
       "add": "Ajouter document",
+      "btnAdd": "Ajouter",
+      "search": "Recherche",
       "titleModel": "Titre du modèle",
       "cancel": "Annuler",
       "askRemove": "Supprimer un modèle",
@@ -694,7 +696,8 @@
       "month": "mois",
       "years": "Ans",
       "months": "Mois",
-      "days": "Jours"
+      "days": "Jours",
+      "blankDoc": "document blanc"
     }
   }
 }

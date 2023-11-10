@@ -4,12 +4,8 @@ import MobileUi from "./mobileUi";
 import IconUrl from "@themes/urlIcon";
 import {InputStyled} from "@features/tabPanel";
 import React, {useCallback, useState} from "react";
-import {Document, Page, pdfjs} from 'react-pdf';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
+import {Document, Page} from 'react-pdf';
 import {ImageHandler} from "@features/image";
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function OcrDocsDialog({...props}) {
     const {t, data, onDeleteDoc, onUploadDoc, onRetryDoc, onClose, isMobile} = props.data;

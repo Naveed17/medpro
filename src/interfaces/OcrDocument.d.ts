@@ -4,6 +4,7 @@ interface OcrDocument {
     medicalData: any
     patient: PatientModel | null
     patientData: any
+    uri: any
     status: number;
     title: string;
     uuid: string;

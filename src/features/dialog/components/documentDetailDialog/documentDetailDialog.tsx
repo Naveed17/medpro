@@ -18,7 +18,7 @@ import {
     ToggleButtonGroup,
     Typography
 } from '@mui/material'
-import {Document, Page, pdfjs} from "react-pdf";
+import {Document, Page} from "react-pdf";
 
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import {useTranslation} from 'next-i18next'
@@ -53,8 +53,6 @@ import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import {useSnackbar} from "notistack";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DocumentDetailDialog({...props}) {
     const {
