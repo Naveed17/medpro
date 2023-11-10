@@ -27,7 +27,7 @@ const initialState: ActionOcrDocumentState = {
 export const ocrDocumentReducer = createReducer(initialState, (builder) => {
     builder.addCase(setOcrData, (state, action) => {
         return {...state, ...action.payload};
-    }).addCase(resetOcrData, (state, action) => {
+    }).addCase(resetOcrData, (state) => {
         return {...state, ...initialState};
     });
 });

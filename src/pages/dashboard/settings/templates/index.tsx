@@ -12,19 +12,16 @@ import {
     Divider,
     Drawer,
     IconButton,
-    InputAdornment,
     LinearProgress,
     Stack,
     Tab,
     Tabs,
-    TextField,
     Toolbar,
     Typography,
     useTheme,
     useMediaQuery
 } from "@mui/material";
 import dynamic from "next/dynamic";
-import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
 import {AddButton} from "@features/pfTemplateDetail";
 import {RootStyled, SetSelectedDialog} from "@features/toolbar";
