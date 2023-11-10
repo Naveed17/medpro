@@ -228,7 +228,7 @@ function PaymentDialog({...props}) {
                                         </Typography>
                                     </Stack>
 
-                                    {patient.contact.length && (
+                                    {patient.contact?.length && (
                                         <Stack direction="row" spacing={0.5} alignItems="center">
                                             <IconUrl path="ic-tel" color={theme.palette.text.primary}/>
                                             <Typography variant="body2" alignItems="center">
@@ -239,18 +239,26 @@ function PaymentDialog({...props}) {
                                 </Stack>
                             </Stack>
                         </Stack>
-
-                        <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.leftPay')}</Typography>
-                        <ConsultationCard {...{
-                            appointments,
-                            setAppointments,
-                            payments,
-                            getTotalApps,
-                            getTotalPayments,
-                            t,
-                            theme,
-                            devise
-                        }}/>
+                        {
+                            appointments.length > 0 ? <>
+                            <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.leftPay')}</Typography>
+                            <ConsultationCard {...{
+                                appointments,
+                                setAppointments,
+                                payments,
+                                getTotalApps,
+                                getTotalPayments,
+                                t,
+                                theme,
+                                devise
+                            }}/>
+                        </>:<Box style={{width:"100%",height:"50vh",
+                                display:'flex',
+                                justifyContent:"center",
+                                alignItems:"center"}}>
+                            <Typography>No transaction</Typography>
+                        </Box>
+                        }
                     </Stack>
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -313,7 +321,7 @@ function PaymentDialog({...props}) {
                         </Stack>
 
 
-                        <Card className={"payment-card"}>
+                        {patientTransactions && patientTransactions.length > 0 && <Card className={"payment-card"}>
                             <CardContent>
                                 <Stack spacing={1}>
                                     <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.avance')}</Typography>
@@ -346,7 +354,7 @@ function PaymentDialog({...props}) {
                                     ))}
                                 </Stack>
                             </CardContent>
-                        </Card>
+                        </Card>}
 
                         {payments.map((item: any, i: number) => (
                             <PaymentCard key={i} {...{
@@ -366,15 +374,20 @@ function PaymentDialog({...props}) {
             <Box style={{height: 70}}/>
             <Stack direction={"row"} style={{
                 position: 'absolute',
-                bottom: 0,
+                bottom: 2,
                 width: "95%",
                 borderTop: "1px solid #ddd",
                 backgroundColor: "white",
                 padding: "15px 0"
             }} justifyContent={"flex-end"} spacing={1}>
                 <Button onClick={() => setOpenPaymentDialog(false)}>{t('cancel')}</Button>
-                <Button startIcon={<IconUrl path={'ic-argent'}/>} variant={"contained"}
-                        onClick={() => addTransactions()}>{t('dialog.pay')} {getTotalPayments()} {devise}</Button>
+                <Button disabled={getTotalPayments() === 0}
+                        startIcon={<IconUrl path={'ic-argent'}/>}
+                        endIcon={<AddIcon/>}
+                        variant={"contained"}
+                        onClick={() => addTransactions()}>
+                    {t('dialog.pay')} {getTotalPayments()} {devise}
+                </Button>
             </Stack>
         </PaymentDialogStyled>
     );

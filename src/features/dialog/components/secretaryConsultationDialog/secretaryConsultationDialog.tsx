@@ -72,7 +72,7 @@ function SecretaryConsultationDialog({...props}) {
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedDose, setSelectedDose] = useState("day")
-    const [appData, setAppData] = useState({rest_amount: 0, fees: 0})
+    const [appData, setAppData] = useState<any>(null)
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -83,7 +83,7 @@ function SecretaryConsultationDialog({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {data: httpAppointmentTransactions} = useRequestQuery({
+    const {data: httpAppointmentTransactions, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });
@@ -91,6 +91,7 @@ function SecretaryConsultationDialog({...props}) {
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
+            console.log(res)
             setAppData(res);
             setTransactions(res.transactions ? res.transactions[0] : null);
             if (total === -1) {
@@ -264,7 +265,7 @@ function SecretaryConsultationDialog({...props}) {
                                             }
                                         </Stack>
                                     </Stack>
-                                    {total && total > -1 && patient.rest_amount + appData.rest_amount > 0 &&
+                                    {total && total > -1 &&
                                         <Stack direction={"row"} alignItems={"center"}>
                                             {demo && <Button
                                                 endIcon={
@@ -280,12 +281,12 @@ function SecretaryConsultationDialog({...props}) {
                                                     sx: {minWidth: 40},
                                                 })}
                                                 onClick={openDialogPayment}>
-
                                                 <Typography>{t("pay")}</Typography>
-                                                <Typography component='span' fontWeight={700} variant="subtitle2"
-                                                            ml={1}>
-                                                    {patient.rest_amount + appData.rest_amount}
-                                                </Typography>
+                                                {/*{appData.patient.rest_amount + appData.rest_amount > 0 &&
+                                                    <Typography component='span' fontWeight={700} variant="subtitle2"
+                                                                ml={1}>
+                                                        {appData.patient.rest_amount + appData.rest_amount}
+                                                    </Typography>}*/}
                                             </Button>
                                             }
                                         </Stack>
@@ -400,7 +401,10 @@ function SecretaryConsultationDialog({...props}) {
                         data={{
                             patient,
                             setOpenPaymentDialog,
-                            mutatePatient
+                            mutatePatient: () => {
+                                mutatePatient();
+                                mutate()
+                            }
                         }}
                         size={"lg"}
                         fullWidth
