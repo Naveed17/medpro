@@ -7,6 +7,30 @@ const PanelStyled = styled(Card)(({theme}) => ({
         border:`1px solid ${theme.palette.divider}`,
         borderRadius:10,
         padding:4,
+    },
+    ".collapse-table":{
+        width:'100%',
+        tableLayout:'fixed',
+        th:{
+            fontWeight:400,
+            fontSize:12,
+        },
+        td:{
+            fontSize:12,
+            padding:4,
+            "&:first-child":{
+                paddingLeft:0,
+            }
+        }
+    },
+    ".table-calc":{
+        width:'100%',
+        tableLayout:'fixed',
+        marginTop:12,
+        td:{
+            fontSize:12,
+            padding:4,
+        }
     }
 }));
 export default PanelStyled
