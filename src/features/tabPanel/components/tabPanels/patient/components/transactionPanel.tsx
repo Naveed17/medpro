@@ -12,6 +12,8 @@ import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {configSelector} from "@features/base";
 import {Dialog} from "@features/dialog";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import AddIcon from "@mui/icons-material/Add";
+import IconUrl from "@themes/urlIcon";
 
 const headCells = [
     {
@@ -105,18 +107,11 @@ function TransactionPanel({...props}) {
             {isLoading && <LinearProgress/>}
             {!isLoading && <Box className="files-panel">
                 <Stack justifyContent={"end"} direction={"row"} spacing={1} mb={2} mt={1}>
-                    {/*<Button size='small'
-                            variant='contained'
-                            color={"success"}>
-                        {t("wallet")}
-                        <Typography fontWeight={700} component='strong'
-                                    mx={1}>+ {wallet}</Typography>
-                        {devise}
-                    </Button>*/}
                     <Button size='small'
                             variant='contained'
-                            color={-1 * rest > 0 ? "success" : "error"}>
-                        {t("credit")}
+                            onClick={() => setOpenPaymentDialog(true)}
+                            startIcon={<IconUrl path={'ic-wallet-money'} color={'white'}/>}
+                            endIcon={<AddIcon/>}>
                         <Typography fontWeight={700} component='strong'
                                     mx={1}> {-1 * rest}</Typography>
                         {devise}
@@ -137,20 +132,22 @@ function TransactionPanel({...props}) {
                 {...{
                     direction,
                     sx: {
-                        minHeight: 380,
-                    },
+                        minHeight: 460
+                    }
                 }}
                 open={openPaymentDialog}
                 data={{
                     patient,
+                    setOpenPaymentDialog,
                 }}
                 size={"lg"}
                 fullWidth
-                title={t('payment_dialog_title')}
+                title={t("payment_dialog_title", {ns: "payment"})}
                 dialogClose={() => {
                     setOpenPaymentDialog(false)
                 }}
             />
+
         </PanelStyled>
     )
 }

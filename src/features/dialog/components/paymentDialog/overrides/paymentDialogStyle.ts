@@ -2,6 +2,7 @@ import { styled } from "@mui/material/styles";
 import { Box } from "@mui/material";
 
 const PaymentDialogStyled = styled(Box)(({ theme }) => ({
+
   "& .MuiDialogContent-root": {
     padding: "24px 40px",
   },
