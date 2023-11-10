@@ -2,15 +2,12 @@ import {Box, Button, Card, CardContent, Checkbox, Collapse, FormControlLabel, Fo
 import React, {useEffect, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useTranslation} from "next-i18next";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {Otable} from "@features/table";
+import {useRequestQuery} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
-import {DesktopContainer} from "@themes/desktopConainter";
 import {useMedicalEntitySuffix} from '@lib/hooks';
 import {useInsurances} from '@lib/hooks/rest';
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {configSelector} from "@features/base";
-import {Dialog} from "@features/dialog";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import { Label } from '@features/label';
 import { DatePicker } from '@features/datepicker';
@@ -21,79 +18,17 @@ interface StateProps {
     from: Date | null;
     to: Date | null;
 }
-const headCells = [
-    {
-        id: "date",
-        numeric: false,
-        disablePadding: true,
-        label: "date",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "time",
-        numeric: true,
-        disablePadding: false,
-        label: "time",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "insurance",
-        numeric: true,
-        disablePadding: false,
-        label: "insurance",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "payment_type",
-        numeric: true,
-        disablePadding: false,
-        label: "payment_type",
-        sortable: true,
-        align: "center",
-    },
-    /*{
-          id: "billing_status",
-          numeric: true,
-          disablePadding: false,
-          label: "billing_status",
-          sortable: true,
-          align: "center",
-      },*/
-    {
-        id: "amount",
-        numeric: true,
-        disablePadding: false,
-        label: "amount",
-        sortable: true,
-        align: "center",
-    },
-    /* {
-         id: "actions",
-         numeric: true,
-         disablePadding: false,
-         label: "actions",
-         sortable: true,
-         align: "center",
-     },*/
-];
-
 function TransactionPanel({...props}) {
     const {patient, rest, devise, router} = props;
-
     const {insurances} = useInsurances();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const [collapse,setCollapse] = useState<any>(null)
     const {t} = useTranslation(["payment", "common"]);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
-    const {direction} = useAppSelector(configSelector);
     const [dateState, setDateState] = useState<StateProps>({
         from: null,
         to: null
     });
-    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
     const {data: paymentMeansHttp} = useRequestQuery({
         method: "GET",
@@ -107,50 +42,11 @@ function TransactionPanel({...props}) {
         keepPreviousData: true,
         ...(patient && {variables: {query: `?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`}})
     });
-    const [transaction_data, setTransaction_data] = useState<any[]>([]);
     const rows = (httpTransactionsResponse as HttpResponse)?.data?.transactions ?? [];
-    const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
-    console.log(rows)
     return (
         <PanelStyled>
-            {/* <DesktopContainer>
-                {!isLoading && <Otable
-                     {...{rows, t, insurances, pmList, mutateTransactions, hideName: true}}
-                      headers={headCells}
-                 from={"cashbox"}
-                  />}
-                 </DesktopContainer> */}
-            {isLoading && <LinearProgress/>}
+              {isLoading && <LinearProgress/>}
             {!isLoading &&( 
-            
-            // <Box className="files-panel">
-            //     <Stack justifyContent={"end"} direction={"row"} spacing={1} mb={2} mt={1}>
-            //         {/*<Button size='small'
-            //                 variant='contained'
-            //                 color={"success"}>
-            //             {t("wallet")}
-            //             <Typography fontWeight={700} component='strong'
-            //                         mx={1}>+ {wallet}</Typography>
-            //             {devise}
-            //         </Button>*/}
-            //         <Button size='small'
-            //                 variant='contained'
-            //                 color={-1 * rest > 0 ? "success" : "error"}>
-            //             {t("credit")}
-            //             <Typography fontWeight={700} component='strong'
-            //                         mx={1}> {-1 * rest}</Typography>
-            //             {devise}
-            //         </Button>
-
-            //     </Stack>
-            //     <DesktopContainer>
-            //         {!isLoading && <Otable
-            //             {...{rows, t, insurances, pmList, mutateTransactions, hideName: true}}
-            //             headers={headCells}
-            //             from={"cashbox"}
-            //         />}
-            //     </DesktopContainer>
-            // </Box>
            <CardContent>
             <Stack spacing={1.2}>
             <Stack direction={{xs:'column',sm:'row'}} alignItems={{xs:'flex-start',sm:'center'}} justifyContent='space-between' borderBottom={1} borderColor='divider' pb={1}>
@@ -193,13 +89,13 @@ function TransactionPanel({...props}) {
             <Stack spacing={.5}>
                 <Typography variant='body2'>{t("status")}</Typography>
                 <FormGroup row>
-  <FormControlLabel control={<Checkbox />} label={t("paid")} />
-  <FormControlLabel control={<Checkbox />} label="unpaid" />
+            <FormControlLabel control={<Checkbox />} label={t("paid")} />
+             <FormControlLabel control={<Checkbox />} label="unpaid" />
           </FormGroup>
             </Stack>
             <Stack spacing={1}>
                 {
-                    rows.map((row:any) => (
+                 rows.map((row:any) => (
                 <Card key={row.uuid}>
                     <CardContent>
                         <Stack direction='row' alignItems='center' justifyContent='space-between'>
@@ -288,26 +184,6 @@ function TransactionPanel({...props}) {
             </Stack>
            </CardContent>
             )}
-
-            <Dialog
-                action={"payment_dialog"}
-                {...{
-                    direction,
-                    sx: {
-                        minHeight: 380,
-                    },
-                }}
-                open={openPaymentDialog}
-                data={{
-                    patient,
-                }}
-                size={"lg"}
-                fullWidth
-                title={t('payment_dialog_title')}
-                dialogClose={() => {
-                    setOpenPaymentDialog(false)
-                }}
-            />
         </PanelStyled>
     )
 }
