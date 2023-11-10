@@ -185,7 +185,8 @@ function Document() {
                     target: ocrSelectorData?.target ?? "dir",
                     patient: ocrSelectorData?.patient ?? documentData.patientData,
                     date: ocrSelectorData?.date ?? new Date(),
-                    data: documentData.medicalData
+                    data: documentData.medicalData,
+                    uri: documentData.uri
                 }
                 setValues(data as any);
                 dispatch(setOcrData(data));

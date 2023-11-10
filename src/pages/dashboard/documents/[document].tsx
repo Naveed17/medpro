@@ -119,8 +119,8 @@ function Document() {
                 }}>
                 <DocToolbar
                     showPreview={() => {
-                        const url = "https://cae0d071a16b1b12fdd1058164af3e30.r2.cloudflarestorage.com/develop-private/medical-entity/78d08e49-0335-4f5c-ab33-772d79fb63d9/patient/b3491347-3123-4aec-969a-10070685e2d1/bilan4.pdf-3d9941df-c509-4425-8d71-cebf80a5ae9c?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=81f66718d5c7120ddfd9dae7076341d1%2F20231109%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20231109T133229Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Signature=ecfed9a0f913889cf5e2adc895301e68d11e3316381dd2999a94995ec4fe969e";
-                        const extension = getUrlExtension(url, '-');
+                        const url = ocrData.uri?.url
+                        const extension = getUrlExtension(url, '?');
                         console.log("extension", extension);
                         setPreview({
                             type: extension,

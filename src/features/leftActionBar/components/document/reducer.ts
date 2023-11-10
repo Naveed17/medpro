@@ -11,7 +11,8 @@ export type ActionOcrDocumentState = {
     target: string | null;
     patient?: any;
     date: Date | null,
-    data: any[]
+    data: any[],
+    uri?: any
 };
 
 const initialState: ActionOcrDocumentState = {
