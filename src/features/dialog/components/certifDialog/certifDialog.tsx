@@ -68,16 +68,11 @@ function CertifDialog({...props}) {
     const {parent: modelParent} = useAppSelector(prescriptionSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
 
-    /*
-        let [colors, setColors] = useState(["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"]);
-    */
     const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
     const [folder, setFolder] = useState<string>("");
     const [isStarted, setIsStarted] = useState(false);
-    const [openRemove, setOpenRemove] = useState(false);
-    const [selected, setSelected] = useState<any>();
     const [selectedModel, setSelectedModel] = useState<any>(null);
     let [oldNote, setOldNote] = useState('');
     const [templates, setTemplates] = useState([]);
@@ -93,8 +88,13 @@ function CertifDialog({...props}) {
     const [openCertificateModelDialog, setOpenCertificateModelDialog] = useState(false);
     const [height, setHeight] = React.useState(440);
     const [expanded, setExpanded] = useState(false);
+    const [expandedAntecedent, setExpandedAntecedent] = useState(false);
+    const [expandedMotif, setExpandedMotif] = useState(false);
     const [traking, setTraking] = useState<any[]>([]);
-
+    const [antecedents, setAntecedents] = useState<any[]>([]);
+    const [motifs, setMotifs] = useState<any[]>([]);
+    const hasAntecedents = Object.keys(data.patient.antecedents).reduce((total,key)=>total+data.patient.antecedents[key],0) > 0
+    const hasMotif = data.sheetExam.appointment_data.consultation_reason.length > 0
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
         {name: '{doctor}', title: 'doctor', show: true},
@@ -123,7 +123,6 @@ function CertifDialog({...props}) {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modal-folders/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
-
 
     const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -178,16 +177,6 @@ function CertifDialog({...props}) {
             setIsStarted(true);
             setOldNote(value)
         })
-    }
-
-    const dialogSave = () => {
-        triggerModelsUpdate(selected.request, {
-            onSuccess: () => {
-                mutateModel().then(() => {
-                    setOpenRemove(false);
-                })
-            }
-        });
     }
 
     const addVal = (val: string) => {
@@ -320,6 +309,34 @@ function CertifDialog({...props}) {
         setExpanded(!expanded)
     }
 
+    const showAntecedentData = () => {
+        medicalEntityHasUser && !expandedAntecedent && antecedents.length === 0 && triggerGetData({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.patient.uuid}/antecedents/${router.locale}`
+        }, {
+            onSuccess: (result) => {
+                const res = result.data.data
+                let ant:string[] = [];
+                Object.keys(res).map(key => {
+                    res[key].map((asc: { name: string; }) => ant.push(asc.name))
+                })
+                setAntecedents(ant)
+            }
+        })
+        setExpandedAntecedent(!expandedAntecedent)
+    }
+
+    const showMotifData = () =>{
+        let _motifs:string[] = [];
+         if( !expandedMotif && motifs.length === 0) {
+             data.sheetExam.appointment_data.consultation_reason.map((cr: { name: string; }) => {
+                 _motifs.push(cr.name)
+             })
+             setMotifs(_motifs);
+         }
+        setExpandedMotif(!expandedMotif)
+    }
+
     const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
     const modelsList = (httpModelResponse as HttpResponse)?.data ?? [];
 
@@ -449,6 +466,18 @@ function CertifDialog({...props}) {
                                         {expanded ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
                                     </Button>
 
+                                    {hasAntecedents && <Button onClick={() => showAntecedentData()}
+                                             size={"small"}>
+                                        {t(`consultationIP.antecedent`)}
+                                        {expandedAntecedent ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
+                                    </Button>}
+
+                                    {hasMotif && <Button onClick={() => showMotifData()} size={"small"}>
+                                        {t(`consultationIP.consultation_reason`)}
+                                        {expandedMotif ? <KeyboardArrowUpRoundedIcon/> :
+                                            <KeyboardArrowDownRoundedIcon/>}
+                                    </Button>}
+
                                 </Stack>
                                 <RecButton
                                     small
@@ -463,6 +492,26 @@ function CertifDialog({...props}) {
                                     }}
                                             key={item.key}
                                             size={"small"}> <AddIcon/> {item.key} ({item.value})
+                                    </Button>
+                                ))}
+                            </Collapse>
+                            <Collapse in={expandedAntecedent} timeout="auto" unmountOnExit>
+                                {antecedents.map((item,index) => (
+                                    <Button onClick={() => {
+                                        addVal(item.toString())
+                                    }}
+                                            key={`antecedent${index}`}
+                                            size={"small"}> <AddIcon/> {item}
+                                    </Button>
+                                ))}
+                            </Collapse>
+                            <Collapse in={expandedMotif} timeout="auto" unmountOnExit>
+                                {motifs.map((item,index) => (
+                                    <Button onClick={() => {
+                                        addVal(item.toString())
+                                    }}
+                                            key={`motif${index}`}
+                                            size={"small"}> <AddIcon/> {item}
                                     </Button>
                                 ))}
                             </Collapse>
@@ -577,26 +626,7 @@ function CertifDialog({...props}) {
                 </Grid>
             </Grid>
 
-            <Dialog
-                {...{direction}}
-                action={"remove"}
-                open={openRemove}
-                data={{selected}}
-                color={(theme: Theme) => theme.palette.error.main}
-                title={t('consultationIP.removedoc')}
-                t={t}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={() => {
-                            setOpenRemove(false);
-                        }}
-                                startIcon={<CloseIcon/>}>{t('consultationIP.cancel')}</Button>
-                        <LoadingButton variant="contained"
-                                       sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
-                                       onClick={dialogSave}>{t('consultationIP.remove')}</LoadingButton>
-                    </DialogActions>
-                }
-            />
+
 
             <MuiDialog
                 maxWidth="xs"
