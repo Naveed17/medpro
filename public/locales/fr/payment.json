@@ -160,6 +160,8 @@
     "pay": "Payer",
     "error": "Veuillez entrer un montant",
     "avance": "Avance",
-    "use": "Utiliser"
+    "use": "Utiliser",
+    "no_transaction": "Aucune consultation à payer",
+    "add_now": "vous avez la possibilité d'ajouter un paiement anticipé"
   }
 }

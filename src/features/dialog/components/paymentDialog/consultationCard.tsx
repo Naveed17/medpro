@@ -28,42 +28,44 @@ function ConsultationCard({...props}) {
                         <Typography flex={1} fontSize={12}>{t('dialog.leftPay')}</Typography>
                     </Stack>
 
-                    {appointments.map((app: any, index: number) => (
-                        <Stack key={index} direction={"row"} alignItems={"center"} style={{flex: 3}} pb={1}
-                               borderBottom={index === appointments.length - 1 ? "" : `1px solid ${theme.palette.grey[200]}`}>
-                            <Stack direction={"row"} alignItems={"center"} flex={1}>
-                                <Checkbox checked={app.checked || false} onChange={(e) => {
-                                    app.checked = e.target.checked;
-                                    setAppointments([...appointments])
-                                }}/>
-                                <Stack spacing={0} sx={{
-                                    ".react-svg": {
-                                        svg: {
-                                            width: 11,
-                                            height: 11,
-                                            path: {
-                                                fill: (theme) => theme.palette.text.primary,
+                    <div style={{maxHeight:"32vh",overflowX: "auto"}}>
+                        {appointments.map((app: any, index: number) => (
+                            <Stack key={index} direction={"row"} alignItems={"center"} style={{flex: 3}} pb={1}
+                                   borderBottom={index === appointments.length - 1 ? "" : `1px solid ${theme.palette.grey[200]}`}>
+                                <Stack direction={"row"} alignItems={"center"} flex={1}>
+                                    <Checkbox checked={app.checked || false} onChange={(e) => {
+                                        app.checked = e.target.checked;
+                                        setAppointments([...appointments])
+                                    }}/>
+                                    <Stack spacing={0} sx={{
+                                        ".react-svg": {
+                                            svg: {
+                                                width: 11,
+                                                height: 11,
+                                                path: {
+                                                    fill: (theme) => theme.palette.text.primary,
+                                                },
                                             },
                                         },
-                                    },
-                                }}>
-                                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                        <Icon path="ic-agenda"/>
-                                        <Typography fontSize={12} fontWeight={"bold"}>{app.day_date}</Typography>
-                                    </Stack>
+                                    }}>
+                                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                            <Icon path="ic-agenda"/>
+                                            <Typography fontSize={12} fontWeight={"bold"}>{app.day_date}</Typography>
+                                        </Stack>
 
-                                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                        <Icon path="ic-time"/>
-                                        <Typography fontSize={11}>{app.start_date}</Typography>
+                                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                            <Icon path="ic-time"/>
+                                            <Typography fontSize={11}>{app.start_date}</Typography>
+                                        </Stack>
                                     </Stack>
                                 </Stack>
-                            </Stack>
 
-                            <Typography flex={1}><span style={{fontWeight: "bold"}}>{app.fees}</span> <span
-                                style={{fontSize: 12}}>{devise}</span></Typography>
-                            <Typography flex={1}><span style={{fontWeight: "bold"}}>{app.rest_amount}</span> <span
-                                style={{fontSize: 12}}>{devise}</span></Typography>
-                        </Stack>))}
+                                <Typography flex={1}><span style={{fontWeight: "bold"}}>{app.fees}</span> <span
+                                    style={{fontSize: 12}}>{devise}</span></Typography>
+                                <Typography flex={1}><span style={{fontWeight: "bold"}}>{app.rest_amount}</span> <span
+                                    style={{fontSize: 12}}>{devise}</span></Typography>
+                            </Stack>))}
+                    </div>
 
                 </Stack>
 

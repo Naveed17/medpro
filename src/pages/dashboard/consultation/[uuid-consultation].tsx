@@ -1573,7 +1573,6 @@ function ConsultationInProgress() {
                     data={{
                         appuuid: app_uuid,
                         patient,
-                        sheetExam,
                         state,
                         setState,
                         t,

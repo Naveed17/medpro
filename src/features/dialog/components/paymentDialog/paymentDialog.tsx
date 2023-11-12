@@ -45,6 +45,7 @@ function PaymentDialog({...props}) {
     const [appointments, setAppointments] = useState<any>(['', '', '']);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [patientTransactions, setPatientTransactions] = React.useState([]);
+    const [selectedPayment, setSelectedPayment] = React.useState(0);
 
     const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
@@ -159,6 +160,15 @@ function PaymentDialog({...props}) {
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
+        const refList = document.getElementById("trList");
+        setTimeout(()=>{
+            if (refList)
+                refList.scrollTo({
+                    top: refList.scrollHeight,
+                    behavior: 'smooth',
+                });
+
+        },1000)
     };
 
     const handleClose = () => {
@@ -241,23 +251,27 @@ function PaymentDialog({...props}) {
                         </Stack>
                         {
                             appointments.length > 0 ? <>
-                            <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.leftPay')}</Typography>
-                            <ConsultationCard {...{
-                                appointments,
-                                setAppointments,
-                                payments,
-                                getTotalApps,
-                                getTotalPayments,
-                                t,
-                                theme,
-                                devise
-                            }}/>
-                        </>:<Box style={{width:"100%",height:"50vh",
-                                display:'flex',
-                                justifyContent:"center",
-                                alignItems:"center"}}>
-                            <Typography>No transaction</Typography>
-                        </Box>
+                                <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.leftPay')}</Typography>
+                                <ConsultationCard {...{
+                                    appointments,
+                                    setAppointments,
+                                    payments,
+                                    getTotalApps,
+                                    getTotalPayments,
+                                    t,
+                                    theme,
+                                    devise
+                                }}/>
+                            </> : <Stack spacing={1} style={{
+                                width: "100%", height: "50vh",
+                                display: 'flex',
+                                justifyContent: "center",
+                                alignItems: "center"
+                            }}>
+                                <IconUrl path={'stethoscope'}/>
+                                <Typography fontWeight={"bold"} color={'#1B2746'}>{t('dialog.no_transaction')}</Typography>
+                                <Typography fontSize={13} color={'#1B2746'}>{t('dialog.add_now')}</Typography>
+                            </Stack>
                         }
                     </Stack>
                 </Grid>
@@ -320,54 +334,62 @@ function PaymentDialog({...props}) {
                             </Menu>
                         </Stack>
 
-
-                        {patientTransactions && patientTransactions.length > 0 && <Card className={"payment-card"}>
-                            <CardContent>
-                                <Stack spacing={1}>
-                                    <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.avance')}</Typography>
-                                    {patientTransactions.map((transaction: any, index) => (
-                                        <Card key={index} style={{padding: 10}}>
-                                            <Stack direction={"row"} justifyContent={"space-between"}>
-                                                <Stack>
-                                                    <Typography
-                                                        fontSize={12}>{transaction.payment_means.map((tr: any) => (tr.paymentMeans.name + ' '))}</Typography>
-                                                    <Stack direction="row"
-                                                           alignItems="center"
-                                                           spacing={0.5}>
-                                                        <IconUrl path={"ic-agenda"}
-                                                                 width={12}
-                                                                 height={12}
-                                                                 color={theme.palette.text.secondary}/>
-                                                        <Typography variant="body2">
-                                                            {moment(transaction.date_transaction, 'YYYY-MM-DD HH:mm').format('DD-MM-YYYY')}
-                                                        </Typography>
-                                                    </Stack>
-                                                </Stack>
-                                                <Button size={"small"}
-                                                        variant={"contained"}
-                                                        onClick={() => payWithAvance(transaction)}
-                                                        startIcon={<IconUrl path={"ic-argent"}/>}>
-                                                    {t('dialog.use')} {transaction.restAmount} {devise}
-                                                </Button>
+                        <div id={"trList"} style={{maxHeight: '50vh', overflowX: "auto"}}>
+                            <Stack spacing={1}>
+                                {
+                                    patientTransactions && patientTransactions.length > 0 &&
+                                    <Card className={"payment-card"}>
+                                        <CardContent>
+                                            <Stack spacing={1}>
+                                                <Typography fontSize={14}
+                                                            fontWeight={"bold"}>{t('dialog.avance')}</Typography>
+                                                {patientTransactions.map((transaction: any, index) => (
+                                                    <Card key={index} style={{padding: 10}}>
+                                                        <Stack direction={"row"} justifyContent={"space-between"}>
+                                                            <Stack>
+                                                                <Typography
+                                                                    fontSize={12}>{transaction.payment_means.map((tr: any) => (tr.paymentMeans.name + ' '))}</Typography>
+                                                                <Stack direction="row"
+                                                                       alignItems="center"
+                                                                       spacing={0.5}>
+                                                                    <IconUrl path={"ic-agenda"}
+                                                                             width={12}
+                                                                             height={12}
+                                                                             color={theme.palette.text.secondary}/>
+                                                                    <Typography variant="body2">
+                                                                        {moment(transaction.date_transaction, 'YYYY-MM-DD HH:mm').format('DD-MM-YYYY')}
+                                                                    </Typography>
+                                                                </Stack>
+                                                            </Stack>
+                                                            <Button size={"small"}
+                                                                    variant={"contained"}
+                                                                    onClick={() => payWithAvance(transaction)}
+                                                                    startIcon={<IconUrl path={"ic-argent"}/>}>
+                                                                {t('dialog.use')} {transaction.restAmount} {devise}
+                                                            </Button>
+                                                        </Stack>
+                                                    </Card>
+                                                ))}
                                             </Stack>
-                                        </Card>
-                                    ))}
-                                </Stack>
-                            </CardContent>
-                        </Card>}
-
-                        {payments.map((item: any, i: number) => (
-                            <PaymentCard key={i} {...{
-                                t,
-                                paymentTypesList,
-                                item,
-                                i,
-                                devise,
-                                payments,
-                                setPayments,
-                                addTransactions
-                            }}/>
-                        ))}
+                                        </CardContent>
+                                    </Card>
+                                }
+                                {payments.map((item: any, i: number) => (
+                                    <PaymentCard key={i} {...{
+                                        t,
+                                        paymentTypesList,
+                                        item,
+                                        i,
+                                        devise,
+                                        payments,
+                                        setPayments,
+                                        selectedPayment,
+                                        setSelectedPayment,
+                                        addTransactions
+                                    }}/>
+                                ))}
+                            </Stack>
+                        </div>
                     </Stack>
                 </Grid>
             </Grid>

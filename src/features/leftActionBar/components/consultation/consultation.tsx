@@ -289,7 +289,6 @@ function Consultation() {
                                 {(isBeta && patient && patient.rest_amount !== 0) && <Button
                                     variant='contained'
                                     size={"small"}
-                                    endIcon={<AddIcon/>}
                                     startIcon={<IconUrl path={'ic-wallet-money'} color={'white'}/>}
                                     sx={{
                                         "& .MuiSvgIcon-root": {

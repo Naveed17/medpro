@@ -28,7 +28,6 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {useAppSelector} from "@lib/redux/hooks";
-import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -37,6 +36,7 @@ import {startCase} from 'lodash'
 import {EventType, TimeSchedule} from "@features/tabPanel";
 import {useTheme} from "@emotion/react";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import {Dialog} from "@features/dialog";
 
 const limit = 255;
 
@@ -72,7 +72,6 @@ function SecretaryConsultationDialog({...props}) {
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedDose, setSelectedDose] = useState("day")
-    const [appData, setAppData] = useState<any>(null)
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -91,7 +90,6 @@ function SecretaryConsultationDialog({...props}) {
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
-            setAppData(res);
             setTransactions(res.transactions ? res.transactions[0] : null);
             if (total === -1) {
                 const form = new FormData();
@@ -267,11 +265,6 @@ function SecretaryConsultationDialog({...props}) {
                                     {total && total > -1 &&
                                         <Stack direction={"row"} alignItems={"center"}>
                                             {demo && <Button
-                                                endIcon={
-                                                    <Typography sx={{fontSize: '12px !important'}}>
-                                                        {devise}
-                                                    </Typography>
-                                                }
                                                 startIcon={<IconUrl path={'ic-argent'}/>}
                                                 variant="contained"
                                                 color={"primary"}
@@ -281,11 +274,17 @@ function SecretaryConsultationDialog({...props}) {
                                                 })}
                                                 onClick={openDialogPayment}>
                                                 <Typography>{t("pay")}</Typography>
-                                                {/*{appData.patient.rest_amount + appData.rest_amount > 0 &&
-                                                    <Typography component='span' fontWeight={700} variant="subtitle2"
-                                                                ml={1}>
-                                                        {appData.patient.rest_amount + appData.rest_amount}
-                                                    </Typography>}*/}
+                                                {
+                                                    patient.rest_amount > 0 &&
+                                                    <>
+                                                        <Typography component='span'
+                                                                    fontWeight={700}
+                                                                    variant="subtitle2" ml={1}>
+                                                            {patient.rest_amount}
+                                                        </Typography>
+                                                        <Typography fontSize={10}>{devise}</Typography>
+                                                    </>
+                                                }
                                             </Button>
                                             }
                                         </Stack>
@@ -410,7 +409,8 @@ function SecretaryConsultationDialog({...props}) {
                 </RootStyled>
             )}
         </>
-    );
+    )
+        ;
 }
 
 export default SecretaryConsultationDialog;
