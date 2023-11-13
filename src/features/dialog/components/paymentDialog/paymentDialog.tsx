@@ -1,4 +1,4 @@
-import React, {useEffect, useState,} from "react";
+import React, {useEffect, useRef, useState,} from "react";
 import {
     Avatar,
     Button,
@@ -59,7 +59,7 @@ function PaymentDialog({...props}) {
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
     const {patient, setOpenPaymentDialog, mutatePatient = null} = data;
-
+    const apps = useRef<any[]>([])
     /*
         const isMobile = useMediaQuery((theme: Theme) =>
             theme.breakpoints.down("sm")
@@ -119,6 +119,11 @@ function PaymentDialog({...props}) {
             onSuccess: () => {
                 mutate().then(() => {
                     mutatePatient && mutatePatient();
+                    setTimeout(()=>{
+                        console.log(apps.current)
+                        if (apps.current.length === 0)
+                            setOpenPaymentDialog(false);
+                    },2000)
                 });
             },
         });
@@ -205,9 +210,9 @@ function PaymentDialog({...props}) {
             setWallet(res.patient.wallet)
             setPatientTransactions(res.patient_transaction)
             let total = 0;
-            let apps: any[] = [];
+            let _apps: any[] = [];
             res.appointments?.map((app: any) => {
-                apps.push({
+                _apps.push({
                     uuid: app.uuid,
                     rest_amount: app.rest_amount,
                     fees: app.fees,
@@ -217,7 +222,8 @@ function PaymentDialog({...props}) {
                 })
                 total += app.rest_amount
             })
-            setAppointments(apps.sort((a, b) => (a.day_date > b.day_date) ? 1 : -1));
+            setAppointments(_apps.sort((a, b) => (a.day_date > b.day_date) ? 1 : -1));
+            apps.current = _apps
             setPayments([{selected: 'cash', amount: total}])
         }
     }, [httpPatientTransactions])
@@ -372,6 +378,7 @@ function PaymentDialog({...props}) {
                                                             </Stack>
                                                             <Button size={"small"}
                                                                     variant={"contained"}
+                                                                    disabled={getTotalApps() === 0}
                                                                     onClick={() => payWithAvance(transaction)}
                                                                     startIcon={<IconUrl path={"ic-argent"}/>}>
                                                                 {t('dialog.use')} {transaction.rest_amount} {devise}

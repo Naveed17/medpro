@@ -37,6 +37,7 @@ import {EventType, TimeSchedule} from "@features/tabPanel";
 import {useTheme} from "@emotion/react";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {Dialog} from "@features/dialog";
+import CheckIcon from "@mui/icons-material/Check";
 
 const limit = 255;
 
@@ -265,9 +266,9 @@ function SecretaryConsultationDialog({...props}) {
                                     {
                                         <Stack direction={"row"} alignItems={"center"}>
                                             {demo && <Button
-                                                startIcon={<IconUrl path={'ic-argent'}/>}
+                                                startIcon={patient.rest_amount === 0 ?<CheckIcon/>: <IconUrl path={'ic-argent'} color={"white"}/>}
                                                 variant="contained"
-                                                color={"primary"}
+                                                color={patient.rest_amount === 0 ? "success":"primary"}
                                                 style={{marginLeft: 5}}
                                                 {...(isMobile && {
                                                     sx: {minWidth: 40},
