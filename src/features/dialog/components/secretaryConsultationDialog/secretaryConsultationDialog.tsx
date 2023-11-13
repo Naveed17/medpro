@@ -28,7 +28,6 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {useAppSelector} from "@lib/redux/hooks";
-import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -37,6 +36,7 @@ import {startCase} from 'lodash'
 import {EventType, TimeSchedule} from "@features/tabPanel";
 import {useTheme} from "@emotion/react";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import {Dialog} from "@features/dialog";
 
 const limit = 255;
 
@@ -57,7 +57,8 @@ function SecretaryConsultationDialog({...props}) {
             setCheckedNext,
             addFinishAppointment,
             showCheckedDoc,
-            showPreview
+            showPreview,
+            mutatePatient
         }
     } = props;
     const router = useRouter();
@@ -71,7 +72,6 @@ function SecretaryConsultationDialog({...props}) {
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selectedDose, setSelectedDose] = useState("day")
-    const [appData, setAppData] = useState({rest_amount:0,fees:0})
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -90,7 +90,6 @@ function SecretaryConsultationDialog({...props}) {
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
-            setAppData(res);
             setTransactions(res.transactions ? res.transactions[0] : null);
             if (total === -1) {
                 const form = new FormData();
@@ -154,7 +153,7 @@ function SecretaryConsultationDialog({...props}) {
                                 spacing={1}
                                 mx="auto"
                                 width={1}>
-                                <Typography mt={{xs: 3, md: 0}} >
+                                <Typography mt={{xs: 3, md: 0}}>
                                     {t("recap")}
                                 </Typography>
                                 <Typography
@@ -263,14 +262,9 @@ function SecretaryConsultationDialog({...props}) {
                                             }
                                         </Stack>
                                     </Stack>
-                                    {total &&  total > -1 &&
+                                    {total && total > -1 &&
                                         <Stack direction={"row"} alignItems={"center"}>
-                                            {demo && appData?.rest_amount > 0 && <Button
-                                                endIcon={
-                                                    <Typography sx={{fontSize: '12px !important'}}>
-                                                        {devise}
-                                                    </Typography>
-                                                }
+                                            {demo && <Button
                                                 startIcon={<IconUrl path={'ic-argent'}/>}
                                                 variant="contained"
                                                 color={"primary"}
@@ -279,13 +273,18 @@ function SecretaryConsultationDialog({...props}) {
                                                     sx: {minWidth: 40},
                                                 })}
                                                 onClick={openDialogPayment}>
-
-                                                <Typography >{t("pay")}</Typography>
-                                                <Typography component='span' fontWeight={700} variant="subtitle2"
-                                                            ml={1}>
-                                                    {appData?.rest_amount == total ?total : `${appData?.rest_amount} / ${total}`}
-                                                    {" "}
-                                                </Typography>
+                                                <Typography>{t("pay")}</Typography>
+                                                {
+                                                    patient.rest_amount > 0 &&
+                                                    <>
+                                                        <Typography component='span'
+                                                                    fontWeight={700}
+                                                                    variant="subtitle2" ml={1}>
+                                                            {patient.rest_amount}
+                                                        </Typography>
+                                                        <Typography fontSize={10}>{devise}</Typography>
+                                                    </>
+                                                }
                                             </Button>
                                             }
                                         </Stack>
@@ -398,9 +397,9 @@ function SecretaryConsultationDialog({...props}) {
                         }}
                         open={openPaymentDialog}
                         data={{
-                            app_uuid,
                             patient,
-                            setOpenPaymentDialog
+                            setOpenPaymentDialog,
+                            mutatePatient
                         }}
                         size={"lg"}
                         fullWidth
@@ -410,7 +409,8 @@ function SecretaryConsultationDialog({...props}) {
                 </RootStyled>
             )}
         </>
-    );
+    )
+        ;
 }
 
 export default SecretaryConsultationDialog;

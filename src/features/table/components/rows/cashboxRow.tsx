@@ -3,7 +3,7 @@ import {
     Avatar,
     Button,
     Collapse,
-    DialogActions, IconButton,
+    IconButton,
     Link,
     Stack,
     Table,
@@ -25,17 +25,14 @@ import moment from "moment-timezone";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {configSelector, dashLayoutSelector} from "@features/base";
+import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
-import {useSnackbar} from "notistack";
 import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {useTransactionEdit} from "@lib/hooks/rest";
 import {alpha} from "@mui/material/styles";
 import {HtmlTooltip} from "@features/tooltip";
 import {ImageHandler} from "@features/image";
-
 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
@@ -51,10 +48,8 @@ function PaymentRow({...props}) {
     const {mutateTransactions, pmList, hideName} = data;
     const router = useRouter();
     const theme = useTheme();
-    const {enqueueSnackbar} = useSnackbar();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {trigger: triggerTransactionEdit} = useTransactionEdit();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {data: user} = session as Session;
@@ -63,14 +58,10 @@ function PaymentRow({...props}) {
     const devise = doctor_country.currency?.name;
 
     const [selected, setSelected] = useState<any>([]);
-    const [selectedPayment, setSelectedPayment] = useState<any>(null);
-    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [transaction_data, setTransaction_data] = useState<any[]>([]);
-    const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
     const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
 
-    const {direction} = useAppSelector(configSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -90,29 +81,8 @@ function PaymentRow({...props}) {
         setSelected(newSelected);
     }
 
-    const resetDialog = () => {
-        setOpenPaymentDialog(false);
-    }
-
     const mutatePatientWallet = () => {
         medicalEntityHasUser && row.appointment && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row.appointment.patient?.uuid}/wallet/${router.locale}`]);
-    }
-
-    const handleSubmit = () => {
-        setLoadingRequest(true)
-        triggerTransactionEdit(
-            selectedPayment,
-            row,
-            () => {
-                mutateTransactions().then(() => {
-                    mutatePatientWallet();
-                    enqueueSnackbar(t("addsuccess"), {variant: 'success'});
-                    setOpenPaymentDialog(false);
-                    setTimeout(() => setLoadingRequest(false));
-                });
-
-            }
-        );
     }
 
     const deleteTransaction = () => {
@@ -228,22 +198,22 @@ function PaymentRow({...props}) {
                 {/***** Insurances *****/}
                 <TableCell>
 
-                        <Stack direction={"row"} justifyContent={"center"}>
-                            {
-                                row.patient.insurances ? row.patient.insurances.map((insurance: any) => (
-                                    <Tooltip
-                                        key={insurance?.uuid}
-                                        title={insurance?.name}>
-                                        <Avatar variant={"circular"}>
-                                            <ImageHandler
-                                                alt={insurance?.name}
-                                                src={insurance.logoUrl.url}
-                                            />
-                                        </Avatar>
-                                    </Tooltip>
-                                )) : <Typography>-</Typography>
-                            }
-                        </Stack>
+                    <Stack direction={"row"} justifyContent={"center"}>
+                        {
+                            row.patient.insurances ? row.patient.insurances.map((insurance: any) => (
+                                <Tooltip
+                                    key={insurance?.uuid}
+                                    title={insurance?.name}>
+                                    <Avatar variant={"circular"}>
+                                        <ImageHandler
+                                            alt={insurance?.name}
+                                            src={insurance.logoUrl.url}
+                                        />
+                                    </Avatar>
+                                </Tooltip>
+                            )) : <Typography>-</Typography>
+                        }
+                    </Stack>
                 </TableCell>
                 {/***** Payments means *****/}
                 <TableCell>
@@ -253,14 +223,27 @@ function PaymentRow({...props}) {
                         justifyContent="center"
                         spacing={1}>
                         {row.payment_means && row.payment_means.map((mean: any) => (
-                            <Tooltip key={mean.slug} title={`${mean.amount} ${devise}`}>
+                            <HtmlTooltip key={mean.slug} title={<React.Fragment>
+                                {
+                                    mean.data && <Stack>
+                                        {mean.data.nb && <Typography fontSize={12}>Chq N°<span
+                                            style={{fontWeight: "bold"}}>{mean.data.nb}</span></Typography>}
+                                        {mean.data.carrier &&<Typography fontSize={12}>{t('carrier')} : <span
+                                            style={{fontWeight: "bold"}}>{mean.data.carrier}</span></Typography>}
+                                        <Typography fontSize={12}><span
+                                            style={{fontWeight: "bold"}}>{mean.data.bank?.name}</span></Typography>
+                                    </Stack>
+                                }
+                                <Typography fontSize={12} textAlign={"center"}
+                                            fontWeight={"bold"}>{mean.amount} {devise}</Typography>
+                            </React.Fragment>}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img style={{width: 15}} key={mean.slug}
                                      src={pmList.find((pm: {
                                          slug: string;
                                      }) => pm.slug == mean.paymentMeans.slug).logoUrl.url}
                                      alt={"payment means icon"}/>
-                            </Tooltip>
+                            </HtmlTooltip>
                         ))
                         }
                     </Stack>
@@ -268,7 +251,7 @@ function PaymentRow({...props}) {
                 </TableCell>
                 {/***** Amount *****/}
                 <TableCell>
-                    <Stack direction={"row"} spacing={1}  alignItems={"center"} justifyContent={"center"}>
+                    <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"center"}>
                         <Typography color={"success.main"} fontWeight={700} textAlign={"center"}>
                             {row.amount}
                             <span style={{fontSize: 10}}>{devise}</span>
@@ -410,45 +393,6 @@ function PaymentRow({...props}) {
                     </TableCell>
                 </TableRow>
             )}
-
-
-            <Dialog
-                action={"payment_dialog"}
-                {...{
-                    direction,
-                    sx: {
-                        minHeight: 380,
-                    },
-                }}
-                open={openPaymentDialog}
-                data={{
-                    selectedPayment,
-                    setSelectedPayment,
-                    appointment: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment : null,
-                    patient: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment.patient : null,
-                }}
-                size={"lg"}
-                fullWidth
-                title={t('payment_dialog_title')}
-                dialogClose={resetDialog}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
-                            {t("config.cancel", {ns: "common"})}
-                        </Button>
-                        <LoadingButton
-                            disabled={
-                                selectedPayment && selectedPayment.payments.length === 0
-                            }
-                            loading={loadingRequest}
-                            variant="contained"
-                            onClick={handleSubmit}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
-                            {t("config.save", {ns: "common"})}
-                        </LoadingButton>
-                    </DialogActions>
-                }
-            />
 
             <Dialog
                 action="delete-transaction"

@@ -270,7 +270,6 @@ function WaitingRoom() {
     }
 
     const handleTransactionData = () => {
-        console.log(row)
         setOpenPaymentDialog(true)
     }
 
@@ -868,7 +867,6 @@ function WaitingRoom() {
                 }}
                 open={openPaymentDialog}
                 data={{
-                    app_uuid: row?.uuid,
                     patient: row?.patient,
                     setOpenPaymentDialog
                 }}

@@ -159,6 +159,9 @@
     "total": "Total à payer",
     "pay": "Payer",
     "error": "Veuillez entrer un montant",
-    "avance": "Avance"
+    "avance": "Avance",
+    "use": "Utiliser",
+    "no_transaction": "Aucune consultation à payer",
+    "add_now": "vous avez la possibilité d'ajouter un paiement anticipé"
   }
 }

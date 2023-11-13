@@ -43,7 +43,7 @@ import Content from "@features/leftActionBar/components/consultation/content";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {Label} from "@features/label";
+import AddIcon from "@mui/icons-material/Add";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -286,20 +286,21 @@ function Consultation() {
                                     </Typography>
                                 )}
 
-                                {(isBeta && patient && (patient?.rest_amount ?? 0) !== 0) && <Label
-                                    variant='filled'
+                                {(isBeta && patient && patient.rest_amount !== 0) && <Button
+                                    variant='contained'
+                                    size={"small"}
+                                    startIcon={<IconUrl path={'ic-wallet-money'} color={'white'}/>}
                                     sx={{
                                         "& .MuiSvgIcon-root": {
                                             width: 16,
                                             height: 16,
                                             pl: 0
                                         }
-                                    }}
-                                    color={patient.rest_amount > 0 ? "expire" : "success"}>
+                                    }}>
                                     <Typography
                                         sx={{fontSize: 12}}>
-                                        {commonTranslation(patient.rest_amount > 0 ? "credit" : "wallet")} {`${patient.rest_amount > 0 ? '-' : '+'} ${Math.abs(patient.rest_amount)}`} {devise}</Typography>
-                                </Label>}
+                                        {`${-1 * Math.abs(patient.rest_amount)}`} {devise}</Typography>
+                                </Button>}
                             </Box>
                         )}
 
