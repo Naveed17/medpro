@@ -262,7 +262,7 @@ function SecretaryConsultationDialog({...props}) {
                                             }
                                         </Stack>
                                     </Stack>
-                                    {total && total > -1 &&
+                                    {
                                         <Stack direction={"row"} alignItems={"center"}>
                                             {demo && <Button
                                                 startIcon={<IconUrl path={'ic-argent'}/>}

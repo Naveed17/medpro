@@ -132,6 +132,7 @@
   "no_transaction": "No payment made",
   "pay_all_tr": "Complete your payments in one click",
   "pay_all": "Pay all",
+  "close":"Close",
   "dialog": {
     "leftPay": "Left to pay",
     "date": "Date",

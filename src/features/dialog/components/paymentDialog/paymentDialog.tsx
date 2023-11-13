@@ -30,6 +30,7 @@ import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment/moment";
 import {Box} from "@mui/system";
+import {LottiePlayer} from "@features/card/components/successCard/successCard";
 
 const LoadingScreen = dynamic(
     () => import("@features/loadingScreen/components/loadingScreen")
@@ -43,9 +44,10 @@ function PaymentDialog({...props}) {
 
     const [payments, setPayments] = useState<any>([]);
     const [appointments, setAppointments] = useState<any>(['', '', '']);
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const [patientTransactions, setPatientTransactions] = React.useState([]);
-    const [selectedPayment, setSelectedPayment] = React.useState(0);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [patientTransactions, setPatientTransactions] = useState([]);
+    const [selectedPayment, setSelectedPayment] = useState(0);
+    const [wallet, setWallet] = useState(0);
 
     const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
@@ -105,7 +107,7 @@ function PaymentDialog({...props}) {
     }
 
     const payWithAvance = (tr: any) => {
-        const transaction_data: any = generateTransactionData(tr.restAmount);
+        const transaction_data: any = generateTransactionData(tr.rest_amount);
 
         const form = new FormData();
         form.append("transaction_data", JSON.stringify(transaction_data));
@@ -161,14 +163,14 @@ function PaymentDialog({...props}) {
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
         const refList = document.getElementById("trList");
-        setTimeout(()=>{
+        setTimeout(() => {
             if (refList)
                 refList.scrollTo({
                     top: refList.scrollHeight,
                     behavior: 'smooth',
                 });
 
-        },1000)
+        }, 1000)
     };
 
     const handleClose = () => {
@@ -200,6 +202,7 @@ function PaymentDialog({...props}) {
     useEffect(() => {
         if (httpPatientTransactions) {
             const res = (httpPatientTransactions as HttpResponse).data
+            setWallet(res.patient.wallet)
             setPatientTransactions(res.patient_transaction)
             let total = 0;
             let apps: any[] = [];
@@ -268,8 +271,14 @@ function PaymentDialog({...props}) {
                                 justifyContent: "center",
                                 alignItems: "center"
                             }}>
-                                <IconUrl path={'stethoscope'}/>
-                                <Typography fontWeight={"bold"} color={'#1B2746'}>{t('dialog.no_transaction')}</Typography>
+                                <LottiePlayer
+                                    autoplay
+                                    keepLastFrame
+                                    src="/static/lotties/check-mark-success.json"
+                                    style={{height: "133px", width: "133px"}}
+                                />
+                                <Typography fontWeight={"bold"}
+                                            color={'#1B2746'}>{t('dialog.no_transaction')}</Typography>
                                 <Typography fontSize={13} color={'#1B2746'}>{t('dialog.add_now')}</Typography>
                             </Stack>
                         }
@@ -334,7 +343,7 @@ function PaymentDialog({...props}) {
                             </Menu>
                         </Stack>
 
-                        <div id={"trList"} style={{maxHeight: '50vh', overflowX: "auto"}}>
+                        <div id={"trList"} style={{maxHeight: '60vh', overflowX: "auto"}}>
                             <Stack spacing={1}>
                                 {
                                     patientTransactions && patientTransactions.length > 0 &&
@@ -365,7 +374,7 @@ function PaymentDialog({...props}) {
                                                                     variant={"contained"}
                                                                     onClick={() => payWithAvance(transaction)}
                                                                     startIcon={<IconUrl path={"ic-argent"}/>}>
-                                                                {t('dialog.use')} {transaction.restAmount} {devise}
+                                                                {t('dialog.use')} {transaction.rest_amount} {devise}
                                                             </Button>
                                                         </Stack>
                                                     </Card>
@@ -385,7 +394,8 @@ function PaymentDialog({...props}) {
                                         setPayments,
                                         selectedPayment,
                                         setSelectedPayment,
-                                        addTransactions
+                                        addTransactions,
+                                        wallet
                                     }}/>
                                 ))}
                             </Stack>
@@ -402,13 +412,14 @@ function PaymentDialog({...props}) {
                 backgroundColor: "white",
                 padding: "15px 0"
             }} justifyContent={"flex-end"} spacing={1}>
-                <Button onClick={() => setOpenPaymentDialog(false)}>{t('cancel')}</Button>
-                <Button disabled={getTotalPayments() === 0}
-                        startIcon={<IconUrl path={'ic-argent'}/>}
-                        endIcon={<AddIcon/>}
-                        variant={"contained"}
-                        onClick={() => addTransactions()}>
-                    {t('dialog.pay')} {getTotalPayments()} {devise}
+                <Button onClick={() => setOpenPaymentDialog(false)}>{t('close')}</Button>
+                <Button
+                    startIcon={<IconUrl path={'ic-argent'} color={'white'}/>}
+                    endIcon={<AddIcon/>}
+                    variant={"contained"}
+                    color={getTotalApps() === 0 ? 'success' : 'primary'}
+                    onClick={() => addTransactions()}>
+                    {getTotalApps() === 0 ? t('dialog.addavance') : t('dialog.pay')} {getTotalPayments()} {devise}
                 </Button>
             </Stack>
         </PaymentDialogStyled>
