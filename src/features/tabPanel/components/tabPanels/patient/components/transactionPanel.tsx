@@ -75,7 +75,7 @@ const headCells = [
 ];
 
 function TransactionPanel({...props}) {
-    const {patient, rest, devise, router} = props;
+    const {patient, rest, wallet, devise, walletMutate, router} = props;
 
     const {insurances} = useInsurances();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -109,11 +109,19 @@ function TransactionPanel({...props}) {
                 <Stack justifyContent={"end"} direction={"row"} spacing={1} mb={2} mt={1}>
                     <Button size='small'
                             variant='contained'
-                            onClick={() => setOpenPaymentDialog(true)}
                             startIcon={<IconUrl path={'ic-wallet-money'} color={'white'}/>}
+                            color={"success"}>
+                        <Typography fontWeight={700}
+                                    component='strong'
+                                    mx={1}> {wallet}</Typography>
+                        {devise}
+                    </Button>
+                    <Button size='small'
+                            variant='contained'
+                            onClick={() => setOpenPaymentDialog(true)}
                             endIcon={<AddIcon/>}>
-                        <Typography fontWeight={700} component='strong'
-                                    mx={1}> {-1 * rest}</Typography>
+                        <Typography>{t('rest')}</Typography>
+                        <Typography fontWeight={700} component='strong' mx={1}> {-1 * rest}</Typography>
                         {devise}
                     </Button>
 
@@ -139,6 +147,10 @@ function TransactionPanel({...props}) {
                 data={{
                     patient,
                     setOpenPaymentDialog,
+                    mutatePatient: () => {
+                        mutateTransactions();
+                        walletMutate();
+                    }
                 }}
                 size={"lg"}
                 fullWidth

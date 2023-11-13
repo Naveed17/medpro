@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import {
     Autocomplete,
     Card,
@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {motion} from "framer-motion";
-import moment from "moment-timezone";
 import {DatePicker} from "@features/datepicker";
 import {filterReasonOptions} from "@lib/hooks";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
@@ -51,7 +50,7 @@ function PaymentCard({...props}) {
     }
 
     return (
-        <Card className={"payment-card"} style={{borderColor:selectedPayment === i ?theme.palette.primary.main:''}}>
+        <Card className={"payment-card"} style={{borderColor: selectedPayment === i ? theme.palette.primary.main : ''}}>
             <CardContent>
                 <Stack spacing={2}>
                     <Stack
@@ -161,7 +160,7 @@ function PaymentCard({...props}) {
                                         size="small"
                                         fullWidth
                                         autoFocus={true}
-                                        onFocus={()=> setSelectedPayment(i)}
+                                        onFocus={() => setSelectedPayment(i)}
                                         value={item.amount}
                                         onChange={(e) => {
                                             payments[i].amount = e.target.value ? parseInt(e.target.value, 10) : ''
@@ -188,8 +187,7 @@ function PaymentCard({...props}) {
                                         </IconButton>
                                     )}
                                 </Stack>
-                                {!item.amount && <Typography color={theme.palette.error.main}
-                                                             fontSize={12}>{t('dialog.error')}</Typography>}
+                                {item.amount.toString() === '' && <Typography color={theme.palette.error.main} fontSize={12}>{t('dialog.error')}</Typography>}
 
                                 {item.selected === 'check' && <Stack>
                                     <Stack

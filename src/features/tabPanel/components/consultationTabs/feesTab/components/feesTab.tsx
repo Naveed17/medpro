@@ -77,6 +77,7 @@ function FeesTab({...props}) {
         devise,
         editAct = null,
         t,
+        mutatePatient,
         isQuoteRequest
     } = props;
 
@@ -167,7 +168,10 @@ function FeesTab({...props}) {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/data/${router.locale}`,
             data: form
         }, {
-            onSuccess: () => mutate()
+            onSuccess: () => {
+                mutatePatient()
+                mutate()
+            }
         });
     }
 
@@ -221,7 +225,7 @@ function FeesTab({...props}) {
                     startIcon={<TuneRoundedIcon/>}>
                     {t('consultationIP.config')}
                 </Button>}*/}
-                    </DesktopContainer> 
+                    </DesktopContainer>
                     <MobileContainer>
                         {
                             <Stack spacing={2}>
@@ -230,20 +234,20 @@ function FeesTab({...props}) {
                         return act.act.name?.toLowerCase().includes(search.toLowerCase())
                     }).map((act: any) => (
 <React.Fragment key={act.uuid}>
-    <CipMedicProCard row={act} devise={devise} 
+    <CipMedicProCard row={act} devise={devise}
      edit={editAct ? editAct : editActConsult}
     />
 </React.Fragment>
-                    ))    
+                    ))
                                 }
-                                
+
                             </Stack>
                         }
-                        
-                        </MobileContainer>    
-                
 
-                
+                        </MobileContainer>
+
+
+
             </Box>
 
             <Box pt={4}/>
