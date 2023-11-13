@@ -412,7 +412,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const handleSaveDialog = () => {
         const form = new FormData();
         form.append("globalNote", "");
-        form.append("name", modelNameInput);
+        form.append("name", modelName);
         form.append("parent", modelParent);
         form.append("drugs", JSON.stringify(drugs));
         triggerPrescriptionModel({
@@ -1687,7 +1687,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                 {t("cancel", {ns: "consultation"})}
                             </Button>
                             <LoadingButton
-                                disabled={modelNameInput.length === 0}
+                                disabled={modelName.length === 0}
                                 startIcon={<IconUrl path="ic-dowlaodfile"/>}
                                 variant="contained"
                                 onClick={handleSaveDialog}>
