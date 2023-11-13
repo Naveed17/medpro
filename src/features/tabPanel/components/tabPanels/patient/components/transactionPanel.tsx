@@ -75,7 +75,7 @@ const headCells = [
 ];
 
 function TransactionPanel({...props}) {
-    const {patient, rest, devise, router} = props;
+    const {patient, rest, devise, walletMutate, router} = props;
 
     const {insurances} = useInsurances();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -139,6 +139,10 @@ function TransactionPanel({...props}) {
                 data={{
                     patient,
                     setOpenPaymentDialog,
+                    mutatePatient: () => {
+                        mutateTransactions();
+                        walletMutate();
+                    }
                 }}
                 size={"lg"}
                 fullWidth
