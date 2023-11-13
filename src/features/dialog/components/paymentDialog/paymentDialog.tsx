@@ -120,7 +120,6 @@ function PaymentDialog({...props}) {
                 mutate().then(() => {
                     mutatePatient && mutatePatient();
                     setTimeout(()=>{
-                        console.log(apps.current)
                         if (apps.current.length === 0)
                             setOpenPaymentDialog(false);
                     },2000)
