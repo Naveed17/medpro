@@ -46,6 +46,9 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
 
         },
     },
+    "& .dosage-wrapper svg": {
+        height: 20
+    },
     ".custom-paper": {
         backgroundColor: theme.palette.background.default,
         padding: theme.spacing(3, 1),
@@ -66,7 +69,7 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
                 border: `1px solid ${theme.palette.grey[300]}`,
                 cursor: "default",
                 padding: theme.spacing(0.5, 1),
-                minWidth: 56,
+                minWidth: 92,
                 [theme.breakpoints.up("sm")]: {
                     minWidth: 100
                 },
@@ -74,7 +77,7 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
                     width: '100%'
                 },
                 [theme.breakpoints.up("md")]: {
-                    minWidth: 56
+                    minWidth: 92
                 },
                 ".MuiIconButton-root": {
                     ".MuiSvgIcon-root": {
@@ -112,7 +115,8 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
                 },
                 "&.dosage-wrapper": {
                     justifyContent: 'flex-start',
-                    minWidth: 90
+                    minWidth: 90,
+
                 }
             },
             ".btn-del": {
@@ -219,6 +223,9 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
         border: `1px solid ${theme.palette.divider}`,
         borderRadius: 8,
         padding: 5,
+    },
+    "& .dosage-meal-select": {
+        marginRight: 4
     }
 }));
 export default MedicalPrescriptionCycleStyled;
@@ -267,7 +274,5 @@ export const ButtonWhite = styled(Button)<Props>(({theme}) => ({
                 },
             },
         },
-    },
-
-
+    }
 }))

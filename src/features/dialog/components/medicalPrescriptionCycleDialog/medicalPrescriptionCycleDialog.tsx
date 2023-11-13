@@ -14,7 +14,7 @@ import {
     FormControlLabel,
     FormHelperText,
     Grid,
-    IconButton,
+    IconButton, InputBase,
     List,
     ListItemButton,
     ListItemText,
@@ -28,7 +28,7 @@ import {
     TextField,
     Theme,
     Typography,
-    useMediaQuery,
+    useMediaQuery, useTheme,
 } from "@mui/material";
 import {Form, FormikProvider, useFormik} from "formik";
 import React, {useEffect, useRef, useState} from "react";
@@ -75,6 +75,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
     const {setState: setDrugs, state: drugs, pendingDocuments, setPendingDocuments, setPrescription, patient} = data;
     const router = useRouter();
+    const theme = useTheme();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const refs = useRef([]);
@@ -88,8 +89,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {drawerAction} = useAppSelector(dialogSelector);
     const {name: modelName, parent: modelParent} = useAppSelector(prescriptionSelector);
 
-    const [openAddParentDialog, setOpenAddParentDialog] = useState(false);
-    const [parentModelName, setParentModelName] = useState<string>("");
+    const [openAddDialog, setOpenAddDialog] = useState(false);
+    const [openAddDialogAction, setOpenAddDialogAction] = useState("parent");
+    const [modelNameInput, setModelNameInput] = useState<string>("");
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [initialOpenData, setInitialOpenData] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
@@ -106,9 +108,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
     ];
     const [info, setInfo] = useState("");
     const [loading, setLoading] = useState(false);
-    const [editModel, setEditModel] = useState<PrescriptionPatternModel | null>(
-        null
-    );
+    const [editModel, setEditModel] = useState<PrescriptionPatternModel | null>(null);
+    const [modelDosage, setModelDosage] = useState<any>(null);
     const [prescriptionTabIndex, setPrescriptionTabIndex] = useState(0);
 
     const validationSchema = Yup.object().shape({
@@ -175,8 +176,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
         return (drug.cycles?.length > 0 && drug.cycles[0].dosage.split(",")[0] && hasMedicalFormUnit)
             ? `${hasMedicalFormUnit.forms[0].form}${hasMultiValues ? `_${unit}` : ""}`.replace("(s)", "")
             : unit.replace("(s)", "");
-    };
-    console.log("drugs", drugs);
+    }
+
     const setInitData = (drugs: DrugModel[]) => {
         const data: any[] =
             drugs?.length === 0
@@ -184,6 +185,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     {
                         drug: null,
                         unit: null,
+                        dosageModels: [] as any[],
+                        dosageModel: null,
                         cycles: initPrescriptionCycleData.cycles as any[],
                     },
                 ]
@@ -199,6 +202,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     isVerified: true,
                 } as any,
                 unit: getMedicForm(drug),
+                dosageModels: drug?.dosageModels ?? [] as any[],
+                dosageModel: null,
                 cycles: (drug.cycles?.length === 0 && (drug.duration === "" || drug.duration === null) && drug.durationType === "")
                     ? []
                     : drug.cycles.map((cycle: PrescriptionCycleModel) => ({
@@ -264,6 +269,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {trigger: triggerPrescriptionModel} = useRequestQueryMutation("consultation/prescription/model");
     const {trigger: triggerPrescriptionParent} = useRequestQueryMutation("consultation/prescription/model/parent");
     const {trigger: triggerEditPrescriptionModel} = useRequestQueryMutation("/consultation/prescription/model/edit");
+    const {trigger: triggerGetDrugModel} = useRequestQueryMutation("/consultation/drug/model/get");
+    const {trigger: triggerAddDrugModel} = useRequestQueryMutation("/consultation/drug/model/add");
 
     const {data: ParentModelResponse, mutate: mutateParentModel} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -289,6 +296,34 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     const editPrescriptionModel = (props: any) => {
         setEditModel(props.node);
+    }
+
+    const handleAddDosageModel = () => {
+        setLoading(true);
+        const form = new FormData();
+        form.append('cycles', JSON.stringify(modelDosage.cycles));
+        form.append('name', modelNameInput);
+        form.append('drugUuid', modelDosage.drugUuid);
+        triggerAddDrugModel({
+            method: "POST",
+            url: `${urlMedicalProfessionalSuffix}/drug/posologie-models`,
+            data: form,
+        }, {
+            onSuccess: () => {
+                setOpenAddDialog(false);
+                triggerGetDrugModel({
+                    method: "GET",
+                    url: `${urlMedicalProfessionalSuffix}/drug/posologie-models/drug/${modelDosage.drugUuid}`,
+                }, {
+                    onSuccess: (result) => {
+                        const dosageModels = (result?.data as HttpResponse)?.data;
+                        setFieldValue(`data[${modelDosage.idx}].dosageModels`, dosageModels);
+                        setFieldValue(`data[${modelDosage.idx}].dosageModel`, modelDosage[0]);
+                    }
+                })
+            },
+            onSettled: () => setLoading(false)
+        });
     }
 
     const editPrescriptionAction = () => {
@@ -377,7 +412,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const handleSaveDialog = () => {
         const form = new FormData();
         form.append("globalNote", "");
-        form.append("name", modelName);
+        form.append("name", modelNameInput);
         form.append("parent", modelParent);
         form.append("drugs", JSON.stringify(drugs));
         triggerPrescriptionModel({
@@ -397,7 +432,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const handleAddParentModel = () => {
         setLoading(true);
         const form = new FormData();
-        form.append("name", parentModelName);
+        form.append("name", modelNameInput);
         triggerPrescriptionParent({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
@@ -407,8 +442,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 mutateParentModel().then((result: any) => {
                     const models = (result?.data as HttpResponse)?.data as PrescriptionParentModel[];
                     dispatch(setParentModel(models[models.length - 1]?.uuid));
-                    setOpenAddParentDialog(false);
-                    setParentModelName("");
+                    setOpenAddDialog(false);
+                    setModelNameInput("");
                     setLoading(false);
                 });
             }
@@ -524,7 +559,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             }
         }
     }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
-    console.log(values)
+
     return (
         <MedicalPrescriptionCycleStyled>
             <Container fixed>
@@ -556,7 +591,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     <FiberManualRecordIcon sx={{fontSize: 6, ml: .8}}/>
                                                 </Stack>
                                             </Grid>
-                                            <Grid item className={"drug-input"} sm={7.5} xs={11}>
+                                            <Grid item className={"drug-input"} sm={4.3} xs={11}>
                                                 {drugsList && (
                                                     <Autocomplete
                                                         id="cmo"
@@ -564,10 +599,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         freeSolo
                                                         onChange={(e, drug) => {
                                                             e.stopPropagation();
-                                                            if (
-                                                                (drug as DrugModel)?.inputValue ||
-                                                                typeof drug === "string"
-                                                            ) {
+                                                            if ((drug as DrugModel)?.inputValue || typeof drug === "string") {
                                                                 // Create a new value from the user input
                                                                 setFieldValue(`data[${idx}].drug`, {
                                                                     commercial_name:
@@ -582,6 +614,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     drug as DrugModel
                                                                 );
                                                                 setFieldValue(`data[${idx}].unit`, drug?.form);
+                                                                drug?.uuid && triggerGetDrugModel({
+                                                                    method: "GET",
+                                                                    url: `${urlMedicalProfessionalSuffix}/drug/posologie-models/drug/${drug.uuid}`,
+                                                                }, {
+                                                                    onSuccess: (result) => {
+                                                                        const modelDosage = (result?.data as HttpResponse)?.data;
+                                                                        setFieldValue(`data[${idx}].dosageModels`, modelDosage);
+                                                                    }
+                                                                })
                                                             }
                                                         }}
                                                         size="small"
@@ -717,6 +758,42 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     )}
                                                 />
                                             </Grid>
+                                            <Grid item sm={3.2} xs={10}>
+                                                <Autocomplete
+                                                    size="small"
+                                                    freeSolo
+                                                    value={item?.dosageModel ?? null}
+                                                    onChange={(event, data) => {
+                                                        event.stopPropagation();
+                                                        switchModel([
+                                                            ...values.data.slice(0, idx),
+                                                            {
+                                                                ...data,
+                                                                drugUuid: item.drug.uuid,
+                                                                dosageModels: item.dosageModels,
+                                                                name: item.drug.commercial_name
+                                                            },
+                                                            ...values.data.slice(idx + 1)]);
+                                                    }}
+                                                    placeholder={t("dosage-model", {ns: "consultation"})}
+                                                    noOptionsText={t("no_unit-dosage-model")}
+                                                    options={item?.dosageModels ?? []}
+                                                    getOptionLabel={(option) => {
+                                                        // Value selected with enter, right from the input
+                                                        if (typeof option === "string") {
+                                                            return option;
+                                                        }
+                                                        // Regular option
+                                                        return option.name;
+                                                    }}
+                                                    isOptionEqualToValue={(option: any, value) =>
+                                                        option?.name === value?.name
+                                                    }
+                                                    renderInput={(params) => (
+                                                        <TextField placeholder={t("dosage-model")} {...params} />
+                                                    )}
+                                                />
+                                            </Grid>
                                             <Grid
                                                 className={"grid-action"}
                                                 item
@@ -724,10 +801,16 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 xs={1}
                                                 pb={0.2}
                                                 sx={{textAlign: {xs: "right", md: "left"}}}>
+
                                                 <IconButton
-                                                    onClick={() => handleRemoveDrug(idx)}
-                                                    className="btn-del-drug">
-                                                    <IconUrl path="icdelete"/>
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleRemoveDrug(idx)
+                                                    }}
+                                                    className="btn-list-action"
+                                                    sx={{"&.btn-list-action": {p: 1, background: "white"}}}>
+                                                    <IconUrl color={theme.palette.text.primary} path="ic-delete"
+                                                             width={20} height={20}/>
                                                 </IconButton>
                                             </Grid>
                                         </Grid>
@@ -748,7 +831,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 flexWrap="wrap"
                                                                 alignItems="center">
                                                                 <Stack
-                                                                    width={{xs: "100%", md: "auto"}}
+                                                                    width={{xs: "100%"}}
                                                                     spacing={0.5}
                                                                     mb={0.5}
                                                                     direction={{xs: "column", sm: "row"}}
@@ -762,7 +845,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     {!isMobile ? (innerItem.dosageTime.map((subItem: any, i: number) => (
                                                                             <Button
                                                                                 sx={{
-                                                                                    scrollSnapAlign: 'center',
+                                                                                    scrollSnapAlign: 'center'
                                                                                 }}
                                                                                 component="label"
                                                                                 variant="white"
@@ -780,6 +863,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                 disableRipple
                                                                                 startIcon={
                                                                                     <Checkbox
+                                                                                        checkedIcon={<IconUrl width={20}
+                                                                                                              height={20}
+                                                                                                              path="ic_check_outlined"/>}
                                                                                         checked={
                                                                                             values.data[idx].cycles[index]
                                                                                                 .dosageTime[i].value
@@ -796,7 +882,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                         }}
                                                                                     />
                                                                                 }
-                                                                                key={subItem.label}>
+                                                                                key={`dosageTime-${i}-${subItem.label}`}>
                                                                                 <Typography
                                                                                     sx={{
                                                                                         whiteSpace: "nowrap",
@@ -860,7 +946,30 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                         }
                                                                                         variant="white"
                                                                                         disableRipple>
-                                                                                        {subItem.qty}
+                                                                                        <InputBase
+                                                                                            onFocus={event => {
+                                                                                                event.target.select();
+                                                                                            }}
+                                                                                            sx={{
+                                                                                                width: 16,
+                                                                                                "& .MuiInputBase-input": {
+                                                                                                    textAlign: "center",
+                                                                                                    p: 0
+                                                                                                }
+                                                                                            }}
+                                                                                            value={subItem.qty}
+                                                                                            onClick={(e) => e.stopPropagation()}
+                                                                                            onChange={(e) => {
+                                                                                                if (parseFloat(e.target.value)) {
+                                                                                                    const indexFraction = fractions.findIndex(fraction => fraction === e.target.value);
+                                                                                                    indexFraction !== -1 && setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}]`, {
+                                                                                                        ...values.data[idx].cycles[index].dosageTime[i],
+                                                                                                        count: indexFraction,
+                                                                                                        qty: e.target.value
+                                                                                                    });
+                                                                                                }
+                                                                                            }}
+                                                                                        />
                                                                                     </Button>
                                                                                 )}
                                                                             </Button>
@@ -876,17 +985,14 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                 size="small"
 
                                                                                 value={
-                                                                                    values.data[idx].cycles[
-                                                                                        index
-                                                                                        ].dosageTime
-                                                                                        .reduce((item: any[], elm: any) => {
-                                                                                            if (elm.value) {
-                                                                                                item.push(t(elm.label, {
-                                                                                                    ns: "consultation"
-                                                                                                }));
-                                                                                            }
-                                                                                            return item;
-                                                                                        }, [])
+                                                                                    values.data[idx].cycles[index].dosageTime.reduce((item: any[], elm: any) => {
+                                                                                        if (elm.value) {
+                                                                                            item.push(t(elm.label, {
+                                                                                                ns: "consultation"
+                                                                                            }));
+                                                                                        }
+                                                                                        return item;
+                                                                                    }, [])
                                                                                     || []
                                                                                 }
                                                                                 renderValue={(selected) => {
@@ -999,6 +1105,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                         fullWidth={isMobile}
                                                                         size={"small"}
                                                                         displayEmpty
+                                                                        className={"dosage-meal-select"}
                                                                         sx={{
                                                                             maxHeight: 35,
                                                                             "& .MuiSelect-select": {
@@ -1051,6 +1158,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             )
                                                                         )}
                                                                     </Select>
+                                                                    {index !== 0 &&
+                                                                        <IconButton
+                                                                            onClick={() => handleRemoveCycle(idx, innerItem)}
+                                                                            className="btn-list-action"
+                                                                            sx={{"&.btn-list-action": {p: 1, background: "white", ml: "auto"}}}>
+                                                                            <IconUrl color={theme.palette.text.primary}
+                                                                                     path="ic-delete"
+                                                                                     width={16} height={16}/>
+                                                                        </IconButton>}
                                                                 </Stack>
                                                             </Stack>
 
@@ -1139,14 +1255,31 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                 durationCounter("minus", index, idx)
                                                                             }
                                                                             size="small"
-                                                                            disableRipple
-                                                                        >
+                                                                            disableRipple>
                                                                             <RemoveIcon/>
                                                                         </IconButton>
                                                                     }
                                                                     variant="white"
                                                                     disableRipple>
-                                                                    {innerItem.dosageDuration}
+                                                                    <InputBase
+                                                                        onFocus={event => {
+                                                                            event.target.select();
+                                                                        }}
+                                                                        sx={{
+                                                                            width: 16,
+                                                                            "& .MuiInputBase-input": {
+                                                                                textAlign: "center",
+                                                                                p: 0
+                                                                            }
+                                                                        }}
+                                                                        value={innerItem.dosageDuration}
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                        onChange={(e) => {
+                                                                            if (parseInt(e.target.value)) {
+                                                                                setFieldValue(`data[${idx}].cycles[${index}].dosageDuration`, parseInt(e.target.value));
+                                                                            }
+                                                                        }}
+                                                                    />
                                                                 </Button>
                                                                 {!isMobile ? (
                                                                     innerItem.duration.map((subitem: any) => (
@@ -1262,25 +1395,36 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 />
                                                             )}
                                                         </Stack>
-                                                        {index !== 0 && <IconButton
-                                                            onClick={() => handleRemoveCycle(idx, innerItem)}
-                                                            className="btn-del"
-                                                            disableRipple>
-                                                            <IconUrl path="icdelete"/>
-                                                        </IconButton>}
                                                     </CardContent>
                                                 </Card>
                                             ))}
                                         </Stack>
-                                        <Button
-                                            {...(values.data[idx].cycles.length === 0 && {
-                                                sx: {mt: 1},
-                                            })}
-                                            onClick={() => handAddCycle(idx)}
-                                            size="small"
-                                            startIcon={<AddIcon/>}>
-                                            {t("cycle", {ns: "consultation"})}
-                                        </Button>
+                                        <Stack direction={"row"} sx={{width: "100%"}} justifyContent={"space-between"}>
+                                            <Button
+                                                {...(values.data[idx].cycles.length === 0 && {
+                                                    sx: {mt: 1},
+                                                })}
+                                                onClick={() => handAddCycle(idx)}
+                                                startIcon={<AddIcon/>}>
+                                                {t("cycle", {ns: "consultation"})}
+                                            </Button>
+
+                                            <Button
+                                                onClick={() => {
+                                                    setModelDosage({...drugs[idx], idx});
+                                                    setOpenAddDialogAction("dosage");
+                                                    setTimeout(() => setOpenAddDialog(true));
+                                                }}
+                                                variant={"contained"}
+                                                disabled={drugs[idx]?.cycles.some((cycle: any) => cycle.dosage.length === 0) ?? true}
+                                                {...(values.data[idx].cycles.length === 0 && {
+                                                    sx: {mt: 1},
+                                                })}
+                                                startIcon={<IconUrl path={"dosage-model"}/>}>
+                                                {t("add-dosage-model", {ns: "consultation"})}
+                                            </Button>
+                                        </Stack>
+
                                     </Paper>
                                 ))}
                             </Stack>
@@ -1374,7 +1518,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                         </Stack>
                                     </Stack>
                                     <TabPanel value={prescriptionTabIndex} index={0}>
-
                                         <List
                                             className={"prescription-preview"}
                                             subheader={
@@ -1465,7 +1608,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                 });
                                                             }, 100);
                                                         }}
-
                                                         disableRipple>
                                                         <IconUrl
                                                             width={12}
@@ -1498,7 +1640,10 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 {t("model_list")}
                                             </Typography>
                                             <IconButton
-                                                onClick={() => setOpenAddParentDialog(true)}
+                                                onClick={() => {
+                                                    setOpenAddDialogAction("parent");
+                                                    setOpenAddDialog(true)
+                                                }}
                                                 className="btn-list-action">
                                                 <IconUrl path="ic-folder-add" width={20} height={20}/>
                                             </IconButton>
@@ -1510,7 +1655,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 initialOpenData,
                                                 switchModel,
                                                 editPrescriptionModel,
-                                                setOpenAddParentDialog
+                                                setOpenAddParentDialog: setOpenAddDialog
                                             }}
                                         />
                                     </TabPanel>
@@ -1530,7 +1675,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     title: t("save_the_template_in_folder", {
                         ns: "consultation",
                     }),
-                    data: {t, dose: true, models, setOpenAddParentDialog},
+                    data: {t, dose: true, models, setOpenAddDialog},
                     actionDialog: (
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Button
@@ -1542,7 +1687,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                 {t("cancel", {ns: "consultation"})}
                             </Button>
                             <LoadingButton
-                                disabled={modelName.length === 0}
+                                disabled={modelNameInput.length === 0}
                                 startIcon={<IconUrl path="ic-dowlaodfile"/>}
                                 variant="contained"
                                 onClick={handleSaveDialog}>
@@ -1559,26 +1704,24 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         width: "100%",
                     },
                 }}
-                onClose={() => setOpenAddParentDialog(false)}
-                open={openAddParentDialog}>
+                onClose={() => setOpenAddDialog(false)}
+                open={openAddDialog}>
                 <DialogTitle
                     sx={{
                         bgcolor: (theme: Theme) => theme.palette.primary.main,
                         mb: 2,
                     }}>
-                    {t("add_group_model", {ns: "consultation"})}
+                    {t(openAddDialogAction === "parent" ? "add_group_model" : "add_model_dosage", {ns: "consultation"})}
                 </DialogTitle>
                 <DialogContent>
                     <Typography gutterBottom>
-                        {t("group_model_name", {ns: "consultation"})}
+                        {t(openAddDialogAction === "parent" ? "group_model_name" : "model_dosage_name", {ns: "consultation"})}
                     </Typography>
                     <TextField
                         fullWidth
-                        value={parentModelName}
-                        onChange={(e) => {
-                            setParentModelName(e.target.value);
-                        }}
-                        placeholder={t("group_model_name_placeholder", {
+                        value={modelNameInput}
+                        onChange={(e) => setModelNameInput(e.target.value)}
+                        placeholder={t(openAddDialogAction === "parent" ? "group_model_name_placeholder" : "model_dosage_name_placeholder", {
                             ns: "consultation",
                         })}
                     />
@@ -1592,15 +1735,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         <Button
                             variant="text-black"
                             onClick={() => {
-                                setOpenAddParentDialog(false);
+                                setOpenAddDialog(false);
                             }}
                             startIcon={<CloseIcon/>}>
                             {t("cancel", {ns: "consultation"})}
                         </Button>
                         <LoadingButton
                             {...{loading}}
-                            disabled={parentModelName.length === 0}
-                            onClick={handleAddParentModel}
+                            disabled={modelNameInput.length === 0}
+                            onClick={openAddDialogAction === "parent" ? handleAddParentModel : handleAddDosageModel}
                             startIcon={<IconUrl path="ic-dowlaodfile"/>}
                             variant="contained">
                             {t("save", {ns: "consultation"})}
