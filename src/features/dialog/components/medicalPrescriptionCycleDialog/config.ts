@@ -41,8 +41,6 @@ export const initPrescriptionCycleData = {
     unit: null,
     cycles: [
         {
-            count: 2,
-            dosageQty: "1",
             dosageDuration: 1,
             dosageMealValue: "",
             durationValue: "",
@@ -54,18 +52,26 @@ export const initPrescriptionCycleData = {
                 {
                     label: "morning",
                     value: false,
+                    count: 2,
+                    qty: "1"
                 },
                 {
                     label: "mid_day",
                     value: false,
+                    count: 2,
+                    qty: "1"
                 },
                 {
                     label: "evening",
                     value: false,
+                    count: 2,
+                    qty: "1"
                 },
                 {
                     label: "before_sleeping",
                     value: false,
+                    count: 2,
+                    qty: "1"
                 },
             ],
             dosageMeal,
