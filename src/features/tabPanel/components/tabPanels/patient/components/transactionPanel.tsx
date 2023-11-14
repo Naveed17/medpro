@@ -120,7 +120,7 @@ function TransactionPanel({...props}) {
                             variant='contained'
                             onClick={() => setOpenPaymentDialog(true)}
                             endIcon={<AddIcon/>}>
-                        <Typography>{t('rest')}</Typography>
+                        <Typography>{t('credit')}</Typography>
                         <Typography fontWeight={700} component='strong' mx={1}> {-1 * rest}</Typography>
                         {devise}
                     </Button>
