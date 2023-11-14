@@ -4,7 +4,6 @@ import {Otable} from "@features/table";
 import SearchIcon from "@mui/icons-material/Search";
 import {CipMedicProCard} from '@features/card'
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
