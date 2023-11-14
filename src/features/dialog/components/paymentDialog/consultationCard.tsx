@@ -1,9 +1,10 @@
 import React from "react";
 import {Card, CardContent, Checkbox, Stack, Typography,} from "@mui/material";
 import Icon from "@themes/urlIcon";
+import CheckIcon from "@mui/icons-material/Check";
 
 function ConsultationCard({...props}) {
-    const {t, devise, appointments, setAppointments, getTotalApps, getTotalPayments, theme} = props;
+    const {t, devise, allApps, appointments, setAppointments, getTotalApps, getTotalPayments, theme} = props;
 
     return (
         <Card>
@@ -28,7 +29,50 @@ function ConsultationCard({...props}) {
                         <Typography flex={1} fontSize={12}>{t('dialog.leftPay')}</Typography>
                     </Stack>
 
-                    <div style={{maxHeight:"32vh",overflowX: "auto"}}>
+                    <div style={{maxHeight: "32vh", overflowX: "auto"}}>
+                        {allApps.filter((a1: { uuid: string; }) => !appointments.some((a2: {
+                            uuid: string;
+                        }) => a1.uuid === a2.uuid))
+                            .map((app: any, index: number) => (
+                                <Stack key={index} direction={"row"} alignItems={"center"} style={{flex: 3}} pb={1}
+                                       borderBottom={index === appointments.length - 1 ? "" : `1px solid ${theme.palette.grey[200]}`}>
+                                    <Stack direction={"row"} alignItems={"center"} flex={1}>
+                                        <Checkbox checked={app.checked || false} onChange={(e) => {
+                                            app.checked = e.target.checked;
+                                            setAppointments([...appointments])
+                                        }}/>
+                                        <Stack spacing={0} sx={{
+                                            ".react-svg": {
+                                                svg: {
+                                                    width: 11,
+                                                    height: 11,
+                                                    path: {
+                                                        fill: (theme) => theme.palette.text.primary,
+                                                    },
+                                                },
+                                            },
+                                        }}>
+                                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                <Icon path="ic-agenda"/>
+                                                <Typography fontSize={12}
+                                                            fontWeight={"bold"}>{app.day_date}</Typography>
+                                            </Stack>
+
+                                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                <Icon path="ic-time"/>
+                                                <Typography fontSize={11}>{app.start_date}</Typography>
+                                            </Stack>
+                                        </Stack>
+                                    </Stack>
+
+                                    <Typography flex={1}><span style={{fontWeight: "bold"}}>{app.fees}</span> <span
+                                        style={{fontSize: 10}}>{devise}</span></Typography>
+                                    <Typography flex={1} fontWeight={"bold"} color={theme.palette.success.main}>0
+                                        <span style={{fontSize: 10, fontWeight: '100'}}>{devise}</span>
+                                        <CheckIcon style={{width: 15, height: 15}}/>
+                                    </Typography>
+
+                                </Stack>))}
                         {appointments.map((app: any, index: number) => (
                             <Stack key={index} direction={"row"} alignItems={"center"} style={{flex: 3}} pb={1}
                                    borderBottom={index === appointments.length - 1 ? "" : `1px solid ${theme.palette.grey[200]}`}>
@@ -60,10 +104,13 @@ function ConsultationCard({...props}) {
                                     </Stack>
                                 </Stack>
 
-                                <Typography flex={1}><span style={{fontWeight: "bold"}}>{app.fees}</span> <span
-                                    style={{fontSize: 12}}>{devise}</span></Typography>
-                                <Typography flex={1}><span style={{fontWeight: "bold"}}>{app.rest_amount}</span> <span
-                                    style={{fontSize: 12}}>{devise}</span></Typography>
+                                <Typography flex={1}><span
+                                    style={{fontWeight: "bold"}}>{app.fees ? app.fees : app.rest_amount}</span> <span
+                                    style={{fontSize: 10}}>{devise}</span></Typography>
+                                <Typography flex={1} fontWeight={"bold"}
+                                            color={!app.fees || app.fees == app.rest_amount ? "" : theme.palette.success.main}>{app.rest_amount}
+                                    <span style={{fontSize: 10, fontWeight: '100'}}>{devise}</span>
+                                </Typography>
                             </Stack>))}
                     </div>
 

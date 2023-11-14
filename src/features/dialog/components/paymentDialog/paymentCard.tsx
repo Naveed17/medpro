@@ -187,7 +187,8 @@ function PaymentCard({...props}) {
                                         </IconButton>
                                     )}
                                 </Stack>
-                                {item.amount.toString() === '' && <Typography color={theme.palette.error.main} fontSize={12}>{t('dialog.error')}</Typography>}
+                                {item.amount.toString() === '' && <Typography color={theme.palette.error.main}
+                                                                              fontSize={12}>{t('dialog.error')}</Typography>}
 
                                 {item.selected === 'check' && <Stack>
                                     <Stack
@@ -305,8 +306,7 @@ function PaymentCard({...props}) {
                 </Stack>
             </CardContent>
         </Card>
-    )
-        ;
+    );
 }
 
 export default PaymentCard;
