@@ -21,7 +21,7 @@ import {Dialog, preConsultationSelector} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -31,6 +31,7 @@ function RDVRow({...props}) {
     const router = useRouter();
     const matches = useMediaQuery("(min-width:900px)");
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {model} = useAppSelector(preConsultationSelector);
@@ -48,7 +49,7 @@ function RDVRow({...props}) {
     } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/list/${router.locale}`
-    } : null);
+    } : null, {refetchOnWindowFocus: false});
 
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
@@ -87,7 +88,8 @@ function RDVRow({...props}) {
             onSuccess: () => {
                 setLoadingReq(false);
                 localStorage.removeItem(`Modeldata${appointmentData?.uuid}`);
-                setOpenPreConsultationDialog(false)
+                setOpenPreConsultationDialog(false);
+                medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${appointmentData?.uuid}/consultation-sheet/${router.locale}`]);
             }
         });
     }
