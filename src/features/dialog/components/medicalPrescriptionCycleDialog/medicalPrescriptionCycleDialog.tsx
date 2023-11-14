@@ -318,7 +318,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     onSuccess: (result) => {
                         const dosageModels = (result?.data as HttpResponse)?.data;
                         setFieldValue(`data[${modelDosage.idx}].dosageModels`, dosageModels);
-                        setFieldValue(`data[${modelDosage.idx}].dosageModel`, modelDosage[0]);
+                        setFieldValue(`data[${modelDosage.idx}].dosageModel`, dosageModels[0]);
                     }
                 })
             },
@@ -765,15 +765,17 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     value={item?.dosageModel ?? null}
                                                     onChange={(event, data) => {
                                                         event.stopPropagation();
-                                                        switchModel([
-                                                            ...values.data.slice(0, idx),
-                                                            {
-                                                                ...data,
-                                                                drugUuid: item.drug.uuid,
-                                                                dosageModels: item.dosageModels,
-                                                                name: item.drug.commercial_name
-                                                            },
-                                                            ...values.data.slice(idx + 1)]);
+                                                        if (data) {
+                                                            switchModel([
+                                                                ...values.data.slice(0, idx),
+                                                                {
+                                                                    ...data,
+                                                                    drugUuid: item.drug.uuid,
+                                                                    dosageModels: item.dosageModels,
+                                                                    name: item.drug.commercial_name
+                                                                },
+                                                                ...values.data.slice(idx + 1)]);
+                                                        }
                                                     }}
                                                     placeholder={t("dosage-model", {ns: "consultation"})}
                                                     noOptionsText={t("no_unit-dosage-model")}
@@ -866,19 +868,22 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                         checkedIcon={<IconUrl width={20}
                                                                                                               height={20}
                                                                                                               path="ic_check_outlined"/>}
-                                                                                        checked={
-                                                                                            values.data[idx].cycles[index]
-                                                                                                .dosageTime[i].value
-                                                                                        }
+                                                                                        checked={values.data[idx].cycles[index].dosageTime[i].value}
                                                                                         onChange={(event) => {
-                                                                                            setFieldValue(
-                                                                                                `data[${idx}].cycles[${index}].dosageInput`,
-                                                                                                false
-                                                                                            );
-                                                                                            setFieldValue(
-                                                                                                `data[${idx}].cycles[${index}].dosageTime[${i}].value`,
-                                                                                                event.target.checked
-                                                                                            );
+                                                                                            const previousDosages: any[] = values.data[idx].cycles[index].dosageTime.filter((dosage: any) => dosage.value);
+                                                                                            setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
+
+                                                                                            if (previousDosages.length > 0) {
+                                                                                                const lastDosage = previousDosages[previousDosages.length - 1];
+                                                                                                setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}]`, {
+                                                                                                    ...values.data[idx].cycles[index].dosageTime[i],
+                                                                                                    value: event.target.checked,
+                                                                                                    qty: lastDosage.qty,
+                                                                                                    count: lastDosage.count
+                                                                                                });
+                                                                                            } else {
+                                                                                                setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}].value`, event.target.checked);
+                                                                                            }
                                                                                         }}
                                                                                     />
                                                                                 }
@@ -907,10 +912,14 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                             justifyContent: {
                                                                                                 xs: "space-between",
                                                                                                 md: "center",
-                                                                                                width: {xs: '100%', md: 'auto'},
-
+                                                                                                width: {
+                                                                                                    xs: '100%',
+                                                                                                    md: 'auto'
+                                                                                                }
                                                                                             },
-
+                                                                                            "& .MuiButton-startIcon, .MuiButton-endIcon": {
+                                                                                                m: 0
+                                                                                            }
                                                                                         }}
                                                                                         onClick={(event: any) => {
                                                                                             event.stopPropagation();
@@ -951,7 +960,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                                 event.target.select();
                                                                                             }}
                                                                                             sx={{
-                                                                                                width: 16,
+                                                                                                width: 26,
                                                                                                 "& .MuiInputBase-input": {
                                                                                                     textAlign: "center",
                                                                                                     p: 0
@@ -983,7 +992,6 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                 multiple
                                                                                 displayEmpty={true}
                                                                                 size="small"
-
                                                                                 value={
                                                                                     values.data[idx].cycles[index].dosageTime.reduce((item: any[], elm: any) => {
                                                                                         if (elm.value) {
@@ -1162,7 +1170,13 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                         <IconButton
                                                                             onClick={() => handleRemoveCycle(idx, innerItem)}
                                                                             className="btn-list-action"
-                                                                            sx={{"&.btn-list-action": {p: 1, background: "white", ml: "auto"}}}>
+                                                                            sx={{
+                                                                                "&.btn-list-action": {
+                                                                                    p: 1,
+                                                                                    background: "white",
+                                                                                    ml: "auto"
+                                                                                }
+                                                                            }}>
                                                                             <IconUrl color={theme.palette.text.primary}
                                                                                      path="ic-delete"
                                                                                      width={16} height={16}/>
@@ -1411,6 +1425,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
                                             <Button
                                                 onClick={() => {
+                                                    setModelNameInput(drugs[idx].cycles[drugs[idx].cycles.length - 1]?.dosage ?? "");
                                                     setModelDosage({...drugs[idx], idx});
                                                     setOpenAddDialogAction("dosage");
                                                     setTimeout(() => setOpenAddDialog(true));
