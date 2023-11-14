@@ -323,8 +323,8 @@ function PaymentDialog({...props}) {
                                     <Typography flex={1} fontSize={12}>{t('dialog.amount')}</Typography>
                                     <Typography flex={1} fontSize={12}>{t('dialog.leftPay')}</Typography>
                                 </Stack>
-                                {Array.from(['','','']).map(item =>(<Stack direction={"row"} alignItems={"center"} flex={3} pb={1}
-                                        borderBottom={`1px solid ${theme.palette.grey[200]}`}>
+                                {Array.from(['','','']).map((_,index) =>(<Stack key={`${index}-load`} direction={"row"} alignItems={"center"} flex={3} pb={1}
+                                                                                borderBottom={`1px solid ${theme.palette.grey[200]}`}>
                                     <Stack direction={"row"} alignItems={"center"} flex={1}>
                                         <Stack spacing={0} sx={{
                                             ".react-svg": {
