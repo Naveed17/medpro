@@ -501,6 +501,8 @@
     "title": "Titre",
     "default_amount": "Montant par défaut",
     "amount": "Montant",
+    "code": "Code",
+    "contribution": "Cotation",
     "time": "Heure",
     "reason": "Motif",
     "duration": "Durée",

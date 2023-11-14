@@ -984,7 +984,6 @@ function ConsultationInProgress() {
             })
             setActs(_acts);
             setMPActs(_acts);
-
             let nb = 0;
             changes.map(change => {
                 if (sheet && sheet[change.name]) {
