@@ -1378,6 +1378,7 @@ function ConsultationInProgress() {
                             total,
                             setTotal,
                             devise,
+                            mutatePatient,
                             t
                         }}/>
                     </TabPanel>
