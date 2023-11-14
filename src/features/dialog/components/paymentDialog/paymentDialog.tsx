@@ -3,11 +3,14 @@ import {
     Avatar,
     Button,
     Card,
-    CardContent,
+    CardContent, Checkbox,
+    FormControl,
     Grid,
     Menu,
     MenuItem,
+    Select, Skeleton,
     Stack,
+    TextField,
     Theme,
     Typography,
     useTheme,
@@ -31,6 +34,8 @@ import IconUrl from "@themes/urlIcon";
 import moment from "moment/moment";
 import {Box} from "@mui/system";
 import {LottiePlayer} from "@features/card/components/successCard/successCard";
+import Icon from "@themes/urlIcon";
+import CheckIcon from "@mui/icons-material/Check";
 
 const LoadingScreen = dynamic(
     () => import("@features/loadingScreen/components/loadingScreen")
@@ -43,11 +48,14 @@ function PaymentDialog({...props}) {
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
 
     const [payments, setPayments] = useState<any>([]);
-    const [appointments, setAppointments] = useState<any>(['', '', '']);
+    const [appointments, setAppointments] = useState<any[]>([]);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [patientTransactions, setPatientTransactions] = useState([]);
+    const [usedPayments, setUsedPayments] = useState(0);
     const [selectedPayment, setSelectedPayment] = useState(0);
     const [wallet, setWallet] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [allApps, setAllApps] = useState<any[]>([]);
 
     const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
@@ -107,8 +115,7 @@ function PaymentDialog({...props}) {
     }
 
     const payWithAvance = (tr: any) => {
-        const transaction_data: any = generateTransactionData(tr.rest_amount);
-
+        const transaction_data: any = generateTransactionData(tr.rest_amount)
         const form = new FormData();
         form.append("transaction_data", JSON.stringify(transaction_data));
         triggerAppointmentEdit({
@@ -119,10 +126,14 @@ function PaymentDialog({...props}) {
             onSuccess: () => {
                 mutate().then(() => {
                     mutatePatient && mutatePatient();
-                    setTimeout(()=>{
+                    let _usedPayments = usedPayments + transaction_data.reduce((total: number, item: {
+                        amount: number;
+                    }) => total + item.amount, 0)
+                    setUsedPayments(_usedPayments)
+                    setTimeout(() => {
                         if (apps.current.length === 0)
                             setOpenPaymentDialog(false);
-                    },2000)
+                    }, 2000)
                 });
             },
         });
@@ -223,9 +234,12 @@ function PaymentDialog({...props}) {
             })
             setAppointments(_apps.sort((a, b) => (a.day_date > b.day_date) ? 1 : -1));
             apps.current = _apps
+            if (loading)
+                setAllApps(_apps)
+            setLoading(false)
             setPayments([{selected: 'cash', amount: total}])
         }
-    }, [httpPatientTransactions])
+    }, [httpPatientTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
@@ -258,9 +272,10 @@ function PaymentDialog({...props}) {
                             </Stack>
                         </Stack>
                         {
-                            appointments.length > 0 ? <>
+                            allApps.length > 0 ? <>
                                 <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.leftPay')}</Typography>
                                 <ConsultationCard {...{
+                                    allApps,
                                     appointments,
                                     setAppointments,
                                     payments,
@@ -268,9 +283,10 @@ function PaymentDialog({...props}) {
                                     getTotalPayments,
                                     t,
                                     theme,
+                                    loading,
                                     devise
                                 }}/>
-                            </> : <Stack spacing={1} style={{
+                            </> : !loading && <Stack spacing={1} style={{
                                 width: "100%", height: "50vh",
                                 display: 'flex',
                                 justifyContent: "center",
@@ -287,6 +303,61 @@ function PaymentDialog({...props}) {
                                 <Typography fontSize={13} color={'#1B2746'}>{t('dialog.add_now')}</Typography>
                             </Stack>
                         }
+                        {loading && <Card>
+                            <CardContent>
+                                <Stack direction={"row"} alignItems={"center"} flex={3} pb={1}
+                                       borderBottom={`1px solid ${theme.palette.grey[200]}`}>
+                                    <Stack direction={"row"} alignItems={"center"} flex={1}>
+                                        <Checkbox checked={appointments.filter((app: {
+                                            checked: boolean
+                                        }) => app.checked).length === appointments.length}
+                                                  onChange={(e) => {
+                                                      appointments.map((app: {
+                                                          checked: boolean
+                                                      }) => app.checked = e.target.checked)
+                                                      setAppointments([...appointments])
+                                                  }}/>
+                                        <Typography fontSize={12}>{t('dialog.date')}</Typography>
+                                    </Stack>
+
+                                    <Typography flex={1} fontSize={12}>{t('dialog.amount')}</Typography>
+                                    <Typography flex={1} fontSize={12}>{t('dialog.leftPay')}</Typography>
+                                </Stack>
+                                {Array.from(['','','']).map((_,index) =>(<Stack key={`${index}-load`} direction={"row"} alignItems={"center"} flex={3} pb={1}
+                                                                                borderBottom={`1px solid ${theme.palette.grey[200]}`}>
+                                    <Stack direction={"row"} alignItems={"center"} flex={1}>
+                                        <Stack spacing={0} sx={{
+                                            ".react-svg": {
+                                                svg: {
+                                                    width: 11,
+                                                    height: 11,
+                                                    path: {
+                                                        fill: (theme) => theme.palette.text.primary,
+                                                    },
+                                                },
+                                            },
+                                        }}>
+                                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                <Icon path="ic-agenda"/>
+                                                <Skeleton width={80}/>
+                                            </Stack>
+
+                                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                <Icon path="ic-time"/>
+                                                <Skeleton width={80}/>
+                                            </Stack>
+                                        </Stack>
+                                    </Stack>
+                                    <Skeleton height={25} width={50} style={{flex: 1, marginRight: 20}}/>
+                                    <Skeleton height={25} width={30} style={{flex: 1}}/>
+                                </Stack>))}
+                                <Stack direction={"row"} pl={2} pr={2} mt={2} borderRadius={1} justifyContent={"space-between"}
+                                       style={{backgroundColor: "#F0FAFF"}}>
+                                    <Skeleton height={25} width={70}/>
+                                    <Skeleton height={25} width={90}/>
+                                </Stack>
+                            </CardContent>
+                        </Card>}
                     </Stack>
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -389,6 +460,68 @@ function PaymentDialog({...props}) {
                                         </CardContent>
                                     </Card>
                                 }
+                                {
+                                    usedPayments > 0 &&
+                                    <Card className={"payment-card"}>
+                                        <CardContent>
+                                            <Stack direction="row" alignItems="center" spacing={1}>
+                                                <FormControl
+                                                    size="small"
+                                                    sx={{
+                                                        minWidth: 60,
+                                                        ".MuiInputBase-root": {
+                                                            bgcolor: (theme: Theme) =>
+                                                                theme.palette.primary.main + "!important",
+                                                            svg: {
+                                                                path: {
+                                                                    fill: (theme: Theme) => theme.palette.common.white,
+                                                                },
+                                                            },
+                                                            img: {
+                                                                filter: "brightness(0) invert(1)",
+                                                            },
+                                                            "&:focus": {
+                                                                bgcolor: "primary.main",
+                                                            },
+                                                        },
+                                                    }}
+                                                >
+                                                    <Select
+                                                        labelId="select-type"
+                                                        id="select-type"
+                                                        displayEmpty
+                                                        disabled={true}
+                                                        renderValue={() => {
+                                                            return (
+                                                                <Stack direction="row" alignItems="center" spacing={1}>
+                                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                                    <img
+                                                                        style={{width: 16}}
+                                                                        src={'/static/icons/ic-wallet-money.svg'}
+                                                                        alt={"payment means"}/>
+                                                                </Stack>
+                                                            );
+                                                        }}>
+                                                    </Select>
+                                                </FormControl>
+                                                <TextField
+                                                    sx={{
+                                                        input: {
+                                                            fontWeight: 700,
+                                                        },
+                                                    }}
+                                                    size="small"
+                                                    fullWidth
+                                                    value={usedPayments}
+                                                    type="number"
+
+                                                />
+                                                <Typography>{devise}</Typography>
+                                            </Stack>
+                                        </CardContent>
+                                    </Card>
+                                }
+
                                 {payments.map((item: any, i: number) => (
                                     <PaymentCard key={i} {...{
                                         t,
