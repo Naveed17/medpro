@@ -41,7 +41,7 @@
     "@thaddeusjiang/react-sortable-list": "^0.1.1",
     "@tinymce/tinymce-react": "^4.3.0",
     "apexcharts": "^3.43.0",
-    "axios": "^1.4.0",
+    "axios": "^1.6.1",
     "cookies-next": "^3.0.0",
     "date-fns": "^2.30.0",
     "dayjs": "^1.11.9",
