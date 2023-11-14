@@ -23,11 +23,15 @@ function ActFeesRow({...props}) {
         theme.breakpoints.down("md")
     );
     const [fees, setFees] = useState("");
+    const [contribution, setContribution] = useState("");
+    const [code, setCode] = useState("");
     const [name, setName] = useState("");
     const [edit, setEdit] = useState("");
 
     useEffect(() => {
         setFees(row?.fees);
+        setContribution(row?.contribution);
+        setCode(row?.code);
         setName(row?.act?.name);
     }, [row]);
 
@@ -52,6 +56,50 @@ function ActFeesRow({...props}) {
                     />
                 ) : (
                     row?.act?.name
+                )}
+            </TableCell>
+            <TableCell align={"center"}>
+                {edit === row?.uuid ? (
+                    <TextField
+                        placeholder={"--"}
+                        value={code}
+                        onChange={(e) => {
+                            if (e.target.value) {
+                                setCode(e.target.value);
+                                row.code = e.target.value;
+                            }
+                        }}
+                        InputProps={{
+                            style: {width: isMobile ? 85 : 150, backgroundColor: "white"},
+                            inputProps: {min: 0},
+                        }}
+                    />
+                ) : (
+                    <Typography fontSize={14} letterSpacing={1}>
+                        {row?.code}
+                    </Typography>
+                )}
+            </TableCell>
+            <TableCell align={"center"}>
+                {edit === row?.uuid ? (
+                    <TextField
+                        placeholder={"--"}
+                        value={contribution}
+                        onChange={(e) => {
+                            if (!isNaN(Number(e.target.value))) {
+                                setContribution(e.target.value);
+                                row.contribution = Number(e.target.value);
+                            }
+                        }}
+                        InputProps={{
+                            style: {width: isMobile ? 85 : 150, backgroundColor: "white"},
+                            inputProps: {min: 0},
+                        }}
+                    />
+                ) : (
+                    <Typography fontSize={14} letterSpacing={1}>
+                        {row?.contribution}
+                    </Typography>
                 )}
             </TableCell>
             <TableCell align={"center"}>
@@ -89,7 +137,7 @@ function ActFeesRow({...props}) {
                                 color={"primary"}
                                 sx={{mr: {md: 1}}}
                                 onClick={() => {
-                                    editMotif(row, fees, name);
+                                    editMotif(row, fees, name, code, contribution);
                                     setTimeout(() => {
                                         setEdit("");
                                     }, 1000);
