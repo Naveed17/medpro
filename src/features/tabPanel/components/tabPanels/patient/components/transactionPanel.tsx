@@ -1,8 +1,8 @@
-import {Box, Button, Card, CardContent, Checkbox, Collapse, FormControlLabel, FormGroup, IconButton, LinearProgress, Paper, Stack, Typography} from '@mui/material'
+import {Box, Button, Card, CardContent, Checkbox, Collapse, FormControlLabel, FormGroup, IconButton, LinearProgress, Paper, Stack, Typography,useTheme,Theme, Tooltip} from '@mui/material'
 import React, {useEffect, useState} from 'react'
 import PanelStyled from './overrides/panelStyle'
 import {useTranslation} from "next-i18next";
-import {useRequestQuery} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {useMedicalEntitySuffix} from '@lib/hooks';
 import {useInsurances} from '@lib/hooks/rest';
@@ -14,21 +14,25 @@ import { DatePicker } from '@features/datepicker';
 import IconUrl from '@themes/urlIcon';
 import moment from "moment-timezone";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { AnimatePresence, motion } from 'framer-motion';
 interface StateProps {
     from: Date | null;
     to: Date | null;
 }
 function TransactionPanel({...props}) {
     const {patient, rest, devise, router} = props;
+    const theme:Theme = useTheme();
     const {insurances} = useInsurances();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const [collapse,setCollapse] = useState<any>(null)
     const {t} = useTranslation(["payment", "common"]);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
-    const [dateState, setDateState] = useState<StateProps>({
-        from: null,
-        to: null
-    });
+    const [transaction_data, setTransaction_data] = useState<any[]>([]);
+    const {trigger} = useRequestQueryMutation("/payment/cashbox");
+    const variants = {
+  open: { height:'auto',opacity:1},
+  closed: {height:0,opacity:0},
+}
 
     const {data: paymentMeansHttp} = useRequestQuery({
         method: "GET",
@@ -42,145 +46,208 @@ function TransactionPanel({...props}) {
         keepPreviousData: true,
         ...(patient && {variables: {query: `?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`}})
     });
+    const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
     const rows = (httpTransactionsResponse as HttpResponse)?.data?.transactions ?? [];
+    useEffect(() => {
+     if(collapse){
+         trigger({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/transactions/${collapse}/transaction-data/${router.locale}`,
+            }, {
+                onSuccess: (res) => {
+                    setTransaction_data(res.data.data)
+                }
+            })
+     }
+    }, [collapse])
+    console.log(transaction_data)
     return (
         <PanelStyled>
               {isLoading && <LinearProgress/>}
             {!isLoading &&( 
            <CardContent>
-            <Stack spacing={1.2}>
-            <Stack direction={{xs:'column',sm:'row'}} alignItems={{xs:'flex-start',sm:'center'}} justifyContent='space-between' borderBottom={1} borderColor='divider' pb={1}>
-                <Typography fontWeight={600}>{t('history')}</Typography>
-                <Stack direction={{xs:'column',sm:'row'}} mt={{xs:1,sm:0}} alignItems="center" spacing={1} width={{xs:'100%',sm:'auto'}} sx={{span:{borderRadius:.8,width:{xs:'100%',sm:'auto'}}}}>
-                    <Label variant='filled' color="warning" sx={{fontSize:18,strong:{ml:1}}}>
-                        {t("total")} <strong>400 {devise}</strong>
-                    </Label>
-                    <Label variant='filled' color={-1 * rest > 0 ? "success" : "error"} sx={{fontSize:18,strong:{ml:1}}}>
-                        {t("credit")} <strong>{-1 * rest} {devise}</strong>
-                    </Label>
-                    <Label variant='filled' color={"success"} sx={{fontSize:18,strong:{ml:1}}}>
-                        {t("paid_amount")} <strong>{400} {devise}</strong>
-                    </Label>
-                </Stack>
+            <Stack direction='row' alignItems='center' justifyContent='space-between' borderBottom={1} borderColor="divider" pb={1.2} mb={1.2}>
+             <Typography fontWeight={600}>
+                {t("transactions")}
+                </Typography>   
+                <Button startIcon={<IconUrl path="ic-argent"/>} variant='contained'>{t("add_payment")}</Button>
             </Stack>
-            <Stack direction='row' alignItems="center" spacing={1}>
-                <Stack spacing={.5} width={1}>
-                    <Typography variant='caption' color={"text.secondary"}>{t('from')}</Typography>
-                    <DatePicker
-                    inputFormat="dd/MM/yyyy"
-                    value={dateState.from}
-                    onChange={(date: Date) => {
-                      setDateState({...dateState, from: date})
-                    }}/>
-                    
-                </Stack>
-                <IconUrl style={{marginTop:22}} path="ic-flesh"/>
-                <Stack spacing={.5} width={1}>
-                    <Typography variant='caption' color={"text.secondary"}>{t('to')}</Typography>
-                    <DatePicker
-                    inputFormat="dd/MM/yyyy"
-                    value={dateState.to}
-                    onChange={(date: Date) => {
-                      setDateState({...dateState, to: date})
-                    }}/>
-                    
-                </Stack>
-            </Stack>
-            <Stack spacing={.5}>
-                <Typography variant='body2'>{t("status")}</Typography>
-                <FormGroup row>
-            <FormControlLabel control={<Checkbox />} label={t("paid")} />
-             <FormControlLabel control={<Checkbox />} label="unpaid" />
-          </FormGroup>
-            </Stack>
-            <Stack spacing={1}>
+            <Stack direction='row' alignItems='center' spacing={1.5} 
+            >
+                <Box width={50}/>
+            <table className='payment-table'>
+              <thead>
+                <tr>
+                <th></th>
+                  <th align='left'>{t("date_time")}</th>
+                  <th>{t("payment_method")}</th>
+                  <th>{t("used")}</th>
+                  <th>{t("amount")}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
                 {
-                 rows.map((row:any) => (
-                <Card key={row.uuid}>
-                    <CardContent>
-                        <Stack direction='row' alignItems='center' justifyContent='space-between'>
-                            <Typography fontWeight={700} display='flex' alignItems='center'>
-                               Consultation
-                               <Typography ml={.5} variant='body2'>
-                                 {moment(row.date_transaction).format('DD/MM/YYYY')}
-                                </Typography>
-                                </Typography>
-                                <IconButton sx={{svg:{transform:row.uuid === collapse ? "scale(-1)":"scale(1)"}}} className='btn-collapse' onClick={() => setCollapse(collapse === row.uuid ? null : row.uuid)}>
-                                    <ExpandMoreIcon/>
-                                </IconButton>
-                        </Stack>
-                        <Stack direction='row'mt={{xs:1,sm:0}} alignItems='center' spacing={{xs:.5, sm:1}}
-                        >
-                             <Label variant='filled' color={"warning"} sx={{strong:{ml:{xs:.5,sm:1}}}}>
-                                {t("total")} <strong>{400} {devise}</strong>
-                             </Label>
-                             <Label variant='filled' color={"error"} sx={{strong:{ml:{xs:.5,sm:1}}}}>
-                                {t("credit")} <strong>{400} {devise}</strong>
-                             </Label>
-                              <Label variant='filled' color={"success"} sx={{strong:{ml:{xs:.5,sm:1}}}}>
-                                {t("credit")} <strong>{400} {devise}</strong>
-                             </Label>
-                        </Stack>
-                        <Collapse in={row.uuid === collapse}> 
-                            <Box borderTop={1} borderColor='divider' mt={2} pt={1}>
-                            <table className='collapse-table'>
-                                <thead>
-                                    <tr>
-                                        <th align='left'>{t("act")}</th>
-                                        <th align='left'>{t("qte")}</th>
-                                        <th align='right'>{t("amount")} (DT)</th>
-                                    </tr>
-                                     
-                                        <tr >
-                                            <td align='left'>Consultation</td>
-                                            <td align='left'>1</td>
-                                            <td align='right'>100</td>
-                                            
-                                        </tr>
-                                        <tr >
-                                            <td align='left'>Consultation</td>
-                                            <td align='left'>1</td>
-                                            <td align='right'>100</td>
-                                            
-                                        </tr>
-                                </thead>
-                            </table>
-                            <table className='table-calc'>
-                                <tbody>
-                                    <tr>
-                                        <td align='right'>{t("total")} (DT)</td>
-                                        <td align='right'>400</td>
-                                    </tr>
-                                    <tr>
-                                        <td align='right'>{t("amount_paid")}</td>
-                                        <td align='right'>400</td>
-                                    
-                                    </tr>
-                                    <tr>
-                                        <td align='right'>
-                                            <Typography variant='subtitle1' fontWeight={700}>
-                                                {t("rest_pay")}
-                                            </Typography>
-                                       </td>
-                                        <td align='right'>
-                                            <Typography fontWeight={700} variant='subtitle1'>
-                                                50
-                                            </Typography>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <Stack direction='row' justifyContent='flex-end' mt={1}>
-                                <Button sx={{border:1,borderColor:'divider'}} startIcon={<IconUrl path="ic-print"/>} variant='text-primary'>{t("print")}</Button>
+                 rows?.map((row:any, index:number) => (
+                    <React.Fragment key={row.uuid}>
+                     <tr className={`payment-table-row ${row.uuid ===collapse ? "row-collapse":""}`} key={row.uuid} onClick={() => setCollapse(collapse === row.uuid ? null : row.uuid)}>
+                        <td>
+                            <Stack direction='row' alignItems='center' spacing={.5}>
+                                <IconUrl path="ic-agenda" width={12} height={12} color={theme.palette.text.primary}/>
+                                <Typography variant="body2">{moment(row.date_transaction).format('DD/MM/YYYY')}</Typography>
+                                <IconUrl path="ic-time"/>
+                                <Typography variant='body2'>{moment(row.date_transaction).format('HH:mm')}</Typography>
                             </Stack>
-                            </Box>
-                        </Collapse>
-                    </CardContent>
-                </Card>
-                    ))
+                           
+                        </td>
+                        <td>
+                            <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="center"
+                        spacing={1}>
+                        {row.payment_means && row.payment_means.map((mean: any) => (
+                            <Tooltip key={mean.slug} title={`${mean.amount} ${devise}`}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img style={{width: 15}} key={mean.slug}
+                                     src={pmList.find((pm: {
+                                         slug: string;
+                                     }) => pm.slug == mean.paymentMeans.slug)?.logoUrl.url}
+                                     alt={"payment means icon"}/>
+                            </Tooltip>
+                        ))
+                        }
+                    </Stack>
+                        </td>
+                        <td>
+                            <Typography fontWeight={700} color="secondary">{row.rest_amount}</Typography>
+                        </td>
+                        <td>
+                            <Typography fontWeight={700} color="secondary">
+                                {row.amount} {devise}
+                            </Typography>
+                        </td>
+                        <td>
+                            <IconButton className='btn-del'>
+                                <IconUrl path="ic-delete" color={theme.palette.secondary.main}/>
+                            </IconButton>
+                        </td>
+                     </tr>
+                     
+                     {
+                        row.uuid === collapse && (
+                       <motion.tr 
+                            key={row.uuid}
+                            animate={collapse === row.uuid ? "open" : "closed"}
+                            variants={variants}
+                            initial="closed"
+                            transition={{duration: 0.3}}
+                            exit={{opacity:0,height:0}}
+
+                            
+                       >
+                        <td colSpan={6}>
+                           
+                                <Stack spacing={1.2} mt={-1.2} ml={.2} mr={-0.05} className="collapse-wrapper">
+                                    <Paper className='means-wrapper'>
+                                        {
+                                            row?.payment_means?.length > 0 && (
+                                                row.payment_means.map((item:any)=>(
+                                 <Stack direction='row' alignItems='center' justifyContent='space-between' key={item.uuid}>
+                                            <Stack direction='row' alignItems='center' spacing={4} width={1} sx={{flex:1}}>
+                                                <Stack direction='row' alignItems="center" spacing={1}>
+                                                    <Tooltip  title={`${item.amount} ${devise}`}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img style={{width: 15}}
+                                     src={pmList.find((pm: {
+                                         slug: string;
+                                     }) => pm.slug == item?.paymentMeans?.slug)?.logoUrl.url}
+                                     alt={"payment means icon"}/>
+                                 </Tooltip>
+                                 <Typography variant="body2">{item?.paymentMeans?.name || "--"}</Typography>
+                                                </Stack>
+                                                <Typography variant='body2' width={1}>
+                                                        {item?.data?.bank?.abbreviation || "--"}
+                                                </Typography>
+                                                <Typography variant='body2' width={1}>
+                                                      {item?.data?.nb ? ` N° ${item?.data?.nb}`: "--"}
+                                                </Typography>
+                                            </Stack>
+                                            <Stack sx={{flex:1}} direction='row' alignItems='center' spacing={4} width={1}>
+                                                <Typography variant='body2' width={1}>
+                                                        {item?.data?.carrier || "--"}
+
+                                                </Typography>
+                                                <Stack direction='row' alignItems='center' spacing={0.5} width={1}>
+                                                    <IconUrl path="ic-agenda" width={12} height={12} color={theme.palette.text.primary}/>
+                                                    <Typography variant="body2">{moment(item?.data?.date).format('DD/MM/YYYY') || "--"}</Typography>
+                                                </Stack>
+                                                <Typography variant="body2" width={1}>
+                                                    {item.amount ? <>{item.amount} {devise}</>:"--"}
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                                ))
+                                            )
+                                        }
+                                        
+                                    </Paper>
+                                    {transaction_data.length > 0 && transaction_data.map((transaction) => (
+                                    <Card className='consultation-card' key={transaction.uuid}>
+                                        <CardContent>
+                                        <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                                            <Stack spacing={1} width={1} alignItems='center' direction='row'>
+                                                <Typography fontWeight={700}>
+                                                    {transaction?.appointment?.type?.name}
+                                                </Typography>
+                                                 <Stack direction='row' alignItems='center' spacing={.5}>
+                                <IconUrl path="ic-agenda" width={12} height={12} color={theme.palette.text.primary}/>
+                                <Typography variant="body2">{moment(transaction?.appointment?.payment_date).format('DD/MM/YYYY')}</Typography>
+                                <IconUrl path="ic-time"/>
+                                <Typography variant='body2'>{moment(transaction?.appointment?.payment_time).format('HH:mm')}</Typography>
+                            </Stack>
+                                            </Stack>
+                                            <Stack spacing={1} width={1} alignItems='center' direction='row' sx={{
+                                                span:{
+                                                    fontSize:14,
+                                                    strong:{
+                                                        mx:.5
+                                                    }
+                                                }
+                                            }}>
+                                                <Label variant='filled' color="info">
+                                                    {t("total")}
+                                                    <strong>400</strong>
+                                                    {devise}
+                                                </Label>
+                                                <Label variant='filled' color="success">
+                                                    {t('paid_amount')}
+                                                    <strong>400</strong>
+                                                    {devise}
+                                                </Label>
+                                            </Stack>
+                                        </Stack>
+                                        </CardContent>
+                                    </Card>
+                                    ))}
+                                    
+                                </Stack>
+                            
+                            
+                        
+                        </td>
+                        
+                     </motion.tr>
+                     
+                        )
+                     }
+                    
+                     </React.Fragment>
+                 ))
                 }
-                
-            </Stack>
+               
+              </tbody>
+            </table>
             </Stack>
            </CardContent>
             )}

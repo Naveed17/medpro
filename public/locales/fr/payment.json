@@ -70,6 +70,10 @@
   "status": "Status",
   "paid": "Payé",
   "unpaid": "Non Payé",
+  "transactions": "Transactions",
+  "date_time": "Date et heure",
+  "payment_method": "Méthode de paiement",
+  "used": "Utilisé",
   "dialogs": {
     "delete-dialog": {
       "title": "Supprimer transaction",
