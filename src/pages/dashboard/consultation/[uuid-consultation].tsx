@@ -871,7 +871,6 @@ function ConsultationInProgress() {
     };
 
     const showPreview = (action: string) => {
-        console.log("action", action)
         setOpenDialogSave(false);
         switch (action) {
             case "prescription":
