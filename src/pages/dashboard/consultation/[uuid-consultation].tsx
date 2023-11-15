@@ -173,8 +173,8 @@ function ConsultationInProgress() {
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
         {name: "fiche", icon: "ic-text", checked: false},
-        {name: "insuranceGenerated", icon: "ic-ordonance", checked: false},
         {index: 0, name: "prescription", icon: "ic-traitement", checked: false},
+        {index: 4, name: "insuranceGenerated", icon: "ic-ordonance", checked: false},
         {
             index: 3,
             name: "requested-analysis",
@@ -871,6 +871,7 @@ function ConsultationInProgress() {
     };
 
     const showPreview = (action: string) => {
+        console.log("action", action)
         setOpenDialogSave(false);
         switch (action) {
             case "prescription":
@@ -884,6 +885,10 @@ function ConsultationInProgress() {
             case "requested-medical-imaging":
                 setInfo("medical_imagery");
                 setState(imagery);
+                break;
+            case "insuranceGenerated":
+                setInfo("insurance_document_print");
+                setState(patient);
                 break;
             case "medical-certificate":
                 setInfo("write_certif");
@@ -1001,7 +1006,7 @@ function ConsultationInProgress() {
 
         }
     }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
-    console.log("changes", changes)
+
     useEffect(() => {
         if (event && event.publicId !== app_uuid && isActive) {
             setIsHistory(true)
