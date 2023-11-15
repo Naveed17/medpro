@@ -122,7 +122,6 @@ function WaitingRoom() {
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
     const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
-    const {trigger: appointmentTransactionsTrigger} = useRequestQueryMutation("/agenda/appointment/transctions");
     const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
 
     const {

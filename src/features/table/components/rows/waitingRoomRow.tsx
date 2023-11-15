@@ -12,7 +12,7 @@ import {
 import {useTheme} from "@mui/material/styles";
 import {Dialog} from "@features/dialog";
 import Icon from "@themes/urlIcon";
-import React, {ReactElement, useState} from "react";
+import React, {useState} from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import PlayCircleRoundedIcon from "@mui/icons-material/PlayCircleRounded";
 import moment from "moment-timezone";
