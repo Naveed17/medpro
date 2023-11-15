@@ -33,7 +33,18 @@ import {LoadingButton} from "@mui/lab";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 function PausedConsultationPopover({...props}) {
-    const {pausedConsultation, onClose, refresh, loading, next, roles, resetNextConsultation, setPatientId, setPatientDetailDrawer, handleStartConsultation} = props;
+    const {
+        pausedConsultation,
+        onClose,
+        refresh,
+        loading,
+        next,
+        roles,
+        resetNextConsultation,
+        setPatientId,
+        setPatientDetailDrawer,
+        handleStartConsultation
+    } = props;
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const theme = useTheme();
     const router = useRouter();
@@ -47,14 +58,9 @@ function PausedConsultationPopover({...props}) {
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("/agenda/appointment/edit");
 
     const handleConsultationStart = (event: any) => {
-        dispatch(setSelectedEvent({
-            publicId: event.id,
-            extendedProps: {
-                ...event
-            }
-        } as EventDef));
+        dispatch(setSelectedEvent(event as EventDef));
         if (!isActive) {
-            const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+            const slugConsultation = `/dashboard/consultation/${event?.publicId}`;
             router.push({
                 pathname: slugConsultation,
                 query: {inProgress: true}
