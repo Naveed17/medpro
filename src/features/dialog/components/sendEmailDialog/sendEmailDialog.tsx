@@ -16,7 +16,6 @@ import {LoadingButton} from "@mui/lab";
 import {Document, Page} from "react-pdf";
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-import {ImageHandler} from "@features/image";
 
 function SendEmailDialog({...props}) {
     const {preview, patient, t, title, handleSendEmail, loading} = props.data;

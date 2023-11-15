@@ -1,9 +1,9 @@
 import {GetStaticPaths, GetStaticProps} from "next";
 import React, {ReactElement, useState} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
-import {Box, Button, Stack} from "@mui/material";
+import {Box, Button, Drawer, IconButton, Stack, Toolbar, Typography} from "@mui/material";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
@@ -12,7 +12,7 @@ import dynamic from "next/dynamic";
 import {SubFooter} from "@features/subFooter";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
-import {DocFilter, ocrDocumentSelector} from "@features/leftActionBar";
+import {DocFilter, ocrDocumentSelector, resetOcrData} from "@features/leftActionBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {
     appointmentSelector, onResetPatient,
@@ -25,6 +25,9 @@ import {batch} from "react-redux";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
+import {Document as DocumentPdf, Page} from "react-pdf";
+import {getUrlExtension} from "@lib/hooks/getUrlExtension";
+import CloseIcon from "@mui/icons-material/Close";
 // table head data
 const headCells: readonly HeadCell[] = [
     {
@@ -57,9 +60,14 @@ function Document() {
     const ocrData = useAppSelector(ocrDocumentSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {patient} = useAppSelector(appointmentSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const [loading, setLoading] = useState(false);
-    const [filterBottom, setFilterBottom] = useState<boolean>(false)
+    const [filterBottom, setFilterBottom] = useState<boolean>(false);
+    const [openPreviewDrawer, setOpenPreviewDrawer] = useState<boolean>(false);
+    const [preview, setPreview] = useState<any>(null);
+    const [numPages, setNumPages] = useState<number>(0);
+    const [pageNumber, setPageNumber] = useState<number>(1);
 
     const {trigger: triggerOcrEdit} = useRequestQueryMutation("document/ocr/edit");
 
@@ -68,7 +76,7 @@ function Document() {
         const documentUuid = router.query.document ?? null;
         const form = new FormData();
         form.append("type", ocrData.type?.uuid ?? ocrData.type);
-        form.append("name", ocrData.name);
+        form.append("name", ocrData.name ?? "");
         form.append("patient", ocrData.patient.uuid);
         if (ocrData?.target === "appointment" && ocrData?.appointment) {
             form.append("appointment", ocrData.appointment.uuid);
@@ -84,10 +92,17 @@ function Document() {
         });
     }
 
+    const onDocumentLoadSuccess = ({numPages}: {
+        numPages: number
+    }) => {
+        setNumPages(numPages);
+    }
+
     useLeavePageConfirm(() => {
         batch(() => {
             dispatch(onResetPatient());
             dispatch(resetAppointment());
+            dispatch(resetOcrData());
         });
     });
 
@@ -99,10 +114,19 @@ function Document() {
                 sx={{
                     ".MuiToolbar-root": {
                         flexDirection: {xs: "column", md: "row"},
-                        py: {md: 0, xs: 2},
+                        py: {md: 0, xs: 2}
                     }
                 }}>
-                <DocToolbar/>
+                <DocToolbar
+                    showPreview={() => {
+                        const url = ocrData.uri?.url
+                        const extension = getUrlExtension(url, '?');
+                        setPreview({
+                            type: extension,
+                            url
+                        });
+                        setTimeout(() => setOpenPreviewDrawer(true));
+                    }}/>
             </SubHeader>
             <Box className="container">
                 <Otable
@@ -134,12 +158,84 @@ function Document() {
                                 startIcon={<IconUrl path="add-doc"/>}
                                 variant="contained"
                                 sx={{".react-svg": {mr: 1}}}>
-                                {t("Classer le document")}
+                                {t("classify-document")}
                             </LoadingButton>
                         </Stack>
                     </SubFooter>
                 </Box>
 
+                <Drawer
+                    anchor={"right"}
+                    open={openPreviewDrawer}
+                    sx={{
+                        ".MuiToolbar-root": {
+                            zIndex: 1
+                        },
+                        "& .MuiPaper-root": {
+                            minWidth: 400
+                        },
+                        '& .react-pdf__Page': {
+                            scale: '0.6',
+                            transformOrigin: 'center',
+                            width: "30vw"
+                        },
+                        '& .container__document': {
+                            height: '98%',
+                            width: '100%',
+                            minWidth: 400
+                        },
+                        '& .container__document .react-pdf__Document': {
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            zIndex: 0
+                        },
+                        '& .container__document .react-pdf__Page': {
+                            margin: '-4em 0',
+                            boxShadow: (theme) => theme.shadows[5]
+                        },
+                        '& .container__document .react-pdf__message': {
+                            padding: 20,
+                            color: 'white'
+                        }
+                    }}
+                    dir={direction}
+                    onClose={() => {
+                        setOpenPreviewDrawer(false);
+                    }}>
+                    <Toolbar sx={{bgcolor: (theme) => theme.palette.common.white}}>
+                        <Stack sx={{width: "100%"}} direction={"row"} alignItems="center"
+                               justifyContent={"space-between"}>
+                            <Typography
+                                ml={1}
+                                fontSize={18}
+                                fontWeight={600}
+                                variant="body2" color="text.primary">
+                                {t("preview-document")}
+                            </Typography>
+                            <IconButton onClick={() => setOpenPreviewDrawer(false)} disableRipple>
+                                <CloseIcon/>
+                            </IconButton>
+                        </Stack>
+                    </Toolbar>
+                    {preview && <Box className={'container__document'} height={"100%"} margin={2}>
+                        {["png", "jpeg", "jpg"].includes(preview.type) ?
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={preview.url}
+                                id="displayFile"
+                                height="100%"
+                                width="100%"
+                                alt={"File"}/> :
+                            <DocumentPdf
+                                className={'textLayer'}
+                                file={preview.url}
+                                onLoadSuccess={onDocumentLoadSuccess}
+                                loading={t('wait')}>
+                                <Page pageNumber={pageNumber}/>
+                            </DocumentPdf>}
+                    </Box>}
+                </Drawer>
                 <MobileContainer>
                     <Button
                         startIcon={<IconUrl path="ic-filter"/>}
@@ -187,7 +283,9 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     };
 }
 
-export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
+export const getStaticPaths: GetStaticPaths<{
+    slug: string
+}> = async () => {
     return {
         paths: [], //indicates that no page needs be created at build time
         fallback: "blocking", //indicates the type of fallback

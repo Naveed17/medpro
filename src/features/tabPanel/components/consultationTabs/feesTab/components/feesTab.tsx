@@ -4,23 +4,13 @@ import {Otable} from "@features/table";
 import SearchIcon from "@mui/icons-material/Search";
 import {CipMedicProCard} from '@features/card'
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
-import { DesktopContainer } from "@themes/desktopConainter";
-import { MobileContainer } from "@themes/mobileContainer";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
 
 function FeesTab({...props}) {
 
     const [search, setSearch] = useState<string>("");
-
-    interface HeadCell {
-        disablePadding: boolean;
-        id: string;
-        label: string;
-        numeric: boolean;
-        sortable: boolean;
-        align: "left" | "right" | "center";
-    }
 
     const headCells: readonly HeadCell[] = [
         {
@@ -36,6 +26,22 @@ function FeesTab({...props}) {
             numeric: false,
             disablePadding: true,
             label: "title",
+            sortable: true,
+            align: "left",
+        },
+        {
+            id: "code",
+            numeric: false,
+            disablePadding: true,
+            label: "code",
+            sortable: true,
+            align: "left",
+        },
+        {
+            id: "contribution",
+            numeric: false,
+            disablePadding: true,
+            label: "contribution",
             sortable: true,
             align: "left",
         },
@@ -77,6 +83,7 @@ function FeesTab({...props}) {
         devise,
         editAct = null,
         t,
+        mutatePatient,
         isQuoteRequest
     } = props;
 
@@ -101,9 +108,9 @@ function FeesTab({...props}) {
                 uuid: "consultation_type"
             }, ...mpActs]
 
-            res.acts && res.acts.map((act: { act_uuid: string,qte:number,price:number }) => {
+            res.acts && res.acts.map((act: { act_uuid: string, qte: number, price: number }) => {
                 const index = _acts.findIndex(mpact => mpact.uuid === act.act_uuid)
-                if(index > -1) {
+                if (index > -1) {
                     _acts[index].selected = true
                     _acts[index].qte = act.qte;
                     _acts[index].fees = act.price;
@@ -160,14 +167,17 @@ function FeesTab({...props}) {
         const form = new FormData();
         form.append("acts", JSON.stringify(_acts));
         form.append("fees", _total.toString());
-        form.append("consultation_fees", consultationFees ? consultationFees.toString():"null");
+        form.append("consultation_fees", consultationFees ? consultationFees.toString() : "null");
 
         app_uuid && triggerFeesEdit({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/data/${router.locale}`,
             data: form
         }, {
-            onSuccess: () => mutate()
+            onSuccess: () => {
+                mutatePatient()
+                mutate()
+            }
         });
     }
 
@@ -202,17 +212,17 @@ function FeesTab({...props}) {
                         }}
                     />
                 </Stack>}
-                  <DesktopContainer>
+                <DesktopContainer>
                     <Otable
-                    headers={headCells}
-                    rows={acts?.filter((act: any) => {
-                        return act.act.name?.toLowerCase().includes(search.toLowerCase())
-                    })}
-                    from={"CIP-medical-procedures"}
-                    t={t}
-                    edit={editAct ? editAct : editActConsult}
-                    devise={devise}
-                    handleChange={setTotal}/>
+                        headers={headCells}
+                        rows={acts?.filter((act: any) => {
+                            return act.act.name?.toLowerCase().includes(search.toLowerCase())
+                        })}
+                        from={"CIP-medical-procedures"}
+                        t={t}
+                        edit={editAct ? editAct : editActConsult}
+                        devise={devise}
+                        handleChange={setTotal}/>
                     {/* {!isQuoteRequest&&<Button
                     onClick={() => {
                         router.push("/dashboard/settings/actfees")
@@ -221,29 +231,28 @@ function FeesTab({...props}) {
                     startIcon={<TuneRoundedIcon/>}>
                     {t('consultationIP.config')}
                 </Button>}*/}
-                    </DesktopContainer> 
-                    <MobileContainer>
-                        {
-                            <Stack spacing={2}>
-                                {
+                </DesktopContainer>
+                <MobileContainer>
+                    {
+                        <Stack spacing={2}>
+                            {
                                 acts?.filter((act: any) => {
-                        return act.act.name?.toLowerCase().includes(search.toLowerCase())
-                    }).map((act: any) => (
-<React.Fragment key={act.uuid}>
-    <CipMedicProCard row={act} devise={devise} 
-     edit={editAct ? editAct : editActConsult}
-    />
-</React.Fragment>
-                    ))    
-                                }
-                                
-                            </Stack>
-                        }
-                        
-                        </MobileContainer>    
-                
+                                    return act.act.name?.toLowerCase().includes(search.toLowerCase())
+                                }).map((act: any) => (
+                                    <React.Fragment key={act.uuid}>
+                                        <CipMedicProCard row={act} devise={devise}
+                                                         edit={editAct ? editAct : editActConsult}
+                                        />
+                                    </React.Fragment>
+                                ))
+                            }
 
-                
+                        </Stack>
+                    }
+
+                </MobileContainer>
+
+
             </Box>
 
             <Box pt={4}/>

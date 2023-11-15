@@ -29,10 +29,22 @@ import {useRouter} from "next/router";
 import {resetAppointment} from "@features/tabPanel";
 import {useRequestQueryMutation} from "@lib/axios";
 import IconUrl from "@themes/urlIcon";
-import { LoadingButton } from "@mui/lab";
+import {LoadingButton} from "@mui/lab";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+
 function PausedConsultationPopover({...props}) {
-    const {pausedConsultation, onClose, refresh,loading,next,roles,resetNextConsultation,setPatientId,setPatientDetailDrawer,handleStartConsultation} = props;
+    const {
+        pausedConsultation,
+        onClose,
+        refresh,
+        loading,
+        next,
+        roles,
+        resetNextConsultation,
+        setPatientId,
+        setPatientDetailDrawer,
+        handleStartConsultation
+    } = props;
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const theme = useTheme();
     const router = useRouter();
@@ -46,14 +58,9 @@ function PausedConsultationPopover({...props}) {
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("/agenda/appointment/edit");
 
     const handleConsultationStart = (event: any) => {
-        dispatch(setSelectedEvent({
-            publicId: event.id,
-            extendedProps: {
-                ...event
-            }
-        } as EventDef));
+        dispatch(setSelectedEvent(event as EventDef));
         if (!isActive) {
-            const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
+            const slugConsultation = `/dashboard/consultation/${event?.publicId}`;
             router.push({
                 pathname: slugConsultation,
                 query: {inProgress: true}
@@ -73,7 +80,7 @@ function PausedConsultationPopover({...props}) {
         form.append("action", "end_consultation");
         triggerAppointmentEdit({
             method: "PUT",
-            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.id}/data/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId}/data/${router.locale}`,
             data: form
         }, {
             onSuccess: () => {
@@ -88,231 +95,236 @@ function PausedConsultationPopover({...props}) {
             sx={{
                 width: isMobile ? 320 : 400
             }}>
-              {next && (
+            {next && (
                 <>
-                <Toolbar>
-                <Typography variant="subtitle2" fontWeight={700}>
-                    {t("pending")}
-                </Typography>
-                </Toolbar>
-                <Stack px={2}>
-                 <LoadingButton
-                 className="btn-next-appointment"
-                 fullWidth
-                                    {...{loading}}
-                                    disableRipple
-                                    color={"black"}
-                                    onClick={() => {
-                                        if (isActive || roles.includes('ROLE_SECRETARY')) {
-                                            setPatientId(next.patient_uuid);
-                                            setPatientDetailDrawer(true);
+                    <Toolbar>
+                        <Typography variant="subtitle2" fontWeight={700}>
+                            {t("pending")}
+                        </Typography>
+                    </Toolbar>
+                    <Stack px={2}>
+                        <LoadingButton
+                            className="btn-next-appointment"
+                            fullWidth
+                            {...{loading}}
+                            disableRipple
+                            color={"black"}
+                            onClick={() => {
+                                if (isActive || roles.includes('ROLE_SECRETARY')) {
+                                    setPatientId(next.patient_uuid);
+                                    setPatientDetailDrawer(true);
 
 
-                                        } else {
-                                            handleStartConsultation(next);
+                                } else {
+                                    handleStartConsultation(next);
 
-                                        }
-                                        onClose()
-                                    }}
-                                    sx={{
-                                        mr: 0,
-                                        p: "6px 12px",
-                                        backgroundColor: (theme) => theme.palette.info.lighter,
-                                        '&:hover': {
-                                            backgroundColor: (theme) => theme.palette.info.lighter,
-                                        }
-                                    }}
-                                    loadingPosition={"start"}
-                                    startIcon={<Badge
-                                        overlap="circular"
-                                        anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                                        badgeContent={
-                                            <Avatar className="avatar-ic-next" alt="Small avatar" sx={{
-                                                pt: .2,
-                                                width: 16,
-                                                height: 16,
-                                                borderRadius: 20,
-                                                border: `2px solid ${theme.palette.background.paper}`
-                                            }}>
-                                                <IconUrl width={14} height={16} path={"ic-next"}/>
-                                            </Avatar>
-                                        }>
-                                        <Avatar
-                                            sx={{
-                                                width: 30,
-                                                height: 30,
-                                                borderRadius: 20,
-                                                border: `2px solid ${theme.palette.background.paper}`
-                                            }} variant={"circular"}
-                                            src={`/static/icons/men-avatar.svg`}/>
-                                    </Badge>}
-                                    variant={"contained"}>
-                                    <Stack direction={"row"} alignItems={"center"} width={1}>
-                                        <Stack alignItems='flex-start'>
-                                            <Typography variant="body1" fontWeight={600}>
-                                             {next.patient}
-                                            </Typography>
-                                            <Label variant="filled" color={next.type === 'Consultation' ? "primary":"warning"}>
-                                                {next.type}
-                                            </Label>
-                                        </Stack>
-
-                                        <Avatar
-                                        className="avatar-close"
-                                            alt="Small avatar"
-                                            variant={"square"}
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                resetNextConsultation(next.uuid);
-                                            }}
-                                            sx={{
-
-                                                background: "#FFF",
-                                                width: 30,
-                                                height: 30,
-                                                border: `1px solid ${theme.palette.grey["A900"]}`
-                                            }}>
-                                            <CloseRoundedIcon
-                                                sx={{
-                                                    color: theme.palette.text.primary,
-                                                    width: 20,
-                                                    height: 20
-                                                }}/>
-                                        </Avatar>
-                                    </Stack>
-                                </LoadingButton>
-
-                                <Divider sx={{mt:2}}/>
-
-                                </Stack>
-                </>
-              )}
-            {isActive &&(
-                <Stack px={2}>
-                <Toolbar>
-                <Typography variant="subtitle2" fontWeight={700}>
-                    {t("appointment-status.ON_GOING")}
-                </Typography>
-                </Toolbar>
-                                <CipCard2nd
-                                    openPatientDialog={(uuid: string) => {
-                                        setPatientId(uuid);
-                                        setPatientDetailDrawer(true);
-                                    }}/>
-                                    <Divider sx={{mt:2}}/>
-                                    </Stack>
-                            )}
-
-                 <Toolbar>
-                <Typography variant="subtitle2" fontWeight={700}>
-                    {t("appointment-status.PAUSED")}
-                </Typography>
-                </Toolbar>
-            <List>
-                {pausedConsultation.map((paused: any, index: number) => <ListItem key={index}>
-                    <Badge
-                        overlap="circular"
-                        anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                        badgeContent={
-                            <Avatar
-                                className={"avatar-badge"}
-                                alt="avatar"
-                                src={'/static/icons/ic-pause-mate.svg'}
-                            />
-                        }>
-                        <Avatar
-                            className={"round-avatar"}
-                            sx={{
-                                borderRadius: 20,
-                                border: `2px solid ${theme.palette.background.paper}`
+                                }
+                                onClose()
                             }}
-                            variant={"circular"}
-                            src={`/static/icons/men-avatar.svg`}/>
-                    </Badge>
-                    <Stack direction={"row"}
-                           sx={{width: "100%"}}
-                           justifyContent={"space-between"}
-                           alignItems={"center"}>
-                        <Stack>
-                            <Typography
-                                fontSize={14}
-                                fontWeight={600}>{paused.patient.firstName} {paused.patient.lastName}</Typography>
-                            <Label
-                                variant="filled"
-                                sx={{
-                                    width: "64px",
-                                    "& .MuiSvgIcon-root": {
+                            sx={{
+                                mr: 0,
+                                p: "6px 12px",
+                                backgroundColor: (theme) => theme.palette.info.lighter,
+                                '&:hover': {
+                                    backgroundColor: (theme) => theme.palette.info.lighter,
+                                }
+                            }}
+                            loadingPosition={"start"}
+                            startIcon={<Badge
+                                overlap="circular"
+                                anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                                badgeContent={
+                                    <Avatar className="avatar-ic-next" alt="Small avatar" sx={{
+                                        pt: .2,
                                         width: 16,
                                         height: 16,
-                                        pl: 0,
-                                    },
-                                }}
-                                color={paused?.status?.classColor}>
-                                <Typography
-                                    sx={{
-                                        fontSize: 10,
-                                        ml: 0.5
+                                        borderRadius: 20,
+                                        border: `2px solid ${theme.palette.background.paper}`
                                     }}>
-                                    {t(`appointment-status.${paused?.status?.key}`)}
-                                </Typography>
-                            </Label>
-                        </Stack>
-                        <Stack direction={"row"}>
-                            <Avatar
-                                alt="Small avatar"
-                                variant={"square"}
-                                onClick={event => {
-                                    event.stopPropagation();
-                                    handleEndConsultation(paused);
-                                }}
-                                src={'/static/icons/ic-stop.svg'}
-                                sx={{
-                                    width: 40,
-                                    height: 40,
-                                    mr: 3,
-                                    bgcolor: "white",
-                                    cursor: "pointer",
-                                    border: `2px solid ${theme.palette.background.paper}`,
-                                    "& .MuiAvatar-img": {
-                                        width: 20,
-                                        height: 20
-                                    }
-                                }}/>
+                                        <IconUrl width={14} height={16} path={"ic-next"}/>
+                                    </Avatar>
+                                }>
+                                <Avatar
+                                    sx={{
+                                        width: 30,
+                                        height: 30,
+                                        borderRadius: 20,
+                                        border: `2px solid ${theme.palette.background.paper}`
+                                    }} variant={"circular"}
+                                    src={`/static/icons/men-avatar.svg`}/>
+                            </Badge>}
+                            variant={"contained"}>
+                            <Stack direction={"row"} alignItems={"center"} width={1}>
+                                <Stack alignItems='flex-start'>
+                                    <Typography variant="body1" fontWeight={600}>
+                                        {next.patient}
+                                    </Typography>
+                                    <Label variant="filled"
+                                           color={next.type === 'Consultation' ? "primary" : "warning"}>
+                                        {next.type}
+                                    </Label>
+                                </Stack>
 
-                            <Avatar
-                                alt="Small avatar"
-                                variant={"square"}
-                                src={'/static/icons/ic-play-paused.svg'}
-                                onClick={event => {
-                                    event.stopPropagation();
-                                    handleConsultationStart(paused);
-                                }}
-                                sx={{
-                                    width: 40,
-                                    height: 40,
-                                    mr: 3,
-                                    bgcolor: theme.palette.text.primary,
-                                    cursor: "pointer",
-                                    border: `2px solid ${theme.palette.background.paper}`,
-                                    "& .MuiAvatar-img": {
-                                        color: theme.palette.warning.main,
-                                        width: 20,
-                                        height: 20
-                                    }
-                                }}/>
-                        </Stack>
+                                <Avatar
+                                    className="avatar-close"
+                                    alt="Small avatar"
+                                    variant={"square"}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        resetNextConsultation(next.uuid);
+                                    }}
+                                    sx={{
+
+                                        background: "#FFF",
+                                        width: 30,
+                                        height: 30,
+                                        border: `1px solid ${theme.palette.grey["A900"]}`
+                                    }}>
+                                    <CloseRoundedIcon
+                                        sx={{
+                                            color: theme.palette.text.primary,
+                                            width: 20,
+                                            height: 20
+                                        }}/>
+                                </Avatar>
+                            </Stack>
+                        </LoadingButton>
+
+                        <Divider sx={{mt: 2}}/>
+
                     </Stack>
-                </ListItem>)}
-                {pausedConsultation.length === 0 &&
-                    <NoDataCard
-                        {...{t}}
-                        ns={"common"}
-                        data={{
-                            mainIcon: <Icon path={"ic-consultation-pause"}/>,
-                            title: "paused-consultation-notification.empty",
-                            description: "paused-consultation-notification.desc"
-                        }}/>}
-            </List>
+                </>
+            )}
+            {isActive && (
+                <Stack px={2}>
+                    <Toolbar>
+                        <Typography variant="subtitle2" fontWeight={700}>
+                            {t("appointment-status.ON_GOING")}
+                        </Typography>
+                    </Toolbar>
+                    <CipCard2nd
+                        openPatientDialog={(uuid: string) => {
+                            setPatientId(uuid);
+                            setPatientDetailDrawer(true);
+                        }}/>
+                    {pausedConsultation.length > 0 && <Divider sx={{mt: 2}}/>}
+                </Stack>
+            )}
+
+            {pausedConsultation.length > 0 &&
+                <Stack px={2}>
+                    <Toolbar>
+                        <Typography variant="subtitle2" fontWeight={700}>
+                            {t("appointment-status.PAUSED")}
+                        </Typography>
+                    </Toolbar>
+                    <List>
+                        {pausedConsultation.map((paused: any, index: number) => <ListItem key={index}>
+                            <Badge
+                                overlap="circular"
+                                anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                                badgeContent={
+                                    <Avatar
+                                        className={"avatar-badge"}
+                                        alt="avatar"
+                                        src={'/static/icons/ic-pause-mate.svg'}
+                                    />
+                                }>
+                                <Avatar
+                                    className={"round-avatar"}
+                                    sx={{
+                                        borderRadius: 20,
+                                        border: `2px solid ${theme.palette.background.paper}`
+                                    }}
+                                    variant={"circular"}
+                                    src={`/static/icons/men-avatar.svg`}/>
+                            </Badge>
+                            <Stack direction={"row"}
+                                   sx={{width: "100%"}}
+                                   justifyContent={"space-between"}
+                                   alignItems={"center"}>
+                                <Stack>
+                                    <Typography
+                                        fontSize={14}
+                                        fontWeight={600}>{paused.extendedProps.patient.firstName} {paused.extendedProps.patient.lastName}</Typography>
+                                    <Label
+                                        variant="filled"
+                                        sx={{
+                                            width: "64px",
+                                            "& .MuiSvgIcon-root": {
+                                                width: 16,
+                                                height: 16,
+                                                pl: 0,
+                                            },
+                                        }}
+                                        color={paused?.extendedProps.status?.classColor}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: 10,
+                                                ml: 0.5
+                                            }}>
+                                            {t(`appointment-status.${paused?.extendedProps.status?.key}`)}
+                                        </Typography>
+                                    </Label>
+                                </Stack>
+                                <Stack direction={"row"}>
+                                    <Avatar
+                                        alt="Small avatar"
+                                        variant={"square"}
+                                        onClick={event => {
+                                            event.stopPropagation();
+                                            handleEndConsultation(paused);
+                                        }}
+                                        src={'/static/icons/ic-stop.svg'}
+                                        sx={{
+                                            width: 40,
+                                            height: 40,
+                                            mr: 3,
+                                            bgcolor: "white",
+                                            cursor: "pointer",
+                                            border: `2px solid ${theme.palette.background.paper}`,
+                                            "& .MuiAvatar-img": {
+                                                width: 20,
+                                                height: 20
+                                            }
+                                        }}/>
+
+                                    <Avatar
+                                        alt="Small avatar"
+                                        variant={"square"}
+                                        src={'/static/icons/ic-play-paused.svg'}
+                                        onClick={event => {
+                                            event.stopPropagation();
+                                            handleConsultationStart(paused);
+                                        }}
+                                        sx={{
+                                            width: 40,
+                                            height: 40,
+                                            mr: 3,
+                                            bgcolor: theme.palette.text.primary,
+                                            cursor: "pointer",
+                                            border: `2px solid ${theme.palette.background.paper}`,
+                                            "& .MuiAvatar-img": {
+                                                color: theme.palette.warning.main,
+                                                width: 20,
+                                                height: 20
+                                            }
+                                        }}/>
+                                </Stack>
+                            </Stack>
+                        </ListItem>)}
+                        {pausedConsultation.length === 0 &&
+                            <NoDataCard
+                                {...{t}}
+                                ns={"common"}
+                                data={{
+                                    mainIcon: <Icon path={"ic-consultation-pause"}/>,
+                                    title: "paused-consultation-notification.empty",
+                                    description: "paused-consultation-notification.desc"
+                                }}/>}
+                    </List>
+                </Stack>
+            }
         </PausedConsultationPopoverStyled>
     )
 }

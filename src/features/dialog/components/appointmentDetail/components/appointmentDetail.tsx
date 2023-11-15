@@ -42,6 +42,7 @@ import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {Label} from "@features/label";
 import {DefaultCountry, MobileContainer} from "@lib/constants";
+import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 
 function AppointmentDetail({...props}) {
     const {
@@ -50,6 +51,7 @@ function AppointmentDetail({...props}) {
         OnConsultationView,
         OnEditDetail,
         OnConfirmAppointment,
+        OnUploadDocuments,
         OnDataUpdated = null,
         patientId = null,
         from = null,
@@ -344,7 +346,7 @@ function AppointmentDetail({...props}) {
                         })}
                     />
                 </Box>
-                {(canManageActions && (OnConfirmAppointment || OnWaiting || OnLeaveWaiting || OnPatientNoShow || SetCancelDialog)) && (
+                {(canManageActions && (OnConfirmAppointment || OnUploadDocuments || OnWaiting || OnLeaveWaiting || OnPatientNoShow || SetCancelDialog)) && (
                     <CardActions sx={{pb: 4}}>
                         <Stack spacing={1} width={1}>
                             {isMobile && appointment?.extendedProps.patient.contact?.length > 0 && <LoadingButton
@@ -354,6 +356,17 @@ function AppointmentDetail({...props}) {
                                 color="success">
                                 {t("call_patient")}
                             </LoadingButton>}
+                            <LoadingButton
+                                {...{loading}}
+                                onClick={() => {
+                                    OnUploadDocuments(appointment);
+                                }}
+                                color={"secondary"}
+                                fullWidth
+                                variant="contained"
+                                startIcon={<UploadFileOutlinedIcon/>}>
+                                {t("import_document")}
+                            </LoadingButton>
                             <LoadingButton
                                 {...{loading}}
                                 sx={{

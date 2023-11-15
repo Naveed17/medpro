@@ -92,7 +92,7 @@ function InsuranceDocumentPrint({...props}) {
                             control={<Checkbox
                                 checked={backgroundDoc}
                                 onChange={e => setBackgroundDoc(e.target.checked)}/>}
-                            label={t("print_document_background")}/>
+                            label={t("consultationIP.print_document_background")}/>
                         <LoadingButton
                             {...{loading}}
                             loadingPosition={"start"}
@@ -103,7 +103,7 @@ function InsuranceDocumentPrint({...props}) {
                                 setLoading(true);
                                 insurance.documents && generateInsuranceDoc(insurance.documents[0]?.uuid);
                             }} size="small">
-                            <Typography>{t("print_document_result")}</Typography>
+                            <Typography>{t("consultationIP.print_document_result")}</Typography>
                         </LoadingButton>
                     </Stack>
                 </ListItem>)}

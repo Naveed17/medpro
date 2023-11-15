@@ -48,6 +48,7 @@ function AppToolbar({...props}) {
         setInfo,
         setState,
         setOpenDialog,
+        setOpenDialogSave,
         tabsData,
         selectedDialog,
         agenda,
@@ -164,6 +165,7 @@ function AppToolbar({...props}) {
     }
 
     const handleClose = (action: string) => {
+        setOpenDialogSave(true);
         setAnchorEl(null);
         switch (action) {
             case "draw_up_an_order":
@@ -228,6 +230,7 @@ function AppToolbar({...props}) {
 
     useEffect(() => {
         if (selectedDialog) {
+            setOpenDialogSave(true);
             switch (selectedDialog.action) {
                 case "medical_prescription":
                 case "medical_prescription_cycle":
@@ -266,6 +269,7 @@ function AppToolbar({...props}) {
                     setInfo("document_detail");
                     setState(selectedDialog.state);
                     setAnchorEl(null);
+                    setOpenDialogSave(false);
                     setOpenDialog(true);
             }
         }

@@ -57,12 +57,12 @@ import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
 import {useSession} from "next-auth/react";
 import {DrawerBottom} from "@features/drawerBottom";
-import {cashBoxSelector, ConsultationFilter} from "@features/leftActionBar";
+import {ConsultationFilter} from "@features/leftActionBar";
 import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
 import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
-import {DefaultCountry, TransactionStatus, TransactionType} from "@lib/constants";
+import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useWidgetModels} from "@lib/hooks/rest";
@@ -121,7 +121,7 @@ function ConsultationInProgress() {
         medicalEntityHasUser,
         medicalProfessionalData
     } = useAppSelector(dashLayoutSelector);
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
+
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {selectedDialog} = useAppSelector(consultationSelector);
@@ -141,7 +141,6 @@ function ConsultationInProgress() {
     const general_information = (user as UserDataResponse).general_information;
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
-    const {trigger: triggerTransactionCreate} = useRequestQueryMutation("transaction/create");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
     const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
     const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
@@ -205,6 +204,7 @@ function ConsultationInProgress() {
     const [openHistoryDialog, setOpenHistoryDialog] = useState<boolean>(false);
     const [info, setInfo] = useState<null | string>("");
     const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [openDialogSave, setOpenDialogSave] = useState<boolean>(true);
     const [openSecDialog, setOpenSecDialog] = useState<boolean>(false);
     const [meeting, setMeeting] = useState<number>(15);
     const [checkedNext, setCheckedNext] = useState(false);
@@ -225,7 +225,6 @@ function ConsultationInProgress() {
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
-    const isDemo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -304,8 +303,8 @@ function ConsultationInProgress() {
         let type = "";
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
+        setInfo("document_detail");
         if (card.documentType === "medical-certificate") {
-            setInfo("document_detail");
             setState({
                 uuid: card.uuid,
                 certifUuid: card.certificate[0].uuid,
@@ -328,9 +327,7 @@ function ConsultationInProgress() {
                 mutate: mutateDoc,
                 mutateDetails: mutatePatient
             });
-            setOpenDialog(true);
         } else {
-            setInfo("document_detail");
             let info = card;
             let uuidDoc = "";
             switch (card.documentType) {
@@ -364,8 +361,10 @@ function ConsultationInProgress() {
                 mutate: mutateDoc,
                 mutateDetails: mutatePatient
             });
-            setOpenDialog(true);
         }
+        setOpenDialogSave(false);
+        setTimeout(() => setOpenDialog(true));
+
     }
 
     const seeHistory = () => {
@@ -562,9 +561,8 @@ function ConsultationInProgress() {
     }
 
     const handleSaveCertif = () => {
-
+        setOpenDialogSave(true);
         const form = new FormData();
-
         form.append("content", state.content);
         form.append("title", state.title);
         form.append("header", state.documentHeader);
@@ -622,7 +620,8 @@ function ConsultationInProgress() {
         setOpenDialog(true);
     }
 
-    const handleSaveDialog = () => {
+    const handleSaveDialog = (print: boolean = true) => {
+        setOpenDialogSave(false);
         const form = new FormData();
         let method = "";
         let url = ""
@@ -647,24 +646,26 @@ function ConsultationInProgress() {
                     onSuccess: (r: any) => {
                         mutateDoc();
                         mutatePatient();
-                        setInfo("document_detail");
-                        const res = r.data.data;
-                        let type = "";
-                        if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                            type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+                        if (print) {
+                            setInfo("document_detail");
+                            const res = r.data.data;
+                            let type = "";
+                            if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
 
-                        setState({
-                            uri: res[1],
-                            name: "prescription",
-                            type: "prescription",
-                            info: res[0].prescription_has_drugs,
-                            uuid: res[0].uuid,
-                            uuidDoc: res[0].uuid,
-                            createdAt: moment().format('DD/MM/YYYY'),
-                            description: "",
-                            patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
-                        });
-                        setOpenDialog(true);
+                            setState({
+                                uri: res[1],
+                                name: "prescription",
+                                type: "prescription",
+                                info: res[0].prescription_has_drugs,
+                                uuid: res[0].uuid,
+                                uuidDoc: res[0].uuid,
+                                createdAt: moment().format('DD/MM/YYYY'),
+                                description: "",
+                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                            });
+                            setOpenDialog(true);
+                        }
                         setPrescription([]);
 
                         let pdoc = [...pendingDocuments];
@@ -692,24 +693,25 @@ function ConsultationInProgress() {
                         mutatePatient();
                         //mutatePatientAnalyses();
                         setCheckUp([]);
-                        setInfo("document_detail");
-                        const res = r.data.data;
-                        let type = "";
-                        if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                            type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+                        if (print) {
+                            setInfo("document_detail");
+                            const res = r.data.data;
+                            let type = "";
+                            if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
 
-                        setState({
-                            uuid: res[0].uuid,
-                            uri: res[1],
-                            name: "requested-analysis",
-                            type: "requested-analysis",
-                            createdAt: moment().format('DD/MM/YYYY'),
-                            description: "",
-                            info: res[0].analyses,
-                            patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
-                        });
-                        setOpenDialog(true);
-
+                            setState({
+                                uuid: res[0].uuid,
+                                uri: res[1],
+                                name: "requested-analysis",
+                                type: "requested-analysis",
+                                createdAt: moment().format('DD/MM/YYYY'),
+                                description: "",
+                                info: res[0].analyses,
+                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                            });
+                            setOpenDialog(true);
+                        }
                         let pdoc = [...pendingDocuments];
                         pdoc = pdoc.filter((obj) => obj.id !== 1);
                         setPendingDocuments(pdoc);
@@ -718,7 +720,6 @@ function ConsultationInProgress() {
                 break;
             case "medical_imagery":
                 form.append("medical-imaging", JSON.stringify(state));
-
                 method = "POST"
                 url = `${urlMedicalEntitySuffix}/appointment/${app_uuid}/medical-imaging/${router.locale}`;
                 if (selectedDialog && selectedDialog.action === "medical_imagery") {
@@ -735,24 +736,25 @@ function ConsultationInProgress() {
                         mutateDoc();
                         mutatePatient();
                         setImagery([]);
-                        setInfo("document_detail");
-                        const res = r.data.data;
-                        let type = "";
-                        if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                            type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
-                        setState({
-                            uuid: res[0].uuid,
-                            uri: res[1],
-                            name: "requested-medical-imaging",
-                            type: "requested-medical-imaging",
-                            info: res[0]["medical-imaging"],
-                            createdAt: moment().format('DD/MM/YYYY'),
-                            description: "",
-                            patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
-                            mutate: mutateDoc
-                        });
-                        setOpenDialog(true);
-
+                        if (print) {
+                            setInfo("document_detail");
+                            const res = r.data.data;
+                            let type = "";
+                            if (!(res[0].patient?.birthdate && moment().diff(moment(res[0].patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                type = res[0].patient?.gender === "F" ? "Mme " : res[0].patient?.gender === "U" ? "" : "Mr "
+                            setState({
+                                uuid: res[0].uuid,
+                                uri: res[1],
+                                name: "requested-medical-imaging",
+                                type: "requested-medical-imaging",
+                                info: res[0]["medical-imaging"],
+                                createdAt: moment().format('DD/MM/YYYY'),
+                                description: "",
+                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                mutate: mutateDoc
+                            });
+                            setOpenDialog(true);
+                        }
                         let pdoc = [...pendingDocuments];
                         pdoc = pdoc.filter((obj) => obj.id !== 1);
                         setPendingDocuments(pdoc);
@@ -773,7 +775,7 @@ function ConsultationInProgress() {
                 }, {
                     onSuccess: () => mutateDoc()
                 });
-                setOpenDialog(true);
+                print && setOpenDialog(true);
                 break;
             case "write_certif":
                 form.append("content", state.content);
@@ -794,22 +796,24 @@ function ConsultationInProgress() {
                 }, {
                     onSuccess: () => {
                         mutateDoc();
-                        setInfo("document_detail");
-                        setState({
-                            content: state.content,
-                            doctor: state.name,
-                            patient: state.patient,
-                            birthdate: patient?.birthdate,
-                            cin: patient?.idCard,
-                            createdAt: moment().format('DD/MM/YYYY'),
-                            description: "",
-                            title: state.title,
-                            days: state.days,
-                            name: "certif",
-                            type: "write_certif",
-                            documentHeader: state.documentHeader
-                        });
-                        setOpenDialog(true);
+                        if (print) {
+                            setInfo("document_detail");
+                            setState({
+                                content: state.content,
+                                doctor: state.name,
+                                patient: state.patient,
+                                birthdate: patient?.birthdate,
+                                cin: patient?.idCard,
+                                createdAt: moment().format('DD/MM/YYYY'),
+                                description: "",
+                                title: state.title,
+                                days: state.days,
+                                name: "certif",
+                                type: "write_certif",
+                                documentHeader: state.documentHeader
+                            });
+                            setOpenDialog(true);
+                        }
                     }
                 });
                 break;
@@ -819,10 +823,11 @@ function ConsultationInProgress() {
         mutateSheetData()
         setOpenDialog(false);
         setInfo(null);
-        dispatch(SetSelectedDialog(null))
-    };
+        dispatch(SetSelectedDialog(null));
+    }
 
     const handleCloseDialog = () => {
+        setOpenDialogSave(true);
         let pdoc = [...pendingDocuments];
         switch (info) {
             case "medical_prescription":
@@ -867,6 +872,7 @@ function ConsultationInProgress() {
     };
 
     const showPreview = (action: string) => {
+        setOpenDialogSave(false);
         switch (action) {
             case "prescription":
                 setInfo(getPrescriptionUI());
@@ -978,7 +984,6 @@ function ConsultationInProgress() {
             })
             setActs(_acts);
             setMPActs(_acts);
-
             let nb = 0;
             changes.map(change => {
                 if (sheet && sheet[change.name]) {
@@ -1048,7 +1053,7 @@ function ConsultationInProgress() {
                     <Stack spacing={1.5} direction="row" alignItems="center">
                         <IconUrl path={'ic-speaker'}/>
                         {!isMobile &&
-                            <Typography>{t('consultationIP.updateHistory')} <b>{sheet?.date}</b>.</Typography>}
+                            <Typography>{t('consultationIP.updateHistory')} {patient?.firstName} {patient?.lastName}, <b>{sheet?.date}</b>.</Typography>}
                     </Stack>
                     <LoadingButton
                         disabled={false}
@@ -1075,6 +1080,7 @@ function ConsultationInProgress() {
                         setInfo,
                         setState,
                         setOpenDialog,
+                        setOpenDialogSave,
                         tabsData,
                         selectedDialog,
                         agenda,
@@ -1098,8 +1104,7 @@ function ConsultationInProgress() {
 
 
             {<HistoryAppointementContainer {...{isHistory, loading}}>
-                <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}}
-                     id={"container-tab"}
+                <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}} id={"container-tab"}
                      className="container-scroll">
                     <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
                         <HistoryTab
@@ -1345,8 +1350,7 @@ function ConsultationInProgress() {
                                     theme,
                                     showPreview,
                                     t,
-                                }}/>
-                                }
+                                }}/>}
                             </Grid>
                         </Grid>
                     </TabPanel>
@@ -1373,6 +1377,7 @@ function ConsultationInProgress() {
                             total,
                             setTotal,
                             devise,
+                            mutatePatient,
                             t
                         }}/>
                     </TabPanel>
@@ -1475,7 +1480,7 @@ function ConsultationInProgress() {
                                     <Button
                                         variant="text-black"
                                         onClick={(event) => {
-
+                                            setOpenDialogSave(true);
                                             let type = "";
                                             if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
                                                 type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
@@ -1561,6 +1566,7 @@ function ConsultationInProgress() {
                     setCheckedNext,
                     addFinishAppointment,
                     showCheckedDoc,
+                    mutatePatient,
                     showPreview
                 }}
                 size={addFinishAppointment ? "md" : "md"}
@@ -1573,7 +1579,18 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
-                    data={{appuuid: app_uuid, patient, state, setState, t, setOpenDialog,setPendingDocuments,pendingDocuments,setPrescription}}
+                    data={{
+                        appuuid: app_uuid,
+                        patient,
+                        state,
+                        sheetExam,
+                        setState,
+                        t,
+                        setOpenDialog,
+                        setPendingDocuments,
+                        pendingDocuments,
+                        setPrescription
+                    }}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
                     direction={"ltr"}
                     sx={{height: info === "insurance_document_print" ? 600 : 480}}
@@ -1642,16 +1659,33 @@ function ConsultationInProgress() {
                                        {...(info === "medical_prescription_cycle" && {
                                            mt: {xs: 1, md: 0}
                                        })}>
-                                    <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
+                                    <Button
+                                        color={"black"}
+                                        variant={"text"}
+                                        onClick={handleCloseDialog}
+                                        startIcon={<CloseIcon/>}>
                                         {t("consultationIP.cancel")}
                                     </Button>
-                                    {info !== "insurance_document_print" && <Button
-                                        variant="contained"
-                                        onClick={handleSaveDialog}
-                                        disabled={info.includes("medical_prescription") && state.length === 0}
-                                        startIcon={<SaveRoundedIcon/>}>
-                                        {t("consultationIP.save")}
-                                    </Button>}
+                                    {(info !== "insurance_document_print" && openDialogSave) && <>
+                                        <Button
+                                            color={"info"}
+                                            variant="outlined"
+                                            onClick={() => handleSaveDialog(false)}
+                                            disabled={info.includes("medical_prescription") && state.length === 0}
+                                            startIcon={
+                                                <IconUrl
+                                                    {...(info.includes("medical_prescription") && state.length === 0 && {color: "white"})}
+                                                    path={"iconfinder_save"}/>}>
+                                            {t("consultationIP.save")}
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            onClick={() => handleSaveDialog()}
+                                            disabled={info.includes("medical_prescription") && state.length === 0}
+                                            startIcon={<IconUrl path={"ic-imprime"}/>}>
+                                            {t("consultationIP.save_print")}
+                                        </Button>
+                                    </>}
                                 </Stack>
                             </Stack>
                         ) : null

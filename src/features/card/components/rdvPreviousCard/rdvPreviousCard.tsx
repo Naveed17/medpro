@@ -73,8 +73,7 @@ function RdvCard({...props}) {
                         "&:after": {
                             bgcolor: loading ? "green" : inner?.consultationReason?.color,
                         },
-                    }}
-                >
+                    }}>
                     <Box sx={{display: "flex"}}>
                         <Icon path="ic-agenda"/>
                         <Typography variant="body2" color="text.secondary" sx={{mr: 3}}>
@@ -186,8 +185,7 @@ function RdvCard({...props}) {
                 transformOrigin={{
                     vertical: 'top',
                     horizontal: 'right',
-                }}
-            >
+                }}>
                 <MenuItem
                     className="popover-item"
                     onClick={() => {
@@ -206,16 +204,17 @@ function RdvCard({...props}) {
                         {t(`patient-details.${inner?.status === 5 ? "view_the_consultation" : "see-details"}`)}
                     </Typography>
                 </MenuItem>
-                <MenuItem
+                {/*<MenuItem
                     onClick={(event) => {
                         event.stopPropagation();
+                        handleClose();
                         handlePreConsultationDialog(inner);
                     }}
                     className="popover-item">
                     <Typography fontSize={15} sx={{color: "#fff"}}>
                         {t("patient-details.pre_consultation_data")}
                     </Typography>
-                </MenuItem>
+                </MenuItem>*/}
             </Menu>
         </>
     );

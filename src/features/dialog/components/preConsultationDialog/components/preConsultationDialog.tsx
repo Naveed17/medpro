@@ -20,7 +20,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function PreConsultationDialog({...props}) {
     const {data} = props;
-    const {patient, uuid} = data;
+    const {patient, uuid = null} = data;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -55,10 +55,10 @@ function PreConsultationDialog({...props}) {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const {data: httpSheetResponse} = useRequestQuery(medicalEntityHasUser && agenda ? {
+    const {data: httpSheetResponse} = useRequestQuery(medicalEntityHasUser && agenda && uuid ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`
-    } : null);
+    } : null, {refetchOnWindowFocus: false});
 
     const {data: httpModelResponse} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -173,7 +173,13 @@ function PreConsultationDialog({...props}) {
             </Stack>
 
             {(models && Array.isArray(models) && sheetModal && !loading && selectedModel) && <WidgetForm
-                {...{models, changes, setChanges, isClose}}
+                {...{
+                    models,
+                    changes,
+                    setChanges,
+                    isClose,
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/data/${router.locale}`,
+                }}
                 expandButton={false}
                 modal={selectedModel}
                 data={sheetModal.data}

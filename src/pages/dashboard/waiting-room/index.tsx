@@ -46,7 +46,6 @@ import {DefaultCountry, WaitingHeadCells} from "@lib/constants";
 import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, setStepperIndex} from "@features/calendar";
 import {useTransactionEdit} from "@lib/hooks/rest";
@@ -271,7 +270,6 @@ function WaitingRoom() {
     }
 
     const handleTransactionData = () => {
-        console.log(row)
         setOpenPaymentDialog(true)
     }
 
@@ -869,7 +867,6 @@ function WaitingRoom() {
                 }}
                 open={openPaymentDialog}
                 data={{
-                    app_uuid: row?.uuid,
                     patient: row?.patient,
                     setOpenPaymentDialog
                 }}

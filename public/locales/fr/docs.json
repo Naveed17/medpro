@@ -11,6 +11,9 @@
   "document-in-progress": "Documents en cours de traitement",
   "document-treated": "Documents Traiter",
   "delete-document": "Delete document",
+  "preview-document": "Preview document",
+  "wait": "Vérification du fichier...",
+  "classify-document": "Classer le document",
   "retry-ocr": "Réessayer le traitement du document",
   "filter": {
     "title": "Détails du document",

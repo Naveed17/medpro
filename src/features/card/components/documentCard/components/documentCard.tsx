@@ -56,7 +56,7 @@ function DocumentCard({...props}) {
                             <Stack alignItems="center">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
-                                    src={data.uri.thumbnails.length === 0 ? data.uri.url : data.uri.thumbnails['thumbnail_128']}
+                                    src={!data.uri.thumbnails.hasOwnProperty('thumbnail_128') ? data.uri.url : data.uri.thumbnails['thumbnail_128']}
                                     style={{width: "100%", height: 164, objectFit: "scale-down"}}
                                     alt={'photo history'}/>
                                 <DocumentContent {...{data, date, t, resize}} />

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import {
     Autocomplete,
     Card,
@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {motion} from "framer-motion";
-import moment from "moment-timezone";
 import {DatePicker} from "@features/datepicker";
 import {filterReasonOptions} from "@lib/hooks";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
@@ -30,14 +29,12 @@ function PaymentCard({...props}) {
         item,
         i,
         devise,
-        wallet,
         payments,
         setPayments,
+        selectedPayment,
+        setSelectedPayment,
     } = props;
     const theme: Theme = useTheme();
-
-    const [cashCollapse, setCashCollapse] = useState(true);
-    const [walletCollapse, setWalletCollapse] = useState(true);
 
     const {banks} = useBanks();
 
@@ -47,14 +44,13 @@ function PaymentCard({...props}) {
             payments[i] = {
                 ...payments[i],
                 selected: slug,
-                data: {bank: null, carrier: '', nb: '343321', date: new Date()}
+                data: {bank: null, carrier: '', nb: '', date: new Date()}
             }
-
         setPayments([...payments])
     }
 
     return (
-        <Card className={cashCollapse && walletCollapse ? "payment-card" : ""}>
+        <Card className={"payment-card"} style={{borderColor: selectedPayment === i ? theme.palette.primary.main : ''}}>
             <CardContent>
                 <Stack spacing={2}>
                     <Stack
@@ -62,7 +58,7 @@ function PaymentCard({...props}) {
                         animate={{opacity: 1}}
                         initial={{opacity: 0}}
                         transition={{duration: 0.5}}>
-                        <Collapse in={cashCollapse} timeout="auto" unmountOnExit>
+                        <Collapse in={true} timeout="auto" unmountOnExit>
                             <Stack spacing={1}>
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                     <FormControl
@@ -123,22 +119,6 @@ function PaymentCard({...props}) {
                                                 const payment = paymentTypesList?.find(
                                                     (payment: any) => payment?.slug === selected
                                                 );
-                                                if (selected === "wallet") {
-                                                    return (
-                                                        <Stack
-                                                            direction="row"
-                                                            alignItems="center"
-                                                            spacing={1}
-                                                        >
-                                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                            <img
-                                                                style={{width: 16}}
-                                                                src={"/static/icons/ic-wallet-money.svg"}
-                                                                alt={"payment means"}
-                                                            />
-                                                        </Stack>
-                                                    );
-                                                }
 
                                                 return (
                                                     <Stack direction="row" alignItems="center" spacing={1}>
@@ -169,23 +149,6 @@ function PaymentCard({...props}) {
                                                     </Stack>
                                                 </MenuItem>
                                             ))}
-                                            {wallet > 0 ? (
-                                                <MenuItem value={"wallet"}>
-                                                    <Stack direction="row" alignItems="center"
-                                                           onClick={() => updatePaymentMeans("wallet")} spacing={1}>
-                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                        <img
-                                                            style={{width: 16}}
-                                                            src={"/static/icons/ic-wallet-money.svg"}
-                                                            alt={"payment means"}
-                                                        />
-                                                        <Typography>{t("wallet")} x</Typography>
-                                                        <Typography variant="caption" color="text.secondary">
-                                                            {wallet} {devise}
-                                                        </Typography>
-                                                    </Stack>
-                                                </MenuItem>
-                                            ) : null}
                                         </Select>
                                     </FormControl>
                                     <TextField
@@ -196,6 +159,8 @@ function PaymentCard({...props}) {
                                         }}
                                         size="small"
                                         fullWidth
+                                        autoFocus={true}
+                                        onFocus={() => setSelectedPayment(i)}
                                         value={item.amount}
                                         onChange={(e) => {
                                             payments[i].amount = e.target.value ? parseInt(e.target.value, 10) : ''
@@ -222,8 +187,8 @@ function PaymentCard({...props}) {
                                         </IconButton>
                                     )}
                                 </Stack>
-                                {!item.amount && <Typography color={theme.palette.error.main}
-                                                             fontSize={12}>{t('dialog.error')}</Typography>}
+                                {item.amount.toString() === '' && <Typography color={theme.palette.error.main}
+                                                                              fontSize={12}>{t('dialog.error')}</Typography>}
 
                                 {item.selected === 'check' && <Stack>
                                     <Stack
@@ -336,103 +301,12 @@ function PaymentCard({...props}) {
                                 </Stack>}
                             </Stack>
                         </Collapse>
-                        <Collapse in={!cashCollapse} timeout="auto" unmountOnExit>
-                            <Stack spacing={2}>
-                                <Stack
-                                    direction="row"
-                                    alignItems="center"
-                                    justifyContent="space-between">
-                                    <Typography>{t("payment_info")}</Typography>
-                                    <Stack direction="row" alignItems="center" spacing={2}>
-                                        <IconButton
-                                            size="small"
-                                            className="btn-action"
-                                            onClick={() => {
-                                                setCashCollapse(true)
-                                            }
-                                            }
-                                        >
-                                            <IconUrl path="ic-edit"/>
-                                        </IconButton>
-                                        {i > 0 && (
-                                            <IconButton
-                                                size="small"
-                                                className="btn-action"
-                                                onClick={() => {
-                                                }
-                                                }
-                                            >
-                                                <IconUrl path="setting/icdelete"/>
-                                            </IconButton>
-                                        )}
-                                    </Stack>
-                                </Stack>
-                                <table className="method-table">
-                                    <thead>
-                                    <tr>
-                                        <th align="left">{t("table.date")}</th>
-                                        <th align="center">{t("method")}</th>
-                                        <th align="right">{t("amount")} (DT)</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td align="left">
-                                            <Stack
-                                                direction={{xs: "column", md: "row"}}
-                                                alignItems={{xs: "flex-start", md: "center"}}
-                                                spacing={1}
-                                            >
-                                                <Stack
-                                                    direction="row"
-                                                    alignItems="center"
-                                                    spacing={0.5}
-                                                >
-                                                    <IconUrl
-                                                        path={"ic-agenda"}
-                                                        width={12}
-                                                        height={12}
-                                                        color={theme.palette.text.secondary}
-                                                    />
-                                                    <Typography variant="body2">
-                                                        {moment(new Date(), "DD-MM-YYYY HH:mm").format(
-                                                            "DD-MM-YYYY"
-                                                        )}
-                                                    </Typography>
-                                                </Stack>
-                                                <Stack
-                                                    direction="row"
-                                                    alignItems="center"
-                                                    spacing={0.5}
-                                                >
-                                                    <IconUrl
-                                                        path={"ic-time"}
-                                                        width={12}
-                                                        height={12}
-                                                        color={theme.palette.text.secondary}
-                                                    />
-                                                    <Typography variant="body2">
-                                                        {moment(new Date(), "DD-MM-YYYY HH:mm").format(
-                                                            "HH:MM"
-                                                        )}
-                                                    </Typography>
-                                                </Stack>
-                                            </Stack>
-                                        </td>
-                                        <td align="center">{t(item.selected)}</td>
-                                        <td align="right" style={{fontWeight: "bold"}}>{item?.amount}</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </Stack>
-                        </Collapse>
                     </Stack>
 
                 </Stack>
             </CardContent>
         </Card>
-    )
-        ;
+    );
 }
 
 export default PaymentCard;

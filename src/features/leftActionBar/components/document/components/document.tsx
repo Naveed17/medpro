@@ -1,4 +1,4 @@
-import {FilterContainerStyles, setOcrData} from "@features/leftActionBar";
+import {FilterContainerStyles, ocrDocumentSelector, setOcrData} from "@features/leftActionBar";
 import {
     Autocomplete,
     Box,
@@ -51,6 +51,7 @@ function Document() {
     const {patient} = useAppSelector(appointmentSelector);
     const {direction} = useAppSelector(configSelector);
     const {stepsData} = useAppSelector(addPatientSelector);
+    const ocrSelectorData = useAppSelector(ocrDocumentSelector);
 
     const [patientDrawer, setPatientDrawer] = useState<boolean>(false);
     const [query, setQuery] = useState("");
@@ -58,7 +59,9 @@ function Document() {
     const validationSchema = Yup.object().shape({
         name: Yup.string(),
         appointment: Yup.object().nullable(),
-        type: Yup.object().nullable(),
+        type: Yup.object().shape({
+            slug: Yup.string(),
+        }).nullable(),
         target: Yup.string(),
         patient: Yup.object().shape({
             name: Yup.string(),
@@ -111,7 +114,7 @@ function Document() {
     } = useRequestQuery(medicalEntityHasUser && documentUuid ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${documentUuid}/${router.locale}`
-    } : null, {refetchOnWindowFocus: false});
+    } : null, ReactQueryNoValidateConfig);
 
     const {data: httpPatientResponse} = useRequestQuery(medicalEntityHasUser && query.length > 0 ? {
         method: "GET",
@@ -176,15 +179,16 @@ function Document() {
             if (documentData) {
                 setQuery(documentData?.patientData?.name ?? "");
                 const data = {
-                    name: documentData.title,
-                    appointment: documentData.appointment,
-                    type: documentData.documentType,
-                    target: "dir",
-                    patient: documentData.patientData,
-                    date: new Date(),
-                    data: documentData.medicalData
+                    name: ocrSelectorData?.name?.length > 0 ? ocrSelectorData.name : documentData.title,
+                    appointment: ocrSelectorData?.appointment ?? documentData.appointment,
+                    type: ocrSelectorData?.type?.slug ? ocrSelectorData.type : (types.find(ty => ty.slug === documentData.documentType) ?? null),
+                    target: ocrSelectorData?.target ?? "dir",
+                    patient: ocrSelectorData?.patient ?? documentData.patientData,
+                    date: ocrSelectorData?.date ?? new Date(),
+                    data: documentData.medicalData,
+                    uri: documentData.uri
                 }
-                setValues(data);
+                setValues(data as any);
                 dispatch(setOcrData(data));
                 setQuery(documentData.patientData?.name ?? documentData.patientData?.patient_name ?? "")
             }
@@ -208,7 +212,8 @@ function Document() {
                     </Typography>
                     <Divider/>
                     <Box m={2.5}>
-                        <Typography mb={1} color={"text.primary"} fontSize={14} fontWeight={400}>{t('filter.patient-suggested')}</Typography>
+                        <Typography mb={1} color={"text.primary"} fontSize={14}
+                                    fontWeight={400}>{t('filter.patient-suggested')}</Typography>
                         <AutoCompleteButton
                             size={"small"}
                             defaultValue={query}
@@ -249,10 +254,10 @@ function Document() {
                                 autoHighlight
                                 disableClearable
                                 size="small"
-                                value={types.find(ty => ty.slug === values?.type) ?? null}
+                                value={values.type}
                                 onChange={(e, newValue: any) => {
                                     e.stopPropagation();
-                                    setFieldValue("type", newValue.slug);
+                                    setFieldValue("type", newValue);
                                     dispatch(setOcrData({type: newValue}));
                                 }}
                                 sx={{color: "text.secondary"}}

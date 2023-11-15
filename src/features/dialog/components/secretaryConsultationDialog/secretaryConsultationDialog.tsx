@@ -7,7 +7,6 @@ import {
     Card,
     CardContent,
     Checkbox,
-    DialogActions,
     FormControlLabel,
     Grid,
     IconButton,
@@ -25,23 +24,20 @@ import RootStyled from "./overrides/rootSyled";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {useAppSelector} from "@lib/redux/hooks";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import CloseIcon from "@mui/icons-material/Close";
-import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {LoadingButton} from "@mui/lab";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {startCase} from 'lodash'
 import {EventType, TimeSchedule} from "@features/tabPanel";
 import {useTheme} from "@emotion/react";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import {Dialog} from "@features/dialog";
+import CheckIcon from "@mui/icons-material/Check";
 
 const limit = 255;
 
@@ -62,7 +58,8 @@ function SecretaryConsultationDialog({...props}) {
             setCheckedNext,
             addFinishAppointment,
             showCheckedDoc,
-            showPreview
+            showPreview,
+            mutatePatient
         }
     } = props;
     const router = useRouter();
@@ -75,9 +72,7 @@ function SecretaryConsultationDialog({...props}) {
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
-    const [loading, setLoading] = useState(false);
     const [selectedDose, setSelectedDose] = useState("day")
-    const [appData, setAppData] = useState({rest_amount:0,fees:0})
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -86,10 +81,9 @@ function SecretaryConsultationDialog({...props}) {
     const demo = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {direction} = useAppSelector(configSelector);
-    const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {data: httpAppointmentTransactions, mutate} = useRequestQuery({
+    const {data: httpAppointmentTransactions} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/transactions/${router.locale}`
     });
@@ -97,7 +91,6 @@ function SecretaryConsultationDialog({...props}) {
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
-            setAppData(res);
             setTransactions(res.transactions ? res.transactions[0] : null);
             if (total === -1) {
                 const form = new FormData();
@@ -161,7 +154,7 @@ function SecretaryConsultationDialog({...props}) {
                                 spacing={1}
                                 mx="auto"
                                 width={1}>
-                                <Typography mt={{xs: 3, md: 0}} >
+                                <Typography mt={{xs: 3, md: 0}}>
                                     {t("recap")}
                                 </Typography>
                                 <Typography
@@ -270,29 +263,29 @@ function SecretaryConsultationDialog({...props}) {
                                             }
                                         </Stack>
                                     </Stack>
-                                    {total &&  total > -1 &&
+                                    {
                                         <Stack direction={"row"} alignItems={"center"}>
-                                            {demo && appData?.rest_amount > 0 && <Button
-                                                endIcon={
-                                                    <Typography sx={{fontSize: '12px !important'}}>
-                                                        {devise}
-                                                    </Typography>
-                                                }
-                                                startIcon={<IconUrl path={'ic-argent'}/>}
+                                            {demo && <Button
+                                                startIcon={patient.rest_amount === 0 ?<CheckIcon/>: <IconUrl path={'ic-argent'} color={"white"}/>}
                                                 variant="contained"
-                                                color={"primary"}
+                                                color={patient.rest_amount === 0 ? "success":"primary"}
                                                 style={{marginLeft: 5}}
                                                 {...(isMobile && {
                                                     sx: {minWidth: 40},
                                                 })}
                                                 onClick={openDialogPayment}>
-
-                                                <Typography >{t("pay")}</Typography>
-                                                <Typography component='span' fontWeight={700} variant="subtitle2"
-                                                            ml={1}>
-                                                    {appData?.rest_amount == total ?total : `${appData?.rest_amount} / ${total}`}
-                                                    {" "}
-                                                </Typography>
+                                                <Typography>{t("pay")}</Typography>
+                                                {
+                                                    patient.rest_amount > 0 &&
+                                                    <>
+                                                        <Typography component='span'
+                                                                    fontWeight={700}
+                                                                    variant="subtitle2" ml={1}>
+                                                            {patient.rest_amount}
+                                                        </Typography>
+                                                        <Typography fontSize={10}>{devise}</Typography>
+                                                    </>
+                                                }
                                             </Button>
                                             }
                                         </Stack>
@@ -405,9 +398,9 @@ function SecretaryConsultationDialog({...props}) {
                         }}
                         open={openPaymentDialog}
                         data={{
-                            app_uuid,
                             patient,
-                            setOpenPaymentDialog
+                            setOpenPaymentDialog,
+                            mutatePatient
                         }}
                         size={"lg"}
                         fullWidth
@@ -417,7 +410,8 @@ function SecretaryConsultationDialog({...props}) {
                 </RootStyled>
             )}
         </>
-    );
+    )
+        ;
 }
 
 export default SecretaryConsultationDialog;

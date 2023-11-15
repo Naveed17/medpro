@@ -43,15 +43,6 @@ import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuff
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
-interface HeadCell {
-    disablePadding: boolean;
-    id: string;
-    label: string;
-    numeric: boolean;
-    sortable: boolean;
-    align: "left" | "right" | "center";
-}
-
 const filter = createFilterOptions<any>();
 
 const headCells: readonly HeadCell[] = [
@@ -62,6 +53,22 @@ const headCells: readonly HeadCell[] = [
         label: "acts",
         sortable: true,
         align: "left",
+    },
+    {
+        id: "code",
+        numeric: true,
+        disablePadding: false,
+        label: "code",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "contribution",
+        numeric: true,
+        disablePadding: false,
+        label: "contribution",
+        sortable: true,
+        align: "center",
     },
     {
         id: "fees",
@@ -107,7 +114,9 @@ function ActFees() {
     const [newFees, setNewFees] = useState<{
         act: ActModel | string | null;
         fees: string;
-    }>({act: null, fees: ""});
+        code: string;
+        contribution: string;
+    }>({act: null, fees: "", code: "", contribution: ""});
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -167,57 +176,51 @@ function ActFees() {
 
     const handleRemove = () => {
         setCreate(false);
-        setNewFees({act: null, fees: ""});
+        setNewFees({act: null, fees: "", code: "", contribution: ""});
     };
 
     const editFees = () => {
         const form = new FormData();
         form.append("consultation_fees", consultationFees.toString());
         triggerActUpdate({
-                method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/${router.locale}`,
-                data: form
-            },
-            {
-                onSuccess: () => enqueueSnackbar(t("alert.updated"), {variant: "success"})
-            });
-    };
+            method: "PATCH",
+            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => enqueueSnackbar(t("alert.updated"), {variant: "success"})
+        });
+    }
 
     const removeFees = (uuid: string) => {
         setLoading(true)
         triggerActDelete({
-                method: "DELETE",
-                url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/acts/${uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                mutateActs().then(() => {
+                    setOpen(false);
+                    enqueueSnackbar(t("alert.delete-act"), {variant: "success"});
+                    mutateMedicalProfessionalData();
+                });
             },
-            {
-                onSuccess: () => {
-                    mutateActs().then(() => {
-                        setOpen(false);
-                        setTimeout(() => setLoading(false));
-                        enqueueSnackbar(t("alert.delete-act"), {variant: "success"});
-                        mutateMedicalProfessionalData();
-                    });
-                }
-            }
-        );
-    };
+            onSettled: () => setTimeout(() => setLoading(false))
+        });
+    }
 
     const mutateMedicalProfessionalData = () => {
         //ongoing
         invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`]);
-    };
+    }
 
     const saveFees = () => {
         setLoading(true);
         if (newFees.fees !== "" && typeof newFees.act === "string") {
             const form = new FormData();
-            form.append(
-                "name",
-                JSON.stringify({
-                    [router.locale as string]: newFees.act,
-                })
-            );
+            form.append("name", JSON.stringify({[router.locale as string]: newFees.act,}));
             form.append("price", `${newFees.fees}`);
+            newFees.code.length > 0 && form.append("code", `${newFees.code}`);
+            newFees.contribution.length > 0 && form.append("contribution", `${newFees.contribution}`);
 
             triggerAddAct({
                 method: "POST",
@@ -228,7 +231,7 @@ function ActFees() {
                     setLoading(false);
                     mutateActs().then(() => {
                         setCreate(false);
-                        setNewFees({act: null, fees: ""});
+                        setNewFees({act: null, fees: "", code: "", contribution: ""});
                         enqueueSnackbar(t("alert.add"), {variant: "success"});
                     });
                 }
@@ -246,7 +249,7 @@ function ActFees() {
                 url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
                 data: form
             }, {
-                onSuccess: () => handleEdit(actFees, actFees.fees, (actFees.act as ActModel).name)
+                onSuccess: () => handleEdit(actFees, actFees.fees, (actFees.act as ActModel).name, actFees.code, actFees.contribution)
             });
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -260,10 +263,12 @@ function ActFees() {
         ]
     );
 
-    const handleEdit = (v: any, fees: string, name?: string) => {
+    const handleEdit = (v: any, fees: string, name?: string, code?: string, contribution?: string) => {
         const form = new FormData();
         form.append("price", fees);
         name && form.append("name", name);
+        code && form.append("code", code);
+        contribution && form.append("contribution", contribution);
         triggerActUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${v.act?.uuid}/${router.locale}`,
@@ -276,7 +281,7 @@ function ActFees() {
                     mutateMedicalProfessionalData();
                     if (typeof newFees.act !== "string") {
                         setCreate(false);
-                        setNewFees({act: null, fees: ""});
+                        setNewFees({act: null, fees: "", code: "", contribution: ""});
                     }
                 });
             }
@@ -522,6 +527,52 @@ function ActFees() {
                                     <TextField {...params} label={t("placeholder_act")}/>
                                 )}
                             />
+                            <TextField
+                                id="outlined-basic"
+                                value={newFees.code}
+                                type={"text"}
+                                size="small"
+                                label={t("table.code")}
+                                InputProps={{
+                                    style: {
+                                        width: isMobile ? "" : 150,
+                                        backgroundColor: "white",
+                                    },
+                                }}
+                                onChange={(ev) => {
+                                    setNewFees({
+                                        ...newFees,
+                                        code: ev.target.value
+                                    });
+                                }}
+                                variant="outlined"
+                                {...(isMobile && {
+                                    fullWidth: true,
+                                })}
+                            />
+                            <TextField
+                                id="outlined-basic"
+                                value={newFees.contribution}
+                                type={"text"}
+                                size="small"
+                                label={t("table.contribution")}
+                                InputProps={{
+                                    style: {
+                                        width: isMobile ? "" : 150,
+                                        backgroundColor: "white",
+                                    },
+                                }}
+                                onChange={(ev) => {
+                                    setNewFees({
+                                        ...newFees,
+                                        contribution: ev.target.value
+                                    });
+                                }}
+                                variant="outlined"
+                                {...(isMobile && {
+                                    fullWidth: true,
+                                })}
+                            />
 
                             <TextField
                                 id="outlined-basic"
@@ -539,8 +590,10 @@ function ActFees() {
                                     },
                                 }}
                                 onChange={(ev) => {
-                                    newFees.fees = ev.target.value;
-                                    setNewFees({...newFees});
+                                    setNewFees({
+                                        ...newFees,
+                                        fees: ev.target.value
+                                    });
                                 }}
                                 variant="outlined"
                                 {...(isMobile && {
