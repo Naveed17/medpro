@@ -156,7 +156,6 @@ function ActFees() {
     useEffect(() => {
         setLoading(true);
         if (httpProfessionalsActs !== undefined) {
-            console.log("httpProfessionalsActs", httpProfessionalsActs)
             if (isMobile) {
                 const response = (httpProfessionalsActs as HttpResponse).data;
                 setMainActes(response as ActModel[]);
