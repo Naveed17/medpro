@@ -29,7 +29,7 @@ import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {ConditionalWrapper, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {alpha} from "@mui/material/styles";
 import {HtmlTooltip} from "@features/tooltip";
 import {ImageHandler} from "@features/image";
@@ -184,15 +184,17 @@ function PaymentRow({...props}) {
                 {/***** patient name *****/}
                 {!hideName && <TableCell>
                     {row.patient && (
-                        <Link
-                            sx={{cursor: "pointer"}}
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
-                            }}
-                            underline="none">
+                        <ConditionalWrapper
+                            condition={!row.patient?.isArchived}
+                            wrapper={(children: any) => <Link
+                                sx={{cursor: "pointer"}}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
+                                }}
+                                underline="none">{children}</Link>}>
                             {`${row.patient.firstName} ${row.patient.lastName}`}
-                        </Link>
+                        </ConditionalWrapper>
                     )}
                 </TableCell>}
                 {/***** Insurances *****/}
@@ -228,7 +230,7 @@ function PaymentRow({...props}) {
                                     mean.data && <Stack>
                                         {mean.data.nb && <Typography fontSize={12}>Chq N°<span
                                             style={{fontWeight: "bold"}}>{mean.data.nb}</span></Typography>}
-                                        {mean.data.carrier &&<Typography fontSize={12}>{t('carrier')} : <span
+                                        {mean.data.carrier && <Typography fontSize={12}>{t('carrier')} : <span
                                             style={{fontWeight: "bold"}}>{mean.data.carrier}</span></Typography>}
                                         <Typography fontSize={12}><span
                                             style={{fontWeight: "bold"}}>{mean.data.bank?.name}</span></Typography>

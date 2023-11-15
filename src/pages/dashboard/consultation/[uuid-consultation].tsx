@@ -263,10 +263,10 @@ function ConsultationInProgress() {
     const {
         data: httpDocumentResponse,
         mutate: mutateDoc
-    } = useRequestQuery(medical_professional_uuid && agenda && nbDoc > 0 ? {
+    } = useRequestQuery(medical_professional_uuid && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
+    } : null, {refetchOnWindowFocus: false});
 
     const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : []
 
@@ -1232,7 +1232,6 @@ function ConsultationInProgress() {
                                                                                             trigger: triggerAppointmentEdit
                                                                                         }}
                                                                                         handleClosePanel={(v: boolean) => setCloseExam(v)}
-
                                                                                     />}
                                                                                 {item.content === 'history' && <div
                                                                                     id={"histo"}

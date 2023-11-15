@@ -117,7 +117,7 @@ function RdvCard({...props}) {
                                     <Typography
                                         sx={{
                                             fontSize: 10,
-                                            ml: ["WAITING_ROOM", "NOSHOW"].includes(AppointmentStatus[inner?.status]?.key)
+                                            ml: ["WAITING_ROOM", "NOSHOW", "PAUSED"].includes(AppointmentStatus[inner?.status]?.key)
                                                 ? 0.5
                                                 : 0,
                                         }}>

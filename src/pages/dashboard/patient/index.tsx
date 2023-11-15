@@ -180,6 +180,11 @@ const menuPopoverData = [
         title: "check_duplication_data",
         icon: <PeopleOutlineIcon/>,
         action: "onCheckPatientDuplication",
+    },
+    {
+        title: "delete_patient_data",
+        icon: <DeleteOutlineRoundedIcon/>,
+        action: "onDeletePatient",
     }
 ];
 
@@ -458,15 +463,6 @@ function Patient() {
             case "OPEN-POPOVER":
                 setSelectedPatient(event);
                 mouseEvent.preventDefault();
-                if (!event.nextAppointment && !event.previousAppointments) {
-                    setPopoverActions([...menuPopoverData, {
-                        title: "delete_patient_data",
-                        icon: <DeleteOutlineRoundedIcon/>,
-                        action: "onDeletePatient",
-                    }]);
-                } else {
-                    setPopoverActions(menuPopoverData);
-                }
 
                 setContextMenu(
                     contextMenu === null

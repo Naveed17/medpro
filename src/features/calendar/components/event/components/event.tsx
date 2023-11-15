@@ -63,6 +63,10 @@ function Event({...props}) {
             <EventStyled
                 sx={{
                     ...((isBeta && !appointment?.payed) && {backgroundColor: (theme: Theme) => alpha(theme.palette.expire.main, 0.2)}),
+                    ...(appointment?.patient?.isArchived && {
+                        backgroundColor: (theme: Theme) => alpha(theme.palette.error.main, 0.3),
+                        opacity: 0.3
+                    }),
                     ...(appointment.motif.length > 0 && {background: (theme: Theme) => `linear-gradient(90deg, ${isBeta && !appointment?.payed ? alpha(theme.palette.expire.main, 0.2) : 'rgba(255,0,0,0)'} 95%, ${appointment.motif.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
                     "&:before": {
                         background: event.borderColor
@@ -74,7 +78,7 @@ function Event({...props}) {
                 {...((!isMobile && !isEventDragging) && {onMouseLeave: handlePopoverClose})}
                 className="fc-event-main-box">
                 {appointment.new && <Box className="badge"/>}
-                <Typography
+                {!appointment?.patient?.isArchived && <Typography
                     variant="body2"
                     {...((appointment.status.key === "WAITING_ROOM" &&
                             appointment.hasErrors.length === 0) &&
@@ -83,7 +87,7 @@ function Event({...props}) {
                     color="text.primary">
                     {appointment?.status.icon}
                     {appointment.hasErrors.length > 0 && <DangerIcon className={"ic-danger"}/>}
-                </Typography>
+                </Typography>}
 
                 <Typography
                     variant="body2"
@@ -93,11 +97,12 @@ function Event({...props}) {
                             whiteSpace: "nowrap",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
+                            ...(appointment?.patient?.isArchived && {ml: 1}),
                             ...((appointment.isOnline || appointment.motif.length > 0) && {width: "96%"}),
                             ...((appointment.hasErrors.length > 0 && (appointment.isOnline || appointment.motif.length > 0)) && {width: "94%"})
                         }
                     }}
-                    color="primary"
+                    color={appointment?.patient?.isArchived ? "text.primary" : "primary"}
                     noWrap>
                     <span>{event.event._def.title}</span>
                     {view === "timeGridDay" && (
