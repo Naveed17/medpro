@@ -13,6 +13,7 @@ import {DefaultCountry} from "@lib/constants";
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {AppointmentStatus} from "@features/calendar";
+import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
 
 function AppointmentPopoverCard({...props}) {
     const {isBeta, data, style, t} = props;
@@ -114,13 +115,12 @@ function AppointmentPopoverCard({...props}) {
                                 height: 14,
                                 pl: 0
                             }
-                        }}
-                        color={"error"}>
-                        <ReportProblemRoundedIcon sx={{width: 14, height: 14}}/>
+                        }}>
+                        <DeletedPatientIcon/>
                         <Typography
                             sx={{
                                 ml: .5,
-                                fontSize: 10,
+                                fontSize: 10
                             }}>
                             {t("deleted-patient", {ns: "common"})} </Typography>
                     </Label>

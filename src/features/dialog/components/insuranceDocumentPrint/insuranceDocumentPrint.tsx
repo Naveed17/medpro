@@ -10,19 +10,22 @@ import {ImageHandler} from "@features/image";
 import React, {useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {PDFDocument} from 'pdf-lib';
 import {LoadingButton} from "@mui/lab";
+import {agendaSelector} from "@features/calendar";
 
 function InsuranceDocumentPrint({...props}) {
     const {data: {appuuid, state: patient, t}} = props;
     const router = useRouter();
     const {insurances} = useInsurances();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
 
     const [file, setFile] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -67,7 +70,10 @@ function InsuranceDocumentPrint({...props}) {
                     setFile(`data:application/pdf;base64,${document}`)
                 }
             },
-            onSettled: () => setLoading(false)
+            onSettled: () => {
+                setLoading(false);
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appuuid}/documents/${router.locale}`])
+            }
         });
     }
 

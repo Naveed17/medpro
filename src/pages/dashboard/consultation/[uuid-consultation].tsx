@@ -173,6 +173,7 @@ function ConsultationInProgress() {
     const [changes, setChanges] = useState([
         {name: "patientInfo", icon: "ic-text", checked: false},
         {name: "fiche", icon: "ic-text", checked: false},
+        {name: "insuranceGenerated", icon: "ic-ordonance", checked: false},
         {index: 0, name: "prescription", icon: "ic-traitement", checked: false},
         {
             index: 3,
@@ -762,8 +763,6 @@ function ConsultationInProgress() {
                 });
                 break;
             case "add_a_document":
-                //form.append("title", state.name);
-                //form.append("description", state.description);
                 state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
                     form.append(`files[${file.type}][]`, file?.file as any, file?.name);
                 });
@@ -987,7 +986,7 @@ function ConsultationInProgress() {
             let nb = 0;
             changes.map(change => {
                 if (sheet && sheet[change.name]) {
-                    change.checked = sheet[change.name] > 0;
+                    change.checked = typeof sheet[change.name] == "boolean" && sheet[change.name] || sheet[change.name] > 0;
                     nb += sheet[change.name]
                 }
             })
@@ -1002,7 +1001,7 @@ function ConsultationInProgress() {
 
         }
     }, [medicalProfessionalData, sheet, sheetModal]); // eslint-disable-line react-hooks/exhaustive-deps
-
+    console.log("changes", changes)
     useEffect(() => {
         if (event && event.publicId !== app_uuid && isActive) {
             setIsHistory(true)
