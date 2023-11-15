@@ -10,6 +10,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
 import {alpha, Theme} from "@mui/material/styles";
+import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
 
 function Event({...props}) {
     const {isBeta, event, view, isMobile, open, setAppointmentData, anchorEl, setAnchorEl, isEventDragging} = props;
@@ -63,6 +64,10 @@ function Event({...props}) {
             <EventStyled
                 sx={{
                     ...((isBeta && !appointment?.payed) && {backgroundColor: (theme: Theme) => alpha(theme.palette.expire.main, 0.2)}),
+                    ...(appointment?.patient?.isArchived && {
+                        backgroundColor: (theme: Theme) => alpha(theme.palette.grey['A100'], 0.5),
+                        opacity: 0.5
+                    }),
                     ...(appointment.motif.length > 0 && {background: (theme: Theme) => `linear-gradient(90deg, ${isBeta && !appointment?.payed ? alpha(theme.palette.expire.main, 0.2) : 'rgba(255,0,0,0)'} 95%, ${appointment.motif.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
                     "&:before": {
                         background: event.borderColor
@@ -74,16 +79,19 @@ function Event({...props}) {
                 {...((!isMobile && !isEventDragging) && {onMouseLeave: handlePopoverClose})}
                 className="fc-event-main-box">
                 {appointment.new && <Box className="badge"/>}
-                <Typography
-                    variant="body2"
-                    {...((appointment.status.key === "WAITING_ROOM" &&
-                            appointment.hasErrors.length === 0) &&
-                        {className: "ic-waiting"})}
-                    component={"span"}
-                    color="text.primary">
-                    {appointment?.status.icon}
-                    {appointment.hasErrors.length > 0 && <DangerIcon className={"ic-danger"}/>}
-                </Typography>
+                {!appointment?.patient?.isArchived ? <Typography
+                        variant="body2"
+                        {...((appointment.status.key === "WAITING_ROOM" &&
+                                appointment.hasErrors.length === 0) &&
+                            {className: "ic-waiting"})}
+                        component={"span"}
+                        color="text.primary">
+                        {appointment?.status.icon}
+                        {appointment.hasErrors.length > 0 && <DangerIcon className={"ic-danger"}/>}
+                    </Typography>
+                    :
+                    <DeletedPatientIcon/>
+                }
 
                 <Typography
                     variant="body2"
@@ -97,7 +105,7 @@ function Event({...props}) {
                             ...((appointment.hasErrors.length > 0 && (appointment.isOnline || appointment.motif.length > 0)) && {width: "94%"})
                         }
                     }}
-                    color="primary"
+                    color={appointment?.patient?.isArchived ? "text.primary" : "primary"}
                     noWrap>
                     <span>{event.event._def.title}</span>
                     {view === "timeGridDay" && (

@@ -181,7 +181,8 @@ function SecretaryConsultationDialog({...props}) {
                                                                if (item.index !== undefined) {
                                                                    if (!item.checked) {
                                                                        showPreview(item.name)
-                                                                   } else showCheckedDoc(item.name)
+                                                                   } else if (item.name !== "insuranceGenerated")
+                                                                       showCheckedDoc(item.name)
                                                                } else
                                                                    addInfo(item.name === "fiche" ? "widget" : "exam")
                                                            }}
@@ -266,9 +267,10 @@ function SecretaryConsultationDialog({...props}) {
                                     {
                                         <Stack direction={"row"} alignItems={"center"}>
                                             {demo && <Button
-                                                startIcon={patient.rest_amount === 0 ?<CheckIcon/>: <IconUrl path={'ic-argent'} color={"white"}/>}
+                                                startIcon={patient.rest_amount === 0 ? <CheckIcon/> :
+                                                    <IconUrl path={'ic-argent'} color={"white"}/>}
                                                 variant="contained"
-                                                color={patient.rest_amount === 0 ? "success":"primary"}
+                                                color={patient.rest_amount === 0 ? "success" : "primary"}
                                                 style={{marginLeft: 5}}
                                                 {...(isMobile && {
                                                     sx: {minWidth: 40},

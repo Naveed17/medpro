@@ -161,9 +161,7 @@ function ActFees() {
                 setMainActes(response as ActModel[]);
                 setLoading(false);
             } else {
-                const response = (
-                    httpProfessionalsActs as HttpResponse
-                ).data?.list;
+                const response = (httpProfessionalsActs as HttpResponse)?.data?.list ?? [];
                 setMainActes(response as ActModel[]);
                 setLoading(false);
             }
@@ -535,7 +533,7 @@ function ActFees() {
                                 label={t("table.code")}
                                 InputProps={{
                                     style: {
-                                        width: isMobile ? "" : 150,
+                                        width: isMobile ? "" : 120,
                                         backgroundColor: "white",
                                     },
                                 }}
@@ -558,7 +556,7 @@ function ActFees() {
                                 label={t("table.contribution")}
                                 InputProps={{
                                     style: {
-                                        width: isMobile ? "" : 150,
+                                        width: isMobile ? "" : 120,
                                         backgroundColor: "white",
                                     },
                                 }}
@@ -585,7 +583,7 @@ function ActFees() {
                                         <InputAdornment position="end">{devise}</InputAdornment>
                                     ),
                                     style: {
-                                        width: isMobile ? "" : 150,
+                                        width: isMobile ? "" : 130,
                                         backgroundColor: "white",
                                     },
                                 }}

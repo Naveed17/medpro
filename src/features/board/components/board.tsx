@@ -167,7 +167,7 @@ function Board({...props}) {
                 data[itemGroup[0]].map((item: any) => {
                     quotes.push({
                         id: item.uuid,
-                        content: {...item, isDraggable: ![4, 5].includes(item.status)},
+                        content: {...item, isDraggable: (![4, 5].includes(item.status) && !item.patient?.isArchived)},
                         column: columns.find((column: BoardColumnsModel) => column.id.split(",").includes(itemGroup[0])),
                     })
                 })

@@ -223,14 +223,14 @@ function AppointmentCard({...props}) {
                         <Typography
                             sx={{
                                 fontSize: 10,
-                                ml: ["WAITING_ROOM", "NOSHOW"].includes(data?.status?.key)
+                                ml: ["WAITING_ROOM", "NOSHOW", "PAUSED"].includes(data?.status?.key)
                                     ? 0.5
                                     : 0,
                             }}>
                             {t(`appointment-status.${data?.status?.key}`)}
                         </Typography>
                     </Label>
-                    {(!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && !["FINISHED", "ON_GOING"].includes(data?.status?.key))) &&
+                    {((!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && !["FINISHED", "ON_GOING"].includes(data?.status?.key))) && !appointment?.extendedProps.patient?.isArchived) &&
                         <IconButton
                             size="small"
                             onClick={onEditConsultation}
@@ -253,7 +253,7 @@ function AppointmentCard({...props}) {
                                         {t("appintment_date")} :
                                     </Typography>
                                     <ConditionalWrapper
-                                        condition={onMoveAppointment && (!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && data?.status?.key !== "ON_GOING"))}
+                                        condition={onMoveAppointment && !appointment?.extendedProps.patient?.isArchived && (!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && data?.status?.key !== "ON_GOING"))}
                                         wrapper={(children: any) => <Button
                                             onClick={onMoveAppointment}
                                             sx={{p: .5}}>{children}</Button>}>

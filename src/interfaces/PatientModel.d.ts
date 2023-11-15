@@ -18,6 +18,7 @@ interface PatientModel {
     account: AccountModel;
     hasAccount: boolean;
     hasPhoto: boolean;
+    isArchived?: boolean;
     isParent: boolean;
     medicalEntityPatientBase: MedicalEntityPatientBaseModel[];
     nextAppointments: [];
