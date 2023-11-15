@@ -29,10 +29,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import { AnimatePresence, motion } from "framer-motion";
 import { Dialog } from "@features/dialog";
 import { LoadingButton } from "@mui/lab";
-interface StateProps {
-  from: Date | null;
-  to: Date | null;
-}
 function TransactionPanel({ ...props }) {
   const { patient, rest, devise, router } = props;
   const theme: Theme = useTheme();
