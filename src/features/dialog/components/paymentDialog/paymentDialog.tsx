@@ -3,12 +3,14 @@ import {
     Avatar,
     Button,
     Card,
-    CardContent, Checkbox,
+    CardContent,
+    Checkbox,
     FormControl,
     Grid,
     Menu,
     MenuItem,
-    Select, Skeleton,
+    Select,
+    Skeleton,
     Stack,
     TextField,
     Theme,
@@ -31,11 +33,10 @@ import ConsultationCard from "@features/dialog/components/paymentDialog/consulta
 import AddIcon from "@mui/icons-material/Add";
 import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
 import moment from "moment/moment";
 import {Box} from "@mui/system";
 import {LottiePlayer} from "@features/card/components/successCard/successCard";
-import Icon from "@themes/urlIcon";
-import CheckIcon from "@mui/icons-material/Check";
 
 const LoadingScreen = dynamic(
     () => import("@features/loadingScreen/components/loadingScreen")
@@ -236,8 +237,10 @@ function PaymentDialog({...props}) {
             apps.current = _apps
             if (loading)
                 setAllApps(_apps)
-            setLoading(false)
             setPayments([{selected: 'cash', amount: total}])
+            setTimeout(()=>{
+                setLoading(false)
+            },2000)
         }
     }, [httpPatientTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -271,8 +274,65 @@ function PaymentDialog({...props}) {
                                 </Stack>
                             </Stack>
                         </Stack>
+                        {loading && <Card>
+                            <CardContent>
+                                <Stack direction={"row"} alignItems={"center"} flex={3} pb={1}
+                                       borderBottom={`1px solid ${theme.palette.grey[200]}`}>
+                                    <Stack direction={"row"} alignItems={"center"} flex={1}>
+                                        <Checkbox checked={appointments.filter((app: {
+                                            checked: boolean
+                                        }) => app.checked).length === appointments.length}
+                                                  onChange={(e) => {
+                                                      appointments.map((app: {
+                                                          checked: boolean
+                                                      }) => app.checked = e.target.checked)
+                                                      setAppointments([...appointments])
+                                                  }}/>
+                                        <Typography fontSize={12}>{t('dialog.date')}</Typography>
+                                    </Stack>
+
+                                    <Typography flex={1} fontSize={12}>{t('dialog.amount')}</Typography>
+                                    <Typography flex={1} fontSize={12}>{t('dialog.leftPay')}</Typography>
+                                </Stack>
+                                {Array.from(['', '', '']).map((_, index) => (
+                                    <Stack key={`${index}-load`} direction={"row"} alignItems={"center"} flex={3} pb={1}
+                                           borderBottom={`1px solid ${theme.palette.grey[200]}`}>
+                                        <Stack direction={"row"} alignItems={"center"} flex={1}>
+                                            <Stack spacing={0} sx={{
+                                                ".react-svg": {
+                                                    svg: {
+                                                        width: 11,
+                                                        height: 11,
+                                                        path: {
+                                                            fill: (theme) => theme.palette.text.primary,
+                                                        },
+                                                    },
+                                                },
+                                            }}>
+                                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                    <Icon path="ic-agenda"/>
+                                                    <Skeleton width={80}/>
+                                                </Stack>
+
+                                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                    <Icon path="ic-time"/>
+                                                    <Skeleton width={80}/>
+                                                </Stack>
+                                            </Stack>
+                                        </Stack>
+                                        <Skeleton height={25} width={50} style={{flex: 1, marginRight: 20}}/>
+                                        <Skeleton height={25} width={30} style={{flex: 1}}/>
+                                    </Stack>))}
+                                <Stack direction={"row"} pl={2} pr={2} mt={2} borderRadius={1}
+                                       justifyContent={"space-between"}
+                                       style={{backgroundColor: "#F0FAFF"}}>
+                                    <Skeleton height={25} width={70}/>
+                                    <Skeleton height={25} width={90}/>
+                                </Stack>
+                            </CardContent>
+                        </Card>}
                         {
-                            allApps.length > 0 ? <>
+                            !loading && appointments.length > 0 ? <>
                                 <Typography fontSize={14} fontWeight={"bold"}>{t('dialog.leftPay')}</Typography>
                                 <ConsultationCard {...{
                                     allApps,
@@ -303,61 +363,6 @@ function PaymentDialog({...props}) {
                                 <Typography fontSize={13} color={'#1B2746'}>{t('dialog.add_now')}</Typography>
                             </Stack>
                         }
-                        {loading && <Card>
-                            <CardContent>
-                                <Stack direction={"row"} alignItems={"center"} flex={3} pb={1}
-                                       borderBottom={`1px solid ${theme.palette.grey[200]}`}>
-                                    <Stack direction={"row"} alignItems={"center"} flex={1}>
-                                        <Checkbox checked={appointments.filter((app: {
-                                            checked: boolean
-                                        }) => app.checked).length === appointments.length}
-                                                  onChange={(e) => {
-                                                      appointments.map((app: {
-                                                          checked: boolean
-                                                      }) => app.checked = e.target.checked)
-                                                      setAppointments([...appointments])
-                                                  }}/>
-                                        <Typography fontSize={12}>{t('dialog.date')}</Typography>
-                                    </Stack>
-
-                                    <Typography flex={1} fontSize={12}>{t('dialog.amount')}</Typography>
-                                    <Typography flex={1} fontSize={12}>{t('dialog.leftPay')}</Typography>
-                                </Stack>
-                                {Array.from(['','','']).map((_,index) =>(<Stack key={`${index}-load`} direction={"row"} alignItems={"center"} flex={3} pb={1}
-                                                                                borderBottom={`1px solid ${theme.palette.grey[200]}`}>
-                                    <Stack direction={"row"} alignItems={"center"} flex={1}>
-                                        <Stack spacing={0} sx={{
-                                            ".react-svg": {
-                                                svg: {
-                                                    width: 11,
-                                                    height: 11,
-                                                    path: {
-                                                        fill: (theme) => theme.palette.text.primary,
-                                                    },
-                                                },
-                                            },
-                                        }}>
-                                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                                <Icon path="ic-agenda"/>
-                                                <Skeleton width={80}/>
-                                            </Stack>
-
-                                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                                <Icon path="ic-time"/>
-                                                <Skeleton width={80}/>
-                                            </Stack>
-                                        </Stack>
-                                    </Stack>
-                                    <Skeleton height={25} width={50} style={{flex: 1, marginRight: 20}}/>
-                                    <Skeleton height={25} width={30} style={{flex: 1}}/>
-                                </Stack>))}
-                                <Stack direction={"row"} pl={2} pr={2} mt={2} borderRadius={1} justifyContent={"space-between"}
-                                       style={{backgroundColor: "#F0FAFF"}}>
-                                    <Skeleton height={25} width={70}/>
-                                    <Skeleton height={25} width={90}/>
-                                </Stack>
-                            </CardContent>
-                        </Card>}
                     </Stack>
                 </Grid>
                 <Grid item xs={12} sm={6}>

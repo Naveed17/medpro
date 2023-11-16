@@ -128,7 +128,7 @@ function TransactionPanel({...props}) {
                 </Stack>
                 <DesktopContainer>
                     {!isLoading && <Otable
-                        {...{rows, t, insurances, pmList, mutateTransactions, hideName: true}}
+                        {...{rows, t, insurances, pmList, mutateTransactions,walletMutate, hideName: true}}
                         headers={headCells}
                         from={"cashbox"}
                     />}
