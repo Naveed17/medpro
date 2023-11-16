@@ -16,6 +16,7 @@ import {dashLayoutSelector} from "@features/base";
 import {PDFDocument} from 'pdf-lib';
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector} from "@features/calendar";
+import {Otable} from "@features/table";
 
 function InsuranceDocumentPrint({...props}) {
     const {data: {appuuid, state: patient, t}} = props;
@@ -29,14 +30,13 @@ function InsuranceDocumentPrint({...props}) {
 
     const [file, setFile] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [backgroundDoc, setBackgroundDoc] = useState(true);
     const {trigger: triggerInsuranceDocs} = useRequestQueryMutation("consultation/insurances/document");
 
     const {trigger: triggerDocInsurance} = useRequestQueryMutation("insurance/document");
 
     const docInsurances = insurances?.filter(insurance => (insurance?.documents ?? []).length > 0) ?? [];
 
-    const generateInsuranceDoc = (insuranceDocument: string) => {
+    const generateInsuranceDoc = (insuranceDocument: string, backgroundDoc: boolean) => {
         medicalEntityHasUser && triggerInsuranceDocs({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/${appuuid}/insurance-document/${insuranceDocument}/${router.locale}`,
@@ -77,43 +77,35 @@ function InsuranceDocumentPrint({...props}) {
         });
     }
 
+    const handleTableEvent = (action: string, data: any, backgroundDoc: boolean) => {
+        switch (action) {
+            case "onGenerateInsuranceDoc":
+                generateInsuranceDoc(data.documents[0]?.uuid, backgroundDoc);
+                break;
+        }
+    }
     return (
         <>
-            <List
-                sx={{width: '100%', bgcolor: 'background.paper'}}
-                subheader={<ListSubheader>Demande de Prise en charge</ListSubheader>}>
-                {docInsurances.map(insurance => <ListItem sx={{p: 2}} key={insurance.uuid} disablePadding>
-                    <ListItemIcon>
-                        <Avatar variant={"circular"}>
-                            <ImageHandler
-                                alt={insurance.name}
-                                src={insurance.logoUrl.url}
-                            />
-                        </Avatar>
-                    </ListItemIcon>
-                    <ListItemText
-                        primary={<Typography fontWeight={700} component='strong'>{insurance.name}</Typography>}/>
-                    <Stack direction={"row"} spacing={1.2}>
-                        <FormControlLabel
-                            control={<Checkbox
-                                checked={backgroundDoc}
-                                onChange={e => setBackgroundDoc(e.target.checked)}/>}
-                            label={t("consultationIP.print_document_background")}/>
-                        <LoadingButton
-                            {...{loading}}
-                            loadingPosition={"start"}
-                            variant={"contained"}
-                            startIcon={backgroundDoc ? <LocalPrintshopRoundedIcon/> : <LocalPrintshopOutlinedIcon/>}
-                            onClick={e => {
-                                e.stopPropagation();
-                                setLoading(true);
-                                insurance.documents && generateInsuranceDoc(insurance.documents[0]?.uuid);
-                            }} size="small">
-                            <Typography>{t("consultationIP.print_document_result")}</Typography>
-                        </LoadingButton>
-                    </Stack>
-                </ListItem>)}
-            </List>
+            <Otable
+                {...{t, loadingReq: loading}}
+                headers={[
+                    {
+                        id: "insurance",
+                        numeric: false,
+                        disablePadding: true,
+                        label: "insurance",
+                        sortable: true,
+                        align: "left",
+                    }, {
+                        id: "action",
+                        label: "action",
+                        align: "center",
+                        sortable: false,
+                    }]}
+                handleEvent={handleTableEvent}
+                rows={docInsurances}
+                from={"insurance"}
+            />
 
             {file && <embed
                 src={file}

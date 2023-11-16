@@ -663,7 +663,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                             option?.commercial_name === value?.commercial_name
                                                         }
                                                         renderOption={(props, option) => (
-                                                            <Stack key={option.uuid ? option.uuid : "-1"}>
+                                                            <Stack key={`${idx}-${option.uuid ? option.uuid : "-1"}`}>
                                                                 {!option.uuid && <Divider/>}
                                                                 <MenuItem
                                                                     {...props}
@@ -762,14 +762,14 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         event.stopPropagation();
                                                         if (data) {
                                                             switchModel([
-                                                                ...values.data.slice(0, idx),
+                                                                ...drugs.slice(0, idx),
                                                                 {
                                                                     ...data,
                                                                     drugUuid: item.drug.uuid,
                                                                     dosageModels: item.dosageModels,
                                                                     name: item.drug.commercial_name
                                                                 },
-                                                                ...values.data.slice(idx + 1)]);
+                                                                ...drugs.slice(idx + 1)]);
                                                         }
                                                     }}
                                                     placeholder={t("dosage-model", {ns: "consultation"})}
@@ -1489,47 +1489,36 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         secondary={
                                                             <React.Fragment>
                                                                 <span style={{display: "grid"}}>
-                                  {drug.cycles.map((cycle: PrescriptionCycleModel, indexCycle: number) => (
-                                          <span
-                                              key={`cycle-${indexCycle}`}
-                                              style={{display: "grid"}}>
-                                        <span>
-                                          <Typography
-                                              sx={{display: "inline"}}
-                                              component="span"
-                                              variant="body2"
-                                              color="text.primary">
-                                            {`${cycle.dosage}  ${
-                                                cycle?.duration
-                                                    ? `pendant ${cycle.duration}`
-                                                    : ""
-                                            } ${
-                                                cycle?.durationType
-                                                    ? t(cycle.durationType)
-                                                    : ""
-                                            }`}
-                                          </Typography>
-                                            {cycle.note?.length > 0 &&
-                                                `(${cycle.note})`}
-                                        </span>
-                                              {indexCycle < drug.cycles?.length - 1 &&
-                                                  !(
-                                                      errors.data &&
-                                                      ((errors.data as any)[index]
-                                                              ?.cycles[indexCycle + 1] ||
-                                                          (errors.data as any)[index]
-                                                              ?.cycles[indexCycle])
-                                                  ) && (
-                                                      <span style={{marginLeft: 4}}>
-                                              {t("after", {
-                                                  ns: "consultation",
-                                              })}
-                                            </span>
-                                                  )}
-                                      </span>
-                                      )
-                                  )}
-                                </span>
+                                                                  {drug.cycles.map((cycle: PrescriptionCycleModel, indexCycle: number) => (
+                                                                      <span
+                                                                          key={`cycle-${indexCycle}`}
+                                                                          style={{display: "grid"}}>
+                                                                        <span>
+                                                                          <Typography
+                                                                              sx={{display: "inline"}}
+                                                                              component="span"
+                                                                              variant="body2"
+                                                                              color="text.primary">
+                                                                            {`${cycle.dosage}  ${
+                                                                                cycle?.duration
+                                                                                    ? `pendant ${cycle.duration}`
+                                                                                    : ""
+                                                                            } ${
+                                                                                cycle?.durationType
+                                                                                    ? t(cycle.durationType)
+                                                                                    : ""
+                                                                            }`}
+                                                                          </Typography>
+                                                                            {cycle.note?.length > 0 && `(${cycle.note})`}
+                                                                        </span>
+                                                                          {indexCycle < drug.cycles?.length - 1 &&
+                                                                              !(errors.data && ((errors.data as any)[index]?.cycles[indexCycle + 1] || (errors.data as any)[index]?.cycles[indexCycle])) && (
+                                                                                  <span
+                                                                                      style={{marginLeft: 4}}>{t("after", {ns: "consultation"})}</span>
+                                                                              )}
+                                                                      </span>
+                                                                  ))}
+                                                                </span>
                                                             </React.Fragment>
                                                         }
                                                     />

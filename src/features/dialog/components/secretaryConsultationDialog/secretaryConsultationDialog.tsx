@@ -181,8 +181,8 @@ function SecretaryConsultationDialog({...props}) {
                                                                if (item.index !== undefined) {
                                                                    if (!item.checked) {
                                                                        showPreview(item.name)
-                                                                   } else if (item.name !== "insuranceGenerated")
-                                                                       showCheckedDoc(item.name)
+                                                                   } else
+                                                                       showCheckedDoc(item.name === "insuranceGenerated" ? "insurance" : item.name)
                                                                } else
                                                                    addInfo(item.name === "fiche" ? "widget" : "exam")
                                                            }}
