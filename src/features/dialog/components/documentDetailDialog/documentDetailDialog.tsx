@@ -1,7 +1,7 @@
 import {
     Box,
     Button,
-    Card,
+    Card, CardContent,
     Checkbox,
     DialogActions,
     DialogContent,
@@ -51,6 +51,7 @@ import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import {useSnackbar} from "notistack";
+import {FacebookCircularProgress} from "@features/progressUI";
 
 const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
@@ -65,6 +66,7 @@ function DocumentDetailDialog({...props}) {
             setLoadingRequest = null
         }
     } = props
+
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
@@ -112,6 +114,7 @@ function DocumentDetailDialog({...props}) {
     })
     const [sendEmailDrawer, setSendEmailDrawer] = useState(false);
     const [previewDoc, setPreviewDoc] = useState<any>(null);
+    const [isPrinting, setIsPrinting] = useState(false);
 
     const {direction} = useAppSelector(configSelector);
 
@@ -235,7 +238,11 @@ function DocumentDetailDialog({...props}) {
 
     const printNow = useReactToPrint({
         content: () => previewDocRef.current,
-        documentTitle: `${t(state?.type)} ${state?.patient}`
+        documentTitle: `${t(state?.type)} ${state?.patient}`,
+        onAfterPrint: () => {
+            // Reset the Promise resolve so we can print again
+            setIsPrinting(false);
+        }
     })
 
     const downloadF = () => {
@@ -437,9 +444,9 @@ function DocumentDetailDialog({...props}) {
         }
     }
 
-    const doc = <Document
+    const doc = ((file instanceof File) || file?.url) && <Document
         {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[0] = element})}
-        file={file}
+        file={file.url}
         loading={t('wait')}
         onLoadSuccess={onDocumentLoadSuccess}
         onLoadError={() => {
@@ -480,6 +487,13 @@ function DocumentDetailDialog({...props}) {
     }, [state])
 
     useEffect(() => {
+        if (state?.print && previewDocRef.current) {
+            setIsPrinting(true);
+            setTimeout(() => handlePrint());
+        }
+    }, [previewDocRef.current]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (httpDocumentHeader) {
             const docInfo = (httpDocumentHeader as HttpResponse).data
             setDocs(docInfo);
@@ -487,7 +501,6 @@ function DocumentDetailDialog({...props}) {
                 setLoading(false)
             } else {
                 setOpenAlert(false);
-
 
                 if (state.documentHeader) {
                     setSelectedTemplate(state.documentHeader)
@@ -602,6 +615,14 @@ function DocumentDetailDialog({...props}) {
 
     return (
         <DocumentDetailDialogStyled>
+            {isPrinting && <Card className={'loading-card'}>
+                <CardContent>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"center"} spacing={1.2}>
+                        <FacebookCircularProgress size={20}/>
+                        <Typography fontSize={16} fontWeight={600}>{t('printing')}</Typography>
+                    </Stack>
+                </CardContent>
+            </Card>}
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>

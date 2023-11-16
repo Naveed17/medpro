@@ -1,23 +1,23 @@
 // Inspired by the former Facebook spinners.
 import Box from '@mui/material/Box';
 import CircularProgress, {
-    circularProgressClasses,
-    CircularProgressProps,
+    circularProgressClasses
 } from '@mui/material/CircularProgress';
-import IconUrl from "@themes/urlIcon";
 
-function FacebookCircularProgress(props: CircularProgressProps) {
+function FacebookCircularProgress({...props}) {
+    const {children, size = 40, ...rest} = props;
+
     return (
-        <Box sx={{ position: 'relative' }}>
+        <Box sx={{position: 'relative', ...(!children && {height: size})}}>
             <CircularProgress
                 variant="determinate"
                 sx={{
                     color: (theme) =>
                         theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
                 }}
-                size={40}
+                {...{size}}
                 thickness={4}
-                {...props}
+                {...rest}
                 value={100}
             />
             <CircularProgress
@@ -32,24 +32,11 @@ function FacebookCircularProgress(props: CircularProgressProps) {
                         strokeLinecap: 'round',
                     },
                 }}
-                size={40}
+                {...{size}}
                 thickness={4}
-                {...props}
+                {...rest}
             />
-            <Box
-                sx={{
-                    top: -4,
-                    left: 0,
-                    bottom: 0,
-                    right: 0,
-                    position: 'absolute',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <IconUrl width={"26"} height={"26"} path={"ic-upload"} />
-            </Box>
+            {children}
         </Box>
     );
 }

@@ -6,6 +6,15 @@ const DocumentDetailDialogStyled = styled(Stack)(({theme}) => ({
     backgroundColor: theme.palette.background.default,
     paddingTop: theme.spacing(2),
     width: "100%",
+    "& .loading-card": {
+        position: "absolute",
+        zIndex: 3,
+        left: 10,
+        width: 240,
+        "& .MuiCardContent-root": {
+            padding: 12
+        }
+    },
     "& .textLayer :is(span, br)": {
         color: "black"
     },
