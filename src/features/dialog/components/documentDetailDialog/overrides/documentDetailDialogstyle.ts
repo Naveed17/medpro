@@ -6,6 +6,9 @@ const DocumentDetailDialogStyled = styled(Stack)(({theme}) => ({
     backgroundColor: theme.palette.background.default,
     paddingTop: theme.spacing(2),
     width: "100%",
+    "& .textLayer :is(span, br)": {
+        color: "black"
+    },
     ".zoombar": {
         background: "white",
         marginBottom: 10
