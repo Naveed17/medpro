@@ -491,7 +491,7 @@ function DocumentDetailDialog({...props}) {
             setIsPrinting(true);
             setTimeout(() => handlePrint());
         }
-    }, [previewDocRef.current]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [state?.print, previewDocRef.current]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (httpDocumentHeader) {
