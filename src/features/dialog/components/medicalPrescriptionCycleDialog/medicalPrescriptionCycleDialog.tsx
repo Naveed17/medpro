@@ -841,14 +841,14 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     }}>
                                                                     {!isMobile ? (innerItem.dosageTime.map((subItem: any, i: number) => (
                                                                             <Button
+                                                                                key={`dosageTime-${i}-${subItem.label}`}
                                                                                 sx={{
                                                                                     scrollSnapAlign: 'center'
                                                                                 }}
                                                                                 component="label"
                                                                                 variant="white"
                                                                                 className="dosage-wrapper"
-                                                                                {...(values.data[idx].cycles[index]
-                                                                                    .dosageTime[i].value && {
+                                                                                {...(subItem.value && {
                                                                                     variant: "contained",
                                                                                     color: 'primary',
                                                                                     size: 'small',
@@ -863,7 +863,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                         checkedIcon={<IconUrl width={20}
                                                                                                               height={20}
                                                                                                               path="ic_check_outlined"/>}
-                                                                                        checked={values.data[idx].cycles[index].dosageTime[i].value}
+                                                                                        checked={subItem.value}
                                                                                         onChange={(event) => {
                                                                                             const previousDosages: any[] = values.data[idx].cycles[index].dosageTime.filter((dosage: any) => dosage.value);
                                                                                             setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
@@ -871,7 +871,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                             if (previousDosages.length > 0) {
                                                                                                 const lastDosage = previousDosages[previousDosages.length - 1];
                                                                                                 setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}]`, {
-                                                                                                    ...values.data[idx].cycles[index].dosageTime[i],
+                                                                                                    ...subItem,
                                                                                                     value: event.target.checked,
                                                                                                     qty: lastDosage.qty,
                                                                                                     count: lastDosage.count
@@ -881,25 +881,22 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                             }
                                                                                         }}
                                                                                     />
-                                                                                }
-                                                                                key={`dosageTime-${i}-${subItem.label}`}>
+                                                                                }>
                                                                                 <Typography
                                                                                     sx={{
                                                                                         whiteSpace: "nowrap",
                                                                                         overflow: "hidden",
                                                                                         textOverflow: "ellipsis",
-                                                                                        ...(values.data[idx].cycles[index]
-                                                                                            .dosageTime[i].value && {
-                                                                                            width: 50,
-                                                                                        })
+                                                                                        ...(subItem.value && {width: 50})
                                                                                     }}
                                                                                     component='span'
                                                                                     variant="body2">
                                                                                     {t(subItem.label, {ns: "consultation"})}
                                                                                 </Typography>
 
-                                                                                {values.data[idx].cycles[index].dosageTime[i].value && (
+                                                                                {subItem.value && (
                                                                                     <Button
+                                                                                        key={`dosageTime-${i}-value-${subItem.label}`}
                                                                                         className="btn-dosage-time-counter"
                                                                                         sx={{
                                                                                             justifyContent: {
@@ -960,7 +957,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                                                 if (parseFloat(e.target.value)) {
                                                                                                     const indexFraction = fractions.findIndex(fraction => fraction === e.target.value);
                                                                                                     indexFraction !== -1 && setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}]`, {
-                                                                                                        ...values.data[idx].cycles[index].dosageTime[i],
+                                                                                                        ...subItem,
                                                                                                         count: indexFraction,
                                                                                                         qty: e.target.value
                                                                                                     });

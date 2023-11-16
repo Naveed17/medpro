@@ -663,7 +663,8 @@ function ConsultationInProgress() {
                                 uuidDoc: res[0].uuid,
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
-                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                print: true
                             });
                             setOpenDialog(true);
                         }
@@ -709,7 +710,8 @@ function ConsultationInProgress() {
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
                                 info: res[0].analyses,
-                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                print: true
                             });
                             setOpenDialog(true);
                         }
@@ -752,6 +754,7 @@ function ConsultationInProgress() {
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
                                 patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                print: true,
                                 mutate: mutateDoc
                             });
                             setOpenDialog(true);
