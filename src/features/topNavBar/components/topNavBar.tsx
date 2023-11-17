@@ -73,7 +73,7 @@ function TopNavBar({...props}) {
         pendingAppointments,
         selectedEvent
     } = useAppSelector(agendaSelector);
-    const {isActive} = useAppSelector(timerSelector);
+    const {isActive, event} = useAppSelector(timerSelector);
     const {
         ongoing, next, notifications,
         import_data, allowNotification
@@ -81,7 +81,6 @@ function TopNavBar({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
     const {switchConsultationDialog} = useAppSelector(navBarSelector);
-    const {event} = useAppSelector(timerSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -99,6 +98,7 @@ function TopNavBar({...props}) {
     const [installable, setInstallable] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
     const dir = router.locale === "ar" ? "rtl" : "ltr";
 
@@ -334,7 +334,16 @@ function TopNavBar({...props}) {
         "appointment-stats": <AppointmentStatsPopover/>,
         notification: <NotificationPopover onClose={() => setAnchorEl(null)}/>,
         paused: <PausedConsultationPopover
-            {...{pausedConsultation, next, roles, loading, resetNextConsultation, setPatientId, setPatientDetailDrawer, handleStartConsultation}}
+            {...{
+                pausedConsultation,
+                next,
+                roles,
+                loading,
+                resetNextConsultation,
+                setPatientId,
+                setPatientDetailDrawer,
+                handleStartConsultation
+            }}
             refresh={refreshAgendaData}
             onClose={() => setAnchorEl(null)}/>,
     };
@@ -585,7 +594,10 @@ function TopNavBar({...props}) {
                         contrastText={theme.palette.error.contrastText}
                         dialogClose={() => dispatch(setDialog({dialog: "switchConsultationDialog", value: false}))}
                         sx={{
-                            direction: direction
+                            direction
+                        }}
+                        data={{
+                            setOpenPaymentDialog
                         }}
                         action={"switch-consultation"}
                         open={switchConsultationDialog}
@@ -625,6 +637,26 @@ function TopNavBar({...props}) {
                                 </Stack>
                             </Stack>
                         }
+                    />
+
+                    <Dialog
+                        action={"payment_dialog"}
+                        {...{
+                            direction,
+                            sx: {
+                                minHeight: 460
+                            }
+                        }}
+                        open={openPaymentDialog}
+                        data={{
+                            patient: event?.extendedProps.patient,
+                            setOpenPaymentDialog,
+                            mutatePatient: () => mutateOnGoing()
+                        }}
+                        size={"lg"}
+                        fullWidth
+                        title={commonTranslation("payment_dialog_title", {ns: "payment"})}
+                        dialogClose={() => setOpenPaymentDialog(false)}
                     />
 
                     <Drawer

@@ -264,33 +264,32 @@ function SecretaryConsultationDialog({...props}) {
                                             }
                                         </Stack>
                                     </Stack>
-                                    {
-                                        <Stack direction={"row"} alignItems={"center"}>
-                                            {demo && <Button
-                                                startIcon={patient.rest_amount === 0 ? <CheckIcon/> :
-                                                    <IconUrl path={'ic-argent'} color={"white"}/>}
-                                                variant="contained"
-                                                color={patient.rest_amount === 0 ? "success" : "primary"}
-                                                style={{marginLeft: 5}}
-                                                {...(isMobile && {
-                                                    sx: {minWidth: 40},
-                                                })}
-                                                onClick={openDialogPayment}>
-                                                <Typography>{t("pay")}</Typography>
-                                                {
-                                                    patient.rest_amount > 0 &&
-                                                    <>
-                                                        <Typography component='span'
-                                                                    fontWeight={700}
-                                                                    variant="subtitle2" ml={1}>
-                                                            {patient.rest_amount}
-                                                        </Typography>
-                                                        <Typography fontSize={10}>{devise}</Typography>
-                                                    </>
-                                                }
-                                            </Button>
+                                    {<Stack direction={"row"} alignItems={"center"}>
+                                        {demo && <Button
+                                            startIcon={patient.rest_amount === 0 ? <CheckIcon/> :
+                                                <IconUrl path={'ic-argent'} color={"white"}/>}
+                                            variant="contained"
+                                            color={patient.rest_amount === 0 ? "success" : "primary"}
+                                            style={{marginLeft: 5}}
+                                            {...(isMobile && {
+                                                sx: {minWidth: 40},
+                                            })}
+                                            onClick={openDialogPayment}>
+                                            <Typography>{t("pay")}</Typography>
+                                            {
+                                                patient.rest_amount > 0 &&
+                                                <>
+                                                    <Typography component='span'
+                                                                fontWeight={700}
+                                                                variant="subtitle2" ml={1}>
+                                                        {patient.rest_amount}
+                                                    </Typography>
+                                                    <Typography fontSize={10}>{devise}</Typography>
+                                                </>
                                             }
-                                        </Stack>
+                                        </Button>
+                                        }
+                                    </Stack>
                                     }
                                 </Stack>
                                 <Stack className="instruction-box" spacing={1}>

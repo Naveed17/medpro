@@ -1,20 +1,16 @@
 import React from 'react'
 import CipCardStyled from './overrides/cipCardStyle'
-import {Stack, Typography, Avatar, useTheme} from '@mui/material';
+import {Stack, Typography, Avatar, useTheme, useMediaQuery} from '@mui/material';
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {timerSelector} from "@features/card";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {capitalizeFirst, getDiffDuration, getMilliseconds, useTimer} from "@lib/hooks";
+import {capitalizeFirst, getMilliseconds, shortEnglishHumanizer, useTimer} from "@lib/hooks";
 import {setDialog} from "@features/topNavBar";
 import {setSelectedEvent} from "@features/calendar";
 import {batch} from "react-redux";
-
-const humanizeDuration = require("humanize-duration");
-import {humanizerConfig} from "@lib/constants";
-
-const shortEnglishHumanizer = humanizeDuration.humanizer(humanizerConfig);
+import {MobileContainer} from "@lib/constants";
 
 function CipCard({...props}) {
     const {openPatientDialog} = props;
@@ -23,6 +19,7 @@ function CipCard({...props}) {
     const {timer} = useTimer();
     const theme = useTheme();
     const dispatch = useAppDispatch();
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
 
     const {event} = useAppSelector(timerSelector);
 
@@ -55,7 +52,7 @@ function CipCard({...props}) {
                     {capitalizeFirst(`${event?.extendedProps.patient.firstName} ${event?.extendedProps.patient.lastName}`)}
                 </Typography>
 
-                <Avatar
+                {!isMobile && <Avatar
                     alt="Small avatar"
                     variant={"square"}
                     src={'/static/icons/ic-stop.svg'}
@@ -75,17 +72,19 @@ function CipCard({...props}) {
                             width: 20,
                             height: 20
                         }
-                    }}/>
+                    }}/>}
 
                 <Avatar
                     alt="button avatar"
-                    onClick={event => {
-                        event.stopPropagation();
-                        batch(() => {
-                            dispatch(setSelectedEvent(null));
-                            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-                        });
-                    }}
+                    {...(!isMobile && {
+                        onClick: (event: any) => {
+                            event.stopPropagation();
+                            batch(() => {
+                                dispatch(setSelectedEvent(null));
+                                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+                            });
+                        }
+                    })}
                     sx={{
                         height: 30,
                         pl: .5,
@@ -95,14 +94,18 @@ function CipCard({...props}) {
                         bgcolor: theme.palette.warning.main
                     }}>
                     <Avatar
-                        src={'/static/icons/ic-pause-mate.svg'}
+                        src={`/static/icons/${isMobile ? 'ic-play-fill-dark' : 'ic-pause-mate'}.svg`}
                         sx={{
                             width: 20,
                             height: 20,
                             borderRadius: 20
                         }}/>
                     <Typography sx={{width: 60}} ml={0} fontSize={14}
-                                fontWeight={600}>{shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {largest: 1, round: true})}</Typography>
+                                fontWeight={600}>{
+                        shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {
+                            largest: 1,
+                            round: true
+                        })}</Typography>
                 </Avatar>
             </Stack>
         </CipCardStyled>
