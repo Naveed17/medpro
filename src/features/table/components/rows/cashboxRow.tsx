@@ -45,7 +45,7 @@ function PaymentRow({...props}) {
         isItemSelected
     } = props;
 
-    const {mutateTransactions, pmList, hideName} = data;
+    const {mutateTransactions,walletMutate, pmList, hideName} = data;
     const router = useRouter();
     const theme = useTheme();
     const {data: session} = useSession();
@@ -63,7 +63,6 @@ function PaymentRow({...props}) {
     const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
 
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox");
 
@@ -82,7 +81,7 @@ function PaymentRow({...props}) {
     }
 
     const mutatePatientWallet = () => {
-        medicalEntityHasUser && row.appointment && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${row.appointment.patient?.uuid}/wallet/${router.locale}`]);
+        walletMutate && walletMutate()
     }
 
     const deleteTransaction = () => {

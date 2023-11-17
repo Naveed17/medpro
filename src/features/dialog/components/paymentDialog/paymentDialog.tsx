@@ -240,7 +240,7 @@ function PaymentDialog({...props}) {
             setPayments([{selected: 'cash', amount: total}])
             setTimeout(()=>{
                 setLoading(false)
-            },2000)
+            },1000)
         }
     }, [httpPatientTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -560,6 +560,7 @@ function PaymentDialog({...props}) {
                 <Button
                     startIcon={<IconUrl path={'ic-argent'} color={'white'}/>}
                     endIcon={<AddIcon/>}
+                    disabled={getTotalPayments() == 0}
                     variant={"contained"}
                     color={getTotalApps() === 0 ? 'success' : 'primary'}
                     onClick={() => addTransactions()}>

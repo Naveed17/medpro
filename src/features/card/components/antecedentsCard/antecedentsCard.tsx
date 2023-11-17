@@ -57,8 +57,18 @@ function AntecedentsCard({...props}) {
     };
 
     const handleCloseDialog = () => {
+
+        let _res: any[] = []
+        state.forEach((item: any) => {
+            item.data.forEach((data: any) => {
+                _res.push({
+                    ...data,
+                    uuid: item.uuid,
+                })
+            })
+        })
         const form = new FormData();
-        form.append("antecedents", JSON.stringify(state));
+        form.append("antecedents", JSON.stringify(_res));
         form.append("patient_uuid", patient.uuid);
         medicalEntityHasUser && triggerAntecedentUpdate({
             method: "POST",
@@ -76,6 +86,20 @@ function AntecedentsCard({...props}) {
         });
     };
 
+    const getRes = (ants: any[]) => {
+        let _res: any[] = [];
+        ants.map(pa => {
+            const index = _res.findIndex(r => r.uuid === pa.antecedent.uuid)
+            console.log(index)
+            index === -1 ?
+                _res.push({
+                    uuid: pa.antecedent.uuid,
+                    data: [pa]
+                }) : _res[index].data = [..._res[index].data, pa]
+        })
+        return _res;
+    }
+
     const handleOpen = (action: string) => {
         setEditable({
             patientDetailContactCard: false,
@@ -86,8 +110,9 @@ function AntecedentsCard({...props}) {
             dispatch(openDrawer({type: "add", open: true}));
             return;
         }
-        if (antecedentsData && Object.keys(antecedentsData).find(key => key === action)) { // @ts-ignore
-            setState(antecedentsData[action]);
+        if (antecedentsData && Object.keys(antecedentsData).find(key => key === action)) {
+            console.log(antecedentsData)
+            setState(getRes(antecedentsData[action]));
         } else setState([])
 
         setInfo("dynamicAnt");
@@ -171,15 +196,11 @@ function AntecedentsCard({...props}) {
                                                             : {item?.startDate ? item?.startDate : "-"}</Typography>
                                                         <Typography fontSize={12}>Date fin
                                                             : {item?.endDate ? item?.endDate : "-"}</Typography>
-                                                        {item?.ascendantOf && <Typography
-                                                            fontSize={12}>{t(item?.ascendantOf)}</Typography>}
+                                                        {item?.ascendantOf &&
+                                                            <Typography fontSize={12}>{t(item?.ascendantOf)}</Typography>}
                                                         <Typography fontSize={12}>Note : {getNote(item)}</Typography>
                                                         {item?.note &&
                                                             <Typography fontSize={12}>RQ : {item?.note}</Typography>}
-                                                        {isObject(item?.response) && Object.keys(item?.response).map((rep: any) => (
-                                                            <Typography color="gray" fontSize={12}
-                                                                        key={rep}>{rep} : {item?.response[rep]}</Typography>
-                                                        ))}
                                                     </React.Fragment>
                                                 }
                                             >
@@ -195,7 +216,6 @@ function AntecedentsCard({...props}) {
                                                             {item.startDate ? " / " + item.startDate : ""}{" "}
                                                             {item.endDate ? " - " + item.endDate : ""}
                                                             {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
-                                                            {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
                                                         </span>}
                                                 </Typography>
                                             </HtmlTooltip>
