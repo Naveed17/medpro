@@ -40,7 +40,6 @@ function LifeStyleDialog({...props}) {
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const state: AntecedentsModel[] = props.data.state;
 
-    console.log(state)
     const setState = props.data.setState;
 
     const [value, setValue] = useState("");

@@ -90,7 +90,6 @@ function AntecedentsCard({...props}) {
         let _res: any[] = [];
         ants.map(pa => {
             const index = _res.findIndex(r => r.uuid === pa.antecedent.uuid)
-            console.log(index)
             index === -1 ?
                 _res.push({
                     uuid: pa.antecedent.uuid,
@@ -111,7 +110,6 @@ function AntecedentsCard({...props}) {
             return;
         }
         if (antecedentsData && Object.keys(antecedentsData).find(key => key === action)) {
-            console.log(antecedentsData)
             setState(getRes(antecedentsData[action]));
         } else setState([])
 
