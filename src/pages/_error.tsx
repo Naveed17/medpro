@@ -4,7 +4,7 @@ import type {ErrorProps} from "next/error";
 import NextErrorComponent from "next/error";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 
 

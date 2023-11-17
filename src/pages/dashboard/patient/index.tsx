@@ -57,7 +57,7 @@ import {ActionMenu, toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";

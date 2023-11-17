@@ -22,7 +22,7 @@ import {ModelDot} from "@features/modelDot";
 import {onAppointmentView} from "@lib/hooks/onAppointmentView";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function RdvCard({...props}) {
     const {inner, patient, loading, handlePreConsultationDialog} = props;

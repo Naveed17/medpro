@@ -19,7 +19,7 @@ import { RadioTextImage } from "@features/radioTextImage";
 import { PatientCardMobile } from "@features/card/components/patientCardMobile";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 
 // select data

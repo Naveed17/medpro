@@ -22,7 +22,7 @@ import {useAppDispatch} from "@lib/redux/hooks";
 import {toggleSideBar} from "@features/menu";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 
 function AppLock() {

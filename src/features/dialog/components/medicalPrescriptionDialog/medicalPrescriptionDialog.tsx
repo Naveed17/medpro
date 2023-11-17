@@ -35,7 +35,7 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 import {Theme} from "@mui/material/styles";
 import RedoIcon from '@mui/icons-material/Redo';

@@ -29,7 +29,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {MotifTypeCard} from "@features/card";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";

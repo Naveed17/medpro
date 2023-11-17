@@ -59,7 +59,7 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function DocsConfig() {
     const router = useRouter();

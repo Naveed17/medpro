@@ -16,7 +16,7 @@ import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 import {dashLayoutSelector} from "@features/base";
 import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";

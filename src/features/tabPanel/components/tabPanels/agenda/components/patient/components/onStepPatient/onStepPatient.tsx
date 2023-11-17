@@ -52,7 +52,7 @@ import {CountrySelect} from "@features/countrySelect";
 import {arrayUniqueByKey} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',

@@ -11,7 +11,7 @@ import {Player} from "@lottiefiles/react-lottie-player";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {Session} from "next-auth";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function ChatDiscussionDialog({...props}) {
     const {data} = props;

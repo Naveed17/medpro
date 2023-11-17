@@ -27,7 +27,7 @@ import OpenInFullRoundedIcon from '@mui/icons-material/OpenInFullRounded';
 import CloseFullscreenRoundedIcon from '@mui/icons-material/CloseFullscreenRounded';
 
 const Chart = dynamic(() => import('react-apexcharts'), {ssr: false});
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function Statistics() {
     const theme = useTheme();

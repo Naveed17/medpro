@@ -32,7 +32,7 @@ import {setMoveDateTime} from "@features/dialog";
 import {ImageHandler} from "@features/image";
 import {SmallAvatar} from "@features/avatar";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 const CardSection = ({...props}) => {
     const {data, theme, onOpenPatientDetails, loading, handleEvent, t, dispatch, insurances} = props;

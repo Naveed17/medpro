@@ -39,7 +39,7 @@ import {ImageHandler} from "@features/image";
 import dynamic from "next/dynamic";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function PersonalInsuranceCard({...props}) {
     const {

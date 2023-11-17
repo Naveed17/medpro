@@ -40,7 +40,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 import {useAntecedentTypes} from "@lib/hooks/rest";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 const Content = ({...props}) => {
     const {id, patient, url} = props;

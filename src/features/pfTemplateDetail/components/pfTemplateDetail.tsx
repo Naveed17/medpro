@@ -21,7 +21,7 @@ import {useRouter} from "next/router";
 import ItemCheckboxPF from "@themes/overrides/itemCheckboxPF";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 import {useInvalidateQueries, useMedicalProfessionalSuffix} from "@lib/hooks";
 import ReactDOM from "react-dom/client";

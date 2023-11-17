@@ -13,7 +13,7 @@ import React from "react";
 import { Player } from "@lottiefiles/react-lottie-player";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 
 function CheckProfileStatus({ ...props }) {

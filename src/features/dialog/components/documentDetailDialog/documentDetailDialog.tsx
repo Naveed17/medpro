@@ -53,7 +53,7 @@ import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import {useSnackbar} from "notistack";
 import {FacebookCircularProgress} from "@features/progressUI";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function DocumentDetailDialog({...props}) {
     const {

@@ -61,7 +61,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
 import {leftActionBarSelector} from "@features/leftActionBar";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function WaitingRoom() {
     const {data: session, status} = useSession();

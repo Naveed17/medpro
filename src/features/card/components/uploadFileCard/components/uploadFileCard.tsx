@@ -11,7 +11,7 @@ import Icon from '@themes/urlIcon';
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 // ----------------------------------------------------------------------
 

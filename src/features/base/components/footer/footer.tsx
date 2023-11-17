@@ -3,7 +3,7 @@ import {useTranslation} from "next-i18next";
 import Image from 'next/image'
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function Footer() {
     const { t, ready } = useTranslation('common');

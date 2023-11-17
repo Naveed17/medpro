@@ -45,7 +45,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import AddIcon from "@mui/icons-material/Add";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function Consultation() {
     const dispatch = useAppDispatch();

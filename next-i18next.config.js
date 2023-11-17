@@ -3,8 +3,7 @@ const path = require("path");
 module.exports = {
   i18n: {
     locales: ["fr","en"],
-    defaultLocale: "fr",
-    localeDetection: true
+    defaultLocale: "fr"
   },
   localePath: path.resolve('./public/locales'),
   react: { useSuspense: false }

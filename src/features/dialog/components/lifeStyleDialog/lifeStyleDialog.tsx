@@ -26,7 +26,7 @@ import dynamic from "next/dynamic";
 import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/AntecedentWidget";
 import SearchIcon from "@mui/icons-material/Search";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function LifeStyleDialog({...props}) {
     const router = useRouter();

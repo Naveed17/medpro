@@ -8,7 +8,7 @@ import {setLock} from "@features/appLock/actions";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function AppLock() {
     const dispatch = useAppDispatch();

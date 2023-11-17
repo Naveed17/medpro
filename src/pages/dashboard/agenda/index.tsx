@@ -20,7 +20,7 @@ import {CalendarToolbar} from "@features/toolbar";
 import {useSession} from "next-auth/react";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 import {instanceAxios, useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';

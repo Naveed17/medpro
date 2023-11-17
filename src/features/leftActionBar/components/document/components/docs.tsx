@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import {Accordion} from "@features/accordion";
 import {useAppDispatch} from "@lib/redux/hooks";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function Docs() {
     const dispatch = useAppDispatch();

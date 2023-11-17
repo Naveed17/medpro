@@ -7,7 +7,7 @@ import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 import {useMedicalEntitySuffix} from "@lib/hooks";
 

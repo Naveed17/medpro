@@ -48,7 +48,7 @@ const headCells: readonly HeadCell[] = [
     }
 ]
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function Document() {
     const router = useRouter();

@@ -20,7 +20,7 @@ import {IconsTypes, openDrawer, setStepperIndex} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 import {dashLayoutSelector} from "@features/base";
 

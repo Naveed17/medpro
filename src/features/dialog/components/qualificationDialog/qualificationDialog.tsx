@@ -13,7 +13,7 @@ import {SetQualifications} from "@features/checkList";
 import {useAppDispatch} from "@lib/redux/hooks";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function QualificationDialog(info: any) {
     const [files, setFile] = useState([]);

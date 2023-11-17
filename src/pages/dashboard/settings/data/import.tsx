@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 import {Form, FormikProvider, useFormik} from "formik";
 import {UploadFile} from "@features/uploadFile";

@@ -33,7 +33,7 @@ import {Editor} from "@tinymce/tinymce-react";
 import {tinymcePlugins, tinymceToolbarNotes} from "@lib/constants";
 import DesignServicesRoundedIcon from '@mui/icons-material/DesignServicesRounded';
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function CIPPatientHistoryCard({...props}) {
     const {

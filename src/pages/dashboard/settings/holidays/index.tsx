@@ -14,7 +14,7 @@ import {Session} from "next-auth";
 import moment from "moment-timezone";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 
 function Holidays() {

@@ -19,7 +19,7 @@ import Icon from "@themes/urlIcon";
 import {debounce} from "lodash";
 import SearchIcon from "@mui/icons-material/Search";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function AddTreatmentDialog({...props}) {
     const {data} = props;

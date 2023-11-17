@@ -41,7 +41,7 @@ import {dashLayoutSelector} from "@features/base";
 import {TabPanel} from "@features/tabPanel";
 import RemoveCircleRoundedIcon from "@mui/icons-material/RemoveCircleRounded";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 function BalanceSheetDialog({...props}) {
     const {data} = props;

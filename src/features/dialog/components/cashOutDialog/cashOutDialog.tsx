@@ -16,7 +16,7 @@ import {DesktopContainer} from '@themes/desktopConainter';
 import {MobileContainer} from '@themes/mobileContainer';
 import {CashOutMobileCard} from "@features/card";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 interface HeadCell {
     disablePadding: boolean;

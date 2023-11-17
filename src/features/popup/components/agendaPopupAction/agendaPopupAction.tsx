@@ -18,7 +18,7 @@ import React from "react";
 import {pxToRem} from "@themes/formatFontSize";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 import CallIcon from "@mui/icons-material/Call";
 

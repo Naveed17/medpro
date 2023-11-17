@@ -30,7 +30,7 @@ import {Otable} from "@features/table";
 import {useSnackbar} from "notistack";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 import {DefaultCountry} from "@lib/constants";
 import {ActFeesMobileCard} from "@features/card";

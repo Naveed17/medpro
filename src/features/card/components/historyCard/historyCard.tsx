@@ -8,7 +8,7 @@ import {openDrawer} from "@features/dialog";
 import {useAppDispatch} from "@lib/redux/hooks";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";;
 
 export default function HistoryCard({...props}) {
 
