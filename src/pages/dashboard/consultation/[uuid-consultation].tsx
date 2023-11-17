@@ -174,6 +174,7 @@ function ConsultationInProgress() {
         {name: "patientInfo", icon: "ic-text", checked: false},
         {name: "fiche", icon: "ic-text", checked: false},
         {index: 0, name: "prescription", icon: "ic-traitement", checked: false},
+        {index: 4, name: "insuranceGenerated", icon: "ic-ordonance", checked: false},
         {
             index: 3,
             name: "requested-analysis",
@@ -263,10 +264,10 @@ function ConsultationInProgress() {
     const {
         data: httpDocumentResponse,
         mutate: mutateDoc
-    } = useRequestQuery(medical_professional_uuid && agenda && nbDoc > 0 ? {
+    } = useRequestQuery(medical_professional_uuid && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
+    } : null, {refetchOnWindowFocus: false});
 
     const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : []
 
@@ -662,7 +663,8 @@ function ConsultationInProgress() {
                                 uuidDoc: res[0].uuid,
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
-                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                print: true
                             });
                             setOpenDialog(true);
                         }
@@ -708,7 +710,8 @@ function ConsultationInProgress() {
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
                                 info: res[0].analyses,
-                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                print: true
                             });
                             setOpenDialog(true);
                         }
@@ -751,6 +754,7 @@ function ConsultationInProgress() {
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
                                 patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                print: true,
                                 mutate: mutateDoc
                             });
                             setOpenDialog(true);
@@ -762,8 +766,6 @@ function ConsultationInProgress() {
                 });
                 break;
             case "add_a_document":
-                //form.append("title", state.name);
-                //form.append("description", state.description);
                 state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
                     form.append(`files[${file.type}][]`, file?.file as any, file?.name);
                 });
@@ -886,6 +888,10 @@ function ConsultationInProgress() {
                 setInfo("medical_imagery");
                 setState(imagery);
                 break;
+            case "insuranceGenerated":
+                setInfo("insurance_document_print");
+                setState(patient);
+                break;
             case "medical-certificate":
                 setInfo("write_certif");
                 setState({
@@ -984,11 +990,10 @@ function ConsultationInProgress() {
             })
             setActs(_acts);
             setMPActs(_acts);
-
             let nb = 0;
             changes.map(change => {
                 if (sheet && sheet[change.name]) {
-                    change.checked = sheet[change.name] > 0;
+                    change.checked = typeof sheet[change.name] == "boolean" && sheet[change.name] || sheet[change.name] > 0;
                     nb += sheet[change.name]
                 }
             })
@@ -1233,7 +1238,6 @@ function ConsultationInProgress() {
                                                                                             trigger: triggerAppointmentEdit
                                                                                         }}
                                                                                         handleClosePanel={(v: boolean) => setCloseExam(v)}
-
                                                                                     />}
                                                                                 {item.content === 'history' && <div
                                                                                     id={"histo"}

@@ -28,7 +28,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {AppointmentStatsPopover, NotificationPopover, PausedConsultationPopover} from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
 import {appLockSelector} from "@features/appLock";
-import {agendaSelector} from "@features/calendar";
+import {agendaSelector, AppointmentStatus} from "@features/calendar";
 import IconUrl from "@themes/urlIcon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
@@ -46,6 +46,7 @@ import {MobileContainer} from "@lib/constants";
 import CloseIcon from "@mui/icons-material/Close";
 import {batch} from "react-redux";
 import {resetAppointment} from "@features/tabPanel";
+import {partition} from "lodash";
 
 const ProfilMenuIcon = dynamic(() => import("@features/menu/components/profilMenu/components/profilMenu"));
 
@@ -70,8 +71,7 @@ function TopNavBar({...props}) {
     const {
         config: agendaConfig,
         pendingAppointments,
-        selectedEvent,
-        sortedData: groupSortedData
+        selectedEvent
     } = useAppSelector(agendaSelector);
     const {isActive} = useAppSelector(timerSelector);
     const {
@@ -231,7 +231,6 @@ function TopNavBar({...props}) {
     }
 
     const handleStartConsultation = (nextPatient: any) => {
-        console.log("nextPatient", nextPatient)
         const slugConsultation = `/dashboard/consultation/${nextPatient.uuid}`;
         return router.push({
             pathname: slugConsultation,
@@ -251,11 +250,38 @@ function TopNavBar({...props}) {
 
     useEffect(() => {
         if (ongoing) {
-            let events: any[] = []
-            ongoing.forEach(event => events.push({
+            const onGoingData = partition(ongoing, (event: any) => event.status === 4);
+            if (onGoingData[0].length > 0) {
+                const eventsOngoing: any[] = onGoingData[0];
+                const eventOngoing: any = {
+                    publicId: eventsOngoing[0]?.uuid,
+                    extendedProps: {
+                        type: eventsOngoing[0]?.type,
+                        status: AppointmentStatus[eventsOngoing[0]?.status],
+                        startTime: eventsOngoing[0]?.start_time,
+                        patient: {
+                            lastName: eventsOngoing[0]?.patient.split(" ")[1],
+                            firstName: eventsOngoing[0]?.patient.split(" ")[0],
+                            ...(eventsOngoing[0]?.patient_uuid && {uuid: eventsOngoing[0]?.patient_uuid})
+                        },
+                    },
+                };
+
+                dispatch(setTimer({
+                    isActive: true,
+                    isPaused: false,
+                    event: eventOngoing,
+                    startTime: eventOngoing.extendedProps?.startTime,
+                }));
+            } else {
+                dispatch(resetTimer());
+            }
+
+            const eventsPaused: any[] = onGoingData[1].map((event: any) => ({
                 publicId: event?.uuid as string,
                 extendedProps: {
                     type: event?.type,
+                    status: AppointmentStatus[event.status],
                     startTime: event?.start_time,
                     patient: {
                         lastName: event?.patient.split(" ")[1],
@@ -265,30 +291,14 @@ function TopNavBar({...props}) {
                 },
             }));
 
-            dispatch(
-                setTimer({
-                    isActive: true,
-                    isPaused: false,
-                    event: events[0],
-                    startTime: events[0].extendedProps?.startTime,
-                })
-            );
-        } else {
-            dispatch(resetTimer());
+            setPausedConsultation(eventsPaused);
+
         }
     }, [dispatch, ongoing]);
 
     useEffect(() => {
         setNotificationsCount((notifications ?? []).length + (pendingAppointments ?? []).length);
     }, [notifications, pendingAppointments]);
-
-    useEffect(() => {
-        if (groupSortedData) {
-            setPausedConsultation(groupSortedData.reduce((sorted: any[], data: any) =>
-                [...(sorted ?? []), ...data.events.filter((event: any) =>
-                    event.status.key === "PAUSED")], []));
-        }
-    }, [groupSortedData]);
 
     useEffect(() => {
         const appInstall = localStorage.getItem('Medlink-install');
@@ -324,7 +334,7 @@ function TopNavBar({...props}) {
         "appointment-stats": <AppointmentStatsPopover/>,
         notification: <NotificationPopover onClose={() => setAnchorEl(null)}/>,
         paused: <PausedConsultationPopover
-            {...{pausedConsultation,next,roles,loading,resetNextConsultation,setPatientId,setPatientDetailDrawer,handleStartConsultation}}
+            {...{pausedConsultation, next, roles, loading, resetNextConsultation, setPatientId, setPatientDetailDrawer, handleStartConsultation}}
             refresh={refreshAgendaData}
             onClose={() => setAnchorEl(null)}/>,
     };

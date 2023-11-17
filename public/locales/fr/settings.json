@@ -469,6 +469,8 @@
     "table": {
       "actions": "Actions",
       "acts": "Actes",
+      "code": "Code",
+      "contribution": "Cotation",
       "amount": "prix"
     },
     "dialog": {

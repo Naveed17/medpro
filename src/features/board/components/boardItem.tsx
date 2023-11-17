@@ -111,7 +111,7 @@ function BoardItem({...props}) {
             data-testid={quote?.id}
             data-index={index}
             aria-label={`${quote?.column?.name} quote ${quote?.content}`}>
-            <Card sx={{width:'100%'}}>
+            <Card sx={{width: '100%'}}>
                 <CardContent sx={{p: 1}}>
                     <Stack direction={"row"} spacing={.5} alignItems={"start"} justifyContent={"space-between"}>
                         <Stack spacing={.5}>
@@ -159,7 +159,7 @@ function BoardItem({...props}) {
                             </Stack>
                         </Stack>
 
-                        <Stack direction={"row"} spacing={1}>
+                        {!quote.content.patient?.isArchived && <Stack direction={"row"} spacing={1}>
                             <IconButton
                                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                     action: "OPEN-POPOVER",
@@ -170,7 +170,7 @@ function BoardItem({...props}) {
                                 size="small">
                                 <Icon path="more-vert"/>
                             </IconButton>
-                        </Stack>
+                        </Stack>}
                     </Stack>
 
                     <Stack direction={"row"} alignItems={"center"} mt={1} spacing={1}>
@@ -196,7 +196,7 @@ function BoardItem({...props}) {
                             </Typography>
                         </Stack>
 
-                        <Stack direction={"row"} spacing={1}>
+                        {!quote.content.patient?.isArchived && <Stack direction={"row"} spacing={1}>
                             {quote.content.status === 1 && <>
                                 {!roles.includes('ROLE_SECRETARY') && <IconButton
                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
@@ -262,7 +262,7 @@ function BoardItem({...props}) {
                                     <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
                                 </IconButton>
                             </>}
-                        </Stack>
+                        </Stack>}
                     </Stack>
                 </CardActions>
             </Card>

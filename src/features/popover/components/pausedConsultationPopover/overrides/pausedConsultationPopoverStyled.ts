@@ -5,8 +5,12 @@ const PausedConsultationPopoverStyled = styled(Box)(({theme}) => ({
     height: "100%",
     pt: '.5rem',
     '& .MuiList-root': {
-        height: 125,
+        marginTop: "-1rem",
+        height: "100%",
         overflow: "auto"
+    },
+    '& .MuiListItem-root': {
+        padding: "10px 0 0 10px"
     },
     '& .avatar-badge': {
         width: 20,
@@ -30,20 +34,20 @@ const PausedConsultationPopoverStyled = styled(Box)(({theme}) => ({
     "& .tab-item.Mui-selected": {
         color: theme.palette.text.primary
     },
-    ".MuiToolbar-root":{
-        minHeight:48,
-        paddingLeft:theme.spacing(2),
-        paddingRight:theme.spacing(2)
+    ".MuiToolbar-root": {
+        minHeight: 48,
+        paddingLeft: 0,
+        paddingRight: theme.spacing(2)
     },
-    ".btn-next-appointment":{
-        justifyContent:'flex-start',
-        '.avatar-ic-next':{
-            width:16,
-            height:16
+    ".btn-next-appointment": {
+        justifyContent: 'flex-start',
+        '.avatar-ic-next': {
+            width: 16,
+            height: 16
         },
-        ".avatar-close":{
-            margin:0,
-            marginLeft:'auto'
+        ".avatar-close": {
+            margin: 0,
+            marginLeft: 'auto'
         }
     }
 }))

@@ -13,6 +13,7 @@ import {DefaultCountry} from "@lib/constants";
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {AppointmentStatus} from "@features/calendar";
+import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
 
 function AppointmentPopoverCard({...props}) {
     const {isBeta, data, style, t} = props;
@@ -105,24 +106,44 @@ function AppointmentPopoverCard({...props}) {
                 <Typography ml={.5} variant={"caption"}>{t("event.online-appointment", {ns: "common"})}</Typography>
             </Stack>}
             <Stack pl={4} direction="row" alignItems='center' spacing={.8}>
-                <Label variant='filled'
-                       sx={{
-                           "& .MuiSvgIcon-root": {
-                               width: 16,
-                               height: 16,
-                               pl: 0
-                           }
-                       }}
-                       color={AppointmentStatus[data?.status]?.classColor}>
-                    {AppointmentStatus[data?.status]?.icon}
-                    <Typography
+
+                {data?.patient?.isArchived ? <Label
+                        variant='filled'
                         sx={{
-                            fontSize: 10,
-                            ml: ["WAITING_ROOM", "NOSHOW", "PAUSED"].includes(AppointmentStatus[data?.status]?.key) ? .5 : 0
+                            "& .MuiSvgIcon-root": {
+                                width: 14,
+                                height: 14,
+                                pl: 0
+                            }
                         }}>
-                        {AppointmentStatus[data?.status] ? t(`appointment-status.${AppointmentStatus[data.status].key}`, {ns: "common"}) :
-                            <Skeleton variant="text" width={100}/>}</Typography>
-                </Label>
+                        <DeletedPatientIcon/>
+                        <Typography
+                            sx={{
+                                ml: .5,
+                                fontSize: 10
+                            }}>
+                            {t("deleted-patient", {ns: "common"})} </Typography>
+                    </Label>
+                    :
+                    <Label variant='filled'
+                           sx={{
+                               "& .MuiSvgIcon-root": {
+                                   width: 16,
+                                   height: 16,
+                                   pl: 0
+                               }
+                           }}
+                           color={AppointmentStatus[data?.status]?.classColor}>
+                        {AppointmentStatus[data?.status]?.icon}
+                        <Typography
+                            sx={{
+                                fontSize: 10,
+                                ml: ["WAITING_ROOM", "NOSHOW", "PAUSED"].includes(AppointmentStatus[data?.status]?.key) ? .5 : 0
+                            }}>
+                            {AppointmentStatus[data?.status] ? t(`appointment-status.${AppointmentStatus[data.status].key}`, {ns: "common"}) :
+                                <Skeleton variant="text" width={100}/>}</Typography>
+                    </Label>}
+
                 {(isBeta && (data?.restAmount > 0 || data?.restAmount < 0)) && <Label
                     variant='filled'
                     sx={{

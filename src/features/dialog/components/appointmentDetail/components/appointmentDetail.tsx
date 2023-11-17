@@ -42,6 +42,7 @@ import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {Label} from "@features/label";
 import {DefaultCountry, MobileContainer} from "@lib/constants";
+import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 
 function AppointmentDetail({...props}) {
     const {
@@ -50,6 +51,7 @@ function AppointmentDetail({...props}) {
         OnConsultationView,
         OnEditDetail,
         OnConfirmAppointment,
+        OnUploadDocuments,
         OnDataUpdated = null,
         patientId = null,
         from = null,
@@ -294,7 +296,7 @@ function AppointmentDetail({...props}) {
                                         </List>
                                     </Stack>
                                 </Stack>
-                                {(canManageActions && OnEditDetail) &&
+                                {(canManageActions && OnEditDetail && !appointment?.extendedProps.patient?.isArchived) &&
                                     <IconButton className={"edit-button"} size="small"
                                                 onClick={() => OnEditDetail(appointment)}>
                                         <IconUrl path="ic-duotone"/>
@@ -338,13 +340,13 @@ function AppointmentDetail({...props}) {
                         {t("time_slot")}
                     </Typography>
                     <AppointmentCard
-                        {...{t, roles, patientId, appointment, handleOnDataUpdated}}
+                        {...{t, roles, patientId, handleOnDataUpdated}}
                         {...((canManageActions && SetMoveDialog) && {
                             onMoveAppointment: () => setAppointmentDate(appointment?.extendedProps.status.key === "FINISHED" ? "reschedule" : "move")
                         })}
                     />
                 </Box>
-                {(canManageActions && (OnConfirmAppointment || OnWaiting || OnLeaveWaiting || OnPatientNoShow || SetCancelDialog)) && (
+                {(canManageActions && (OnConfirmAppointment || OnUploadDocuments || OnWaiting || OnLeaveWaiting || OnPatientNoShow || SetCancelDialog)) && (
                     <CardActions sx={{pb: 4}}>
                         <Stack spacing={1} width={1}>
                             {isMobile && appointment?.extendedProps.patient.contact?.length > 0 && <LoadingButton
@@ -354,110 +356,124 @@ function AppointmentDetail({...props}) {
                                 color="success">
                                 {t("call_patient")}
                             </LoadingButton>}
-                            <LoadingButton
-                                {...{loading}}
-                                sx={{
-                                    display:
-                                        appointment?.extendedProps.status.key !== "PENDING"
-                                            ? "none"
-                                            : "flex",
-                                }}
-                                onClick={() => {
-                                    OnConfirmAppointment(appointment);
-                                }}
-                                color={"success"}
-                                fullWidth
-                                variant="contained"
-                                startIcon={<CheckCircleOutlineRoundedIcon/>}>
-                                {t("event.confirm")}
-                            </LoadingButton>
-                            <LoadingButton
-                                {...{loading}}
-                                onClick={() => OnWaiting(appointment)}
-                                sx={{
-                                    display:
-                                        moment().format("DD-MM-YYYY") !==
-                                        moment(appointment?.extendedProps.time).format(
-                                            "DD-MM-YYYY"
-                                        ) ||
-                                        ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(
-                                            appointment?.extendedProps.status.key
-                                        )
-                                            ? "none"
-                                            : "flex",
-                                }}
-                                fullWidth
-                                variant="contained"
-                                startIcon={<Icon path="ic-salle"/>}>
-                                {t("waiting")}
-                            </LoadingButton>
-                            <LoadingButton
-                                {...{loading}}
-                                onClick={() => OnLeaveWaiting(appointment)}
-                                sx={{
-                                    display:
-                                        moment().format("DD-MM-YYYY") !==
-                                        moment(appointment?.extendedProps.time).format(
-                                            "DD-MM-YYYY"
-                                        ) ||
-                                        appointment?.extendedProps.status.key !== "WAITING_ROOM"
-                                            ? "none"
-                                            : "flex",
-                                }}
-                                fullWidth
-                                variant="contained"
-                                startIcon={<Icon path="ic-salle"/>}>
-                                {t("leave_waiting_room")}
-                            </LoadingButton>
-                            <LoadingButton
-                                {...{loading}}
-                                sx={{
-                                    display:
-                                        moment().isBefore(appointment?.extendedProps.time) ||
-                                        appointment?.extendedProps.status.key === "FINISHED" ||
-                                        appointment?.extendedProps.status.key === "ON_GOING"
-                                            ? "none"
-                                            : "flex",
-                                }}
-                                onClick={() => OnPatientNoShow(appointment)}
-                                fullWidth
-                                variant="contained"
-                                startIcon={
-                                    <IconUrl width={"16"} height={"16"} path="ic-user1"/>
-                                }>
-                                {t("event.missPatient")}
-                            </LoadingButton>
-                            <LoadingButton
-                                {...{loading}}
-                                sx={{
-                                    display:
-                                        appointment?.extendedProps.status.key !== "FINISHED"
-                                            ? "none"
-                                            : "flex",
-                                }}
-                                onClick={() => setAppointmentDate("reschedule")}
-                                fullWidth
-                                variant="contained"
-                                startIcon={
-                                    <IconUrl width={"16"} height={"16"} path="ic-agenda"/>
-                                }>
-                                {t("event.reschedule")}
-                            </LoadingButton>
-                            <LoadingButton
-                                {...{loading}}
-                                sx={{
-                                    display:
-                                        moment().isAfter(appointment?.extendedProps.time) ||
-                                        appointment?.extendedProps.status.key === "FINISHED"
-                                            ? "none"
-                                            : "flex",
-                                }}
-                                onClick={() => setAppointmentDate("move")}
-                                fullWidth
-                                variant="contained"
-                                startIcon={<IconUrl path="iconfinder"/>}>
-                                {t("event.move")}
-                            </LoadingButton>
+                            {!appointment?.extendedProps.patient?.isArchived &&
+                                <>
+                                    <LoadingButton
+                                        {...{loading}}
+                                        onClick={() => {
+                                            OnUploadDocuments(appointment);
+                                        }}
+                                        color={"secondary"}
+                                        fullWidth
+                                        variant="contained"
+                                        startIcon={<UploadFileOutlinedIcon/>}>
+                                        {t("import_document")}
+                                    </LoadingButton>
+                                    <LoadingButton
+                                        {...{loading}}
+                                        sx={{
+                                            display:
+                                                appointment?.extendedProps.status.key !== "PENDING"
+                                                    ? "none"
+                                                    : "flex",
+                                        }}
+                                        onClick={() => {
+                                            OnConfirmAppointment(appointment);
+                                        }}
+                                        color={"success"}
+                                        fullWidth
+                                        variant="contained"
+                                        startIcon={<CheckCircleOutlineRoundedIcon/>}>
+                                        {t("event.confirm")}
+                                    </LoadingButton>
+                                    <LoadingButton
+                                        {...{loading}}
+                                        onClick={() => OnWaiting(appointment)}
+                                        sx={{
+                                            display:
+                                                moment().format("DD-MM-YYYY") !==
+                                                moment(appointment?.extendedProps.time).format(
+                                                    "DD-MM-YYYY"
+                                                ) ||
+                                                ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(
+                                                    appointment?.extendedProps.status.key
+                                                )
+                                                    ? "none"
+                                                    : "flex",
+                                        }}
+                                        fullWidth
+                                        variant="contained"
+                                        startIcon={<Icon path="ic-salle"/>}>
+                                        {t("waiting")}
+                                    </LoadingButton>
+                                    <LoadingButton
+                                        {...{loading}}
+                                        onClick={() => OnLeaveWaiting(appointment)}
+                                        sx={{
+                                            display:
+                                                moment().format("DD-MM-YYYY") !==
+                                                moment(appointment?.extendedProps.time).format(
+                                                    "DD-MM-YYYY"
+                                                ) ||
+                                                appointment?.extendedProps.status.key !== "WAITING_ROOM"
+                                                    ? "none"
+                                                    : "flex",
+                                        }}
+                                        fullWidth
+                                        variant="contained"
+                                        startIcon={<Icon path="ic-salle"/>}>
+                                        {t("leave_waiting_room")}
+                                    </LoadingButton>
+                                    <LoadingButton
+                                        {...{loading}}
+                                        sx={{
+                                            display:
+                                                moment().isBefore(appointment?.extendedProps.time) ||
+                                                appointment?.extendedProps.status.key === "FINISHED" ||
+                                                appointment?.extendedProps.status.key === "ON_GOING"
+                                                    ? "none"
+                                                    : "flex",
+                                        }}
+                                        onClick={() => OnPatientNoShow(appointment)}
+                                        fullWidth
+                                        variant="contained"
+                                        startIcon={
+                                            <IconUrl width={"16"} height={"16"} path="ic-user1"/>
+                                        }>
+                                        {t("event.missPatient")}
+                                    </LoadingButton>
+                                    <LoadingButton
+                                        {...{loading}}
+                                        sx={{
+                                            display:
+                                                appointment?.extendedProps.status.key !== "FINISHED"
+                                                    ? "none"
+                                                    : "flex",
+                                        }}
+                                        onClick={() => setAppointmentDate("reschedule")}
+                                        fullWidth
+                                        variant="contained"
+                                        startIcon={
+                                            <IconUrl width={"16"} height={"16"} path="ic-agenda"/>
+                                        }>
+                                        {t("event.reschedule")}
+                                    </LoadingButton>
+                                    <LoadingButton
+                                        {...{loading}}
+                                        sx={{
+                                            display:
+                                                moment().isAfter(appointment?.extendedProps.time) ||
+                                                appointment?.extendedProps.status.key === "FINISHED"
+                                                    ? "none"
+                                                    : "flex",
+                                        }}
+                                        onClick={() => setAppointmentDate("move")}
+                                        fullWidth
+                                        variant="contained"
+                                        startIcon={<IconUrl path="iconfinder"/>}>
+                                        {t("event.move")}
+                                    </LoadingButton>
+                                </>}
                             <LoadingButton
                                 {...{loading}}
                                 onClick={() => SetCancelDialog(true)}

@@ -17,6 +17,7 @@ import {DefaultCountry} from "@lib/constants";
 import {useSession} from "next-auth/react";
 import {SmallAvatar} from "@features/avatar";
 import Zoom from "@mui/material/Zoom";
+import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
 
 function CalendarRowDetail({...props}) {
     const {
@@ -174,63 +175,57 @@ function CalendarRowDetail({...props}) {
                     </Box>
                 </TableCell>
                 <TableCell align="center" sx={{py: "0!important"}}>
-                    <Label
-                        variant="filled"
-                        sx={{
-                            "& .MuiSvgIcon-root": {
-                                width: 16,
-                                height: 16,
-                                pl: 0
-                            }
-                        }}
-                        color={data?.status?.classColor}>
-                        {data?.status?.icon}
-                        <Typography
+                    {data?.patient?.isArchived ?
+                        <Label
+                            variant='filled'
                             sx={{
-                                fontSize: 10,
-                                ml: ["WAITING_ROOM", "NOSHOW"].includes(data?.status?.key) ? .5 : 0
+                                "& .MuiSvgIcon-root": {
+                                    width: 14,
+                                    height: 14,
+                                    pl: 0
+                                }
                             }}
-                        >{data?.status?.value}</Typography>
-                    </Label>
+                            color={"error"}>
+                            <ReportProblemRoundedIcon sx={{width: 14, height: 14}}/>
+                            <Typography
+                                sx={{
+                                    ml: .5,
+                                    fontSize: 10,
+                                }}>
+                                {t("deleted-patient", {ns: "common"})} </Typography>
+                        </Label>
+                        :
+                        <Label
+                            variant="filled"
+                            sx={{
+                                "& .MuiSvgIcon-root": {
+                                    width: 16,
+                                    height: 16,
+                                    pl: 0
+                                }
+                            }}
+                            color={data?.status?.classColor}>
+                            {data?.status?.icon}
+                            <Typography
+                                sx={{
+                                    fontSize: 10,
+                                    ml: ["WAITING_ROOM", "NOSHOW", "PAUSED"].includes(data?.status?.key) ? .5 : 0
+                                }}
+                            >{data?.status?.value}</Typography>
+                        </Label>
+                    }
                 </TableCell>
                 <TableCell align="center">
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
                         <Typography
-                            sx={{cursor: "pointer"}}
-                            onClick={() => handleEventClick("showPatient", data)}
-                            variant={"body2"} color="primary">{data.title}</Typography>
-                        {/* {duplications?.length > 0 &&
-                            <Tooltip title={t("duplication")} TransitionComponent={Zoom}>
-                                <IconButton
-                                    sx={{p: "0 8px", "& .MuiAvatar-root": {p: 1.5}}}
-                                    color={"warning"}
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        dispatch(setDuplicated({
-                                            duplications,
-                                            duplicationSrc: data.patient,
-                                            duplicationInit: data.patient,
-                                            openDialog: true,
-                                            mutate: mutateAgenda
-                                        }));
-                                    }}>
-                                    <SmallAvatar
-                                        sx={{
-                                            background: theme.palette.warning.main
-                                        }}>
-                                        <WarningRoundedIcon
-                                            color={"black"}
-                                            sx={{
-                                                width: 16,
-                                                height: 16,
-                                                marginTop: -0.2
-                                            }}/>
-                                    </SmallAvatar>
-                                </IconButton>
-                            </Tooltip>}*/}
+                            {...(!data?.patient?.isArchived && {
+                                onClick: () => handleEventClick("showPatient", data),
+                                sx: {cursor: "pointer"}
+                            })}
+                            variant={"body2"}
+                            color={!data?.patient?.isArchived ? "primary" : "info"}>{data.title}</Typography>
                     </Stack>
                 </TableCell>
-                {/*<TableCell align="center">{config?.name}</TableCell>*/}
                 <TableCell align="right">
                     {isBeta && (data?.restAmount > 0 || data?.restAmount < 0) && data?.status?.key !== "PENDING" ? <Box>
                         <Label
@@ -252,7 +247,7 @@ function CalendarRowDetail({...props}) {
                     </Box> : "--"}
                 </TableCell>
                 <TableCell align="right" sx={{p: "0px 12px!important"}}>
-                    <Stack direction={"row"} spacing={.5} justifyContent={"flex-end"}>
+                    {!data?.patient?.isArchived && <Stack direction={"row"} spacing={.5} justifyContent={"flex-end"}>
                         {data?.status?.key === "PENDING" &&
                             <>
                                 <LoadingButton
@@ -334,7 +329,7 @@ function CalendarRowDetail({...props}) {
                             </LoadingButton>
                             </span>
                         </Tooltip>
-                    </Stack>
+                    </Stack>}
                 </TableCell>
             </TableRowStyled>
         </>

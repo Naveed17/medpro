@@ -962,7 +962,6 @@ function Agenda() {
     const handleUploadDocuments = () => {
         setOpenUploadDialog({...openUploadDialog, loading: true});
         const params = new FormData();
-        console.log("documentConfig", documentConfig);
         documentConfig.files.map((file: any) => {
             params.append(`files[${file.type}][]`, file.file, file.name);
         });
@@ -972,7 +971,6 @@ function Agenda() {
             data: params
         }, {
             onSuccess: () => {
-                setOpenUploadDialog({loading: false, dialog: false});
                 medicalEntityHasUser && triggerNotificationPush({
                     action: "push",
                     root: "all",
@@ -982,7 +980,8 @@ function Agenda() {
                         fcm_session: jti
                     })
                 });
-            }
+            },
+            onSettled: () => setOpenUploadDialog({loading: false, dialog: false})
         });
     }
 
@@ -1010,9 +1009,7 @@ function Agenda() {
                 dispatch(setStepperIndex(0));
                 setTimeout(() => setQuickAddAppointment(false));
             },
-            onSettled: () => {
-                setLoading(false);
-            }
+            onSettled: () => setLoading(false)
         });
     }
 
@@ -1218,6 +1215,7 @@ function Agenda() {
                             {...{isBeta}}
                             OnConsultation={onConsultationStart}
                             OnConfirmAppointment={onConfirmAppointment}
+                            OnUploadDocuments={(event: EventDef) => onMenuActions('onAddConsultationDocuments', event)}
                             OnConsultationView={onConsultationView}
                             OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
