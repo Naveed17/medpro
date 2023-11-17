@@ -65,7 +65,7 @@ import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/cha
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {useWidgetModels} from "@lib/hooks/rest";
+import {useSendNotification, useWidgetModels} from "@lib/hooks/rest";
 import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
@@ -144,12 +144,13 @@ function ConsultationInProgress() {
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
     const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
     const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
+    const {trigger: triggerNotificationPush} = useSendNotification();
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const {inProgress} = router.query;
-
+    const {jti} = session?.user as any;
     const EventStepper = [
         {
             title: "steppers.tabs.tab-1",
@@ -775,7 +776,18 @@ function ConsultationInProgress() {
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
                     data: form
                 }, {
-                    onSuccess: () => mutateDoc()
+                    onSuccess: () => {
+                        medicalEntityHasUser && triggerNotificationPush({
+                            action: "push",
+                            root: "all",
+                            message: " ",
+                            content: JSON.stringify({
+                                mutate: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
+                                fcm_session: jti
+                            })
+                        });
+                        mutateDoc()
+                    }
                 });
                 print && setOpenDialog(true);
                 break;

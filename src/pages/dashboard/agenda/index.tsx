@@ -976,7 +976,7 @@ function Agenda() {
                     root: "all",
                     message: " ",
                     content: JSON.stringify({
-                        mutate: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${event?.extendedProps.patient.uuid}/appointments/documents/${router.locale}`,
+                        mutate: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/documents/${router.locale}`,
                         fcm_session: jti
                     })
                 });
