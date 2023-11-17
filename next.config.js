@@ -37,12 +37,12 @@ const nextConfig = {
                 protocol: 'https',
                 hostname: 'flagcdn.com',
                 port: '',
-                pathname: '',
+                pathname: '**',
             }, {
                 protocol: 'https',
                 hostname: process.env.S3_URL || '',
                 port: '',
-                pathname: '',
+                pathname: '**',
             }]
     },
     sentry: {
