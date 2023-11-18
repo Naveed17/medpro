@@ -9,24 +9,15 @@ import type {
 } from 'react-beautiful-dnd';
 import {BoardItem, grid} from "@features/board";
 
-
-const scrollContainerHeight: number = 250;
-
 const DropZone = styled.div`
   /* stop the list collapsing when empty */
-  min-height: ${scrollContainerHeight}px;
+  min-height: 250px;
 
   /*
     not relying on the items for a margin-bottom
     as it will collapse when the list is empty
   */
-  padding-bottom: ${grid}px;
-`;
-
-const ScrollContainer = styled.div`
-  overflow-x: hidden;
-  overflow-y: auto;
-  max-height: ${typeof window !== "undefined" && window.innerHeight > 800 ? '75vh' : '67vh'};
+  padding-bottom: 8px;
 `;
 
 /* stylelint-disable block-no-empty */
@@ -96,6 +87,12 @@ export default function BoardList({...props}) {
       transition: background-color 0.2s ease, opacity 0.1s ease;
       user-select: none;
       width: 100%;
+    `;
+
+    const ScrollContainer = styled.div`
+      overflow-x: hidden;
+      overflow-y: auto;
+      max-height: ${typeof window !== "undefined" && window.innerHeight > 800 ? '75vh' : '67vh'};
     `;
 
     return (
