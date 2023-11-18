@@ -47,11 +47,11 @@ function AppointmentHistoryPreview({...props}) {
                         : dispatch(SetSelectedApp(app.uuid));
                     const el = document.getElementById(`x${app.uuid}`)
 
-                        if (el)
-                            document.getElementById('histo')?.scrollTo({
-                                top: el?.offsetTop-235,
-                                behavior: "smooth",
-                            });
+                    if (el)
+                        document.getElementById('histo')?.scrollTo({
+                            top: el?.offsetTop - 235,
+                            behavior: "smooth",
+                        });
                 }
                 }
                 borderBottom={1}
@@ -86,10 +86,11 @@ function AppointmentHistoryPreview({...props}) {
                         />{" "}
                         {app.time}
                     </Typography>
-                    <IconButton onClick={() => {
+                    <IconButton onClick={(e) => {
+                        e.stopPropagation()
                         handleConsultation();
                     }}>
-                        <OpenInNewIcon style={{color: "white", fontSize: 20}}/>
+                        <OpenInNewIcon style={{color: "white", width: app.uuid === appuuid ? 0 : "", fontSize: 20}}/>
                     </IconButton>
                 </Stack>
             </Stack>
