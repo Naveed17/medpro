@@ -3,4 +3,5 @@ interface AntecedentsTypeModel {
     uuid: string
     type:number
     value_type:number
+    multiple:boolean
 }

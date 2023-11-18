@@ -9,13 +9,12 @@ const LifeStyleDialogStyled = styled(Stack)(({theme}) => ({
         paddingTop: 0,
         paddingBottom: 0,
     },
-    ".MuiFormGroup-root": {
-        marginBottom: theme.spacing(1),
-    },
+
     ".selected-ant": {
         border: "1px solid #bfbfc1",
         borderRadius: 8,
-        padding: 15
+        padding: 15,
+        width:"100%"
     }
 }));
 export default LifeStyleDialogStyled;
