@@ -6,7 +6,6 @@ import {
     ListItem,
     Typography,
     Stack,
-    Avatar,
     Box,
     Link,
     Button
@@ -27,7 +26,7 @@ function AgendaPopupAction({...props}) {
 
     const {t, ready} = useTranslation("common");
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <AgendaPopupActionStyled>

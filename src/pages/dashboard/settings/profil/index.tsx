@@ -35,7 +35,6 @@ import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
 import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
-import dynamic from "next/dynamic";
 
 import {LoadingScreen} from "@features/loadingScreen";
 

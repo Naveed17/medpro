@@ -25,7 +25,6 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {IconsTypes} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";
-import dynamic from "next/dynamic";
 
 import {LoadingScreen} from "@features/loadingScreen";
 

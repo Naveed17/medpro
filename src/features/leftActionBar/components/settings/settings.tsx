@@ -18,7 +18,6 @@ import {SettingBarStyled} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
-import dynamic from "next/dynamic";
 
 import {LoadingScreen} from "@features/loadingScreen";
 

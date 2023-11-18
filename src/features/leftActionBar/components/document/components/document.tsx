@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
 import {AutoCompleteButton} from "@features/buttons";
 import MenuItem from "@mui/material/MenuItem";
 import {useRequestQuery} from "@lib/axios";

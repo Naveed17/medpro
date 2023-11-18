@@ -8,7 +8,6 @@ import { useAppDispatch } from "@lib/redux/hooks";
 import { setQs } from "@features/leftActionBar";
 import { upperFirst } from 'lodash';
 import data from './config';
-import dynamic from "next/dynamic";
 
 import {LoadingScreen} from "@features/loadingScreen";
 

@@ -8,7 +8,7 @@ import {
     CardContent,
     Checkbox,
     FormControlLabel,
-    FormGroup, IconButton,
+    FormGroup,
     InputAdornment,
     List,
     ListItem,
@@ -182,17 +182,18 @@ function LifeStyleDialog({...props}) {
                                                                             letterSpacing: 2,
                                                                             color: "grey"
                                                                         }}>{list.name} {index + 1}</Typography>
-                                                                        {index === state[state.findIndex(ant => ant.uuid === list.uuid)].data.length -1 && <Button size={"small"}
-                                                                                 onClick={() => {
-                                                                                     let x = state.findIndex(ant => ant.uuid === list.uuid)
+                                                                        {index === state[state.findIndex(ant => ant.uuid === list.uuid)].data.length - 1 &&
+                                                                            <Button size={"small"}
+                                                                                    onClick={() => {
+                                                                                        let x = state.findIndex(ant => ant.uuid === list.uuid)
 
-                                                                                     state[x].data.splice(index, 1)
-                                                                                     setState([...state]);
+                                                                                        state[x].data.splice(index, 1)
+                                                                                        setState([...state]);
 
-                                                                                 }}
-                                                                                 color={"error"}>
-                                                                            <IconUrl path={"setting/icdelete"}/>
-                                                                        </Button>}
+                                                                                    }}
+                                                                                    color={"error"}>
+                                                                                <IconUrl path={"setting/icdelete"}/>
+                                                                            </Button>}
 
                                                                     </Stack>
                                                                 }

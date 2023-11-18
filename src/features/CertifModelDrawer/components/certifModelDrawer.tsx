@@ -17,7 +17,6 @@ import React, {useCallback, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 import {useRouter} from "next/router";
-import dynamic from "next/dynamic";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from '@tinymce/tinymce-react';
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";

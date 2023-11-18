@@ -21,7 +21,7 @@ import {useTranslation} from "next-i18next";
 
 import {Form, FormikProvider, useFormik} from "formik";
 import MaskedInput from "react-text-mask";
-import {InputStyled, setAppointmentSubmit} from "@features/tabPanel";
+import {InputStyled} from "@features/tabPanel";
 import React, {useRef, useState} from "react";
 import {CropImage} from "@features/image";
 import {useRequestQueryMutation} from "@lib/axios";
@@ -30,7 +30,7 @@ import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CloseIcon from "@mui/icons-material/Close";
 import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
-import {agendaSelector, setSelectedEvent, setStepperIndex} from "@features/calendar";
+import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
@@ -122,7 +122,10 @@ function PatientDetailsCard({...props}) {
                 const {data, status} = value?.data;
                 if (status === 'success') {
                     const slugConsultation = `/dashboard/consultation/${data[0]}`;
-                    router.push({pathname: slugConsultation, query: {inProgress: true}}, slugConsultation, {locale: router.locale});
+                    router.push({
+                        pathname: slugConsultation,
+                        query: {inProgress: true}
+                    }, slugConsultation, {locale: router.locale});
                 }
             },
             onSettled: () => setRequestLoading(false)
@@ -263,7 +266,13 @@ function PatientDetailsCard({...props}) {
                                                 {...(patient?.nationality && {
                                                     startAdornment: <Tooltip title={patient.nationality.nationality}>
                                                         <Avatar
-                                                            sx={{width: 18, height: 18, mr: .5, ml: -.2, borderRadius: 4}}
+                                                            sx={{
+                                                                width: 18,
+                                                                height: 18,
+                                                                mr: .5,
+                                                                ml: -.2,
+                                                                borderRadius: 4
+                                                            }}
                                                             alt={"flag"}
                                                             src={`https://flagcdn.com/${patient.nationality.code}.svg`}/>
                                                     </Tooltip>
@@ -417,7 +426,12 @@ function PatientDetailsCard({...props}) {
                                                                 <Stack mr={.5} direction={"row"} alignItems={"center"}
                                                                        justifyContent={"center"}>
                                                                     <FolderRoundedIcon
-                                                                        sx={{color: "gray", width: 16, height: 16, mr: 1}}/>
+                                                                        sx={{
+                                                                            color: "gray",
+                                                                            width: 16,
+                                                                            height: 16,
+                                                                            mr: 1
+                                                                        }}/>
                                                                     <Typography variant={"body2"} sx={{width: 50}}>Fiche
                                                                         N°</Typography>
                                                                 </Stack>}

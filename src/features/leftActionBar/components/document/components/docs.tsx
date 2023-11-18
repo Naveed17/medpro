@@ -2,7 +2,6 @@ import {Typography} from "@mui/material";
 import React, {useState} from "react";
 import {DocumentFilter, FilterContainerStyles, setFilter} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
 import {Accordion} from "@features/accordion";
 import {useAppDispatch} from "@lib/redux/hooks";
 

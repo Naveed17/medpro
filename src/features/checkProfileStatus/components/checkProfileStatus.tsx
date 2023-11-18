@@ -8,35 +8,34 @@ import {
     Theme
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import { useTranslation } from "next-i18next";
+import {useTranslation} from "next-i18next";
 import React from "react";
-import { Player } from "@lottiefiles/react-lottie-player";
-import dynamic from "next/dynamic";
+import {Player} from "@lottiefiles/react-lottie-player";
 
 import {LoadingScreen} from "@features/loadingScreen";
 
 
-function CheckProfileStatus({ ...props }) {
+function CheckProfileStatus({...props}) {
     const theme = useTheme();
-    const { doctor } = props;
-    const { t, ready } = useTranslation('editProfile', { keyPrefix: 'steppers.check-status' });
+    const {doctor} = props;
+    const {t, ready} = useTranslation('editProfile', {keyPrefix: 'steppers.check-status'});
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
-        <Box p={2} sx={{ textAlign: "center", pt: 4 }}>
+        <Box p={2} sx={{textAlign: "center", pt: 4}}>
             <Player
                 autoplay
                 loop
                 src="/static/lotties/waiting.json"
-                style={{ width: "200px" }}
+                style={{width: "200px"}}
             />
             <Typography variant="h5" my={2} color="text.primary">
                 {t('title')}
             </Typography>
             <Typography variant="h6" color="text.primary" fontFamily="Poppins-Bold">
                 {doctor.name} !{" "}
-                <IconButton sx={{ path: { fill: theme.palette.text.primary } }} size="small">
-                    <IconUrl path="ic-edit" />
+                <IconButton sx={{path: {fill: theme.palette.text.primary}}} size="small">
+                    <IconUrl path="ic-edit"/>
                 </IconButton>
             </Typography>
             <Typography variant="body1" color="text.primary" mb={4}>
@@ -47,7 +46,7 @@ function CheckProfileStatus({ ...props }) {
                     {t('desc')}
                 </Typography>
             </Container>
-            <Typography variant="body1" color="text.primary" sx={{ mt: 3, mb: 0.5 }}>
+            <Typography variant="body1" color="text.primary" sx={{mt: 3, mb: 0.5}}>
                 {t('contact')}
             </Typography>
             <Typography variant="body1" color="text.primary">
@@ -63,7 +62,7 @@ function CheckProfileStatus({ ...props }) {
             <Button
                 variant="contained"
                 color="primary"
-                sx={{ mt: 1.5, mb: 5, maxWidth: 390 }}
+                sx={{mt: 1.5, mb: 5, maxWidth: 390}}
                 fullWidth
             >
                 {t('accept')}
@@ -77,7 +76,7 @@ function CheckProfileStatus({ ...props }) {
                     right: "1rem",
                 }}
             >
-                <IconUrl path="robot" />
+                <IconUrl path="robot"/>
             </Fab>
         </Box>
     );

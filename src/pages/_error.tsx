@@ -2,11 +2,7 @@ import * as Sentry from "@sentry/nextjs";
 import type {NextPage} from "next";
 import type {ErrorProps} from "next/error";
 import NextErrorComponent from "next/error";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
-
 
 const Error: NextPage<ErrorProps> = ({statusCode}) => {
     return (<LoadingScreen color={"error"} button text={"loading-error"}/>);

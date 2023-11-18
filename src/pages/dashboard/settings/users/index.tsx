@@ -18,9 +18,9 @@ import {
     Theme,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
-import {Otable, resetUser} from "@features/table";
+import {Otable} from "@features/table";
 import {useRouter} from "next/router";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard} from "@features/card";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 

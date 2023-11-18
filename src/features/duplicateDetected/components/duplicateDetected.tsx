@@ -6,7 +6,6 @@ import {
 } from "@mui/material";
 //utils
 import RootStyled from "./overrides/rootStyled";
-import dynamic from "next/dynamic";
 
 import {LoadingScreen} from "@features/loadingScreen";
 
