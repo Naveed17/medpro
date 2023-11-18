@@ -11,7 +11,7 @@ import {useTheme} from "@mui/material";
 import dynamic from "next/dynamic";
 import {resetDuplicated} from "@features/duplicateDetected";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AddPatientStep3({...props}) {
     const {onNext, selectedPatient, OnCustomAction} = props;

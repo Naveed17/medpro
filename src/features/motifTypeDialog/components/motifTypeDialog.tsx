@@ -27,7 +27,7 @@ import {IconsTypes} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useSnackbar} from "notistack";
 import {DefaultCountry} from "@lib/constants";

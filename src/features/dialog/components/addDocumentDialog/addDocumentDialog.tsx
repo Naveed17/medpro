@@ -11,7 +11,7 @@ import Resizer from "react-image-file-resizer";
 import dynamic from "next/dynamic";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AddDocumentDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);

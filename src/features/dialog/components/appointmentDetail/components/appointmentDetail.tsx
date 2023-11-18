@@ -35,7 +35,7 @@ import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {getBirthdayFormat} from "@lib/hooks";
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';

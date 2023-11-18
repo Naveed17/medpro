@@ -48,7 +48,7 @@ const headCells: readonly HeadCell[] = [
     }
 ]
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Document() {
     const router = useRouter();

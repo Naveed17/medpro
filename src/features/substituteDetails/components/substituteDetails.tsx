@@ -8,7 +8,7 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider,TimePicker as MuiTimePicker} from '@mui/x-date-pickers';
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 const PaperStyled = styled(Form)(({ theme }) => ({

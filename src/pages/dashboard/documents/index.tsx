@@ -50,7 +50,7 @@ import {Theme} from "@mui/material/styles";
 import {MobileContainer as smallScreen} from "@lib/constants";
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 const actions = [
     {
         icon: <IconUrl color={"gray"}

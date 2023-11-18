@@ -10,7 +10,7 @@ import { upperFirst } from 'lodash';
 import data from './config';
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function Questions() {

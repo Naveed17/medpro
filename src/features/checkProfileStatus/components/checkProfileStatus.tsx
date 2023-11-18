@@ -13,7 +13,7 @@ import React from "react";
 import { Player } from "@lottiefiles/react-lottie-player";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function CheckProfileStatus({ ...props }) {

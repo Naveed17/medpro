@@ -12,7 +12,7 @@ import {configSelector} from "@features/base";
 import {SubstituteDetails} from "@features/substituteDetails";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function Subtitule() {

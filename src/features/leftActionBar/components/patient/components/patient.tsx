@@ -18,7 +18,7 @@ import {
 import React, {useState} from "react";
 import {useAppDispatch} from "@lib/redux/hooks";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 import {setSelectedRows} from "@features/table";
 import {batch} from "react-redux";
 import dynamic from "next/dynamic";

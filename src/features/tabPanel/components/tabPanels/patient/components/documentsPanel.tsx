@@ -43,7 +43,7 @@ import DocumentCardStyled from "@features/card/components/documentCard/component
 import EventRoundedIcon from "@mui/icons-material/EventRounded";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",

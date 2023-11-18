@@ -3,7 +3,7 @@ import React from 'react';
 import {TextField, Typography} from "@mui/material";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function ModelDialog({...props}) {

@@ -20,7 +20,7 @@ import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";

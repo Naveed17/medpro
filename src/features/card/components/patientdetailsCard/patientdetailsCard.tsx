@@ -40,7 +40,7 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import moment from "moment-timezone";
 import {timerSelector} from "@features/card";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function PatientDetailsCard({...props}) {
     const {

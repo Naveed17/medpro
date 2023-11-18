@@ -7,7 +7,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function SurgicalHistoryDialog() {
     const {submit,mutate} = useAppSelector(consultationSelector);

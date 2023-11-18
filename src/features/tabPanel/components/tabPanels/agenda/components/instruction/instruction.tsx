@@ -37,7 +37,7 @@ import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {SuccessCard, timerSelector} from "@features/card";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useMedicalEntitySuffix} from "@lib/hooks";
 

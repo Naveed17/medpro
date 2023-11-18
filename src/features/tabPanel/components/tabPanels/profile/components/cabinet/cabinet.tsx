@@ -21,7 +21,7 @@ import moment from "moment-timezone";
 import {Theme} from "@mui/material/styles";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function Cabinet() {

@@ -25,7 +25,7 @@ import {NoDataCard} from "@features/card";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import IconUrl from "@themes/urlIcon";
 import {AccessMenage} from "@features/drawer";

@@ -34,7 +34,7 @@ import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";

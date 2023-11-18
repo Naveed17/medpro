@@ -9,7 +9,7 @@ import {uniqueId} from "lodash";
 import {RootStyled} from "@features/popover";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function BasicPopover({...props}) {

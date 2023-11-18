@@ -8,7 +8,7 @@ import { useTranslation } from "next-i18next";
 import Acte from "@interfaces/Acte";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 const actes: Acte[] = [

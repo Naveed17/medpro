@@ -4,7 +4,7 @@ import SidebarCheckboxStyled from './overrides/sidebarCheckboxStyled';
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 export default function SidebarCheckbox({...props}) {
     const {data, label = "text", onChange, translate, checkState = false} = props

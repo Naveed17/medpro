@@ -37,7 +37,7 @@ import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ImageHandler} from "@features/image";

@@ -31,7 +31,7 @@ import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";

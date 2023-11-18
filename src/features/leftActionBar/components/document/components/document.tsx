@@ -37,7 +37,7 @@ import {onOpenPatientDrawer} from "@features/table";
 import {CustomStepper} from "@features/customStepper";
 import {batch} from "react-redux";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Document() {
     const router = useRouter();

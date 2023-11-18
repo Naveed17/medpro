@@ -23,7 +23,7 @@ import React, {useState} from "react";
 import {onAppointmentView} from "@lib/hooks/onAppointmentView";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function RdvCard({...props}) {
     const {inner, patient, loading, handlePreConsultationDialog} = props;

@@ -5,7 +5,7 @@ import {QrCodeScanner} from '@features/qrCodeScanner'
 import {useTranslation} from 'next-i18next'
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function QrCodeDialog({...props}) {

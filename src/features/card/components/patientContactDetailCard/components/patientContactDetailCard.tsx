@@ -43,7 +43,7 @@ import {dashLayoutSelector} from "@features/base";
 import {checkObjectChange, flattenObject, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 const CountrySelect = dynamic(() => import('@features/countrySelect/countrySelect'));
 

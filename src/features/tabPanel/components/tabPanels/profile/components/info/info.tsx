@@ -31,7 +31,7 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 interface MyFormProps {

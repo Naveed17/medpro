@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {CheckList} from "@features/checkList";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useInsurances} from "@lib/hooks/rest";
 

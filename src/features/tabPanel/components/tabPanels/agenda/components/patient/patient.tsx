@@ -16,7 +16,7 @@ import {useMedicalEntitySuffix, prepareInsurancesData, increaseNumberInString} f
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Patient({...props}) {
     const {onNext, onBack, select, onPatientSearch, handleAddPatient = null} = props;

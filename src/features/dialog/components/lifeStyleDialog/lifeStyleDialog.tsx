@@ -29,7 +29,7 @@ import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/Antece
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconUrl from "@themes/urlIcon";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function LifeStyleDialog({...props}) {
     const router = useRouter();

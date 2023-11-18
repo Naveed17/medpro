@@ -14,7 +14,7 @@ import {tableActionSelector} from "@features/table";
 import ArchiveRoundedIcon from '@mui/icons-material/ArchiveRounded';
 import {setDuplicated} from "@features/duplicateDetected";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function PatientToolbar({...props}) {

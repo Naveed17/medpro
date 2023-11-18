@@ -7,7 +7,7 @@ import { useTranslation } from "next-i18next";
 import { width } from "@mui/system";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 const PaperStyled = styled(Form)(({ theme }) => ({

@@ -18,7 +18,7 @@ import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {DefaultCountry} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";

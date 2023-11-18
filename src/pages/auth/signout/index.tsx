@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from "react";
 import {Redirect} from "@features/redirect";
 import axios from "axios";
-import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";

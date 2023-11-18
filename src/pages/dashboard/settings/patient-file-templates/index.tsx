@@ -14,7 +14,7 @@ import {useRequestQueryMutation} from "@lib/axios";
 import AddIcon from "@mui/icons-material/Add";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";

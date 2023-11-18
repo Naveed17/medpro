@@ -33,7 +33,7 @@ import {Editor} from "@tinymce/tinymce-react";
 import {tinymcePlugins, tinymceToolbarNotes} from "@lib/constants";
 import DesignServicesRoundedIcon from '@mui/icons-material/DesignServicesRounded';
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function CIPPatientHistoryCard({...props}) {
     const {

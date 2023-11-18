@@ -14,7 +14,7 @@ import {useTranslation} from "next-i18next";
 import _ from "lodash";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useAppSelector} from "@lib/redux/hooks";
 import {Dialog, preConsultationSelector} from "@features/dialog";

@@ -9,7 +9,7 @@ import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import IconUrl from "@themes/urlIcon";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 const CircularProgressbarCard = forwardRef<HTMLDivElement, any>(
     ({id, ...props}, ref) => {

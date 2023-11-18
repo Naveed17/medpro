@@ -2,7 +2,7 @@ import { SuccessCard } from "@features/card";
 import { useTranslation } from "next-i18next";
 import dynamic from "next/dynamic";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AddRDVStep3() {
   const { t, ready } = useTranslation("patient", {

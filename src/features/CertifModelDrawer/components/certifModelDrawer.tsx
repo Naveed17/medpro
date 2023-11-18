@@ -28,7 +28,7 @@ import PaperStyled from "@features/CertifModelDrawer/components/overrides/paperS
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 
-import {LoadingScreen} from "@features/loadingScreen";;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function CertifModelDrawer({...props}) {
     const {data, editDoc = false, action, isDefault, certificateFolderModel, onSubmit, closeDraw} = props;
