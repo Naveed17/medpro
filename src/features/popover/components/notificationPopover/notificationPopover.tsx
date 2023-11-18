@@ -25,7 +25,6 @@ import Icon from "@themes/urlIcon";
 import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {useSnackbar} from "notistack";
 import {getDiffDuration, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 import {useRequestQueryMutation} from "@lib/axios";
 
 const humanizeDuration = require("humanize-duration");

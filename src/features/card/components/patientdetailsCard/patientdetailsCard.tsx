@@ -47,7 +47,6 @@ function PatientDetailsCard({...props}) {
         isBeta,
         patient,
         patientPhoto,
-        onConsultation,
         mutatePatientList,
         mutateAgenda,
         loading = false,

@@ -1,7 +1,6 @@
 import {
     Typography,
     Badge,
-    Box,
     Skeleton,
     useTheme,
     Theme,
