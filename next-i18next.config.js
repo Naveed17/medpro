@@ -1,5 +1,3 @@
-const path = require("path");
-// , "ar", "en"
 module.exports = {
     i18n: {
         locales: ["fr", "en"],
