@@ -11,7 +11,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {InsctructionDetails} from "@features/instructionDetails";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

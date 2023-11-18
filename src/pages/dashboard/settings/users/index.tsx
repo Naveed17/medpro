@@ -23,7 +23,7 @@ import {useRouter} from "next/router";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard} from "@features/card";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

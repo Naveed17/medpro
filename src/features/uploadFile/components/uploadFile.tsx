@@ -5,7 +5,7 @@ import UploadFileStyled from "./overrides/uploadFileStyled";
 import {Box, Typography, Stack} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

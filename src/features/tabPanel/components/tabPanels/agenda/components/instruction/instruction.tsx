@@ -35,7 +35,7 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {SuccessCard, timerSelector} from "@features/card";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

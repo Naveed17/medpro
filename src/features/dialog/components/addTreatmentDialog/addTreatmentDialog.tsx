@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import {useTranslation} from 'next-i18next'
 import React, {createRef, useCallback, useRef, useState} from 'react';
-import dynamic from "next/dynamic";
+
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {arrayUniqueByKey} from "@lib/hooks";

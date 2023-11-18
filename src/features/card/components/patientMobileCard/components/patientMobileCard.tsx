@@ -25,7 +25,7 @@ import moment from "moment-timezone";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {useProfilePhoto} from "@lib/hooks/rest";
-import dynamic from "next/dynamic";
+
 import {SelectCheckboxCard} from "@features/selectCheckboxCard";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";

@@ -18,7 +18,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentType} from "@features/tabPanel";
 import {IconsTypes, openDrawer, setStepperIndex} from "@features/calendar";
 import {ModelDot} from "@features/modelDot";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

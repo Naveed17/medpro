@@ -1,7 +1,7 @@
 import styles from '@styles/Home.module.scss'
 import {useTranslation} from "next-i18next";
 import Image from 'next/image'
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

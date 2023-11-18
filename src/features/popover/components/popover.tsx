@@ -7,7 +7,7 @@ import {useTranslation} from "next-i18next";
 // ________________________
 import {uniqueId} from "lodash";
 import {RootStyled} from "@features/popover";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

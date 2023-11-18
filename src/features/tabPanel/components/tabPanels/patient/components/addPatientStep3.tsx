@@ -8,7 +8,7 @@ import {
     resetSubmitAppointment
 } from "@features/tabPanel";
 import {useTheme} from "@mui/material";
-import dynamic from "next/dynamic";
+
 import {resetDuplicated} from "@features/duplicateDetected";
 
 import {LoadingScreen} from "@features/loadingScreen";

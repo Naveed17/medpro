@@ -10,7 +10,7 @@ import {Otable} from "@features/table";
 import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import {SubstituteDetails} from "@features/substituteDetails";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

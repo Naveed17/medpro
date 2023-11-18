@@ -20,7 +20,7 @@ import {Label} from "@features/label";
 import React, {useState} from "react";
 import {ModelDot} from "@features/modelDot";
 import {onAppointmentView} from "@lib/hooks/onAppointmentView";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

@@ -32,7 +32,7 @@ import {Theme} from "@mui/material/styles";
 import {agendaSelector} from "@features/calendar";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

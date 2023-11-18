@@ -1,6 +1,5 @@
 import {useTranslation} from "next-i18next";
 import React from "react";
-import dynamic from "next/dynamic";
 
 import {LoadingScreen} from "@features/loadingScreen";
 

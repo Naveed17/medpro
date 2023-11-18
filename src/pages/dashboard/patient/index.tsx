@@ -55,7 +55,7 @@ import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/h
 import {agendaSelector, openDrawer} from "@features/calendar";
 import {ActionMenu, toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

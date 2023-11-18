@@ -12,7 +12,7 @@ import {HolidayDetails} from "@features/holidayDetails";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import moment from "moment-timezone";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

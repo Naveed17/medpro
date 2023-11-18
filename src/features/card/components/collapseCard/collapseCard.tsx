@@ -4,7 +4,7 @@ import { Label } from "@features/label";
 import Icon from "@themes/urlIcon";
 import CollapseCardStyled from "./overrides/collapseCardStyle";
 import { useTheme, Theme, PaletteColor } from "@mui/material/styles";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

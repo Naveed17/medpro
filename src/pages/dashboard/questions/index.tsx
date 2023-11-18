@@ -23,7 +23,7 @@ import { Questions as QuestionFilter } from '@features/leftActionBar'
 import { useAppSelector } from "@lib/redux/hooks";
 import { qsSidebarSelector } from "@features/leftActionBar";
 import Icon from "@themes/urlIcon";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

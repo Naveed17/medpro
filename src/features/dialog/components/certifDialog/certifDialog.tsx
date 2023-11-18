@@ -18,7 +18,7 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import dynamic from "next/dynamic";
+
 import AddIcon from "@mui/icons-material/Add";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";

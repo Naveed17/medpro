@@ -34,7 +34,7 @@ import {agendaSelector, setSelectedEvent, setStepperIndex} from "@features/calen
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
-import dynamic from "next/dynamic";
+
 import {Label} from "@features/label";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import moment from "moment-timezone";

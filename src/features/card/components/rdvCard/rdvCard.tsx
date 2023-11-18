@@ -21,7 +21,7 @@ import {useAppDispatch} from "@lib/redux/hooks";
 import {Label} from "@features/label";
 import React, {useState} from "react";
 import {onAppointmentView} from "@lib/hooks/onAppointmentView";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

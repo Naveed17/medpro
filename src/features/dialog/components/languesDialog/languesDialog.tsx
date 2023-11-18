@@ -3,7 +3,7 @@ import {useTranslation} from "next-i18next";
 import {useRequestQuery} from "@lib/axios";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

@@ -21,7 +21,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider} from '@mui/x-date-pickers';
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

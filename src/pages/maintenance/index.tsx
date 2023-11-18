@@ -1,5 +1,3 @@
-import dynamic from "next/dynamic";
-
 import {LoadingScreen} from "@features/loadingScreen";
 
 import React from "react";

@@ -20,7 +20,7 @@ import {LoadingButton} from "@mui/lab";
 import {setLock} from "@features/appLock";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {toggleSideBar} from "@features/menu";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

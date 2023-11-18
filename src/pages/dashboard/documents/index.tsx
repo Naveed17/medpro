@@ -27,7 +27,7 @@ import {
 } from "@mui/material";
 import {alpha} from "@mui/material/styles";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
+
 import {NoDataCard} from "@features/card";
 import Icon from "@themes/urlIcon";
 import {CardStyled, Dialog} from "@features/dialog";

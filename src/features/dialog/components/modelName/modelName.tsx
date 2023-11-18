@@ -1,7 +1,7 @@
 import {useTranslation} from 'next-i18next'
 import React from 'react';
 import {TextField, Typography} from "@mui/material";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

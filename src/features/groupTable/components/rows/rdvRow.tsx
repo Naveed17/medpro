@@ -12,7 +12,7 @@ import {NoDataCard, RDVCard, RDVMobileCard, RDVPreviousCard} from "@features/car
 // utils
 import {useTranslation} from "next-i18next";
 import _ from "lodash";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

@@ -11,7 +11,7 @@ import {
 import QualifactionsProfessional from "@themes/overrides/QualifactionsProfessional"
 import {SetQualifications} from "@features/checkList";
 import {useAppDispatch} from "@lib/redux/hooks";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

@@ -19,7 +19,7 @@ import {useTranslation} from "next-i18next";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {ModelDot} from "@features/modelDot";
-import dynamic from "next/dynamic";
+
 
 import {LoadingScreen} from "@features/loadingScreen";
 

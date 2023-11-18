@@ -25,7 +25,7 @@ import {useRouter} from "next/router";
 import {RecButton} from "@features/buttons";
 import {dashLayoutSelector} from "@features/base";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
-import dynamic from "next/dynamic";
+
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {debounce} from "lodash";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";

@@ -23,10 +23,9 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
-import dynamic from "next/dynamic";
+
 import SearchIcon from "@mui/icons-material/Search";
 import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/AntecedentWidget";
-import DeleteIcon from "@mui/icons-material/Delete";
 import IconUrl from "@themes/urlIcon";
 
 import {LoadingScreen} from "@features/loadingScreen";
