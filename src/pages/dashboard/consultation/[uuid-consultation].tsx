@@ -1584,7 +1584,7 @@ function ConsultationInProgress() {
                     mutatePatient,
                     showPreview
                 }}
-                size={addFinishAppointment ? "md" : "md"}
+                size={"md"}
                 color={theme.palette.error.main}
                 actionDialog={<DialogAction/>}
             />
