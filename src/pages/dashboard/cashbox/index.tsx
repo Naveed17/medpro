@@ -8,6 +8,7 @@ import {
     CardContent,
     DialogActions,
     Drawer,
+    IconButton,
     LinearProgress,
     Stack,
     Theme,
@@ -40,6 +41,7 @@ import {DrawerBottom} from "@features/drawerBottom";
 import moment from "moment/moment";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import { Pagination } from "@features/pagination";
+import { Popover } from "@features/popover";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -51,6 +53,14 @@ interface HeadCell {
 }
 
 export const headCells: readonly HeadCell[] = [
+    {
+        id:"empty",
+        numeric: false,
+        disablePadding: true,
+        label: "empty",
+        sortable: false,
+        align: "left",
+    },
     {
         id: "date",
         numeric: false,
@@ -157,7 +167,7 @@ function Cashbox() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const filterQuery: string = generateFilter({filterCB});
-
+    
     const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox/post");
 
     const {data: paymentMeansHttp} = useRequestQuery({
@@ -331,6 +341,7 @@ function Cashbox() {
     }
 
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
+    
 
     return (
         <>
@@ -406,7 +417,25 @@ function Cashbox() {
                     </CardContent>
                 </Card>
                 {rows.length > 0 ? (
-                    <React.Fragment>
+                    <Card>
+                        <CardContent>
+                         <Stack direction='row' alignItems='center' justifyContent="space-between" mb={2} pb={1} borderBottom={1} borderColor='divider'>
+                            <Typography fontWeight={700}>
+                                {t("transactions")}
+                            </Typography>
+                            <Stack direction='row' alignItems='center' spacing={1}>
+                                <Typography fontWeight={700}>
+                                {t('to',{ns:'common'})} {" "}
+                                novembre - 21 novembre
+                            </Typography>
+                            <Button sx={{
+                                borderColor:'divider',
+                                bgcolor: theme => theme.palette.grey['A500'],
+                            }} variant="outlined" color="info" startIcon={<IconUrl path="ic-export-new" />}>
+                                {t("export")}
+                            </Button>
+                            </Stack>
+                            </Stack>   
                         <DesktopContainer>
                             {!loading && (
                                 <Otable
@@ -417,7 +446,8 @@ function Cashbox() {
                                 />
                             )}
                         </DesktopContainer>
-                    </React.Fragment>
+                        </CardContent>
+                    </Card>
                 ) : (
                     <Box
                         style={{
@@ -432,7 +462,7 @@ function Cashbox() {
                 )}
                 </Stack>
             </Box>
-
+                     
             <Drawer
                 anchor={"right"}
                 open={patientDetailDrawer}

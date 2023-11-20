@@ -2,11 +2,15 @@ import TableCell from "@mui/material/TableCell";
 import {
     Avatar,
     Button,
+    Card,
+    CardContent,
     Collapse,
     IconButton,
     Link,
+    Paper,
     Stack,
     Table,
+    TableBody,
     TableRow,
     Tooltip,
     Typography,
@@ -33,7 +37,31 @@ import {ConditionalWrapper, useInvalidateQueries, useMedicalEntitySuffix} from "
 import {alpha} from "@mui/material/styles";
 import {HtmlTooltip} from "@features/tooltip";
 import {ImageHandler} from "@features/image";
+import { Label } from "@features/label";
+import { Popover } from "@features/popover";
+const MenuActions = [
+    {
+        title:"add-payment",
+        icon:<Icon path="ic-argent" color="white" />,
+        action:"onAddPayment"
+    },
+    {
+        title:"cash",
+        icon:<Icon path="ic-wallet-money" color="white"/>,
+        action:"onCash"
+    },
+     {
+        title:"delete",
+        icon:<Icon path="ic-delete" color="white" />,
+        action:"onDelete"
+    },
+     {
+        title:"see_patient_file",
+        icon:<Icon path="ic-file" color="white" />,
+        action:"onSeePatientFile"
+    },
 
+] 
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
     const {
@@ -51,7 +79,7 @@ function PaymentRow({...props}) {
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
-
+    const [openTooltip, setOpenTooltip] = useState(false);
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -115,12 +143,30 @@ function PaymentRow({...props}) {
             })
         }
     }
-
+const handleMenuClick = (data: { title: string; icon: string; action: string }) => {
+        setOpenTooltip(false);
+        switch (data.action) {
+            case "onAddPayment":
+                handleEvent({action: "ADD_PAYMENT", row, event: null});
+                break;
+            case "onCash":
+                handleEvent({action: "CASH", row, event: null});
+                break;
+            case "onDelete":
+                setOpenDeleteTransactionDialog(true);
+                break;
+            case "onSeePatientFile":
+                handleEvent({action: "SEE_PATIENT_FILE", row, event: null});
+                break;
+            default:
+                break;
+        
+        }
+}
     useEffect(() => {
         dispatch(addBilling(selected));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selected]);
-
     return (
         <>
             <TableRowStyled
@@ -133,50 +179,32 @@ function PaymentRow({...props}) {
                 aria-checked={isItemSelected}
                 tabIndex={-1}
                 selected={isItemSelected}
+                className={`row-cashbox ${isItemSelected ? "row-collapse":""}`}
                >
+                <TableCell>
+                    <IconButton sx={{
+                        border:1,
+                        borderColor:'divider',
+                        borderRadius:.7,
+                        width:27,
+                        height:27,
+                        transform: isItemSelected ? "scale(-1)": "scale(1)"
+                    }}>
+                        <Icon path="ic-expand"/>
+                    </IconButton>
+                </TableCell>
 
                 <TableCell>
                     <Stack
                         direction="row"
                         alignItems="center"
-                        spacing={1}
-                        sx={{
-                            ".react-svg": {
-                                svg: {
-                                    width: 11,
-                                    height: 11,
-                                    path: {
-                                        fill: (theme) => theme.palette.text.primary,
-                                    },
-                                },
-                            },
-                        }}>
-                        <Icon path="ic-agenda"/>
+                        spacing={.5}>
+                        <Icon path="ic-agenda" height={11} width={11} color={theme.palette.text.primary}/>
                         <Typography variant="body2">{moment(row.date_transaction).format('DD-MM-YYYY')}</Typography>
-                    </Stack>
-                </TableCell>
-                {/***** time_transaction *****/}
-                <TableCell>
-                    <Stack
-                        direction="row"
-                        alignItems="center"
-                        spacing={1}
-                        sx={{
-                            ".react-svg": {
-                                svg: {
-                                    width: 11,
-                                    height: 11,
-                                    path: {
-                                        fill: (theme) => theme.palette.text.primary,
-                                    },
-                                },
-                            },
-                        }}>
-                        <Icon path="ic-time"/>
+                         <Icon path="ic-time" height={11} width={11} color={theme.palette.text.primary}/>
                         <Typography
                             variant="body2">{row.payment_time}</Typography>
                     </Stack>
-
                 </TableCell>
                 {/***** patient name *****/}
                 {!hideName && <TableCell>
@@ -248,21 +276,40 @@ function PaymentRow({...props}) {
                     </Stack>
 
                 </TableCell>
+                <TableCell>
+                        <Typography color='secondary' fontWeight={700}>
+                            200 {devise}
+                        </Typography>
+                </TableCell>
+                <TableCell>
+                        <Typography color='secondary' fontWeight={700}>
+                            200 {devise}
+                        </Typography>
+                </TableCell>
                 {/***** Amount *****/}
                 <TableCell>
-                    <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"center"}>
-                        <Typography color={"success.main"} fontWeight={700} textAlign={"center"}>
-                            {row.amount}
-                            <span style={{fontSize: 10}}>{devise}</span>
+                    <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"}>
+                        <Typography color={"secondary"} fontWeight={700} textAlign={"center"}>
+                            {row.amount} {" "}
+                            <span>{devise}</span>
                         </Typography>
-                        {isItemSelected && <IconButton
-                            size="small"
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                setOpenDeleteTransactionDialog(true);
-                            }}>
-                            <IconUrl path="setting/icdelete"/>
-                        </IconButton>}
+                        <Popover
+                        open={openTooltip}
+                        handleClose={() => setOpenTooltip(false)}
+                        menuList={MenuActions}
+                        onClickItem={handleMenuClick}
+                        button={
+                            <IconButton
+                                onClick={() => {
+                                    setOpenTooltip(true);
+                                }}
+                                sx={{display: "block", ml: "auto"}}
+                                size="small"
+                            >
+                                <IconUrl path="more-vert"/>
+                            </IconButton>
+                        }
+                    />
 
                     </Stack>
                 </TableCell>
@@ -270,7 +317,7 @@ function PaymentRow({...props}) {
             </TableRowStyled>
 
             {transaction_data && (
-                <TableRow>
+                <TableRowStyled>
                     <TableCell
                         colSpan={9}
                         style={{
@@ -289,108 +336,228 @@ function PaymentRow({...props}) {
                             <Table>
                                 {transaction_data.map((col: any, idx: number) => {
                                     return (
-                                        <tbody key={idx}>
-                                        <TableRow
-                                            hover
-                                            onClick={() => handleChildSelect(col)}
-                                            role="checkbox"
-                                            className="collapse-row"
-                                            sx={{
-                                                "&::before": {
-                                                    ...(idx > 0 && {
-                                                        height: "calc(100% + 8px)",
-                                                        top: '-70%'
-                                                    })
+                                        <TableBody key={idx}>
+                                        <tr
+                              
+                            >
+                              <td colSpan={6}>
+                                <Stack
+                                  spacing={1.2}
+                                  mt={-1.2}
+                                  ml={0.2}
+                                  mr={-0.05}
+                                  className="collapse-wrapper"
+                                >
+                                  <Paper className="means-wrapper">
+                                    <Stack spacing={0.5}>
+                                      {row?.payment_means?.length > 0 &&
+                                        row.payment_means.map((item: any) => (
+                                          <Stack
+                                            direction="row"
+                                            alignItems="center"
+                                            justifyContent="space-between"
+                                            width={1}
+                                            key={item.uuid}
+                                          >
+                                            <Stack
+                                              direction="row"
+                                              alignItems="center"
+                                              spacing={4}
+                                              width={1}
+                                              sx={{ flex: 1 }}
+                                            >
+                                              <Stack
+                                                direction="row"
+                                                alignItems="center"
+                                                spacing={1}
+                                              >
+                                                <Tooltip
+                                                  title={`${item.amount} ${devise}`}
+                                                >
+                                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                  <img
+                                                    style={{ width: 15 }}
+                                                    src={
+                                                      pmList.find(
+                                                        (pm: {
+                                                          slug: string;
+                                                        }) =>
+                                                          pm.slug ==
+                                                          item?.paymentMeans
+                                                            ?.slug
+                                                      )?.logoUrl.url
+                                                    }
+                                                    alt={"payment means icon"}
+                                                  />
+                                                </Tooltip>
+                                                <Typography variant="body2">
+                                                  {item?.paymentMeans?.name ||
+                                                    "--"}
+                                                </Typography>
+                                              </Stack>
+                                              <Typography
+                                                variant="body2"
+                                                width={1}
+                                              >
+                                                {item?.data?.bank
+                                                  ?.abbreviation || "--"}
+                                              </Typography>
+                                              <Typography
+                                                variant="body2"
+                                                width={1}
+                                              >
+                                                {item?.data?.nb
+                                                  ? ` N° ${item?.data?.nb}`
+                                                  : "--"}
+                                              </Typography>
+                                            </Stack>
+                                            <Stack
+                                              sx={{ flex: 1 }}
+                                              direction="row"
+                                              alignItems="center"
+                                              spacing={4}
+                                              width={1}
+                                            >
+                                              <Typography
+                                                variant="body2"
+                                                width={1}
+                                              >
+                                                {item?.data?.carrier || "--"}
+                                              </Typography>
+                                              <Stack
+                                                direction="row"
+                                                alignItems="center"
+                                                spacing={0.5}
+                                                width={1}
+                                              >
+                                                <IconUrl
+                                                  path="ic-agenda"
+                                                  width={12}
+                                                  height={12}
+                                                  color={
+                                                    theme.palette.text.primary
+                                                  }
+                                                />
+                                                <Typography variant="body2">
+                                                  {moment(
+                                                    item?.data?.date
+                                                  ).format("DD/MM/YYYY") ||
+                                                    "--"}
+                                                </Typography>
+                                              </Stack>
+                                              <Typography
+                                                variant="body2"
+                                                width={1}
+                                              >
+                                                {item.amount ? (
+                                                  <>
+                                                    {item.amount} {devise}
+                                                  </>
+                                                ) : (
+                                                  "--"
+                                                )}
+                                              </Typography>
+                                            </Stack>
+                                          </Stack>
+                                        ))}
+                                    </Stack>
+                                  </Paper>
+                                  {/* {transaction_loading && <LinearProgress />} */}
+                                  {transaction_data.length > 0 &&
+                                    transaction_data.map((transaction) => (
+                                      <Card
+                                        className="consultation-card"
+                                        key={transaction.uuid}
+                                      >
+                                        <CardContent>
+                                          <Stack
+                                            direction="row"
+                                            justifyContent="space-between"
+                                            alignItems="center"
+                                          >
+                                            <Stack
+                                              spacing={1}
+                                              width={1}
+                                              alignItems="center"
+                                              direction="row"
+                                            >
+                                              <Typography
+                                                fontWeight={700}
+                                                minWidth={95}
+                                              >
+                                                {
+                                                  transaction?.appointment?.type
+                                                    ?.name
+                                                }
+                                              </Typography>
+                                              <Stack
+                                                direction="row"
+                                                alignItems="center"
+                                                spacing={0.5}
+                                              >
+                                                <IconUrl
+                                                  path="ic-agenda"
+                                                  width={12}
+                                                  height={12}
+                                                  color={
+                                                    theme.palette.text.primary
+                                                  }
+                                                />
+                                                <Typography variant="body2">
+                                                  {transaction?.payment_date}
+                                                </Typography>
+                                                <IconUrl path="ic-time" />
+                                                <Typography variant="body2">
+                                                  {transaction?.payment_time}
+                                                </Typography>
+                                              </Stack>
+                                            </Stack>
+                                            <Stack
+                                              spacing={1}
+                                              width={1}
+                                              alignItems="center"
+                                              direction="row"
+                                              justifyContent="flex-end"
+                                              sx={{
+                                                span: {
+                                                  fontSize: 14,
+                                                  strong: {
+                                                    mx: 0.5,
+                                                  },
                                                 },
-                                                background: alpha((col.appointment && col.appointment.restAmount) ? theme.palette.warning.main : theme.palette.success.main, 0.1)
-                                            }}>
-                                            <TableCell sx={{background: "transparent"}}>
-                                                <Stack
-                                                    direction="row"
-                                                    alignItems="center"
-                                                    spacing={1}
-                                                    sx={{
-                                                        ".react-svg": {
-                                                            svg: {
-                                                                width: 11,
-                                                                height: 11,
-                                                                path: {
-                                                                    fill: (theme) => theme.palette.text.primary,
-                                                                },
-                                                            },
-                                                        },
-                                                    }}>
-                                                    <Icon path="ic-agenda"/>
-                                                    <Typography variant="body2">{col.payment_date}</Typography>
-                                                </Stack>
-                                            </TableCell>
-                                            <TableCell sx={{background: "transparent"}}>
-                                                <Stack
-                                                    direction="row"
-                                                    alignItems="center"
-                                                    spacing={1}
-                                                    sx={{
-                                                        ".react-svg": {
-                                                            svg: {
-                                                                width: 11,
-                                                                height: 11,
-                                                                path: {
-                                                                    fill: (theme) => theme.palette.text.primary,
-                                                                },
-                                                            },
-                                                        },
-                                                    }}>
-                                                    <Icon path="ic-time"/>
-                                                    <Typography
-                                                        variant="body2">{col.payment_time}</Typography>
-                                                </Stack>
-
-                                            </TableCell>
-                                            {col.appointment && <TableCell sx={{background: "transparent"}}>
-                                                <Link sx={{cursor: "pointer"}}
-                                                      onClick={(event) => {
-                                                          event.stopPropagation();
-                                                          router.push(`/dashboard/consultation/${col.appointment.uuid}`);
-                                                      }}
-                                                      underline="none">
-                                                    {col.appointment.type.name}
-                                                </Link>
-                                            </TableCell>}
-                                            <TableCell sx={{background: "transparent"}}>
-                                                <HtmlTooltip
-                                                    title={
-                                                        <React.Fragment>
-                                                            <Typography
-                                                                color="inherit">{col.appointment.type.name} :<span
-                                                                style={{fontWeight: "bold"}}>{col.appointment.fees}</span><span
-                                                                style={{fontSize: 9}}>{devise}</span></Typography>
-                                                            {col.appointment.acts.map((act: {
-                                                                act_uuid: string;
-                                                                name: string;
-                                                                price: number
-                                                            }) => (<Typography
-                                                                key={act.act_uuid}>{act.name} :<span
-                                                                style={{fontWeight: "bold"}}>{act.price}</span><span
-                                                                style={{fontSize: 9}}>{devise}</span></Typography>))}
-                                                        </React.Fragment>
-                                                    }>
-                                                    <Typography style={{cursor: "pointer"}}
-                                                                color={(col.appointment && col.appointment.restAmount) ? "black.main" : "success.main"}
-                                                                fontWeight={700} textAlign={"center"}>
-                                                        {(col.appointment && col.appointment.restAmount) ? `${col.amount} /${col.appointment.fees}` : col.amount}
-                                                        <span style={{fontSize: 10}}>{devise}</span>
-                                                    </Typography>
-                                                </HtmlTooltip>
-                                            </TableCell>
-
-                                        </TableRow>
-                                        </tbody>
+                                              }}
+                                            >
+                                              <Label
+                                                variant="filled"
+                                                color={
+                                                  transaction?.amount ===
+                                                  transaction?.amount
+                                                    ?.restAmount
+                                                    ? "error"
+                                                    : "success"
+                                                }
+                                              >
+                                                {t("total")}
+                                                <strong>
+                                                  {transaction?.amount}
+                                                </strong>
+                                                {devise}
+                                              </Label>
+                                            </Stack>
+                                          </Stack>
+                                        </CardContent>
+                                      </Card>
+                                    ))}
+                                </Stack>
+                              </td>
+                            </tr>
+                                        </TableBody>
                                     );
                                 })}
                             </Table>
                         </Collapse>
                     </TableCell>
-                </TableRow>
+                </TableRowStyled>
             )}
 
             <Dialog

@@ -104,7 +104,9 @@
     "4": "Encaissement",
     "5": "ALIM COMPTE",
     "flow": "Débit",
-    "advance": "Avance"
+    "advance": "Avance",
+    "empty": "",
+    "export": "Export"
   },
   "no-data": {
     "title": "Aucune transaction",
