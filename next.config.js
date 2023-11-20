@@ -20,15 +20,6 @@ plugins.push(withBundleAnalyzer);
  */
 const nextConfig = {
     output: 'standalone',
-    transpilePackages: [
-        "@fullcalendar/core",
-        "@babel/preset-react",
-        "@fullcalendar/daygrid",
-        "@fullcalendar/interaction",
-        "@fullcalendar/react",
-        "@fullcalendar/timegrid",
-        "@fullcalendar/list"
-    ],
     i18n,
     images: {
         dangerouslyAllowSVG: true,

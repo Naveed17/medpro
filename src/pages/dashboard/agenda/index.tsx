@@ -92,7 +92,7 @@ const actions = [
 ];
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
-    ssr: false
+    ssr: true
 });
 
 function Agenda() {
@@ -1635,20 +1635,16 @@ function Agenda() {
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => {
-    const queryClient = new QueryClient();
-    const countries = `/api/public/places/countries/${locale}?nationality=true`;
+    /*    const queryClient = new QueryClient();
+        const countries = `/api/public/places/countries/${locale}?nationality=true`;
 
-    await queryClient.prefetchQuery([countries], async () => {
-        const {data} = await instanceAxios.request({
+        await queryClient.prefetchQuery([countries], () => instanceAxios.request({
             url: countries,
             method: "GET"
-        });
-        return data
-    });
+        }).then(({data}) => data));*/
 
     return {
         props: {
-            dehydratedState: dehydrate(queryClient),
             fallback: false,
             ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
         }
