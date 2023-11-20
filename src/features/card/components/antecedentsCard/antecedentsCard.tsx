@@ -88,7 +88,7 @@ function AntecedentsCard({...props}) {
 
     const getRes = (ants: any[]) => {
         let _res: any[] = [];
-        ants.map(pa => {
+        ants.forEach(pa => {
             const index = _res.findIndex(r => r.uuid === pa.antecedent.uuid)
             index === -1 ?
                 _res.push({
