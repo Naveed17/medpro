@@ -24,7 +24,7 @@ class MyDocument extends Document {
                         rel="stylesheet"
                         href="https://fonts.googleapis.com/css?family=Poppins:300,400,600&display=swa"
                     />
-                    {/* Inject MUI styles first to match with the prepend: true configuration. */}
+                    {/* Inject MUI styles first to match with to prepend: true configuration. */}
                     {(this.props as any).emotionStyleTags}
                     <link
                         rel="stylesheet"
