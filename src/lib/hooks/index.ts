@@ -28,6 +28,7 @@ export * from "./getDifference";
 export * from "./getMilliseconds";
 export * from "./splitLastOccurrence";
 export * from "./generatePdfFromHtml";
+export * from "./shortEnglishHumanizer";
 export * from "./a11yProps";
 export * from './rest/useContactType';
 export * from './rest/useSendNotification';
