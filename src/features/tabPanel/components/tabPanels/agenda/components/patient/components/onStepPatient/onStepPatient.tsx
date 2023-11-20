@@ -34,7 +34,7 @@ import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import dynamic from "next/dynamic";
+
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
@@ -52,7 +52,7 @@ import {CountrySelect} from "@features/countrySelect";
 import {arrayUniqueByKey} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',

@@ -6,9 +6,8 @@ import {
 } from "@mui/material";
 //utils
 import RootStyled from "./overrides/rootStyled";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {FormikProvider, Form, useFormik} from "formik";
 import {DuplicatedRow, duplicatedSelector, setDuplicated} from "@features/duplicateDetected";

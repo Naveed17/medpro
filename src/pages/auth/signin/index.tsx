@@ -2,9 +2,9 @@ import {signIn, useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import React, {useEffect, useState} from "react";
 import {Redirect} from "@features/redirect";

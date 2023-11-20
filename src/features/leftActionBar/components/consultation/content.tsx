@@ -30,7 +30,6 @@ import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
 import Antecedent from "@features/leftActionBar/components/consultation/antecedent";
-import dynamic from "next/dynamic";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {DocumentCard} from "@features/card";
@@ -40,7 +39,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 import {useAntecedentTypes} from "@lib/hooks/rest";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 const Content = ({...props}) => {
     const {id, patient, url} = props;

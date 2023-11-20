@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {Box, Button, Stack, TextField, Typography, useTheme} from '@mui/material'
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
+
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -16,7 +16,7 @@ import {DesktopContainer} from '@themes/desktopConainter';
 import {MobileContainer} from '@themes/mobileContainer';
 import {CashOutMobileCard} from "@features/card";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 interface HeadCell {
     disablePadding: boolean;

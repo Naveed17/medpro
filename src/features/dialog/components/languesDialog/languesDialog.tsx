@@ -3,9 +3,9 @@ import {useTranslation} from "next-i18next";
 import {useRequestQuery} from "@lib/axios";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/router";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 function LanguesDialog(info: any) {
     const [items, setItems] = useState<InsuranceModel[]>([]);

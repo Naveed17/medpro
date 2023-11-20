@@ -16,9 +16,9 @@ import {Theme} from "@mui/material/styles";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {SettingAgendaMobileCard, NoDataCard} from "@features/card";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useMedicalEntitySuffix} from "@lib/hooks";
 

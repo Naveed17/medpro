@@ -8,7 +8,7 @@ import {
     CardContent,
     Checkbox,
     FormControlLabel,
-    FormGroup, IconButton,
+    FormGroup,
     InputAdornment,
     List,
     ListItem,
@@ -23,13 +23,12 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import CodeIcon from "@mui/icons-material/Code";
 import AddIcon from "@mui/icons-material/Add";
-import dynamic from "next/dynamic";
+
 import SearchIcon from "@mui/icons-material/Search";
 import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/AntecedentWidget";
-import DeleteIcon from "@mui/icons-material/Delete";
 import IconUrl from "@themes/urlIcon";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function LifeStyleDialog({...props}) {
     const router = useRouter();
@@ -183,17 +182,18 @@ function LifeStyleDialog({...props}) {
                                                                             letterSpacing: 2,
                                                                             color: "grey"
                                                                         }}>{list.name} {index + 1}</Typography>
-                                                                        {index === state[state.findIndex(ant => ant.uuid === list.uuid)].data.length -1 && <Button size={"small"}
-                                                                                 onClick={() => {
-                                                                                     let x = state.findIndex(ant => ant.uuid === list.uuid)
+                                                                        {index === state[state.findIndex(ant => ant.uuid === list.uuid)].data.length - 1 &&
+                                                                            <Button size={"small"}
+                                                                                    onClick={() => {
+                                                                                        let x = state.findIndex(ant => ant.uuid === list.uuid)
 
-                                                                                     state[x].data.splice(index, 1)
-                                                                                     setState([...state]);
+                                                                                        state[x].data.splice(index, 1)
+                                                                                        setState([...state]);
 
-                                                                                 }}
-                                                                                 color={"error"}>
-                                                                            <IconUrl path={"setting/icdelete"}/>
-                                                                        </Button>}
+                                                                                    }}
+                                                                                    color={"error"}>
+                                                                                <IconUrl path={"setting/icdelete"}/>
+                                                                            </Button>}
 
                                                                     </Stack>
                                                                 }

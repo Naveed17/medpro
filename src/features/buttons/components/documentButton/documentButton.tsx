@@ -1,7 +1,6 @@
 import {
     Typography,
     Badge,
-    Box,
     Skeleton,
     useTheme,
     Theme,
@@ -55,7 +54,7 @@ function DocumentButton({...props}) {
                 <>
 
                     <div style={{width: "fit-content", margin: "auto"}}>
-                        <ImageHandler src={icon} width="30px" height="30px"/>
+                        <ImageHandler src={icon} width="30" height="30"/>
                         <input type="file" accept={acceptedFormat} multiple={true} onChange={handleChange} style={{
                             width: '100%',
                             height: '100%',

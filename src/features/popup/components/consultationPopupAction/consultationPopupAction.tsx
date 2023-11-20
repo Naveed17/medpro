@@ -14,9 +14,9 @@ import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined
 import PaymentRoundedIcon from '@mui/icons-material/PaymentRounded';
 import * as React from "react";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";

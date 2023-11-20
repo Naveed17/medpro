@@ -19,9 +19,9 @@ import {useTranslation} from "next-i18next";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {ModelDot} from "@features/modelDot";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";

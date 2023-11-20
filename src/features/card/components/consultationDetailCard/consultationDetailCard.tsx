@@ -23,7 +23,7 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {dashLayoutSelector} from "@features/base";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
-import dynamic from "next/dynamic";
+
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {debounce} from "lodash";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
@@ -32,7 +32,8 @@ import {tinymcePlugins, tinymceToolbarNotes} from "@lib/constants";
 import IconUrl from "@themes/urlIcon";
 import NotesComponent from "@features/card/components/consultationDetailCard/notesComponent";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
+
 const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
         const {
             exam: defaultExam,
