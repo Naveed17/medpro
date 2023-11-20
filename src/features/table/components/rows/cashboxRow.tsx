@@ -133,10 +133,8 @@ function PaymentRow({...props}) {
                 aria-checked={isItemSelected}
                 tabIndex={-1}
                 selected={isItemSelected}
-                className="payment-row"
-                sx={{bgcolor: alpha(theme.palette.success.main, 0.1)}}>
+               >
 
-                {/***** date_transaction *****/}
                 <TableCell>
                     <Stack
                         direction="row"
@@ -287,7 +285,7 @@ function PaymentRow({...props}) {
                             in={isItemSelected}
                             timeout="auto"
                             unmountOnExit
-                            sx={{pl: 6}}>
+                            >
                             <Table>
                                 {transaction_data.map((col: any, idx: number) => {
                                     return (

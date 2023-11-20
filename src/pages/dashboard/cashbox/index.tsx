@@ -4,6 +4,8 @@ import React, {ReactElement, useEffect, useState} from "react";
 import {
     Box,
     Button,
+    Card,
+    CardContent,
     DialogActions,
     Drawer,
     LinearProgress,
@@ -18,7 +20,7 @@ import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NoDataCard} from "@features/card";
+import {NoDataCard, UnpaidConsultationCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -37,6 +39,7 @@ import {PaymentDrawer} from "@features/drawer";
 import {DrawerBottom} from "@features/drawerBottom";
 import moment from "moment/moment";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import { Pagination } from "@features/pagination";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -57,14 +60,6 @@ export const headCells: readonly HeadCell[] = [
         align: "left",
     },
     {
-        id: "time",
-        numeric: true,
-        disablePadding: false,
-        label: "time",
-        sortable: true,
-        align: "left",
-    },
-    {
         id: "name",
         numeric: true,
         disablePadding: false,
@@ -80,30 +75,30 @@ export const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "center",
     },
-    /*    {
+      {
             id: "type",
             numeric: true,
             disablePadding: false,
             label: "type",
             sortable: true,
             align: "center",
-        },*/
+    },
     {
-        id: "payment_type",
+        id:'advance',
         numeric: true,
         disablePadding: false,
-        label: "payment_type",
+        label: "advance",
         sortable: true,
         align: "center",
     },
-    /*{
-            id: "billing_status",
-            numeric: true,
-            disablePadding: false,
-            label: "billing_status",
-            sortable: true,
-            align: "center",
-        },*/
+    {
+        id: "flow",
+        numeric: true,
+        disablePadding: false,
+        label: "flow",
+        sortable: true,
+        align: "center",
+    },
     {
         id: "amount",
         numeric: true,
@@ -112,14 +107,6 @@ export const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "center",
     },
-    /* {
-           id: "actions",
-           numeric: true,
-           disablePadding: false,
-           label: "actions",
-           sortable: true,
-           align: "center",
-       },*/
 ];
 
 const noCardData = {
@@ -386,6 +373,38 @@ function Cashbox() {
             )}
 
             <Box className="container">
+                <Stack spacing={2}>
+                <Card sx={{border:'none'}}>
+                    <CardContent>
+                        <Stack direction="row" alignItems='center' justifyContent='space-between' pb={1} mb={2} borderBottom={1} borderColor='divider'>
+                            <Typography fontWeight={700}>
+                                {t("unpaid_consultation")}
+                            </Typography>
+                            <Typography fontWeight={700}>
+                                {t('to',{ns:'common'})} {" "}
+                                novembre - 21 novembre
+                            </Typography>
+                        </Stack>
+                        <Stack 
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns:{xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)'},
+                            gap: 2,
+
+                        }}
+                        >
+                         {Array.from({length:2}).map((_,idx)=> (
+                            <React.Fragment key={idx}>
+                              <UnpaidConsultationCard {...{t,devise}}/>
+                            </React.Fragment>
+                         ))}   
+                        
+                        </Stack>
+                        <Box mt={2} display={{xs:'none',md:'block'}}>
+                        <Pagination total={10} count={20}/>
+                        </Box>
+                    </CardContent>
+                </Card>
                 {rows.length > 0 ? (
                     <React.Fragment>
                         <DesktopContainer>
@@ -411,6 +430,7 @@ function Cashbox() {
                         <NoDataCard t={t} ns={"payment"} data={noCardData}/>
                     </Box>
                 )}
+                </Stack>
             </Box>
 
             <Drawer

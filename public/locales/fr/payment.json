@@ -63,6 +63,7 @@
   "check_title": "Informations de Chéque",
   "payment_info": "Informations de Paiement",
   "method": "Méthode",
+  "unpaid_consultation": "Consultation non rémunérée",
   "dialogs": {
     "delete-dialog": {
       "title": "Supprimer transaction",
@@ -72,9 +73,9 @@
   "encaissed": "encaissés",
   "encashment": "Encaissement",
   "table": {
-    "date": "Date",
+    "date": "Date et heure",
     "time": "Heure",
-    "name": "Nom",
+    "name": "Nom de patient",
     "insurance": "Assurances",
     "type": "Type",
     "payment_type": "Paiement",
@@ -101,7 +102,9 @@
     "2": "Dépenses",
     "3": "Consultation",
     "4": "Encaissement",
-    "5": "ALIM COMPTE"
+    "5": "ALIM COMPTE",
+    "flow": "Débit",
+    "advance": "Avance"
   },
   "no-data": {
     "title": "Aucune transaction",
@@ -152,7 +155,7 @@
   "pay_all_tr": "Effectuez vos paiements en un clic",
   "pay_all": "Payer tout",
   "to_pay_appointments": "payer des rendez-vous",
-  "close":"Fermer",
+  "close": "Fermer",
   "dialog": {
     "leftPay": "Reste à payer",
     "date": "Date",
