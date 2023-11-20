@@ -1635,16 +1635,16 @@ function Agenda() {
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => {
-    /*    const queryClient = new QueryClient();
-        const countries = `/api/public/places/countries/${locale}?nationality=true`;
+    const queryClient = new QueryClient();
+    const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 
-        await queryClient.prefetchQuery([countries], () => instanceAxios.request({
-            url: countries,
-            method: "GET"
-        }).then(({data}) => data));*/
+    const countries = `api/public/places/countries/${locale}?nationality=true`;
+
+    await queryClient.prefetchQuery([`/${countries}`], () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json()));
 
     return {
         props: {
+            dehydratedState: dehydrate(queryClient),
             fallback: false,
             ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
         }
