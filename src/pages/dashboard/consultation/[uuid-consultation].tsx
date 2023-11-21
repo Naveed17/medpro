@@ -52,7 +52,7 @@ import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {SubFooter} from "@features/subFooter";
-import {consultationSelector, SetPatient, SetRecord, SetSelectedDialog, SetTimer} from "@features/toolbar";
+import {consultationSelector, SetPatient, SetRecord, SetSelectedDialog} from "@features/toolbar";
 import {Dialog, DialogProps, handleDrawerAction, PatientDetail} from "@features/dialog";
 import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
@@ -82,7 +82,6 @@ import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
 import {motion} from "framer-motion";
 import MicIcon from "@mui/icons-material/Mic";
-import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import useStopwatch from "@lib/hooks/useStopwatch";
 import {useAudioRecorder} from "react-audio-voice-recorder";
 import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
@@ -130,10 +129,7 @@ function ConsultationInProgress() {
         stopRecording,
         togglePauseResume,
         recordingBlob,
-        isRecording,
-        isPaused,
-        recordingTime,
-        mediaRecorder
+        isPaused
     } = useAudioRecorder();
     const {t} = useTranslation("consultation");
     //***** SELECTORS ****//
