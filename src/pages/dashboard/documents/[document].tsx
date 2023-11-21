@@ -8,7 +8,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
+
 import {SubFooter} from "@features/subFooter";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
@@ -48,7 +48,7 @@ const headCells: readonly HeadCell[] = [
     }
 ]
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Document() {
     const router = useRouter();

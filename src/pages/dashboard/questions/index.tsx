@@ -23,9 +23,9 @@ import { Questions as QuestionFilter } from '@features/leftActionBar'
 import { useAppSelector } from "@lib/redux/hooks";
 import { qsSidebarSelector } from "@features/leftActionBar";
 import Icon from "@themes/urlIcon";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Questions() {
     const { qs } = useAppSelector(qsSidebarSelector);

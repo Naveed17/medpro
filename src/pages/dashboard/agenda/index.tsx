@@ -20,7 +20,7 @@ import {CalendarToolbar} from "@features/toolbar";
 import {useSession} from "next-auth/react";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {instanceAxios, useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
@@ -92,7 +92,7 @@ const actions = [
 ];
 
 const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
-    ssr: false
+    ssr: true
 });
 
 function Agenda() {
@@ -1636,15 +1636,11 @@ function Agenda() {
 
 export const getStaticProps: GetStaticProps = async ({locale}) => {
     const queryClient = new QueryClient();
-    const countries = `/api/public/places/countries/${locale}?nationality=true`;
+    const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 
-    await queryClient.prefetchQuery([countries], async () => {
-        const {data} = await instanceAxios.request({
-            url: countries,
-            method: "GET"
-        });
-        return data
-    });
+    const countries = `api/public/places/countries/${locale}?nationality=true`;
+
+    await queryClient.prefetchQuery([`/${countries}`], () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json()));
 
     return {
         props: {

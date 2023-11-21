@@ -8,10 +8,10 @@ import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import IconUrl from "@themes/urlIcon";
 import Resizer from "react-image-file-resizer";
-import dynamic from "next/dynamic";
+
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AddDocumentDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);

@@ -1,5 +1,4 @@
 const {i18n} = require("./next-i18next.config");
-const {withTM} = require("./next-fullcalendar.config");
 const {withSentryConfig} = require('@sentry/nextjs');
 const plugins = [];
 
@@ -19,12 +18,23 @@ plugins.push(withBundleAnalyzer);
 /**
  * @type {{}}
  */
-const nextConfig = withTM({
+const nextConfig = {
     output: 'standalone',
     i18n,
     images: {
         dangerouslyAllowSVG: true,
-        domains: ["flagcdn.com", process.env.S3_URL || '']
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'flagcdn.com',
+                port: '',
+                pathname: '**',
+            }, {
+                protocol: 'https',
+                hostname: process.env.S3_URL || '',
+                port: '',
+                pathname: '**',
+            }]
     },
     sentry: {
         hideSourceMaps: process.env.NODE_ENV !== 'development'
@@ -36,7 +46,7 @@ const nextConfig = withTM({
         });
         return config;
     }
-});
+}
 
 moduleExports = () => plugins.reduce((acc, next) => next(acc), nextConfig)
 

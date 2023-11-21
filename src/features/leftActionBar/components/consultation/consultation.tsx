@@ -27,7 +27,7 @@ import {consultationSelector} from "@features/toolbar";
 import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
-import dynamic from "next/dynamic";
+
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import Zoom from "react-medium-image-zoom";
@@ -43,9 +43,8 @@ import Content from "@features/leftActionBar/components/consultation/content";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import AddIcon from "@mui/icons-material/Add";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Consultation() {
     const dispatch = useAppDispatch();
@@ -59,7 +58,6 @@ function Consultation() {
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
-    const {t: commonTranslation} = useTranslation("common");
     const {patient} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);

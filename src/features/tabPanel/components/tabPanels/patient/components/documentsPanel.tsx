@@ -23,7 +23,7 @@ import {DocumentCard, NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
-import dynamic from "next/dynamic";
+
 import PanelCardStyled from "./overrides/panelCardStyled";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
@@ -43,7 +43,7 @@ import DocumentCardStyled from "@features/card/components/documentCard/component
 import EventRoundedIcon from "@mui/icons-material/EventRounded";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",

@@ -81,7 +81,7 @@ function AppToolbar({...props}) {
     const {trigger: triggerDrugsCreate} = useRequestQueryMutation("/drugs/create");
     const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
 
-    const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/documents/${router.locale}`;
+    const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
     const open = Boolean(anchorEl);
 
     const {data: user} = session as Session;

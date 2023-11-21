@@ -73,9 +73,6 @@ import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import {DragDropContext, Draggable as DraggableDnd, Droppable} from "react-beautiful-dnd";
 import Draggable from "react-draggable";
-
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 import {ModelDot} from "@features/modelDot";
 import {DocumentPreview} from "@features/tabPanel/components/consultationTabs/documentPreview";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -1225,15 +1222,16 @@ function ConsultationInProgress() {
                                                                                         <Typography
                                                                                             className={'card-title'}>{item.content !== "widget" ? t(item.content) : ""}</Typography>
                                                                                     </MyHeaderCardStyled>}
-                                                                                <IconButton className={"btn-header"}>
-                                                                                    {item.expanded ?
-                                                                                        <KeyboardArrowUpRoundedIcon/> :
-                                                                                        <KeyboardArrowDownRoundedIcon/>}
-                                                                                </IconButton>
+                                                                                <Stack direction={"row"}>
+                                                                                    <IconButton className={"btn-full"}>
+                                                                                        <IconUrl path={'reduce'}/>
+                                                                                    </IconButton>
+                                                                                </Stack>
+
                                                                             </Stack>
                                                                             <Collapse in={item.expanded} timeout="auto"
                                                                                       unmountOnExit>
-                                                                                {item.content === 'exam' &&
+                                                                                {item.content === 'exam' && sheet && sheetExam &&
                                                                                     <ConsultationDetailCard
                                                                                         {...{
                                                                                             changes,
@@ -1586,7 +1584,7 @@ function ConsultationInProgress() {
                     mutatePatient,
                     showPreview
                 }}
-                size={addFinishAppointment ? "md" : "md"}
+                size={"md"}
                 color={theme.palette.error.main}
                 actionDialog={<DialogAction/>}
             />

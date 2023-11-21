@@ -17,9 +17,9 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
 import {useAntecedentTypes} from "@lib/hooks/rest";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 const emptyObject = {
     title: "",
@@ -88,7 +88,7 @@ function AntecedentsCard({...props}) {
 
     const getRes = (ants: any[]) => {
         let _res: any[] = [];
-        ants.map(pa => {
+        ants.forEach(pa => {
             const index = _res.findIndex(r => r.uuid === pa.antecedent.uuid)
             index === -1 ?
                 _res.push({

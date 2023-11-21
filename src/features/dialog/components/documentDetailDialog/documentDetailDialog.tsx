@@ -32,7 +32,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
-import dynamic from "next/dynamic";
+
 import {useReactToPrint} from "react-to-print";
 import moment from "moment";
 import ReactPlayer from "react-player";
@@ -53,7 +53,7 @@ import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import {useSnackbar} from "notistack";
 import {FacebookCircularProgress} from "@features/progressUI";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function DocumentDetailDialog({...props}) {
     const {

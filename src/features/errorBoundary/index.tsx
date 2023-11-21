@@ -1,7 +1,6 @@
 import React from "react";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 class ErrorBoundary extends React.Component {

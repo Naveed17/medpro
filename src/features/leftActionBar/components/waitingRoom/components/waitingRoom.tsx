@@ -11,9 +11,8 @@ import {
     setFilter
 } from "@features/leftActionBar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {dashLayoutSelector} from "@features/base";
 

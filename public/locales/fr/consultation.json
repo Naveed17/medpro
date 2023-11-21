@@ -125,6 +125,7 @@
     "insurance_document_print": "Documents assurance",
     "patient_history": "Historique",
     "title": "Titre",
+    "saveAsModel": "Enregistrer comme modèle",
     "receiver": "Recipient",
     "subject": "Sujet",
     "sendEmailWithsuccess": "Email envoyé avec succès",

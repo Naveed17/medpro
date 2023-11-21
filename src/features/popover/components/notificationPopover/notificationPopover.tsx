@@ -13,9 +13,9 @@ import {setAppointmentPatient, setAppointmentType, TabPanel} from "@features/tab
 import {EventDef} from "@fullcalendar/core/internal";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {Dialog, dialogMoveSelector, setMoveDateTime} from "@features/dialog";
 import {Theme} from "@mui/material/styles";
@@ -25,7 +25,6 @@ import Icon from "@themes/urlIcon";
 import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {useSnackbar} from "notistack";
 import {getDiffDuration, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 import {useRequestQueryMutation} from "@lib/axios";
 
 const humanizeDuration = require("humanize-duration");
@@ -51,7 +50,6 @@ function NotificationPopover({...props}) {
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {data: session} = useSession();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("common");

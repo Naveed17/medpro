@@ -41,10 +41,6 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import React, {SyntheticEvent, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
-import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
@@ -64,6 +60,7 @@ import {SwitchPrescriptionUI} from "@features/buttons";
 import AddIcon from "@mui/icons-material/Add";
 import {DefaultCountry} from "@lib/constants";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function a11yProps(index: number) {
     return {

@@ -37,7 +37,6 @@ import {useSnackbar} from "notistack";
 import {ActionMenu, toggleSideBar} from "@features/menu";
 import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
-import dynamic from "next/dynamic";
 import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
@@ -61,7 +60,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
 import {leftActionBarSelector} from "@features/leftActionBar";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();

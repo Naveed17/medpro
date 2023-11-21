@@ -117,6 +117,7 @@
     "importResult": "Please import the result of the balance sheet",
     "recent-search": "Select the requested medical imaging",
     "recent-search-balance-sheet": "Select the requested balance sheet",
+    "saveAsModel": "Save as model",
     "drag-balance-sheet": "Slide the balance sheet",
     "drag-description": "Or if you prefer, you can click on it",
     "reason_for_consultation": "Reason",

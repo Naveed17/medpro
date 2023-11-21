@@ -18,8 +18,7 @@ import {
 } from "@mui/material";
 // components
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {sideBarSelector, siteHeader, toggleMobileBar, toggleSideBar} from "@features/menu";
-import dynamic from "next/dynamic";
+import {ProfilMenu, sideBarSelector, siteHeader, toggleMobileBar, toggleSideBar} from "@features/menu";
 import {LangButton, navBarSelector, NavbarStepperStyled, NavbarStyled, setDialog} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -47,8 +46,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import {batch} from "react-redux";
 import {resetAppointment} from "@features/tabPanel";
 import {partition} from "lodash";
-
-const ProfilMenuIcon = dynamic(() => import("@features/menu/components/profilMenu/components/profilMenu"));
 
 let deferredPrompt: any;
 
@@ -584,7 +581,7 @@ function TopNavBar({...props}) {
                         <LangButton/>
                         {!isMobile && <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 1}} disableRipple>
-                                <ProfilMenuIcon/>
+                                <ProfilMenu/>
                             </MenuItem>
                         </MenuList>}
                     </Toolbar>
@@ -699,7 +696,7 @@ function TopNavBar({...props}) {
 
                         <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 0}} disableRipple>
-                                <ProfilMenuIcon/>
+                                <ProfilMenu/>
                             </MenuItem>
                         </MenuList>
                     </Toolbar>
