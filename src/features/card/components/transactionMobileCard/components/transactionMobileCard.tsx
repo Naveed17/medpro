@@ -105,7 +105,7 @@ export default function TransactionMobileCard({ ...props }) {
                   ))}
                 <Tooltip title={t("used")}>
                   <Typography fontWeight={700} color="secondary">
-                    {row.rest_amount} {devise}
+                    {row.amount - row.rest_amount} {devise}
                   </Typography>
                 </Tooltip>
                 <Tooltip title={t("amount")}>
@@ -156,13 +156,12 @@ export default function TransactionMobileCard({ ...props }) {
                           color={theme.palette.text.primary}
                         />
                         <Typography variant="body2">
-                          {moment(item?.data?.date).format("DD/MM/YYYY") ||
-                            "--"}
+                          {moment(item?.data?.date).format("DD/MM/YYYY")}
                         </Typography>
                       </Stack>
 
                       <Typography variant="body2">
-                        {item?.data?.carrier || "--"}
+                        {item?.data?.carrier}
                       </Typography>
                       <Typography variant="body2">
                         {item.amount ? (
@@ -170,7 +169,7 @@ export default function TransactionMobileCard({ ...props }) {
                             {item.amount} {devise}
                           </>
                         ) : (
-                          "--"
+                          ""
                         )}
                       </Typography>
                     </Stack>
@@ -194,14 +193,14 @@ export default function TransactionMobileCard({ ...props }) {
                           />
                         </Tooltip>
                         <Typography variant="body2">
-                          {item?.paymentMeans?.name || "--"}
+                          {item?.paymentMeans?.name || ""}
                         </Typography>
                       </Stack>
                       <Typography variant="body2">
-                        {item?.data?.bank?.abbreviation || "--"}
+                        {item?.data?.bank?.abbreviation || ""}
                       </Typography>
                       <Typography variant="body2">
-                        {item?.data?.nb ? ` N° ${item?.data?.nb}` : "--"}
+                        {item?.data?.nb ? ` N° ${item?.data?.nb}` : ""}
                       </Typography>
                     </Stack>
                   </Stack>

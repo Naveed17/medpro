@@ -163,7 +163,7 @@
   "pay_all_tr": "Effectuez vos paiements en un clic",
   "pay_all": "Payer tout",
   "to_pay_appointments": "payer des rendez-vous",
-  "close":"Fermer",
+  "close": "Fermer",
   "dialog": {
     "leftPay": "Reste à payer",
     "date": "Date",
@@ -176,5 +176,7 @@
     "no_transaction": "Aucune consultation à payer",
     "add_now": "vous avez la possibilité d'ajouter un paiement anticipé",
     "addavance": "Ajouter avance"
-  }
+  },
+  "noTransaction": "Aucune transaction",
+  "addTransaction": "Cliquez sur le bouton + pour ajouter une transaction"
 }

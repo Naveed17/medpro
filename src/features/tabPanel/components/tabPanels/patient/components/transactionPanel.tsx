@@ -25,14 +25,13 @@ import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 import CloseIcon from "@mui/icons-material/Close";
-import {TransactionMobileCard} from "@features/card";
+import {NoDataCard, TransactionMobileCard} from "@features/card";
 import {motion} from "framer-motion";
 import {Dialog} from "@features/dialog";
 import {LoadingButton} from "@mui/lab";
-import AddIcon from "@mui/icons-material/Add";
 
 function TransactionPanel({...props}) {
-    const {patient, rest,wallet, walletMutate, devise, router} = props;
+    const {patient, rest, wallet, walletMutate, devise, router} = props;
     const theme: Theme = useTheme();
 
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -493,6 +492,13 @@ function TransactionPanel({...props}) {
                                     </table>
                                 </Stack>
                             )}
+                            {
+                                rows && rows.length === 0 && <NoDataCard t={t} ns={"payment"} data={{
+                                    mainIcon: "ic-argent",
+                                    title: "noTransaction",
+                                    description: "addTransaction"
+                                }}/>
+                            }
                         </CardContent>
                     </Box>
                 )}
@@ -534,6 +540,13 @@ function TransactionPanel({...props}) {
                             />
                         </Stack>
                     ))}
+                    {
+                        rows && rows.length === 0 && <NoDataCard t={t} ns={"payment"} data={{
+                            mainIcon: "ic-argent",
+                            title: "noTransaction",
+                            description: "addTransaction"
+                        }}/>
+                    }
                 </Stack>
             </Box>
 
