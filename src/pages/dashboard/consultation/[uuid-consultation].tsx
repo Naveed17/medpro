@@ -65,7 +65,7 @@ import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/cha
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {useWidgetModels} from "@lib/hooks/rest";
+import {useSendNotification, useWidgetModels} from "@lib/hooks/rest";
 import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
@@ -73,9 +73,6 @@ import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import {DragDropContext, Draggable as DraggableDnd, Droppable} from "react-beautiful-dnd";
 import Draggable from "react-draggable";
-
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 import {ModelDot} from "@features/modelDot";
 import {DocumentPreview} from "@features/tabPanel/components/consultationTabs/documentPreview";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -144,12 +141,13 @@ function ConsultationInProgress() {
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
     const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
     const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
+    const {trigger: triggerNotificationPush} = useSendNotification();
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const {inProgress} = router.query;
-
+    const {jti} = session?.user as any;
     const EventStepper = [
         {
             title: "steppers.tabs.tab-1",
@@ -174,6 +172,7 @@ function ConsultationInProgress() {
         {name: "patientInfo", icon: "ic-text", checked: false},
         {name: "fiche", icon: "ic-text", checked: false},
         {index: 0, name: "prescription", icon: "ic-traitement", checked: false},
+        {index: 4, name: "insuranceGenerated", icon: "ic-ordonance", checked: false},
         {
             index: 3,
             name: "requested-analysis",
@@ -263,10 +262,10 @@ function ConsultationInProgress() {
     const {
         data: httpDocumentResponse,
         mutate: mutateDoc
-    } = useRequestQuery(medical_professional_uuid && agenda && nbDoc > 0 ? {
+    } = useRequestQuery(medical_professional_uuid && agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
+    } : null, {refetchOnWindowFocus: false});
 
     const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : []
 
@@ -662,7 +661,8 @@ function ConsultationInProgress() {
                                 uuidDoc: res[0].uuid,
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
-                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                print: true
                             });
                             setOpenDialog(true);
                         }
@@ -708,7 +708,8 @@ function ConsultationInProgress() {
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
                                 info: res[0].analyses,
-                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
+                                patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                print: true
                             });
                             setOpenDialog(true);
                         }
@@ -751,6 +752,7 @@ function ConsultationInProgress() {
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
                                 patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                print: true,
                                 mutate: mutateDoc
                             });
                             setOpenDialog(true);
@@ -762,8 +764,6 @@ function ConsultationInProgress() {
                 });
                 break;
             case "add_a_document":
-                //form.append("title", state.name);
-                //form.append("description", state.description);
                 state.files.map((file: { file: string | Blob; name: string | undefined; type: string | Blob; }) => {
                     form.append(`files[${file.type}][]`, file?.file as any, file?.name);
                 });
@@ -773,7 +773,18 @@ function ConsultationInProgress() {
                     url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
                     data: form
                 }, {
-                    onSuccess: () => mutateDoc()
+                    onSuccess: () => {
+                        medicalEntityHasUser && triggerNotificationPush({
+                            action: "push",
+                            root: "all",
+                            message: " ",
+                            content: JSON.stringify({
+                                mutate: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
+                                fcm_session: jti
+                            })
+                        });
+                        mutateDoc()
+                    }
                 });
                 print && setOpenDialog(true);
                 break;
@@ -886,6 +897,10 @@ function ConsultationInProgress() {
                 setInfo("medical_imagery");
                 setState(imagery);
                 break;
+            case "insuranceGenerated":
+                setInfo("insurance_document_print");
+                setState(patient);
+                break;
             case "medical-certificate":
                 setInfo("write_certif");
                 setState({
@@ -987,7 +1002,7 @@ function ConsultationInProgress() {
             let nb = 0;
             changes.map(change => {
                 if (sheet && sheet[change.name]) {
-                    change.checked = sheet[change.name] > 0;
+                    change.checked = typeof sheet[change.name] == "boolean" && sheet[change.name] || sheet[change.name] > 0;
                     nb += sheet[change.name]
                 }
             })
@@ -1207,15 +1222,16 @@ function ConsultationInProgress() {
                                                                                         <Typography
                                                                                             className={'card-title'}>{item.content !== "widget" ? t(item.content) : ""}</Typography>
                                                                                     </MyHeaderCardStyled>}
-                                                                                <IconButton className={"btn-header"}>
-                                                                                    {item.expanded ?
-                                                                                        <KeyboardArrowUpRoundedIcon/> :
-                                                                                        <KeyboardArrowDownRoundedIcon/>}
-                                                                                </IconButton>
+                                                                                <Stack direction={"row"}>
+                                                                                    <IconButton className={"btn-full"}>
+                                                                                        <IconUrl path={'reduce'}/>
+                                                                                    </IconButton>
+                                                                                </Stack>
+
                                                                             </Stack>
                                                                             <Collapse in={item.expanded} timeout="auto"
                                                                                       unmountOnExit>
-                                                                                {item.content === 'exam' &&
+                                                                                {item.content === 'exam' && sheet && sheetExam &&
                                                                                     <ConsultationDetailCard
                                                                                         {...{
                                                                                             changes,
@@ -1232,7 +1248,6 @@ function ConsultationInProgress() {
                                                                                             trigger: triggerAppointmentEdit
                                                                                         }}
                                                                                         handleClosePanel={(v: boolean) => setCloseExam(v)}
-
                                                                                     />}
                                                                                 {item.content === 'history' && <div
                                                                                     id={"histo"}
@@ -1569,7 +1584,7 @@ function ConsultationInProgress() {
                     mutatePatient,
                     showPreview
                 }}
-                size={addFinishAppointment ? "md" : "md"}
+                size={"md"}
                 color={theme.palette.error.main}
                 actionDialog={<DialogAction/>}
             />

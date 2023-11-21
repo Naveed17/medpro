@@ -18,8 +18,7 @@ import {
 } from "@mui/material";
 // components
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {sideBarSelector, siteHeader, toggleMobileBar, toggleSideBar} from "@features/menu";
-import dynamic from "next/dynamic";
+import {ProfilMenu, sideBarSelector, siteHeader, toggleMobileBar, toggleSideBar} from "@features/menu";
 import {LangButton, navBarSelector, NavbarStepperStyled, NavbarStyled, setDialog} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -48,8 +47,6 @@ import {batch} from "react-redux";
 import {resetAppointment} from "@features/tabPanel";
 import {partition} from "lodash";
 
-const ProfilMenuIcon = dynamic(() => import("@features/menu/components/profilMenu/components/profilMenu"));
-
 let deferredPrompt: any;
 
 function TopNavBar({...props}) {
@@ -73,7 +70,7 @@ function TopNavBar({...props}) {
         pendingAppointments,
         selectedEvent
     } = useAppSelector(agendaSelector);
-    const {isActive} = useAppSelector(timerSelector);
+    const {isActive, event} = useAppSelector(timerSelector);
     const {
         ongoing, next, notifications,
         import_data, allowNotification
@@ -81,7 +78,6 @@ function TopNavBar({...props}) {
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
     const {switchConsultationDialog} = useAppSelector(navBarSelector);
-    const {event} = useAppSelector(timerSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -99,6 +95,7 @@ function TopNavBar({...props}) {
     const [installable, setInstallable] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [loadingReq, setLoadingReq] = useState<boolean>(false);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
     const dir = router.locale === "ar" ? "rtl" : "ltr";
 
@@ -334,7 +331,16 @@ function TopNavBar({...props}) {
         "appointment-stats": <AppointmentStatsPopover/>,
         notification: <NotificationPopover onClose={() => setAnchorEl(null)}/>,
         paused: <PausedConsultationPopover
-            {...{pausedConsultation, next, roles, loading, resetNextConsultation, setPatientId, setPatientDetailDrawer, handleStartConsultation}}
+            {...{
+                pausedConsultation,
+                next,
+                roles,
+                loading,
+                resetNextConsultation,
+                setPatientId,
+                setPatientDetailDrawer,
+                handleStartConsultation
+            }}
             refresh={refreshAgendaData}
             onClose={() => setAnchorEl(null)}/>,
     };
@@ -575,7 +581,7 @@ function TopNavBar({...props}) {
                         <LangButton/>
                         {!isMobile && <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 1}} disableRipple>
-                                <ProfilMenuIcon/>
+                                <ProfilMenu/>
                             </MenuItem>
                         </MenuList>}
                     </Toolbar>
@@ -585,7 +591,10 @@ function TopNavBar({...props}) {
                         contrastText={theme.palette.error.contrastText}
                         dialogClose={() => dispatch(setDialog({dialog: "switchConsultationDialog", value: false}))}
                         sx={{
-                            direction: direction
+                            direction
+                        }}
+                        data={{
+                            setOpenPaymentDialog
                         }}
                         action={"switch-consultation"}
                         open={switchConsultationDialog}
@@ -625,6 +634,26 @@ function TopNavBar({...props}) {
                                 </Stack>
                             </Stack>
                         }
+                    />
+
+                    <Dialog
+                        action={"payment_dialog"}
+                        {...{
+                            direction,
+                            sx: {
+                                minHeight: 460
+                            }
+                        }}
+                        open={openPaymentDialog}
+                        data={{
+                            patient: event?.extendedProps.patient,
+                            setOpenPaymentDialog,
+                            mutatePatient: () => mutateOnGoing()
+                        }}
+                        size={"lg"}
+                        fullWidth
+                        title={commonTranslation("payment_dialog_title", {ns: "payment"})}
+                        dialogClose={() => setOpenPaymentDialog(false)}
                     />
 
                     <Drawer
@@ -667,7 +696,7 @@ function TopNavBar({...props}) {
 
                         <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 0}} disableRipple>
-                                <ProfilMenuIcon/>
+                                <ProfilMenu/>
                             </MenuItem>
                         </MenuList>
                     </Toolbar>

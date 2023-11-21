@@ -28,9 +28,9 @@ import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
 import {Otable} from "@features/table";
 import {useSnackbar} from "notistack";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {DefaultCountry} from "@lib/constants";
 import {ActFeesMobileCard} from "@features/card";
@@ -161,9 +161,7 @@ function ActFees() {
                 setMainActes(response as ActModel[]);
                 setLoading(false);
             } else {
-                const response = (
-                    httpProfessionalsActs as HttpResponse
-                ).data?.list;
+                const response = (httpProfessionalsActs as HttpResponse)?.data?.list ?? [];
                 setMainActes(response as ActModel[]);
                 setLoading(false);
             }
@@ -535,7 +533,7 @@ function ActFees() {
                                 label={t("table.code")}
                                 InputProps={{
                                     style: {
-                                        width: isMobile ? "" : 150,
+                                        width: isMobile ? "" : 120,
                                         backgroundColor: "white",
                                     },
                                 }}
@@ -558,7 +556,7 @@ function ActFees() {
                                 label={t("table.contribution")}
                                 InputProps={{
                                     style: {
-                                        width: isMobile ? "" : 150,
+                                        width: isMobile ? "" : 120,
                                         backgroundColor: "white",
                                     },
                                 }}
@@ -585,7 +583,7 @@ function ActFees() {
                                         <InputAdornment position="end">{devise}</InputAdornment>
                                     ),
                                     style: {
-                                        width: isMobile ? "" : 150,
+                                        width: isMobile ? "" : 130,
                                         backgroundColor: "white",
                                     },
                                 }}

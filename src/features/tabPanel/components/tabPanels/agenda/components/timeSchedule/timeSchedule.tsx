@@ -15,9 +15,9 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import moment from "moment-timezone";
 import {

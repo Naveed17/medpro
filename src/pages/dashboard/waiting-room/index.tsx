@@ -37,7 +37,6 @@ import {useSnackbar} from "notistack";
 import {ActionMenu, toggleSideBar} from "@features/menu";
 import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
-import dynamic from "next/dynamic";
 import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
@@ -61,7 +60,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
 import {leftActionBarSelector} from "@features/leftActionBar";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -122,7 +121,6 @@ function WaitingRoom() {
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
     const {trigger: addAppointmentTrigger} = useRequestQueryMutation("/agenda/appointment/add");
-    const {trigger: appointmentTransactionsTrigger} = useRequestQueryMutation("/agenda/appointment/transctions");
     const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
 
     const {
@@ -378,11 +376,12 @@ function WaitingRoom() {
                         icon: <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
                         action: "onPatientDetail",
                     },
-                    ...(![5, 4, 6, 9, 10].includes(data.row.status) ? [{
-                        title: "cancel_appointment",
-                        icon: <Icon color={"white"} width={"16"} height={"16"} path="close"/>,
-                        action: "onCancel",
-                    },
+                    ...(![5, 4, 6, 9, 10].includes(data.row.status) ? [
+                        {
+                            title: "cancel_appointment",
+                            icon: <Icon color={"white"} width={"16"} height={"16"} path="close"/>,
+                            action: "onCancel",
+                        },
                         {
                             title: "delete_appointment",
                             icon: <Icon color={"white"} width={"18"} height={"18"} path="icdelete"/>,

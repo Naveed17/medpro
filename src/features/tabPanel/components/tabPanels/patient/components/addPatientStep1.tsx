@@ -24,9 +24,9 @@ import {
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import Icon from "@themes/urlIcon";
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";

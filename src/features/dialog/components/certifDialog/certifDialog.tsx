@@ -18,7 +18,7 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import dynamic from "next/dynamic";
+
 import AddIcon from "@mui/icons-material/Add";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -47,7 +47,7 @@ import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownR
 import {agendaSelector} from "@features/calendar";
 import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function CertifDialog({...props}) {
     const {data, fullScreen} = props
@@ -301,7 +301,7 @@ function CertifDialog({...props}) {
                 const data = result.data.data.modal.data
                 if (data) {
                     let res: { key: string, value: string }[] = [];
-                    Object.keys(data).filter(key => data[key] !== "").map(key => {
+                    Object.keys(data).filter(key => data[key] !== "").forEach(key => {
                         res.push({key, value: data[key]})
                     })
                     setTraking(res)
@@ -319,7 +319,7 @@ function CertifDialog({...props}) {
             onSuccess: (result) => {
                 const res = result.data.data
                 let ant:string[] = [];
-                Object.keys(res).map(key => {
+                Object.keys(res).forEach(key => {
                     res[key].map((asc: { name: string; }) => ant.push(asc.name))
                 })
                 setAntecedents(ant)

@@ -186,31 +186,7 @@ const dialogData = [
         ),
     },
     {
-        action: "medical_antecedents",
-        component: dynamic((): any =>
-            import(
-                "@features/dialog/components/lifeStyleDialog/lifeStyleDialog"
-                ).then((mod) => mod)
-        ),
-    },
-    {
         action: "dynamicAnt",
-        component: dynamic((): any =>
-            import(
-                "@features/dialog/components/lifeStyleDialog/lifeStyleDialog"
-                ).then((mod) => mod)
-        ),
-    },
-    {
-        action: "family_antecedents",
-        component: dynamic((): any =>
-            import(
-                "@features/dialog/components/familyHistoryDialog/familyHistoryDialog"
-                ).then((mod) => mod)
-        ),
-    },
-    {
-        action: "surgical_antecedents",
         component: dynamic((): any =>
             import(
                 "@features/dialog/components/lifeStyleDialog/lifeStyleDialog"

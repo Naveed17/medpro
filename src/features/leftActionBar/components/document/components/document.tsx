@@ -12,7 +12,6 @@ import {
 } from "@mui/material";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
 import {AutoCompleteButton} from "@features/buttons";
 import MenuItem from "@mui/material/MenuItem";
 import {useRequestQuery} from "@lib/axios";
@@ -37,7 +36,7 @@ import {onOpenPatientDrawer} from "@features/table";
 import {CustomStepper} from "@features/customStepper";
 import {batch} from "react-redux";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Document() {
     const router = useRouter();

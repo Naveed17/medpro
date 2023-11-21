@@ -24,6 +24,7 @@ import PersonOffIcon from '@mui/icons-material/PersonOff';
 import {Avatar} from "@mui/material";
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import PauseIcon from "@themes/overrides/icons/pauseIcon";
+import CancelAppointmentPatientIcon from "@themes/overrides/icons/cancelAppointmentPatientIcon";
 
 export const IconsTypes: any = {
     "ic-consultation": <EventOutlinedIcon/>,
@@ -127,7 +128,7 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
         value: "Annulé",
         color: "#c92a2a",
         classColor: "error",
-        icon: <CancelCircleIcon/>,
+        icon: <CancelAppointmentPatientIcon/>,
     }
 };
 
@@ -251,9 +252,7 @@ export const CalendarContextMenu = [
     },
     {
         title: "see_patient_form",
-        icon: (
-            <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>
-        ),
+        icon: <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
         action: "onPatientDetail",
     },
     {

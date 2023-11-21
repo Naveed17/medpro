@@ -30,7 +30,6 @@ import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
 import Antecedent from "@features/leftActionBar/components/consultation/antecedent";
-import dynamic from "next/dynamic";
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {DocumentCard} from "@features/card";
@@ -40,7 +39,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
 import {useAntecedentTypes} from "@lib/hooks/rest";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 const Content = ({...props}) => {
     const {id, patient, url} = props;
@@ -135,7 +134,18 @@ const Content = ({...props}) => {
     const handleCloseDialog = () => {
         const form = new FormData();
         if (allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)) {
-            form.append("antecedents", JSON.stringify(state));
+
+            let _res: any[] = []
+            state.forEach((item: any) => {
+                item.data.forEach((data: any) => {
+                    _res.push({
+                        ...data,
+                        uuid: item.uuid,
+                    })
+                })
+            })
+
+            form.append("antecedents", JSON.stringify(_res));
             form.append("patient_uuid", patient.uuid);
             medicalEntityHasUser && triggerAntecedentCreate({
                 method: "POST",
@@ -186,9 +196,11 @@ const Content = ({...props}) => {
             mutateMi()
         }
 
+
         setOpenDialog(false);
         setInfo("");
         setInfoDynamic("");
+
     };
 
     const dialogSave = () => {
@@ -211,7 +223,9 @@ const Content = ({...props}) => {
             return;
         }
 
-        if (patientAntecedents && Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
+        if (patientAntecedents && Object.keys(patientAntecedents).find(key => key === action)) {
+            setState(getRes(patientAntecedents[action]));
+        }
 
         setInfo(action);
         setInfoDynamic(action)
@@ -228,8 +242,23 @@ const Content = ({...props}) => {
         setState([]);
     }
 
+    const getRes = (ants: any[]) => {
+        let _res: any[] = [];
+        ants.forEach(pa => {
+            const index = _res.findIndex(r => r.uuid === pa.antecedent.uuid)
+            index === -1 ?
+                _res.push({
+                    uuid: pa.antecedent.uuid,
+                    data: [pa]
+                }) : _res[index].data = [..._res[index].data, pa]
+        })
+        return _res;
+    }
     const handleOpenDynamic = (action: string) => {
-        if (patientAntecedents && Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
+        if (patientAntecedents && Object.keys(patientAntecedents).find(key => key === action)) {
+
+            setState(getRes(patientAntecedents[action]));
+        }
         setInfo("dynamicAnt");
         setInfoDynamic(action);
         setSize("sm");
@@ -293,7 +322,7 @@ const Content = ({...props}) => {
                 patient: `${type} ${
                     patient.firstName
                 } ${patient.lastName}`,
-                cin:patient?.idCard ? patient?.idCard : "",
+                cin: patient?.idCard ? patient?.idCard : "",
                 mutate: mutatePatientDocuments,
             });
             setOpenDialogDoc(true);

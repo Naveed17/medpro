@@ -12,9 +12,9 @@ import {Otable} from "@features/table";
 import {PfTemplateDetail} from "@features/pfTemplateDetail";
 import {useRequestQueryMutation} from "@lib/axios";
 import AddIcon from "@mui/icons-material/Add";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";

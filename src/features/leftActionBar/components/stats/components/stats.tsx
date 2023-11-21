@@ -2,9 +2,9 @@ import {Typography} from "@mui/material";
 import React from "react";
 import {FilterContainerStyles} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Stats() {
 

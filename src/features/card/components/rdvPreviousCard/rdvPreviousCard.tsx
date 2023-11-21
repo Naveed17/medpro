@@ -20,9 +20,9 @@ import {Label} from "@features/label";
 import React, {useState} from "react";
 import {ModelDot} from "@features/modelDot";
 import {onAppointmentView} from "@lib/hooks/onAppointmentView";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 function RdvCard({...props}) {
     const {inner, patient, loading, handlePreConsultationDialog} = props;
@@ -117,7 +117,7 @@ function RdvCard({...props}) {
                                     <Typography
                                         sx={{
                                             fontSize: 10,
-                                            ml: ["WAITING_ROOM", "NOSHOW"].includes(AppointmentStatus[inner?.status]?.key)
+                                            ml: ["WAITING_ROOM", "NOSHOW", "PAUSED"].includes(AppointmentStatus[inner?.status]?.key)
                                                 ? 0.5
                                                 : 0,
                                         }}>

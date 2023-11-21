@@ -6,9 +6,10 @@ import CollapseCardStyled from "./overrides/circularProgressbarCardStyled";
 import * as React from "react";
 import {FacebookCircularProgress} from "@features/progressUI";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import IconUrl from "@themes/urlIcon";
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 const CircularProgressbarCard = forwardRef<HTMLDivElement, any>(
     ({id, ...props}, ref) => {
@@ -54,7 +55,22 @@ const CircularProgressbarCard = forwardRef<HTMLDivElement, any>(
                                 {t("file-process-start")}
                             </Button>}
                             <Box className={"container-circular-progress"}>
-                                <FacebookCircularProgress/>
+                                <FacebookCircularProgress>
+                                    <Box
+                                        sx={{
+                                            top: -4,
+                                            left: 0,
+                                            bottom: 0,
+                                            right: 0,
+                                            position: 'absolute',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <IconUrl width={"26"} height={"26"} path={"ic-upload"} />
+                                    </Box>
+                                </FacebookCircularProgress>
                                 {/*<CircularProgress variant="determinate" value={progress}/>
                                 <Box
                                     sx={{

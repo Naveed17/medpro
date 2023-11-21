@@ -8,13 +8,13 @@ import {
 } from "@mui/material";
 import {useCallback} from "react";
 import AddIcon from "@mui/icons-material/Add";
-import dynamic from "next/dynamic";
+
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {tableActionSelector} from "@features/table";
 import ArchiveRoundedIcon from '@mui/icons-material/ArchiveRounded';
 import {setDuplicated} from "@features/duplicateDetected";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function PatientToolbar({...props}) {

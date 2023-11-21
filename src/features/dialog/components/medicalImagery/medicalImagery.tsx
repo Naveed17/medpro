@@ -14,9 +14,9 @@ import {useTranslation} from 'next-i18next'
 import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
 import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {NoDataCard, NoteCardCollapse} from "@features/card";
 import SearchIcon from "@mui/icons-material/Search";

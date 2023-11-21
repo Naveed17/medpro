@@ -7,9 +7,26 @@ const MyCardStyled = styled("div")(({theme}) => ({
     "& .btn-header": {
         borderRadius: "0.375rem",
         border: "1px solid #DDD",
-        width:"2.5rem",
-        backgroundColor:'white',
-        height:"2.5rem",
+        width: "2.5rem",
+        backgroundColor: 'white',
+        height: "2.5rem",
+        marginRight: 10
+    },
+    "& .btn-full": {
+        borderRadius: "0.375rem",
+        width: "2.5rem",
+        height: "2.5rem",
+
+        '& .react-svg': {
+            marginRight: 0,
+        }
+    },
+    "& .bookmark": {
+        width: 24,
+        height: 24,
+        backgroundColor: '#F9F9FB',
+        borderRadius: 20,
+        border: "1px solid #DDD",
         marginRight: 10
     },
     '& .react-svg': {
@@ -20,7 +37,7 @@ const MyCardStyled = styled("div")(({theme}) => ({
             }
         }
     },
-    '& .card-icon':{
+    '& .card-icon': {
         svg: {
             path: {
                 fill: "#C9C8C8",

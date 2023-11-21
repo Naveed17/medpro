@@ -12,7 +12,7 @@ import {
 import {useTheme} from "@mui/material/styles";
 import {Dialog} from "@features/dialog";
 import Icon from "@themes/urlIcon";
-import React, {ReactElement, useState} from "react";
+import React, {useState} from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import PlayCircleRoundedIcon from "@mui/icons-material/PlayCircleRounded";
 import moment from "moment-timezone";
@@ -93,11 +93,13 @@ function WaitingRoomRow({...props}) {
                     {row ? (
                         <Box display="flex" alignItems="center">
                             <Typography
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleEvent({action: "PATIENT_DETAILS", row, event});
-                                }}
-                                color="primary"
+                                {...(!row.patient?.isArchived && {
+                                    onClick: (event: any) => {
+                                        event.stopPropagation();
+                                        handleEvent({action: "PATIENT_DETAILS", row, event});
+                                    }
+                                })}
+                                color={row.patient?.isArchived ? "text.primary" : "primary"}
                                 sx={{ml: 0.6, cursor: "pointer"}}>
                                 {row.patient.firstName} {row.patient.lastName}
                             </Typography>
@@ -249,9 +251,10 @@ function WaitingRoomRow({...props}) {
                     )}
                 </TableCell>
                 <TableCell>
-                    <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
-                        {(!roles.includes("ROLE_SECRETARY") && [5, 3].includes(row.status)) &&
-                            <Tooltip title={t("start")}>
+                    {!row.patient?.isArchived &&
+                        <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
+                            {(!roles.includes("ROLE_SECRETARY") && [5, 3].includes(row.status)) &&
+                                <Tooltip title={t("start")}>
                             <span>
                                 <IconButton
                                     disabled={loading}
@@ -265,9 +268,9 @@ function WaitingRoomRow({...props}) {
                                     <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
                                 </IconButton>
                             </span>
-                            </Tooltip>}
-                        {(!roles.includes("ROLE_SECRETARY") && [1, 3].includes(row.status)) &&
-                            <Tooltip title={t("start")}>
+                                </Tooltip>}
+                            {(!roles.includes("ROLE_SECRETARY") && [1, 3].includes(row.status)) &&
+                                <Tooltip title={t("start")}>
                             <span>
                                 <IconButton
                                     disabled={loading}
@@ -281,9 +284,9 @@ function WaitingRoomRow({...props}) {
                                     <PlayCircleIcon fontSize={"small"}/>
                                 </IconButton>
                             </span>
-                            </Tooltip>}
-                        {([1, 3].includes(row.status) && (is_next !== null && is_next?.uuid === row.uuid || is_next === null)) &&
-                            <Tooltip title={t(row.is_next ? "is_next" : "next")}>
+                                </Tooltip>}
+                            {([1, 3].includes(row.status) && (is_next !== null && is_next?.uuid === row.uuid || is_next === null)) &&
+                                <Tooltip title={t(row.is_next ? "is_next" : "next")}>
                                 <span>
                                     <IconButton
                                         onClick={(event) => {
@@ -305,8 +308,8 @@ function WaitingRoomRow({...props}) {
                                         {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
                                     </IconButton>
                                 </span>
-                            </Tooltip>}
-                        {row.status === 1 && <Tooltip title={t(row.is_next ? "is_next" : "next")}>
+                                </Tooltip>}
+                            {row.status === 1 && <Tooltip title={t(row.is_next ? "is_next" : "next")}>
                                 <span>
                                     <IconButton
                                         onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
@@ -320,8 +323,8 @@ function WaitingRoomRow({...props}) {
                                     <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
                                 </IconButton>
                                 </span>
-                        </Tooltip>}
-                        <Tooltip title={t('more')}>
+                            </Tooltip>}
+                            <Tooltip title={t('more')}>
                             <span>
                                 <IconButton
                                     disabled={loading}
@@ -333,8 +336,8 @@ function WaitingRoomRow({...props}) {
                                     <MoreVertIcon/>
                                 </IconButton>
                             </span>
-                        </Tooltip>
-                    </Stack>
+                            </Tooltip>
+                        </Stack>}
                 </TableCell>
             </TableRow>
 

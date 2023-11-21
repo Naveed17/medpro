@@ -7,8 +7,11 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
+import {useMutateOnGoing} from "@lib/hooks";
 
 function FeesTab({...props}) {
+    const router = useRouter();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const [search, setSearch] = useState<string>("");
 
@@ -87,7 +90,6 @@ function FeesTab({...props}) {
         isQuoteRequest
     } = props;
 
-    const router = useRouter();
 
     const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
     const {data: httpAppointmentFees, mutate} = useRequestQuery(app_uuid ? {
@@ -175,8 +177,9 @@ function FeesTab({...props}) {
             data: form
         }, {
             onSuccess: () => {
-                mutatePatient()
-                mutate()
+                mutateOnGoing();
+                mutatePatient();
+                mutate();
             }
         });
     }
@@ -190,7 +193,6 @@ function FeesTab({...props}) {
             acts[act_index] = row
 
         saveChanges([...acts]);
-
     }
 
     return (

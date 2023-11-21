@@ -14,7 +14,7 @@ import {useTranslation} from "next-i18next";
 import {startCase} from 'lodash'
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {setTimer, timerSelector} from "@features/card";
-import {capitalizeFirst, useMedicalEntitySuffix, useTimer} from "@lib/hooks";
+import {capitalizeFirst, getMilliseconds, shortEnglishHumanizer, useMedicalEntitySuffix, useTimer} from "@lib/hooks";
 import {Label} from "@features/label";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
@@ -23,14 +23,31 @@ import {useRequestQuery} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
+import CheckIcon from "@mui/icons-material/Check";
+import IconUrl from "@themes/urlIcon";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import {DefaultCountry} from "@lib/constants";
 
-function SwitchConsultationDialog() {
+function SwitchConsultationDialog({...props}) {
+    const {
+        data: {
+            setOpenPaymentDialog
+        }
+    } = props;
     const {timer} = useTimer();
     const theme = useTheme();
     const router = useRouter();
+    const {data: session} = useSession();
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const {t} = useTranslation(["common", "consultation"]);
     const {event} = useAppSelector(timerSelector);
@@ -75,7 +92,7 @@ function SwitchConsultationDialog() {
             <Typography
                 sx={{textAlign: "center"}}>{t(`dialogs.switch-consultation-dialog.description`).split(',')[1]}</Typography>
 
-            <Stack direction={"row"} py={3} alignItems={"center"}>
+            <Stack direction={"row"} py={3} alignItems={"center"} justifyContent={"space-between"} sx={{width: '60%'}}>
                 <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
                     <Avatar sx={{width: 40, height: 40, bgcolor: 'primary.main'}}/>
                     <Stack>
@@ -84,7 +101,11 @@ function SwitchConsultationDialog() {
                                 {capitalizeFirst(`${event?.extendedProps.patient.firstName} ${event?.extendedProps.patient.lastName}`)}
                             </Typography>
                         </Stack>
-                        <Typography fontSize={14} fontWeight={600}>{timer}</Typography>
+                        <Typography fontSize={14}
+                                    fontWeight={600}>{shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {
+                            largest: 1,
+                            round: true
+                        })}</Typography>
                     </Stack>
 
                     {(event?.extendedProps.type?.name || typeof event?.extendedProps.type === "string") &&
@@ -94,6 +115,16 @@ function SwitchConsultationDialog() {
                                     (event?.extendedProps.type === "Consultation" ? "En Consultation" : event?.extendedProps.type) : "")}
                         </Label>}
                 </Stack>
+                {isBeta && <Button
+                    startIcon={event?.extendedProps.restAmount === 0 ? <CheckIcon/> :
+                        <IconUrl path={'ic-argent'} color={"white"}/>}
+                    variant="contained"
+                    color={event?.extendedProps.restAmount === 0 ? "success" : "primary"}
+                    style={{marginLeft: 5}}
+                    onClick={() => setOpenPaymentDialog(true)}>
+                    <Typography>{t("pay")}</Typography>
+                </Button>
+                }
             </Stack>
 
             <Stack className="instruction-box" spacing={1}>

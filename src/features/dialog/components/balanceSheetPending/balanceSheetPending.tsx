@@ -6,9 +6,9 @@ import {useTranslation} from 'next-i18next'
 import CloseIcon from "@mui/icons-material/Close";
 import Icon from '@themes/urlIcon'
 import React, {useState} from 'react';
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function BalanceSheetPendingDialog({...props}) {

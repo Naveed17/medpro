@@ -25,7 +25,7 @@ import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import dynamic from "next/dynamic";
+
 import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {NoDataCard, NoteCardCollapse} from "@features/card";
 import {a11yProps, arrayUniqueByKey, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
@@ -41,7 +41,7 @@ import {dashLayoutSelector} from "@features/base";
 import {TabPanel} from "@features/tabPanel";
 import RemoveCircleRoundedIcon from "@mui/icons-material/RemoveCircleRounded";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function BalanceSheetDialog({...props}) {
     const {data} = props;
