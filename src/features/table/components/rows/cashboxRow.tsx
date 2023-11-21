@@ -6,6 +6,7 @@ import {
     CardContent,
     Collapse,
     IconButton,
+    LinearProgress,
     Link,
     Paper,
     Stack,
@@ -91,7 +92,7 @@ function PaymentRow({...props}) {
     const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
 
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
-
+    const [transaction_loading,setTransaction_loading] = useState<boolean>(false)
     const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox");
 
     const handleChildSelect = (id: any) => {
@@ -132,12 +133,14 @@ function PaymentRow({...props}) {
     }
 
     const selectRow = (paymentUuid: string) => {
+      setTransaction_loading(true)
         if (!isItemSelected) {
             triggerPostTransaction({
                 method: "GET",
                 url: `${urlMedicalEntitySuffix}/transactions/${paymentUuid}/transaction-data/${router.locale}`,
             }, {
                 onSuccess: (res) => {
+                    setTransaction_loading(false)
                     setTransaction_data(res.data.data)
                 }
             })
@@ -316,7 +319,7 @@ const handleMenuClick = (data: { title: string; icon: string; action: string }) 
 
             </TableRowStyled>
 
-            {transaction_data && (
+            {isItemSelected && (
                 <TableRowStyled>
                     <TableCell
                         colSpan={9}
@@ -334,11 +337,10 @@ const handleMenuClick = (data: { title: string; icon: string; action: string }) 
                             unmountOnExit
                             >
                             <Table>
-                                {transaction_data.map((col: any, idx: number) => {
-                                    return (
-                                        <TableBody key={idx}>
+                                
+                                  
+                                        <TableBody>
                                         <tr
-                              
                             >
                               <td colSpan={6}>
                                 <Stack
@@ -349,7 +351,7 @@ const handleMenuClick = (data: { title: string; icon: string; action: string }) 
                                   className="collapse-wrapper"
                                 >
                                   <Paper className="means-wrapper">
-                                    <Stack spacing={0.5}>
+                                    <Stack spacing={0.5} mb={2.5}>
                                       {row?.payment_means?.length > 0 &&
                                         row.payment_means.map((item: any) => (
                                           <Stack
@@ -448,6 +450,7 @@ const handleMenuClick = (data: { title: string; icon: string; action: string }) 
                                               <Typography
                                                 variant="body2"
                                                 width={1}
+                                                textAlign='right'
                                               >
                                                 {item.amount ? (
                                                   <>
@@ -461,8 +464,7 @@ const handleMenuClick = (data: { title: string; icon: string; action: string }) 
                                           </Stack>
                                         ))}
                                     </Stack>
-                                  </Paper>
-                                  {/* {transaction_loading && <LinearProgress />} */}
+                                    {transaction_loading && <LinearProgress />}
                                   {transaction_data.length > 0 &&
                                     transaction_data.map((transaction) => (
                                       <Card
@@ -548,12 +550,13 @@ const handleMenuClick = (data: { title: string; icon: string; action: string }) 
                                         </CardContent>
                                       </Card>
                                     ))}
+                                  </Paper>
+                                  
                                 </Stack>
                               </td>
                             </tr>
                                         </TableBody>
-                                    );
-                                })}
+                                   
                             </Table>
                         </Collapse>
                     </TableCell>

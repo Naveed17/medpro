@@ -222,7 +222,6 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
      ".collapse-wrapper":{
         marginLeft:-1,
         marginRight:-1,
-        marginBottom:16,
         ".means-wrapper":{
             padding:theme.spacing(2),
             backgroundColor:theme.palette.background.default,
@@ -232,10 +231,14 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
         },
         '.consultation-card':{
             position:'relative',
+            
             ".MuiCardContent-root":{
                 "&:last-child":{
                     padding:theme.spacing(2)
                 }
+            },
+            "&:not(:last-child)":{
+            marginBottom:theme.spacing(2),
             }
         }
     },
