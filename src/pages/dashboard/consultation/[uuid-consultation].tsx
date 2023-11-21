@@ -1080,7 +1080,7 @@ function ConsultationInProgress() {
         resetWatch();
         mutateDoc();
         // recordingBlob will be present at this point after 'stopRecording' has been called
-    }, [recordingBlob])
+    }, [recordingBlob]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (httpPreviousResponse) {
