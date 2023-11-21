@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useState} from 'react'
+import React, {memo, useEffect, useRef, useState} from 'react'
 import {
     Autocomplete,
     Box,
@@ -67,6 +67,8 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
         const [hide, setHide] = useState<boolean>(false);
         const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
         const [isStarted, setIsStarted] = useState(false);
+
+        const modelContent = useRef(app_data?.notes ? app_data?.notes.value : "");
 
         const {trigger: triggerAddReason} = useRequestQueryMutation("/motif/add");
         const {trigger: triggerDiseases} = useRequestQueryMutation("/diseases");
@@ -168,8 +170,9 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
 
         const saveChanges = (ev: string, newValue: any) => {
             const form = new FormData();
-            if (ev === 'notes' && !isStarted) {
-                setOldNote(newValue);
+            if (ev === 'notes' ) {
+                modelContent.current = newValue
+                !isStarted && setOldNote(newValue);
             }
             form.append(ev === 'diagnosis' ? 'diagnostic' : ev, newValue);
 
@@ -361,7 +364,8 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
                                 seeHistory,
                                 isStarted,
                                 setIsStarted,
-                                debouncedOnChange
+                                debouncedOnChange,
+                                modelContent
                             }}/>
                             <Box width={1}>
                                 <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}

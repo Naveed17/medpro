@@ -541,6 +541,7 @@ function PaymentDialog({...props}) {
                                         selectedPayment,
                                         setSelectedPayment,
                                         addTransactions,
+                                        name:`${patient.firstName} ${patient.lastName}`,
                                         wallet
                                     }}/>
                                 ))}
