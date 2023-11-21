@@ -33,6 +33,7 @@ function PaymentCard({...props}) {
         setPayments,
         selectedPayment,
         setSelectedPayment,
+        name
     } = props;
     const theme: Theme = useTheme();
 
@@ -44,7 +45,7 @@ function PaymentCard({...props}) {
             payments[i] = {
                 ...payments[i],
                 selected: slug,
-                data: {bank: null, carrier: '', nb: '', date: new Date()}
+                data: {bank: null, carrier: `${name}`, nb: '', date: new Date()}
             }
         setPayments([...payments])
     }

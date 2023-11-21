@@ -145,6 +145,8 @@
     "no_transaction": "No consultation to pay",
     "add_now": "you have the option to add an advance payment"
 
-  }
+  },
+  "noTransaction":"No transaction",
+  "addTransaction": "Click on the + button to add a transaction"
 
 }

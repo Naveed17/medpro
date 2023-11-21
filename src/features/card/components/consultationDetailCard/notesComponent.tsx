@@ -40,7 +40,8 @@ function NotesComponent({...props}) {
         mutateSheetData,
         seeHistory,
         debouncedOnChange,
-        isStarted, setIsStarted
+        isStarted, setIsStarted,
+        modelContent
     } = props
 
     const [showToolbar, setShowToolbar] = useState<boolean>(false);
@@ -80,6 +81,7 @@ function NotesComponent({...props}) {
         }
 
     }
+
     const startListening = () => {
         resetTranscript();
         SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
@@ -90,7 +92,7 @@ function NotesComponent({...props}) {
 
     const saveModel = () => {
         const params = new FormData();
-        params.append("content", values.notes);
+        params.append("content", modelContent.current);
         params.append("title", titleModel);
         triggerObModels({
             method: "POST",
@@ -98,22 +100,24 @@ function NotesComponent({...props}) {
             data: params
         }, {
             onSuccess: () => {
-                mutateObMData().then(() => setOpenModel(false))
+                mutateObMData().then(() => {
+                    setOpenModel(false)
+                    setTitleModel('')
+                })
             }
         });
     }
-    // backend response 500
-    const deleteModel = () => {
+
+    const deleteModel = (itemUuid: string) => {
         triggerObModels({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/observations/${selectedModel}/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/observations/${itemUuid}/${router.locale}`,
         }, {
             onSuccess: () => {
                 mutateObMData()
             }
         });
     }
-
 
     useEffect(() => {
         if (isStarted) {
@@ -126,7 +130,6 @@ function NotesComponent({...props}) {
             );
         }
     }, [isStarted, setFieldValue, transcript])// eslint-disable-line react-hooks/exhaustive-deps
-
 
     return (
         <Box>
@@ -202,12 +205,12 @@ function NotesComponent({...props}) {
                                                spacing={2}
                                                justifyContent={"space-between"}>
                                             <Typography fontSize={12}>{model.title}</Typography>
-                                            {/* <IconButton style={{width:10,height:10}} onClick={(e)=> {
-                                                                e.stopPropagation();
-                                                                deleteModel();
-                                                            }}>
-                                                                <IconUrl width={10} height={10} path={"icdelete"}/>
-                                                            </IconButton>*/}
+                                            <IconButton style={{width: 15, height: 15, paddingTop: 0}} onClick={(e) => {
+                                                e.stopPropagation();
+                                                deleteModel(model.uuid);
+                                            }}>
+                                                <IconUrl width={10} height={10} path={"icdelete"}/>
+                                            </IconButton>
                                         </Stack>
                                     </MenuItem>
                                 ))}
@@ -277,14 +280,15 @@ function NotesComponent({...props}) {
                     }}/>
             }
             <Stack justifyContent={"flex-end"} direction={"row"} mt={-4}>
-                <IconButton className={"btn-full bookmark"}
-                            onClick={() => {
-                                setOpenModel(true)
-                            }}
-                            size={"small"}>
-                    <IconUrl path={'bookmark'}/>
-                </IconButton>
-
+                <Tooltip title={t('saveAsModel')}>
+                    <IconButton className={"btn-full bookmark"}
+                                onClick={() => {
+                                    setOpenModel(true)
+                                }}
+                                size={"small"}>
+                        <IconUrl path={'bookmark'}/>
+                    </IconButton>
+                </Tooltip>
             </Stack>
 
             <Dialog
@@ -308,7 +312,7 @@ function NotesComponent({...props}) {
                     <Button onClick={() => {
                         setOpenModel(false)
                     }}>{t('cancel')}</Button>
-                    <Button onClick={() => {
+                    <Button disabled={titleModel.length === 0} onClick={() => {
                         saveModel()
                     }}>{t('save')}</Button>
                 </DialogActions>

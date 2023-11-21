@@ -142,6 +142,7 @@ function PaymentDialog({...props}) {
 
     const addTransactions = () => {
         let amount = 0;
+        setLoading(true)
         let payment_means: any[] = []
         payments.map((pay: { amount: number; selected: boolean; data: any }) => {
             amount += pay.amount
@@ -171,6 +172,7 @@ function PaymentDialog({...props}) {
                 mutate().then(() => {
                     mutatePatient && mutatePatient();
                     setOpenPaymentDialog(false)
+                    setLoading(false)
                 });
             },
         });
@@ -539,6 +541,7 @@ function PaymentDialog({...props}) {
                                         selectedPayment,
                                         setSelectedPayment,
                                         addTransactions,
+                                        name:`${patient.firstName} ${patient.lastName}`,
                                         wallet
                                     }}/>
                                 ))}
@@ -560,7 +563,7 @@ function PaymentDialog({...props}) {
                 <Button
                     startIcon={<IconUrl path={'ic-argent'} color={'white'}/>}
                     endIcon={<AddIcon/>}
-                    disabled={getTotalPayments() == 0}
+                    disabled={getTotalPayments() == 0 || loading}
                     variant={"contained"}
                     color={getTotalApps() === 0 ? 'success' : 'primary'}
                     onClick={() => addTransactions()}>
