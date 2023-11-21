@@ -12,7 +12,6 @@ import {
     Stack,
     Table,
     TableBody,
-    TableRow,
     Tooltip,
     Typography,
     useTheme,
@@ -30,39 +29,14 @@ import moment from "moment-timezone";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
-import {ConditionalWrapper, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {alpha} from "@mui/material/styles";
+import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
 import {ImageHandler} from "@features/image";
 import { Label } from "@features/label";
-import { Popover } from "@features/popover";
-const MenuActions = [
-    {
-        title:"add-payment",
-        icon:<Icon path="ic-argent" color="white" />,
-        action:"onAddPayment"
-    },
-    {
-        title:"cash",
-        icon:<Icon path="ic-wallet-money" color="white"/>,
-        action:"onCash"
-    },
-     {
-        title:"delete",
-        icon:<Icon path="ic-delete" color="white" />,
-        action:"onDelete"
-    },
-     {
-        title:"see_patient_file",
-        icon:<Icon path="ic-file" color="white" />,
-        action:"onSeePatientFile"
-    },
-
-] 
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 function PaymentRow({...props}) {
     const dispatch = useAppDispatch();
     const {
@@ -79,8 +53,6 @@ function PaymentRow({...props}) {
     const theme = useTheme();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {trigger: invalidateQueries} = useInvalidateQueries();
-    const [openTooltip, setOpenTooltip] = useState(false);
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -88,8 +60,6 @@ function PaymentRow({...props}) {
 
     const [selected, setSelected] = useState<any>([]);
     const [transaction_data, setTransaction_data] = useState<any[]>([]);
-    const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
-    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
 
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const [transaction_loading,setTransaction_loading] = useState<boolean>(false)
@@ -113,24 +83,6 @@ function PaymentRow({...props}) {
         walletMutate && walletMutate()
     }
 
-    const deleteTransaction = () => {
-        const form = new FormData();
-        form.append("cash_box", selectedBoxes[0]?.uuid);
-
-        triggerPostTransaction({
-            method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/transactions/${row?.uuid}/${router.locale}`,
-            data: form
-        }, {
-            onSuccess: () => {
-                mutateTransactions()
-                mutatePatientWallet()
-                setLoadingDeleteTransaction(false);
-                setOpenDeleteTransactionDialog(false);
-            }
-        });
-
-    }
 
     const selectRow = (paymentUuid: string) => {
       setTransaction_loading(true)
@@ -146,26 +98,6 @@ function PaymentRow({...props}) {
             })
         }
     }
-const handleMenuClick = (data: { title: string; icon: string; action: string }) => {
-        setOpenTooltip(false);
-        switch (data.action) {
-            case "onAddPayment":
-                handleEvent({action: "ADD_PAYMENT", row, event: null});
-                break;
-            case "onCash":
-                handleEvent({action: "CASH", row, event: null});
-                break;
-            case "onDelete":
-                setOpenDeleteTransactionDialog(true);
-                break;
-            case "onSeePatientFile":
-                handleEvent({action: "SEE_PATIENT_FILE", row, event: null});
-                break;
-            default:
-                break;
-        
-        }
-}
     useEffect(() => {
         dispatch(addBilling(selected));
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -296,24 +228,16 @@ const handleMenuClick = (data: { title: string; icon: string; action: string }) 
                             {row.amount} {" "}
                             <span>{devise}</span>
                         </Typography>
-                        <Popover
-                        open={openTooltip}
-                        handleClose={() => setOpenTooltip(false)}
-                        menuList={MenuActions}
-                        onClickItem={handleMenuClick}
-                        button={
+                            <Tooltip title={t('more')}>
                             <IconButton
-                                onClick={() => {
-                                    setOpenTooltip(true);
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleEvent({action:"OPEN-POPOVER", row, event});
                                 }}
-                                sx={{display: "block", ml: "auto"}}
-                                size="small"
-                            >
-                                <IconUrl path="more-vert"/>
+                                size="small">
+                                <MoreVertIcon/>
                             </IconButton>
-                        }
-                    />
-
+                        </Tooltip>
                     </Stack>
                 </TableCell>
 
@@ -351,7 +275,7 @@ const handleMenuClick = (data: { title: string; icon: string; action: string }) 
                                   className="collapse-wrapper"
                                 >
                                   <Paper className="means-wrapper">
-                                    <Stack spacing={0.5} mb={2.5}>
+                                    <Stack spacing={0.5} mb={ (transaction_data.length > 0 || transaction_loading) ? 2.5:0}>
                                       {row?.payment_means?.length > 0 &&
                                         row.payment_means.map((item: any) => (
                                           <Stack
@@ -563,34 +487,7 @@ const handleMenuClick = (data: { title: string; icon: string; action: string }) 
                 </TableRowStyled>
             )}
 
-            <Dialog
-                action="delete-transaction"
-                title={t("dialogs.delete-dialog.title")}
-                open={openDeleteTransactionDialog}
-                size="sm"
-                data={{t}}
-                color={theme.palette.error.main}
-                actionDialog={
-                    <Stack direction="row" spacing={1}>
-                        <Button
-                            onClick={() => {
-                                setLoadingDeleteTransaction(false);
-                                setOpenDeleteTransactionDialog(false);
-                            }}
-                            startIcon={<CloseIcon/>}>
-                            {t("cancel")}
-                        </Button>
-                        <LoadingButton
-                            variant="contained"
-                            loading={loadingDeleteTransaction}
-                            color="error"
-                            onClick={deleteTransaction}
-                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
-                            {t("delete")}
-                        </LoadingButton>
-                    </Stack>
-                }
-            />
+            
         </>
     );
 }

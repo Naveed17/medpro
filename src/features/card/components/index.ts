@@ -54,3 +54,4 @@ export * from "./cashoutMobileCard";
 export * from "./inventoryMobileCard";
 export * from './waitingRoomMobileCard'
 export * from './unpaidConsultationCard';
+export * from './newCashboxMobileCard'

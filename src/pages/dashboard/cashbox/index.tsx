@@ -10,10 +10,12 @@ import {
     Drawer,
     IconButton,
     LinearProgress,
+    MenuItem,
     Stack,
     Theme,
     Typography,
     useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {configSelector, DashLayout} from "@features/base";
@@ -21,7 +23,7 @@ import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NoDataCard, UnpaidConsultationCard} from "@features/card";
+import {NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -42,6 +44,8 @@ import moment from "moment/moment";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import { Pagination } from "@features/pagination";
 import { Popover } from "@features/popover";
+import {ActionMenu} from "@features/menu";
+import { LoadingButton } from "@mui/lab";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -124,14 +128,35 @@ const noCardData = {
     title: "no-data.title",
     description: "no-data.description",
 };
+const MenuActions = [
+    {
+        title:"add-payment",
+        icon:<IconUrl path="ic-argent" color="white" />,
+        action:"onAddPayment"
+    },
+    {
+        title:"cash",
+        icon:<IconUrl path="ic-wallet-money" color="white"/>,
+        action:"onCash"
+    },
+     {
+        title:"delete",
+        icon:<IconUrl path="ic-delete" color="white" />,
+        action:"onDelete"
+    },
+     {
+        title:"see_patient_file",
+        icon:<IconUrl path="ic-file" color="white" />,
+        action:"onSeePatientFile"
+    },
+
+] 
 
 function Cashbox() {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
+    const theme:Theme = useTheme()
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {insurances} = useInsurances();
@@ -167,7 +192,12 @@ function Cashbox() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const filterQuery: string = generateFilter({filterCB});
-    
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
+    const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
+    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
     const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox/post");
 
     const {data: paymentMeansHttp} = useRequestQuery({
@@ -216,16 +246,28 @@ function Cashbox() {
     }
 
     const handleTableActions = (data: any) => {
-        switch (data.action) {
+        const {action,event,row} = data
+        switch (action) {
             case "PATIENT_DETAILS":
-                if (data.row?.uuid) {
-                    dispatch(onOpenPatientDrawer({patientId: data.row.uuid}));
+                if (row?.uuid) {
+                    dispatch(onOpenPatientDrawer({patientId: row.uuid}));
                     setPatientDetailDrawer(true);
                 }
                 break;
             case "PATIENT_PAYMENT":
                 setPaymentDrawer(true);
-                setCashbox(data.row);
+                setCashbox(row);
+                break;
+                case "OPEN-POPOVER":   
+                event.preventDefault();
+                setContextMenu(
+                    contextMenu === null
+                        ? {
+                            mouseX: event.clientX + 2,
+                            mouseY: event.clientY - 6,
+                        } : null,
+                );
+                setCashbox(row);
                 break;
         }
     }
@@ -339,6 +381,35 @@ function Cashbox() {
         }
         setOpenPaymentDialog(false);
     }
+    const deleteTransaction = () => {
+        setLoadingDeleteTransaction(true)
+        const form = new FormData();
+        form.append("cash_box", selectedBoxes[0]?.uuid);
+        triggerPostTransaction({
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/transactions/${selectedCashBox.uuid}/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                mutateTransactions()
+                // mutatePatientWallet()
+                setLoadingDeleteTransaction(false);
+                setOpenDeleteTransactionDialog(false);
+            }
+        });
+
+    }
+     const OnMenuActions = (action: string) => {
+        handleCloseMenu();
+        switch (action) {
+            case "onDelete":
+                setOpenDeleteTransactionDialog(true);
+                break;
+        }
+    }
+    const handleCloseMenu = () => {
+        setContextMenu(null);
+    }
 
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
     
@@ -419,11 +490,11 @@ function Cashbox() {
                 {rows.length > 0 ? (
                     <Card>
                         <CardContent>
-                         <Stack direction='row' alignItems='center' justifyContent="space-between" mb={2} pb={1} borderBottom={1} borderColor='divider'>
+                         <Stack direction='row' alignItems={{xs:'flex-start',md:'center'}} justifyContent="space-between" mb={2} pb={1} borderBottom={1} borderColor='divider'>
                             <Typography fontWeight={700}>
                                 {t("transactions")}
                             </Typography>
-                            <Stack direction='row' alignItems='center' spacing={1}>
+                            <Stack direction={'row'} alignItems="center"  spacing={1}>
                                 <Typography fontWeight={700}>
                                 {t('to',{ns:'common'})} {" "}
                                 novembre - 21 novembre
@@ -446,6 +517,17 @@ function Cashbox() {
                                 />
                             )}
                         </DesktopContainer>
+                        <MobileContainer>
+                            <Stack spacing={2}>
+                                {!loading && (
+                                    rows.map((row, idx) => (
+                                        <React.Fragment key={row.uuid}>
+                                        <NewCashboxMobileCard {...{row,t,pmList,devise,handleEvent:handleTableActions,mutateTransactions}}/>
+                                        </React.Fragment>
+                                    ))
+                                )}
+                            </Stack>
+                        </MobileContainer>
                         </CardContent>
                     </Card>
                 ) : (
@@ -569,6 +651,51 @@ function Cashbox() {
                 title={t("filter.title", {ns: 'common'})}>
                 <CashboxFilter/>
             </DrawerBottom>
+            <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
+                {MenuActions.map(
+                    (v: any, index) => (
+                        <MenuItem
+                            key={index}
+                            className="popover-item"
+                            onClick={() => {
+                                OnMenuActions(v.action);
+                            }}>
+                            {v.icon}
+                            <Typography fontSize={15} sx={{color: "#fff"}}>
+                                {t(v.title,{ns:'common'})}
+                            </Typography>
+                        </MenuItem>
+                    )
+                )}
+            </ActionMenu>
+            <Dialog
+                action="delete-transaction"
+                title={t("dialogs.delete-dialog.title")}
+                open={openDeleteTransactionDialog}
+                size="sm"
+                data={{t}}
+                color={theme.palette.error.main}
+                actionDialog={
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
+                                setLoadingDeleteTransaction(false);
+                                setOpenDeleteTransactionDialog(false);
+                            }}
+                            startIcon={<CloseIcon/>}>
+                            {t("cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loadingDeleteTransaction}
+                            color="error"
+                            onClick={deleteTransaction}
+                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}>
+                            {t("delete")}
+                        </LoadingButton>
+                    </Stack>
+                }
+            />
         </>
     );
 }
