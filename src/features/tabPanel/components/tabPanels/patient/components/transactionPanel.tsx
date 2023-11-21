@@ -514,7 +514,9 @@ function TransactionPanel({...props}) {
                     mb={1.2}
                 >
                     <Typography fontWeight={600}>{t("transactions")}</Typography>
-                    <Button startIcon={<IconUrl path="ic-argent"/>} variant="contained">
+                    <Button startIcon={<IconUrl path="ic-argent"/>}
+                            onClick={() => setOpenPaymentDialog(true)}
+                            variant="contained">
                         {t("add_payment")}
                     </Button>
                 </Stack>
