@@ -58,8 +58,11 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
         const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
         const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
+        const app_data = defaultExam?.appointment_data;
+
+
         const [loadingReq, setLoadingReq] = useState(false);
-        let [oldNote, setOldNote] = useState('');
+        let [oldNote, setOldNote] = useState(app_data?.notes ? app_data?.notes.value : "");
         let [diseases, setDiseases] = useState<string[]>([]);
         const [hide, setHide] = useState<boolean>(false);
         const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
@@ -82,7 +85,6 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
 
         const reasons = (httpConsultReasonResponse as HttpResponse)?.data;
 
-        const app_data = defaultExam?.appointment_data;
 
         const formik = useFormik({
             enableReinitialize: true,

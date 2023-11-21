@@ -1231,7 +1231,7 @@ function ConsultationInProgress() {
                                                                             </Stack>
                                                                             <Collapse in={item.expanded} timeout="auto"
                                                                                       unmountOnExit>
-                                                                                {item.content === 'exam' &&
+                                                                                {item.content === 'exam' && sheet && sheetExam &&
                                                                                     <ConsultationDetailCard
                                                                                         {...{
                                                                                             changes,
