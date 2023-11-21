@@ -1973,6 +1973,7 @@ function ConsultationInProgress() {
                                             RHAP_UI.PROGRESS_BAR,
                                             RHAP_UI.CURRENT_TIME,
                                             <IconButton
+                                                key={"close-icon"}
                                                 sx={{ml: 1}}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
@@ -1985,10 +1986,11 @@ function ConsultationInProgress() {
                                     customControlsSection={
                                         [
                                             RHAP_UI.MAIN_CONTROLS,
-                                            <IconButton>
+                                            <IconButton key={"ic-ia-document"}>
                                                 <IconUrl width={20} height={20} path={'ic-ia-document'}/>
                                             </IconButton>,
                                             <IconButton
+                                                key={"ic-trash"}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     removeAudioDoc();
