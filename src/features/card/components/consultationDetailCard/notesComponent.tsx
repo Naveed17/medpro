@@ -102,11 +102,11 @@ function NotesComponent({...props}) {
             }
         });
     }
-    // backend response 500
-    const deleteModel = () => {
+
+    const deleteModel = (itemUuid:string) => {
         triggerObModels({
             method: "DELETE",
-            url: `${urlMedicalProfessionalSuffix}/observations/${selectedModel}/${router.locale}`,
+            url: `${urlMedicalProfessionalSuffix}/observations/${itemUuid}/${router.locale}`,
         }, {
             onSuccess: () => {
                 mutateObMData()
@@ -202,12 +202,12 @@ function NotesComponent({...props}) {
                                                spacing={2}
                                                justifyContent={"space-between"}>
                                             <Typography fontSize={12}>{model.title}</Typography>
-                                            {/* <IconButton style={{width:10,height:10}} onClick={(e)=> {
-                                                                e.stopPropagation();
-                                                                deleteModel();
-                                                            }}>
-                                                                <IconUrl width={10} height={10} path={"icdelete"}/>
-                                                            </IconButton>*/}
+                                            <IconButton style={{width: 15, height: 15,paddingTop:0}}  onClick={(e) => {
+                                                e.stopPropagation();
+                                                deleteModel(model.uuid);
+                                            }}>
+                                                <IconUrl width={10} height={10} path={"icdelete"}/>
+                                            </IconButton>
                                         </Stack>
                                     </MenuItem>
                                 ))}
@@ -277,14 +277,15 @@ function NotesComponent({...props}) {
                     }}/>
             }
             <Stack justifyContent={"flex-end"} direction={"row"} mt={-4}>
-                <IconButton className={"btn-full bookmark"}
-                            onClick={() => {
-                                setOpenModel(true)
-                            }}
-                            size={"small"}>
-                    <IconUrl path={'bookmark'}/>
-                </IconButton>
-
+                <Tooltip title={t('saveAsModel')}>
+                    <IconButton className={"btn-full bookmark"}
+                                onClick={() => {
+                                    setOpenModel(true)
+                                }}
+                                size={"small"}>
+                        <IconUrl path={'bookmark'}/>
+                    </IconButton>
+                </Tooltip>
             </Stack>
 
             <Dialog
