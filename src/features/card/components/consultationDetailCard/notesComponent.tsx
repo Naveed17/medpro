@@ -40,7 +40,8 @@ function NotesComponent({...props}) {
         mutateSheetData,
         seeHistory,
         debouncedOnChange,
-        isStarted, setIsStarted
+        isStarted, setIsStarted,
+        modelContent
     } = props
 
     const [showToolbar, setShowToolbar] = useState<boolean>(false);
@@ -80,6 +81,7 @@ function NotesComponent({...props}) {
         }
 
     }
+
     const startListening = () => {
         resetTranscript();
         SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
@@ -90,7 +92,7 @@ function NotesComponent({...props}) {
 
     const saveModel = () => {
         const params = new FormData();
-        params.append("content", values.notes);
+        params.append("content", modelContent.current);
         params.append("title", titleModel);
         triggerObModels({
             method: "POST",
@@ -98,12 +100,15 @@ function NotesComponent({...props}) {
             data: params
         }, {
             onSuccess: () => {
-                mutateObMData().then(() => setOpenModel(false))
+                mutateObMData().then(() => {
+                    setOpenModel(false)
+                    setTitleModel('')
+                })
             }
         });
     }
 
-    const deleteModel = (itemUuid:string) => {
+    const deleteModel = (itemUuid: string) => {
         triggerObModels({
             method: "DELETE",
             url: `${urlMedicalProfessionalSuffix}/observations/${itemUuid}/${router.locale}`,
@@ -113,7 +118,6 @@ function NotesComponent({...props}) {
             }
         });
     }
-
 
     useEffect(() => {
         if (isStarted) {
@@ -126,7 +130,6 @@ function NotesComponent({...props}) {
             );
         }
     }, [isStarted, setFieldValue, transcript])// eslint-disable-line react-hooks/exhaustive-deps
-
 
     return (
         <Box>
@@ -202,7 +205,7 @@ function NotesComponent({...props}) {
                                                spacing={2}
                                                justifyContent={"space-between"}>
                                             <Typography fontSize={12}>{model.title}</Typography>
-                                            <IconButton style={{width: 15, height: 15,paddingTop:0}}  onClick={(e) => {
+                                            <IconButton style={{width: 15, height: 15, paddingTop: 0}} onClick={(e) => {
                                                 e.stopPropagation();
                                                 deleteModel(model.uuid);
                                             }}>
@@ -309,7 +312,7 @@ function NotesComponent({...props}) {
                     <Button onClick={() => {
                         setOpenModel(false)
                     }}>{t('cancel')}</Button>
-                    <Button onClick={() => {
+                    <Button disabled={titleModel.length === 0} onClick={() => {
                         saveModel()
                     }}>{t('save')}</Button>
                 </DialogActions>
