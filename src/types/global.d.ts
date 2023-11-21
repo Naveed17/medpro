@@ -32,7 +32,15 @@ declare module "notistack" {
         offline: true;
     }
 }
+declare module "@mui/material/Fab" {
+    interface FabPropsColorOverrides {
+        text: true,
+        white: true;
+        black: true;
+    }
+}
 declare module "@mui/material/Button" {
+
     interface ButtonPropsVariantOverrides {
         google: true;
         white: true;

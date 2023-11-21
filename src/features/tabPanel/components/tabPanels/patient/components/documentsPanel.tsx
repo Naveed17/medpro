@@ -280,6 +280,7 @@ function DocumentsPanel({...props}) {
             setOpenDialog(true);
         }
     }
+
     const saveQuote = () => {
         if (medicalEntityHasUser) {
             let rows: {
