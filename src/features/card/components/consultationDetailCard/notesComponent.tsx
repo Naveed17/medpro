@@ -252,6 +252,7 @@ function NotesComponent({...props}) {
                     onEditorChange={(event) => {
                         debouncedOnChange("notes", event)
                     }}
+                    disabled={isStarted}
                     init={{
                         branding: false,
                         statusbar: false,
@@ -270,6 +271,7 @@ function NotesComponent({...props}) {
                     onEditorChange={(event) => {
                         debouncedOnChange("notes", event)
                     }}
+                    disabled={isStarted}
                     init={{
                         branding: false,
                         statusbar: false,

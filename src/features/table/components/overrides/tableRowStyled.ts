@@ -218,6 +218,62 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
     "& .MuiAvatar-root .error": {
         marginLeft: 8,
         width: 14
+    },
+     ".collapse-wrapper":{
+        marginLeft:-1,
+        marginRight:-1,
+        ".means-wrapper":{
+            padding:theme.spacing(2),
+            backgroundColor:theme.palette.background.default,
+            borderTopLeftRadius:0,
+            borderTopRightRadius:0,
+            borderTop:'none'
+        },
+        '.consultation-card':{
+            position:'relative',
+            
+            ".MuiCardContent-root":{
+                "&:last-child":{
+                    padding:theme.spacing(2)
+                }
+            },
+            "&:not(:last-child)":{
+            marginBottom:theme.spacing(2),
+            }
+        }
+    },
+    "&.row-cashbox":{
+      ".MuiTableCell-root":{
+        "&.MuiTableCell-root":{
+         borderTop:`1px solid ${theme.palette.divider}`,
+            borderBottom:`1px solid ${theme.palette.divider}`,
+            
+              "&:first-of-type": {
+                borderLeft: `1px solid ${theme.palette.divider}`,
+                borderTopLeftRadius:6,
+                borderBottomLeftRadius:6,
+              },
+              "&:last-of-type": {
+                borderRight: `1px solid ${theme.palette.divider}`,
+                borderTopRightRadius:6,
+                borderBottomRightRadius:6,
+
+              },
+            }
+      },
+      "&.row-collapse":{
+         ".MuiTableCell-root":{
+         "&.MuiTableCell-root":{
+              "&:first-of-type": {
+                borderBottomLeftRadius:0,
+              },
+              "&:last-of-type": {
+                borderBottomRightRadius:0,
+              }
+            }
+        }  
+      }  
     }
+    
 }));
 export default TableRowStyled;
