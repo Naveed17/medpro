@@ -1851,7 +1851,7 @@ function ConsultationInProgress() {
                 </Fab>
             </Draggable>
 
-            {(record || selectedAudio !== null) && <Draggable>
+            {(record || selectedAudio !== null) && <Draggable cancel=".btn-action">
                 <CardMedia
                     sx={{
                         position: "fixed",
@@ -1909,6 +1909,7 @@ function ConsultationInProgress() {
                                         </Fab>
 
                                         <CustomIconButton
+                                            className={"btn-action"}
                                             onClick={(event: any) => {
                                                 event.stopPropagation();
                                                 togglePauseResume();
@@ -1924,6 +1925,7 @@ function ConsultationInProgress() {
                                             <IconUrl path={(isPaused || saveAudio) ? 'ic-play-audio' : 'ic-pause'}/>
                                         </CustomIconButton>
                                         {(isPaused || saveAudio) && <LoadingButton
+                                            className={"btn-action"}
                                             loading={loadingRequest}
                                             loadingPosition={"start"}
                                             onClick={(event) => {
@@ -1945,6 +1947,7 @@ function ConsultationInProgress() {
                                             <Typography>{t("consultationIP.stop")}</Typography>
                                         </LoadingButton>}
                                         <IconButton
+                                            className={"btn-action"}
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 setSaveAudio(false);
@@ -1955,7 +1958,7 @@ function ConsultationInProgress() {
                                             <IconUrl width={24} height={24} path={'ic-trash'}/>
                                         </IconButton>
                                         <IconButton
-                                            className={"close-button"}
+                                            className={"close-button btn-action"}
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 setSaveAudioSection(true);
@@ -1967,6 +1970,7 @@ function ConsultationInProgress() {
                                     <>
                                         <Stack direction={"row"} spacing={1}>
                                             <LoadingButton
+                                                className={"btn-action"}
                                                 loading={loadingRequest}
                                                 loadingPosition={"start"}
                                                 startIcon={<IconUrl width={20} height={20} path={'iconfinder_save'}/>}
@@ -1988,6 +1992,7 @@ function ConsultationInProgress() {
                                                 <Typography>{t("consultationIP.close-save")}</Typography>
                                             </LoadingButton>
                                             <Button
+                                                className={"btn-action"}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     setSaveAudioSection(false);
@@ -2006,7 +2011,7 @@ function ConsultationInProgress() {
                                             </Button>
                                         </Stack>
                                         <IconButton
-                                            className={"close-button"}
+                                            className={"close-button btn-action"}
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 setSaveAudio(false);

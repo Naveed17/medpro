@@ -12,8 +12,8 @@ function DocumentContent({...props}) {
             <Typography
                 className={"sub-title ellipsis"} variant='subtitle2'
                 whiteSpace={"nowrap"}
-                sx={{cursor: "pointer", width: 120}}
-                textAlign={"center"}
+                sx={{cursor: "pointer", maxWidth: 120}}
+                textAlign={"left"}
                 fontSize={13}>
                 {t(data.title)}
             </Typography>
