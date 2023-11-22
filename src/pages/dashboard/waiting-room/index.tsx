@@ -414,8 +414,9 @@ function WaitingRoom() {
             id: '1',
             name: 'today-rdv',
             url: '#',
-            icon: <CalendarIcon/>,
+            icon: <CalendarIcon sx={{width: 24, height: 24}}/>,
             action: <CustomIconButton
+                sx={{mr: 1}}
                 onClick={() => {
                     setQuickAddAppointment(true);
                     setTimeout(() => setQuickAddAppointmentTab(1));
@@ -525,7 +526,6 @@ function WaitingRoom() {
                         {waitingRoomsGroup[1] ? <>
                                 <Card sx={{mr: {xs: 0, sm: 2}, mb: 2, minWidth: 235}}>
                                     <CardHeader
-
                                         avatar={columns[0].icon}
                                         {...(columns[0].action && {action: columns[0].action})}
                                         title={<Typography
