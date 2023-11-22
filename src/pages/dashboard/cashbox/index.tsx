@@ -8,13 +8,11 @@ import {
     CardContent,
     DialogActions,
     Drawer,
-    IconButton,
     LinearProgress,
     MenuItem,
     Stack,
     Theme,
     Typography,
-    useMediaQuery,
     useTheme,
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
@@ -23,7 +21,7 @@ import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard} from "@features/card";
+import {NewCashboxMobileCard, NoDataCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -42,10 +40,8 @@ import {PaymentDrawer} from "@features/drawer";
 import {DrawerBottom} from "@features/drawerBottom";
 import moment from "moment/moment";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import { Pagination } from "@features/pagination";
-import { Popover } from "@features/popover";
 import {ActionMenu} from "@features/menu";
-import { LoadingButton } from "@mui/lab";
+import {LoadingButton} from "@mui/lab";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -58,7 +54,7 @@ interface HeadCell {
 
 export const headCells: readonly HeadCell[] = [
     {
-        id:"empty",
+        id: "empty",
         numeric: false,
         disablePadding: true,
         label: "empty",
@@ -89,16 +85,16 @@ export const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "center",
     },
-      {
-            id: "type",
-            numeric: true,
-            disablePadding: false,
-            label: "type",
-            sortable: true,
-            align: "center",
+    {
+        id: "type",
+        numeric: true,
+        disablePadding: false,
+        label: "type",
+        sortable: true,
+        align: "center",
     },
     {
-        id:'advance',
+        id: 'advance',
         numeric: true,
         disablePadding: false,
         label: "advance",
@@ -130,33 +126,33 @@ const noCardData = {
 };
 const MenuActions = [
     {
-        title:"add-payment",
-        icon:<IconUrl path="ic-argent" color="white" />,
-        action:"onAddPayment"
+        title: "add-payment",
+        icon: <IconUrl path="ic-argent" color="white"/>,
+        action: "onAddPayment"
     },
     {
-        title:"cash",
-        icon:<IconUrl path="ic-wallet-money" color="white"/>,
-        action:"onCash"
+        title: "cash",
+        icon: <IconUrl path="ic-wallet-money" color="white"/>,
+        action: "onCash"
     },
-     {
-        title:"delete",
-        icon:<IconUrl path="ic-delete" color="white" />,
-        action:"onDelete"
+    {
+        title: "delete",
+        icon: <IconUrl path="ic-delete" color="white"/>,
+        action: "onDelete"
     },
-     {
-        title:"see_patient_file",
-        icon:<IconUrl path="ic-file" color="white" />,
-        action:"onSeePatientFile"
+    {
+        title: "see_patient_file",
+        icon: <IconUrl path="ic-file" color="white"/>,
+        action: "onSeePatientFile"
     },
 
-] 
+]
 
 function Cashbox() {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const theme:Theme = useTheme()
+    const theme: Theme = useTheme()
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {insurances} = useInsurances();
@@ -246,7 +242,7 @@ function Cashbox() {
     }
 
     const handleTableActions = (data: any) => {
-        const {action,event,row} = data
+        const {action, event, row} = data
         switch (action) {
             case "PATIENT_DETAILS":
                 if (row?.uuid) {
@@ -258,7 +254,7 @@ function Cashbox() {
                 setPaymentDrawer(true);
                 setCashbox(row);
                 break;
-                case "OPEN-POPOVER":   
+            case "OPEN-POPOVER":
                 event.preventDefault();
                 setContextMenu(
                     contextMenu === null
@@ -399,7 +395,7 @@ function Cashbox() {
         });
 
     }
-     const OnMenuActions = (action: string) => {
+    const OnMenuActions = (action: string) => {
         handleCloseMenu();
         switch (action) {
             case "onDelete":
@@ -412,7 +408,7 @@ function Cashbox() {
     }
 
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
-    
+
 
     return (
         <>
@@ -420,12 +416,10 @@ function Cashbox() {
                 <Stack
                     direction={{xs: "column", md: "row"}}
                     width={1}
-                    justifyContent="space-between"
+                    justifyContent="flex-end"
                     py={1}
                     alignItems={{xs: "flex-start", md: "center"}}>
-                    <Typography>
-                        <b>{txtFilter}</b>
-                    </Typography>
+
                     <Stack
                         direction={{xs: "column", md: "row"}}
                         spacing={{xs: 1, md: 3}}
@@ -440,6 +434,12 @@ function Cashbox() {
                                     I
                                 </Typography>
                             </>}
+
+                            <Button sx={{borderColor: 'divider', bgcolor: theme => theme.palette.grey['A500'],}}
+                                    variant="outlined" color="info">
+                                {t('unpaid')} <b>520 {devise}</b>
+                            </Button>
+                            <Typography>{t("total")}</Typography>
 
                             <Typography variant="h6">
                                 {total} <span style={{fontSize: 10}}>{devise}</span>
@@ -456,7 +456,7 @@ function Cashbox() {
 
             <Box className="container">
                 <Stack spacing={2}>
-                <Card sx={{border:'none'}}>
+                    {/*<Card sx={{border:'none'}}>
                     <CardContent>
                         <Stack direction="row" alignItems='center' justifyContent='space-between' pb={1} mb={2} borderBottom={1} borderColor='divider'>
                             <Typography fontWeight={700}>
@@ -467,7 +467,7 @@ function Cashbox() {
                                 novembre - 21 novembre
                             </Typography>
                         </Stack>
-                        <Stack 
+                        <Stack
                         sx={{
                             display: 'grid',
                             gridTemplateColumns:{xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)'},
@@ -479,72 +479,80 @@ function Cashbox() {
                             <React.Fragment key={idx}>
                               <UnpaidConsultationCard {...{t,devise}}/>
                             </React.Fragment>
-                         ))}   
-                        
+                         ))}
+
                         </Stack>
                         <Box mt={2} display={{xs:'none',md:'block'}}>
                         <Pagination total={10} count={20}/>
                         </Box>
                     </CardContent>
-                </Card>
-                {rows.length > 0 ? (
-                    <Card>
-                        <CardContent>
-                         <Stack direction='row' alignItems={{xs:'flex-start',md:'center'}} justifyContent="space-between" mb={2} pb={1} borderBottom={1} borderColor='divider'>
-                            <Typography fontWeight={700}>
-                                {t("transactions")}
-                            </Typography>
-                            <Stack direction={'row'} alignItems="center"  spacing={1}>
-                                <Typography fontWeight={700}>
-                                {t('to',{ns:'common'})} {" "}
-                                novembre - 21 novembre
-                            </Typography>
-                            <Button sx={{
-                                borderColor:'divider',
-                                bgcolor: theme => theme.palette.grey['A500'],
-                            }} variant="outlined" color="info" startIcon={<IconUrl path="ic-export-new" />}>
-                                {t("export")}
-                            </Button>
-                            </Stack>
-                            </Stack>   
-                        <DesktopContainer>
-                            {!loading && (
-                                <Otable
-                                    {...{rows, t, insurances, pmList, mutateTransactions, filterCB}}
-                                    headers={headCells}
-                                    from={"cashbox"}
-                                    handleEvent={handleTableActions}
-                                />
-                            )}
-                        </DesktopContainer>
-                        <MobileContainer>
-                            <Stack spacing={2}>
-                                {!loading && (
-                                    rows.map((row, idx) => (
-                                        <React.Fragment key={row.uuid}>
-                                        <NewCashboxMobileCard {...{row,t,pmList,devise,handleEvent:handleTableActions,mutateTransactions}}/>
-                                        </React.Fragment>
-                                    ))
-                                )}
-                            </Stack>
-                        </MobileContainer>
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <Box
-                        style={{
-                            height: "75vh",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                    >
-                        <NoDataCard t={t} ns={"payment"} data={noCardData}/>
-                    </Box>
-                )}
+                </Card>*/}
+                    {rows.length > 0 ? (
+                        <Card>
+                            <CardContent>
+                                <Stack direction='row' alignItems={{xs: 'flex-start', md: 'center'}}
+                                       justifyContent="space-between" mb={2} pb={1} borderBottom={1}
+                                       borderColor='divider'>
+                                    <Typography fontWeight={700}>
+                                        {t("transactions")}
+                                    </Typography>
+                                    <Stack direction={'row'} alignItems="center" spacing={1}>
+                                        <Typography fontWeight={700}>
+                                            {txtFilter}
+                                        </Typography>
+                                        <Button sx={{
+                                            borderColor: 'divider',
+                                            bgcolor: theme => theme.palette.grey['A500'],
+                                        }} variant="outlined" color="info" startIcon={<IconUrl path="ic-export-new"/>}>
+                                            {t("export")}
+                                        </Button>
+                                    </Stack>
+                                </Stack>
+                                <DesktopContainer>
+                                    {!loading && (
+                                        <Otable
+                                            {...{rows, t, insurances, pmList, mutateTransactions, filterCB}}
+                                            headers={headCells}
+                                            from={"cashbox"}
+                                            handleEvent={handleTableActions}
+                                        />
+                                    )}
+                                </DesktopContainer>
+                                <MobileContainer>
+                                    <Stack spacing={2}>
+                                        {!loading && (
+                                            rows.map((row, idx) => (
+                                                <React.Fragment key={row.uuid}>
+                                                    <NewCashboxMobileCard {...{
+                                                        row,
+                                                        t,
+                                                        pmList,
+                                                        devise,
+                                                        handleEvent: handleTableActions,
+                                                        mutateTransactions
+                                                    }}/>
+                                                </React.Fragment>
+                                            ))
+                                        )}
+                                    </Stack>
+                                </MobileContainer>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <Box
+                            style={{
+                                height: "75vh",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                        >
+                            <NoDataCard t={t} ns={"payment"} data={noCardData}/>
+                        </Box>
+                    )}
                 </Stack>
             </Box>
-                     
+
             <Drawer
                 anchor={"right"}
                 open={patientDetailDrawer}
@@ -662,7 +670,7 @@ function Cashbox() {
                             }}>
                             {v.icon}
                             <Typography fontSize={15} sx={{color: "#fff"}}>
-                                {t(v.title,{ns:'common'})}
+                                {t(v.title, {ns: 'common'})}
                             </Typography>
                         </MenuItem>
                     )

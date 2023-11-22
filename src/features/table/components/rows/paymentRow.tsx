@@ -177,7 +177,7 @@ function PaymentRow({...props}) {
                                 sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}}>
                                 {row.patient.insurances.map((insuranceItem: InsuranceModel) => (
                                         <Tooltip
-                                            key={insuranceItem?.uuid}
+                                            key={insuranceItem?.uuid+"x"}
                                             title={insuranceItem?.name}>
                                             <Avatar variant={"circular"}>
                                                 {insurances?.find((insurance: any) => insurance.uuid === insuranceItem?.uuid) &&
@@ -223,7 +223,7 @@ function PaymentRow({...props}) {
                             justifyContent="center"
                             spacing={1}>
                             {row.payment_type.map((type: string, i: number) => (
-                                <Icon key={i} path={type}/>
+                                <Icon key={i+"payment_type"} path={type}/>
                             ))}
                         </Stack>
                     )}

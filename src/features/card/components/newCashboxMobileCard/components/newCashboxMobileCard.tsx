@@ -105,7 +105,7 @@ export default function NewCashboxMobileCard({ ...props }) {
               >
                 {row.payment_means &&
                   row.payment_means.map((mean: any) => (
-                    <Tooltip key={mean.slug} title={`${mean.amount} ${devise}`}>
+                    <Tooltip key={mean.slug+"mobile"} title={`${mean.amount} ${devise}`}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         style={{ width: 15 }}
@@ -156,7 +156,7 @@ export default function NewCashboxMobileCard({ ...props }) {
               {row?.payment_means?.length > 0 &&
                 row.payment_means.map((item: any) => (
                   <Stack
-                    key={item.uuid}
+                    key={item.uuid+"mobile"}
                     spacing={1}
                     border={1}
                     borderColor="divider"
@@ -230,7 +230,7 @@ export default function NewCashboxMobileCard({ ...props }) {
             {transaction_loading && <LinearProgress />}
           {transaction_data.length > 0 &&
             transaction_data.map((transaction: any) => (
-              <Card className="consultation-card" key={transaction.uuid}>
+              <Card className="consultation-card" key={transaction.uuid+"mobile"}>
                 <CardContent>
                   <Stack
                     direction="row"
@@ -296,7 +296,7 @@ export default function NewCashboxMobileCard({ ...props }) {
               </Card>
             ))}
           </Paper>
-          
+
         </Stack>
       </CollapseStyled>
     </Stack>
