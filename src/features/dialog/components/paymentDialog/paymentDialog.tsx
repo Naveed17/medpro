@@ -240,9 +240,9 @@ function PaymentDialog({...props}) {
             if (loading)
                 setAllApps(_apps)
             setPayments([{selected: 'cash', amount: total}])
-            setTimeout(()=>{
+            setTimeout(() => {
                 setLoading(false)
-            },1000)
+            }, 1000)
         }
     }, [httpPatientTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -439,8 +439,22 @@ function PaymentDialog({...props}) {
                                                     <Card key={index} style={{padding: 10}}>
                                                         <Stack direction={"row"} justifyContent={"space-between"}>
                                                             <Stack>
-                                                                <Typography
-                                                                    fontSize={12}>{transaction.payment_means.map((tr: any) => (tr.paymentMeans.name + ' '))}</Typography>
+                                                                {
+                                                                    transaction.payment_means.map((tr: any) => (
+                                                                        <Stack direction={"row"} key={tr.slug}
+                                                                               spacing={1}>
+                                                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                                            <img style={{width: 15}}
+                                                                                 src={paymentTypesList.find((pm: {
+                                                                                     slug: string;
+                                                                                 }) => pm.slug == tr.paymentMeans.slug).logoUrl.url}
+                                                                                 alt={"payment means icon"}/>
+                                                                            <Typography
+                                                                                fontSize={12}>{tr.data?.nb || tr.paymentMeans.name}</Typography>
+                                                                        </Stack>
+
+                                                                    ))
+                                                                }
                                                                 <Stack direction="row"
                                                                        alignItems="center"
                                                                        spacing={0.5}>
@@ -448,7 +462,8 @@ function PaymentDialog({...props}) {
                                                                              width={12}
                                                                              height={12}
                                                                              color={theme.palette.text.secondary}/>
-                                                                    <Typography variant="body2">
+                                                                    <Typography variant="body2" fontSize={11}
+                                                                                color={theme.palette.text.secondary}>
                                                                         {moment(transaction.date_transaction, 'YYYY-MM-DD HH:mm').format('DD-MM-YYYY')}
                                                                     </Typography>
                                                                 </Stack>
@@ -541,7 +556,7 @@ function PaymentDialog({...props}) {
                                         selectedPayment,
                                         setSelectedPayment,
                                         addTransactions,
-                                        name:`${patient.firstName} ${patient.lastName}`,
+                                        name: `${patient.firstName} ${patient.lastName}`,
                                         wallet
                                     }}/>
                                 ))}
@@ -560,15 +575,19 @@ function PaymentDialog({...props}) {
                 padding: "15px 0"
             }} justifyContent={"flex-end"} spacing={1}>
                 <Button onClick={() => setOpenPaymentDialog(false)}>{t('close')}</Button>
-                <Button
+                {!(getTotalPayments() == 0) ? <Button
                     startIcon={<IconUrl path={'ic-argent'} color={'white'}/>}
                     endIcon={<AddIcon/>}
-                    disabled={getTotalPayments() == 0 || loading}
+                    disabled={loading}
                     variant={"contained"}
                     color={getTotalApps() === 0 ? 'success' : 'primary'}
                     onClick={() => addTransactions()}>
                     {getTotalApps() === 0 ? t('dialog.addavance') : t('dialog.pay')} {getTotalPayments()} {devise}
-                </Button>
+                </Button> : <Button startIcon={<IconUrl path={'ic-argent'}/>}
+                                    onClick={() => setOpenPaymentDialog(false)}
+                                    color={"warning"}
+                                    disabled={loading}
+                                    variant={"contained"}>{t('dialog.later')}</Button>}
             </Stack>
         </PaymentDialogStyled>
     );

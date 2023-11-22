@@ -1,40 +1,39 @@
 import TableCell from "@mui/material/TableCell";
 import {
     Avatar,
-    Button,
+    Card,
+    CardContent,
     Collapse,
     IconButton,
+    LinearProgress,
     Link,
+    Paper,
     Stack,
     Table,
-    TableRow,
+    TableBody,
     Tooltip,
     Typography,
     useTheme,
 } from "@mui/material";
-import {addBilling, TableRowStyled} from "@features/table";
+import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 // redux
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import React, {useEffect, useState} from "react";
+import {useAppDispatch} from "@lib/redux/hooks";
+import React, {useState} from "react";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import moment from "moment-timezone";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import {Dialog} from "@features/dialog";
-import CloseIcon from "@mui/icons-material/Close";
-import {dashLayoutSelector} from "@features/base";
 import {useRouter} from "next/router";
 import {useRequestQueryMutation} from "@lib/axios";
-import {LoadingButton} from "@mui/lab";
-import {ConditionalWrapper, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {alpha} from "@mui/material/styles";
+import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
 import {ImageHandler} from "@features/image";
+import {Label} from "@features/label";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
-function PaymentRow({...props}) {
+function CashboxRow({...props}) {
     const dispatch = useAppDispatch();
     const {
         row,
@@ -45,81 +44,35 @@ function PaymentRow({...props}) {
         isItemSelected
     } = props;
 
-    const {mutateTransactions,walletMutate, pmList, hideName} = data;
+    const {pmList, hideName} = data;
     const router = useRouter();
     const theme = useTheme();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {trigger: invalidateQueries} = useInvalidateQueries();
-
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const [selected, setSelected] = useState<any>([]);
     const [transaction_data, setTransaction_data] = useState<any[]>([]);
-    const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
-    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
 
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
-
+    const [transaction_loading, setTransaction_loading] = useState<boolean>(false)
     const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox");
 
-    const handleChildSelect = (id: any) => {
-        const selectedIndex = selected.indexOf(id);
-        let newSelected: readonly string[] = [];
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
-        } else {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1)
-            );
-        }
-        setSelected(newSelected);
-    }
-
-    const mutatePatientWallet = () => {
-        walletMutate && walletMutate()
-    }
-
-    const deleteTransaction = () => {
-        const form = new FormData();
-        form.append("cash_box", selectedBoxes[0]?.uuid);
-
-        triggerPostTransaction({
-            method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/transactions/${row?.uuid}/${router.locale}`,
-            data: form
-        }, {
-            onSuccess: () => {
-                mutateTransactions()
-                mutatePatientWallet()
-                setLoadingDeleteTransaction(false);
-                setOpenDeleteTransactionDialog(false);
-            }
-        });
-
-    }
-
     const selectRow = (paymentUuid: string) => {
+        setTransaction_loading(true)
         if (!isItemSelected) {
             triggerPostTransaction({
                 method: "GET",
                 url: `${urlMedicalEntitySuffix}/transactions/${paymentUuid}/transaction-data/${router.locale}`,
             }, {
                 onSuccess: (res) => {
+                    setTransaction_loading(false)
                     setTransaction_data(res.data.data)
                 }
             })
         }
     }
-
-    useEffect(() => {
-        dispatch(addBilling(selected));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selected]);
 
     return (
         <>
@@ -133,52 +86,32 @@ function PaymentRow({...props}) {
                 aria-checked={isItemSelected}
                 tabIndex={-1}
                 selected={isItemSelected}
-                className="payment-row"
-                sx={{bgcolor: alpha(theme.palette.success.main, 0.1)}}>
-
-                {/***** date_transaction *****/}
+                className={`row-cashbox ${isItemSelected ? "row-collapse" : ""}`}
+            >
                 <TableCell>
-                    <Stack
-                        direction="row"
-                        alignItems="center"
-                        spacing={1}
-                        sx={{
-                            ".react-svg": {
-                                svg: {
-                                    width: 11,
-                                    height: 11,
-                                    path: {
-                                        fill: (theme) => theme.palette.text.primary,
-                                    },
-                                },
-                            },
-                        }}>
-                        <Icon path="ic-agenda"/>
-                        <Typography variant="body2">{moment(row.date_transaction).format('DD-MM-YYYY')}</Typography>
-                    </Stack>
+                    <IconButton sx={{
+                        border: 1,
+                        borderColor: 'divider',
+                        borderRadius: .7,
+                        width: 27,
+                        height: 27,
+                        transform: isItemSelected ? "scale(-1)" : "scale(1)"
+                    }}>
+                        <Icon path="ic-expand"/>
+                    </IconButton>
                 </TableCell>
-                {/***** time_transaction *****/}
+
                 <TableCell>
                     <Stack
                         direction="row"
                         alignItems="center"
-                        spacing={1}
-                        sx={{
-                            ".react-svg": {
-                                svg: {
-                                    width: 11,
-                                    height: 11,
-                                    path: {
-                                        fill: (theme) => theme.palette.text.primary,
-                                    },
-                                },
-                            },
-                        }}>
-                        <Icon path="ic-time"/>
+                        spacing={.5}>
+                        <Icon path="ic-agenda" height={11} width={11} color={theme.palette.text.primary}/>
+                        <Typography variant="body2">{moment(row.date_transaction).format('DD-MM-YYYY')}</Typography>
+                        <Icon path="ic-time" height={11} width={11} color={theme.palette.text.primary}/>
                         <Typography
                             variant="body2">{row.payment_time}</Typography>
                     </Stack>
-
                 </TableCell>
                 {/***** patient name *****/}
                 {!hideName && <TableCell>
@@ -203,7 +136,7 @@ function PaymentRow({...props}) {
                         {
                             row.patient.insurances ? row.patient.insurances.map((insurance: any) => (
                                 <Tooltip
-                                    key={insurance?.uuid}
+                                    key={insurance?.uuid + "ins"}
                                     title={insurance?.name}>
                                     <Avatar variant={"circular"}>
                                         <ImageHandler
@@ -224,7 +157,7 @@ function PaymentRow({...props}) {
                         justifyContent="center"
                         spacing={1}>
                         {row.payment_means && row.payment_means.map((mean: any) => (
-                            <HtmlTooltip key={mean.slug} title={<React.Fragment>
+                            <HtmlTooltip key={mean.slug + "pm"} title={<React.Fragment>
                                 {
                                     mean.data && <Stack>
                                         {mean.data.nb && <Typography fontSize={12}>Chq N°<span
@@ -250,29 +183,40 @@ function PaymentRow({...props}) {
                     </Stack>
 
                 </TableCell>
+                <TableCell>
+                    <Typography color='secondary' fontWeight={700}>
+                        {row.rest_amount} {devise}
+                    </Typography>
+                </TableCell>
+                <TableCell>
+                    <Typography color='secondary' fontWeight={700}>
+                        {row.amount - row.rest_amount} {devise}
+                    </Typography>
+                </TableCell>
                 {/***** Amount *****/}
                 <TableCell>
-                    <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"center"}>
-                        <Typography color={"success.main"} fontWeight={700} textAlign={"center"}>
-                            {row.amount}
-                            <span style={{fontSize: 10}}>{devise}</span>
+                    <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"space-between"}>
+                        <Typography color={"secondary"} fontWeight={700} textAlign={"center"}>
+                            {row.amount} {" "}
+                            <span>{devise}</span>
                         </Typography>
-                        {isItemSelected && <IconButton
-                            size="small"
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                setOpenDeleteTransactionDialog(true);
-                            }}>
-                            <IconUrl path="setting/icdelete"/>
-                        </IconButton>}
-
+                        <Tooltip title={t('more')}>
+                            <IconButton
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleEvent({action: "OPEN-POPOVER", row, event});
+                                }}
+                                size="small">
+                                <MoreVertIcon/>
+                            </IconButton>
+                        </Tooltip>
                     </Stack>
                 </TableCell>
 
             </TableRowStyled>
 
-            {transaction_data && (
-                <TableRow>
+            {isItemSelected && (
+                <TableRowStyled>
                     <TableCell
                         colSpan={9}
                         style={{
@@ -287,144 +231,238 @@ function PaymentRow({...props}) {
                             in={isItemSelected}
                             timeout="auto"
                             unmountOnExit
-                            sx={{pl: 6}}>
+                        >
                             <Table>
-                                {transaction_data.map((col: any, idx: number) => {
-                                    return (
-                                        <tbody key={idx}>
-                                        <TableRow
-                                            hover
-                                            onClick={() => handleChildSelect(col)}
-                                            role="checkbox"
-                                            className="collapse-row"
-                                            sx={{
-                                                "&::before": {
-                                                    ...(idx > 0 && {
-                                                        height: "calc(100% + 8px)",
-                                                        top: '-70%'
-                                                    })
-                                                },
-                                                background: alpha((col.appointment && col.appointment.restAmount) ? theme.palette.warning.main : theme.palette.success.main, 0.1)
-                                            }}>
-                                            <TableCell sx={{background: "transparent"}}>
-                                                <Stack
-                                                    direction="row"
-                                                    alignItems="center"
-                                                    spacing={1}
-                                                    sx={{
-                                                        ".react-svg": {
-                                                            svg: {
-                                                                width: 11,
-                                                                height: 11,
-                                                                path: {
-                                                                    fill: (theme) => theme.palette.text.primary,
-                                                                },
-                                                            },
-                                                        },
-                                                    }}>
-                                                    <Icon path="ic-agenda"/>
-                                                    <Typography variant="body2">{col.payment_date}</Typography>
-                                                </Stack>
-                                            </TableCell>
-                                            <TableCell sx={{background: "transparent"}}>
-                                                <Stack
-                                                    direction="row"
-                                                    alignItems="center"
-                                                    spacing={1}
-                                                    sx={{
-                                                        ".react-svg": {
-                                                            svg: {
-                                                                width: 11,
-                                                                height: 11,
-                                                                path: {
-                                                                    fill: (theme) => theme.palette.text.primary,
-                                                                },
-                                                            },
-                                                        },
-                                                    }}>
-                                                    <Icon path="ic-time"/>
-                                                    <Typography
-                                                        variant="body2">{col.payment_time}</Typography>
-                                                </Stack>
 
-                                            </TableCell>
-                                            {col.appointment && <TableCell sx={{background: "transparent"}}>
-                                                <Link sx={{cursor: "pointer"}}
-                                                      onClick={(event) => {
-                                                          event.stopPropagation();
-                                                          router.push(`/dashboard/consultation/${col.appointment.uuid}`);
-                                                      }}
-                                                      underline="none">
-                                                    {col.appointment.type.name}
-                                                </Link>
-                                            </TableCell>}
-                                            <TableCell sx={{background: "transparent"}}>
-                                                <HtmlTooltip
-                                                    title={
-                                                        <React.Fragment>
-                                                            <Typography
-                                                                color="inherit">{col.appointment.type.name} :<span
-                                                                style={{fontWeight: "bold"}}>{col.appointment.fees}</span><span
-                                                                style={{fontSize: 9}}>{devise}</span></Typography>
-                                                            {col.appointment.acts.map((act: {
-                                                                act_uuid: string;
-                                                                name: string;
-                                                                price: number
-                                                            }) => (<Typography
-                                                                key={act.act_uuid}>{act.name} :<span
-                                                                style={{fontWeight: "bold"}}>{act.price}</span><span
-                                                                style={{fontSize: 9}}>{devise}</span></Typography>))}
-                                                        </React.Fragment>
-                                                    }>
-                                                    <Typography style={{cursor: "pointer"}}
-                                                                color={(col.appointment && col.appointment.restAmount) ? "black.main" : "success.main"}
-                                                                fontWeight={700} textAlign={"center"}>
-                                                        {(col.appointment && col.appointment.restAmount) ? `${col.amount} /${col.appointment.fees}` : col.amount}
-                                                        <span style={{fontSize: 10}}>{devise}</span>
-                                                    </Typography>
-                                                </HtmlTooltip>
-                                            </TableCell>
 
-                                        </TableRow>
-                                        </tbody>
-                                    );
-                                })}
+                                <TableBody>
+                                    <tr
+                                    >
+                                        <td colSpan={6}>
+                                            <Stack
+                                                spacing={1.2}
+                                                mt={-1.2}
+                                                ml={0.2}
+                                                mr={-0.05}
+                                                className="collapse-wrapper"
+                                            >
+                                                <Paper className="means-wrapper">
+                                                    <Stack spacing={0.5}
+                                                           mb={(transaction_data.length > 0 || transaction_loading) ? 2.5 : 0}>
+                                                        {row?.payment_means?.length > 0 &&
+                                                            row.payment_means.map((item: any) => (
+                                                                <Stack
+                                                                    direction="row"
+                                                                    alignItems="center"
+                                                                    justifyContent="space-between"
+                                                                    width={1}
+                                                                    key={item.uuid + "pmeans"}
+                                                                >
+                                                                    <Stack
+                                                                        direction="row"
+                                                                        alignItems="center"
+                                                                        spacing={4}
+                                                                        width={1}
+                                                                        sx={{flex: 1}}
+                                                                    >
+                                                                        <Stack
+                                                                            direction="row"
+                                                                            alignItems="center"
+                                                                            spacing={1}
+                                                                        >
+                                                                            <Tooltip
+                                                                                title={`${item.amount} ${devise}`}
+                                                                            >
+                                                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                                                <img
+                                                                                    style={{width: 15}}
+                                                                                    src={
+                                                                                        pmList.find(
+                                                                                            (pm: {
+                                                                                                slug: string;
+                                                                                            }) =>
+                                                                                                pm.slug ==
+                                                                                                item?.paymentMeans
+                                                                                                    ?.slug
+                                                                                        )?.logoUrl.url
+                                                                                    }
+                                                                                    alt={"payment means icon"}
+                                                                                />
+                                                                            </Tooltip>
+                                                                            <Typography variant="body2">
+                                                                                {item?.paymentMeans?.name ||
+                                                                                    "--"}
+                                                                            </Typography>
+                                                                        </Stack>
+                                                                        <Typography
+                                                                            variant="body2"
+                                                                            width={1}
+                                                                        >
+                                                                            {item?.data?.bank
+                                                                                ?.abbreviation || "--"}
+                                                                        </Typography>
+                                                                        <Typography
+                                                                            variant="body2"
+                                                                            width={1}
+                                                                        >
+                                                                            {item?.data?.nb
+                                                                                ? ` N° ${item?.data?.nb}`
+                                                                                : "--"}
+                                                                        </Typography>
+                                                                    </Stack>
+                                                                    <Stack
+                                                                        sx={{flex: 1}}
+                                                                        direction="row"
+                                                                        alignItems="center"
+                                                                        spacing={4}
+                                                                        width={1}
+                                                                    >
+                                                                        <Typography
+                                                                            variant="body2"
+                                                                            width={1}
+                                                                        >
+                                                                            {item?.data?.carrier || "--"}
+                                                                        </Typography>
+                                                                        <Stack
+                                                                            direction="row"
+                                                                            alignItems="center"
+                                                                            spacing={0.5}
+                                                                            width={1}
+                                                                        >
+                                                                            <IconUrl
+                                                                                path="ic-agenda"
+                                                                                width={12}
+                                                                                height={12}
+                                                                                color={
+                                                                                    theme.palette.text.primary
+                                                                                }
+                                                                            />
+                                                                            <Typography variant="body2">
+                                                                                {moment(
+                                                                                        item?.data?.date
+                                                                                    ).format("DD/MM/YYYY") ||
+                                                                                    "--"}
+                                                                            </Typography>
+                                                                        </Stack>
+                                                                        <Typography
+                                                                            variant="body2"
+                                                                            width={1}
+                                                                            textAlign='right'
+                                                                        >
+                                                                            {item.amount ? (
+                                                                                <>
+                                                                                    {item.amount} {devise}
+                                                                                </>
+                                                                            ) : (
+                                                                                "--"
+                                                                            )}
+                                                                        </Typography>
+                                                                    </Stack>
+                                                                </Stack>
+                                                            ))}
+                                                    </Stack>
+                                                    {transaction_loading && <LinearProgress/>}
+                                                    {transaction_data.length > 0 &&
+                                                        transaction_data.map((transaction) => (
+                                                            <Card
+                                                                className="consultation-card"
+                                                                key={transaction.uuid + "td"}
+                                                            >
+                                                                <CardContent>
+                                                                    <Stack
+                                                                        direction="row"
+                                                                        justifyContent="space-between"
+                                                                        alignItems="center"
+                                                                    >
+                                                                        <Stack
+                                                                            spacing={1}
+                                                                            width={1}
+                                                                            alignItems="center"
+                                                                            direction="row"
+                                                                        >
+                                                                            <Typography
+                                                                                fontWeight={700}
+                                                                                minWidth={95}
+                                                                            >
+                                                                                {
+                                                                                    transaction?.appointment?.type
+                                                                                        ?.name
+                                                                                }
+                                                                            </Typography>
+                                                                            <Stack
+                                                                                direction="row"
+                                                                                alignItems="center"
+                                                                                spacing={0.5}
+                                                                            >
+                                                                                <IconUrl
+                                                                                    path="ic-agenda"
+                                                                                    width={12}
+                                                                                    height={12}
+                                                                                    color={
+                                                                                        theme.palette.text.primary
+                                                                                    }
+                                                                                />
+                                                                                <Typography variant="body2">
+                                                                                    {transaction?.payment_date}
+                                                                                </Typography>
+                                                                                <IconUrl path="ic-time"/>
+                                                                                <Typography variant="body2">
+                                                                                    {transaction?.payment_time}
+                                                                                </Typography>
+                                                                            </Stack>
+                                                                        </Stack>
+                                                                        <Stack
+                                                                            spacing={1}
+                                                                            width={1}
+                                                                            alignItems="center"
+                                                                            direction="row"
+                                                                            justifyContent="flex-end"
+                                                                            sx={{
+                                                                                span: {
+                                                                                    fontSize: 14,
+                                                                                    strong: {
+                                                                                        mx: 0.5,
+                                                                                    },
+                                                                                },
+                                                                            }}
+                                                                        >
+                                                                            <Label
+                                                                                variant="filled"
+                                                                                color={
+                                                                                    transaction?.amount ===
+                                                                                    transaction?.amount
+                                                                                        ?.restAmount
+                                                                                        ? "error"
+                                                                                        : "success"
+                                                                                }
+                                                                            >
+                                                                                {t("total")}
+                                                                                <strong>
+                                                                                    {transaction?.amount}
+                                                                                </strong>
+                                                                                {devise}
+                                                                            </Label>
+                                                                        </Stack>
+                                                                    </Stack>
+                                                                </CardContent>
+                                                            </Card>
+                                                        ))}
+                                                </Paper>
+
+                                            </Stack>
+                                        </td>
+                                    </tr>
+                                </TableBody>
+
                             </Table>
                         </Collapse>
                     </TableCell>
-                </TableRow>
+                </TableRowStyled>
             )}
 
-            <Dialog
-                action="delete-transaction"
-                title={t("dialogs.delete-dialog.title")}
-                open={openDeleteTransactionDialog}
-                size="sm"
-                data={{t}}
-                color={theme.palette.error.main}
-                actionDialog={
-                    <Stack direction="row" spacing={1}>
-                        <Button
-                            onClick={() => {
-                                setLoadingDeleteTransaction(false);
-                                setOpenDeleteTransactionDialog(false);
-                            }}
-                            startIcon={<CloseIcon/>}>
-                            {t("cancel")}
-                        </Button>
-                        <LoadingButton
-                            variant="contained"
-                            loading={loadingDeleteTransaction}
-                            color="error"
-                            onClick={deleteTransaction}
-                            startIcon={<Icon path="setting/icdelete" color="white"/>}>
-                            {t("delete")}
-                        </LoadingButton>
-                    </Stack>
-                }
-            />
+
         </>
     );
 }
 
-export default PaymentRow;
+export default CashboxRow;

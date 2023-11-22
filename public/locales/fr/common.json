@@ -7,6 +7,8 @@
   "trash": "Corbeille",
   "payment_dialog_title": "Paiement",
   "empty-trash": "Vider la corbeille",
+  "add-payment": "Ajouter un paiement",
+  "cash": "Encaisse",
   "lang": "langue",
   "sms-languages": {
     "fr": "Francais",
@@ -207,6 +209,7 @@
   "analyse": "Analyse",
   "rapport": "Rapport",
   "today": "Aujourd’hui",
+  "to": "Du",
   "permission": {
     "title": "Permission d'accéder",
     "description": "Vous n'avez pas la permission d'accéder à cette ressource",
