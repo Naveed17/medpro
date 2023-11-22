@@ -390,7 +390,7 @@ function Cashbox() {
     }
     const OnMenuActions = (action: string) => {
         handleCloseMenu();
-        console.log(action)
+
         switch (action) {
             case "onDelete":
                 setOpenDeleteTransactionDialog(true);
