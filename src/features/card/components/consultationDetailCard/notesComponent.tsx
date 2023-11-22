@@ -139,11 +139,10 @@ function NotesComponent({...props}) {
                 <Typography variant="body2" fontWeight={500}>
                     {t("notes")}
                 </Typography>
-                <Stack direction={"row"} spacing={0} alignItems={"center"}>
-                    {(listen === '' || listen === 'observation') && <>
-
-                        {
-                            models && models.length > 0 && <Select
+                <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
+                    {(listen === '' || listen === 'observation') &&
+                        <Stack direction={"row"} alignItems={"center"} spacing={1.2} ml={1}>
+                            {models && models.length > 0 && <Select
                                 labelId="select-type"
                                 id="select-type"
                                 renderValue={selected => {
@@ -216,19 +215,20 @@ function NotesComponent({...props}) {
                                     </MenuItem>
                                 ))}
                             </Select>
-                        }
-                        {hasDataHistory &&
-                            <IconButton className={"btn-full"} style={{marginLeft: 5}} size={"small"}
-                                        onClick={() => seeHistory()}>
-                                <IconUrl path={'history'}/>
-                            </IconButton>}
-                    </>}
+                            }
+                            {hasDataHistory &&
+                                <IconButton className={"btn-full"} size={"small"}
+                                            onClick={() => seeHistory()}>
+                                    <IconUrl path={'history'}/>
+                                </IconButton>}
+                        </Stack>}
                     <Tooltip title={t('toolbar')}>
-                        <IconButton className={"btn-full"} size={"small"} onClick={() => {
-                            mutateSheetData && mutateSheetData()
-                            setShowToolbar(!showToolbar)
-                        }
-                        }>
+                        <IconButton
+                            className={"btn-full"} size={"small"}
+                            onClick={() => {
+                                mutateSheetData && mutateSheetData()
+                                setShowToolbar(!showToolbar)
+                            }}>
                             <IconUrl path={'tools'}/>
                         </IconButton>
                     </Tooltip>
