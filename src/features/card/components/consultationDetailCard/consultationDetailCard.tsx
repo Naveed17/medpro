@@ -97,7 +97,8 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
                 diagnosis: app_data?.diagnostics ? app_data?.diagnostics.value : "",
                 disease: app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : [],
                 treatment: exam.treatment,
-            }
+            },
+            onSubmit: async () => {}
         });
 
         const {handleSubmit, values, setFieldValue} = formik;

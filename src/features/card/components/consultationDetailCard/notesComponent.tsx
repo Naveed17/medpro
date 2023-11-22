@@ -259,7 +259,7 @@ function NotesComponent({...props}) {
                         branding: false,
                         statusbar: false,
                         menubar: false,
-                        height: fullOb ? "50vh" : 400,
+                        height: fullOb ? "50vh" : 200,
                         toolbar_mode: 'wrap',
                         plugins: tinymcePlugins,
                         toolbar: tinymceToolbarNotes,
@@ -278,7 +278,7 @@ function NotesComponent({...props}) {
                         branding: false,
                         statusbar: false,
                         menubar: false,
-                        height: fullOb ? "50vh" : 400,
+                        height: fullOb ? "50vh" : 200,
                         toolbar: false,
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                     }}/>
