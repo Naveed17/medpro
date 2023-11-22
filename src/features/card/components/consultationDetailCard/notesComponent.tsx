@@ -259,7 +259,7 @@ function NotesComponent({...props}) {
                         branding: false,
                         statusbar: false,
                         menubar: false,
-                        height: fullOb ? "50vh" : 200,
+                        height: fullOb ? "50vh" : 400,
                         toolbar_mode: 'wrap',
                         plugins: tinymcePlugins,
                         toolbar: tinymceToolbarNotes,
