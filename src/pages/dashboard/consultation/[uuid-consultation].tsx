@@ -105,9 +105,6 @@ const getListStyle = (isDraggingOver: boolean) => ({
     width: "50%"
 });
 
-const MicRecorder = require('mic-recorder-to-mp3');
-const recorder = new MicRecorder({bitRate: 128});
-
 function ConsultationInProgress() {
     const theme = useTheme();
     const router = useRouter();
@@ -119,7 +116,7 @@ function ConsultationInProgress() {
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {
         minutes,
-        hours,
+        seconds,
         start: startWatch,
         pause: pauseWatch,
         reset: resetWatch
@@ -241,6 +238,10 @@ function ConsultationInProgress() {
         {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
     ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]]);
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
+    const [deleteAudio, setDeleteAudio] = useState(false);
+    const [saveAudio, setSaveAudio] = useState(false);
+    const [saveAudioSection, setSaveAudioSection] = useState(false);
+    const [loadingRequest, setLoadingRequest] = useState(false);
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
@@ -395,14 +396,17 @@ function ConsultationInProgress() {
     }
 
     const removeAudioDoc = () => {
+        setLoadingRequest(true);
         triggerDocumentDelete({
             method: "DELETE",
             url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`
         }, {
             onSuccess: () => mutateDoc().then(() => {
-                setSelectedAudio(null)
+                setSelectedAudio(null);
+                setTimeout(() => setDeleteAudio(false));
                 mutateSheetData();
-            })
+            }),
+            onSettled: () => setLoadingRequest(false)
         });
     }
 
@@ -467,6 +471,7 @@ function ConsultationInProgress() {
     }
 
     const uploadRecord = (file: File) => {
+        setLoadingRequest(true);
         triggerDrugsGet({
             method: "GET",
             url: `/api/private/document/types/${router.locale}`
@@ -481,7 +486,14 @@ function ConsultationInProgress() {
                         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
                         data: form
                     }, {
-                        onSuccess: () => mutateDoc()
+                        onSuccess: () => {
+                            dispatch(SetRecord(false));
+                            resetWatch();
+                            setSaveAudio(false);
+                            setTimeout(() => setSaveAudioSection(false));
+                            mutateDoc();
+                        },
+                        onSettled: () => setLoadingRequest(false)
                     });
                 }
             }
@@ -493,24 +505,6 @@ function ConsultationInProgress() {
         dispatch(SetRecord(true));
         startRecording();
         startWatch();
-    }
-
-    const stopRec = () => {
-        const res = recorder.stop();
-        // @ts-ignore
-        res?.getMp3().then(([buffer, blob]) => {
-            const file = new File(buffer, 'audio', {
-                type: blob.type,
-                lastModified: Date.now()
-            });
-            uploadRecord(file)
-            dispatch(SetRecord(false));
-            resetWatch();
-            mutateDoc();
-        }).catch((e: any) => {
-            alert('We could not retrieve your message');
-            console.log(e);
-        });
     }
 
     const DialogAction = () => {
@@ -1065,16 +1059,13 @@ function ConsultationInProgress() {
     //%%%%%% %%%%%%%
 
     useEffect(() => {
-        if (!recordingBlob) return;
+        if (!recordingBlob || !saveAudio) return;
 
         const file = new File([recordingBlob], 'audio', {
             type: recordingBlob.type,
             lastModified: Date.now()
         });
-        uploadRecord(file)
-        dispatch(SetRecord(false));
-        resetWatch();
-        mutateDoc();
+        uploadRecord(file);
         // recordingBlob will be present at this point after 'stopRecording' has been called
     }, [recordingBlob]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1207,7 +1198,6 @@ function ConsultationInProgress() {
                         dialog, setDialog,
                         setFilterDrawer,
                         startRecord,
-                        stopRec,
                         nbDoc,
                         prescription, checkUp, imagery,
                         showDocument, setShowDocument
@@ -1479,6 +1469,7 @@ function ConsultationInProgress() {
                                 mutateDoc,
                                 mutateSheetData,
                                 setSelectedAudio,
+                                setDeleteAudio,
                                 showDoc,
                                 router,
                                 t
@@ -1871,157 +1862,276 @@ function ConsultationInProgress() {
                     <RecondingBoxStyle
                         id={"record"}
                         direction={"row"}
-                        spacing={1.2}
+                        spacing={1}
                         style={{width: "100%", padding: 10}}>
-                        {selectedAudio === null ? <>
-                                <Fab
-                                    size={"small"}
-                                    component={motion.div}
-                                    {...(isPaused && {className: "is-paused"})}
-                                    sx={{
-                                        height: 30,
-                                        minHeight: 30,
-                                        boxShadow: "none",
-                                        p: 1,
-                                        svg: {
-                                            fontSize: 18,
-                                            path: {
-                                                fill: "white",
-                                            },
-                                        }
-                                    }}
-                                    layout
-                                    transition={{
-                                        delay: 0.5,
-                                        x: {duration: 0.2},
-                                        default: {ease: "linear"},
-                                    }}
-                                    color={isPaused ? "white" : "error"}
-                                    variant={"extended"}>
-                                    {isPaused ? <Avatar
-                                        src={`/static/icons/${isMobile ? 'ic-play-fill-dark' : 'ic-pause-mate'}.svg`}
-                                        sx={{
-                                            mr: .5,
-                                            width: 20,
-                                            height: 20,
-                                            borderRadius: 20
-                                        }}/> : <MicIcon/>}
-                                    <div className={"recording-text"}
-                                         id={'timer'}
-                                         style={{fontSize: 14, ...(isPaused && {color: theme.palette.text.primary})}}>{hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}</div>
-                                    {!isPaused && <div className="recording-circle"></div>}
-                                </Fab>
+                        {selectedAudio === null ?
+                            <>
+                                {!saveAudioSection ?
+                                    <Stack className={'record-container'} direction={"row"} alignItems={"center"}
+                                           spacing={2}>
+                                        <Fab
+                                            size={"small"}
+                                            component={motion.div}
+                                            {...((isPaused || saveAudio) && {className: "is-paused"})}
+                                            sx={{
+                                                height: 30,
+                                                minHeight: 30,
+                                                minWidth: 90,
+                                                boxShadow: "none",
+                                                p: 1,
+                                                svg: {
+                                                    fontSize: 18,
+                                                    path: {
+                                                        fill: "white",
+                                                    },
+                                                }
+                                            }}
+                                            layout
+                                            transition={{
+                                                delay: 0.5,
+                                                x: {duration: 0.2},
+                                                default: {ease: "linear"},
+                                            }}
+                                            color={(isPaused || saveAudio) ? "white" : "error"}
+                                            variant={"extended"}>
+                                            {(isPaused || saveAudio) ? <Avatar
+                                                src={`/static/icons/${isMobile ? 'ic-play-fill-dark' : 'ic-pause-mate'}.svg`}
+                                                sx={{
+                                                    mr: .5,
+                                                    width: 20,
+                                                    height: 20,
+                                                    borderRadius: 20
+                                                }}/> : <MicIcon/>}
+                                            <div className={"recording-text"}
+                                                 id={'timer'}
+                                                 style={{fontSize: 14, ...((isPaused || saveAudio) && {color: theme.palette.text.primary})}}>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</div>
+                                            {(!isPaused && !saveAudio) && <div className="recording-circle"></div>}
+                                        </Fab>
 
-                                <CustomIconButton
-                                    onClick={(event: any) => {
-                                        event.stopPropagation();
-                                        togglePauseResume();
-                                        if (isPaused) {
-                                            startWatch();
-                                        } else {
-                                            pauseWatch();
-                                        }
-                                    }}
-                                    variant="filled"
-                                    color={"primary"}
-                                    size={"small"}>
-                                    <IconUrl path={isPaused ? 'ic-play-audio' : 'ic-pause'}/>
-                                </CustomIconButton>
-                                {isPaused && <Button
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        stopRecording();
-                                    }}
-                                    variant='contained'
-                                    size={"small"}
-                                    color={"error"}
-                                    startIcon={<IconUrl path={'ic-stop-record'} color={'white'}/>}
-                                    sx={{
-                                        "& .MuiSvgIcon-root": {
-                                            width: 16,
-                                            height: 16,
-                                            pl: 0
-                                        }
-                                    }}>
-                                    <Typography>{t("consultationIP.stop")}</Typography>
-                                </Button>}
-                                <IconButton
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        dispatch(SetRecord(false));
-                                        resetWatch();
-                                    }}>
-                                    <IconUrl width={24} height={24} path={'ic-trash'}/>
-                                </IconButton>
-                                <IconButton
-                                    className={"close-button"}
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        stopRecording();
-                                    }}>
-                                    <CloseIcon htmlColor={"white"}/>
-                                </IconButton>
+                                        <CustomIconButton
+                                            onClick={(event: any) => {
+                                                event.stopPropagation();
+                                                togglePauseResume();
+                                                if (isPaused) {
+                                                    startWatch();
+                                                } else {
+                                                    pauseWatch();
+                                                }
+                                            }}
+                                            variant="filled"
+                                            color={"primary"}
+                                            size={"small"}>
+                                            <IconUrl path={(isPaused || saveAudio) ? 'ic-play-audio' : 'ic-pause'}/>
+                                        </CustomIconButton>
+                                        {(isPaused || saveAudio) && <LoadingButton
+                                            loading={loadingRequest}
+                                            loadingPosition={"start"}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                setSaveAudio(true);
+                                                stopRecording();
+                                            }}
+                                            variant='contained'
+                                            size={"small"}
+                                            color={"error"}
+                                            startIcon={<IconUrl path={'ic-stop-record'} color={'white'}/>}
+                                            sx={{
+                                                "& .MuiSvgIcon-root": {
+                                                    width: 16,
+                                                    height: 16,
+                                                    pl: 0
+                                                }
+                                            }}>
+                                            <Typography>{t("consultationIP.stop")}</Typography>
+                                        </LoadingButton>}
+                                        <IconButton
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                setSaveAudio(false);
+                                                stopRecording();
+                                                dispatch(SetRecord(false));
+                                                resetWatch();
+                                            }}>
+                                            <IconUrl width={24} height={24} path={'ic-trash'}/>
+                                        </IconButton>
+                                        <IconButton
+                                            className={"close-button"}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                setSaveAudioSection(true);
+                                            }}>
+                                            <CloseIcon htmlColor={"white"}/>
+                                        </IconButton>
+                                    </Stack>
+                                    :
+                                    <>
+                                        <Stack direction={"row"} spacing={1}>
+                                            <LoadingButton
+                                                loading={loadingRequest}
+                                                loadingPosition={"start"}
+                                                startIcon={<IconUrl width={20} height={20} path={'iconfinder_save'}/>}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setSaveAudio(true);
+                                                    stopRecording();
+                                                }}
+                                                variant='contained'
+                                                size={"small"}
+                                                color={"primary"}
+                                                sx={{
+                                                    "& .MuiSvgIcon-root": {
+                                                        width: 16,
+                                                        height: 16,
+                                                        pl: 0
+                                                    }
+                                                }}>
+                                                <Typography>{t("consultationIP.close-save")}</Typography>
+                                            </LoadingButton>
+                                            <Button
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setSaveAudioSection(false);
+                                                }}
+                                                variant='contained'
+                                                size={"small"}
+                                                color={"white"}
+                                                sx={{
+                                                    "& .MuiSvgIcon-root": {
+                                                        width: 16,
+                                                        height: 16,
+                                                        pl: 0
+                                                    }
+                                                }}>
+                                                <Typography>{t("consultationIP.cancel")}</Typography>
+                                            </Button>
+                                        </Stack>
+                                        <IconButton
+                                            className={"close-button"}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                setSaveAudio(false);
+                                                stopRecording();
+                                                dispatch(SetRecord(false));
+                                                resetWatch();
+                                                setSaveAudioSection(false);
+                                            }}>
+                                            <CloseIcon htmlColor={"white"}/>
+                                        </IconButton>
+                                    </>
+                                }
                             </>
                             :
                             <>
-                                <AudioPlayer
-                                    autoPlay
-                                    showDownloadProgress={false}
-                                    hasDefaultKeyBindings={false}
-                                    customProgressBarSection={
-                                        [
-                                            RHAP_UI.PROGRESS_BAR,
-                                            RHAP_UI.CURRENT_TIME,
-                                            <IconButton
-                                                key={"close-icon"}
-                                                sx={{ml: 1}}
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    setSelectedAudio(null);
-                                                }}>
-                                                <CloseIcon htmlColor={"white"}/>
-                                            </IconButton>
-                                        ]
-                                    }
-                                    customControlsSection={
-                                        [
-                                            RHAP_UI.MAIN_CONTROLS,
-                                            <IconButton key={"ic-ia-document"}>
-                                                <IconUrl width={20} height={20} path={'ic-ia-document'}/>
+                                {!deleteAudio ? <AudioPlayer
+                                        autoPlay
+                                        showDownloadProgress={false}
+                                        hasDefaultKeyBindings={false}
+                                        customProgressBarSection={
+                                            [
+                                                RHAP_UI.PROGRESS_BAR,
+                                                RHAP_UI.CURRENT_TIME,
+                                                <IconButton
+                                                    key={"close-icon"}
+                                                    sx={{ml: 1}}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setSelectedAudio(null);
+                                                    }}>
+                                                    <CloseIcon htmlColor={"white"}/>
+                                                </IconButton>
+                                            ]
+                                        }
+                                        customControlsSection={
+                                            [
+                                                RHAP_UI.MAIN_CONTROLS,
+                                                <IconButton key={"ic-ia-document"}>
+                                                    <IconUrl width={20} height={20} path={'ic-ia-document'}/>
+                                                </IconButton>,
+                                                <IconButton
+                                                    key={"ic-trash"}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setDeleteAudio(true)
+                                                    }}>
+                                                    <IconUrl width={20} height={20} path={'ic-trash'}/>
+                                                </IconButton>
+                                            ]
+                                        }
+                                        customIcons={{
+                                            play: <CustomIconButton
+                                                variant="filled"
+                                                color={"primary"}
+                                                size={"small"}>
+                                                <IconUrl path={'ic-play-audio'}/>
+                                            </CustomIconButton>,
+                                            pause: <CustomIconButton
+                                                variant="filled"
+                                                color={"primary"}
+                                                size={"small"}>
+                                                <IconUrl path={'ic-pause'}/>
+                                            </CustomIconButton>,
+                                            rewind: <IconButton>
+                                                <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-back'}/>
                                             </IconButton>,
-                                            <IconButton
-                                                key={"ic-trash"}
+                                            forward: <IconButton>
+                                                <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-forward'}/>
+                                            </IconButton>
+                                        }}
+                                        style={{marginTop: 10}}
+                                        src={selectedAudio.uri.url}
+                                    />
+                                    :
+                                    <>
+                                        <Stack direction={"row"} spacing={1}>
+                                            <LoadingButton
+                                                loading={loadingRequest}
+                                                loadingPosition={"start"}
+                                                startIcon={<IconUrl width={20} height={20} path={'ic-trash'}/>}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     removeAudioDoc();
+                                                }}
+                                                variant='contained'
+                                                size={"small"}
+                                                color={"error"}
+                                                sx={{
+                                                    "& .MuiSvgIcon-root": {
+                                                        width: 16,
+                                                        height: 16,
+                                                        pl: 0
+                                                    }
                                                 }}>
-                                                <IconUrl width={20} height={20} path={'ic-trash'}/>
-                                            </IconButton>
-                                        ]
-                                    }
-                                    customIcons={{
-                                        play: <CustomIconButton
-                                            variant="filled"
-                                            color={"primary"}
-                                            size={"small"}>
-                                            <IconUrl path={'ic-play-audio'}/>
-                                        </CustomIconButton>,
-                                        pause: <CustomIconButton
-                                            variant="filled"
-                                            color={"primary"}
-                                            size={"small"}>
-                                            <IconUrl path={'ic-pause'}/>
-                                        </CustomIconButton>,
-                                        rewind: <IconButton>
-                                            <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-back'}/>
-                                        </IconButton>,
-                                        forward: <IconButton>
-                                            <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-forward'}/>
+                                                <Typography>{t("consultationIP.yes-delete")}</Typography>
+                                            </LoadingButton>
+                                            <Button
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setDeleteAudio(false);
+                                                }}
+                                                variant='contained'
+                                                size={"small"}
+                                                color={"white"}
+                                                sx={{
+                                                    "& .MuiSvgIcon-root": {
+                                                        width: 16,
+                                                        height: 16,
+                                                        pl: 0
+                                                    }
+                                                }}>
+                                                <Typography>{t("consultationIP.cancel")}</Typography>
+                                            </Button>
+                                        </Stack>
+                                        <IconButton
+                                            className={"close-button"}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                setSelectedAudio(null);
+                                                setTimeout(() => setDeleteAudio(false));
+                                            }}>
+                                            <CloseIcon htmlColor={"white"}/>
                                         </IconButton>
-                                    }}
-                                    style={{marginTop: 10}}
-                                    src={selectedAudio.uri.url}
-                                />
+                                    </>
+                                }
                             </>
                         }
                     </RecondingBoxStyle>

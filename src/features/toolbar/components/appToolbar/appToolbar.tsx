@@ -56,7 +56,6 @@ function AppToolbar({...props}) {
         setFilterDrawer,
         nbDoc,
         startRecord,
-        stopRec,
         prescription, checkUp, imagery,
         showDocument, setShowDocument
     } = props;

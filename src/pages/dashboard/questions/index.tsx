@@ -1,7 +1,7 @@
-import { GetStaticProps } from "next";
-import { useTranslation } from "next-i18next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useState, useEffect, useRef } from "react";
+import {GetStaticProps} from "next";
+import {useTranslation} from "next-i18next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useState, useEffect, useRef} from "react";
 import {
     Box,
     IconButton,
@@ -14,22 +14,25 @@ import {
     Stack,
     Button
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import {useTheme} from "@mui/material/styles";
 import DashLayout from "@features/base/components/dashLayout/dashLayout";
-import { Label } from "@features/label";
-import { QuestionCard } from '@features/card'
-import { DrawerBottom } from '@features/drawerBottom';
-import { Questions as QuestionFilter } from '@features/leftActionBar'
-import { useAppSelector } from "@lib/redux/hooks";
-import { qsSidebarSelector } from "@features/leftActionBar";
+import {Label} from "@features/label";
+import {QuestionCard} from '@features/card'
+import {DrawerBottom} from '@features/drawerBottom';
+import {Questions as QuestionFilter} from '@features/leftActionBar'
+import {useAppSelector} from "@lib/redux/hooks";
+import {qsSidebarSelector} from "@features/leftActionBar";
 import Icon from "@themes/urlIcon";
 
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {useSession} from "next-auth/react";
 
 function Questions() {
-    const { qs } = useAppSelector(qsSidebarSelector);
-    const { t, ready } = useTranslation('questions');
+    const {data: session} = useSession();
+
+    const {qs} = useAppSelector(qsSidebarSelector);
+    const {t, ready} = useTranslation('questions');
     const ref = useRef<HTMLDivElement>(null);
     const [offsetTop, setOffsetTop] = useState(0);
     const [drawer, setDrawer] = useState(false);
@@ -43,10 +46,16 @@ function Questions() {
             setOffsetTop(0);
         }
     }, []);
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
+            <iframe
+                src={`https://www.med.tn/inbox2.php?token=${session?.accessToken}`}
+                loading="lazy"
+                allowFullScreen
+                width="600"
+                height="400"></iframe>
             <Box className="container">
                 <Typography color="textPrimary">{qs?.question}</Typography>
                 <Typography variant="body2" color="textSecondary">
@@ -64,10 +73,10 @@ function Questions() {
                     {t(qs?.category)}
                 </Label>
                 <Stack sx={{
-                    height: { xl: `calc(100vh - ${offsetTop + 180}px)`, xs: '100%' },
+                    height: {xl: `calc(100vh - ${offsetTop + 180}px)`, xs: '100%'},
 
                 }}>
-                    <QuestionCard patientData={qs?.patient} t={t} />
+                    <QuestionCard patientData={qs?.patient} t={t}/>
                     <Box mt='auto'>
                         <Typography
                             variant="subtitle2"
@@ -77,7 +86,7 @@ function Questions() {
                         >
                             {t("answers")}
                         </Typography>
-                        <Card sx={{ border: 1, borderColor: theme.palette.grey[100], boxShadow: "none" }}>
+                        <Card sx={{border: 1, borderColor: theme.palette.grey[100], boxShadow: "none"}}>
                             <TextField
                                 id="outlined-multiline-static"
                                 placeholder={t("write_answer")}
@@ -109,13 +118,13 @@ function Questions() {
                             >
                                 <FormGroup>
                                     <FormControlLabel
-                                        sx={{ color: theme.palette.grey[500] }}
-                                        control={<Checkbox defaultChecked />}
+                                        sx={{color: theme.palette.grey[500]}}
+                                        control={<Checkbox defaultChecked/>}
                                         label={t("publish")}
                                     />
                                 </FormGroup>
-                                <IconButton sx={{ ml: "auto", p: "4px" }}>
-                                    <Icon path="ic-send" />
+                                <IconButton sx={{ml: "auto", p: "4px"}}>
+                                    <Icon path="ic-send"/>
                                 </IconButton>
                             </Box>
                         </Card>
@@ -123,10 +132,17 @@ function Questions() {
                 </Stack>
             </Box>
             <Button
-                startIcon={<Icon path="ic-filter" />}
+                startIcon={<Icon path="ic-filter"/>}
                 variant="filter"
                 onClick={() => setDrawer(!drawer)}
-                sx={{ position: 'fixed', bottom: 50, transform: 'translateX(-50%)', left: '50%', zIndex: 999, display: { xs: 'flex', md: 'none' } }}
+                sx={{
+                    position: 'fixed',
+                    bottom: 50,
+                    transform: 'translateX(-50%)',
+                    left: '50%',
+                    zIndex: 999,
+                    display: {xs: 'flex', md: 'none'}
+                }}
             >
                 Filtrer (0)
             </Button>
@@ -135,12 +151,13 @@ function Questions() {
                 open={drawer}
                 title={null}
             >
-                <QuestionFilter />
+                <QuestionFilter/>
             </DrawerBottom>
         </>
     )
 }
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+
+export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'questions']))
