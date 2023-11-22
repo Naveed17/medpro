@@ -202,15 +202,15 @@ export const TransactionStatus = [
 ];
 
 export const iconDocument = (data:string) => {
-    return data === "prescription" && "ic-traitement" ||
-        data == "requested-analysis" && "ic-analyse" ||
-        data == "analyse" && "ic-analyse" ||
-        data == "medical-imaging" && "ic-soura" ||
-        data == "requested-medical-imaging" && "ic-soura" ||
-        data === "photo" && "ic-img" ||
-        data === "audio" && "ic-son" ||
-        data === "Rapport" && "ic-text" ||
-        data === "medical-certificate" && "ic-text" ||
+    return data === "prescription" && "docs/ic-prescription" ||
+        data == "requested-analysis" && "docs/ic-analyse" ||
+        data == "analyse" && "docs/ic-analyse" ||
+        data == "medical-imaging" && "docs/ic-soura" ||
+        data == "requested-medical-imaging" && "docs/ic-soura" ||
+        data === "photo" && "docs/ic-ic-gallery" ||
+        data === "audio" && "docs/ic-audio" ||
+        data === "Rapport" && "docs/ic-ordonnance" ||
+        data === "medical-certificate" && "docs/ic-ordonnance" ||
         data === "video" && "ic-video-outline" ||
         data !== "prescription" && "ic-pdf" || ""
 }
