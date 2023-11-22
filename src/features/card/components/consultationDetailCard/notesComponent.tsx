@@ -41,7 +41,8 @@ function NotesComponent({...props}) {
         seeHistory,
         debouncedOnChange,
         isStarted, setIsStarted,
-        modelContent
+        modelContent,
+        fullOb, setFullOb,
     } = props
 
     const [showToolbar, setShowToolbar] = useState<boolean>(false);
@@ -236,6 +237,12 @@ function NotesComponent({...props}) {
                         onClick={() => {
                             startStopRec();
                         }}/>
+                    <IconButton size={"small"} onClick={(e) => {
+                        e.stopPropagation();
+                        setFullOb(!fullOb)
+                    }} className={"btn-full"} style={{marginRight: 0, marginLeft: 5}}>
+                        <IconUrl path={'fullscreen'}/>
+                    </IconButton>
                 </Stack>
             </Stack>
 
@@ -252,7 +259,7 @@ function NotesComponent({...props}) {
                         branding: false,
                         statusbar: false,
                         menubar: false,
-                        height: 400,
+                        height: fullOb ? "50vh" : 400,
                         toolbar_mode: 'wrap',
                         plugins: tinymcePlugins,
                         toolbar: tinymceToolbarNotes,
@@ -271,7 +278,7 @@ function NotesComponent({...props}) {
                         branding: false,
                         statusbar: false,
                         menubar: false,
-                        height: 200,
+                        height: fullOb ? "50vh" : 200,
                         toolbar: false,
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                     }}/>

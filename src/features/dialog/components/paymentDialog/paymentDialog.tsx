@@ -439,22 +439,23 @@ function PaymentDialog({...props}) {
                                                     <Card key={index} style={{padding: 10}}>
                                                         <Stack direction={"row"} justifyContent={"space-between"}>
                                                             <Stack>
-                                                                {
-                                                                    transaction.payment_means.map((tr: any) => (
-                                                                        <Stack direction={"row"} key={tr.slug}
-                                                                               spacing={1}>
-                                                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                                            <img style={{width: 15}}
-                                                                                 src={paymentTypesList.find((pm: {
-                                                                                     slug: string;
-                                                                                 }) => pm.slug == tr.paymentMeans.slug).logoUrl.url}
-                                                                                 alt={"payment means icon"}/>
-                                                                            <Typography
-                                                                                fontSize={12}>{tr.data?.nb || tr.paymentMeans.name}</Typography>
-                                                                        </Stack>
-
-                                                                    ))
-                                                                }
+                                                                <Stack direction={"row"} spacing={2}>
+                                                                    {
+                                                                        transaction.payment_means.map((tr: any) => (
+                                                                            <Stack direction={"row"} key={tr.slug}
+                                                                                   spacing={1}>
+                                                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                                                <img style={{width: 15}}
+                                                                                     src={paymentTypesList.find((pm: {
+                                                                                         slug: string;
+                                                                                     }) => pm.slug == tr.paymentMeans.slug).logoUrl.url}
+                                                                                     alt={"payment means icon"}/>
+                                                                                <Typography
+                                                                                    fontSize={12}>{tr.data?.nb || tr.paymentMeans.name}</Typography>
+                                                                            </Stack>
+                                                                        ))
+                                                                    }
+                                                                </Stack>
                                                                 <Stack direction="row"
                                                                        alignItems="center"
                                                                        spacing={0.5}>
