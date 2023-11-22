@@ -1262,8 +1262,7 @@ function ConsultationInProgress() {
                                                                         style={getItemStyle(
                                                                             snapshot.isDragging,
                                                                             provided.draggableProps.style
-                                                                        )}
-                                                                    >
+                                                                        )}>
                                                                         <MyCardStyled>
                                                                             <Stack direction={"row"}
                                                                                    style={{backgroundColor: item.content === 'widget' && selectedModel ? alpha(selectedModel?.default_modal.color, 0.3) : ""}}
@@ -1868,6 +1867,7 @@ function ConsultationInProgress() {
                             <>
                                 {!saveAudioSection ?
                                     <Stack className={'record-container'} direction={"row"} alignItems={"center"}
+                                           {...((isPaused || saveAudio) && {sx: {"& .record-button .react-svg": {height: 16}}})}
                                            spacing={2}>
                                         <Fab
                                             size={"small"}
@@ -1909,7 +1909,7 @@ function ConsultationInProgress() {
                                         </Fab>
 
                                         <CustomIconButton
-                                            className={"btn-action"}
+                                            className={"btn-action record-button"}
                                             onClick={(event: any) => {
                                                 event.stopPropagation();
                                                 togglePauseResume();
@@ -1920,9 +1920,9 @@ function ConsultationInProgress() {
                                                 }
                                             }}
                                             variant="filled"
-                                            color={"primary"}
+                                            color={(isPaused || saveAudio) ? "error" : "primary"}
                                             size={"small"}>
-                                            <IconUrl path={(isPaused || saveAudio) ? 'ic-play-audio' : 'ic-pause'}/>
+                                            <IconUrl path={(isPaused || saveAudio) ? 'ic-record-circle' : 'ic-pause'}/>
                                         </CustomIconButton>
                                         {(isPaused || saveAudio) && <LoadingButton
                                             className={"btn-action"}

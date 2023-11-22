@@ -14,6 +14,9 @@ const RecondingBoxStyle = styled(Stack)(({theme}) => ({
     "& .close-button": {
         marginLeft: 0
     },
+    "& .MuiButtonBase-root": {
+        padding: 8
+    },
     "& .record-container": {
         width: "100%",
         justifyContent: "space-around"
@@ -38,7 +41,8 @@ const RecondingBoxStyle = styled(Stack)(({theme}) => ({
         marginTop: "-0.9rem"
     },
     "& .rhap_main-controls-button": {
-        color: theme.palette.primary.main
+        color: theme.palette.primary.main,
+        overflow: "visible"
     },
     "& .MuiSvgIcon-root": {
         pl: 0
