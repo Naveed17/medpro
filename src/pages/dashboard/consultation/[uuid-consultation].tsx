@@ -3,14 +3,15 @@ import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
+    Avatar,
     Box,
-    Button,
+    Button, CardMedia,
     Collapse,
     DialogActions,
     Drawer,
     Fab,
     Grid,
-    IconButton,
+    IconButton, LinearProgress,
     ListItemIcon,
     ListItemText,
     MenuItem,
@@ -51,7 +52,7 @@ import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {SubFooter} from "@features/subFooter";
-import {consultationSelector, SetPatient, SetSelectedDialog} from "@features/toolbar";
+import {consultationSelector, SetPatient, SetRecord, SetSelectedDialog} from "@features/toolbar";
 import {Dialog, DialogProps, handleDrawerAction, PatientDetail} from "@features/dialog";
 import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
@@ -76,10 +77,14 @@ import Draggable from "react-draggable";
 import {ModelDot} from "@features/modelDot";
 import {DocumentPreview} from "@features/tabPanel/components/consultationTabs/documentPreview";
 import DialogTitle from "@mui/material/DialogTitle";
-import {SwitchPrescriptionUI} from "@features/buttons";
+import {CustomIconButton, SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
-
-//%%%%%% %%%%%%%
+import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
+import {motion} from "framer-motion";
+import MicIcon from "@mui/icons-material/Mic";
+import useStopwatch from "@lib/hooks/useStopwatch";
+import {useAudioRecorder} from "react-audio-voice-recorder";
+import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -100,7 +105,8 @@ const getListStyle = (isDraggingOver: boolean) => ({
     width: "50%"
 });
 
-//%%%%%% %%%%%%%
+const MicRecorder = require('mic-recorder-to-mp3');
+const recorder = new MicRecorder({bitRate: 128});
 
 function ConsultationInProgress() {
     const theme = useTheme();
@@ -111,7 +117,20 @@ function ConsultationInProgress() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {models} = useWidgetModels({filter: ""})
     const {trigger: mutateOnGoing} = useMutateOnGoing();
-
+    const {
+        minutes,
+        hours,
+        start: startWatch,
+        pause: pauseWatch,
+        reset: resetWatch
+    } = useStopwatch({autoStart: false});
+    const {
+        startRecording,
+        stopRecording,
+        togglePauseResume,
+        recordingBlob,
+        isPaused
+    } = useAudioRecorder();
     const {t} = useTranslation("consultation");
     //***** SELECTORS ****//
     const {
@@ -121,7 +140,7 @@ function ConsultationInProgress() {
 
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const {isActive, event} = useAppSelector(timerSelector);
-    const {selectedDialog} = useAppSelector(consultationSelector);
+    const {selectedDialog, record} = useAppSelector(consultationSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {drawer} = useAppSelector((state: { dialog: DialogProps }) => state.dialog);
@@ -142,6 +161,7 @@ function ConsultationInProgress() {
     const {trigger: triggerDocumentChat} = useRequestQueryMutation("/chat/document");
     const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
     const {trigger: triggerNotificationPush} = useSendNotification();
+    const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/document/delete");
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -220,7 +240,7 @@ function ConsultationInProgress() {
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
     ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]]);
-
+    const [selectedAudio, setSelectedAudio] = useState<any>(null);
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
@@ -261,6 +281,7 @@ function ConsultationInProgress() {
 
     const {
         data: httpDocumentResponse,
+        isLoading: isDocumentLoading,
         mutate: mutateDoc
     } = useRequestQuery(medical_professional_uuid && agenda ? {
         method: "GET",
@@ -268,6 +289,9 @@ function ConsultationInProgress() {
     } : null, {refetchOnWindowFocus: false});
 
     const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : []
+
+    const {trigger: triggerUploadAudio} = useRequestQueryMutation("/document/upload");
+    const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
 
     // ********** Requests ********** \\
     const changeModel = (prop: ModalModel, ind: number, index: number) => {
@@ -370,6 +394,18 @@ function ConsultationInProgress() {
         setOpenHistoryDialog(true);
     }
 
+    const removeAudioDoc = () => {
+        triggerDocumentDelete({
+            method: "DELETE",
+            url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => mutateDoc().then(() => {
+                setSelectedAudio(null)
+                mutateSheetData();
+            })
+        });
+    }
+
     const openDialogue = (item: any) => {
         switch (item.id) {
             case 1:
@@ -427,6 +463,53 @@ function ConsultationInProgress() {
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
             }
+        });
+    }
+
+    const uploadRecord = (file: File) => {
+        triggerDrugsGet({
+            method: "GET",
+            url: `/api/private/document/types/${router.locale}`
+        }, {
+            onSuccess: (res: any) => {
+                const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
+                if (audios.length > 0) {
+                    const form = new FormData();
+                    form.append(`files[${audios[0].uuid}][]`, file, file.name);
+                    triggerUploadAudio({
+                        method: "POST",
+                        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`,
+                        data: form
+                    }, {
+                        onSuccess: () => mutateDoc()
+                    });
+                }
+            }
+        });
+    }
+
+    const startRecord = () => {
+        setSelectedAudio(null);
+        dispatch(SetRecord(true));
+        startRecording();
+        startWatch();
+    }
+
+    const stopRec = () => {
+        const res = recorder.stop();
+        // @ts-ignore
+        res?.getMp3().then(([buffer, blob]) => {
+            const file = new File(buffer, 'audio', {
+                type: blob.type,
+                lastModified: Date.now()
+            });
+            uploadRecord(file)
+            dispatch(SetRecord(false));
+            resetWatch();
+            mutateDoc();
+        }).catch((e: any) => {
+            alert('We could not retrieve your message');
+            console.log(e);
         });
     }
 
@@ -982,6 +1065,20 @@ function ConsultationInProgress() {
     //%%%%%% %%%%%%%
 
     useEffect(() => {
+        if (!recordingBlob) return;
+
+        const file = new File([recordingBlob], 'audio', {
+            type: recordingBlob.type,
+            lastModified: Date.now()
+        });
+        uploadRecord(file)
+        dispatch(SetRecord(false));
+        resetWatch();
+        mutateDoc();
+        // recordingBlob will be present at this point after 'stopRecording' has been called
+    }, [recordingBlob]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (httpPreviousResponse) {
             const data = (httpPreviousResponse as HttpResponse).data;
             if (data)
@@ -1109,6 +1206,8 @@ function ConsultationInProgress() {
                         setAnchorEl,
                         dialog, setDialog,
                         setFilterDrawer,
+                        startRecord,
+                        stopRec,
                         nbDoc,
                         prescription, checkUp, imagery,
                         showDocument, setShowDocument
@@ -1370,11 +1469,16 @@ function ConsultationInProgress() {
                         </Grid>
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"documents"}>
+                        <LinearProgress sx={{
+                            marginTop: '-0.5rem',
+                            visibility: !httpDocumentResponse || isDocumentLoading ? "visible" : "hidden"
+                        }} color="warning"/>
                         <DocumentsTab
                             {...{
                                 documents,
                                 mutateDoc,
                                 mutateSheetData,
+                                setSelectedAudio,
                                 showDoc,
                                 router,
                                 t
@@ -1743,7 +1847,7 @@ function ConsultationInProgress() {
             <Draggable>
                 <Fab sx={{
                     position: "fixed",
-                    bottom: 76,
+                    bottom: 82,
                     right: 30
                 }}
                      size={"small"}
@@ -1755,6 +1859,174 @@ function ConsultationInProgress() {
                     <IconUrl path={'ic-chatbot'}/>
                 </Fab>
             </Draggable>
+
+            {(record || selectedAudio !== null) && <Draggable>
+                <CardMedia
+                    sx={{
+                        position: "fixed",
+                        zIndex: 9999,
+                        bottom: 76,
+                        right: 85
+                    }}>
+                    <RecondingBoxStyle
+                        id={"record"}
+                        direction={"row"}
+                        spacing={1.2}
+                        style={{width: "100%", padding: 10}}>
+                        {selectedAudio === null ? <>
+                                <Fab
+                                    size={"small"}
+                                    component={motion.div}
+                                    {...(isPaused && {className: "is-paused"})}
+                                    sx={{
+                                        height: 30,
+                                        minHeight: 30,
+                                        boxShadow: "none",
+                                        p: 1,
+                                        svg: {
+                                            fontSize: 18,
+                                            path: {
+                                                fill: "white",
+                                            },
+                                        }
+                                    }}
+                                    layout
+                                    transition={{
+                                        delay: 0.5,
+                                        x: {duration: 0.2},
+                                        default: {ease: "linear"},
+                                    }}
+                                    color={isPaused ? "white" : "error"}
+                                    variant={"extended"}>
+                                    {isPaused ? <Avatar
+                                        src={`/static/icons/${isMobile ? 'ic-play-fill-dark' : 'ic-pause-mate'}.svg`}
+                                        sx={{
+                                            mr: .5,
+                                            width: 20,
+                                            height: 20,
+                                            borderRadius: 20
+                                        }}/> : <MicIcon/>}
+                                    <div className={"recording-text"}
+                                         id={'timer'}
+                                         style={{fontSize: 14, ...(isPaused && {color: theme.palette.text.primary})}}>{hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}</div>
+                                    {!isPaused && <div className="recording-circle"></div>}
+                                </Fab>
+
+                                <CustomIconButton
+                                    onClick={(event: any) => {
+                                        event.stopPropagation();
+                                        togglePauseResume();
+                                        if (isPaused) {
+                                            startWatch();
+                                        } else {
+                                            pauseWatch();
+                                        }
+                                    }}
+                                    variant="filled"
+                                    color={"primary"}
+                                    size={"small"}>
+                                    <IconUrl path={isPaused ? 'ic-play-audio' : 'ic-pause'}/>
+                                </CustomIconButton>
+                                {isPaused && <Button
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        stopRecording();
+                                    }}
+                                    variant='contained'
+                                    size={"small"}
+                                    color={"error"}
+                                    startIcon={<IconUrl path={'ic-stop-record'} color={'white'}/>}
+                                    sx={{
+                                        "& .MuiSvgIcon-root": {
+                                            width: 16,
+                                            height: 16,
+                                            pl: 0
+                                        }
+                                    }}>
+                                    <Typography>{t("consultationIP.stop")}</Typography>
+                                </Button>}
+                                <IconButton
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        dispatch(SetRecord(false));
+                                        resetWatch();
+                                    }}>
+                                    <IconUrl width={24} height={24} path={'ic-trash'}/>
+                                </IconButton>
+                                <IconButton
+                                    className={"close-button"}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        stopRecording();
+                                    }}>
+                                    <CloseIcon htmlColor={"white"}/>
+                                </IconButton>
+                            </>
+                            :
+                            <>
+                                <AudioPlayer
+                                    autoPlay
+                                    showDownloadProgress={false}
+                                    hasDefaultKeyBindings={false}
+                                    customProgressBarSection={
+                                        [
+                                            RHAP_UI.PROGRESS_BAR,
+                                            RHAP_UI.CURRENT_TIME,
+                                            <IconButton
+                                                key={"close-icon"}
+                                                sx={{ml: 1}}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    setSelectedAudio(null);
+                                                }}>
+                                                <CloseIcon htmlColor={"white"}/>
+                                            </IconButton>
+                                        ]
+                                    }
+                                    customControlsSection={
+                                        [
+                                            RHAP_UI.MAIN_CONTROLS,
+                                            <IconButton key={"ic-ia-document"}>
+                                                <IconUrl width={20} height={20} path={'ic-ia-document'}/>
+                                            </IconButton>,
+                                            <IconButton
+                                                key={"ic-trash"}
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    removeAudioDoc();
+                                                }}>
+                                                <IconUrl width={20} height={20} path={'ic-trash'}/>
+                                            </IconButton>
+                                        ]
+                                    }
+                                    customIcons={{
+                                        play: <CustomIconButton
+                                            variant="filled"
+                                            color={"primary"}
+                                            size={"small"}>
+                                            <IconUrl path={'ic-play-audio'}/>
+                                        </CustomIconButton>,
+                                        pause: <CustomIconButton
+                                            variant="filled"
+                                            color={"primary"}
+                                            size={"small"}>
+                                            <IconUrl path={'ic-pause'}/>
+                                        </CustomIconButton>,
+                                        rewind: <IconButton>
+                                            <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-back'}/>
+                                        </IconButton>,
+                                        forward: <IconButton>
+                                            <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-forward'}/>
+                                        </IconButton>
+                                    }}
+                                    style={{marginTop: 10}}
+                                    src={selectedAudio.uri.url}
+                                />
+                            </>
+                        }
+                    </RecondingBoxStyle>
+                </CardMedia>
+            </Draggable>}
         </>
     );
 }

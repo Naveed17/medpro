@@ -30,6 +30,7 @@ export * from "./splitLastOccurrence";
 export * from "./generatePdfFromHtml";
 export * from "./shortEnglishHumanizer";
 export * from "./a11yProps";
+export * from "./useStopwatch";
 export * from './rest/useContactType';
 export * from './rest/useSendNotification';
 export * from './rest/useTransactionEdit';

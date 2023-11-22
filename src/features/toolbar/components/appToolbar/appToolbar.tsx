@@ -10,12 +10,11 @@ import {
     Tabs,
     tabsClasses,
     Tooltip,
-    Typography,
+    Typography, useTheme,
     Zoom,
 } from "@mui/material";
 import AppToolbarStyled from "./overrides/appToolbarStyle";
 import AddIcon from "@mui/icons-material/Add";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import StyledMenu from "./overrides/menuStyle";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {documentButtonList} from "@features/toolbar/components/appToolbar/config";
@@ -23,23 +22,15 @@ import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import {useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
-import {consultationSelector, SetRecord, SetTimer} from "@features/toolbar";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {useRequestQueryMutation} from "@lib/axios";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
-import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
-import StopCircleIcon from "@mui/icons-material/StopCircle";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-
-const MicRecorder = require('mic-recorder-to-mp3');
-const recorder = new MicRecorder({
-    bitRate: 128
-});
+import {CustomIconButton} from "@features/buttons";
 
 function AppToolbar({...props}) {
 
@@ -64,11 +55,14 @@ function AppToolbar({...props}) {
         dialog, setDialog,
         setFilterDrawer,
         nbDoc,
+        startRecord,
+        stopRec,
         prescription, checkUp, imagery,
         showDocument, setShowDocument
     } = props;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
+    const theme = useTheme();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
@@ -76,10 +70,6 @@ function AppToolbar({...props}) {
     const {trigger: triggerNotificationPush} = useSendNotification();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"})
-    const {record} = useAppSelector(consultationSelector);
-
-    const {trigger: triggerDrugsCreate} = useRequestQueryMutation("/drugs/create");
-    const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
 
     const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
     const open = Boolean(anchorEl);
@@ -95,55 +85,6 @@ function AppToolbar({...props}) {
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
-    }
-
-    const startRecord = () => {
-        recorder.start().then(() => {
-            dispatch(SetRecord(true))
-        }).catch((e: any) => {
-            console.log(e);
-        });
-    }
-
-    const stopRec = () => {
-        const res = recorder.stop();
-        // @ts-ignore
-        res?.getMp3().then(([buffer, blob]) => {
-            const file = new File(buffer, 'audio', {
-                type: blob.type,
-                lastModified: Date.now()
-            });
-            uploadRecord(file)
-
-            dispatch(SetRecord(false))
-            dispatch(SetTimer('00:00'))
-            mutateDoc();
-        }).catch((e: any) => {
-            alert('We could not retrieve your message');
-            console.log(e);
-        });
-    }
-
-    const uploadRecord = (file: File) => {
-        triggerDrugsGet({
-            method: "GET",
-            url: `/api/private/document/types/${router.locale}`
-        }, {
-            onSuccess: (res: any) => {
-                const audios = (res as any).data.data.filter((type: { name: string; }) => type.name === 'Audio')
-                if (audios.length > 0) {
-                    const form = new FormData();
-                    form.append(`files[${audios[0].uuid}][]`, file, file.name);
-                    triggerDrugsCreate({
-                        method: "POST",
-                        url: docUrl,
-                        data: form
-                    }, {
-                        onSuccess: () => mutateDoc()
-                    });
-                }
-            }
-        });
     }
 
     const handleOpen = () => {
@@ -311,23 +252,11 @@ function AppToolbar({...props}) {
                         mb={1}
                         justifyContent="flex-end"
                         sx={{width: {xs: "30%", md: "30%"}}}>
-                        {record && <Button
-                            sx={{minWidth: 35}}
-                            size={isMobile ? "small" : "medium"}
-                            onClick={() => {
-                                stopRec()
-                            }}
-                            variant="contained"
-                            color="primary">
-                            {t('stop')}
-                        </Button>
-                        }
                         <Button
                             sx={{minWidth: 35}}
                             size={isMobile ? "small" : "medium"}
                             onClick={handleClick}
                             variant="contained"
-                            endIcon={!record && <KeyboardArrowDownIcon/>}
                             color="warning">
                             {
                                 isMobile ? <AddIcon/> :
@@ -409,30 +338,16 @@ function AppToolbar({...props}) {
                         mb={1}
                         justifyContent="flex-end"
                         sx={{width: {xs: "30%", md: "30%"}}}>
-                        {record && <RecondingBoxStyle id={"record"} onClick={() => {
-                            stopRec()
-                        }} style={{width: 130, padding: 10}}>
-                            <StopCircleIcon style={{fontSize: 20, color: "white"}}/>
-                            <div className={"recording-text"} id={'timer'} style={{fontSize: 14}}>{t('stop')}</div>
-                            <div className="recording-circle"></div>
-                        </RecondingBoxStyle>}
-
-                        <Button
-                            sx={{minWidth: 35}}
-                            size={isMobile ? "small" : "medium"}
-                            onClick={(event) => {
+                        <CustomIconButton
+                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                                 setAnchorEl(event.currentTarget);
                             }}
-                            variant="contained"
-                            endIcon={<KeyboardArrowDownIcon/>}
-                            color="warning">
-                            {
-                                isMobile ? <AddIcon/> :
-                                    <>
-                                        <AddIcon style={{marginRight: 5, fontSize: 18}}/> {t("add")}
-                                    </>
-                            }
-                        </Button>
+                            variant="filled"
+                            color={"warning"}
+                            size={"small"}>
+                            <AddIcon sx={{width: '1.35em', height: '1.35em', p: .4}} fontSize={"small"}
+                                     htmlColor={theme.palette.text.primary}/>
+                        </CustomIconButton>
 
                         {selectedTab === 'consultation_form' && <Zoom in={selectedTab === 'consultation_form'}
                                                                       style={{transitionDelay: selectedTab === 'consultation_form' ? '500ms' : '0ms'}}>
