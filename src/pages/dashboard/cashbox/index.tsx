@@ -6,7 +6,6 @@ import {
     Button,
     Card,
     CardContent,
-    DialogActions,
     Drawer,
     LinearProgress,
     MenuItem,
@@ -36,7 +35,6 @@ import {CashboxFilter, cashBoxSelector} from "@features/leftActionBar/components
 import {useSnackbar} from "notistack";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import CloseIcon from "@mui/icons-material/Close";
-import {PaymentDrawer} from "@features/drawer";
 import {DrawerBottom} from "@features/drawerBottom";
 import moment from "moment/moment";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
@@ -127,11 +125,6 @@ const noCardData = {
 const MenuActions = [
     {
         title: "add-payment",
-        icon: <IconUrl path="ic-argent" color="white"/>,
-        action: "onAddPayment"
-    },
-    {
-        title: "cash",
         icon: <IconUrl path="ic-wallet-money" color="white"/>,
         action: "onCash"
     },
@@ -183,7 +176,7 @@ function Cashbox() {
     let [collectedCash, setCollectedCash] = useState(0);
 
     const {data: user} = session as Session;
-    const roles = (user as UserDataResponse).general_information.roles as Array<string>
+
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
@@ -397,10 +390,17 @@ function Cashbox() {
     }
     const OnMenuActions = (action: string) => {
         handleCloseMenu();
+        console.log(action)
         switch (action) {
             case "onDelete":
                 setOpenDeleteTransactionDialog(true);
                 break;
+            case "onSeePatientFile":
+                dispatch(onOpenPatientDrawer({patientId: selectedCashBox.patient.uuid}));
+                setPatientDetailDrawer(true);
+                break;
+            case "onCash":
+                setOpenPaymentDialog(true)
         }
     }
     const handleCloseMenu = () => {
@@ -434,13 +434,7 @@ function Cashbox() {
                                     I
                                 </Typography>
                             </>}
-
-                            <Button sx={{borderColor: 'divider', bgcolor: theme => theme.palette.grey['A500'],}}
-                                    variant="outlined" color="info">
-                                {t('unpaid')} <b>520 {devise}</b>
-                            </Button>
                             <Typography>{t("total")}</Typography>
-
                             <Typography variant="h6">
                                 {total} <span style={{fontSize: 10}}>{devise}</span>
                             </Typography>
@@ -521,7 +515,7 @@ function Cashbox() {
                                 <MobileContainer>
                                     <Stack spacing={2}>
                                         {!loading && (
-                                            rows.map((row, idx) => (
+                                            rows.map((row) => (
                                                 <React.Fragment key={row.uuid}>
                                                     <NewCashboxMobileCard {...{
                                                         row,
@@ -571,72 +565,8 @@ function Cashbox() {
                     onAddAppointment={() => console.log("onAddAppointment")}
                 />
             </Drawer>
-            <Drawer
-                anchor={"right"}
-                open={paymentDrawer}
-                dir={direction}
-                onClose={() => {
-                    setPaymentDrawer(false);
-                }}
-                PaperProps={{
-                    sx: {
-                        width: {xs: "100% !important", sm: "368px !important"},
-                    },
-                }}>
-                <PaymentDrawer
-                    handleClose={() => setPaymentDrawer(false)}
-                    data={selectedCashBox}
-                    {...{
-                        pmList, t,
-                        setAction,
-                        setActionDialog,
-                        setOpenPaymentDialog,
-                        setSelectedPayment,
 
-                    }}
-                />
-            </Drawer>
-            <Dialog
-                action={actionDialog}
-                {...{
-                    direction,
-                    sx: {
-                        minHeight: 380,
-                        padding: {xs: 1, md: 2}
 
-                    },
-                }}
-                open={openPaymentDialog}
-                data={{
-                    selectedPayment,
-                    setSelectedPayment,
-                    checksToCashout, setChecksToCashout,
-                    collectedCash, setCollectedCash,
-                    pmList,
-                    appointment: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment : null,
-                    patient: selectedPayment && selectedPayment.appointment ? selectedPayment.appointment.patient : null,
-                }}
-                size={"lg"}
-                title={t(action)}
-                dialogClose={resetDialog}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={resetDialog} startIcon={<CloseIcon/>}>
-                            {t("config.cancel", {ns: "common"})}
-                        </Button>
-                        <Button
-                            disabled={
-                                action !== "cashout" && selectedPayment && selectedPayment.payments.length === 0
-                            }
-                            variant="contained"
-                            onClick={handleSubmit}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}
-                        >
-                            {t("config.save", {ns: "common"})}
-                        </Button>
-                    </DialogActions>
-                }
-            />
             <MobileContainer>
                 <Button
                     startIcon={<IconUrl path="ic-filter"/>}
@@ -704,6 +634,26 @@ function Cashbox() {
                     </Stack>
                 }
             />
+
+            {selectedCashBox && <Dialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 460
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    patient: selectedCashBox.patient,
+                    setOpenPaymentDialog,
+                    mutatePatient: null
+                }}
+                size={"lg"}
+                fullWidth
+                title={t("payment_dialog_title", {ns: "payment"})}
+                dialogClose={resetDialog}
+            />}
         </>
     );
 }

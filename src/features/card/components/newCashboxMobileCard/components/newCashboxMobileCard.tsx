@@ -120,24 +120,9 @@ export default function NewCashboxMobileCard({ ...props }) {
                       />
                     </Tooltip>
                   ))}
-                <Tooltip title={t("used")}>
-                  <Typography fontWeight={700} color="secondary">
-                    {row.rest_amount} {devise}
-                  </Typography>
-                </Tooltip>
                 <Tooltip title={t("amount")}>
                   <Typography fontWeight={700} color="secondary">
                     {row.amount} {devise}
-                  </Typography>
-                </Tooltip>
-                <Tooltip title={t("table.advance")}>
-                  <Typography fontWeight={700} color="secondary">
-                    {200} {devise}
-                  </Typography>
-                </Tooltip>
-                <Tooltip title={t("table.flow")}>
-                  <Typography fontWeight={700} color="secondary">
-                    {200} {devise}
                   </Typography>
                 </Tooltip>
               </Stack>

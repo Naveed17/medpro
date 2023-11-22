@@ -80,7 +80,6 @@ function CashboxRow({...props}) {
         walletMutate && walletMutate()
     }
 
-
     const selectRow = (paymentUuid: string) => {
         setTransaction_loading(true)
         if (!isItemSelected) {
@@ -161,7 +160,7 @@ function CashboxRow({...props}) {
                         {
                             row.patient.insurances ? row.patient.insurances.map((insurance: any) => (
                                 <Tooltip
-                                    key={insurance?.uuid+"ins"}
+                                    key={insurance?.uuid + "ins"}
                                     title={insurance?.name}>
                                     <Avatar variant={"circular"}>
                                         <ImageHandler
@@ -182,7 +181,7 @@ function CashboxRow({...props}) {
                         justifyContent="center"
                         spacing={1}>
                         {row.payment_means && row.payment_means.map((mean: any) => (
-                            <HtmlTooltip key={mean.slug+"pm"} title={<React.Fragment>
+                            <HtmlTooltip key={mean.slug + "pm"} title={<React.Fragment>
                                 {
                                     mean.data && <Stack>
                                         {mean.data.nb && <Typography fontSize={12}>Chq N°<span
@@ -281,7 +280,7 @@ function CashboxRow({...props}) {
                                                                     alignItems="center"
                                                                     justifyContent="space-between"
                                                                     width={1}
-                                                                    key={item.uuid+"pmeans"}
+                                                                    key={item.uuid + "pmeans"}
                                                                 >
                                                                     <Stack
                                                                         direction="row"
@@ -391,7 +390,7 @@ function CashboxRow({...props}) {
                                                         transaction_data.map((transaction) => (
                                                             <Card
                                                                 className="consultation-card"
-                                                                key={transaction.uuid+"td"}
+                                                                key={transaction.uuid + "td"}
                                                             >
                                                                 <CardContent>
                                                                     <Stack
