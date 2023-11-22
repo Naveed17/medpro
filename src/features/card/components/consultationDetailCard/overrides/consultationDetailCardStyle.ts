@@ -1,11 +1,10 @@
 import {styled} from '@mui/material/styles';
-import {Card} from '@mui/material';
+
 const ConsultationDetailCardStyled = styled("div")(({theme}) => ({
     position: "relative",
     background: "white",
-    //minHeight: '40rem',
-    borderTop:"1px solid #ddd",
-    marginBottom:5,
+    borderTop: "1px solid #ddd",
+    marginBottom: 5,
     '& .card-header': {
         '& .react-svg': {
             marginRight: theme.spacing(1),
@@ -39,8 +38,8 @@ const ConsultationDetailCardStyled = styled("div")(({theme}) => ({
         padding: "1px 15px",
         border: "1px solid #bfbfc1"
     },
-    ".preview":{
-        color:'grey',
+    ".preview": {
+        color: 'grey',
         margin: '7px 0'
     }
 }));

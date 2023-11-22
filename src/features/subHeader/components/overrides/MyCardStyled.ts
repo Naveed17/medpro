@@ -16,7 +16,7 @@ const MyCardStyled = styled("div")(({theme}) => ({
         borderRadius: "0.375rem",
         width: "2.5rem",
         height: "2.5rem",
-
+        marginRight:5,
         '& .react-svg': {
             marginRight: 0,
         }
