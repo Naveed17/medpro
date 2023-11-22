@@ -1,4 +1,4 @@
-import {Avatar, Box, Typography} from "@mui/material";
+import {Avatar, Box, IconButton, Typography} from "@mui/material";
 import React, {useEffect} from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import EventStyled from './overrides/eventStyled';
@@ -10,6 +10,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useRouter} from "next/router";
 import {alpha, Theme} from "@mui/material/styles";
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
 
 function Event({...props}) {
@@ -76,7 +77,7 @@ function Event({...props}) {
                 aria-owns={open ? 'mouse-over-popover' : undefined}
                 aria-haspopup="true"
                 {...((!isMobile && !isEventDragging) && {onMouseEnter: handlePopoverOpen})}
-                {...((!isMobile && !isEventDragging) && {onMouseLeave: handlePopoverClose})}
+                 {...((!isMobile && !isEventDragging) && {onMouseLeave: handlePopoverClose})}
                 className="fc-event-main-box">
                 {appointment.new && <Box className="badge"/>}
                 {!appointment?.patient?.isArchived ? <Typography
@@ -124,6 +125,9 @@ function Event({...props}) {
                     alt="Online appointment"
                     src="/static/icons/Med-logo_.svg"
                 />}
+                <IconButton className="btn-rdv">
+                    <PlayCircleIcon/>
+                </IconButton>
             </EventStyled>
         </>
     )

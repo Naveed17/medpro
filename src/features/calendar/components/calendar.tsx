@@ -93,6 +93,10 @@ function Calendar({...props}) {
         mouseX: number;
         mouseY: number;
     } | null>(null);
+    const [contextMenuHeader, setContextMenuHeader] = React.useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEventDragging, setIsEventDragging] = useState(false);
 
@@ -397,7 +401,9 @@ function Calendar({...props}) {
                                     Header({
                                         isGridWeek,
                                         event,
-                                        isMobile
+                                        isMobile,
+                                        contextMenuHeader, 
+                                        setContextMenuHeader
                                     })
                                 }
                                 eventClick={(eventArg) => !eventArg.event._def.extendedProps.patient?.isArchived && handleOnSelectEvent(eventArg.event._def)}

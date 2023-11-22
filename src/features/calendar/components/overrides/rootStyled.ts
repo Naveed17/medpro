@@ -43,7 +43,7 @@ const RootStyled = styled("div")(({theme}) => ({
             // flexDirection: "column",
             // alignItems: "baseline",
             justifyContent: "flex-start",
-            padding: theme.spacing(0.5, 0),
+            padding: theme.spacing(0.5, 0.5,0.5,0),
 
             "& .ic-cabinet, & .ic-video": {
                 // marginLeft: theme.spacing(0.5),
@@ -84,6 +84,8 @@ const RootStyled = styled("div")(({theme}) => ({
             width: 3,
             height: "100%",
             zIndex: 100,
+            borderBottomLeftRadius:4,
+            borderTopLeftRadius:4,
         },
         "& .MuiTypography-root": {
             alignItems: "center",

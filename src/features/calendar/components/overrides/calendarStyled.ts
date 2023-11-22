@@ -27,7 +27,10 @@ const CalendarStyled = styled('div')(({theme}) => ({
     // Table Head
     '& .fc .fc-col-header ': {
         boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
-        '& th': {borderColor: 'transparent'},
+        '& th': {borderBottom: `3px solid ${theme.palette.error.main}`,
+        '&:first-of-type':{borderBottomColor:'transparent'}
+    
+    },
         '& .fc-col-header-cell-cushion': {
             ...theme.typography.subtitle2,
             padding: '13px 0'
