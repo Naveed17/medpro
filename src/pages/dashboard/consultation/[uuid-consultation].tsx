@@ -1835,7 +1835,7 @@ function ConsultationInProgress() {
                 />
             )}
 
-            <Draggable>
+            <Draggable bounds="body">
                 <Fab sx={{
                     position: "fixed",
                     bottom: 82,
@@ -1851,7 +1851,7 @@ function ConsultationInProgress() {
                 </Fab>
             </Draggable>
 
-            {(record || selectedAudio !== null) && <Draggable cancel=".btn-action">
+            {(record || selectedAudio !== null) && <Draggable bounds="body" cancel=".btn-action">
                 <CardMedia
                     sx={{
                         position: "fixed",
