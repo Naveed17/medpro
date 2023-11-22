@@ -5,13 +5,16 @@ import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
     Avatar,
     Box,
-    Button, CardMedia,
+    Button,
+    Card,
+    CardMedia,
     Collapse,
     DialogActions,
     Drawer,
     Fab,
     Grid,
-    IconButton, LinearProgress,
+    IconButton,
+    LinearProgress,
     ListItemIcon,
     ListItemText,
     MenuItem,
@@ -245,6 +248,7 @@ function ConsultationInProgress() {
     const [prescription, setPrescription] = useState<PrespectionDrugModel[]>([]);
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
+    const [fullOb, setFullOb] = useState(false);
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -1236,7 +1240,28 @@ function ConsultationInProgress() {
                         />
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-                        <Grid container spacing={0}>
+                        {sheetExam && fullOb && <Card><MyCardStyled style={{border: 0}}>
+                            <ConsultationDetailCard
+                                {...{
+                                    changes,
+                                    setChanges,
+                                    app_uuid,
+                                    exam: sheetExam,
+                                    hasDataHistory,
+                                    seeHistory,
+                                    closed: closeExam,
+                                    setCloseExam,
+                                    isClose,
+                                    agenda,
+                                    mutateSheetData,
+                                    fullOb, setFullOb,
+                                    trigger: triggerAppointmentEdit
+                                }}
+                                handleClosePanel={(v: boolean) => setCloseExam(v)}
+                            />
+                        </MyCardStyled></Card>
+                        }
+                        {!fullOb && <Grid container spacing={0}>
                             <Grid item xs={showDocument ? 10 : 12}>
                                 <div style={{display: "flex", width: "100%"}}>
                                     <DragDropContext onDragEnd={onDragEnd}>
@@ -1316,7 +1341,6 @@ function ConsultationInProgress() {
                                                                                         <IconUrl path={'reduce'}/>
                                                                                     </IconButton>
                                                                                 </Stack>
-
                                                                             </Stack>
                                                                             <Collapse in={item.expanded} timeout="auto"
                                                                                       unmountOnExit>
@@ -1334,6 +1358,7 @@ function ConsultationInProgress() {
                                                                                             isClose,
                                                                                             agenda,
                                                                                             mutateSheetData,
+                                                                                            fullOb, setFullOb,
                                                                                             trigger: triggerAppointmentEdit
                                                                                         }}
                                                                                         handleClosePanel={(v: boolean) => setCloseExam(v)}
@@ -1456,7 +1481,7 @@ function ConsultationInProgress() {
                                     t,
                                 }}/>}
                             </Grid>
-                        </Grid>
+                        </Grid>}
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"documents"}>
                         <LinearProgress sx={{

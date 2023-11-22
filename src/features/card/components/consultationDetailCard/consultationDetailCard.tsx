@@ -46,6 +46,7 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
             isClose,
             agenda,
             mutateSheetData,
+            fullOb, setFullOb,
             trigger: triggerAppointmentEdit
         } = props;
         const router = useRouter();
@@ -97,9 +98,7 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
                 disease: app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : [],
                 treatment: exam.treatment,
             },
-            onSubmit: async (values) => {
-                console.log('ok', values);
-            },
+            onSubmit: async () => {}
         });
 
         const {handleSubmit, values, setFieldValue} = formik;
@@ -170,7 +169,7 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
 
         const saveChanges = (ev: string, newValue: any) => {
             const form = new FormData();
-            if (ev === 'notes' ) {
+            if (ev === 'notes') {
                 modelContent.current = newValue
                 !isStarted && setOldNote(newValue);
             }
@@ -212,7 +211,7 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
         if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
         return (
-            <ConsultationDetailCardStyled>
+            <ConsultationDetailCardStyled style={{border: fullOb ? 0 : ""}}>
                 {/*<Stack className="card-header" padding={'0.45rem'}
                    direction="row"
                    alignItems="center"
@@ -273,7 +272,7 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
                             style={{display: hide ? "none" : "block"}}
                             onSubmit={handleSubmit}>
 
-                            <Box width={1}>
+                            {!fullOb && <Box width={1}>
                                 <Typography variant="body2" paddingBottom={1} fontWeight={500}>
                                     {t("reason_for_consultation")}
                                 </Typography>
@@ -351,7 +350,7 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
                                                                       placeholder={"--"}
                                                                       sx={{paddingLeft: 0}}
                                                                       variant="outlined" fullWidth/>}/>
-                            </Box>
+                            </Box>}
 
                             <NotesComponent{...{
                                 saveChanges,
@@ -365,9 +364,10 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
                                 isStarted,
                                 setIsStarted,
                                 debouncedOnChange,
+                                fullOb, setFullOb,
                                 modelContent
                             }}/>
-                            <Box width={1}>
+                            {!fullOb && <Box width={1}>
                                 <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}
                                        mb={1}>
                                     <Typography variant="body2" fontWeight={500}>
@@ -418,8 +418,8 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
                                             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                                         }}/>
                                 }
-                            </Box>
-                            <Box width={1}>
+                            </Box>}
+                            {!fullOb && <Box width={1}>
                                 <Typography variant="body2" paddingBottom={1} fontWeight={500}>
                                     {t("disease")}
                                 </Typography>
@@ -463,7 +463,7 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
                                                                           findDiseases(ev.target.value)
                                                                       }}
                                                                       variant="outlined" fullWidth/>}/>
-                            </Box>
+                            </Box>}
                         </Stack>
                     </FormikProvider>
                 </CardContent>
