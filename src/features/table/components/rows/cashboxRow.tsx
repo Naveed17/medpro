@@ -15,17 +15,16 @@ import {
     Typography,
     useTheme,
 } from "@mui/material";
-import {addBilling, TableRowStyled} from "@features/table";
+import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 // redux
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import React, {useEffect, useState} from "react";
+import {useAppDispatch} from "@lib/redux/hooks";
+import React, {useState} from "react";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import moment from "moment-timezone";
-import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {useRouter} from "next/router";
 import {useRequestQueryMutation} from "@lib/axios";
 import {ConditionalWrapper, useMedicalEntitySuffix} from "@lib/hooks";
@@ -45,7 +44,7 @@ function CashboxRow({...props}) {
         isItemSelected
     } = props;
 
-    const {mutateTransactions, walletMutate, pmList, hideName} = data;
+    const {pmList, hideName} = data;
     const router = useRouter();
     const theme = useTheme();
     const {data: session} = useSession();
@@ -55,30 +54,10 @@ function CashboxRow({...props}) {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const [selected, setSelected] = useState<any>([]);
     const [transaction_data, setTransaction_data] = useState<any[]>([]);
 
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const [transaction_loading, setTransaction_loading] = useState<boolean>(false)
     const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox");
-
-    const handleChildSelect = (id: any) => {
-        const selectedIndex = selected.indexOf(id);
-        let newSelected: readonly string[] = [];
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
-        } else {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1)
-            );
-        }
-        setSelected(newSelected);
-    }
-
-    const mutatePatientWallet = () => {
-        walletMutate && walletMutate()
-    }
 
     const selectRow = (paymentUuid: string) => {
         setTransaction_loading(true)
@@ -94,10 +73,7 @@ function CashboxRow({...props}) {
             })
         }
     }
-    useEffect(() => {
-        dispatch(addBilling(selected));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selected]);
+
     return (
         <>
             <TableRowStyled
