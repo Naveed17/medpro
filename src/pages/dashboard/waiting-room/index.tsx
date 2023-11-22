@@ -33,7 +33,6 @@ import {MobileContainer} from "@themes/mobileContainer";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
-import {useSnackbar} from "notistack";
 import {ActionMenu, toggleSideBar} from "@features/menu";
 import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
@@ -47,7 +46,6 @@ import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
 import {LoadingButton} from "@mui/lab";
 import {agendaSelector, setStepperIndex} from "@features/calendar";
-import {useTransactionEdit} from "@lib/hooks/rest";
 import {Board} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton} from "@features/buttons";
@@ -67,10 +65,8 @@ function WaitingRoom() {
     const router = useRouter();
     const dispatch = useAppDispatch();
     const isMounted = useIsMountedRef();
-    const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
-    const {trigger: triggerTransactionEdit} = useTransactionEdit();
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
 
@@ -107,7 +103,6 @@ function WaitingRoom() {
     const [row, setRow] = useState<WaitingRoomModel | null>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
-    const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [popoverActions, setPopoverActions] = useState<any[]>([]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [waitingRoomsGroup, setWaitingRoomsGroup] = useState<any[]>([]);
@@ -151,28 +146,11 @@ function WaitingRoom() {
 
     const handleClose = () => {
         setContextMenu(null);
-    };
-
-    const handleSubmit = () => {
-        setLoadingRequest(true)
-        triggerTransactionEdit(selectedPayment,
-            row?.transactions && row?.transactions?.length > 0 ? row?.transactions[0] : null,
-            () => {
-                mutateWaitingRoom().then(() => {
-                    enqueueSnackbar(t("addsuccess"), {variant: 'success'});
-                    setOpenPaymentDialog(false);
-                    setLoadingRequest(false);
-                })
-            }
-        );
     }
 
     const resetDialog = () => {
-        setOpenPaymentDialog(false);/*
-        const actions = [...popoverActions];
-        // actions.splice(popoverActions.findIndex(data => data.action === "onPay"), 1);
-        setPopoverActions(actions);*/
-    };
+        setOpenPaymentDialog(false);
+    }
 
     const nextConsultation = (row: any) => {
         const form = new FormData();
@@ -414,8 +392,9 @@ function WaitingRoom() {
             id: '1',
             name: 'today-rdv',
             url: '#',
-            icon: <CalendarIcon/>,
+            icon: <CalendarIcon sx={{width: 24, height: 24}}/>,
             action: <CustomIconButton
+                sx={{mr: 1}}
                 onClick={() => {
                     setQuickAddAppointment(true);
                     setTimeout(() => setQuickAddAppointmentTab(1));
@@ -525,7 +504,6 @@ function WaitingRoom() {
                         {waitingRoomsGroup[1] ? <>
                                 <Card sx={{mr: {xs: 0, sm: 2}, mb: 2, minWidth: 235}}>
                                     <CardHeader
-
                                         avatar={columns[0].icon}
                                         {...(columns[0].action && {action: columns[0].action})}
                                         title={<Typography

@@ -2,12 +2,13 @@ import {IconButton, useTheme} from "@mui/material";
 import {PaletteColor} from "@mui/material/styles";
 
 function CustomIconButton({...props}) {
-    const {variant, color, ...other} = props;
+    const {variant, color, sx, ...other} = props;
     const theme = useTheme();
 
     return (
         <IconButton
             sx={{
+                ...(sx && sx),
                 borderRadius: 1,
                 ...(color && {
                     backgroundColor: (theme.palette[color as keyof typeof theme.palette] as PaletteColor).main,
