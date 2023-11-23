@@ -1287,8 +1287,7 @@ function ConsultationInProgress() {
                                                                         style={getItemStyle(
                                                                             snapshot.isDragging,
                                                                             provided.draggableProps.style
-                                                                        )}
-                                                                    >
+                                                                        )}>
                                                                         <MyCardStyled>
                                                                             <Stack direction={"row"}
                                                                                    style={{backgroundColor: item.content === 'widget' && selectedModel ? alpha(selectedModel?.default_modal.color, 0.3) : ""}}
@@ -1860,7 +1859,7 @@ function ConsultationInProgress() {
                 />
             )}
 
-            <Draggable>
+            <Draggable bounds="body">
                 <Fab sx={{
                     position: "fixed",
                     bottom: 82,
@@ -1876,7 +1875,7 @@ function ConsultationInProgress() {
                 </Fab>
             </Draggable>
 
-            {(record || selectedAudio !== null) && <Draggable>
+            {(record || selectedAudio !== null) && <Draggable bounds="body" cancel=".btn-action">
                 <CardMedia
                     sx={{
                         position: "fixed",
@@ -1893,6 +1892,7 @@ function ConsultationInProgress() {
                             <>
                                 {!saveAudioSection ?
                                     <Stack className={'record-container'} direction={"row"} alignItems={"center"}
+                                           {...((isPaused || saveAudio) && {sx: {"& .record-button .react-svg": {height: 16}}})}
                                            spacing={2}>
                                         <Fab
                                             size={"small"}
@@ -1934,6 +1934,7 @@ function ConsultationInProgress() {
                                         </Fab>
 
                                         <CustomIconButton
+                                            className={"btn-action record-button"}
                                             onClick={(event: any) => {
                                                 event.stopPropagation();
                                                 togglePauseResume();
@@ -1944,11 +1945,12 @@ function ConsultationInProgress() {
                                                 }
                                             }}
                                             variant="filled"
-                                            color={"primary"}
+                                            color={(isPaused || saveAudio) ? "error" : "primary"}
                                             size={"small"}>
-                                            <IconUrl path={(isPaused || saveAudio) ? 'ic-play-audio' : 'ic-pause'}/>
+                                            <IconUrl path={(isPaused || saveAudio) ? 'ic-record-circle' : 'ic-pause'}/>
                                         </CustomIconButton>
                                         {(isPaused || saveAudio) && <LoadingButton
+                                            className={"btn-action"}
                                             loading={loadingRequest}
                                             loadingPosition={"start"}
                                             onClick={(event) => {
@@ -1970,6 +1972,7 @@ function ConsultationInProgress() {
                                             <Typography>{t("consultationIP.stop")}</Typography>
                                         </LoadingButton>}
                                         <IconButton
+                                            className={"btn-action"}
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 setSaveAudio(false);
@@ -1980,7 +1983,7 @@ function ConsultationInProgress() {
                                             <IconUrl width={24} height={24} path={'ic-trash'}/>
                                         </IconButton>
                                         <IconButton
-                                            className={"close-button"}
+                                            className={"close-button btn-action"}
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 setSaveAudioSection(true);
@@ -1992,6 +1995,7 @@ function ConsultationInProgress() {
                                     <>
                                         <Stack direction={"row"} spacing={1}>
                                             <LoadingButton
+                                                className={"btn-action"}
                                                 loading={loadingRequest}
                                                 loadingPosition={"start"}
                                                 startIcon={<IconUrl width={20} height={20} path={'iconfinder_save'}/>}
@@ -2013,6 +2017,7 @@ function ConsultationInProgress() {
                                                 <Typography>{t("consultationIP.close-save")}</Typography>
                                             </LoadingButton>
                                             <Button
+                                                className={"btn-action"}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     setSaveAudioSection(false);
@@ -2031,7 +2036,7 @@ function ConsultationInProgress() {
                                             </Button>
                                         </Stack>
                                         <IconButton
-                                            className={"close-button"}
+                                            className={"close-button btn-action"}
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 setSaveAudio(false);

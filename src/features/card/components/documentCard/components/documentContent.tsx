@@ -1,19 +1,21 @@
-import {Stack, Typography} from "@mui/material";
+import {Stack, Typography, useMediaQuery} from "@mui/material";
 import EventRoundedIcon from "@mui/icons-material/EventRounded";
 import moment from "moment-timezone";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import React from "react";
+import {MobileContainer} from "@lib/constants";
 
 function DocumentContent({...props}) {
     const {t, data, date, resize} = props;
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
 
     return (
         <Stack {...(!resize ? {direction: "column"} : {alignItems: "flex-start", m: 1})}>
             <Typography
                 className={"sub-title ellipsis"} variant='subtitle2'
                 whiteSpace={"nowrap"}
-                sx={{cursor: "pointer", width: 120}}
-                textAlign={"center"}
+                sx={{cursor: "pointer", maxWidth: isMobile ? 80 : 120}}
+                textAlign={"left"}
                 fontSize={13}>
                 {t(data.title)}
             </Typography>
