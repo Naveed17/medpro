@@ -291,6 +291,18 @@
     },
     "pending-dialog": {
       "title": "Rendez-vous en attente"
+    },
+    "absence-dialog": {
+      "title": "Ajouter congé ou absence",
+      "type-placeholder": "Sélectionner un type d'absence",
+      "startDate": "Date début",
+      "endDate": "Date fin",
+      "vacation": {
+        "yearly": "Congé annuel",
+        "sick": "Congé de maladie",
+        "conference": "Conférence",
+        "absence": "Autre motif d'absence"
+      }
     }
   },
   "alert": {

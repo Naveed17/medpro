@@ -16,6 +16,7 @@ export type CalendarProps = {
     view: string | undefined;
     openViewDrawer: boolean;
     openAddDrawer: boolean;
+    openVacationDrawer: boolean;
     openMoveDrawer: boolean;
     openPatientDrawer: boolean;
     openPayDialog: boolean;
@@ -35,6 +36,7 @@ const initialState: CalendarProps = {
     view: 'timeGridWeek',
     openViewDrawer: false,
     openAddDrawer: false,
+    openVacationDrawer: false,
     openPatientDrawer: false,
     openMoveDrawer: false,
     openPayDialog: false,
@@ -66,6 +68,9 @@ export const AgendaReducer = createReducer(initialState, builder => {
                 break;
             case "pay":
                 state.openPayDialog = action.payload.open;
+                break;
+            case "vacation":
+                state.openVacationDrawer = action.payload.open;
                 break;
             default:
                 state.openAddDrawer = action.payload.open;

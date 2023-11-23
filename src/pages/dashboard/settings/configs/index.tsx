@@ -1,10 +1,10 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement} from "react";
-import DashLayout from "@features/base/components/dashLayout/dashLayout";
+import {DashLayout} from "@features/base";
 import {useSession} from "next-auth/react";
 
-function Questions() {
+function Configs() {
     const {data: session} = useSession();
 
     return (
@@ -17,20 +17,20 @@ function Questions() {
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async (context) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'questions']))
-    }
-})
-export default Questions
+        ...(await serverSideTranslations(context.locale as string, [
+            "common",
+            "menu",
+            "settings"
+        ])),
+    },
+});
+export default Configs;
 
-Questions.auth = true;
+Configs.auth = true;
 
-Questions.getLayout = function getLayout(page: ReactElement) {
-    return (
-        <DashLayout>
-            {page}
-        </DashLayout>
-    )
-}
+Configs.getLayout = function getLayout(page: ReactElement) {
+    return <DashLayout>{page}</DashLayout>;
+};
