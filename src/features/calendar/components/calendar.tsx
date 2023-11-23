@@ -275,7 +275,9 @@ function Calendar({...props}) {
         if (calendarEl && prevView.current !== "listWeek") {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             if (calendarApi.view.type !== view) {
-                calendarApi.changeView(view as string);
+                queueMicrotask(() => {
+                    calendarApi.changeView(view as string);
+                })
             }
         } else {
             OnViewChange(view as string);
