@@ -298,7 +298,7 @@ function Calendar({...props}) {
     }, [sortedData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <Box bgcolor="#F0FAFF">
+        <Box bgcolor="common.white">
             {isMobile && <ClickAwayListener onClickAway={() => {
                 if (slotInfoPopover) {
                     setSlotInfoPopover(false);
@@ -588,6 +588,7 @@ function Calendar({...props}) {
                                               size="small"
                                               color={"primary"}/>}
                                     <AppointmentPopoverCard
+                                        eventO={(event:any)=> setAnchorEl(event.target as any) }
                                         {...{isBeta, t: translation}}
                                         style={{width: "300px", border: "none"}}
                                         data={appointmentData}/>

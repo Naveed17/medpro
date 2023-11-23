@@ -28,7 +28,6 @@ const CalendarStyled = styled('div')(({theme}) => ({
     '& .fc .fc-col-header ': {
         boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
         '& th': {borderBottom: `3px solid ${theme.palette.error.main}`,
-        '&:first-of-type':{borderBottomColor:'transparent'}
     
     },
         '& .fc-col-header-cell-cushion': {
@@ -167,7 +166,7 @@ const CalendarStyled = styled('div')(({theme}) => ({
     },
     '& .fc .fc-list-table': {
         '& th, td': {
-            borderColor: 'transparent'
+            borderColor: 'white'
         }
     },
 }));

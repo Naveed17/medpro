@@ -7,7 +7,6 @@ import { ActionMenu } from "@features/menu";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 function Header({...props}) {
     const {isGridWeek, event, isMobile,contextMenuHeader, setContextMenuHeader} = props;
-    console.log(props)
     const date = moment(event.date.toLocaleDateString("fr"), "DD/MM/YYYY");
      
 const handleCloseMenu = () => {

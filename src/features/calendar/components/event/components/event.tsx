@@ -1,4 +1,4 @@
-import {Avatar, Box, IconButton, Typography} from "@mui/material";
+import {Avatar, Box, IconButton, Stack, Typography} from "@mui/material";
 import React, {useEffect} from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import EventStyled from './overrides/eventStyled';
@@ -53,7 +53,7 @@ function Event({...props}) {
         setAnchorEl(null);
         clearTimeout(timeoutId);
     }
-
+console.log(appointment)
     useEffect(() => {
         if (anchorEl !== null && openViewDrawer) {
             handlePopoverClose()
@@ -72,14 +72,47 @@ function Event({...props}) {
                     ...(appointment.motif.length > 0 && {background: (theme: Theme) => `linear-gradient(90deg, ${isBeta && !appointment?.payed ? alpha(theme.palette.expire.main, 0.2) : 'rgba(255,0,0,0)'} 95%, ${appointment.motif.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
                     "&:before": {
                         background: event.borderColor
-                    }
+                    },
+                    ...(appointment.dur > 15 && {
+                        "&.fc-event-main-box":{
+                        alignItems:'flex-start'
+                        }
+                    })
                 }}
                 aria-owns={open ? 'mouse-over-popover' : undefined}
                 aria-haspopup="true"
                 {...((!isMobile && !isEventDragging) && {onMouseEnter: handlePopoverOpen})}
                  {...((!isMobile && !isEventDragging) && {onMouseLeave: handlePopoverClose})}
                 className="fc-event-main-box">
-                {appointment.new && <Box className="badge"/>}
+                    <Stack height={1} width={1} spacing={.5}>
+                    {
+                        appointment.dur > 15 && (
+                            <Stack direction='row' alignItems={'center'} pl={1}>
+                                <Typography variant="body2" color="text.primary">
+                                    {moment(appointment.time).format("HH:mm")}
+                                </Typography>
+                               {appointment.new && <Box className="badge"/>}
+                            {!appointment?.patient?.isArchived ? <Typography
+                        variant="body2"
+                        {...((appointment.status.key === "WAITING_ROOM" &&
+                                appointment.hasErrors.length === 0) &&
+                            {className: "ic-waiting"})}
+                        component={"span"}
+                        color="text.primary">
+                        {appointment?.status.icon}
+                        {appointment.hasErrors.length > 0 && <DangerIcon className={"ic-danger"}/>}
+                    </Typography>
+                    :
+                    <DeletedPatientIcon/>
+                }
+                            </Stack>
+                        )
+                    }  
+                  <Stack direction='row' alignItems={appointment.dur > 15 ? "flex-start":'center'} width={1} height={1}>   
+                {
+                appointment.dur <= 15 && (
+                    <>
+                     {appointment.new && <Box className="badge"/>}
                 {!appointment?.patient?.isArchived ? <Typography
                         variant="body2"
                         {...((appointment.status.key === "WAITING_ROOM" &&
@@ -93,8 +126,13 @@ function Event({...props}) {
                     :
                     <DeletedPatientIcon/>
                 }
+                    </>
+                ) 
 
+                }
+               
                 <Typography
+                pl={appointment.dur > 15 ? 1:0}
                     variant="body2"
                     component={"span"}
                     sx={{
@@ -106,7 +144,8 @@ function Event({...props}) {
                             ...((appointment.hasErrors.length > 0 && (appointment.isOnline || appointment.motif.length > 0)) && {width: "94%"})
                         }
                     }}
-                    color={appointment?.patient?.isArchived ? "text.primary" : "primary"}
+                    color={"text.primary"}
+                    fontWeight={600}
                     noWrap>
                     <span>{event.event._def.title}</span>
                     {view === "timeGridDay" && (
@@ -125,9 +164,11 @@ function Event({...props}) {
                     alt="Online appointment"
                     src="/static/icons/Med-logo_.svg"
                 />}
-                <IconButton className="btn-rdv">
+                <IconButton className="btn-rdv" sx={{alignSelf:appointment.dur > 15 ? "flex-end":'flex-start'}}>
                     <PlayCircleIcon/>
                 </IconButton>
+                </Stack>
+                </Stack>
             </EventStyled>
         </>
     )

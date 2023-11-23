@@ -16,14 +16,14 @@ const RootStyled = styled("div")(({theme}) => ({
         borderStyle: "dashed"
     },
     "& .fc .fc-daygrid-day.fc-day-today": {
-        background: "transparent",
+        background: "#fff"
     },
     "& .fc-day-today .fc-timegrid-col-frame": {
-        background: "#F0FAFF",
+        background: "rgba(255, 249, 217, 0.1)",
         border: `solid ${theme.palette.warning.main}`,
     },
     "& .fc-day-today .fc-daygrid-day-frame": {
-        background: "#F0FAFF",
+        background: "rgba(255, 249, 217, 0.1)",
         border: `solid ${theme.palette.warning.main}`,
     },
     "& .fc-col-header-cell-cushion ": {
@@ -33,6 +33,9 @@ const RootStyled = styled("div")(({theme}) => ({
     "& .fc-timegrid-slot": {
         minHeight: 28,
         height: 28
+    },
+    ".fc .fc-timegrid-col.fc-day-today":{
+       backgroundColor:'#fff'
     },
     "& .fc-timegrid-slot-label.fc-scrollgrid-shrink": {
         verticalAlign: "top",
@@ -131,6 +134,14 @@ const RootStyled = styled("div")(({theme}) => ({
     },
     "& .filtered": {
         opacity: .4
+    },
+    '.fc-timegrid-slots':{
+        'colgroup':{
+            background:"#fff"
+        }
+    },
+    ".fc-timegrid-divider":{
+        backgroundColor:'#fff'
     }
 }));
 
