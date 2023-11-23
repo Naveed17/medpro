@@ -24,6 +24,7 @@ import {ProgressUIReducer} from "@features/progressUI";
 import {selectCheckboxReducer} from "@features/selectCheckboxCard"
 import {CashboxReducer} from "@features/leftActionBar/components/cashbox";
 import {dialogOpeningHoursReducer, selectDialogOpeningHours} from "@features/dialog/components/openingHoursDialog";
+import {vacationDrawerReducer} from "@features/drawer/components/vacationDrawer/reducer";
 
 export const store = configureStore({
     reducer: {
@@ -54,7 +55,8 @@ export const store = configureStore({
         prescription: PrescriptionReducer,
         selectCheckbox: selectCheckboxReducer,
         ocrDocument: ocrDocumentReducer,
-        openingHours: dialogOpeningHoursReducer
+        openingHours: dialogOpeningHoursReducer,
+        vacation: vacationDrawerReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {
