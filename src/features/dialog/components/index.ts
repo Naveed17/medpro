@@ -13,5 +13,6 @@ export * from "./medicalPrescriptionCycleDialog";
 export * from "./medicalPrescriptionModelDialog";
 export * from "./editMotifDialog";
 export * from "./ocrDocsDialog";
+export * from "./openingHoursDialog";
 export { default as Dialog } from "./dialog";
 export { default as DialogData } from "./config";

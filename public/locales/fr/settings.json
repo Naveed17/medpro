@@ -196,6 +196,11 @@
       "writeAdress": "Tapez ici l'adresse de l’établissement",
       "writePostal": "Tapez ici code postal",
       "horaire": "Horaire d'ouverture",
+      "date-range": "Périodes",
+      "startDate": "Date début",
+      "date-error": "la date de fin doit être ultérieure à la date de début",
+      "endDate": "Date fin",
+      "add-horaire": "Ajouter un nouvel horaire d'ouverture",
       "permissions": "Droit d'accés",
       "user": "Utilisateur",
       "userPermission": "permission accordée",
@@ -204,7 +209,9 @@
       "adreq": "Adresse est obligatoire",
       "emsc": "em seance",
       "firstsc": "1er seance",
-      "timeshedule": "horaire d'ouverture",
+      "hours-schedule-name": "Nom de l'horaire d'ouverture",
+      "hours-schedule-slots": "Tapez ici le nom de l'horaire d'ouverture",
+      "add-timeshedule": "Ajouter des heures d'ouverture",
       "applyforWeek": "Appliquer pour toute la semaine"
     }
   },
