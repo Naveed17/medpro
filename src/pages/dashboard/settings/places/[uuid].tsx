@@ -10,7 +10,7 @@ import {
     Button,
     Card,
     CardContent,
-    Collapse,
+    Collapse, DialogActions,
     FormControl,
     FormControlLabel,
     Grid,
@@ -31,7 +31,7 @@ import IconUrl from "@themes/urlIcon";
 import TimePicker from "@themes/overrides/TimePicker";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {DashLayout, dashLayoutSelector} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import dynamic from "next/dynamic";
 import {LatLngBoundsExpression} from "leaflet";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -41,7 +41,7 @@ import {styled} from "@mui/material/styles";
 import moment from "moment-timezone";
 import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
-import {useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CountrySelect} from "@features/countrySelect";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {DefaultCountry} from "@lib/constants";
@@ -50,6 +50,9 @@ import PhoneInput from "react-phone-number-input/input";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {a11yProps, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useContactType} from "@lib/hooks/rest";
+import CloseIcon from "@mui/icons-material/Close";
+import {Dialog, resetOpeningData} from "@features/dialog";
+import {dialogOpeningHoursSelector} from "@features/dialog/components/openingHoursDialog";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -63,6 +66,9 @@ const FormStyled = styled(Form)(({theme}) => ({
             padding: theme.spacing(3, 2),
             paddingRight: theme.spacing(5),
         },
+    },
+    "& .MuiTabs-flexContainer": {
+        alignItems: "center"
     },
     "& .form-control": {
         "& .MuiInputBase-root": {
@@ -124,9 +130,12 @@ function PlacesDetail() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {contacts: contactTypes} = useContactType();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const dispatch = useAppDispatch();
 
     const {t} = useTranslation(["settings", "common"]);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
+    const dialogOpeningHoursData = useAppSelector(dialogOpeningHoursSelector);
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -177,6 +186,8 @@ function PlacesDetail() {
     const [cities, setCities] = useState<LocationModel[]>([]);
     const [horaires, setHoraires] = useState<OpeningHoursModel[]>([
         {
+            title: "Créneau horaire",
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"],
             isMain: false,
             isVisible: false,
             openingHours: {
@@ -191,16 +202,7 @@ function PlacesDetail() {
         },
     ]);
     const [tabIndex, setTabIndex] = useState<number>(0);
-    const [tabsContent, setTabsContent] = useState<{
-        title: string,
-        permission: string[],
-        children?: any
-    }[]>([
-        {
-            title: "overview",
-            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
-        }
-    ]);
+    const [openingHoursDialog, setOpeningHoursDialog] = useState<boolean>(false);
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -313,17 +315,17 @@ function PlacesDetail() {
     }
 
     const apply = () => {
-        Object.keys(horaires[0].openingHours).forEach((day) => {
+        Object.keys(horaires[tabIndex].openingHours).forEach((day) => {
             if (day !== "MON") {
-                horaires[0].openingHours[day] = [];
+                horaires[tabIndex].openingHours[day] = [];
             }
         })
-        setAllDays(true)
+        setAllDays(true);
     }
 
     const cleanData = () => {
-        Object.keys(horaires[0].openingHours).forEach((day) => {
-            horaires[0].openingHours[day] = horaires[0].openingHours[day].filter(
+        Object.keys(horaires[tabIndex].openingHours).forEach((day) => {
+            horaires[tabIndex].openingHours[day] = horaires[tabIndex].openingHours[day].filter(
                 (hour: { start_time: string; end_time: string }) =>
                     hour.start_time !== "Invalid date" && hour.end_time !== "Invalid date"
             );
@@ -357,6 +359,29 @@ function PlacesDetail() {
         setFieldValue("phones", phones);
     }
 
+    const handleADDOpeningHours = () => {
+        setHoraires([
+            ...horaires,
+            {
+                title: dialogOpeningHoursData.name,
+                permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"],
+                isMain: false,
+                isVisible: false,
+                openingHours: {
+                    MON: [],
+                    TUE: [],
+                    WED: [],
+                    THU: [],
+                    FRI: [],
+                    SAT: [],
+                    SUN: []
+                },
+            }
+        ])
+        setTimeout(() => setTabIndex(horaires.length))
+        setOpeningHoursDialog(false);
+        dispatch(resetOpeningData());
+    }
 
     useEffect(() => {
         if (data !== undefined) {
@@ -368,6 +393,8 @@ function PlacesDetail() {
             });
             setHoraires([
                 {
+                    title: "Créneau horaire",
+                    permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"],
                     isMain: false,
                     isVisible: false,
                     openingHours: {
@@ -385,14 +412,14 @@ function PlacesDetail() {
     }, [data]);
 
     useEffect(() => {
-        const monday = [...horaires[0].openingHours["MON"]]
+        const monday = [...horaires[tabIndex].openingHours["MON"]]
 
         if (alldays) {
-            Object.keys(horaires[0].openingHours).forEach((day) => {
+            Object.keys(horaires[tabIndex].openingHours).forEach((day) => {
                 if (day !== "MON") {
                     monday.forEach((hour: any, index: number) => {
-                        horaires[0].openingHours[day] = [
-                            ...horaires[0].openingHours[day],
+                        horaires[tabIndex].openingHours[day] = [
+                            ...horaires[tabIndex].openingHours[day],
                             {
                                 start_time: monday[index].start_time,
                                 end_time: monday[index].end_time,
@@ -428,6 +455,8 @@ function PlacesDetail() {
 
             const hours = [
                 {
+                    title: "Créneau horaire",
+                    permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"],
                     isMain: false,
                     isVisible: false,
                     openingHours: {
@@ -453,365 +482,6 @@ function PlacesDetail() {
             setCheck(false);
         }
     }, [check, initialCites, row]);
-
-    useEffect(() => {
-        setTabsContent([{
-            title: "plage 1",
-            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"],
-            children: horaires.map((value: any, index) => (
-                <div key={index}>
-                    <p>{value.uuid}</p>
-                    {Object.keys(value.openingHours).map((day: any, index) => (
-                        <Card
-                            key={index}
-                            sx={{
-                                border: "1px solid #E4E4E4",
-                                boxShadow: "none",
-                                bgcolor: "#FCFCFC",
-                                mt: 2,
-                            }}>
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    px: 1,
-                                }}>
-                                <Typography
-                                    variant="body1"
-                                    color="text.primary"
-                                    fontWeight={600}
-                                    sx={{
-                                        textTransform: "uppercase",
-                                        margin: "13px 15px",
-                                    }}>
-                                    {t("days." + day)}
-                                </Typography>
-
-                                <Switch
-                                    onChange={(e) => {
-                                        if (e.target.checked)
-                                            value.openingHours[day].push({
-                                                start_time: "08:00",
-                                                end_time: "12:00",
-                                            });
-                                        else value.openingHours[day] = [];
-                                        setHoraires([...horaires]);
-                                    }}
-                                    checked={value.openingHours[day].length > 0}
-                                />
-                            </Box>
-
-                            <Collapse
-                                in={value.openingHours[day].length > 0}
-                                sx={{
-                                    bgcolor: "common.white",
-                                    borderTop: "1px solid #C9C8C8",
-                                }}>
-                                <Paper
-                                    sx={{borderRadius: 0, border: "none", px: 1, my: 2}}>
-                                    {value.openingHours[day]?.map(
-                                        (hour: any, i: number) => (
-                                            <Grid
-                                                container
-                                                spacing={1}
-                                                alignItems="center"
-                                                sx={{mt: 1}}
-                                                key={i}>
-                                                {hour && (
-                                                    <Grid item lg={3} md={3} sm={12} xs={4}>
-                                                        <Box
-                                                            sx={{
-                                                                display: "flex",
-                                                                alignItems: "center",
-                                                                svg: {mr: 1},
-                                                                justifyContent: "end",
-                                                            }}>
-                                                            <IconUrl path="ic-time"/>
-                                                            <Typography
-                                                                variant="body2"
-                                                                color="text.primary">
-                                                                {i + 1 > 1
-                                                                    ? (router.locale !== "ar"
-                                                                        ? i + 1
-                                                                        : "") +
-                                                                    t("lieux.new.emsc") +
-                                                                    (router.locale == "ar"
-                                                                        ? " " + (i + 1)
-                                                                        : "")
-                                                                    : t("lieux.new.firstsc")}
-                                                            </Typography>
-                                                        </Box>
-                                                    </Grid>
-                                                )}
-                                                {hour && (
-                                                    <Grid item lg={4} md={6} sm={12} xs={12}>
-                                                        <TimePicker
-                                                            defaultValue={[
-                                                                hour.start_time
-                                                                    ? new Date(
-                                                                        "2013/1/16 " + hour.start_time
-                                                                    )
-                                                                    : "",
-                                                                hour.end_time
-                                                                    ? new Date("2013/1/16 " + hour.end_time)
-                                                                    : "",
-                                                            ]}
-                                                            onChange={(
-                                                                start: DateTime,
-                                                                end: DateTime
-                                                            ) => {
-                                                                if (
-                                                                    hour.start_time !==
-                                                                    moment(start).format("HH:mm") ||
-                                                                    hour.end_time !==
-                                                                    moment(end).format("HH:mm")
-                                                                ) {
-                                                                    hour.start_time =
-                                                                        moment(start).format("HH:mm");
-                                                                    hour.end_time =
-                                                                        moment(end).format("HH:mm");
-                                                                    setHoraires([...horaires]);
-                                                                }
-                                                            }}
-                                                        />
-                                                    </Grid>
-                                                )}
-                                                {i > 0 && hour && (
-                                                    <Grid item lg={3} md={3} sm={12} xs={12}>
-                                                        <Button
-                                                            variant="text"
-                                                            color="error"
-                                                            size="small"
-                                                            sx={{
-                                                                svg: {width: 15},
-                                                                path: {
-                                                                    fill: (theme) =>
-                                                                        theme.palette.error.main,
-                                                                },
-                                                            }}
-                                                            startIcon={<IconUrl path="icdelete"/>}
-                                                            onClick={() => {
-                                                                value.openingHours[day].splice(i, 1);
-                                                                setHoraires([...horaires]);
-                                                            }}>
-                                                            {t("lieux.new.remove")}
-                                                        </Button>
-                                                    </Grid>
-                                                )}
-                                            </Grid>
-                                        )
-                                    )}
-
-                                    <Grid container justifyContent="center">
-                                        <Grid item lg={6} md={6} sm={12} xs={12}>
-                                            <Button
-                                                onClick={() => {
-                                                    value.openingHours[day].push({
-                                                        start_time: "",
-                                                        end_time: "",
-                                                    });
-                                                    setHoraires([...horaires]);
-                                                }}
-                                                variant="contained"
-                                                color="success"
-                                                sx={{mt: 1}}>
-                                                {t("lieux.new.add")}
-                                            </Button>
-                                        </Grid>
-                                    </Grid>
-
-                                    {day == "MON" && (
-                                        <Button onClick={apply}>
-                                            {t('lieux.new.applyforWeek')}
-                                        </Button>
-                                    )}
-                                </Paper>
-                            </Collapse>
-                        </Card>
-                    ))}
-                </div>
-            ))
-        },
-            {
-                title: "plage 2",
-                permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"],
-                children: horaires.map((value: any, index) => (
-                    <div key={index}>
-                        <p>{value.uuid}</p>
-                        {Object.keys(value.openingHours).map((day: any, index) => (
-                            <Card
-                                key={index}
-                                sx={{
-                                    border: "1px solid #E4E4E4",
-                                    boxShadow: "none",
-                                    bgcolor: "#FCFCFC",
-                                    mt: 2,
-                                }}>
-                                <Box
-                                    sx={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        px: 1,
-                                    }}>
-                                    <Typography
-                                        variant="body1"
-                                        color="text.primary"
-                                        fontWeight={600}
-                                        sx={{
-                                            textTransform: "uppercase",
-                                            margin: "13px 15px",
-                                        }}>
-                                        {t("days." + day)}
-                                    </Typography>
-
-                                    <Switch
-                                        onChange={(e) => {
-                                            if (e.target.checked)
-                                                value.openingHours[day].push({
-                                                    start_time: "08:00",
-                                                    end_time: "12:00",
-                                                });
-                                            else value.openingHours[day] = [];
-                                            setHoraires([...horaires]);
-                                        }}
-                                        checked={value.openingHours[day].length > 0}
-                                    />
-                                </Box>
-
-                                <Collapse
-                                    in={value.openingHours[day].length > 0}
-                                    sx={{
-                                        bgcolor: "common.white",
-                                        borderTop: "1px solid #C9C8C8",
-                                    }}>
-                                    <Paper
-                                        sx={{borderRadius: 0, border: "none", px: 1, my: 2}}>
-                                        {value.openingHours[day]?.map(
-                                            (hour: any, i: number) => (
-                                                <Grid
-                                                    container
-                                                    spacing={1}
-                                                    alignItems="center"
-                                                    sx={{mt: 1}}
-                                                    key={i}>
-                                                    {hour && (
-                                                        <Grid item lg={3} md={3} sm={12} xs={4}>
-                                                            <Box
-                                                                sx={{
-                                                                    display: "flex",
-                                                                    alignItems: "center",
-                                                                    svg: {mr: 1},
-                                                                    justifyContent: "end",
-                                                                }}>
-                                                                <IconUrl path="ic-time"/>
-                                                                <Typography
-                                                                    variant="body2"
-                                                                    color="text.primary">
-                                                                    {i + 1 > 1
-                                                                        ? (router.locale !== "ar"
-                                                                            ? i + 1
-                                                                            : "") +
-                                                                        t("lieux.new.emsc") +
-                                                                        (router.locale == "ar"
-                                                                            ? " " + (i + 1)
-                                                                            : "")
-                                                                        : t("lieux.new.firstsc")}
-                                                                </Typography>
-                                                            </Box>
-                                                        </Grid>
-                                                    )}
-                                                    {hour && (
-                                                        <Grid item lg={4} md={6} sm={12} xs={12}>
-                                                            <TimePicker
-                                                                defaultValue={[
-                                                                    hour.start_time
-                                                                        ? new Date(
-                                                                            "2013/1/16 " + hour.start_time
-                                                                        )
-                                                                        : "",
-                                                                    hour.end_time
-                                                                        ? new Date("2013/1/16 " + hour.end_time)
-                                                                        : "",
-                                                                ]}
-                                                                onChange={(
-                                                                    start: DateTime,
-                                                                    end: DateTime
-                                                                ) => {
-                                                                    if (
-                                                                        hour.start_time !==
-                                                                        moment(start).format("HH:mm") ||
-                                                                        hour.end_time !==
-                                                                        moment(end).format("HH:mm")
-                                                                    ) {
-                                                                        hour.start_time =
-                                                                            moment(start).format("HH:mm");
-                                                                        hour.end_time =
-                                                                            moment(end).format("HH:mm");
-                                                                        setHoraires([...horaires]);
-                                                                    }
-                                                                }}
-                                                            />
-                                                        </Grid>
-                                                    )}
-                                                    {i > 0 && hour && (
-                                                        <Grid item lg={3} md={3} sm={12} xs={12}>
-                                                            <Button
-                                                                variant="text"
-                                                                color="error"
-                                                                size="small"
-                                                                sx={{
-                                                                    svg: {width: 15},
-                                                                    path: {
-                                                                        fill: (theme) =>
-                                                                            theme.palette.error.main,
-                                                                    },
-                                                                }}
-                                                                startIcon={<IconUrl path="icdelete"/>}
-                                                                onClick={() => {
-                                                                    value.openingHours[day].splice(i, 1);
-                                                                    setHoraires([...horaires]);
-                                                                }}>
-                                                                {t("lieux.new.remove")}
-                                                            </Button>
-                                                        </Grid>
-                                                    )}
-                                                </Grid>
-                                            )
-                                        )}
-
-                                        <Grid container justifyContent="center">
-                                            <Grid item lg={6} md={6} sm={12} xs={12}>
-                                                <Button
-                                                    onClick={() => {
-                                                        value.openingHours[day].push({
-                                                            start_time: "",
-                                                            end_time: "",
-                                                        });
-                                                        setHoraires([...horaires]);
-                                                    }}
-                                                    variant="contained"
-                                                    color="success"
-                                                    sx={{mt: 1}}>
-                                                    {t("lieux.new.add")}
-                                                </Button>
-                                            </Grid>
-                                        </Grid>
-
-                                        {day == "MON" && (
-                                            <Button onClick={apply}>
-                                                {t('lieux.new.applyforWeek')}
-                                            </Button>
-                                        )}
-                                    </Paper>
-                                </Collapse>
-                            </Card>
-                        ))}
-                    </div>
-                ))
-            }])
-    }, [horaires]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -1183,7 +853,7 @@ function PlacesDetail() {
                             fontWeight={600}
                             marginBottom={2}
                             gutterBottom>
-                            {t("lieux.new.timeshedule")}
+                            {t("lieux.new.horaire")}
                         </Typography>
 
                         <Tabs
@@ -1192,22 +862,196 @@ function PlacesDetail() {
                             variant="scrollable"
                             aria-label="basic tabs example"
                             className="tabs-bg-white">
-                            {tabsContent.map((tabHeader, tabHeaderIndex) => (
+                            {horaires.map((tabHeader, tabHeaderIndex) => (
                                 <Tab
                                     key={`tabHeader-${tabHeaderIndex}`}
                                     disableRipple
-                                    label={t(`tabs.${tabHeader.title}`)}
+                                    label={tabHeader.title}
                                     {...a11yProps(tabHeaderIndex)}
                                 />)
                             )}
+                            <Button
+                                onClick={() => setOpeningHoursDialog(true)}
+                                variant={"text"}
+                                startIcon={<AddIcon/>}
+                                size={"small"}
+                                sx={{ml: "auto", mr: '1rem', height: 30}}>{t("lieux.new.add-timeshedule")}</Button>
                         </Tabs>
-                        {tabsContent.map((tabContent, tabContentIndex) => (
+                        {horaires.map((tabContent, tabContentIndex) => (
                             <TabPanel
                                 key={`tabContent-${tabContentIndex}`}
                                 padding={1}
                                 value={tabIndex}
                                 index={tabContentIndex}>
-                                {tabContent?.children && tabContent.children}
+                                {Object.keys(tabContent.openingHours).map((day: any, index) => (
+                                    <Card
+                                        key={index}
+                                        sx={{
+                                            border: "1px solid #E4E4E4",
+                                            boxShadow: "none",
+                                            bgcolor: "#FCFCFC",
+                                            mt: 2,
+                                        }}>
+                                        <Box
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                alignItems: "center",
+                                                px: 1,
+                                            }}>
+                                            <Typography
+                                                variant="body1"
+                                                color="text.primary"
+                                                fontWeight={600}
+                                                sx={{
+                                                    textTransform: "uppercase",
+                                                    margin: "13px 15px",
+                                                }}>
+                                                {t("days." + day)}
+                                            </Typography>
+
+                                            <Switch
+                                                onChange={(e) => {
+                                                    if (e.target.checked)
+                                                        tabContent.openingHours[day].push({
+                                                            start_time: "08:00",
+                                                            end_time: "12:00",
+                                                        });
+                                                    else tabContent.openingHours[day] = [];
+                                                    setHoraires([...horaires]);
+                                                }}
+                                                checked={tabContent.openingHours[day].length > 0}
+                                            />
+                                        </Box>
+
+                                        <Collapse
+                                            in={tabContent.openingHours[day].length > 0}
+                                            sx={{
+                                                bgcolor: "common.white",
+                                                borderTop: "1px solid #C9C8C8",
+                                            }}>
+                                            <Paper
+                                                sx={{borderRadius: 0, border: "none", px: 1, my: 2}}>
+                                                {tabContent.openingHours[day]?.map(
+                                                    (hour: any, i: number) => (
+                                                        <Grid
+                                                            container
+                                                            spacing={1}
+                                                            alignItems="center"
+                                                            sx={{mt: 1}}
+                                                            key={i}>
+                                                            {hour && (
+                                                                <Grid item lg={3} md={3} sm={12} xs={4}>
+                                                                    <Box
+                                                                        sx={{
+                                                                            display: "flex",
+                                                                            alignItems: "center",
+                                                                            svg: {mr: 1},
+                                                                            justifyContent: "end",
+                                                                        }}>
+                                                                        <IconUrl path="ic-time"/>
+                                                                        <Typography
+                                                                            variant="body2"
+                                                                            color="text.primary">
+                                                                            {i + 1 > 1
+                                                                                ? (router.locale !== "ar"
+                                                                                    ? i + 1
+                                                                                    : "") +
+                                                                                t("lieux.new.emsc") +
+                                                                                (router.locale == "ar"
+                                                                                    ? " " + (i + 1)
+                                                                                    : "")
+                                                                                : t("lieux.new.firstsc")}
+                                                                        </Typography>
+                                                                    </Box>
+                                                                </Grid>
+                                                            )}
+                                                            {hour && (
+                                                                <Grid item lg={4} md={6} sm={12} xs={12}>
+                                                                    <TimePicker
+                                                                        defaultValue={[
+                                                                            hour.start_time
+                                                                                ? new Date(
+                                                                                    "2013/1/16 " + hour.start_time
+                                                                                )
+                                                                                : "",
+                                                                            hour.end_time
+                                                                                ? new Date("2013/1/16 " + hour.end_time)
+                                                                                : "",
+                                                                        ]}
+                                                                        onChange={(
+                                                                            start: DateTime,
+                                                                            end: DateTime
+                                                                        ) => {
+                                                                            if (
+                                                                                hour.start_time !==
+                                                                                moment(start).format("HH:mm") ||
+                                                                                hour.end_time !==
+                                                                                moment(end).format("HH:mm")
+                                                                            ) {
+                                                                                hour.start_time =
+                                                                                    moment(start).format("HH:mm");
+                                                                                hour.end_time =
+                                                                                    moment(end).format("HH:mm");
+                                                                                setHoraires([...horaires]);
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                </Grid>
+                                                            )}
+                                                            {i > 0 && hour && (
+                                                                <Grid item lg={3} md={3} sm={12} xs={12}>
+                                                                    <Button
+                                                                        variant="text"
+                                                                        color="error"
+                                                                        size="small"
+                                                                        sx={{
+                                                                            svg: {width: 15},
+                                                                            path: {
+                                                                                fill: (theme) =>
+                                                                                    theme.palette.error.main,
+                                                                            },
+                                                                        }}
+                                                                        startIcon={<IconUrl path="icdelete"/>}
+                                                                        onClick={() => {
+                                                                            tabContent.openingHours[day].splice(i, 1);
+                                                                            setHoraires([...horaires]);
+                                                                        }}>
+                                                                        {t("lieux.new.remove")}
+                                                                    </Button>
+                                                                </Grid>
+                                                            )}
+                                                        </Grid>
+                                                    )
+                                                )}
+
+                                                <Grid container justifyContent="center">
+                                                    <Grid item lg={6} md={6} sm={12} xs={12}>
+                                                        <Button
+                                                            onClick={() => {
+                                                                tabContent.openingHours[day].push({
+                                                                    start_time: "",
+                                                                    end_time: "",
+                                                                });
+                                                                setHoraires([...horaires]);
+                                                            }}
+                                                            variant="contained"
+                                                            color="success"
+                                                            sx={{mt: 1}}>
+                                                            {t("lieux.new.add")}
+                                                        </Button>
+                                                    </Grid>
+                                                </Grid>
+
+                                                {day == "MON" && (
+                                                    <Button onClick={apply}>
+                                                        {t('lieux.new.applyforWeek')}
+                                                    </Button>
+                                                )}
+                                            </Paper>
+                                        </Collapse>
+                                    </Card>
+                                ))}
                             </TabPanel>
                         ))}
 
@@ -1234,6 +1078,35 @@ function PlacesDetail() {
                     </FormStyled>
                 </FormikProvider>
             </Box>
+
+            <Dialog
+                action={"openingHours"}
+                {...{
+                    direction,
+                    sx: {
+                        padding: {xs: 1, md: 2}
+                    },
+                }}
+                open={openingHoursDialog}
+                data={{t}}
+                size={"md"}
+                title={t("lieux.new.add-horaire")}
+                dialogClose={() => setOpeningHoursDialog(false)}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => setOpeningHoursDialog(false)} startIcon={<CloseIcon/>}>
+                            {t("config.cancel", {ns: "common"})}
+                        </Button>
+                        <LoadingButton
+                            disabled={moment(dialogOpeningHoursData.startDate).diff(dialogOpeningHoursData.endDate) > 0 || dialogOpeningHoursData.name.length === 0}
+                            variant="contained"
+                            onClick={handleADDOpeningHours}
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            {t("config.save", {ns: "common"})}
+                        </LoadingButton>
+                    </DialogActions>
+                }
+            />
         </>
     );
 }
