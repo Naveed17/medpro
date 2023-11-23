@@ -202,14 +202,12 @@ function DefaultViewMenu() {
                                 label={t("auto-confirm")}/>
                         </ListItemButton>
                         <Divider/>
-                        <Link href="/dashboard/agenda/trash">
-                            <ListItemButton>
-                                <DeleteOutlineIcon fontSize={"small"}/>
-                                <ListItemText
-                                    sx={{ml: 1, "& .MuiTypography-root": {fontSize: 13}}}
-                                    primary={t("trash")}/>
-                            </ListItemButton>
-                        </Link>
+                        <ListItemButton onClick={() => router.push('/dashboard/agenda/trash')}>
+                            <DeleteOutlineIcon fontSize={"small"}/>
+                            <ListItemText
+                                sx={{ml: 1, "& .MuiTypography-root": {fontSize: 13}}}
+                                primary={t("trash")}/>
+                        </ListItemButton>
                     </>}
                 </List>
             </Menu>
