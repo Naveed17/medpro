@@ -9,7 +9,7 @@ function Configs() {
 
     return (
         <iframe
-            src={`https://www.med.tn/question2.php?token=${session?.accessToken}`}
+            src={`https://www.med.tn/update2.php?token=${session?.accessToken}`}
             loading="lazy"
             allowFullScreen
             width={window.innerWidth}
