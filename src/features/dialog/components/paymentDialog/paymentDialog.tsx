@@ -200,7 +200,7 @@ function PaymentDialog({...props}) {
         let pay = props === 'check' ? {
             selected: props,
             amount: amount > 0 ? amount : 0,
-            data: {carrier: '', bank: '', nb: '', date: moment()}
+            data: {carrier: `${patient.firstName} ${patient.lastName}`, bank: '', nb: '', date: moment()}
         } : {selected: props, amount: amount > 0 ? amount : 0};
         let _payments = [...payments, pay]
         setPayments(_payments)
