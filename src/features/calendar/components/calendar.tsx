@@ -27,7 +27,6 @@ import {
     Event,
     Header,
     setCurrentDate,
-    setView,
     SlotFormat,
     TableHead
 } from "@features/calendar";
