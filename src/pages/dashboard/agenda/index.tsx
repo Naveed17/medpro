@@ -1094,7 +1094,7 @@ function Agenda() {
                         </motion.div>
                     </AnimatePresence>}
             </SubHeader>
-            <Box>
+            <Box sx={{background: "white"}}>
                 <Backdrop sx={{zIndex: 100, backgroundColor: alpha(theme.palette.common.white, 0.9)}}
                           open={openFabAdd}/>
                 <LinearProgress sx={{

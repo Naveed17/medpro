@@ -43,6 +43,9 @@ import {alpha} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
 import {useTranslation} from "next-i18next";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRouter} from "next/router";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -77,8 +80,13 @@ function Calendar({...props}) {
     const theme = useTheme();
     const {t} = useTranslation('common');
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const router = useRouter();
+    const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
 
-    const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {config: agenda, openViewDrawer} = useAppSelector(agendaSelector);
+
+    const {view, currentDate, config: agendaConfig, sortedData: groupSortedData} = useAppSelector(agendaSelector);
 
     const prevView = useRef(view);
 
@@ -105,10 +113,12 @@ function Calendar({...props}) {
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
-    const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
     const openingHours = agendaConfig?.openingHours[0];
     const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
     const open = Boolean(anchorEl);
+    let timeoutId: any
+
+    const {trigger: triggerAppointmentTooltip} = useRequestQueryMutation("/agenda/appointment/tooltip");
 
     const handleOnSelectEvent = useCallback((value: any) => {
         OnSelectEvent(value);
@@ -137,14 +147,18 @@ function Calendar({...props}) {
         }
     };
 
-    const handleNavLinkDayClick = (date: Date) => {
-        const calendarEl = calendarRef.current;
+    const handleNavLinkDayClick = (date: Date, jsEvent: UIEvent) => {
+        /*const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.gotoDate(date);
             dispatch(setView("timeGridDay"));
             dispatch(setCurrentDate({date, fallback: false}));
-        }
+        }*/
+    }
+
+    const handleNavLinkWeekClick = (date: Date, jsEvent: UIEvent) => {
+        console.log("handleNavLinkWeekClick", jsEvent);
     }
 
     const handleTableEvent = (action: string, eventData: EventModal) => {
@@ -236,6 +250,17 @@ function Calendar({...props}) {
             return "center";
         else return 'right';
     }
+
+    const handlePopoverClose = () => {
+        setAnchorEl(null);
+        clearTimeout(timeoutId);
+    }
+
+    useEffect(() => {
+        if (anchorEl !== null && (openViewDrawer || isEventDragging)) {
+            handlePopoverClose()
+        }
+    }, [anchorEl, isEventDragging]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         let days: BusinessHoursInput[] = [];
@@ -350,6 +375,7 @@ function Calendar({...props}) {
                                 defaultTimedEventDuration="00:15"
                                 allDayMaintainDuration={false}
                                 navLinkDayClick={handleNavLinkDayClick}
+                                navLinkWeekClick={handleNavLinkWeekClick}
                                 allDayContent={() => ""}
                                 eventDrop={(eventDrop) => {
                                     if (eventDrop.event._def.allDay) {
@@ -402,17 +428,45 @@ function Calendar({...props}) {
                                         }, 0);
                                     }
                                 }}
-                                dayHeaderContent={(event) =>
-                                    Header({
+                                dayHeaderContent={(event) => {
+                                    const datEvents = groupSortedData.find(events => events.date === moment(event.date).format("DD-MM-YYYY"))?.events?.length ?? 0;
+                                    return Header({
                                         isGridWeek,
                                         event,
+                                        datEvents,
                                         isMobile,
-                                        contextMenuHeader, 
+                                        contextMenuHeader,
                                         setContextMenuHeader,
                                         t
                                     })
-                                }
+                                }}
                                 eventClick={(eventArg) => !eventArg.event._def.extendedProps.patient?.isArchived && handleOnSelectEvent(eventArg.event._def)}
+                                {...(!isEventDragging && {
+                                    eventMouseEnter: (info) => {
+                                        if (timeoutId !== undefined) {
+                                            clearTimeout(timeoutId);
+                                        }
+
+                                        timeoutId = setTimeout(() => {
+                                            setAppointmentData(null);
+                                            const query = `?mode=tooltip&appointment=${info.event._def.publicId}&start_date=${moment(info.event._def.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(info.event._def.extendedProps.time).format("DD-MM-YYYY")}&format=week`
+                                            triggerAppointmentTooltip({
+                                                method: "GET",
+                                                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
+                                            }, {
+                                                onSuccess: (result) => {
+                                                    const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
+                                                    if (appointmentData.length > 0) {
+                                                        setAnchorEl(info.jsEvent.target as any);
+                                                        setAppointmentData(appointmentData[0]);
+                                                    }
+                                                }
+                                            })
+                                        }, 1000);
+
+                                    }
+                                })}
+                                eventMouseLeave={handlePopoverClose}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);
@@ -421,6 +475,7 @@ function Calendar({...props}) {
                                 }}
                                 select={(eventArg) => OnRangeDateSelect(eventArg)}
                                 showNonCurrentDates={true}
+                                selectMinDistance={10}
                                 height={calendarHeight}
                                 initialDate={currentDate.date}
                                 slotMinTime={getSlotsFormat(slotMinTime)}
@@ -564,6 +619,7 @@ function Calendar({...props}) {
 
                             <Popover
                                 id="mouse-over-popover"
+                                onMouseLeave={handlePopoverClose}
                                 sx={{
                                     pointerEvents: 'none',
                                     zIndex: 900
@@ -591,7 +647,7 @@ function Calendar({...props}) {
                                               size="small"
                                               color={"primary"}/>}
                                     <AppointmentPopoverCard
-                                        eventO={(event:any)=> setAnchorEl(event.target as any) }
+                                        eventO={(event: any) => setAnchorEl(event.target as any)}
                                         {...{isBeta, t: translation}}
                                         style={{width: "300px", border: "none"}}
                                         data={appointmentData}/>

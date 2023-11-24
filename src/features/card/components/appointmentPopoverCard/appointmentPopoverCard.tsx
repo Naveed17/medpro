@@ -15,8 +15,9 @@ import {useProfilePhoto} from "@lib/hooks/rest";
 import {AppointmentStatus} from "@features/calendar";
 import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+
 function AppointmentPopoverCard({...props}) {
-    const {isBeta, data, style, t} = props;
+    const {isBeta, data, style, t, handleMouseLeave} = props;
     const {data: session} = useSession();
     const {patientPhoto} = useProfilePhoto({patientId: data?.patient?.uuid, hasPhoto: data?.patient?.hasPhoto});
 
@@ -34,7 +35,7 @@ function AppointmentPopoverCard({...props}) {
         }
     }, [data]);
     return (
-        <RootStyled sx={style} ref={componentRef}>
+        <RootStyled sx={style} ref={componentRef} onMouseLeave={handleMouseLeave}>
             <Box className={"badge"}
                  sx={{
                      background: data?.type?.color,
@@ -221,16 +222,14 @@ function AppointmentPopoverCard({...props}) {
                     <Typography sx={{fontSize: 12}} color={"back"}>
                         {`${t("table.header.motif")}: `}{data.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
                 </Stack>}
-                <Stack direction='row' justifyContent={'flex-end'} spacing={1} className="btn-actions" p={1}>
-                    <IconButton className="btn-waiting-room">
-                        <IconUrl path="ic_waiting_room" color="white" width={20} height={20} />
-                    </IconButton>
-                    <IconButton>
-                        <IconButton className="btn-rdv">
+            <Stack direction='row' justifyContent={'flex-end'} spacing={1} className="btn-actions" p={1}>
+                <IconButton className="btn-waiting-room">
+                    <IconUrl path="ic_waiting_room" color="white" width={20} height={20}/>
+                </IconButton>
+                <IconButton className="btn-rdv">
                     <PlayCircleIcon/>
                 </IconButton>
-                    </IconButton>
-                </Stack>
+            </Stack>
         </RootStyled>
     );
 }
