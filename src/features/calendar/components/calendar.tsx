@@ -42,6 +42,7 @@ import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
+import {useTranslation} from "next-i18next";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -74,6 +75,7 @@ function Calendar({...props}) {
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
+    const {t} = useTranslation('common');
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
 
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
@@ -91,6 +93,10 @@ function Calendar({...props}) {
     const [slotInfo, setSlotInfo] = useState<DateClickTouchArg | null>(null);
     const [slotInfoPopover, setSlotInfoPopover] = useState<boolean | null>(null);
     const [contextMenu, setContextMenu] = React.useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
+    const [contextMenuHeader, setContextMenuHeader] = React.useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
@@ -297,7 +303,7 @@ function Calendar({...props}) {
     }, [sortedData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <Box bgcolor="#F0FAFF">
+        <Box bgcolor="common.white">
             {isMobile && <ClickAwayListener onClickAway={() => {
                 if (slotInfoPopover) {
                     setSlotInfoPopover(false);
@@ -400,7 +406,10 @@ function Calendar({...props}) {
                                     Header({
                                         isGridWeek,
                                         event,
-                                        isMobile
+                                        isMobile,
+                                        contextMenuHeader, 
+                                        setContextMenuHeader,
+                                        t
                                     })
                                 }
                                 eventClick={(eventArg) => !eventArg.event._def.extendedProps.patient?.isArchived && handleOnSelectEvent(eventArg.event._def)}
@@ -582,6 +591,7 @@ function Calendar({...props}) {
                                               size="small"
                                               color={"primary"}/>}
                                     <AppointmentPopoverCard
+                                        eventO={(event:any)=> setAnchorEl(event.target as any) }
                                         {...{isBeta, t: translation}}
                                         style={{width: "300px", border: "none"}}
                                         data={appointmentData}/>

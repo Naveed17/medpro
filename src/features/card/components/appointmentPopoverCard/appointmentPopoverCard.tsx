@@ -1,5 +1,5 @@
 //material-ui
-import {Box, Typography, Stack, Avatar, Chip, Skeleton} from "@mui/material";
+import {Box, Typography, Stack, Avatar, Chip, Skeleton, IconButton} from "@mui/material";
 // styled
 import RootStyled from "./overrides/rootStyled";
 // utils
@@ -14,7 +14,7 @@ import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {AppointmentStatus} from "@features/calendar";
 import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
-
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 function AppointmentPopoverCard({...props}) {
     const {isBeta, data, style, t} = props;
     const {data: session} = useSession();
@@ -69,7 +69,7 @@ function AppointmentPopoverCard({...props}) {
                         icon={<ReportProblemRoundedIcon sx={{width: 16, height: 16}}/>}/>
                 </Stack>
             ))}
-            <Stack direction="row" spacing={2} mt={.5} pl={4}>
+            <Stack direction="row" spacing={2} mt={1} pl={4}>
                 <Typography
                     variant="body1"
                     align={"right"}
@@ -87,7 +87,6 @@ function AppointmentPopoverCard({...props}) {
                 <Typography
                     variant="body1"
                     color="text.primary"
-                    fontWeight={600}
                     component="span"
                     sx={{display: "flex", alignItems: "center", svg: {mr: 0.6}}}>
                     <IconUrl path="ic-calendar"/> {data?.dayDate ?? <Skeleton variant="text" width={100}/>}
@@ -222,7 +221,16 @@ function AppointmentPopoverCard({...props}) {
                     <Typography sx={{fontSize: 12}} color={"back"}>
                         {`${t("table.header.motif")}: `}{data.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
                 </Stack>}
-
+                <Stack direction='row' justifyContent={'flex-end'} spacing={1} className="btn-actions" p={1}>
+                    <IconButton className="btn-waiting-room">
+                        <IconUrl path="ic_waiting_room" color="white" width={20} height={20} />
+                    </IconButton>
+                    <IconButton>
+                        <IconButton className="btn-rdv">
+                    <PlayCircleIcon/>
+                </IconButton>
+                    </IconButton>
+                </Stack>
         </RootStyled>
     );
 }

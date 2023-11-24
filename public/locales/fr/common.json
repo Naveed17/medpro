@@ -209,6 +209,11 @@
   "analyse": "Analyse",
   "rapport": "Rapport",
   "today": "Aujourd’hui",
+  "calendar_view": "Vues du calendrier",
+  "display_workdays": "Afficher Jours Ouvrés",
+  "program": "Programme",
+  "add_blocked_day": "Ajouter un jour bloqué",
+  "add_leave": "Ajouter un congé",
   "to": "Du",
   "permission": {
     "title": "Permission d'accéder",
