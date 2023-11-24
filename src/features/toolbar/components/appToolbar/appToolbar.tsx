@@ -56,7 +56,6 @@ function AppToolbar({...props}) {
         setFilterDrawer,
         nbDoc,
         startRecord,
-        stopRec,
         prescription, checkUp, imagery,
         showDocument, setShowDocument
     } = props;
@@ -319,17 +318,15 @@ function AppToolbar({...props}) {
                         disabled={loading}
                         indicatorColor="primary"
                         aria-label="patient_history">
-                        {
-                            tabsData.map((tab: { label: string; }) => (
-                                <Tab
-                                    className="custom-tab"
-                                    key={tab.label}
-                                    value={tab.label}
-                                    disabled={loading}
-                                    label={t(tab.label)}
-                                />
-                            ))
-                        }
+                        {tabsData.map((tab: { label: string; }) => (
+                            <Tab
+                                className="custom-tab"
+                                key={tab.label}
+                                value={tab.label}
+                                disabled={loading}
+                                label={t(tab.label)}
+                            />
+                        ))}
                     </Tabs>
 
                     {!isMobile && <Stack

@@ -41,7 +41,8 @@ function NotesComponent({...props}) {
         seeHistory,
         debouncedOnChange,
         isStarted, setIsStarted,
-        modelContent
+        modelContent,
+        fullOb, setFullOb,
     } = props
 
     const [showToolbar, setShowToolbar] = useState<boolean>(false);
@@ -138,11 +139,10 @@ function NotesComponent({...props}) {
                 <Typography variant="body2" fontWeight={500}>
                     {t("notes")}
                 </Typography>
-                <Stack direction={"row"} spacing={0} alignItems={"center"}>
-                    {(listen === '' || listen === 'observation') && <>
-
-                        {
-                            models && models.length > 0 && <Select
+                <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
+                    {(listen === '' || listen === 'observation') &&
+                        <Stack direction={"row"} alignItems={"center"} spacing={1.2} ml={1}>
+                            {models && models.length > 0 && <Select
                                 labelId="select-type"
                                 id="select-type"
                                 renderValue={selected => {
@@ -215,19 +215,20 @@ function NotesComponent({...props}) {
                                     </MenuItem>
                                 ))}
                             </Select>
-                        }
-                        {hasDataHistory &&
-                            <IconButton className={"btn-full"} size={"small"}
-                                        onClick={() => seeHistory()}>
-                                <IconUrl path={'history'}/>
-                            </IconButton>}
-                    </>}
+                            }
+                            {hasDataHistory &&
+                                <IconButton className={"btn-full"} size={"small"}
+                                            onClick={() => seeHistory()}>
+                                    <IconUrl path={'history'}/>
+                                </IconButton>}
+                        </Stack>}
                     <Tooltip title={t('toolbar')}>
-                        <IconButton className={"btn-full"} size={"small"} onClick={() => {
-                            mutateSheetData && mutateSheetData()
-                            setShowToolbar(!showToolbar)
-                        }
-                        }>
+                        <IconButton
+                            className={"btn-full"} size={"small"}
+                            onClick={() => {
+                                mutateSheetData && mutateSheetData()
+                                setShowToolbar(!showToolbar)
+                            }}>
                             <IconUrl path={'tools'}/>
                         </IconButton>
                     </Tooltip>
@@ -236,11 +237,12 @@ function NotesComponent({...props}) {
                         onClick={() => {
                             startStopRec();
                         }}/>
-                    {/*<IconButton onClick={(e) => {
+                    <IconButton size={"small"} onClick={(e) => {
                         e.stopPropagation();
-                    }} className={"btn-full"}>
+                        setFullOb(!fullOb)
+                    }} className={"btn-full"} style={{marginRight: 0, marginLeft: 5}}>
                         <IconUrl path={'fullscreen'}/>
-                    </IconButton>*/}
+                    </IconButton>
                 </Stack>
             </Stack>
 
@@ -252,11 +254,12 @@ function NotesComponent({...props}) {
                     onEditorChange={(event) => {
                         debouncedOnChange("notes", event)
                     }}
+                    disabled={isStarted}
                     init={{
                         branding: false,
                         statusbar: false,
                         menubar: false,
-                        height: 400,
+                        height: fullOb ? "50vh" : 400,
                         toolbar_mode: 'wrap',
                         plugins: tinymcePlugins,
                         toolbar: tinymceToolbarNotes,
@@ -270,11 +273,12 @@ function NotesComponent({...props}) {
                     onEditorChange={(event) => {
                         debouncedOnChange("notes", event)
                     }}
+                    disabled={isStarted}
                     init={{
                         branding: false,
                         statusbar: false,
                         menubar: false,
-                        height: 200,
+                        height: fullOb ? "50vh" : 200,
                         toolbar: false,
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                     }}/>

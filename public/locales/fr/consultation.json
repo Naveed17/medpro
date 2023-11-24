@@ -355,6 +355,8 @@
     "share": "Partager",
     "download": "Télécharger",
     "delete": "Supprimer",
+    "yes-delete": "Oui, Supprimer",
+    "close-save": "Fermer et sauvgarder",
     "document_name": "Nom du document",
     "document_note": "Note",
     "modifier": "Modifier",

@@ -66,6 +66,7 @@ function Calendar({...props}) {
         OnAddAppointment,
         OnSelectEvent,
         OnSelectDate,
+        OnRangeDateSelect,
         OnOpenPatient,
         OnEventChange,
         OnMenuActions,
@@ -281,7 +282,9 @@ function Calendar({...props}) {
         if (calendarEl && prevView.current !== "listWeek") {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             if (calendarApi.view.type !== view) {
-                calendarApi.changeView(view as string);
+                queueMicrotask(() => {
+                    calendarApi.changeView(view as string);
+                })
             }
         } else {
             OnViewChange(view as string);
@@ -415,12 +418,9 @@ function Calendar({...props}) {
                                     setSlotInfo(info as DateClickTouchArg);
                                     OnAddAppointment("add-quick");
                                     OnSelectDate(info);
-                                    /*setTimeout(() => {
-                                        setSlotInfoPopover(true);
-                                    }, isMobile ? 100 : 0);*/
                                 }}
+                                //select={(eventArg) => OnRangeDateSelect(eventArg)}
                                 showNonCurrentDates={true}
-                                //rerenderDelay={6}
                                 height={calendarHeight}
                                 initialDate={currentDate.date}
                                 slotMinTime={getSlotsFormat(slotMinTime)}

@@ -47,8 +47,7 @@ function CalendarPickers({...props}) {
         <CalendarPickerStyled>
             <LocalizationProvider
                 dateAdapter={AdapterDateFns}
-                adapterLocale={LocaleFnsProvider(locale)}
-            >
+                adapterLocale={LocaleFnsProvider(locale)}>
                 <StaticDatePicker
                     {...props}
                     disabled={disabled}

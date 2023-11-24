@@ -1,23 +1,14 @@
-import React, {useState} from "react";
-import {Box, IconButton, Stack, Tooltip, Typography} from "@mui/material";
+import React from "react";
+import {Box, Stack, Typography} from "@mui/material";
 import {DocumentCard, NoDataCard} from "@features/card";
-import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
-import fileDownload from 'js-file-download';
-import axios from "axios";
-import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
-import {useRequestQueryMutation} from "@lib/axios";
 
 function DocumentsTab({...props}) {
     const {
         documents,
-        mutateDoc,
         showDoc,
-        mutateSheetData,
         setSelectedAudio,
-        router,
+        setDeleteAudio,
         t
     } = props;
 
@@ -28,23 +19,6 @@ function DocumentsTab({...props}) {
         buttonIcon: "ic-doc",
         buttonVariant: "warning",
     };
-
-    /*
-        const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/document/delete");
-
-        const removeDoc = () => {
-            triggerDocumentDelete({
-                method: "DELETE",
-                url: `/api/medical-entity/agendas/appointments/documents/${selectedAudio.uuid}/${router.locale}`
-            }, {
-                onSuccess: () => mutateDoc().then(() => {
-                    setSelectedAudio(null)
-                    mutateSheetData();
-                })
-            });
-        }
-    */
-
 
     return (
         <Stack spacing={1} padding={2}>
@@ -86,7 +60,12 @@ function DocumentsTab({...props}) {
                 {documents.filter((doc: MedicalDocuments) => doc.documentType !== 'photo').map((card: any, idx: number) =>
                     <React.Fragment key={`doc-item-${idx}`}>
                         <DocumentCard onClick={() => {
-                            card.documentType === 'audio' ? setSelectedAudio(card) : showDoc(card)
+                            if (card.documentType === 'audio') {
+                                setDeleteAudio(false);
+                                setSelectedAudio(card);
+                            } else {
+                                showDoc(card);
+                            }
                         }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
                     </React.Fragment>
                 )}

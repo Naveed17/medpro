@@ -15,6 +15,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {sideBarSelector} from "@features/menu";
 
 const ParentContainer = styled.div`
+  margin-top: -1rem;
   padding-bottom: 1rem;
   overflow-x: hidden;
   overflow-y: auto;

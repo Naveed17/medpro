@@ -14,6 +14,13 @@ const RecondingBoxStyle = styled(Stack)(({theme}) => ({
     "& .close-button": {
         marginLeft: 0
     },
+    "& .MuiButtonBase-root": {
+        padding: 8
+    },
+    "& .record-container": {
+        width: "100%",
+        justifyContent: "space-around"
+    },
     "& .rhap_container": {
         backgroundColor: theme.palette.text.primary,
         paddingLeft: 0,
@@ -34,7 +41,8 @@ const RecondingBoxStyle = styled(Stack)(({theme}) => ({
         marginTop: "-0.9rem"
     },
     "& .rhap_main-controls-button": {
-        color: theme.palette.primary.main
+        color: theme.palette.primary.main,
+        overflow: "visible"
     },
     "& .MuiSvgIcon-root": {
         pl: 0
@@ -53,7 +61,8 @@ const RecondingBoxStyle = styled(Stack)(({theme}) => ({
     },
     '.recording-text': {
         fontSize: '0.75em',
-        color: 'white'
+        color: 'white',
+        width: 40
     },
     '@keyframes pulse': {
         '0%': {backgroundColor: "white"},

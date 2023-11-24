@@ -7,6 +7,8 @@
   "trash": "Corbeille",
   "payment_dialog_title": "Paiement",
   "empty-trash": "Vider la corbeille",
+  "add-payment": "Ajouter un paiement",
+  "cash": "Encaisse",
   "lang": "langue",
   "sms-languages": {
     "fr": "Francais",
@@ -212,6 +214,7 @@
   "program": "Programme",
   "add_blocked_day": "Ajouter un jour bloqué",
   "add_leave": "Ajouter un congé",
+  "to": "Du",
   "permission": {
     "title": "Permission d'accéder",
     "description": "Vous n'avez pas la permission d'accéder à cette ressource",

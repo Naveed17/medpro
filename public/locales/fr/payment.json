@@ -17,13 +17,13 @@
   "enter_the_amount": "Veuiller entrer le montant",
   "amount": "Montant",
   "check": "Chéque",
-  "carrier": "Porteur",
+  "carrier": "Tireur",
   "add_reason": "Ajouter",
   "description": "Désignation",
   "paymentMean": "Moyen de paiement",
   "bank": "Banque",
   "check_number": "Numéro de cheque",
-  "payment_date": "Date de règlement ",
+  "payment_date": "Date de versement",
   "expiry_date": "Date de déchéance",
   "add_cheque": "Ajouter un Chéque",
   "add": "Ajouter",
@@ -74,6 +74,7 @@
   "date_time": "Date et heure",
   "payment_method": "Méthode de paiement",
   "used": "Utilisé",
+  "unpaid_consultation": "Consultation non rémunérée",
   "dialogs": {
     "delete-dialog": {
       "title": "Supprimer transaction",
@@ -83,9 +84,9 @@
   "encaissed": "encaissés",
   "encashment": "Encaissement",
   "table": {
-    "date": "Date",
+    "date": "Date et heure",
     "time": "Heure",
-    "name": "Nom",
+    "name": "Nom de patient",
     "insurance": "Assurances",
     "type": "Type",
     "payment_type": "Paiement",
@@ -112,7 +113,11 @@
     "2": "Dépenses",
     "3": "Consultation",
     "4": "Encaissement",
-    "5": "ALIM COMPTE"
+    "5": "ALIM COMPTE",
+    "flow": "Débit",
+    "advance": "Avance",
+    "empty": "",
+    "export": "Export"
   },
   "no-data": {
     "title": "Aucune transaction",
@@ -175,7 +180,8 @@
     "use": "Utiliser",
     "no_transaction": "Aucune consultation à payer",
     "add_now": "vous avez la possibilité d'ajouter un paiement anticipé",
-    "addavance": "Ajouter avance"
+    "addavance": "Ajouter avance",
+    "later": "Terminer plus tard"
   },
   "noTransaction": "Aucune transaction",
   "addTransaction": "Cliquez sur le bouton + pour ajouter une transaction"
