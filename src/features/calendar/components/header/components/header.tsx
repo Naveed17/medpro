@@ -5,8 +5,36 @@ import moment from "moment-timezone";
 import {useTranslation} from "next-i18next";
 import { ActionMenu } from "@features/menu";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+const menuList = [
+    {
+        heading:'calendar_view',
+        list :[
+            {
+                icon:'ic-agenda-new',
+                title:"display_workdays",
+                action:"onDisplayWorkDays"
+           }
+        ]
+       
+    },
+    {
+         heading:"program",
+        list :[
+            {
+                icon:'ic-banned',
+                title:"add_blocked_day",
+                action:"onAddBlockedDay"
+            },
+            {
+                icon:'ic-leave',
+                title:"add_leave",
+                action:"onAddLeave"
+            }
+        ]
+    }
+]
 function Header({...props}) {
-    const {isGridWeek, event, isMobile,contextMenuHeader, setContextMenuHeader} = props;
+    const {isGridWeek, event, isMobile,contextMenuHeader, setContextMenuHeader,t} = props;
     const date = moment(event.date.toLocaleDateString("fr"), "DD/MM/YYYY");
      
 const handleCloseMenu = () => {
@@ -20,6 +48,7 @@ const OnMenuActions = (action: string) => {
                 break;
         }
     }
+
     return (
         <div className="header-day-main">
             <Box
@@ -28,12 +57,13 @@ const OnMenuActions = (action: string) => {
                     display: event.view.type === "timeGridDay" ? isMobile ? "grid!important" as any : "flex" : "inline-flex",
                     justifyContent: event.view.type === "timeGridDay" ? "flex-start" : "space-between",
                     px: event.view.type === "listWeek" ? 0 : 1,
-                    width: event.view.type === "timeGridDay" ? 200 : isGridWeek ? "100%":"auto"
+                    width:  "100%"
                 }}
             >
                 {!isMobile ? <>
-                        {(isGridWeek) ?
+                        
                         <Stack direction='row' justifyContent='space-between' width={1}>
+                            {(isGridWeek) ? (
                             <Stack alignItems='flex-start'>
                             <Typography variant="subtitle1" color="text.primary" fontSize={18} mr={2}>
                                 {date.format("DD")}
@@ -42,9 +72,18 @@ const OnMenuActions = (action: string) => {
                             <div>
                                 {date.format("dddd").charAt(0).toUpperCase()}{date.format("dddd").slice(1)}
                             </div>
-                        
                         </Typography>
                             </Stack>
+                            
+                                
+                            ): (
+                              <Typography variant="subtitle1" color="text.primary" fontSize={14}>
+                            <div>
+                                {date.format("dddd").charAt(0).toUpperCase()}{date.format("dddd").slice(1)}
+                            </div>
+                           </Typography>  
+                            )}
+                           
                             <Stack spacing={1} alignItems='flex-end'>
                                 <IconButton size="small" sx={{width:24,height:24}} onClick={(e) =>{  
                                     e.stopPropagation();
@@ -67,15 +106,9 @@ const OnMenuActions = (action: string) => {
                                 </Label>
                             </Stack>
                             </Stack>
-                            :
-                            <Typography variant="subtitle1" color="text.primary" fontSize={14}>
-                            <div>
-                                {date.format("dddd").charAt(0).toUpperCase()}{date.format("dddd").slice(1)}
-                            </div>
-                        
-                        </Typography>
                             
-                        }
+                            
+                        
 
                         
                     </>
@@ -100,10 +133,28 @@ const OnMenuActions = (action: string) => {
 
             </Box>
              <ActionMenu {...{contextMenu:contextMenuHeader, handleClose: handleCloseMenu}}>
-               
-                        <MenuItem>
-                           fasfd
+               {
+                menuList.map((item,index)=>(
+                  <MenuItem key={index}>
+                    <Stack>
+                            <Typography variant="subtitle1" color="common.white" fontWeight={600} fontSize={14} mb={2}>
+                            {t(item.heading)}
+                            </Typography>
+                            {item.list.map((v,i)=>(
+                                <MenuItem key={i} onClick={() => OnMenuActions(v.action)}>
+                                    <IconUrl path={v.icon}/>
+                                    <Typography ml={.5}  color="common.white">
+                                        {t(v.title)}
+                                    </Typography>
+                                </MenuItem>
+                            ))}
+                           
+                        </Stack>
+                           
                         </MenuItem>
+                ))
+               }
+                       
                     
             </ActionMenu>  
         </div>

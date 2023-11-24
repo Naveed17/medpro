@@ -42,6 +42,7 @@ import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
+import {useTranslation} from "next-i18next";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -73,6 +74,7 @@ function Calendar({...props}) {
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
+    const {t} = useTranslation('common');
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
 
     const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
@@ -403,7 +405,8 @@ function Calendar({...props}) {
                                         event,
                                         isMobile,
                                         contextMenuHeader, 
-                                        setContextMenuHeader
+                                        setContextMenuHeader,
+                                        t
                                     })
                                 }
                                 eventClick={(eventArg) => !eventArg.event._def.extendedProps.patient?.isArchived && handleOnSelectEvent(eventArg.event._def)}

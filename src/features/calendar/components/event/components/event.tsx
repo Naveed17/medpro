@@ -25,7 +25,6 @@ function Event({...props}) {
     let timeoutId: any;
     const appointment = event.event._def.extendedProps;
     const appointmentUuid = event.event._def.publicId;
-
     const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
         if (timeoutId !== undefined) {
             clearTimeout(timeoutId);
@@ -53,7 +52,6 @@ function Event({...props}) {
         setAnchorEl(null);
         clearTimeout(timeoutId);
     }
-console.log(appointment)
     useEffect(() => {
         if (anchorEl !== null && openViewDrawer) {
             handlePopoverClose()
@@ -69,7 +67,7 @@ console.log(appointment)
                         backgroundColor: (theme: Theme) => alpha(theme.palette.grey['A100'], 0.5),
                         opacity: 0.5
                     }),
-                    ...(appointment.motif.length > 0 && {background: (theme: Theme) => `linear-gradient(90deg, ${isBeta && !appointment?.payed ? alpha(theme.palette.expire.main, 0.2) : 'rgba(255,0,0,0)'} 95%, ${appointment.motif.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
+                    ...(appointment.motif.length > 0 && {background: (theme: Theme) => `linear-gradient(90deg, ${isBeta && !appointment?.payed ? alpha(theme.palette.expire.main, 0.2) : 'rgba(255,0,0,0)'} 97.5%, ${appointment.motif.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
                     "&:before": {
                         background: event.borderColor
                     },
@@ -87,7 +85,7 @@ console.log(appointment)
                     <Stack height={1} width={1} spacing={.5}>
                     {
                         appointment.dur > 15 && (
-                            <Stack direction='row' alignItems={'center'} pl={1}>
+                            <Stack direction='row' alignItems={'center'} pl={.5}>
                                 <Typography variant="body2" color="text.primary">
                                     {moment(appointment.time).format("HH:mm")}
                                 </Typography>
@@ -132,7 +130,7 @@ console.log(appointment)
                 }
                
                 <Typography
-                pl={appointment.dur > 15 ? 1:0}
+                pl={appointment.dur > 15 ? 0.5:0}
                     variant="body2"
                     component={"span"}
                     sx={{
@@ -164,7 +162,7 @@ console.log(appointment)
                     alt="Online appointment"
                     src="/static/icons/Med-logo_.svg"
                 />}
-                <IconButton className="btn-rdv" sx={{alignSelf:appointment.dur > 15 ? "flex-end":'flex-start'}}>
+                <IconButton className="btn-rdv" sx={{alignSelf:appointment.dur > 15 ? "flex-end":'flex-start',mr:appointment.motif.length > 0 ? .5:0}}>
                     <PlayCircleIcon/>
                 </IconButton>
                 </Stack>

@@ -13,7 +13,31 @@ const RootStyled = styled("div")(({theme}) => ({
         boxShadow: "none",
     },
     '& .fc .fc-timegrid-now-indicator-line': {
-        borderStyle: "dashed"
+        borderStyle: "solid",
+        borderWidth:1.5,
+        borderColor: theme.palette.primary.main,
+        '&:before':{
+            content: '""',
+            display: 'block',
+            position: 'absolute',
+            top: -4.8,
+            left: -2,
+            width:10,
+            height:10,
+            borderRadius:'50%',
+            background: theme.palette.primary.main,
+        },
+        '&:after':{
+            content: '""',
+            display: 'block',
+            position: 'absolute',
+            top: -4.8,
+            right: -2,
+            width:10,
+            height:10,
+            borderRadius:'50%',
+            background: theme.palette.primary.main,
+        }
     },
     "& .fc .fc-daygrid-day.fc-day-today": {
         background: "#fff"
@@ -137,11 +161,12 @@ const RootStyled = styled("div")(({theme}) => ({
     },
     '.fc-timegrid-slots':{
         'colgroup':{
-            background:"#fff"
+            background:theme.palette.primary.lighter
         }
     },
     ".fc-timegrid-divider":{
-        backgroundColor:'#fff'
+        backgroundColor:'#fff',
+
     }
 }));
 
