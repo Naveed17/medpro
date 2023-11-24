@@ -410,7 +410,7 @@ function Calendar({...props}) {
                                     OnAddAppointment("add-quick");
                                     OnSelectDate(info);
                                 }}
-                                //select={(eventArg) => OnRangeDateSelect(eventArg)}
+                                select={(eventArg) => OnRangeDateSelect(eventArg)}
                                 showNonCurrentDates={true}
                                 height={calendarHeight}
                                 initialDate={currentDate.date}

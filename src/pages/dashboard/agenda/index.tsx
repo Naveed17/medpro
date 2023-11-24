@@ -85,7 +85,7 @@ import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {setDialog} from "@features/topNavBar";
-import {VacationDrawer} from "@features/drawer";
+import {resetVacationData, setVacationData, VacationDrawer} from "@features/drawer";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -418,7 +418,10 @@ function Agenda() {
 
     const handleRangeSelect = (event: DateSelectArg) => {
         console.log(event);
-        dispatch(openDrawer({type: "vacation", open: true}));
+        batch(() => {
+            dispatch(setVacationData({startDate: event.start, endDate: event.end}));
+            dispatch(openDrawer({type: "vacation", open: true}));
+        })
     }
 
     const onSelectEvent = (event: EventDef) => {
@@ -1312,7 +1315,12 @@ function Agenda() {
                     anchor={"right"}
                     open={openVacationDrawer}
                     dir={direction}
-                    onClose={() => dispatch(openDrawer({type: "vacation", open: false}))}>
+                    onClose={() => {
+                        batch(() => {
+                            dispatch(openDrawer({type: "vacation", open: false}));
+                            dispatch(resetVacationData());
+                        });
+                    }}>
                     <VacationDrawer {...{t}}/>
                     <Paper
                         sx={{
@@ -1328,7 +1336,12 @@ function Agenda() {
                                 mr: 1
                             }}
                             variant="text-primary"
-                            onClick={() => dispatch(openDrawer({type: "vacation", open: false}))}>
+                            onClick={() => {
+                                batch(() => {
+                                    dispatch(openDrawer({type: "vacation", open: false}));
+                                    dispatch(resetVacationData());
+                                });
+                            }}>
                             {t(`steppers.back`)}
                         </Button>
                         <LoadingButton

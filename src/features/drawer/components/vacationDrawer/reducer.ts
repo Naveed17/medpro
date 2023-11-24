@@ -1,20 +1,25 @@
-import { createReducer } from '@reduxjs/toolkit';
+import {createReducer} from '@reduxjs/toolkit';
 import {
+    resetVacationData,
     setVacationData
 } from './actions';
 
 export type DialogVacationProps = {
-    drawer: boolean;
-    drawerAction: string;
+    type: number | null;
+    startDate: Date | null;
+    endDate: Date | null;
 };
 
 const initialState: DialogVacationProps = {
-    drawer: false,
-    drawerAction: ""
+    type: null,
+    startDate: null,
+    endDate: null
 };
 
 export const vacationDrawerReducer = createReducer(initialState, builder => {
     builder.addCase(setVacationData, (state, action) => {
-        state.drawer = action.payload;
+        return {...state, ...action.payload}
+    }).addCase(resetVacationData, (state, action) => {
+        return {...state, ...initialState}
     });
 });

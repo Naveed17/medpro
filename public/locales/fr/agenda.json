@@ -91,6 +91,12 @@
         "title-trash": "Pas de rendez-vous supprimés",
         "description": "",
         "button-text": "Ajouter un RDV"
+      },
+      "vacation": {
+        "title": "Ajouter votre premier absence",
+        "sub-title": "Pas de absences",
+        "description": "",
+        "button-text": "Ajouter un absence"
       }
     }
   },
@@ -294,6 +300,7 @@
     },
     "absence-dialog": {
       "title": "Ajouter congé ou absence",
+      "sub-title": "Liste des congés et absences proches",
       "type-placeholder": "Sélectionner un type d'absence",
       "startDate": "Date début",
       "endDate": "Date fin",
