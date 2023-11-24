@@ -19,7 +19,7 @@ const initialState: DialogVacationProps = {
 export const vacationDrawerReducer = createReducer(initialState, builder => {
     builder.addCase(setVacationData, (state, action) => {
         return {...state, ...action.payload}
-    }).addCase(resetVacationData, (state, action) => {
+    }).addCase(resetVacationData, (state) => {
         return {...state, ...initialState}
     });
 });

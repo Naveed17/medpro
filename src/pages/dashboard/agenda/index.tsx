@@ -22,7 +22,7 @@ import dynamic from "next/dynamic";
 
 import {LoadingScreen} from "@features/loadingScreen";
 
-import {instanceAxios, useRequestQueryMutation, useRequestQuery} from "@lib/axios";
+import {useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";

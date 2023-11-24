@@ -1,6 +1,4 @@
-import {Box, Stack, TextField, Typography} from "@mui/material";
-import QuickAddAppointmentStyled
-    from "@features/dialog/components/quickAddAppointment/overrides/quickAddAppointmentStyled";
+import {Stack, TextField, Typography} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
