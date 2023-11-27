@@ -126,7 +126,7 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
     15: {
         key: "PATIENT_CANCELED",
         value: "Annulé",
-        color: "#c92a2a",
+        color: "#CC1D91",
         classColor: "error",
         icon: <CancelAppointmentPatientIcon/>,
     }

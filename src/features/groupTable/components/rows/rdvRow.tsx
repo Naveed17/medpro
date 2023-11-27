@@ -143,8 +143,7 @@ function RDVRow({...props}) {
                                     </Typography>
                                 </TableCell>
                             </TableRow>
-                            {data?.data.map(
-                                (inner: any, index: number) => (
+                            {data?.data.map((inner: any, index: number) => (
                                     <React.Fragment key={"previousAppointments" + index.toString()}>
                                         {matches ? (
                                             <RDVPreviousCard

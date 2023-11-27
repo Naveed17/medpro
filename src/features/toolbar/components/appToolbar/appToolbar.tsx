@@ -332,8 +332,7 @@ function AppToolbar({...props}) {
                     {!isMobile && <Stack
                         direction="row"
                         spacing={1}
-                        mb={1}
-                        justifyContent="flex-end"
+                        alignItems={"center"}
                         sx={{width: {xs: "30%", md: "30%"}}}>
                         <CustomIconButton
                             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
@@ -342,25 +341,26 @@ function AppToolbar({...props}) {
                             variant="filled"
                             color={"warning"}
                             size={"small"}>
-                            <AddIcon sx={{width: '1.35em', height: '1.35em', p: .4}} fontSize={"small"}
+                            <AddIcon sx={{width: '1.4em', height: '1.4em', p: .4}} fontSize={"small"}
                                      htmlColor={theme.palette.text.primary}/>
                         </CustomIconButton>
 
-                        {selectedTab === 'consultation_form' && <Zoom in={selectedTab === 'consultation_form'}
-                                                                      style={{transitionDelay: selectedTab === 'consultation_form' ? '500ms' : '0ms'}}>
-                            <Tooltip title={t("documents")}>
-                                <Badge badgeContent={nbDoc} showZero={true} color="primary">
-                                    <IconButton onClick={() => setShowDocument(!showDocument)}
-                                                style={{
-                                                    borderRadius: "0.625rem",
-                                                    border: "1px solid var(--secondaire-gris-claire, #DDD)",
-                                                    width: 40
-                                                }}>
-                                        <IconUrl path={"doc"}/>
-                                    </IconButton>
-                                </Badge>
-                            </Tooltip>
-                        </Zoom>}
+                        {selectedTab === 'consultation_form' &&
+                            <Zoom in={selectedTab === 'consultation_form'}
+                                  style={{transitionDelay: selectedTab === 'consultation_form' ? '500ms' : '0ms'}}>
+                                <Tooltip title={t("documents")}>
+                                    <Badge badgeContent={nbDoc} showZero={true} color="primary">
+                                        <IconButton onClick={() => setShowDocument(!showDocument)}
+                                                    style={{
+                                                        borderRadius: "0.625rem",
+                                                        border: "1px solid var(--secondaire-gris-claire, #DDD)",
+                                                        width: 40
+                                                    }}>
+                                            <IconUrl path={"doc"}/>
+                                        </IconButton>
+                                    </Badge>
+                                </Tooltip>
+                            </Zoom>}
 
                         <StyledMenu
                             {...{open, anchorEl}}

@@ -4,6 +4,9 @@ const CalendarStyled = styled('div')(({theme}) => ({
     width: 'calc(100% + 2px)',
     marginLeft: -1,
     marginBottom: -1,
+    '& .container': {
+        background: theme.palette.background.default
+    },
     '& .fc': {
         '--fc-list-event-dot-width': '8px',
         '--fc-border-color': theme.palette.divider,
@@ -27,7 +30,6 @@ const CalendarStyled = styled('div')(({theme}) => ({
     // Table Head
     '& .fc .fc-col-header ': {
         boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
-        '& th': {borderColor: 'transparent'},
         '& .fc-col-header-cell-cushion': {
             ...theme.typography.subtitle2,
             padding: '13px 0'
@@ -164,7 +166,7 @@ const CalendarStyled = styled('div')(({theme}) => ({
     },
     '& .fc .fc-list-table': {
         '& th, td': {
-            borderColor: 'transparent'
+            borderColor: 'white'
         }
     },
 }));
