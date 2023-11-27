@@ -18,6 +18,14 @@ const dialogData = [
         ),
     },
     {
+        action: "openingHours",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/openingHoursDialog/components/openingHoursDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
         action: "send-email",
         component: dynamic((): any =>
             import(

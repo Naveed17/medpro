@@ -1,5 +1,7 @@
 interface OpeningHoursModel {
-  isVisible: boolean;
-  isMain: boolean;
-  openingHours: any;
+    title: string;
+    permission: string[];
+    isVisible: boolean;
+    isMain: boolean;
+    openingHours: any;
 }

@@ -29,7 +29,7 @@ import moment, {Moment} from "moment-timezone";
 
 const humanizeDuration = require("humanize-duration");
 import FullCalendar from "@fullcalendar/react";
-import {DatesSetArg, EventChangeArg} from "@fullcalendar/core";
+import {DateSelectArg, DatesSetArg, EventChangeArg} from "@fullcalendar/core";
 import {EventDef} from "@fullcalendar/core/internal";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
@@ -85,6 +85,7 @@ import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {setDialog} from "@features/topNavBar";
+import {VacationDrawer} from "@features/drawer";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -124,7 +125,7 @@ function Agenda() {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper,
-        selectedEvent, actionSet, openMoveDrawer, openPayDialog,
+        selectedEvent, actionSet, openMoveDrawer, openPayDialog, openVacationDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -413,6 +414,11 @@ function Agenda() {
             dispatch(setCurrentDate({date: moment().toDate(), fallback: false}));
             getAppointments(`format=list&page=1&limit=50${query}`, view);
         }
+    }
+
+    const handleRangeSelect = (event: DateSelectArg) => {
+        console.log(event);
+        dispatch(openDrawer({type: "vacation", open: true}));
     }
 
     const onSelectEvent = (event: EventDef) => {
@@ -1118,6 +1124,7 @@ function Agenda() {
                             OnSelectEvent={onSelectEvent}
                             OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
                             OnEventChange={onEventChange}
+                            OnRangeDateSelect={handleRangeSelect}
                             OnOpenPatient={(event: EventDef) => {
                                 setEvent(event);
                                 dispatch(openDrawer({type: "view", open: false}));
@@ -1299,6 +1306,38 @@ function Agenda() {
                                 }}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
+                </Drawer>
+
+                <Drawer
+                    anchor={"right"}
+                    open={openVacationDrawer}
+                    dir={direction}
+                    onClose={() => dispatch(openDrawer({type: "vacation", open: false}))}>
+                    <VacationDrawer {...{t}}/>
+                    <Paper
+                        sx={{
+                            display: "inline-block",
+                            borderRadius: 0,
+                            borderWidth: 0,
+                            textAlign: "right",
+                            p: "1rem"
+                        }}
+                        className="action">
+                        <Button
+                            sx={{
+                                mr: 1
+                            }}
+                            variant="text-primary"
+                            onClick={() => dispatch(openDrawer({type: "vacation", open: false}))}>
+                            {t(`steppers.back`)}
+                        </Button>
+                        <LoadingButton
+                            {...{loading}}
+                            variant="contained"
+                            color={"primary"}>
+                            {t(`dialogs.quick_add_appointment-dialog.confirm`)}
+                        </LoadingButton>
+                    </Paper>
                 </Drawer>
 
                 <Drawer

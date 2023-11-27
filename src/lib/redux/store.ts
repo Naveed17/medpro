@@ -23,6 +23,8 @@ import {navBarReducer} from "@features/topNavBar";
 import {ProgressUIReducer} from "@features/progressUI";
 import {selectCheckboxReducer} from "@features/selectCheckboxCard"
 import {CashboxReducer} from "@features/leftActionBar/components/cashbox";
+import {dialogOpeningHoursReducer, selectDialogOpeningHours} from "@features/dialog/components/openingHoursDialog";
+import {vacationDrawerReducer} from "@features/drawer/components/vacationDrawer/reducer";
 
 export const store = configureStore({
     reducer: {
@@ -52,7 +54,9 @@ export const store = configureStore({
         preConsultation: PreConsultationReducer,
         prescription: PrescriptionReducer,
         selectCheckbox: selectCheckboxReducer,
-        ocrDocument: ocrDocumentReducer
+        ocrDocument: ocrDocumentReducer,
+        openingHours: dialogOpeningHoursReducer,
+        vacation: vacationDrawerReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {

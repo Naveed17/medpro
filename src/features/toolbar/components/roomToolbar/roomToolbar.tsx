@@ -11,10 +11,10 @@ function RoomToolbar({...props}) {
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const [open, set0pen] = useState(false);
     const [tabsContent] = useState([
-            {
+        {
             title: "overview",
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
-            },
+        },
         ...columns.map((column: any) => ({
             title: column.name,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
@@ -26,9 +26,11 @@ function RoomToolbar({...props}) {
     }, [setTabIndex]);
 
     return (
-        <Stack sx={{".tabs-bg-white.tabs-bg-white":{
-            borderTopWidth:0,
-        }}} direction='row' justifyContent="space-between" mt={2.8} width={1} alignItems="center">
+        <Stack sx={{
+            ".tabs-bg-white.tabs-bg-white": {
+                borderTopWidth: 0,
+            }
+        }} direction='row' justifyContent="space-between" mt={2.8} width={1} alignItems="center">
             <Tabs
                 value={tabIndex}
                 onChange={handleStepperIndexChange}
@@ -40,51 +42,38 @@ function RoomToolbar({...props}) {
                         key={`tabHeader-${tabHeaderIndex}`}
                         disableRipple
                         label={t(`tabs.${tabHeader.title}`)}
-                        
+
                         {...a11yProps(tabHeaderIndex)}
-                       {...(isMobile &&{
-                        sx:{
-                           display: tabHeader.title === 'overview' ? 'none' : 'inline-flex' 
-                        }
-                       })} 
+                        {...(isMobile && {
+                            sx: {
+                                display: tabHeader.title === 'overview' ? 'none' : 'inline-flex'
+                            }
+                        })}
                     />)
                 )}
             </Tabs>
             <Stack direction='row' alignItems="center" spacing={1}>
                 {isMobile && (
                     <React.Fragment>
-                        {
-                            data?.map((item: any, index: number) => (
-                                <Button
-                                    {...(handleCollapse && {onClick: () => handleCollapse(item.id)})}
-                                    sx={{
-                                        minWidth: 40,
-                                        textTransform: 'capitalize',
-                                        color: theme => theme.palette.text.primary,
-                                        '& svg': {
-                                            width: 14,
-                                            height: 14,
-                                            '& path': {fill: theme => theme.palette.text.primary}
-                                        }
-                                    }} variant='contained' color={item.color} key={index.toString()}>
-                                    <Icon path={item.icon}/>
-                                </Button>
-                            ))
+                        {data?.map((item: any, index: number) => (
+                            <Button
+                                {...(handleCollapse && {onClick: () => handleCollapse(item.id)})}
+                                sx={{
+                                    minWidth: 40,
+                                    textTransform: 'capitalize',
+                                    color: theme => theme.palette.text.primary,
+                                    '& svg': {
+                                        width: 14,
+                                        height: 14,
+                                        '& path': {fill: theme => theme.palette.text.primary}
+                                    }
+                                }} variant='contained' color={item.color} key={index.toString()}>
+                                <Icon path={item.icon}/>
+                            </Button>
+                        ))
                         }
                     </React.Fragment>
                 )}
-                {/*                <Button
-                    onClick={() => {
-                        router.push('/dashboard/agenda').then(() => {
-                            enqueueSnackbar(t("add-to-waiting-room"), {variant: 'info'})
-                        });
-                    }}
-                    startIcon={<SalleIcon/>}
-                    variant="contained"
-                    color="primary">
-                    {t("add")}
-                </Button>*/}
-
             </Stack>
             <MobileContainer>
                 <Button
