@@ -14,8 +14,6 @@ import {AppointmentPopoverCard, timerSelector} from "@features/card";
 import {batch} from "react-redux";
 import {openDrawer, setSelectedEvent} from "@features/calendar";
 import {setDialog} from "@features/topNavBar";
-import {HtmlTooltip, TransparentTooltip} from "@features/tooltip";
-import {motion} from "framer-motion";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
 
 function Event({...props}) {
@@ -44,7 +42,7 @@ function Event({...props}) {
 
     return (
         <>
-            <TransparentTooltip
+            <Tooltip
                 placement="right"
                 enterDelay={1000}
                 componentsProps={{
@@ -196,7 +194,7 @@ function Event({...props}) {
                         </Stack>
                     </Stack>
                 </EventStyled>
-            </TransparentTooltip>
+            </Tooltip>
         </>
     )
 }
