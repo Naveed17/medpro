@@ -258,7 +258,7 @@ function TemplatesConfig() {
             setDocs(dcs);
             setTimeout(() => {
                 setLoading(false);
-            }, 500);
+            }, 2500);
         }
     }, [httpDocumentHeader]); // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -117,7 +117,9 @@
     "flow": "Débit",
     "advance": "Avance",
     "empty": "",
-    "export": "Export"
+    "export": "Export",
+    "total": "Total",
+    "rest": "Reste à payé"
   },
   "no-data": {
     "title": "Aucune transaction",
