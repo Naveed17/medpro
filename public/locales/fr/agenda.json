@@ -15,6 +15,7 @@
   "duplication": "Détection des doublons",
   "in-consultation-error": "Vous avez une consultation en cours, veuillez cliquer ici pour la finaliser.",
   "timer-status": "En consultation",
+  "agenda-mode": "Mode d'affichage",
   "agenda-view": {
     "timeGridDay": "Jour",
     "timeGridWeek": "Semaine",

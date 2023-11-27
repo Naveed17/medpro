@@ -393,10 +393,10 @@ function Calendar({...props}) {
                                             {...{
                                                 isBeta,
                                                 open,
-                                                isEventDragging,
-                                                setAppointmentData,
+                                                appointmentData,
                                                 event, openingHours,
-                                                view, isMobile, anchorEl, setAnchorEl
+                                                roles,
+                                                view
                                             }}
                                             t={translation}/>
                                     </motion.div>
@@ -442,32 +442,31 @@ function Calendar({...props}) {
                                     })
                                 }}
                                 eventClick={(eventArg) => !eventArg.event._def.extendedProps.patient?.isArchived && handleOnSelectEvent(eventArg.event._def)}
-                                {...(!isEventDragging && {
-                                    eventMouseEnter: (info) => {
-                                        if (timeoutId !== undefined) {
-                                            clearTimeout(timeoutId);
-                                        }
-
-                                        timeoutId = setTimeout(() => {
-                                            setAppointmentData(null);
-                                            const query = `?mode=tooltip&appointment=${info.event._def.publicId}&start_date=${moment(info.event._def.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(info.event._def.extendedProps.time).format("DD-MM-YYYY")}&format=week`
-                                            triggerAppointmentTooltip({
-                                                method: "GET",
-                                                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
-                                            }, {
-                                                onSuccess: (result) => {
-                                                    const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
-                                                    if (appointmentData.length > 0) {
-                                                        setAnchorEl(info.jsEvent.target as any);
-                                                        setAppointmentData(appointmentData[0]);
-                                                    }
-                                                }
-                                            })
-                                        }, 1000);
-
+                               /* eventMouseEnter={(info) => {
+                                    if (timeoutId !== undefined) {
+                                        clearTimeout(timeoutId);
                                     }
-                                })}
-                                eventMouseLeave={handlePopoverClose}
+
+                                    timeoutId = setTimeout(() => {
+                                        setAppointmentData(null);
+                                        const query = `?mode=tooltip&appointment=${info.event._def.publicId}&start_date=${moment(info.event._def.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(info.event._def.extendedProps.time).format("DD-MM-YYYY")}&format=week`
+                                        triggerAppointmentTooltip({
+                                            method: "GET",
+                                            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
+                                        }, {
+                                            onSuccess: (result) => {
+                                                const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
+                                                if (appointmentData.length > 0) {
+                                                    //setAnchorEl(info.jsEvent.target as any);
+                                                    setAppointmentData(appointmentData[0]);
+                                                }
+                                            }
+                                        })
+                                    }, 1000);
+                                }}*/
+                                eventMouseLeave={arj => {
+                                    //arj.jsEvent.preventDefault();
+                                }}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);
@@ -648,7 +647,6 @@ function Calendar({...props}) {
                                               size="small"
                                               color={"primary"}/>}
                                     <AppointmentPopoverCard
-                                        eventO={(event: any) => setAnchorEl(event.target as any)}
                                         {...{isBeta, t: translation}}
                                         style={{width: "300px", border: "none"}}
                                         data={appointmentData}/>

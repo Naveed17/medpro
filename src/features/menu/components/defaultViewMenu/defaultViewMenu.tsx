@@ -3,7 +3,6 @@ import List from '@mui/material/List';
 import ListItemText from '@mui/material/ListItemText';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import SettingsSuggestOutlinedIcon from '@mui/icons-material/SettingsSuggestOutlined';
 import TodayIcon from "@themes/overrides/icons/todayIcon";
 import DayIcon from "@themes/overrides/icons/dayIcon";
 import WeekIcon from "@themes/overrides/icons/weekIcon";
@@ -12,8 +11,8 @@ import {
     Collapse,
     Divider,
     FormControlLabel,
-    ListItemButton,
-    SvgIcon, Switch,
+    ListItemButton, Stack,
+    SvgIcon, Switch, Tooltip,
     Typography,
     useTheme
 } from "@mui/material";
@@ -29,9 +28,10 @@ import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useTranslation} from "next-i18next";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import Link from "next/link";
-import {useEffect, useState} from "react";
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
+import {useCallback, useEffect, useState} from "react";
 import {dashLayoutSelector} from "@features/base";
+import Zoom from "@mui/material/Zoom";
 
 const VIEW_OPTIONS = [
     {value: "timeGridDay", label: "day", text: "Jour", icon: TodayIcon},
@@ -40,7 +40,8 @@ const VIEW_OPTIONS = [
     {value: "listWeek", label: "agenda", text: "List", icon: GridIcon}
 ];
 
-function DefaultViewMenu() {
+function DefaultViewMenu({...props}) {
+    const {view, onViewChange} = props;
     const theme = useTheme();
     const router = useRouter();
     const {data: session, update} = useSession();
@@ -97,6 +98,11 @@ function DefaultViewMenu() {
         setAnchorEl(null);
     }
 
+    const handleViewChange = useCallback((view: string) => {
+        handleClose();
+        onViewChange(view);
+    }, [onViewChange])
+
     useEffect(() => {
         agenda && setAutoConfirm(agenda?.isAutoConfirm);
     }, [agenda])
@@ -112,10 +118,10 @@ function DefaultViewMenu() {
                 onClick={handleClickListItem}
                 value="dayGridMonth"
                 sx={{
-                    width: 37, height: 37, padding: 0, marginTop: '2px',
+                    width: 37, height: 37, padding: 0,
                     background: theme.palette.background.paper
                 }}>
-                <SettingsSuggestOutlinedIcon color={"action"}/>
+                <SettingsRoundedIcon color={"action"}/>
             </ToggleButtonStyled>
             <Menu
                 sx={{
@@ -149,7 +155,7 @@ function DefaultViewMenu() {
                                 display: 'block',
                                 position: 'absolute',
                                 top: 0,
-                                left: 42,
+                                right: 68,
                                 width: 10,
                                 height: 10,
                                 bgcolor: 'background.paper',
@@ -160,6 +166,29 @@ function DefaultViewMenu() {
                     }
                 }}>
                 <List>
+                    <ListItemButton>
+                        <Stack direction={"row"} spacing={3} alignItems={"center"}>
+                            <Typography mr={3}>{t("agenda-mode", {ns: "agenda"})} : </Typography>
+                            {VIEW_OPTIONS.map((viewOption) => (
+                                <Tooltip key={viewOption.value}
+                                         TransitionComponent={Zoom}
+                                         onClick={() => handleViewChange(viewOption.value)}
+                                         title={t(`times.${viewOption.label.toLowerCase()}`, {ns: "common"})}>
+                                    <ToggleButtonStyled
+                                        value="dayGridMonth"
+                                        sx={{
+                                            width: 37, height: 37, padding: 0, marginTop: '2px!important',
+                                            ...(viewOption.value === view && {background: theme.palette.primary.main})
+                                        }}>
+                                        <SvgIcon component={viewOption.icon} width={20} height={20}
+                                                 htmlColor={viewOption.value === view ? theme.palette.background.paper : theme.palette.text.primary}/>
+                                    </ToggleButtonStyled>
+                                </Tooltip>
+                            ))}
+                        </Stack>
+                    </ListItemButton>
+
+
                     <ListItemButton onClick={handleClick}>
                         <ListItemText sx={{ml: 1, "& .MuiTypography-root": {fontSize: 13}}}
                                       primary={t("default-view")}/>

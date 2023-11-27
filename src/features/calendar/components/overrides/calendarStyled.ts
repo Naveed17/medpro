@@ -4,6 +4,9 @@ const CalendarStyled = styled('div')(({theme}) => ({
     width: 'calc(100% + 2px)',
     marginLeft: -1,
     marginBottom: -1,
+    '& .container': {
+        background: theme.palette.background.default
+    },
     '& .fc': {
         '--fc-list-event-dot-width': '8px',
         '--fc-border-color': theme.palette.divider,

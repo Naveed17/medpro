@@ -212,23 +212,8 @@ function CalendarToolbar({...props}) {
             </Hidden>
             <Hidden smDown>
                 <Stack direction="row" spacing={1.5}>
-                    <DefaultViewMenu/>
-                    {VIEW_OPTIONS.map((viewOption) => (
-                        <Tooltip key={viewOption.value}
-                                 TransitionComponent={Zoom}
-                                 onClick={() => handleViewChange(viewOption.value)}
-                                 title={t(`times.${viewOption.label.toLowerCase()}`, {ns: "common"})}>
-                            <ToggleButtonStyled
-                                value="dayGridMonth"
-                                sx={{
-                                    width: 37, height: 37, padding: 0, marginTop: '2px!important',
-                                    ...(viewOption.value === view && {background: theme.palette.primary.main})
-                                }}>
-                                <SvgIcon component={viewOption.icon} width={20} height={20}
-                                         htmlColor={viewOption.value === view ? theme.palette.background.paper : theme.palette.text.primary}/>
-                            </ToggleButtonStyled>
-                        </Tooltip>
-                    ))}
+                    <DefaultViewMenu {...{view}} onViewChange={handleViewChange}/>
+
                     <CalendarAddButton
                         {...{t}}
                         onClickEvent={OnAddAppointment}

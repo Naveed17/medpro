@@ -211,7 +211,7 @@ function PausedConsultationPopover({...props}) {
                 </Stack>
             )}
 
-            {pausedConsultation.length > 0 &&
+            {pausedConsultation.length > 0 ?
                 <Stack px={2}>
                     <Toolbar>
                         <Typography variant="subtitle2" fontWeight={700}>
@@ -313,17 +313,18 @@ function PausedConsultationPopover({...props}) {
                                 </Stack>
                             </Stack>
                         </ListItem>)}
-                        {pausedConsultation.length === 0 &&
-                            <NoDataCard
-                                {...{t}}
-                                ns={"common"}
-                                data={{
-                                    mainIcon: <Icon path={"ic-consultation-pause"}/>,
-                                    title: "paused-consultation-notification.empty",
-                                    description: "paused-consultation-notification.desc"
-                                }}/>}
                     </List>
                 </Stack>
+                :
+                pausedConsultation?.length === 0 &&
+                <NoDataCard
+                    {...{t}}
+                    ns={"common"}
+                    data={{
+                        mainIcon: <Icon path={"ic-consultation-pause"}/>,
+                        title: "paused-consultation-notification.empty",
+                        description: "paused-consultation-notification.desc"
+                    }}/>
             }
         </PausedConsultationPopoverStyled>
     )

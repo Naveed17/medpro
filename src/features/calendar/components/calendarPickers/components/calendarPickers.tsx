@@ -10,7 +10,7 @@ import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
 import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {highlightedDays, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
@@ -42,13 +42,6 @@ function CalendarPickers({...props}) {
         }
     }
 
-    const highlightedDays = (note: number) => {
-        return note >= 1 ? theme.palette.secondary.lighter :
-            note > 3 ? theme.palette.secondary.light :
-                note > 5 ? theme.palette.secondary.dark :
-                    note > 10 ? theme.palette.secondary.darker : undefined;
-    }
-
     const appointmentDayCount = (httpAppCountResponse as HttpResponse)?.data;
 
     return (
@@ -61,9 +54,9 @@ function CalendarPickers({...props}) {
                     disabled={disabled}
                     renderDay={(day, _value, DayComponentProps) => {
                         const note = appointmentDayCount && appointmentDayCount[moment(day).format('DD-MM-YYYY')];
-                        const isSelected = !DayComponentProps.outsideCurrentMonth && note;
                         return (
                             <Badge
+                                key={DayComponentProps.key}
                                 sx={{
                                     '& .MuiBadge-badge': {
                                         left: '50%'
@@ -74,36 +67,15 @@ function CalendarPickers({...props}) {
                                     horizontal: 'left',
                                 }}
                                 overlap="circular"
-                                badgeContent={!(DayComponentProps.today || DayComponentProps.selected) ?
+                                badgeContent={!(DayComponentProps.today || DayComponentProps.selected) && note > 0 ?
                                     <FiberManualRecordIcon
                                         sx={{
                                             width: 14,
                                             height: 14,
-                                            color: highlightedDays(note)
+                                            color: highlightedDays(note, theme)
                                         }}
                                     /> : undefined}>
-                                <PickersDay {...(isSelected && {
-                                    sx: {
-                                        "&:after": {
-                                            /*   background: !(DayComponentProps.today || DayComponentProps.selected) &&
-                                                   `linear-gradient(to right,
-                                                   ${note >= 1 ? theme.palette.secondary.lighter : theme.palette.common.white} 25%,
-                                                   ${note > 3 ? theme.palette.secondary.light : theme.palette.common.white} 25%,
-                                                   ${note > 3 ? theme.palette.secondary.light : theme.palette.common.white} 50%,
-                                                   ${note > 5 ? theme.palette.secondary.dark : theme.palette.common.white} 50%,
-                                                   ${note > 5 ? theme.palette.secondary.dark : theme.palette.common.white} 75%,
-                                                   ${note > 10 ? theme.palette.secondary.darker : theme.palette.common.white} 75%)`,*/
-                                            position: "absolute",
-                                            content: "''",
-                                            height: "4px",
-                                            right: 0,
-                                            left: 0,
-                                            bottom: 0
-                                        },
-                                        borderTopRightRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important",
-                                        borderTopLeftRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important"
-                                    }
-                                })} {...DayComponentProps} />
+                                <PickersDay {...DayComponentProps} />
                             </Badge>
                         );
                     }}

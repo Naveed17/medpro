@@ -5,6 +5,7 @@ import moment from "moment-timezone";
 import {ActionMenu} from "@features/menu";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AgendaOutlinedIcon from "@themes/overrides/icons/agendaOutlinedIcon";
+import {highlightedDays} from "@lib/hooks";
 
 const menuList = [
     {
@@ -99,7 +100,7 @@ function Header({...props}) {
                                 <Label variant="filled"
                                        sx={{
                                            justifyContent: 'flex-start',
-                                           bgcolor: "#43E31D",
+                                           bgcolor: (theme) => highlightedDays(datEvents, theme),
                                            "& .MuiSvgIcon-root": {mt: '0.4rem'}
                                        }}>
                                     <AgendaOutlinedIcon/>
@@ -130,7 +131,7 @@ function Header({...props}) {
             </Box>
             <ActionMenu {...{contextMenu: contextMenuHeader, handleClose: handleCloseMenu}}>
                 {menuList.map((item, index) => (
-                    <Box key={index}>
+                    <Box key={index} m={1}>
                         <Stack>
                             <Typography variant="subtitle1" color="common.white" fontWeight={600} fontSize={14}
                                         mb={2} ml={1}>

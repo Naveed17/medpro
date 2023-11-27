@@ -12,14 +12,24 @@ import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
 import {useProfilePhoto} from "@lib/hooks/rest";
-import {AppointmentStatus} from "@features/calendar";
+import {agendaSelector, AppointmentStatus} from "@features/calendar";
 import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import {useRequestQuery} from "@lib/axios";
+import moment from "moment-timezone";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRouter} from "next/router";
+import {useAppSelector} from "@lib/redux/hooks";
 
 function AppointmentPopoverCard({...props}) {
     const {isBeta, data, style, t, handleMouseLeave} = props;
     const {data: session} = useSession();
+    const router = useRouter();
     const {patientPhoto} = useProfilePhoto({patientId: data?.patient?.uuid, hasPhoto: data?.patient?.hasPhoto});
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {config: agenda} = useAppSelector(agendaSelector);
+
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -28,17 +38,26 @@ function AppointmentPopoverCard({...props}) {
 
     const [height, setHeight] = useState(120)
     const componentRef = useRef<null | HTMLDivElement>(null);
+    const query = `?mode=tooltip&appointment=${data.publicId}&start_date=${moment(data.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(data.extendedProps.time).format("DD-MM-YYYY")}&format=week`
+    const {data: httpDocumentHeader} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
+    });
+
+    const appointments = ((httpDocumentHeader as HttpResponse)?.data ?? []) as AppointmentModel[];
+    const appointmentData = (appointments?.length > 0 ? appointments[0] : null) as any;
 
     useLayoutEffect(() => {
         if (componentRef.current) {
             setHeight(componentRef.current.clientHeight)
         }
-    }, [data]);
+    }, [appointmentData]);
+
     return (
-        <RootStyled sx={style} ref={componentRef} onMouseLeave={handleMouseLeave}>
+        <RootStyled sx={style} ref={componentRef}>
             <Box className={"badge"}
                  sx={{
-                     background: data?.type?.color,
+                     background: appointmentData?.type?.color,
                      width: height - 10
                  }}>
                 <Typography
@@ -46,16 +65,16 @@ function AppointmentPopoverCard({...props}) {
                     fontWeight={400}
                     textAlign="center"
                     noWrap
-                    {...(!data as any && {
+                    {...(!appointmentData as any && {
                         sx: {
                             width: height - 18
                         }
                     })}
                     fontSize={12}>
-                    {data?.type?.name ?? <Skeleton variant="rectangular" width={height}/>}
+                    {appointmentData?.type?.name ?? <Skeleton variant="rectangular" width={height}/>}
                 </Typography>
             </Box>
-            {data?.hasErrors?.map((error: string, index: number) => (
+            {appointmentData?.hasErrors?.map((error: string, index: number) => (
                 <Stack key={index + error}
                        spacing={2} mt={.5} pl={4}
                        direction="row">
@@ -83,17 +102,17 @@ function AppointmentPopoverCard({...props}) {
                         svg: {mr: 0.6}
                     }}
                     component="span">
-                    <IconUrl path="ic-time"/> {data?.startTime ?? <Skeleton variant="text" width={60}/>}
+                    <IconUrl path="ic-time"/> {appointmentData?.startTime ?? <Skeleton variant="text" width={60}/>}
                 </Typography>
                 <Typography
                     variant="body1"
                     color="text.primary"
                     component="span"
                     sx={{display: "flex", alignItems: "center", svg: {mr: 0.6}}}>
-                    <IconUrl path="ic-calendar"/> {data?.dayDate ?? <Skeleton variant="text" width={100}/>}
+                    <IconUrl path="ic-calendar"/> {appointmentData?.dayDate ?? <Skeleton variant="text" width={100}/>}
                 </Typography>
             </Stack>
-            {data?.isOnline && <Stack pl={3.2} mb={.5} direction="row" alignItems='center'>
+            {appointmentData?.isOnline && <Stack pl={3.2} mb={.5} direction="row" alignItems='center'>
                 <Avatar
                     sx={{
                         ml: 1,
@@ -107,7 +126,7 @@ function AppointmentPopoverCard({...props}) {
             </Stack>}
             <Stack pl={4} direction="row" alignItems='center' spacing={.8}>
 
-                {data?.patient?.isArchived ? <Label
+                {appointmentData?.patient?.isArchived ? <Label
                         variant='filled'
                         sx={{
                             "& .MuiSvgIcon-root": {
@@ -133,18 +152,18 @@ function AppointmentPopoverCard({...props}) {
                                    pl: 0
                                }
                            }}
-                           color={AppointmentStatus[data?.status]?.classColor}>
-                        {AppointmentStatus[data?.status]?.icon}
+                           color={AppointmentStatus[appointmentData?.status]?.classColor}>
+                        {AppointmentStatus[appointmentData?.status]?.icon}
                         <Typography
                             sx={{
                                 fontSize: 10,
-                                ml: ["WAITING_ROOM", "NOSHOW", "PAUSED"].includes(AppointmentStatus[data?.status]?.key) ? .5 : 0
+                                ml: ["WAITING_ROOM", "NOSHOW", "PAUSED"].includes(AppointmentStatus[appointmentData?.status]?.key) ? .5 : 0
                             }}>
-                            {AppointmentStatus[data?.status] ? t(`appointment-status.${AppointmentStatus[data.status].key}`, {ns: "common"}) :
+                            {AppointmentStatus[appointmentData?.status] ? t(`appointment-status.${AppointmentStatus[appointmentData?.status].key}`, {ns: "common"}) :
                                 <Skeleton variant="text" width={100}/>}</Typography>
                     </Label>}
 
-                {(isBeta && (data?.restAmount > 0 || data?.restAmount < 0)) && <Label
+                {(isBeta && (appointmentData?.restAmount > 0 || appointmentData?.restAmount < 0)) && <Label
                     variant='filled'
                     sx={{
                         "& .MuiSvgIcon-root": {
@@ -153,12 +172,12 @@ function AppointmentPopoverCard({...props}) {
                             pl: 0
                         }
                     }}
-                    color={data.restAmount > 0 ? "expire" : "success"}>
+                    color={appointmentData?.restAmount > 0 ? "expire" : "success"}>
                     <Typography
                         sx={{
                             fontSize: 10,
                         }}>
-                        {t(data.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${data.restAmount > 0 ? '-' : '+'} ${Math.abs(data.restAmount)}`} {devise}</Typography>
+                        {t(appointmentData?.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${appointmentData?.restAmount > 0 ? '-' : '+'} ${Math.abs(appointmentData?.restAmount)}`} {devise}</Typography>
                 </Label>}
             </Stack>
 
@@ -171,7 +190,7 @@ function AppointmentPopoverCard({...props}) {
                     <Avatar
                         src={patientPhoto
                             ? patientPhoto.thumbnails.length > 0 ? patientPhoto.thumbnails.thumbnail_128 : patientPhoto.url
-                            : (data?.patient.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
+                            : (appointmentData?.patient.gender === "M" ? "/static/icons/men-avatar.svg" : "/static/icons/women-avatar.svg")}
                         sx={{
                             "& .injected-svg": {
                                 margin: 0
@@ -195,7 +214,8 @@ function AppointmentPopoverCard({...props}) {
                         color="text.primary"
                         fontWeight={700}
                         noWrap>
-                        {data?.patient.firstName ?? <Skeleton variant="text" width={50}/>} {data?.patient.lastName}
+                        {appointmentData?.patient.firstName ??
+                            <Skeleton variant="text" width={50}/>} {appointmentData?.patient.lastName}
                     </Typography>
                     <Typography
                         variant="body2"
@@ -203,7 +223,7 @@ function AppointmentPopoverCard({...props}) {
                         sx={{
                             display: "flex",
                             alignItems: "center",
-                            opacity: data?.patient.contact.length > 0 ? 1 : 0,
+                            opacity: appointmentData?.patient.contact.length > 0 ? 1 : 0,
                             svg: {
                                 width: 9,
                                 marginRight: 1
@@ -211,22 +231,30 @@ function AppointmentPopoverCard({...props}) {
                         }}
                         component="span">
                         <CallIcon/>
-                        {data?.patient.contact ? data?.patient.contact[0]?.code : doctor_country?.phone}
-                        {data?.patient.contact[0]?.value}
+                        {appointmentData?.patient.contact ? appointmentData?.patient.contact[0]?.code : doctor_country?.phone}
+                        {appointmentData?.patient.contact[0]?.value}
                     </Typography>
                 </Box>
             </Stack>
 
-            {data?.consultationReasons.length > 0 &&
+            {appointmentData?.consultationReasons.length > 0 &&
                 <Stack pl={4} direction="row" mb={1} justifyContent='space-between' alignItems='flex-start'>
                     <Typography sx={{fontSize: 12}} color={"back"}>
-                        {`${t("table.header.motif")}: `}{data.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
+                        {`${t("table.header.motif")}: `}{appointmentData?.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
                 </Stack>}
             <Stack direction='row' justifyContent={'flex-end'} spacing={1} className="btn-actions" p={1}>
-                <IconButton className="btn-waiting-room">
+                <IconButton
+                    className="btn-waiting-room"
+                    onClick={event => {
+                        event.stopPropagation();
+                    }}>
                     <IconUrl path="ic_waiting_room" color="white" width={20} height={20}/>
                 </IconButton>
-                <IconButton className="btn-rdv">
+                <IconButton
+                    className="btn-rdv"
+                    onClick={event => {
+                        event.stopPropagation();
+                    }}>
                     <PlayCircleIcon/>
                 </IconButton>
             </Stack>
