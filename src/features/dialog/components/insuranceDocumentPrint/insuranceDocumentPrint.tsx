@@ -35,7 +35,7 @@ function InsuranceDocumentPrint({...props}) {
     const {trigger: triggerDocInsurance} = useRequestQueryMutation("insurance/document");
 
     const docInsurances = insurances?.filter(insurance => (insurance?.documents ?? []).length > 0) ?? [];
-
+    console.log("docInsurances", docInsurances);
     const generateInsuranceDoc = (insuranceDocument: string, backgroundDoc: boolean) => {
         medicalEntityHasUser && triggerInsuranceDocs({
             method: "GET",
@@ -80,13 +80,14 @@ function InsuranceDocumentPrint({...props}) {
     const handleTableEvent = (action: string, data: any, backgroundDoc: boolean) => {
         switch (action) {
             case "onGenerateInsuranceDoc":
-                generateInsuranceDoc(data.documents[0]?.uuid, backgroundDoc);
+                generateInsuranceDoc(data?.uuid, backgroundDoc);
                 break;
         }
     }
     return (
         <>
             <Otable
+                size="small"
                 {...{t, loadingReq: loading}}
                 headers={[
                     {

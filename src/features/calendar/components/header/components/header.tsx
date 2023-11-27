@@ -129,30 +129,25 @@ function Header({...props}) {
                 }
             </Box>
             <ActionMenu {...{contextMenu: contextMenuHeader, handleClose: handleCloseMenu}}>
-                {
-                    menuList.map((item, index) => (
-                        <MenuItem key={index}>
-                            <Stack>
-                                <Typography variant="subtitle1" color="common.white" fontWeight={600} fontSize={14}
-                                            mb={2}>
-                                    {t(item.heading)}
-                                </Typography>
-                                {item.list.map((v, i) => (
-                                    <MenuItem key={i} onClick={() => OnMenuActions(v.action)}>
-                                        <IconUrl path={v.icon}/>
-                                        <Typography ml={.5} color="common.white">
-                                            {t(v.title)}
-                                        </Typography>
-                                    </MenuItem>
-                                ))}
+                {menuList.map((item, index) => (
+                    <Box key={index}>
+                        <Stack>
+                            <Typography variant="subtitle1" color="common.white" fontWeight={600} fontSize={14}
+                                        mb={2} ml={1}>
+                                {t(item.heading)}
+                            </Typography>
+                            {item.list.map((v, i) => (
+                                <MenuItem key={i} onClick={() => OnMenuActions(v.action)}>
+                                    <IconUrl path={v.icon}/>
+                                    <Typography ml={.5} color="common.white">
+                                        {t(v.title)}
+                                    </Typography>
+                                </MenuItem>
+                            ))}
 
-                            </Stack>
-
-                        </MenuItem>
-                    ))
-                }
-
-
+                        </Stack>
+                    </Box>
+                ))}
             </ActionMenu>
         </div>
     )

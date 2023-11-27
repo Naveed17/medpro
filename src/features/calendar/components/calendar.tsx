@@ -113,7 +113,7 @@ function Calendar({...props}) {
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const openingHours = agendaConfig?.openingHours[0];
-    const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
+    const calendarHeight = !isMobile ? "83vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
     const open = Boolean(anchorEl);
     let timeoutId: any
 
@@ -296,7 +296,9 @@ function Calendar({...props}) {
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             if (currentDate.fallback) {
-                calendarApi.gotoDate(currentDate.date);
+                queueMicrotask(() => {
+                    calendarApi.gotoDate(currentDate.date);
+                });
             }
         }
     }, [currentDate]); // eslint-disable-line react-hooks/exhaustive-deps
