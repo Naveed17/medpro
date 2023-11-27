@@ -164,11 +164,14 @@ function PaymentCard({...props}) {
                                         onFocus={() => setSelectedPayment(i)}
                                         value={item.amount}
                                         onChange={(e) => {
-                                            payments[i].amount = e.target.value ? parseInt(e.target.value, 10) : ''
-                                            setPayments([...payments])
-                                        }
-                                        }
-                                        type="number"
+                                            if(!isNaN(parseInt(e.target.value, 10))) {
+                                                payments[i].amount = e.target.value ? parseInt(e.target.value, 10) : ''
+                                                setPayments([...payments])
+                                            } else {
+                                                payments[i].amount = ''
+                                                setPayments([...payments])
+                                            }
+                                        }}
                                         InputProps={{
                                             inputProps: {
                                                 min: 0,

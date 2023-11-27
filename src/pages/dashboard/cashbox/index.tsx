@@ -375,9 +375,9 @@ function Cashbox() {
     return (
         <>
             <SubHeader>
-                <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
+                <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"flex-end"}
                        width={"100%"}>
-                    <Tabs
+                    {/*<Tabs
                         value={selectedTab}
                         onChange={handleChangeTab}
                         sx={{
@@ -401,7 +401,7 @@ function Cashbox() {
                                 />
                             ))
                         }
-                    </Tabs>
+                    </Tabs>*/}
                     <Stack direction={"row"} alignItems={"center"} spacing={1}>
                         <Typography> {t("total")}</Typography>
                         <Typography variant="h6">
@@ -418,12 +418,12 @@ function Cashbox() {
 
             <Box className="container">
                 <TabPanel padding={1} value={selectedTab} index={"consultations"}>
-                    <Otable
+                    {/*<Otable
                         {...{rows, t, insurances, pmList, mutateTransactions, filterCB}}
                         headers={consultationCells}
                         from={"unpaidconsult"}
                         handleEvent={handleTableActions}
-                    />
+                    />*/}
                 </TabPanel>
 
                 <TabPanel padding={1} value={selectedTab} index={"transactions"}>

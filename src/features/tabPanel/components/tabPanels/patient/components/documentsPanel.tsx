@@ -321,6 +321,7 @@ function DocumentsPanel({...props}) {
                             act.selected = false
                         })
                         setActs([..._acts])
+                        setNotes('')
                     })
                 }
             });

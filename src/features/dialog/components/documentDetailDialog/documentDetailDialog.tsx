@@ -54,6 +54,7 @@ import {useSnackbar} from "notistack";
 import {FacebookCircularProgress} from "@features/progressUI";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function DocumentDetailDialog({...props}) {
     const {
@@ -206,7 +207,7 @@ function DocumentDetailDialog({...props}) {
     const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
-    } : null);
+    } : null,ReactQueryNoValidateConfig);
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
