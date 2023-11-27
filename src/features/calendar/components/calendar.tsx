@@ -82,7 +82,6 @@ function Calendar({...props}) {
 
     const prevView = useRef(view);
 
-    const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
     const [events, setEvents] = useState<EventModal[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<string>();
@@ -361,8 +360,8 @@ function Calendar({...props}) {
                                             {...{
                                                 isBeta,
                                                 open,
-                                                appointmentData,
-                                                event, openingHours,
+                                                event,
+                                                openingHours,
                                                 roles,
                                                 view
                                             }}
