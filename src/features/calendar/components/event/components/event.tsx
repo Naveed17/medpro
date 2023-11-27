@@ -17,7 +17,7 @@ import {setDialog} from "@features/topNavBar";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
 
 function Event({...props}) {
-    const {isBeta, event, roles, view, open, t, appointmentData} = props;
+    const {isBeta, event, roles, view, open, t} = props;
     const appointment = event.event._def.extendedProps;
     const router = useRouter();
     const dispatch = useAppDispatch();

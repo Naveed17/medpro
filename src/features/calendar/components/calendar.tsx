@@ -1,11 +1,11 @@
 import FullCalendar from "@fullcalendar/react"; // => request placed at the top
 import {
     Backdrop,
-    Box, Chip,
+    Box,
     ClickAwayListener,
     IconButton,
     Menu,
-    MenuItem, Popover,
+    MenuItem,
     Theme,
     useMediaQuery,
     useTheme
@@ -31,7 +31,7 @@ import {
     TableHead
 } from "@features/calendar";
 import dynamic from "next/dynamic";
-import {AppointmentPopoverCard, NoDataCard} from "@features/card";
+import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {BusinessHoursInput} from "@fullcalendar/core";
 import {useSwipeable} from "react-swipeable";
@@ -42,9 +42,6 @@ import {alpha} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
 import {useTranslation} from "next-i18next";
-import {useRequestQueryMutation} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useRouter} from "next/router";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -79,11 +76,7 @@ function Calendar({...props}) {
     const theme = useTheme();
     const {t} = useTranslation('common');
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const router = useRouter();
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
-
-    const {config: agenda, openViewDrawer} = useAppSelector(agendaSelector);
 
     const {view, currentDate, config: agendaConfig, sortedData: groupSortedData} = useAppSelector(agendaSelector);
 
@@ -115,9 +108,6 @@ function Calendar({...props}) {
     const openingHours = agendaConfig?.openingHours[0];
     const calendarHeight = !isMobile ? "83vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
     const open = Boolean(anchorEl);
-    let timeoutId: any
-
-    const {trigger: triggerAppointmentTooltip} = useRequestQueryMutation("/agenda/appointment/tooltip");
 
     const handleOnSelectEvent = useCallback((value: any) => {
         OnSelectEvent(value);
@@ -241,25 +231,6 @@ function Calendar({...props}) {
         },
         preventScrollOnSwipe: true
     });
-
-    const isHorizontal = () => {
-        if (view === "timeGridDay")
-            return 'left';
-        else if (moment(appointmentData?.dayDate, "DD-MM-YYYY").weekday() > 4)
-            return "center";
-        else return 'right';
-    }
-
-    const handlePopoverClose = () => {
-        setAnchorEl(null);
-        clearTimeout(timeoutId);
-    }
-
-    useEffect(() => {
-        if (anchorEl !== null && (openViewDrawer || isEventDragging)) {
-            handlePopoverClose()
-        }
-    }, [anchorEl, isEventDragging]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         let days: BusinessHoursInput[] = [];
@@ -442,31 +413,6 @@ function Calendar({...props}) {
                                     })
                                 }}
                                 eventClick={(eventArg) => !eventArg.event._def.extendedProps.patient?.isArchived && handleOnSelectEvent(eventArg.event._def)}
-                               /* eventMouseEnter={(info) => {
-                                    if (timeoutId !== undefined) {
-                                        clearTimeout(timeoutId);
-                                    }
-
-                                    timeoutId = setTimeout(() => {
-                                        setAppointmentData(null);
-                                        const query = `?mode=tooltip&appointment=${info.event._def.publicId}&start_date=${moment(info.event._def.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(info.event._def.extendedProps.time).format("DD-MM-YYYY")}&format=week`
-                                        triggerAppointmentTooltip({
-                                            method: "GET",
-                                            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}${query}`
-                                        }, {
-                                            onSuccess: (result) => {
-                                                const appointmentData = (result?.data as HttpResponse)?.data as AppointmentModel[];
-                                                if (appointmentData.length > 0) {
-                                                    //setAnchorEl(info.jsEvent.target as any);
-                                                    setAppointmentData(appointmentData[0]);
-                                                }
-                                            }
-                                        })
-                                    }, 1000);
-                                }}*/
-                                eventMouseLeave={arj => {
-                                    //arj.jsEvent.preventDefault();
-                                }}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);
@@ -616,42 +562,6 @@ function Calendar({...props}) {
                                     )
                                 )}
                             </Menu>
-
-                            <Popover
-                                id="mouse-over-popover"
-                                onMouseLeave={handlePopoverClose}
-                                sx={{
-                                    pointerEvents: 'none',
-                                    zIndex: 900
-                                }}
-                                open={open}
-                                anchorEl={anchorEl}
-                                anchorOrigin={{
-                                    vertical: view === "timeGridDay" ? 'bottom' : 'top',
-                                    horizontal: isHorizontal()
-                                }}
-                                onClose={() => setAnchorEl(null)}
-                                disableRestoreFocus>
-                                <motion.div
-                                    initial={{opacity: 0}}
-                                    animate={{opacity: 1}}
-                                    transition={{ease: "linear", duration: .2}}>
-                                    {appointmentData?.new &&
-                                        <Chip label={translation("event.new", {ns: 'common'})}
-                                              sx={{
-                                                  position: "absolute",
-                                                  right: 4,
-                                                  top: 4,
-                                                  fontSize: 10
-                                              }}
-                                              size="small"
-                                              color={"primary"}/>}
-                                    <AppointmentPopoverCard
-                                        {...{isBeta, t: translation}}
-                                        style={{width: "300px", border: "none"}}
-                                        data={appointmentData}/>
-                                </motion.div>
-                            </Popover>
                         </Box>
                     )}
                 </CalendarStyled>

@@ -22,7 +22,7 @@ import {useRouter} from "next/router";
 import {useAppSelector} from "@lib/redux/hooks";
 
 function AppointmentPopoverCard({...props}) {
-    const {isBeta, data, style, t, handleMouseLeave} = props;
+    const {isBeta, data, style, t} = props;
     const {data: session} = useSession();
     const router = useRouter();
     const {patientPhoto} = useProfilePhoto({patientId: data?.patient?.uuid, hasPhoto: data?.patient?.hasPhoto});

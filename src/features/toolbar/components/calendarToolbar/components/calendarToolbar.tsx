@@ -6,7 +6,6 @@ import {
     Hidden,
     IconButton,
     Stack,
-    SvgIcon,
     Tooltip, Typography,
     useTheme
 } from "@mui/material";
@@ -17,7 +16,6 @@ import TodayIcon from "@themes/overrides/icons/todayIcon";
 import DayIcon from "@themes/overrides/icons/dayIcon";
 import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
-import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setView, TableHead} from "@features/calendar";

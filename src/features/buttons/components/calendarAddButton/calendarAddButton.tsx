@@ -1,8 +1,6 @@
-import AddEventIcon from "@themes/overrides/icons/addEventIcon";
 import React from "react";
 import StyledMenu from "./overrides/styledMenu";
-import {Box, Button, MenuItem, Typography, useTheme} from "@mui/material";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import {Box, MenuItem, useTheme} from "@mui/material";
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import AddIcon from "@mui/icons-material/Add";
