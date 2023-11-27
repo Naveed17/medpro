@@ -10,6 +10,9 @@ import {
     LinearProgress,
     MenuItem,
     Stack,
+    Tab,
+    Tabs,
+    tabsClasses,
     Theme,
     Typography,
     useTheme,
@@ -28,7 +31,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {Dialog, PatientDetail} from "@features/dialog";
-import {DefaultCountry, TransactionStatus, TransactionType,} from "@lib/constants";
+import {DefaultCountry,} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {CashboxFilter, cashBoxSelector} from "@features/leftActionBar/components/cashbox";
@@ -36,10 +39,10 @@ import {useSnackbar} from "notistack";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import CloseIcon from "@mui/icons-material/Close";
 import {DrawerBottom} from "@features/drawerBottom";
-import moment from "moment/moment";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {ActionMenu} from "@features/menu";
 import {LoadingButton} from "@mui/lab";
+import {TabPanel} from "@features/tabPanel";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -116,6 +119,65 @@ export const headCells: readonly HeadCell[] = [
         align: "center",
     },
 ];
+export const consultationCells: readonly HeadCell[] = [
+    {
+        id: "date",
+        numeric: false,
+        disablePadding: true,
+        label: "date",
+        sortable: true,
+        align: "left",
+    },
+    {
+        id: "name",
+        numeric: true,
+        disablePadding: false,
+        label: "name",
+        sortable: true,
+        align: "left",
+    },
+    {
+        id: "insurance",
+        numeric: true,
+        disablePadding: false,
+        label: "insurance",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "type",
+        numeric: true,
+        disablePadding: false,
+        label: "type",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: 'total',
+        numeric: true,
+        disablePadding: false,
+        label: "total",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "rest",
+        numeric: true,
+        disablePadding: false,
+        label: "rest",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "amount",
+        numeric: true,
+        disablePadding: false,
+        label: "amount",
+        sortable: true,
+        align: "center",
+    },
+];
+
 
 const noCardData = {
     mainIcon: "ic-payment",
@@ -160,21 +222,26 @@ function Cashbox() {
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const isAddAppointment = false;
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
-    const [actionDialog, setActionDialog] = useState("");
-    const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [rows, setRows] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
-    const [totalCash, setTotalCash] = useState(0);
-    const [totalCheck, setTotalCheck] = useState(0);
-    const [toReceive, setToReceive] = useState(0);
-    const [collected, setCollected] = useState(0);
-    const [action, setAction] = useState("");
+    /*
+        const [totalCash, setTotalCash] = useState(0);
+        const [totalCheck, setTotalCheck] = useState(0);
+        const [toReceive, setToReceive] = useState(0);
+        const [collected, setCollected] = useState(0);
+        let [checksToCashout, setChecksToCashout] = useState<any[]>([]);
+        let [collectedCash, setCollectedCash] = useState(0);
+    */
     const [loading, setLoading] = useState(true);
-    let [checksToCashout, setChecksToCashout] = useState<any[]>([]);
-    const [paymentDrawer, setPaymentDrawer] = useState<boolean>(false);
     const [selectedCashBox, setCashbox] = useState<any>(null);
-    let [collectedCash, setCollectedCash] = useState(0);
-
+    let [selectedTab, setSelectedTab] = useState('transactions');
+    const tabsData = [{
+        label: "consultations",
+        value: "consultations"
+    }, {
+        label: "transactions",
+        value: "transactions"
+    }]
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -224,10 +291,10 @@ function Cashbox() {
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data;
         setTotal(data.total_amount);
-        setTotalCash(data.period_cash);
+        /*setTotalCash(data.period_cash);
         setTotalCheck(data.period_check);
         setToReceive(data.total_insurance_amount);
-        setCollected(data.total_collected);
+        setCollected(data.total_collected);*/
         txtGenerator()
         if (data.transactions) setRows(data.transactions);
         else setRows([]);
@@ -242,10 +309,6 @@ function Cashbox() {
                     dispatch(onOpenPatientDrawer({patientId: row.uuid}));
                     setPatientDetailDrawer(true);
                 }
-                break;
-            case "PATIENT_PAYMENT":
-                setPaymentDrawer(true);
-                setCashbox(row);
                 break;
             case "OPEN-POPOVER":
                 event.preventDefault();
@@ -262,114 +325,11 @@ function Cashbox() {
     }
 
     const resetDialog = () => {
-        setChecksToCashout([]);
-        setCollectedCash(0)
+        /*setChecksToCashout([]);
+        setCollectedCash(0)*/
         setOpenPaymentDialog(false);
     }
 
-    const handleSubmit = () => {
-        if (actionDialog === "payment_dialog") {
-            let amount = 0;
-            const trans_data: TransactionDataModel[] = [];
-            selectedPayment.payments.map((sp: any) => {
-                trans_data.push({
-                    payment_means: sp.payment_means.uuid,
-                    insurance: "",
-                    amount: sp.amount,
-                    status_transaction: TransactionStatus[0].value,
-                    type_transaction:
-                        action === "btn_header_2"
-                            ? TransactionType[0].value
-                            : TransactionType[1].value,
-                    payment_date: moment(sp.payment_date).format('DD-MM-YYYY'),
-                    payment_time: moment(sp.payment_date).format('HH:mm'),
-                    data: {label: sp.designation, ...sp.data},
-                });
-                amount += sp.amount;
-            });
-
-            const form = new FormData();
-            form.append(
-                "type_transaction",
-                action === "btn_header_2"
-                    ? TransactionType[0].value
-                    : TransactionType[1].value
-            );
-            form.append("status_transaction", TransactionStatus[0].value);
-            form.append("cash_box", selectedBoxes[0].uuid);
-            form.append("amount", amount.toString());
-            form.append("rest_amount", "0");
-            form.append("transaction_data", JSON.stringify(trans_data));
-
-            triggerPostTransaction({
-                method: "POST",
-                url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                data: form
-            }, {
-                onSuccess: () => {
-                    enqueueSnackbar(`${t("transactionAdded")}`, {variant: "success"});
-                    mutateTransactions();
-                }
-            });
-        } else {
-            let cheques = '';
-            let totalChequeAmount = 0;
-            const pmCash: any = pmList?.find((pl: { slug: string; }) => pl.slug === 'cash');
-            const transData = collectedCash === 0 ? [] : [{
-                payment_means: pmCash?.uuid,
-                amount: collectedCash.toString(),
-                status_transaction: TransactionStatus[2].value.toString(),
-                type_transaction: TransactionType[3].value.toString(),
-                payment_date: moment().format('DD-MM-YYYY'),
-                payment_time: `${new Date().getHours()}:${new Date().getMinutes()}`,
-                transaction_data_uuid: "",
-                data: {label: t('encashment')}
-            }];
-
-            checksToCashout.forEach(chq => {
-                cheques += chq.uuid + ',';
-                totalChequeAmount += chq.amount;
-                transData.push({
-                    payment_means: chq.payment_means.uuid,
-                    amount: chq.amount.toString(),
-                    transaction_data_uuid: chq.uuid,
-                    status_transaction: TransactionStatus[2].value.toString(),
-                    type_transaction: TransactionType[3].value.toString(),
-                    payment_date: moment(chq.payment_date, 'YYYY-MM-DD HH:mm').format('DD/MM/YYYY'),
-                    payment_time: moment(chq.payment_date, 'YYYY-MM-DD HH:mm').format('HH:mm'),
-                    data: {
-                        label: t('encashment'),
-                        ...chq
-                    }
-                });
-            });
-            let totalAmount = (totalChequeAmount + collectedCash).toString();
-            cheques = cheques.slice(0, -1);
-            const form = new FormData();
-            form.append("cash_box", selectedBoxes[0].uuid);
-            form.append("type_transaction", TransactionType[3].value.toString());
-            form.append("status_transaction", TransactionStatus[2].value.toString());
-            form.append("amount", totalAmount);
-            form.append("rest_amount", "0");
-            form.append("transaction_data", JSON.stringify(transData));
-            form.append("transactions_data", cheques);
-
-            triggerPostTransaction({
-                method: "POST",
-                url: `${urlMedicalEntitySuffix}/transactions/encashment/${router.locale}`,
-                data: form
-            }, {
-                onSuccess: () => {
-                    mutateTransactions().then(() => {
-                        enqueueSnackbar(`${totalChequeAmount} ${devise} ${t('encaissed')}`, {variant: "success"})
-                        setChecksToCashout([]);
-                        setCollectedCash(0);
-                    });
-                }
-            });
-        }
-        setOpenPaymentDialog(false);
-    }
     const deleteTransaction = () => {
         setLoadingDeleteTransaction(true)
         const form = new FormData();
@@ -406,39 +366,47 @@ function Cashbox() {
     const handleCloseMenu = () => {
         setContextMenu(null);
     }
+    const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
+        setSelectedTab(newValue)
+    }
 
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
-
 
     return (
         <>
             <SubHeader>
-                <Stack
-                    direction={{xs: "column", md: "row"}}
-                    width={1}
-                    justifyContent="flex-end"
-                    py={1}
-                    alignItems={{xs: "flex-start", md: "center"}}>
-
-                    <Stack
-                        direction={{xs: "column", md: "row"}}
-                        spacing={{xs: 1, md: 3}}
-                        alignItems={{xs: "flex-start", md: "center"}}>
-                        <Stack direction="row" spacing={2} alignItems="center">
-                            {toReceive > 0 && <>
-                                <Typography>{t("receive")}</Typography>
-                                <Typography variant="h6">
-                                    {toReceive} <span style={{fontSize: 10}}>{devise}</span>
-                                </Typography>
-                                <Typography variant="h6" display={{xs: "none", md: "block"}}>
-                                    I
-                                </Typography>
-                            </>}
-                            <Typography>{t("total")}</Typography>
-                            <Typography variant="h6">
-                                {total} <span style={{fontSize: 10}}>{devise}</span>
-                            </Typography>
-                        </Stack>
+                <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
+                       width={"100%"}>
+                    <Tabs
+                        value={selectedTab}
+                        onChange={handleChangeTab}
+                        sx={{
+                            width: {xs: "100%", md: "70%"},
+                            [`& .${tabsClasses.scrollButtons}`]: {
+                                '&.Mui-disabled': {opacity: 0.5},
+                            }, marginTop: "8px"
+                        }}
+                        scrollButtons={true}
+                        textColor="primary"
+                        disabled={loading}
+                        indicatorColor="primary">
+                        {
+                            tabsData.map((tab: { label: string; }) => (
+                                <Tab
+                                    className="custom-tab"
+                                    key={tab.label}
+                                    value={tab.label}
+                                    disabled={loading}
+                                    label={t(tab.label)}
+                                />
+                            ))
+                        }
+                    </Tabs>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                        <Typography> {t("total")}</Typography>
+                        <Typography variant="h6">
+                            {total} <span style={{fontSize: 10}}>{devise}</span>
+                        </Typography>
                     </Stack>
                 </Stack>
             </SubHeader>
@@ -449,102 +417,83 @@ function Cashbox() {
             )}
 
             <Box className="container">
-                <Stack spacing={2}>
-                    {/*<Card sx={{border:'none'}}>
-                    <CardContent>
-                        <Stack direction="row" alignItems='center' justifyContent='space-between' pb={1} mb={2} borderBottom={1} borderColor='divider'>
-                            <Typography fontWeight={700}>
-                                {t("unpaid_consultation")}
-                            </Typography>
-                            <Typography fontWeight={700}>
-                                {t('to',{ns:'common'})} {" "}
-                                novembre - 21 novembre
-                            </Typography>
-                        </Stack>
-                        <Stack
-                        sx={{
-                            display: 'grid',
-                            gridTemplateColumns:{xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)'},
-                            gap: 2,
+                <TabPanel padding={1} value={selectedTab} index={"consultations"}>
+                    <Otable
+                        {...{rows, t, insurances, pmList, mutateTransactions, filterCB}}
+                        headers={consultationCells}
+                        from={"unpaidconsult"}
+                        handleEvent={handleTableActions}
+                    />
+                </TabPanel>
 
-                        }}
-                        >
-                         {Array.from({length:2}).map((_,idx)=> (
-                            <React.Fragment key={idx}>
-                              <UnpaidConsultationCard {...{t,devise}}/>
-                            </React.Fragment>
-                         ))}
-
-                        </Stack>
-                        <Box mt={2} display={{xs:'none',md:'block'}}>
-                        <Pagination total={10} count={20}/>
-                        </Box>
-                    </CardContent>
-                </Card>*/}
-                    {rows.length > 0 ? (
-                        <Card>
-                            <CardContent>
-                                <Stack direction='row' alignItems={{xs: 'flex-start', md: 'center'}}
-                                       justifyContent="space-between" mb={2} pb={1} borderBottom={1}
-                                       borderColor='divider'>
-                                    <Typography fontWeight={700}>
-                                        {t("transactions")}
-                                    </Typography>
-                                    <Stack direction={'row'} alignItems="center" spacing={1}>
+                <TabPanel padding={1} value={selectedTab} index={"transactions"}>
+                    <Stack spacing={2}>
+                        {rows.length > 0 ? (
+                            <Card>
+                                <CardContent>
+                                    <Stack direction='row' alignItems={{xs: 'flex-start', md: 'center'}}
+                                           justifyContent="space-between" mb={2} pb={1} borderBottom={1}
+                                           borderColor='divider'>
                                         <Typography fontWeight={700}>
-                                            {txtFilter}
+                                            {t("transactions")}
                                         </Typography>
-                                        <Button sx={{
-                                            borderColor: 'divider',
-                                            bgcolor: theme => theme.palette.grey['A500'],
-                                        }} variant="outlined" color="info" startIcon={<IconUrl path="ic-export-new"/>}>
-                                            {t("export")}
-                                        </Button>
+                                        <Stack direction={'row'} alignItems="center" spacing={1}>
+                                            <Typography fontWeight={700}>
+                                                {txtFilter}
+                                            </Typography>
+                                            <Button sx={{
+                                                borderColor: 'divider',
+                                                bgcolor: theme => theme.palette.grey['A500'],
+                                            }} variant="outlined" color="info"
+                                                    startIcon={<IconUrl path="ic-export-new"/>}>
+                                                {t("export")}
+                                            </Button>
+                                        </Stack>
                                     </Stack>
-                                </Stack>
-                                <DesktopContainer>
-                                    {!loading && (
-                                        <Otable
-                                            {...{rows, t, insurances, pmList, mutateTransactions, filterCB}}
-                                            headers={headCells}
-                                            from={"cashbox"}
-                                            handleEvent={handleTableActions}
-                                        />
-                                    )}
-                                </DesktopContainer>
-                                <MobileContainer>
-                                    <Stack spacing={2}>
+                                    <DesktopContainer>
                                         {!loading && (
-                                            rows.map((row) => (
-                                                <React.Fragment key={row.uuid}>
-                                                    <NewCashboxMobileCard {...{
-                                                        row,
-                                                        t,
-                                                        pmList,
-                                                        devise,
-                                                        handleEvent: handleTableActions,
-                                                        mutateTransactions
-                                                    }}/>
-                                                </React.Fragment>
-                                            ))
+                                            <Otable
+                                                {...{rows, t, insurances, pmList, mutateTransactions, filterCB}}
+                                                headers={headCells}
+                                                from={"cashbox"}
+                                                handleEvent={handleTableActions}
+                                            />
                                         )}
-                                    </Stack>
-                                </MobileContainer>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <Box
-                            style={{
-                                height: "75vh",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <NoDataCard t={t} ns={"payment"} data={noCardData}/>
-                        </Box>
-                    )}
-                </Stack>
+                                    </DesktopContainer>
+                                    <MobileContainer>
+                                        <Stack spacing={2}>
+                                            {!loading && (
+                                                rows.map((row) => (
+                                                    <React.Fragment key={row.uuid}>
+                                                        <NewCashboxMobileCard {...{
+                                                            row,
+                                                            t,
+                                                            pmList,
+                                                            devise,
+                                                            handleEvent: handleTableActions,
+                                                            mutateTransactions
+                                                        }}/>
+                                                    </React.Fragment>
+                                                ))
+                                            )}
+                                        </Stack>
+                                    </MobileContainer>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <Box
+                                style={{
+                                    height: "75vh",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                <NoDataCard t={t} ns={"payment"} data={noCardData}/>
+                            </Box>
+                        )}
+                    </Stack>
+                </TabPanel>
             </Box>
 
             <Drawer
@@ -565,8 +514,6 @@ function Cashbox() {
                     onAddAppointment={() => console.log("onAddAppointment")}
                 />
             </Drawer>
-
-
             <MobileContainer>
                 <Button
                     startIcon={<IconUrl path="ic-filter"/>}
