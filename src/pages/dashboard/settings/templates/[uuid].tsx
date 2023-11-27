@@ -253,12 +253,12 @@ function DocsConfig() {
     }
 
     useEffect(() => {
-        if (uuid === 'new') {
-            setTimeout(() => {
-                setLoading(false)
-            }, 1000);
-        } else if (httpDocumentHeader)
+         if (httpDocumentHeader)
             setDocHeader((httpDocumentHeader as HttpResponse).data.find((res: { uuid: string }) => res.uuid === uuid))
+
+        setTimeout(() => {
+            setLoading(false)
+        }, 2000);
     }, [httpDocumentHeader, uuid])
 
     useEffect(() => {
@@ -786,7 +786,7 @@ function DocsConfig() {
                     {<Box padding={2}>
                         <Box style={{margin: 'auto', paddingTop: 20}}>
                             <Box ref={componentRef}>
-                                <PreviewA4  {...{eventHandler, data, values, loading}} />
+                                {!loading && <PreviewA4  {...{eventHandler, data, values, loading}} />}
                                 {loading &&
                                     <div className={data.size ? data.size : "portraitA5"} style={{padding: 20}}>
                                         {Array.from(Array(30)).map((item, key) => (

@@ -80,7 +80,9 @@
     "2": "DEP",
     "3": "APP",
     "4": "Cash out",
-    "5": " +ACCOUNT"
+    "5": " +ACCOUNT",
+    "total": "Total",
+    "rest": "Rest"
   },
   "no-data": {
     "title": "No transactions",
