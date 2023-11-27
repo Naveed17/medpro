@@ -7,7 +7,7 @@ import AddIcon from "@mui/icons-material/Add";
 import {CustomIconButton} from "@features/buttons";
 
 function CalendarAddButton({...props}) {
-    const {onClickEvent, t, ...rest} = props;
+    const {onClickEvent, t} = props;
     const theme = useTheme();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);

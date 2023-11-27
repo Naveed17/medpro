@@ -82,7 +82,6 @@ function Calendar({...props}) {
 
     const prevView = useRef(view);
 
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
     const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
     const [events, setEvents] = useState<EventModal[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
@@ -101,13 +100,11 @@ function Calendar({...props}) {
         mouseY: number;
     } | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isEventDragging, setIsEventDragging] = useState(false);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
     const openingHours = agendaConfig?.openingHours[0];
     const calendarHeight = !isMobile ? "83vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
-    const open = Boolean(anchorEl);
 
     const handleOnSelectEvent = useCallback((value: any) => {
         OnSelectEvent(value);
@@ -379,8 +376,6 @@ function Calendar({...props}) {
                                         return ['normal']
                                     }
                                 }}
-                                eventDragStart={() => setIsEventDragging(true)}
-                                eventDragStop={() => setIsEventDragging(false)}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         setEventMenu(mountArg.event._def.publicId);
