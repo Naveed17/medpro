@@ -1,9 +1,10 @@
-import {Box, Stack, Typography, MenuItem, IconButton, Badge, useTheme} from "@mui/material";
+import {Box, Stack, Typography, MenuItem, IconButton} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 import {ActionMenu} from "@features/menu";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import {capitalizeFirst, highlightedDays} from "@lib/hooks";
+import {capitalizeFirst} from "@lib/hooks";
+import {BadgeStyled} from "@features/calendar";
 
 const menuList = [
     {
@@ -58,21 +59,21 @@ function Header({...props}) {
                     display: event.view.type === "timeGridDay" ? isMobile ? "grid!important" as any : "flex" : "inline-flex",
                     justifyContent: event.view.type === "timeGridDay" ? "flex-start" : "space-between",
                     px: event.view.type === "listWeek" ? 0 : 1,
-                    width: "100%",
-                    "& .MuiBadge-badge": {
-                        color: "#FFFFFF",
-                        left: "2rem",
-                        top: 12,
-                        background: (theme) => highlightedDays(datEvents, theme),
-                        padding: '0 4px',
-                        marginLeft: "2rem"
-
-                    }
+                    width: "100%"
                 }}>
                 {!isMobile ?
                     <Stack direction='row' justifyContent='space-between' width={1}>
                         {(isGridWeek) ? (
-                            <Badge badgeContent={datEvents}>
+                            <BadgeStyled
+                                badgeContent={datEvents}
+                                {...{'data-events': datEvents}}
+                                {...(date.format("DD/MM/YYYY") !== moment().format("DD/MM/YYYY") && {
+                                    sx: {
+                                        '& .MuiTypography-root': {
+                                            color: (theme) => theme.palette.text.secondary
+                                        }
+                                    }
+                                })}>
                                 <Stack direction={'row'} alignItems={'center'} spacing={1.2}>
                                     <Typography variant="subtitle1" color="text.primary" fontSize={16} fontWeight={500}>
                                         {capitalizeFirst(date.format("ddd")).replace('.', '')}
@@ -82,7 +83,7 @@ function Header({...props}) {
                                     </Typography>
                                 </Stack>
 
-                            </Badge>
+                            </BadgeStyled>
                         ) : (
                             <Typography variant="subtitle1" color="text.primary" fontSize={14}>
                                 <div>
