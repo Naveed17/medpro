@@ -241,7 +241,7 @@ function Agenda() {
             events.current = [];
         }
 
-        const eventCond = result?.data;
+        const eventCond = result?.data?.appointments;
         const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
         const eventsUpdated: EventModal[] = [];
         if (!query?.filter || events.current.length === 0) {

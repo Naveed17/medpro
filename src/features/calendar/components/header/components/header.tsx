@@ -1,4 +1,4 @@
-import {Box, Stack, Typography, MenuItem, IconButton, Badge} from "@mui/material";
+import {Box, Stack, Typography, MenuItem, IconButton, Badge, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 import {ActionMenu} from "@features/menu";
@@ -58,28 +58,30 @@ function Header({...props}) {
                     display: event.view.type === "timeGridDay" ? isMobile ? "grid!important" as any : "flex" : "inline-flex",
                     justifyContent: event.view.type === "timeGridDay" ? "flex-start" : "space-between",
                     px: event.view.type === "listWeek" ? 0 : 1,
-                    width: "100%"
+                    width: "100%",
+                    "& .MuiBadge-badge": {
+                        color: "#FFFFFF",
+                        left: "2rem",
+                        top: 12,
+                        background: (theme) => highlightedDays(datEvents, theme),
+                        padding: '0 4px',
+                        marginLeft: "2rem"
+
+                    }
                 }}>
                 {!isMobile ?
                     <Stack direction='row' justifyContent='space-between' width={1}>
                         {(isGridWeek) ? (
-                            <Badge
-                                badgeContent={datEvents}
-                                sx={{
-                                    '& .MuiBadge-badge': {
-                                        left: "2rem",
-                                        top: 12,
-                                        color: "white",
-                                        background: (theme) => highlightedDays(datEvents, theme),
-                                        padding: '0 4px',
-                                        marginLeft: "1rem"
-                                    }
-                                }}>
-                                <Typography variant="subtitle1" color="text.primary" fontSize={14}>
-                                    <div>
-                                        {capitalizeFirst(date.format("ddd"))} {date.format("DD")}
-                                    </div>
-                                </Typography>
+                            <Badge badgeContent={datEvents}>
+                                <Stack direction={'row'} alignItems={'center'} spacing={1.2}>
+                                    <Typography variant="subtitle1" color="text.primary" fontSize={16} fontWeight={500}>
+                                        {capitalizeFirst(date.format("ddd")).replace('.', '')}
+                                    </Typography>
+                                    <Typography variant="subtitle1" color="text.primary" fontSize={16} fontWeight={500}>
+                                        {date.format("DD")}
+                                    </Typography>
+                                </Stack>
+
                             </Badge>
                         ) : (
                             <Typography variant="subtitle1" color="text.primary" fontSize={14}>
