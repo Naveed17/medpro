@@ -333,6 +333,8 @@ function AppToolbar({...props}) {
                         direction="row"
                         spacing={1}
                         alignItems={"center"}
+                        mb={1}
+                        justifyContent={"flex-end"}
                         sx={{width: {xs: "30%", md: "30%"}}}>
                         <CustomIconButton
                             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
