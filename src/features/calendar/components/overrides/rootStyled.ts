@@ -1,5 +1,6 @@
 import {styled} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
+
 const RootStyled = styled("div")(({theme}) => ({
     "& .fc-theme-standard .fc-scrollgrid": {
         border: "none",
@@ -14,28 +15,28 @@ const RootStyled = styled("div")(({theme}) => ({
     },
     '& .fc .fc-timegrid-now-indicator-line': {
         borderStyle: "solid",
-        borderWidth:1.5,
+        borderWidth: 1.5,
         borderColor: theme.palette.primary.main,
-        '&:before':{
+        '&:before': {
             content: '""',
             display: 'block',
             position: 'absolute',
             top: -4.8,
             left: -2,
-            width:10,
-            height:10,
-            borderRadius:'50%',
+            width: 10,
+            height: 10,
+            borderRadius: '50%',
             background: theme.palette.primary.main,
         },
-        '&:after':{
+        '&:after': {
             content: '""',
             display: 'block',
             position: 'absolute',
             top: -4.8,
             right: -2,
-            width:10,
-            height:10,
-            borderRadius:'50%',
+            width: 10,
+            height: 10,
+            borderRadius: '50%',
             background: theme.palette.primary.main,
         }
     },
@@ -58,8 +59,8 @@ const RootStyled = styled("div")(({theme}) => ({
         minHeight: 28,
         height: 28
     },
-    ".fc .fc-timegrid-col.fc-day-today":{
-       backgroundColor:'#fff'
+    ".fc .fc-timegrid-col.fc-day-today": {
+        backgroundColor: '#fff'
     },
     "& .fc-timegrid-slot-label.fc-scrollgrid-shrink": {
         verticalAlign: "top",
@@ -70,7 +71,7 @@ const RootStyled = styled("div")(({theme}) => ({
             // flexDirection: "column",
             // alignItems: "baseline",
             justifyContent: "flex-start",
-            padding: theme.spacing(0.5, 0.5,0.5,0),
+            padding: theme.spacing(0.5, 0.5, 0.5, 0),
 
             "& .ic-cabinet, & .ic-video": {
                 // marginLeft: theme.spacing(0.5),
@@ -111,8 +112,8 @@ const RootStyled = styled("div")(({theme}) => ({
             width: 3,
             height: "100%",
             zIndex: 100,
-            borderBottomLeftRadius:4,
-            borderTopLeftRadius:4,
+            borderBottomLeftRadius: 4,
+            borderTopLeftRadius: 4,
         },
         "& .MuiTypography-root": {
             alignItems: "center",
@@ -128,13 +129,13 @@ const RootStyled = styled("div")(({theme}) => ({
             fontSize: 22,
             fontWeight: 400,
         },
-         [`@media (max-width: ${MobileContainer}px)`] : {
+        [`@media (max-width: ${MobileContainer}px)`]: {
             minHeight: 26,
             display: "block",
-            "& .MuiTypography-root":{
+            "& .MuiTypography-root": {
                 fontSize: 14,
                 margin: "auto",
-                "& *:nth-of-type(1)":{
+                "& *:nth-of-type(1)": {
                     fontSize: 12
                 }
             }
@@ -159,13 +160,13 @@ const RootStyled = styled("div")(({theme}) => ({
     "& .filtered": {
         opacity: .4
     },
-    '.fc-timegrid-slots':{
-        'colgroup':{
-            background:theme.palette.primary.lighter
+    '.fc-timegrid-slots': {
+        'colgroup': {
+            background: theme.palette.primary.lighter
         }
     },
-    ".fc-timegrid-divider":{
-        backgroundColor:'#fff',
+    ".fc-timegrid-divider": {
+        backgroundColor: '#fff',
 
     }
 }));

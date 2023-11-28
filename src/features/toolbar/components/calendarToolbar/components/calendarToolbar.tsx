@@ -210,6 +210,17 @@ function CalendarToolbar({...props}) {
             </Hidden>
             <Hidden smDown>
                 <Stack direction="row" spacing={1.5}>
+                    <CalendarViewButton
+                        {...{view, t}}
+                        sx={{
+                            "& .MuiButton-startIcon>*:nth-of-type(1)": {
+                                fontSize: 20
+                            }
+                        }}
+                        views={VIEW_OPTIONS}
+                        onSelect={(viewOption: string) => handleViewChange(viewOption)}
+                    />
+
                     <DefaultViewMenu {...{view}} onViewChange={handleViewChange}/>
 
                     <CalendarAddButton

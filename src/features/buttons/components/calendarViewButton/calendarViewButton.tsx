@@ -58,8 +58,7 @@ function CalendarViewButton({...props}) {
                 variant="outlined"
                 aria-owns={anchorEl ? "simple-menu" : undefined}
                 aria-haspopup="true"
-                onClick={handleClick}
-                onMouseOver={handleClick}>
+                onClick={handleClick}>
                 {t(`agenda-view.${selected.value}`)}
             </Button>
             <Menu
