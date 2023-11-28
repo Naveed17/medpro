@@ -151,6 +151,14 @@ const rowsActionsData = [
         ),
     },
     {
+        action: "unpaidconsult",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/unpaidConsult").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "chequesList",
         component: dynamic((): any =>
             import("@features/table/components/rows/chequeRow").then(

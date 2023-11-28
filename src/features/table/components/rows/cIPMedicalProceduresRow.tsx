@@ -6,6 +6,7 @@ import React, {useState} from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import InputBaseStyled from "../overrides/inputBaseStyled";
+import {debounce} from "lodash";
 
 function CIPMedicalProceduresRow({...props}) {
 
@@ -14,6 +15,8 @@ function CIPMedicalProceduresRow({...props}) {
     const theme = useTheme() as Theme;
 
     const [selected, setSelected] = useState<string>("");
+
+    const debouncedOnChange = debounce(editMotif, 1000);
 
     return (
         <TableRowStyled
@@ -112,7 +115,8 @@ function CIPMedicalProceduresRow({...props}) {
                             onChange={(e: any) => {
                                 if (!isNaN(e.currentTarget.value)) {
                                     row.fees = Number(e.currentTarget.value);
-                                    editMotif(row, "change", e.currentTarget.value);
+                                    debouncedOnChange(row, "change", e.currentTarget.value);
+
                                 }
                             }}
                         />

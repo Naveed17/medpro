@@ -19,7 +19,6 @@ import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 // redux
-import {useAppDispatch} from "@lib/redux/hooks";
 import React, {useState} from "react";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -32,9 +31,10 @@ import {HtmlTooltip} from "@features/tooltip";
 import {ImageHandler} from "@features/image";
 import {Label} from "@features/label";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import {useInsurances} from "@lib/hooks/rest";
 
 function CashboxRow({...props}) {
-    const dispatch = useAppDispatch();
+
     const {
         row,
         handleEvent,
@@ -45,6 +45,8 @@ function CashboxRow({...props}) {
     } = props;
 
     const {pmList, hideName} = data;
+    const {insurances} = useInsurances();
+
     const router = useRouter();
     const theme = useTheme();
     const {data: session} = useSession();
@@ -86,8 +88,7 @@ function CashboxRow({...props}) {
                 aria-checked={isItemSelected}
                 tabIndex={-1}
                 selected={isItemSelected}
-                className={`row-cashbox ${isItemSelected ? "row-collapse" : ""}`}
-            >
+                className={`row-cashbox ${isItemSelected ? "row-collapse" : ""}`}>
                 <TableCell>
                     <IconButton sx={{
                         border: 1,
@@ -131,17 +132,16 @@ function CashboxRow({...props}) {
                 </TableCell>}
                 {/***** Insurances *****/}
                 <TableCell>
-
                     <Stack direction={"row"} justifyContent={"center"}>
                         {
                             row.patient.insurances ? row.patient.insurances.map((insurance: any) => (
                                 <Tooltip
-                                    key={insurance?.uuid + "ins"}
-                                    title={insurance?.name}>
+                                    key={insurance.insurance?.uuid + "ins"}
+                                    title={insurance.insurance.name}>
                                     <Avatar variant={"circular"}>
                                         <ImageHandler
-                                            alt={insurance?.name}
-                                            src={insurance.logoUrl.url}
+                                            alt={insurance.insurance?.name}
+                                            src={insurances.find(ins => ins.uuid === insurance.insurance?.uuid)?.logoUrl.url}
                                         />
                                     </Avatar>
                                 </Tooltip>
