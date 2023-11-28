@@ -1,12 +1,9 @@
-import {Label} from "@features/label";
-import {Box, Stack, Typography, MenuItem, IconButton, Badge, BadgeProps} from "@mui/material";
+import {Box, Stack, Typography, MenuItem, IconButton, Badge} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 import {ActionMenu} from "@features/menu";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import AgendaOutlinedIcon from "@themes/overrides/icons/agendaOutlinedIcon";
 import {capitalizeFirst, highlightedDays} from "@lib/hooks";
-import {styled} from "@mui/material/styles";
 
 const menuList = [
     {
