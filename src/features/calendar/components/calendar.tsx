@@ -1,11 +1,11 @@
 import FullCalendar from "@fullcalendar/react"; // => request placed at the top
 import {
     Backdrop,
-    Box, Chip,
+    Box,
     ClickAwayListener,
     IconButton,
     Menu,
-    MenuItem, Popover,
+    MenuItem,
     Theme,
     useMediaQuery,
     useTheme
@@ -27,12 +27,11 @@ import {
     Event,
     Header,
     setCurrentDate,
-    setView,
     SlotFormat,
     TableHead
 } from "@features/calendar";
 import dynamic from "next/dynamic";
-import {AppointmentPopoverCard, NoDataCard} from "@features/card";
+import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
 import {BusinessHoursInput} from "@fullcalendar/core";
 import {useSwipeable} from "react-swipeable";
@@ -42,6 +41,7 @@ import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
+import {useTranslation} from "next-i18next";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -74,14 +74,14 @@ function Calendar({...props}) {
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
+    const {t} = useTranslation('common');
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+    const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
 
-    const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {view, currentDate, config: agendaConfig, sortedData: groupSortedData} = useAppSelector(agendaSelector);
 
     const prevView = useRef(view);
 
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
-    const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
     const [events, setEvents] = useState<EventModal[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<string>();
@@ -94,15 +94,16 @@ function Calendar({...props}) {
         mouseX: number;
         mouseY: number;
     } | null>(null);
+    const [contextMenuHeader, setContextMenuHeader] = React.useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isEventDragging, setIsEventDragging] = useState(false);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
-    const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
     const openingHours = agendaConfig?.openingHours[0];
-    const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
-    const open = Boolean(anchorEl);
+    const calendarHeight = !isMobile ? "83vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
 
     const handleOnSelectEvent = useCallback((value: any) => {
         OnSelectEvent(value);
@@ -131,14 +132,18 @@ function Calendar({...props}) {
         }
     };
 
-    const handleNavLinkDayClick = (date: Date) => {
-        const calendarEl = calendarRef.current;
+    const handleNavLinkDayClick = (date: Date, jsEvent: UIEvent) => {
+        /*const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.gotoDate(date);
             dispatch(setView("timeGridDay"));
             dispatch(setCurrentDate({date, fallback: false}));
-        }
+        }*/
+    }
+
+    const handleNavLinkWeekClick = (date: Date, jsEvent: UIEvent) => {
+        console.log("handleNavLinkWeekClick", jsEvent);
     }
 
     const handleTableEvent = (action: string, eventData: EventModal) => {
@@ -223,14 +228,6 @@ function Calendar({...props}) {
         preventScrollOnSwipe: true
     });
 
-    const isHorizontal = () => {
-        if (view === "timeGridDay")
-            return 'left';
-        else if (moment(appointmentData?.dayDate, "DD-MM-YYYY").weekday() > 4)
-            return "center";
-        else return 'right';
-    }
-
     useEffect(() => {
         let days: BusinessHoursInput[] = [];
         if (openingHours) {
@@ -266,7 +263,9 @@ function Calendar({...props}) {
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             if (currentDate.fallback) {
-                calendarApi.gotoDate(currentDate.date);
+                queueMicrotask(() => {
+                    calendarApi.gotoDate(currentDate.date);
+                });
             }
         }
     }, [currentDate]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -297,7 +296,7 @@ function Calendar({...props}) {
     }, [sortedData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <Box bgcolor="#F0FAFF">
+        <Box bgcolor="common.white">
             {isMobile && <ClickAwayListener onClickAway={() => {
                 if (slotInfoPopover) {
                     setSlotInfoPopover(false);
@@ -344,6 +343,7 @@ function Calendar({...props}) {
                                 defaultTimedEventDuration="00:15"
                                 allDayMaintainDuration={false}
                                 navLinkDayClick={handleNavLinkDayClick}
+                                navLinkWeekClick={handleNavLinkWeekClick}
                                 allDayContent={() => ""}
                                 eventDrop={(eventDrop) => {
                                     if (eventDrop.event._def.allDay) {
@@ -360,10 +360,10 @@ function Calendar({...props}) {
                                             {...{
                                                 isBeta,
                                                 open,
-                                                isEventDragging,
-                                                setAppointmentData,
-                                                event, openingHours,
-                                                view, isMobile, anchorEl, setAnchorEl
+                                                event,
+                                                openingHours,
+                                                roles,
+                                                view
                                             }}
                                             t={translation}/>
                                     </motion.div>
@@ -375,8 +375,6 @@ function Calendar({...props}) {
                                         return ['normal']
                                     }
                                 }}
-                                eventDragStart={() => setIsEventDragging(true)}
-                                eventDragStop={() => setIsEventDragging(false)}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         setEventMenu(mountArg.event._def.publicId);
@@ -396,13 +394,18 @@ function Calendar({...props}) {
                                         }, 0);
                                     }
                                 }}
-                                dayHeaderContent={(event) =>
-                                    Header({
+                                dayHeaderContent={(event) => {
+                                    const datEvents = groupSortedData.find(events => events.date === moment(event.date).format("DD-MM-YYYY"))?.events?.length ?? 0;
+                                    return Header({
                                         isGridWeek,
                                         event,
-                                        isMobile
+                                        datEvents,
+                                        isMobile,
+                                        contextMenuHeader,
+                                        setContextMenuHeader,
+                                        t
                                     })
-                                }
+                                }}
                                 eventClick={(eventArg) => !eventArg.event._def.extendedProps.patient?.isArchived && handleOnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
@@ -410,8 +413,9 @@ function Calendar({...props}) {
                                     OnAddAppointment("add-quick");
                                     OnSelectDate(info);
                                 }}
-                                //select={(eventArg) => OnRangeDateSelect(eventArg)}
+                                select={(eventArg) => OnRangeDateSelect(eventArg)}
                                 showNonCurrentDates={true}
+                                selectMinDistance={10}
                                 height={calendarHeight}
                                 initialDate={currentDate.date}
                                 slotMinTime={getSlotsFormat(slotMinTime)}
@@ -552,41 +556,6 @@ function Calendar({...props}) {
                                     )
                                 )}
                             </Menu>
-
-                            <Popover
-                                id="mouse-over-popover"
-                                sx={{
-                                    pointerEvents: 'none',
-                                    zIndex: 900
-                                }}
-                                open={open}
-                                anchorEl={anchorEl}
-                                anchorOrigin={{
-                                    vertical: view === "timeGridDay" ? 'bottom' : 'top',
-                                    horizontal: isHorizontal()
-                                }}
-                                onClose={() => setAnchorEl(null)}
-                                disableRestoreFocus>
-                                <motion.div
-                                    initial={{opacity: 0}}
-                                    animate={{opacity: 1}}
-                                    transition={{ease: "linear", duration: .2}}>
-                                    {appointmentData?.new &&
-                                        <Chip label={translation("event.new", {ns: 'common'})}
-                                              sx={{
-                                                  position: "absolute",
-                                                  right: 4,
-                                                  top: 4,
-                                                  fontSize: 10
-                                              }}
-                                              size="small"
-                                              color={"primary"}/>}
-                                    <AppointmentPopoverCard
-                                        {...{isBeta, t: translation}}
-                                        style={{width: "300px", border: "none"}}
-                                        data={appointmentData}/>
-                                </motion.div>
-                            </Popover>
                         </Box>
                     )}
                 </CalendarStyled>

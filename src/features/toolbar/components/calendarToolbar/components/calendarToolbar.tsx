@@ -6,7 +6,6 @@ import {
     Hidden,
     IconButton,
     Stack,
-    SvgIcon,
     Tooltip, Typography,
     useTheme
 } from "@mui/material";
@@ -17,7 +16,6 @@ import TodayIcon from "@themes/overrides/icons/todayIcon";
 import DayIcon from "@themes/overrides/icons/dayIcon";
 import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
-import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setView, TableHead} from "@features/calendar";
@@ -135,7 +133,7 @@ function CalendarToolbar({...props}) {
                         </Box>
 
                         <Button className="Current-date" variant="text-transparent">
-                            <Typography variant="body2" component={"span"}>
+                            <Typography variant="body2" component={"span"} fontWeight={"bold"}>
                                 {moment(currentDate.date.toLocaleDateString("fr"), "DD/MM/YYYY").format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
                             </Typography>
                         </Button>
@@ -212,23 +210,8 @@ function CalendarToolbar({...props}) {
             </Hidden>
             <Hidden smDown>
                 <Stack direction="row" spacing={1.5}>
-                    <DefaultViewMenu/>
-                    {VIEW_OPTIONS.map((viewOption) => (
-                        <Tooltip key={viewOption.value}
-                                 TransitionComponent={Zoom}
-                                 onClick={() => handleViewChange(viewOption.value)}
-                                 title={t(`times.${viewOption.label.toLowerCase()}`, {ns: "common"})}>
-                            <ToggleButtonStyled
-                                value="dayGridMonth"
-                                sx={{
-                                    width: 37, height: 37, padding: 0, marginTop: '2px!important',
-                                    ...(viewOption.value === view && {background: theme.palette.primary.main})
-                                }}>
-                                <SvgIcon component={viewOption.icon} width={20} height={20}
-                                         htmlColor={viewOption.value === view ? theme.palette.background.paper : theme.palette.text.primary}/>
-                            </ToggleButtonStyled>
-                        </Tooltip>
-                    ))}
+                    <DefaultViewMenu {...{view}} onViewChange={handleViewChange}/>
+
                     <CalendarAddButton
                         {...{t}}
                         onClickEvent={OnAddAppointment}

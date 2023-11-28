@@ -13,17 +13,41 @@ const RootStyled = styled("div")(({theme}) => ({
         boxShadow: "none",
     },
     '& .fc .fc-timegrid-now-indicator-line': {
-        borderStyle: "dashed"
+        borderStyle: "solid",
+        borderWidth:1.5,
+        borderColor: theme.palette.primary.main,
+        '&:before':{
+            content: '""',
+            display: 'block',
+            position: 'absolute',
+            top: -4.8,
+            left: -2,
+            width:10,
+            height:10,
+            borderRadius:'50%',
+            background: theme.palette.primary.main,
+        },
+        '&:after':{
+            content: '""',
+            display: 'block',
+            position: 'absolute',
+            top: -4.8,
+            right: -2,
+            width:10,
+            height:10,
+            borderRadius:'50%',
+            background: theme.palette.primary.main,
+        }
     },
     "& .fc .fc-daygrid-day.fc-day-today": {
-        background: "transparent",
+        background: "#fff"
     },
     "& .fc-day-today .fc-timegrid-col-frame": {
-        background: "#F0FAFF",
+        background: "rgba(255, 249, 217, 0.1)",
         border: `solid ${theme.palette.warning.main}`,
     },
     "& .fc-day-today .fc-daygrid-day-frame": {
-        background: "#F0FAFF",
+        background: "rgba(255, 249, 217, 0.1)",
         border: `solid ${theme.palette.warning.main}`,
     },
     "& .fc-col-header-cell-cushion ": {
@@ -34,6 +58,9 @@ const RootStyled = styled("div")(({theme}) => ({
         minHeight: 28,
         height: 28
     },
+    ".fc .fc-timegrid-col.fc-day-today":{
+       backgroundColor:'#fff'
+    },
     "& .fc-timegrid-slot-label.fc-scrollgrid-shrink": {
         verticalAlign: "top",
         border: "0px solid #F0FAFF",
@@ -43,7 +70,7 @@ const RootStyled = styled("div")(({theme}) => ({
             // flexDirection: "column",
             // alignItems: "baseline",
             justifyContent: "flex-start",
-            padding: theme.spacing(0.5, 0),
+            padding: theme.spacing(0.5, 0.5,0.5,0),
 
             "& .ic-cabinet, & .ic-video": {
                 // marginLeft: theme.spacing(0.5),
@@ -84,6 +111,8 @@ const RootStyled = styled("div")(({theme}) => ({
             width: 3,
             height: "100%",
             zIndex: 100,
+            borderBottomLeftRadius:4,
+            borderTopLeftRadius:4,
         },
         "& .MuiTypography-root": {
             alignItems: "center",
@@ -129,6 +158,15 @@ const RootStyled = styled("div")(({theme}) => ({
     },
     "& .filtered": {
         opacity: .4
+    },
+    '.fc-timegrid-slots':{
+        'colgroup':{
+            background:theme.palette.primary.lighter
+        }
+    },
+    ".fc-timegrid-divider":{
+        backgroundColor:'#fff',
+
     }
 }));
 

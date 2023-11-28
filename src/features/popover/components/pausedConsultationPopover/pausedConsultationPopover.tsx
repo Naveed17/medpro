@@ -1,7 +1,6 @@
 import {
     Avatar,
     Badge,
-    Box,
     Divider,
     List,
     ListItem, Stack,
@@ -15,10 +14,8 @@ import React from "react";
 import PausedConsultationPopoverStyled from "./overrides/pausedConsultationPopoverStyled";
 import {Label} from "@features/label";
 import {useTranslation} from "next-i18next";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import {a11yProps, useMedicalEntitySuffix} from "@lib/hooks";
-import {CipCard, CipCard2nd, NoDataCard, resetTimer, timerSelector} from "@features/card";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {CipCard2nd, NoDataCard, timerSelector} from "@features/card";
 import Icon from "@themes/icon";
 import {EventDef} from "@fullcalendar/core/internal";
 import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
@@ -26,7 +23,6 @@ import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRouter} from "next/router";
-import {resetAppointment} from "@features/tabPanel";
 import {useRequestQueryMutation} from "@lib/axios";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
@@ -211,7 +207,7 @@ function PausedConsultationPopover({...props}) {
                 </Stack>
             )}
 
-            {pausedConsultation.length > 0 &&
+            {pausedConsultation.length > 0 ?
                 <Stack px={2}>
                     <Toolbar>
                         <Typography variant="subtitle2" fontWeight={700}>
@@ -313,17 +309,18 @@ function PausedConsultationPopover({...props}) {
                                 </Stack>
                             </Stack>
                         </ListItem>)}
-                        {pausedConsultation.length === 0 &&
-                            <NoDataCard
-                                {...{t}}
-                                ns={"common"}
-                                data={{
-                                    mainIcon: <Icon path={"ic-consultation-pause"}/>,
-                                    title: "paused-consultation-notification.empty",
-                                    description: "paused-consultation-notification.desc"
-                                }}/>}
                     </List>
                 </Stack>
+                :
+                pausedConsultation?.length === 0 &&
+                <NoDataCard
+                    {...{t}}
+                    ns={"common"}
+                    data={{
+                        mainIcon: <Icon path={"ic-consultation-pause"}/>,
+                        title: "paused-consultation-notification.empty",
+                        description: "paused-consultation-notification.desc"
+                    }}/>
             }
         </PausedConsultationPopoverStyled>
     )

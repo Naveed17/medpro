@@ -51,7 +51,7 @@ const ERROR = {
     light: "#f1cbdf",
     main: "#E83B68",
     dark: "#B72136",
-    darker: "#E83B68"
+    darker: "#8B0D01"
 };
 
 const EXPIRE = {

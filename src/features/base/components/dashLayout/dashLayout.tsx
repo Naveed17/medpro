@@ -258,16 +258,17 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             }
 
             let demo = user.medical_entity.hasDemo;
-            if (localStorage.getItem('newCashbox'))
+            if (localStorage.getItem('newCashbox')) {
                 demo = localStorage.getItem('newCashbox') === "1";
+            }
 
             dispatch(setOngoing({
                 waiting_room: calendarData.waiting_room,
                 import_data: calendarData.import_data,
                 newCashBox: demo,
-                next: calendarData.next ? calendarData.next : null,
+                next: calendarData?.next ?? null,
                 last_fiche_id: increaseNumberInString(calendarData.last_fiche_id ? calendarData.last_fiche_id : '0'),
-                ongoing: calendarData.ongoing ? calendarData.ongoing : null
+                ongoing: calendarData?.ongoing ?? []
             }));
         }
     }, [httpOngoingResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps

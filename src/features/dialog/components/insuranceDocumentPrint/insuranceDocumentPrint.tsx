@@ -1,12 +1,4 @@
 import {useInsurances} from "@lib/hooks/rest";
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import LocalPrintshopOutlinedIcon from '@mui/icons-material/LocalPrintshopOutlined';
-import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
-import {Avatar, Checkbox, FormControlLabel, ListSubheader, Stack, Typography} from "@mui/material";
-import {ImageHandler} from "@features/image";
 import React, {useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -14,7 +6,6 @@ import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {PDFDocument} from 'pdf-lib';
-import {LoadingButton} from "@mui/lab";
 import {agendaSelector} from "@features/calendar";
 import {Otable} from "@features/table";
 
@@ -80,13 +71,14 @@ function InsuranceDocumentPrint({...props}) {
     const handleTableEvent = (action: string, data: any, backgroundDoc: boolean) => {
         switch (action) {
             case "onGenerateInsuranceDoc":
-                generateInsuranceDoc(data.documents[0]?.uuid, backgroundDoc);
+                generateInsuranceDoc(data?.uuid, backgroundDoc);
                 break;
         }
     }
     return (
         <>
             <Otable
+                size="small"
                 {...{t, loadingReq: loading}}
                 headers={[
                     {

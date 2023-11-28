@@ -143,24 +143,6 @@ function FcmLayout({...props}) {
                             dispatch(setLastUpdate(data));
                             // refresh on going api
                             mutateOnGoing();
-                            const event = {
-                                publicId: data.body.appointment?.uuid,
-                                title: `${data.body.appointment.patient.firstName} ${data.body.appointment.patient.lastName}`,
-                                extendedProps: {
-                                    patient: data.body.appointment.patient,
-                                    type: data.body.type,
-                                    status: AppointmentStatus[data.body.appointment?.status],
-                                    time: moment(`${data.body.appointment.dayDate} ${data.body.appointment.startTime}`, "DD-MM-YYYY HH:mm").toDate()
-                                }
-                            } as any;
-                            // start consultation timer
-                            dispatch(setTimer({
-                                    isActive: true,
-                                    isPaused: false,
-                                    event,
-                                    startTime: moment().utc().format("HH:mm")
-                                }
-                            ));
                             break;
                         default:
                             data.body.mutate && invalidateQueries([data.body.mutate]);

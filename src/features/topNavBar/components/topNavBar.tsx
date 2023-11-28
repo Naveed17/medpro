@@ -228,6 +228,7 @@ function TopNavBar({...props}) {
     }
 
     const handleStartConsultation = (nextPatient: any) => {
+        dispatch(resetTimer());
         const slugConsultation = `/dashboard/consultation/${nextPatient.uuid}`;
         return router.push({
             pathname: slugConsultation,
@@ -287,7 +288,7 @@ function TopNavBar({...props}) {
                     },
                 },
             }));
-
+            console.log("eventsPaused", eventsPaused)
             setPausedConsultation(eventsPaused);
 
         }
