@@ -1,11 +1,12 @@
 import {Label} from "@features/label";
-import {Box, Stack, Typography, MenuItem, IconButton} from "@mui/material";
+import {Box, Stack, Typography, MenuItem, IconButton, Badge, BadgeProps} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 import {ActionMenu} from "@features/menu";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AgendaOutlinedIcon from "@themes/overrides/icons/agendaOutlinedIcon";
-import {highlightedDays} from "@lib/hooks";
+import {capitalizeFirst, highlightedDays} from "@lib/hooks";
+import {styled} from "@mui/material/styles";
 
 const menuList = [
     {
@@ -65,16 +66,24 @@ function Header({...props}) {
                 {!isMobile ?
                     <Stack direction='row' justifyContent='space-between' width={1}>
                         {(isGridWeek) ? (
-                            <Stack alignItems='flex-start'>
-                                <Typography variant="subtitle1" color="text.primary" fontSize={18} mr={2}>
-                                    {date.format("DD")}
-                                </Typography>
+                            <Badge
+                                badgeContent={datEvents}
+                                sx={{
+                                    '& .MuiBadge-badge': {
+                                        left: "2rem",
+                                        top: 12,
+                                        color: "white",
+                                        background: (theme) => highlightedDays(datEvents, theme),
+                                        padding: '0 4px',
+                                        marginLeft: "1rem"
+                                    }
+                                }}>
                                 <Typography variant="subtitle1" color="text.primary" fontSize={14}>
                                     <div>
-                                        {date.format("dddd").charAt(0).toUpperCase()}{date.format("dddd").slice(1)}
+                                        {capitalizeFirst(date.format("ddd"))} {date.format("DD")}
                                     </div>
                                 </Typography>
-                            </Stack>
+                            </Badge>
                         ) : (
                             <Typography variant="subtitle1" color="text.primary" fontSize={14}>
                                 <div>
@@ -96,19 +105,6 @@ function Header({...props}) {
                             }}>
                                 <MoreVertIcon/>
                             </IconButton>
-                            {datEvents > 0 &&
-                                <Label variant="filled"
-                                       sx={{
-                                           justifyContent: 'flex-start',
-                                           bgcolor: (theme) => highlightedDays(datEvents, theme),
-                                           "& .MuiSvgIcon-root": {mt: '0.4rem'}
-                                       }}>
-                                    <AgendaOutlinedIcon/>
-                                    <Typography ml={.5} fontWeight={700} variant="caption" color="common.white"
-                                                fontSize={10}>
-                                        {datEvents}
-                                    </Typography>
-                                </Label>}
                         </Stack>
                     </Stack>
                     :

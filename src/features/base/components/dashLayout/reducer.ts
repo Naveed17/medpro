@@ -39,8 +39,7 @@ const initialState: dashLayoutState = {
 };
 
 export const DashLayoutReducer = createReducer(initialState, builder => {
-    builder
-        .addCase(setOngoing, (state, action: any) => {
-            return {...state, ...action.payload}
-        });
+    builder.addCase(setOngoing, (state, action: any) => {
+        return {...state, ...action.payload}
+    });
 });

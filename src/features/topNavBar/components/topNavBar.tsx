@@ -288,7 +288,7 @@ function TopNavBar({...props}) {
                     },
                 },
             }));
-
+            console.log("eventsPaused", eventsPaused)
             setPausedConsultation(eventsPaused);
 
         }
