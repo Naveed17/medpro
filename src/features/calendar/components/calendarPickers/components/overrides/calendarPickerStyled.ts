@@ -16,6 +16,7 @@ const CalendarPickerStyled = styled(Box)(({theme}) => ({
         },
     },
     "& .MuiPickersDay-root": {
+        margin: 2.5,
         borderRadius: "8px",
         "&.MuiPickersDay-today": {
             border: `1px solid ${theme.palette.warning.main}`,

@@ -237,11 +237,14 @@ function Agenda() {
 
     const updateCalendarEvents = (result: HttpResponse) => {
         setLoading(true);
+        let eventCond = [];
         if (query?.queryData.includes("format=list")) {
             events.current = [];
+            eventCond = result?.data;
+        } else {
+            eventCond = result?.data?.appointments;
         }
 
-        const eventCond = result?.data?.appointments;
         const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
         const eventsUpdated: EventModal[] = [];
         if (!query?.filter || events.current.length === 0) {
@@ -1062,7 +1065,7 @@ function Agenda() {
                     }
                 }}>
                 <CalendarToolbar
-                    {...{t}}
+                    {...{t, timeRange}}
                     OnToday={handleOnToday}
                     OnSelectEvent={onSelectEvent}
                     OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}

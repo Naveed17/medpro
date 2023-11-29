@@ -41,7 +41,7 @@ export const IconsTypes: any = {
 export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
     0: {
         key: "PENDING",
-        value: "En attende",
+        value: "En attente",
         color: "#FFD400",
         classColor: "warning",
         icon: <DefaultCircleIcon/>,

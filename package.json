@@ -39,7 +39,6 @@
     "@tanstack/react-query-devtools": "^4.35.3",
     "@thaddeusjiang/react-sortable-list": "^0.1.1",
     "@tinymce/tinymce-react": "^4.3.2",
-    "@types/file-saver": "^2.0.7",
     "apexcharts": "^3.43.0",
     "axios": "^1.6.2",
     "cookies-next": "^3.0.0",
@@ -108,6 +107,7 @@
   "devDependencies": {
     "@next/bundle-analyzer": "^13.4.13",
     "@svgr/webpack": "^6.5.0",
+    "@types/file-saver": "^2.0.7",
     "@types/leaflet": "^1.7.11",
     "@types/lodash": "^4.14.196",
     "@types/moment-precise-range-plugin": "^0.2.0",

@@ -44,7 +44,8 @@ function CalendarToolbar({...props}) {
         OnSelectEvent,
         OnMoveEvent,
         OnWaitingRoom,
-        OnConfirmEvent
+        OnConfirmEvent,
+        timeRange
     } = props;
     const theme = useTheme();
     const dispatch = useAppDispatch();
@@ -121,11 +122,13 @@ function CalendarToolbar({...props}) {
                                 },
                             }}>
                             <IconButton
+                                color={"primary"}
                                 onClick={OnClickDatePrev}
                                 aria-label="back">
                                 <ArrowBackIosNewIcon fontSize="small"/>
                             </IconButton>
                             <IconButton
+                                color={"primary"}
                                 onClick={OnClickDateNext}
                                 aria-label="next">
                                 <ArrowForwardIosIcon fontSize="small"/>
@@ -134,7 +137,7 @@ function CalendarToolbar({...props}) {
 
                         <Button className="Current-date" variant="text-transparent">
                             <Typography variant="body2" component={"span"} fontWeight={"bold"}>
-                                {moment(currentDate.date.toLocaleDateString("fr"), "DD/MM/YYYY").format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
+                                {view === 'timeGridWeek' ? `${timeRange.start.split('-')[0]} - ${timeRange.end.split('-')[0]}` : ""} {moment(currentDate.date.toLocaleDateString("fr"), "DD/MM/YYYY").format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM YYYY' : 'Do MMMM, YYYY')}
                             </Typography>
                         </Button>
 
