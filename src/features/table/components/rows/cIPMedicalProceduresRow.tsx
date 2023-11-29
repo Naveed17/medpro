@@ -113,7 +113,6 @@ function CIPMedicalProceduresRow({...props}) {
                                 if (!isNaN(e.currentTarget.value)) {
                                     row.fees = Number(e.currentTarget.value);
                                     editMotif(row, "change", e.currentTarget.value);
-
                                 }
                             }}
                         />
