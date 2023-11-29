@@ -85,7 +85,7 @@ import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {setDialog} from "@features/topNavBar";
-import {resetVacationData, setVacationData, VacationDrawer} from "@features/drawer";
+import {resetVacationData, setVacationData, VacationDrawer, vacationDrawerSelector} from "@features/drawer";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -137,6 +137,7 @@ function Agenda() {
     const {isActive, event: onGoingEvent} = useAppSelector(timerSelector);
     const {config: agenda, lastUpdateNotification, sortedData: groupSortedData} = useAppSelector(agendaSelector);
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
+    const vacationData = useAppSelector(vacationDrawerSelector);
 
     const [timeRange, setTimeRange] = useState({
         start: moment().startOf('week').format('DD-MM-YYYY'),
@@ -212,6 +213,7 @@ function Agenda() {
     const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
     const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
     const {trigger: triggerNotificationPush} = useSendNotification();
+    const {trigger: triggerAddAbsence} = useRequestQueryMutation("/agenda/appointment/absense/add");
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
@@ -238,13 +240,20 @@ function Agenda() {
     const updateCalendarEvents = (result: HttpResponse) => {
         setLoading(true);
         let eventCond = [];
+        let absences = [];
         if (query?.queryData.includes("format=list")) {
             events.current = [];
             eventCond = result?.data;
         } else {
             eventCond = result?.data?.appointments;
+            absences = result?.data?.absence?.map((appointment: any) => ({
+                start: moment(appointment.startDate, "DD-MM-YYYY HH:mm").toDate(),
+                end: moment(appointment.endDate, "DD-MM-YYYY HH:mm").toDate(),
+                overlap: false,
+                display: 'background'
+            }));
         }
-
+        console.log("absences", absences);
         const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
         const eventsUpdated: EventModal[] = [];
         if (!query?.filter || events.current.length === 0) {
@@ -264,7 +273,7 @@ function Agenda() {
             })
         }
         if (!query?.history) {
-            events.current = eventsUpdated;
+            events.current = [...eventsUpdated, ...absences];
         } else {
             events.current = [...eventsUpdated, ...events.current];
         }
@@ -420,11 +429,30 @@ function Agenda() {
     }
 
     const handleRangeSelect = (event: DateSelectArg) => {
-        console.log(event);
         batch(() => {
             dispatch(setVacationData({startDate: event.start, endDate: event.end}));
             dispatch(openDrawer({type: "vacation", open: true}));
         })
+    }
+
+    const handleAddAbsence = () => {
+        const params = new FormData();
+        params.append('title', vacationData.title);
+        params.append('type', 'set');
+        params.append('start_date', moment(vacationData.startDate).format('DD/MM/YYYY'));
+        params.append('start_time', moment(vacationData.startDate).format('HH:mm'));
+        params.append('end_date', moment(vacationData.endDate).format('DD/MM/YYYY'));
+        params.append('end_time', moment(vacationData.startDate).format('HH:mm'));
+
+        triggerAddAbsence({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
+            data: params
+        }, {
+            onSuccess: (value: any) => {
+
+            }
+        });
     }
 
     const onSelectEvent = (event: EventDef) => {
@@ -1349,6 +1377,8 @@ function Agenda() {
                         </Button>
                         <LoadingButton
                             {...{loading}}
+                            onClick={handleAddAbsence}
+                            disabled={vacationData.title.length === 0}
                             variant="contained"
                             color={"primary"}>
                             {t(`dialogs.quick_add_appointment-dialog.confirm`)}

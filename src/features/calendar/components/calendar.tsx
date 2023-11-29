@@ -189,32 +189,32 @@ function Calendar({...props}) {
     };
 
     const MenuContextlog = (action: string, eventMenu: EventModal) => {
-        return eventMenu && (
+        return eventMenu?.status && (
             action === "onWaitingRoom" &&
-            (moment().format("DD-MM-YYYY") !== moment(eventMenu.time).format("DD-MM-YYYY") || eventMenu.patient?.isArchived ||
-                ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(eventMenu.status.key)) ||
+            (moment().format("DD-MM-YYYY") !== moment(eventMenu?.time).format("DD-MM-YYYY") || eventMenu?.patient?.isArchived ||
+                ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(eventMenu?.status.key)) ||
             action === "onConsultationView" &&
-            (!["FINISHED", "ON_GOING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            (!["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || roles.includes('ROLE_SECRETARY')) ||
             action === "onConsultationDetail" &&
-            (["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY') || eventMenu.patient?.isArchived) ||
+            (["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(eventMenu?.status.key) || roles.includes('ROLE_SECRETARY') || eventMenu?.patient?.isArchived) ||
             action === "onPreConsultation" &&
-            (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) || eventMenu.patient?.isArchived) ||
+            (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
             action === "onLeaveWaitingRoom" &&
-            eventMenu.status.key !== "WAITING_ROOM" ||
+            eventMenu?.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
-            (["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(eventMenu.status.key) || eventMenu.patient?.isArchived) ||
+            (["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
             action === "onDelete" &&
-            ["FINISHED", "ON_GOING"].includes(eventMenu.status.key) ||
+            ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) ||
             action === "onMove" &&
-            (moment().isAfter(eventMenu.time) || ["FINISHED", "ON_GOING"].includes(eventMenu.status.key) || eventMenu.patient?.isArchived) ||
+            (moment().isAfter(eventMenu?.time) || ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
             action === "onPatientNoShow" &&
-            ((moment().isBefore(eventMenu.time) || eventMenu.status.key === "ON_GOING") || eventMenu.status.key === "FINISHED" || eventMenu.patient?.isArchived) ||
+            ((moment().isBefore(eventMenu?.time) || eventMenu?.status.key === "ON_GOING") || eventMenu?.status.key === "FINISHED" || eventMenu?.patient?.isArchived) ||
             action === "onConfirmAppointment" &&
-            eventMenu.status.key !== "PENDING" ||
+            eventMenu?.status.key !== "PENDING" ||
             action === "onReschedule" &&
-            ((moment().isBefore(eventMenu.time) && eventMenu.status.key !== "FINISHED") || eventMenu.patient?.isArchived) ||
+            ((moment().isBefore(eventMenu?.time) && eventMenu?.status.key !== "FINISHED") || eventMenu?.patient?.isArchived) ||
             ["onPatientDetail", "onAddConsultationDocuments"].includes(action) &&
-            eventMenu.patient?.isArchived
+            eventMenu?.patient?.isArchived
         )
     }
 
@@ -407,7 +407,7 @@ function Calendar({...props}) {
                                         t
                                     })
                                 }}
-                                eventClick={(eventArg) => !eventArg.event._def.extendedProps.patient?.isArchived && handleOnSelectEvent(eventArg.event._def)}
+                                eventClick={(eventArg) => (eventArg.event._def.ui.display !== "background" && !eventArg.event._def.extendedProps.patient?.isArchived) && handleOnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);

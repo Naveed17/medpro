@@ -5,13 +5,13 @@ import {
 } from './actions';
 
 export type DialogVacationProps = {
-    type: number | null;
+    title: string;
     startDate: Date | null;
     endDate: Date | null;
 };
 
 const initialState: DialogVacationProps = {
-    type: null,
+    title: "",
     startDate: null,
     endDate: null
 };

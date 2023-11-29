@@ -302,7 +302,8 @@
     "absence-dialog": {
       "title": "Ajouter congé ou absence",
       "sub-title": "Liste des congés et absences proches",
-      "type-placeholder": "Sélectionner un type d'absence",
+      "description": "Titre de congé",
+      "type-placeholder": "Saisir le titre du congé",
       "startDate": "Date début",
       "endDate": "Date fin",
       "vacation": {
