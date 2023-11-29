@@ -18,4 +18,19 @@ spec:
           imagePullPolicy: Always
           name: med-pro
       restartPolicy: Always
-      terminationGracePeriodSeconds: 30
+      terminationGracePeriodSeconds:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 90
+            preference:
+              matchExpressions:
+              - key: nodepool
+                operator: In
+                values:
+                - ${WORKSPACE}
+
+      tolerations:
+      - key: "${WORKSPACE}"
+        operator: "Equal"
+        value: "${WORKSPACE}"
