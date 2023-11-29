@@ -239,7 +239,7 @@ function Payment() {
             : day;
         const endDate = filterByRange
             ? moment(filterData?.payment?.dates[0].endDate).format("DD-MM-YYYY")
-            : moment(day, "DD-MM-YYYY").add(1, "day").format("DD-MM-YYYY");
+            : moment(day, "DD-MM-YYYY").format("DD-MM-YYYY");
         const queryPath = `format=week&start_date=${startDate}&end_date=${endDate}`;
         agenda &&
         getAppointments(queryPath, {

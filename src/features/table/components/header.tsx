@@ -61,8 +61,7 @@ function OHead({...props}) {
                                 key={headCell.id}
                                 align={headCell.align}
                                 padding={headCell.disablePadding ? "none" : "normal"}
-                                sortDirection={orderBy === headCell.id ? order : false}
-                            >
+                                sortDirection={orderBy === headCell.id ? order : false}>
                                 <TableSortLabel
                                     active={orderBy === headCell.id}
                                     direction={orderBy === headCell.id ? order : "asc"}

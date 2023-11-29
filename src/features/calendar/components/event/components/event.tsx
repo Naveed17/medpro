@@ -17,7 +17,7 @@ import {setDialog} from "@features/topNavBar";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
 
 function Event({...props}) {
-    const {isBeta, event, roles, view, open, t} = props;
+    const {isBeta, event, roles, view, open, t, OnMenuActions} = props;
     const appointment = event.event._def.extendedProps;
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -76,8 +76,8 @@ function Event({...props}) {
                                   size="small"
                                   color={"primary"}/>}
                         <AppointmentPopoverCard
-                            {...{isBeta, t}}
-                            style={{width: "300px", border: "none"}}
+                            {...{isBeta, t, OnMenuActions}}
+                            style={{width: "fit-content", border: "none"}}
                             data={event.event._def}/>
                     </React.Fragment>
                 }>
@@ -101,32 +101,33 @@ function Event({...props}) {
                     aria-owns={open ? 'mouse-over-popover' : undefined}
                     aria-haspopup="true"
                     className="fc-event-main-box">
-                    <Stack height={1} width={1} spacing={.5}>
-                        {
-                            appointment.dur > 15 && (
-                                <Stack direction='row' alignItems={'center'} pl={.5}>
-                                    <Typography variant="body2" color="text.primary">
-                                        {moment(appointment.time).format("HH:mm")}
+                    <Stack height={1} width={1}
+                           spacing={.5}  {...(appointment.dur === 15 && {justifyContent: "center"})}>
+                        {appointment.dur > 15 && (
+                            <Stack direction='row' alignItems={'center'} pl={.5}>
+                                <Typography variant="body2" color="text.primary">
+                                    {moment(appointment.time).format("HH:mm")}
+                                </Typography>
+                                {appointment.new && <Box className="badge"/>}
+                                {!appointment?.patient?.isArchived ? <Typography
+                                        variant="body2"
+                                        {...((appointment.status.key === "WAITING_ROOM" &&
+                                                appointment.hasErrors.length === 0) &&
+                                            {className: "ic-waiting"})}
+                                        component={"span"}
+                                        color="text.primary">
+                                        {appointment?.status.icon}
+                                        {appointment.hasErrors.length > 0 && <DangerIcon className={"ic-danger"}/>}
                                     </Typography>
-                                    {appointment.new && <Box className="badge"/>}
-                                    {!appointment?.patient?.isArchived ? <Typography
-                                            variant="body2"
-                                            {...((appointment.status.key === "WAITING_ROOM" &&
-                                                    appointment.hasErrors.length === 0) &&
-                                                {className: "ic-waiting"})}
-                                            component={"span"}
-                                            color="text.primary">
-                                            {appointment?.status.icon}
-                                            {appointment.hasErrors.length > 0 && <DangerIcon className={"ic-danger"}/>}
-                                        </Typography>
-                                        :
-                                        <DeletedPatientIcon/>
-                                    }
-                                </Stack>
-                            )
-                        }
-                        <Stack direction='row' alignItems={appointment.dur > 15 ? "flex-start" : 'center'} width={1}
-                               height={1}>
+                                    :
+                                    <DeletedPatientIcon/>
+                                }
+                            </Stack>
+                        )}
+                        <Stack
+                            direction='row'
+                            sx={{height: '100%'}}
+                            alignItems={appointment.dur > 15 ? "flex-start" : 'center'}>
                             {appointment.dur <= 15 && (
                                 <>
                                     {appointment.new && <Box className="badge"/>}
@@ -179,7 +180,7 @@ function Event({...props}) {
                                 alt="Online appointment"
                                 src="/static/icons/Med-logo_.svg"
                             />}
-                            {(!["FINISHED", "ON_GOING", "PENDING"].includes(appointment.status.key) && !roles.includes('ROLE_SECRETARY') && !appointment.patient?.isArchived) &&
+                            {(!["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(appointment.status.key) && !roles.includes('ROLE_SECRETARY') && !appointment.patient?.isArchived) &&
                                 <IconButton
                                     onClick={ev => {
                                         ev.stopPropagation();
