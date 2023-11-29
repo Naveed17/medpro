@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {CircularProgress, Grid, Stack, Theme, Typography, useTheme} from "@mui/material";
+import {CircularProgress, Dialog, DialogContent, Grid, Stack, Theme, Typography, useTheme} from "@mui/material";
 import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {useTranslation} from "next-i18next";
@@ -18,6 +18,7 @@ function AddDocumentDialog({...props}) {
     const [type, setType] = useState("");
     const [loading, setLoading] = useState(true);
     const [load, setLoad] = useState(false);
+    const [error, setError] = useState('');
     const {data} = props;
     const router = useRouter();
     const theme = useTheme() as Theme;
@@ -51,38 +52,44 @@ function AddDocumentDialog({...props}) {
         const filesAccepted = e.target.files;
         let docs: any = [];
         Array.from(filesAccepted).forEach((file) => {
-            if (file.type.includes('image')) {
-                Resizer.imageFileResizer(file,
-                    850,
-                    850,
-                    file.type.split('/')[1],
-                    80,
-                    0,
-                    (uri) => {
-                        docs.push({type: type, file: uri, progress: 100})
+            if (file.size > 40000000) {
+                setError(`big`);
+                setLoad(false);
+                return null;
+            } else if (file.name.length > 80) {
+                setError(`long`);
+                setLoad(false);
+                return null;
+            } else {
+                if (file.type.includes('image')) {
+                    Resizer.imageFileResizer(file,
+                        850,
+                        850,
+                        file.type.split('/')[1],
+                        80,
+                        0,
+                        (uri) => {
+                            docs.push({type: type, file: uri, progress: 100})
+                            setFiles([...files, ...docs]);
+                            setLoad(false);
+                        },
+                        "file")
+                } else {
+                    docs.push({type: type, file, progress: 100})
+                    setTimeout(() => {
                         setFiles([...files, ...docs]);
                         setLoad(false);
-                    },
-                    "file")
-            } else {
-                docs.push({type: type, file, progress: 100})
-                setTimeout(() => {
-                    setFiles([...files, ...docs]);
-                    setLoad(false);
-                }, 1000);
+                    }, 1000);
+                }
             }
-
         })
-
-
         setTimeout(() => {
             const el = document.getElementById("label")
             if (el)
                 el.scrollIntoView(true);
+            setError('')
         }, 1500);
-
     }
-
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -131,6 +138,7 @@ function AddDocumentDialog({...props}) {
                     </Grid>
                 </Grid>
                 <Grid item xs={12} md={9}>
+
                     {files.length === 0 && <Stack width={{xs: "100%", md: "80%"}}
                                                   margin={"auto"}
                                                   mt={6}
@@ -177,6 +185,17 @@ function AddDocumentDialog({...props}) {
                     </Stack>
                 </Grid>
             </Grid>
+
+            <Dialog
+                open={error !== ''}
+                aria-labelledby="draggable-dialog-title">
+                <DialogContent>
+                    <Stack spacing={1} alignItems={"center"}>
+                        <IconUrl path={"fileError"} width={30} height={30}/>
+                        <Typography>{t(error)}</Typography>
+                    </Stack>
+                </DialogContent>
+            </Dialog>
         </AddDocumentDialogStyled>
     );
 }
