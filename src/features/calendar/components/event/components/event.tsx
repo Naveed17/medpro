@@ -45,6 +45,7 @@ function Event({...props}) {
             <Tooltip
                 placement="right"
                 enterDelay={1000}
+                leaveDelay={100}
                 componentsProps={{
                     popper: {
                         sx: {

@@ -32,6 +32,7 @@ import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import {useCallback, useEffect, useState} from "react";
 import {dashLayoutSelector} from "@features/base";
 import Zoom from "@mui/material/Zoom";
+import SettingsViewIcon from "@themes/overrides/icons/settingsViewIcon";
 
 const VIEW_OPTIONS = [
     {value: "timeGridDay", label: "day", text: "Jour", icon: TodayIcon},
@@ -119,9 +120,9 @@ function DefaultViewMenu({...props}) {
                 value="dayGridMonth"
                 sx={{
                     width: 37, height: 37, padding: 0,
-                    background: theme.palette.background.paper
+                    background: theme.palette.grey['A500']
                 }}>
-                <SettingsRoundedIcon color={"action"}/>
+                <SettingsViewIcon/>
             </ToggleButtonStyled>
             <Menu
                 sx={{
@@ -166,7 +167,7 @@ function DefaultViewMenu({...props}) {
                     }
                 }}>
                 <List>
-                    <ListItemButton>
+                  {/*  <ListItemButton>
                         <Stack direction={"row"} spacing={3} alignItems={"center"}>
                             <Typography mr={3}>{t("agenda-mode", {ns: "agenda"})} : </Typography>
                             {VIEW_OPTIONS.map((viewOption) => (
@@ -186,8 +187,7 @@ function DefaultViewMenu({...props}) {
                                 </Tooltip>
                             ))}
                         </Stack>
-                    </ListItemButton>
-
+                    </ListItemButton>*/}
 
                     <ListItemButton onClick={handleClick}>
                         <ListItemText sx={{ml: 1, "& .MuiTypography-root": {fontSize: 13}}}

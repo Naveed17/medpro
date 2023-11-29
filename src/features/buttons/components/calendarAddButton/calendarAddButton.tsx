@@ -5,6 +5,7 @@ import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import AddIcon from "@mui/icons-material/Add";
 import {CustomIconButton} from "@features/buttons";
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 
 function CalendarAddButton({...props}) {
     const {onClickEvent, t} = props;
@@ -41,10 +42,10 @@ function CalendarAddButton({...props}) {
             <CustomIconButton
                 onClick={handleClick}
                 variant="filled"
+                sx={{ p: .8}}
                 color={"warning"}
                 size={"small"}>
-                <AddIcon sx={{width: '1.35em', height: '1.35em', p: .4}} fontSize={"small"}
-                         htmlColor={theme.palette.text.primary}/>
+                <AgendaAddViewIcon />
             </CustomIconButton>
             <StyledMenu
                 {...{open, anchorEl}}

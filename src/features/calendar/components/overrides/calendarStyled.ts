@@ -40,6 +40,13 @@ const CalendarStyled = styled('div')(({theme}) => ({
         borderColor: 'transparent',
         backgroundColor: 'transparent'
     },
+    // Cell
+    '& .fc .fc-col-header-cell': {
+        //background: theme.palette.grey['B902']
+    },// Cell
+    '& .fc .fc-day-today': {
+        background: "rgba(255, 249, 217, 0.1)"
+    },
     '& .fc .fc-event .fc-event-main': {
         padding: 0,
         minHeight: 20,
