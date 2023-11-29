@@ -69,11 +69,6 @@ function PaymentDialog({...props}) {
 
     const {patient, setOpenPaymentDialog, mutatePatient = null} = data;
     const apps = useRef<any[]>([])
-    /*
-        const isMobile = useMediaQuery((theme: Theme) =>
-            theme.breakpoints.down("sm")
-        );
-    */
 
     const medical_entity = (user as UserDataResponse)
         .medical_entity as MedicalEntityModel;

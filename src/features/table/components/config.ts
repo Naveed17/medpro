@@ -153,7 +153,7 @@ const rowsActionsData = [
     {
         action: "unpaidconsult",
         component: dynamic((): any =>
-            import("@features/table/components/rows/unpaidConsult").then(
+            import("@features/table/components/rows/unpaidConsultRow").then(
                 (mod) => mod
             )
         ),
