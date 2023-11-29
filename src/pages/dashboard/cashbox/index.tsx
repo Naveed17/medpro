@@ -44,6 +44,7 @@ import {LoadingButton} from "@mui/lab";
 import {TabPanel} from "@features/tabPanel";
 import moment from "moment-timezone";
 import {agendaSelector} from "@features/calendar";
+import { saveAs } from "file-saver";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -252,6 +253,7 @@ function Cashbox() {
     const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
     const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox/post");
     const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
+    const {trigger: triggerExport} = useRequestQueryMutation("/cashbox/export");
 
     const {data: paymentMeansHttp} = useRequestQuery({
         method: "GET",
@@ -310,7 +312,9 @@ function Cashbox() {
             onSuccess: (result) => {
                 const res = result.data.data
                 setApps(res)
-                setUnpaid(res.reduce((total: number, val: { appointmentRestAmount: number }) => total + val.appointmentRestAmount, 0))
+                setUnpaid(res.reduce((total: number, val: {
+                    appointmentRestAmount: number
+                }) => total + val.appointmentRestAmount, 0))
             }
         });
     }
@@ -384,7 +388,17 @@ function Cashbox() {
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
     }
-
+    const exportDoc = () => {
+        triggerExport({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`
+        },{
+            onSuccess: (result) => {
+                const buffer = Buffer.from(result.data, "base64") //Buffer is only available when using nodejs
+                saveAs(new Blob([buffer]), "transaction.xlsx")
+            }
+        });
+    }
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
 
     return (
@@ -477,10 +491,12 @@ function Cashbox() {
                                             <Typography fontWeight={700}>
                                                 {txtFilter}
                                             </Typography>
-                                            <Button sx={{
-                                                borderColor: 'divider',
-                                                bgcolor: theme => theme.palette.grey['A500'],
-                                            }} variant="outlined" color="info"
+                                            <Button onClick={exportDoc}
+                                                    sx={{
+                                                        borderColor: 'divider',
+                                                        bgcolor: theme => theme.palette.grey['A500'],
+                                                    }}
+                                                    variant="outlined" color="info"
                                                     startIcon={<IconUrl path="ic-export-new"/>}>
                                                 {t("export")}
                                             </Button>
@@ -518,11 +534,11 @@ function Cashbox() {
                             </Card>
                         ) : (
                             <Box style={{
-                                    height: "75vh",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                }}>
+                                height: "75vh",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}>
                                 <NoDataCard t={t} ns={"payment"} data={noCardData}/>
                             </Box>
                         )}
