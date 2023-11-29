@@ -472,5 +472,7 @@
     "other_child": "Autre"
   },
   "satisfied": "Satisfait",
-  "notsatisfied": "Je ne suis pas satisfait"
+  "notsatisfied": "Je ne suis pas satisfait",
+  "big": "Fichier trop gros max 40 mo",
+  "long": "Nom de fichier trop long"
 }

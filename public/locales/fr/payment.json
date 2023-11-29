@@ -42,6 +42,8 @@
   "settlement": "Règlement",
   "edit": "Modifier",
   "delete": "Supprimer",
+  "consultations": "Consultations",
+  "unpaidConsult": "Consultation non rémunérée",
   "addsuccess": "Paiement ajouté",
   "cashout": "Décaisser",
   "appointment_date": "Date du RDV",
