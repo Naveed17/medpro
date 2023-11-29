@@ -14,6 +14,8 @@
   "add_quote": "Quote",
   "cash": "Cash",
   "card": "Credit Card",
+  "consultations": "Consultations",
+  "unpaidConsult": "Unpaid consultation",
   "enter_the_amount": "Veuiller entrer le montant",
   "amount": "Montant",
   "check": "Chéque",

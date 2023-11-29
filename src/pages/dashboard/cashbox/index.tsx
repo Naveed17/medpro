@@ -35,7 +35,6 @@ import {DefaultCountry,} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {CashboxFilter, cashBoxSelector} from "@features/leftActionBar/components/cashbox";
-import {useSnackbar} from "notistack";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import CloseIcon from "@mui/icons-material/Close";
 import {DrawerBottom} from "@features/drawerBottom";
@@ -43,6 +42,9 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {ActionMenu} from "@features/menu";
 import {LoadingButton} from "@mui/lab";
 import {TabPanel} from "@features/tabPanel";
+import moment from "moment-timezone";
+import {agendaSelector} from "@features/calendar";
+import { saveAs } from "file-saver";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -145,14 +147,6 @@ export const consultationCells: readonly HeadCell[] = [
         align: "center",
     },
     {
-        id: "type",
-        numeric: true,
-        disablePadding: false,
-        label: "type",
-        sortable: true,
-        align: "center",
-    },
-    {
         id: 'total',
         numeric: true,
         disablePadding: false,
@@ -177,7 +171,6 @@ export const consultationCells: readonly HeadCell[] = [
         align: "center",
     },
 ];
-
 
 const noCardData = {
     mainIcon: "ic-payment",
@@ -209,7 +202,7 @@ function Cashbox() {
     const dispatch = useAppDispatch();
     const theme: Theme = useTheme()
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {enqueueSnackbar} = useSnackbar();
+
     const {insurances} = useInsurances();
 
     const {tableState} = useAppSelector(tableActionSelector);
@@ -223,7 +216,10 @@ function Cashbox() {
     const isAddAppointment = false;
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [rows, setRows] = useState<any[]>([]);
+    const [apps, setApps] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
+    const [unpaid, setUnpaid] = useState(0);
+    const {config: agenda} = useAppSelector(agendaSelector);
     /*
         const [totalCash, setTotalCash] = useState(0);
         const [totalCheck, setTotalCheck] = useState(0);
@@ -235,13 +231,14 @@ function Cashbox() {
     const [loading, setLoading] = useState(true);
     const [selectedCashBox, setCashbox] = useState<any>(null);
     let [selectedTab, setSelectedTab] = useState('transactions');
-    const tabsData = [{
-        label: "consultations",
-        value: "consultations"
-    }, {
-        label: "transactions",
-        value: "transactions"
-    }]
+    const tabsData = [
+        {
+            label: "transactions",
+            value: "transactions"
+        }, {
+            label: "consultations",
+            value: "consultations"
+        }]
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -255,6 +252,8 @@ function Cashbox() {
     const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
     const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
     const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox/post");
+    const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
+    const {trigger: triggerExport} = useRequestQueryMutation("/cashbox/export");
 
     const {data: paymentMeansHttp} = useRequestQuery({
         method: "GET",
@@ -274,6 +273,11 @@ function Cashbox() {
         }
     }, [httpTransactionsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        if (filterCB)
+            getConsultation(filterCB.start_date, filterCB.end_date)
+    }, [filterCB]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const txtGenerator = () => {
         let txt = ''
         if (filterCB.start_date === filterCB.end_date)
@@ -287,7 +291,6 @@ function Cashbox() {
         }
         setTxtFilter(txt)
     }
-
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data;
         setTotal(data.total_amount);
@@ -300,7 +303,21 @@ function Cashbox() {
         else setRows([]);
         if (filterQuery.includes("cashboxes")) setLoading(false);
     }
-
+    const getConsultation = (start: string, end: string) => {
+        const query = `?mode=rest&start_date=${moment(start, "DD-MM-YYYY").format("DD-MM-YYYY")}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week`
+        triggerAppointmentDetails(agenda ? {
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}${query}`
+        } : null, {
+            onSuccess: (result) => {
+                const res = result.data.data
+                setApps(res)
+                setUnpaid(res.reduce((total: number, val: {
+                    appointmentRestAmount: number
+                }) => total + val.appointmentRestAmount, 0))
+            }
+        });
+    }
     const handleTableActions = (data: any) => {
         const {action, event, row} = data
         switch (action) {
@@ -321,15 +338,17 @@ function Cashbox() {
                 );
                 setCashbox(row);
                 break;
+            case "PAYMENT":
+                setCashbox(row);
+                setOpenPaymentDialog(true)
+                break;
         }
     }
-
     const resetDialog = () => {
         /*setChecksToCashout([]);
         setCollectedCash(0)*/
         setOpenPaymentDialog(false);
     }
-
     const deleteTransaction = () => {
         setLoadingDeleteTransaction(true)
         const form = new FormData();
@@ -369,19 +388,29 @@ function Cashbox() {
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
     }
-
+    const exportDoc = () => {
+        triggerExport({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`
+        },{
+            onSuccess: (result) => {
+                const buffer = Buffer.from(result.data, "base64") //Buffer is only available when using nodejs
+                saveAs(new Blob([buffer]), "transaction.xlsx")
+            }
+        });
+    }
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
 
     return (
         <>
             <SubHeader>
-                <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"flex-end"}
+                <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
                        width={"100%"}>
-                    {/*<Tabs
+                    <Tabs
                         value={selectedTab}
                         onChange={handleChangeTab}
                         sx={{
-                            width: {xs: "100%", md: "70%"},
+                            width: {xs: "100%", md: "50%"},
                             [`& .${tabsClasses.scrollButtons}`]: {
                                 '&.Mui-disabled': {opacity: 0.5},
                             }, marginTop: "8px"
@@ -401,9 +430,15 @@ function Cashbox() {
                                 />
                             ))
                         }
-                    </Tabs>*/}
+                    </Tabs>
                     <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                        <Typography> {t("total")}</Typography>
+
+                        <Typography fontSize={12}> {t("unpaidConsult")}</Typography>
+                        <Typography variant="h6">
+                            {unpaid} <span style={{fontSize: 10}}>{devise}</span>
+                        </Typography>
+                        <Typography>|</Typography>
+                        <Typography fontSize={12}> {t("total")}</Typography>
                         <Typography variant="h6">
                             {total} <span style={{fontSize: 10}}>{devise}</span>
                         </Typography>
@@ -418,12 +453,27 @@ function Cashbox() {
 
             <Box className="container">
                 <TabPanel padding={1} value={selectedTab} index={"consultations"}>
-                    {/*<Otable
-                        {...{rows, t, insurances, pmList, mutateTransactions, filterCB}}
-                        headers={consultationCells}
-                        from={"unpaidconsult"}
-                        handleEvent={handleTableActions}
-                    />*/}
+                    <Card>
+                        <CardContent>
+                            <Stack direction='row' alignItems={{xs: 'flex-start', md: 'center'}}
+                                   justifyContent="space-between" mb={2} pb={1} borderBottom={1}
+                                   borderColor='divider'>
+                                <Typography fontWeight={700} mt={1} mb={1}>
+                                    {t("consultations")}
+                                </Typography>
+                                <Stack direction={'row'} alignItems="center" spacing={1}>
+                                    <Typography fontWeight={700}>
+                                        {txtFilter}
+                                    </Typography>
+                                </Stack>
+                            </Stack>
+                            <Otable
+                                {...{rows: apps, t, insurances, pmList, mutateTransactions, filterCB}}
+                                headers={consultationCells}
+                                from={"unpaidconsult"}
+                                handleEvent={handleTableActions}
+                            />
+                        </CardContent></Card>
                 </TabPanel>
 
                 <TabPanel padding={1} value={selectedTab} index={"transactions"}>
@@ -441,10 +491,12 @@ function Cashbox() {
                                             <Typography fontWeight={700}>
                                                 {txtFilter}
                                             </Typography>
-                                            <Button sx={{
-                                                borderColor: 'divider',
-                                                bgcolor: theme => theme.palette.grey['A500'],
-                                            }} variant="outlined" color="info"
+                                            <Button onClick={exportDoc}
+                                                    sx={{
+                                                        borderColor: 'divider',
+                                                        bgcolor: theme => theme.palette.grey['A500'],
+                                                    }}
+                                                    variant="outlined" color="info"
                                                     startIcon={<IconUrl path="ic-export-new"/>}>
                                                 {t("export")}
                                             </Button>
@@ -481,14 +533,12 @@ function Cashbox() {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <Box
-                                style={{
-                                    height: "75vh",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                }}
-                            >
+                            <Box style={{
+                                height: "75vh",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}>
                                 <NoDataCard t={t} ns={"payment"} data={noCardData}/>
                             </Box>
                         )}
@@ -498,13 +548,12 @@ function Cashbox() {
 
             <Drawer
                 anchor={"right"}
-                open={patientDetailDrawer}
-                dir={direction}
                 onClose={() => {
                     dispatch(onOpenPatientDrawer({patientId: ""}));
                     setPatientDetailDrawer(false);
                 }}
-            >
+                open={patientDetailDrawer}
+                dir={direction}>
                 <PatientDetail
                     {...{isAddAppointment, patientId: tableState.patientId}}
                     onCloseDialog={() => {
@@ -594,7 +643,9 @@ function Cashbox() {
                 data={{
                     patient: selectedCashBox.patient,
                     setOpenPaymentDialog,
-                    mutatePatient: null
+                    mutatePatient: () => {
+                        getConsultation(filterCB.start_date, filterCB.end_date)
+                    }
                 }}
                 size={"lg"}
                 fullWidth

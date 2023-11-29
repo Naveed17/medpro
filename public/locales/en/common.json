@@ -431,5 +431,8 @@
     "other_child": "Other"
   },
   "satisfied": "Satisfied",
-  "notsatisfied": "Not satisfied"
+  "notsatisfied": "Not satisfied",
+  "big": "File too big max 40 mb",
+  "long": "File name too long"
+
 }
