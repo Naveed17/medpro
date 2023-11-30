@@ -1,15 +1,4 @@
-import {
-    Backdrop,
-    Box,
-    Button,
-    DialogActions,
-    Divider,
-    Drawer,
-    Paper,
-    Stack,
-    Tab,
-    Tabs
-} from "@mui/material";
+import {Backdrop, Box, Button, DialogActions, Divider, Drawer, Paper, Stack, Tab, Tabs} from "@mui/material";
 import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {PatientDetailsCard} from "@features/card";
@@ -25,10 +14,12 @@ import {
     setAppointmentPatient,
     setOpenUploadDialog,
     TabPanel,
-    TimeSchedule, TransactionPanel
+    TimeSchedule,
+    TransactionPanel
 } from "@features/tabPanel";
 import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -52,7 +43,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
 import {useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
-import {useProfilePhoto, useAntecedentTypes, useSendNotification} from "@lib/hooks/rest";
+import {useAntecedentTypes, useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
@@ -506,17 +497,19 @@ function PatientDetail({...props}) {
                             textAlign: "right",
                             display: {md: "block", xs: "none"}
                         }}>
-                        <LoadingButton
-                            variant={"text"}
-                            color={"black"}
-                            loading={loadingRequest}
-                            disabled={!patient}
-                            loadingPosition="start"
-                            onClick={() => dispatch(setOpenUploadDialog(true))}
-                            size="medium"
-                            startIcon={<Icon
-                                path="ic-doc"
-                                color={!patient ? "white" : "black"}/>}>{t('upload_document')}
+
+
+                        <LoadingButton onClick={() => dispatch(setOpenUploadDialog(true))}
+                                       sx={{
+                                           borderColor: 'divider',
+                                           bgcolor: theme => theme.palette.grey['A500'],
+                                       }}
+                                       variant="outlined"
+                                       color="info"
+                                       loading={loadingRequest}
+
+                                       startIcon={<IconUrl path="fileadd" width={20} height={20}/>}>
+                            {t("upload_document")}
                         </LoadingButton>
 
                         <Button
