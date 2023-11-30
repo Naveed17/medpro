@@ -196,7 +196,7 @@ function Calendar({...props}) {
             action === "onConsultationView" &&
             (!["FINISHED", "ON_GOING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
             action === "onConsultationDetail" &&
-            (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY') || eventMenu.patient?.isArchived) ||
+            (["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY') || eventMenu.patient?.isArchived) ||
             action === "onPreConsultation" &&
             (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) || eventMenu.patient?.isArchived) ||
             action === "onLeaveWaitingRoom" &&
@@ -362,6 +362,7 @@ function Calendar({...props}) {
                                                 open,
                                                 event,
                                                 openingHours,
+                                                OnMenuActions,
                                                 roles,
                                                 view
                                             }}

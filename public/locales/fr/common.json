@@ -175,7 +175,7 @@
   "reschedule_appointment": "Replanifier RDV",
   "on_hold": "En attente",
   "all": "Tous",
-  "pending": "En attende",
+  "pending": "En attente",
   "online": "RDV en ligne",
   "request-appointment": "a demandé un nouveau rendez-vous en ligne pour le",
   "next-appointment-control": "Contrôle médical apres",
@@ -445,7 +445,7 @@
     "cancel": "Annuler"
   },
   "appointment-status": {
-    "PENDING": "En attende",
+    "PENDING": "En attente",
     "CONFIRMED": "Confirmé",
     "REFUSED": "Refusé",
     "WAITING_ROOM": "Salle d'attente",

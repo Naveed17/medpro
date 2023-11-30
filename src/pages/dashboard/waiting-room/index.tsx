@@ -127,7 +127,7 @@ function WaitingRoom() {
         } : null, {
             ...(agenda && {
                 variables: {
-                    query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().add(1, "days").format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
+                    query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
                 }
             })
         }

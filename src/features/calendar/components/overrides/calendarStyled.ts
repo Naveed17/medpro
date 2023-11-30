@@ -10,7 +10,8 @@ const CalendarStyled = styled('div')(({theme}) => ({
     '& .fc': {
         '--fc-list-event-dot-width': '8px',
         '--fc-border-color': theme.palette.divider,
-        '--fc-more-link-bg-color': theme.palette.warning.main,
+        '--fc-more-link-bg-color': theme.palette.primary.main,
+        '--fc-more-link-text-color': theme.palette.background.default,
         '--fc-event-border-color': theme.palette.info.light,
         '--fc-non-business-color': 'rgba(221, 238, 246, 0.4)',
         '--fc-now-indicator-color': theme.palette.error.main,
@@ -26,6 +27,7 @@ const CalendarStyled = styled('div')(({theme}) => ({
     },
     '& .fc .fc-license-message': {display: 'none'},
     '& .fc a': {color: theme.palette.text.primary},
+    '& .fc a.fc-timegrid-more-link': {color: theme.palette.grey[0]},
 
     // Table Head
     '& .fc .fc-col-header ': {

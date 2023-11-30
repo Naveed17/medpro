@@ -3,7 +3,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {LocaleFnsProvider} from "@lib/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
-import {Badge, TextField, useTheme} from "@mui/material";
+import {Stack, TextField, Typography, useTheme} from "@mui/material";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
@@ -55,28 +55,21 @@ function CalendarPickers({...props}) {
                     renderDay={(day, _value, DayComponentProps) => {
                         const note = appointmentDayCount && appointmentDayCount[moment(day).format('DD-MM-YYYY')];
                         return (
-                            <Badge
-                                key={DayComponentProps.key}
-                                sx={{
-                                    '& .MuiBadge-badge': {
-                                        left: '50%'
-                                    }
-                                }}
-                                anchorOrigin={{
-                                    vertical: 'bottom',
-                                    horizontal: 'left',
-                                }}
-                                overlap="circular"
-                                badgeContent={!(DayComponentProps.today || DayComponentProps.selected) && note > 0 ?
-                                    <FiberManualRecordIcon
-                                        sx={{
-                                            width: 14,
-                                            height: 14,
-                                            color: highlightedDays(note, theme)
-                                        }}
-                                    /> : undefined}>
-                                <PickersDay {...DayComponentProps} />
-                            </Badge>
+                            <PickersDay {...DayComponentProps}>
+                                <Stack alignItems={"center"} justifyContent={"center"} spacing={0} m={2}>
+                                    <Typography>{day.getDate()}</Typography>
+                                    {!(DayComponentProps.today || DayComponentProps.selected) && note > 0 ?
+                                        <FiberManualRecordIcon
+                                            sx={{
+                                                position: 'absolute',
+                                                bottom: 0,
+                                                width: 10,
+                                                height: 10,
+                                                color: highlightedDays(note, theme)
+                                            }}
+                                        /> : undefined}
+                                </Stack>
+                            </PickersDay>
                         );
                     }}
                     disableOpenPicker
