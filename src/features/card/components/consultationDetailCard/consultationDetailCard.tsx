@@ -34,7 +34,7 @@ import NotesComponent from "@features/card/components/consultationDetailCard/not
 
 import {LoadingScreen} from "@features/loadingScreen";
 
-const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
+const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
         const {
             exam: defaultExam,
             changes,
@@ -68,6 +68,7 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
         const [hide, setHide] = useState<boolean>(false);
         const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
         const [isStarted, setIsStarted] = useState(false);
+        const [loadChanges, setLoadChanges] = useState(false);
 
         const modelContent = useRef(app_data?.notes ? app_data?.notes.value : "");
 
@@ -98,7 +99,8 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
                 disease: app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : [],
                 treatment: exam.treatment,
             },
-            onSubmit: async () => {}
+            onSubmit: async () => {
+            }
         });
 
         const {handleSubmit, values, setFieldValue} = formik;
@@ -176,10 +178,11 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
             form.append(ev === 'diagnosis' ? 'diagnostic' : ev, newValue);
 
             triggerAppointmentEdit({
-                method: "PUT",
-                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
-                data: form
-            })
+                    method: "PUT",
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+                    data: form
+                },{onSuccess: ()=>{setLoadChanges(false)}}
+            )
         }
         const debouncedOnChange = debounce(saveChanges, 1000);
 
@@ -365,6 +368,7 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
                                 setIsStarted,
                                 debouncedOnChange,
                                 fullOb, setFullOb,
+                                loadChanges, setLoadChanges,
                                 modelContent
                             }}/>
                             {!fullOb && <Box width={1}>
@@ -469,8 +473,8 @@ const CIPPatientHistoryCard: any = memo(({src, ...props}: any) => {
                 </CardContent>
             </ConsultationDetailCardStyled>
         )
-    }, () => true
-)
+    }
+
 CIPPatientHistoryCard.displayName = "consultation-file";
 
 export default CIPPatientHistoryCard

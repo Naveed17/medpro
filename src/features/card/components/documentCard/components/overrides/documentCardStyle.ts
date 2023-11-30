@@ -3,9 +3,9 @@ import {styled, alpha} from '@mui/material/styles'
 
 const DocumentCardStyled = styled(Card)(({theme}) => ({
     // boxShadow: theme.customShadows.documentCard,
-    boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.2)",
+   // boxShadow: "0px 0px 8px rgba(0, 0, 0, 0.2)",
     padding: 0,
-    border: 'none',
+   // border: 'none',
     "& .sub-title": {
         textOverflow: "ellipsis",
         overflow: "hidden",

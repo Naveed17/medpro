@@ -43,6 +43,7 @@ function NotesComponent({...props}) {
         isStarted, setIsStarted,
         modelContent,
         fullOb, setFullOb,
+        loadChanges,setLoadChanges
     } = props
 
     const [showToolbar, setShowToolbar] = useState<boolean>(false);
@@ -72,6 +73,7 @@ function NotesComponent({...props}) {
     const startStopRec = () => {
         if (listening && isStarted) {
             SpeechRecognition.stopListening();
+            setLoadChanges(true)
             saveChanges("notes", values.notes)
             resetTranscript();
             setIsStarted(false)
@@ -225,6 +227,7 @@ function NotesComponent({...props}) {
                     <Tooltip title={t('toolbar')}>
                         <IconButton
                             className={"btn-full"} size={"small"}
+                            disabled={loadChanges}
                             onClick={() => {
                                 mutateSheetData && mutateSheetData()
                                 setShowToolbar(!showToolbar)
@@ -246,26 +249,25 @@ function NotesComponent({...props}) {
                 </Stack>
             </Stack>
 
-            {
-                showToolbar &&
-                <Editor
-                    initialValue={values.notes}
-                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
-                    onEditorChange={(event) => {
-                        debouncedOnChange("notes", event)
-                    }}
-                    disabled={isStarted}
-                    init={{
-                        branding: false,
-                        statusbar: false,
-                        menubar: false,
-                        height: fullOb ? "50vh" : 400,
-                        toolbar_mode: 'wrap',
-                        plugins: tinymcePlugins,
-                        toolbar: tinymceToolbarNotes,
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                    }}/>
-            }
+
+            {showToolbar && <Editor
+                initialValue={values.notes}
+                apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                onEditorChange={(event) => {
+                    debouncedOnChange("notes", event)
+                }}
+                disabled={isStarted}
+                init={{
+                    branding: false,
+                    statusbar: false,
+                    menubar: false,
+                    height: fullOb ? "50vh" : 400,
+                    toolbar_mode: 'wrap',
+                    plugins: tinymcePlugins,
+                    toolbar: showToolbar ? tinymceToolbarNotes : false,
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                }}/>}
+
             {
                 !showToolbar && <Editor
                     initialValue={values.notes}

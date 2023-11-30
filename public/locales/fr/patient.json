@@ -110,8 +110,9 @@
       "documents": {
         "title": "Ajouter le premier document",
         "description": "Vous n'avez pas de document médical Ajoutez les documents en cliquant sur 'Ajouter un document'",
-        "quote-description": "Aucun devis, Cliquez sur 'Ajouter un devis'",
-        "add_quote": "Ajouter devis",
+        "quote-add": "Ajouter le premier devis",
+        "quote-description": "Vous n'avez pas aucun devis. Ajoutez un devis en cliquant sur \"Ajouter un devis\"",
+        "add_quote": "Ajouter un devis",
         "button-text": "Ajouter un document"
       },
       "consultation": {
