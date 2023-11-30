@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import styled from '@emotion/styled';
 import {DraggableProvided} from "react-beautiful-dnd";
-import {Button, Card, CardActions, CardContent, IconButton, Stack, Typography, useTheme} from "@mui/material";
+import {Box, Button, Card, CardActions, CardContent, IconButton, Stack, Typography, useTheme,alpha} from "@mui/material";
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import {ImageHandler} from "@features/image";
 import {ModelDot} from "@features/modelDot";
@@ -20,6 +20,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import Icon from "@themes/urlIcon";
 import {AppointmentStatus} from "@features/calendar";
+import {motion} from 'framer-motion'
 
 const imageSize: number = 40;
 
@@ -79,7 +80,7 @@ function BoardItem({...props}) {
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
-
+const [counter,setCounter] = useState<number>(0)
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
 
@@ -111,8 +112,8 @@ function BoardItem({...props}) {
             data-testid={quote?.id}
             data-index={index}
             aria-label={`${quote?.column?.name} quote ${quote?.content}`}>
-            <Card sx={{width: '100%'}}>
-                <CardContent sx={{p: 1}}>
+            <Card sx={{width: '100%', borderLeft:6, borderRight:10, bgcolor:[3].includes(quote.content.status) ? alpha(theme.palette.warning.lighter,.7):theme.palette.common.white}}>
+                {/* <CardContent sx={{p: 1}}>
                     <Stack direction={"row"} spacing={.5} alignItems={"start"} justifyContent={"space-between"}>
                         <Stack spacing={.5}>
                             <Stack
@@ -264,7 +265,183 @@ function BoardItem({...props}) {
                             </>}
                         </Stack>}
                     </Stack>
-                </CardActions>
+                </CardActions> */}
+                <CardContent sx={{p: 1,"&:last-child":{
+                    paddingBottom:1
+                }}}>
+                    <Stack direction='row' alignItems='center' justifyContent='space-between'>
+                     <Stack direction='row' alignItems='center' spacing={.8}>
+                        <Box display='flex' sx={{
+                                    svg: {
+                                        width: 22,
+                                        height: 22
+                                    }
+                                }}>
+                        {!isDragging && AppointmentStatus[quote.content.status].icon}
+                        </Box>
+                        <Stack spacing={.4}>
+                            <Box  position='relative' maxWidth={110}>
+                            <Typography
+                           
+                                    className={"ellipsis"}
+                                    sx={{
+                                        width: {lg:60,xl:100}
+                                    }}
+                                    variant='body2' fontWeight={600}>
+                                    {quote.content.patient.lastName} {quote.content.patient.firstName}
+                                    
+                                </Typography>
+                                <Button disableRipple
+                                component={motion.button}
+                                data-counter={counter > 0}
+                                layout
+                                {...(counter > 0 && {
+                                    startIcon: <Box onClick={() => setCounter(counter - 1)}>
+                                        <IconUrl path="ic-moin" width={10} height={10} color={theme.palette.primary.main}/>
+                                    </Box>
+                                })}
+                                 
+                                size='small' variant='outlined' color='info' 
+                                endIcon={
+                                    <Box component={motion.div} layout onClick={() => setCounter(counter + 1)}>
+                                        <IconUrl path="ic-plus" width={10} height={10} color={theme.palette.primary.main}/>
+                                    </Box>
+                                }
+                                sx={{
+                                    justifyContent:"space-between",
+                                    minWidth:22,
+                                    height:22,
+                                    minHeight:1,
+                                    position:"absolute",
+                                    left:{lg:'calc(100% - 45px)',xl:'100%'},
+                                    top:0,
+                                    px:.5,
+                                    
+                                        ".MuiButton-endIcon":{
+                                            m:0,
+                                        },
+                                        ".MuiButton-startIcon":{
+                                            m:0
+                                        },
+                                    ...(counter === 0 && {
+                                        justifyContent:'center'
+                                    })
+                                }}
+                                >
+                                    {
+                                        counter > 0 && 
+                                        <Typography width={14} component='span' variant='body2' overflow={'hidden'}>
+                                    {
+                                        counter
+                                    }
+                                    </Typography>
+                                    }
+                                    
+                                </Button>
+                                </Box>
+                              <Stack direction={"row"} spacing={.5} alignItems={"center"} width={110}>
+                            <IconUrl path={'ic-time'} width={16} height={16}/>
+                            <Typography variant="body2" overflow='hidden'>
+                                {quote.content.status === 4 && time ?
+                                    moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
+                                    quote.content.status !== 3 ?
+                                        quote.content.startTime :
+                                        <Stack direction='row' alignItems='center'>
+                                    
+                                        {
+                                            getDiffDuration(`${quote.content.dayDate} ${quote.content.startTime}`).split(",")[0]
+
+                                        }
+                                        <IconUrl path={'ic-waiting-hours'} width={12} height={12} style={{margin:"0 4px"}}/>
+                                        {getDiffDuration(`${quote.content.dayDate} ${quote.content.startTime}`).split(",")[1]}
+                                        </Stack>}
+                            </Typography>
+                        </Stack>
+                       
+                     </Stack>
+                    </Stack>
+                    {!quote.content.patient?.isArchived && <Stack direction={"row"} spacing={.5}>
+                            {quote.content.status === 1 && <>
+                                {!roles.includes('ROLE_SECRETARY') && <IconButton
+                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                        action: "START_CONSULTATION",
+                                        row: quote.content,
+                                        event
+                                    })}
+                                    size={"small"}
+                                    sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}>
+                                    <PlayCircleIcon fontSize={"small"}/>
+                                </IconButton>}
+                                <IconButton
+                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                        action: "ENTER_WAITING_ROOM",
+                                        row: quote.content,
+                                        event
+                                    })}
+                                    size={"small"}
+                                    disableFocusRipple
+                                    sx={{background: theme.palette.primary.main, borderRadius: 1}}>
+                                    <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
+                                </IconButton>
+                            </>}
+                            {(quote.content.status === 3) && <>
+                                <IconButton
+                                    onClick={(event) => handleEvent({
+                                        action: "NEXT_CONSULTATION",
+                                        row: {...quote.content, is_next: !!is_next},
+                                        event
+                                    })}
+                                    size={"small"}
+                                    disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
+                                    sx={{
+                                        border: `1px solid ${theme.palette.divider}`,
+                                        borderRadius: 1,
+                                        ...(is_next && {background: theme.palette.primary.main, border: "none"}),
+                                    }}>
+                                    {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
+                                    {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
+                                </IconButton>
+                                {!roles.includes('ROLE_SECRETARY') && <CustomIconButton
+                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                        action: "START_CONSULTATION",
+                                        row: quote.content,
+                                        event
+                                    })}
+                                    variant="filled"
+                                    color={"warning"}
+                                    size={"small"}>
+                                    <PlayCircleIcon fontSize={"small"}/>
+                                </CustomIconButton>}
+                            </>}
+                            {quote.content.status === 5 && <>
+                                <IconButton
+                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                        action: "ON_PAY",
+                                        row: quote.content,
+                                        event
+                                    })}
+                                    size={"small"}
+                                    disableFocusRipple
+                                    sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}>
+                                    <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
+                                </IconButton>
+                            </>}
+                            {!quote.content.patient?.isArchived && 
+                            <IconButton
+                            
+                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                    action: "OPEN-POPOVER",
+                                    row: quote.content,
+                                    event
+                                })}
+                                sx={{display: "block", borderRadius:1,p:.8}}
+                                size="small">
+                                <Icon path="more-vert" width={16} height={16}/>
+                            </IconButton>
+                        }
+                        </Stack>}
+                    </Stack>
+                </CardContent>
             </Card>
         </Container>
     );
