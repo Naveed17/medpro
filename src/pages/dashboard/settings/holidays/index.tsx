@@ -27,11 +27,6 @@ function Holidays() {
     const absenceData = useAppSelector(absenceDrawerSelector);
 
     const [loadingRequest, setLoadingRequest] = useState(false);
-    const [contextMenu, setContextMenu] = useState<{
-        mouseX: number;
-        mouseY: number;
-    } | null>(null);
-
     const [selectedAbsence, setSelectedAbsence] = useState<any>(null);
 
     const {data: httpAbsencesResponse, mutate: mutateAbsences} = useRequestQuery(agenda ? {
@@ -48,10 +43,7 @@ function Holidays() {
             method: "DELETE",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/absences/${uuid}`,
         }, {
-            onSuccess: () => {
-                setContextMenu(null);
-                mutateAbsences();
-            },
+            onSuccess: () => mutateAbsences(),
             onSettled: () => setLoadingRequest(false)
         });
     }
@@ -83,7 +75,7 @@ function Holidays() {
         });
     }
 
-    const handleTableActions = (action: string, event?: any, mouseEvent?: any, setLoadingRequest?: any) => {
+    const handleTableActions = (action: string, event?: any) => {
         switch (action) {
             case "onEditAbsence":
                 setSelectedAbsence(event);

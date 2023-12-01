@@ -1,4 +1,4 @@
-import {Avatar, Box, Button, Chip, Fade, IconButton, Stack, Typography} from "@mui/material";
+import {Avatar, Box, Chip, Fade, IconButton, Stack, Typography} from "@mui/material";
 import React from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import EventStyled from './overrides/eventStyled';
@@ -15,7 +15,6 @@ import {batch} from "react-redux";
 import {openDrawer, setSelectedEvent} from "@features/calendar";
 import {setDialog} from "@features/topNavBar";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
-import IconUrl from "@themes/urlIcon";
 
 function Event({...props}) {
     const {isBeta, event, roles, view, open, t, OnMenuActions} = props;

@@ -1,14 +1,13 @@
 import {TableRowStyled} from "@features/table"
 import TableCell from '@mui/material/TableCell';
-import {Typography, Skeleton, IconButton, Tooltip, Stack} from '@mui/material';
+import {Typography, Skeleton, IconButton, Stack} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import {uniqueId} from 'lodash'
 import {Theme} from "@mui/material/styles";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import React from "react";
 
 function HolidayRow({...props}) {
-    const {row, t, handleEvent} = props
+    const {row, handleEvent} = props
 
     return (
         <TableRowStyled key={uniqueId}>
