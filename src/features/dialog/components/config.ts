@@ -18,10 +18,26 @@ const dialogData = [
         ),
     },
     {
+        action: "openingHours",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/openingHoursDialog/components/openingHoursDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
         action: "send-email",
         component: dynamic((): any =>
             import(
                 "@features/dialog/components/sendEmailDialog/sendEmailDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
+        action: "switch-consultation",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/switchConsultationDialog/switchConsultationDialog"
                 ).then((mod) => mod)
         ),
     },
@@ -114,6 +130,14 @@ const dialogData = [
         ),
     },
     {
+        action: "ocr_docs",
+        component: dynamic((): any =>
+            import("@features/dialog/components/ocrDocsDialog/ocrDocsDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "balance_sheet_pending",
         component: dynamic((): any =>
             import(
@@ -170,31 +194,7 @@ const dialogData = [
         ),
     },
     {
-        action: "medical_antecedents",
-        component: dynamic((): any =>
-            import(
-                "@features/dialog/components/lifeStyleDialog/lifeStyleDialog"
-                ).then((mod) => mod)
-        ),
-    },
-    {
         action: "dynamicAnt",
-        component: dynamic((): any =>
-            import(
-                "@features/dialog/components/lifeStyleDialog/lifeStyleDialog"
-                ).then((mod) => mod)
-        ),
-    },
-    {
-        action: "family_antecedents",
-        component: dynamic((): any =>
-            import(
-                "@features/dialog/components/familyHistoryDialog/familyHistoryDialog"
-                ).then((mod) => mod)
-        ),
-    },
-    {
-        action: "surgical_antecedents",
         component: dynamic((): any =>
             import(
                 "@features/dialog/components/lifeStyleDialog/lifeStyleDialog"
@@ -313,7 +313,7 @@ const dialogData = [
         action: "patient_observation_history",
         component: dynamic((): any =>
             import(
-                "@features/dialog/components/ObservationHistoryDialog/ObservationHistoryDialog"
+                "@features/dialog/components/observationHistoryDialog/observationHistoryDialog"
                 ).then((mod) => mod)
         ),
     },

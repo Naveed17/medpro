@@ -55,9 +55,9 @@ import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/h
 import {agendaSelector, openDrawer} from "@features/calendar";
 import {ActionMenu, toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
@@ -109,16 +109,6 @@ const stepperData = [
         disabled: true,
     },
 ];
-
-// interface
-interface HeadCell {
-    disablePadding: boolean;
-    id: string;
-    label: string;
-    numeric: boolean;
-    sortable: boolean;
-    align: "left" | "right" | "center";
-}
 
 // table head data
 const headCells: readonly HeadCell[] = [
@@ -190,6 +180,11 @@ const menuPopoverData = [
         title: "check_duplication_data",
         icon: <PeopleOutlineIcon/>,
         action: "onCheckPatientDuplication",
+    },
+    {
+        title: "delete_patient_data",
+        icon: <DeleteOutlineRoundedIcon/>,
+        action: "onDeletePatient",
     }
 ];
 
@@ -235,7 +230,7 @@ function Patient() {
     const [loading] = useState<boolean>(false);
     const [rows, setRows] = useState<PatientModel[]>([]);
     const {collapse} = RightActionData.filter;
-    const [open, setopen] = useState(false);
+    const [open, setOpen] = useState(false);
     const {selectedCheckbox} = useAppSelector(selectCheckboxActionSelector);
     const [dataPatient, setDataPatient] = useState([
         {
@@ -468,15 +463,6 @@ function Patient() {
             case "OPEN-POPOVER":
                 setSelectedPatient(event);
                 mouseEvent.preventDefault();
-                if (!event.nextAppointment && !event.previousAppointments) {
-                    setPopoverActions([...menuPopoverData, {
-                        title: "delete_patient_data",
-                        icon: <DeleteOutlineRoundedIcon/>,
-                        action: "onDeletePatient",
-                    }]);
-                } else {
-                    setPopoverActions(menuPopoverData);
-                }
 
                 setContextMenu(
                     contextMenu === null
@@ -493,7 +479,7 @@ function Patient() {
     }
 
     const handleClickOpen = () => {
-        setopen(true);
+        setOpen(true);
     }
 
     const handleCloseMenu = () => {
@@ -565,11 +551,11 @@ function Patient() {
 
     useEffect(() => {
         if (httpPatientsResponse) {
-            const patientsResponse = (httpPatientsResponse as HttpResponse)?.data;
+            const patientsResponse = (httpPatientsResponse as HttpResponse)?.data?.list ?? [];
             if (isMobile && localFilter?.length > 0) {
-                setRows(patientsResponse.list)
+                setRows(patientsResponse)
             } else {
-                setRows((prev) => [...prev, ...patientsResponse.list]);
+                setRows((prev) => [...prev, ...patientsResponse]);
             }
         }
     }, [httpPatientsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -1009,7 +995,7 @@ function Patient() {
                 />
             </Drawer>
             <DrawerBottom
-                handleClose={() => setopen(false)}
+                handleClose={() => setOpen(false)}
                 open={open}
                 title={t("filter.title")}>
                 <Accordion
@@ -1029,33 +1015,17 @@ function Patient() {
 
 export const getStaticProps: GetStaticProps = async ({locale}) => {
     const queryClient = new QueryClient();
-    const countries = `/api/public/places/countries/${locale}?nationality=true`;
-    const insurances = `/api/public/insurances/${locale}`;
-    const contactTypes = `/api/public/contact-type/${locale}`;
+    const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 
-    await queryClient.prefetchQuery([countries], async () => {
-        const {data} = await instanceAxios.request({
-            url: countries,
-            method: "GET"
-        });
-        return data
-    });
+    const countries = `api/public/places/countries/${locale}?nationality=true`;
+    const insurances = `api/public/insurances/${locale}`;
+    const contactTypes = `api/public/contact-type/${locale}`;
 
-    await queryClient.prefetchQuery([insurances], async () => {
-        const {data} = await instanceAxios.request({
-            url: insurances,
-            method: "GET"
-        });
-        return data
-    });
+    await queryClient.prefetchQuery([`/${countries}`], () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json()));
 
-    await queryClient.prefetchQuery([contactTypes], async () => {
-        const {data} = await instanceAxios.request({
-            url: contactTypes,
-            method: "GET"
-        });
-        return data
-    });
+    await queryClient.prefetchQuery([`/${insurances}`], () => fetch(`${baseURL}${insurances}`, {method: "GET"}).then(response => response.json()));
+
+    await queryClient.prefetchQuery([`/${contactTypes}`], () => fetch(`${baseURL}${contactTypes}`, {method: "GET"}).then(response => response.json()));
 
     return {
         props: {

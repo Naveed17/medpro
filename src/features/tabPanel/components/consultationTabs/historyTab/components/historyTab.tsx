@@ -14,6 +14,9 @@ import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {AppointmentHistoryContent} from "@features/card/components/appointmentHistoryContent";
 import Icon from "@themes/icon";
 import moment from "moment/moment";
+import {WidgetCharts} from "@features/tabPanel";
+import PediatricianCharts
+    from "@features/tabPanel/components/consultationTabs/pediatricianChart/components/pediatricianCharts";
 
 function HistoryTab({...props}) {
 
@@ -28,6 +31,7 @@ function HistoryTab({...props}) {
         setState,
         setInfo,
         router,
+        mini,
         appuuid
     } = props;
 
@@ -125,7 +129,7 @@ function HistoryTab({...props}) {
                     {t("consultationIP.suivi_chiffre")}
                 </Label>
             </Stack>}
-            <div style={{overflowY: "hidden"}}>
+            <div style={{overflowY: "hidden", marginBottom: 10}}>
                 {keys.length > 0 &&
                     <HistoryStyled>
                         <thead>
@@ -139,7 +143,9 @@ function HistoryTab({...props}) {
                         {keys.map((key: string) => (
                             <tr key={key}>
                                 <td style={{minWidth: 120}}><Typography
-                                    className={"keys col"}>{sheet[key]['label']}</Typography></td>
+                                    className={"keys col"}
+                                    style={{width: "100%", whiteSpace: "nowrap"}}>{sheet[key]['label']}</Typography>
+                                </td>
                                 {dates.map((date: string) => (<td key={date}><Typography
                                     className={"data col"}>{sheet[key]['data'][date] ? sheet[key]['data'][date] + sheet[key]['description'] : '-'}</Typography>
                                 </td>))}
@@ -150,12 +156,21 @@ function HistoryTab({...props}) {
             </div>
             {/****** Sheet History ******/}
 
+            <WidgetCharts {...{sheet, mini}}/>
+
+            {/****** Pediatrican charts ******/}
+
+            {
+                patient?.birthdate && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") < 5 &&
+                <PediatricianCharts {...{sheet, birthdate: patient?.birthdate, t}}/>
+            }
             {/****** Latest appointment ******/}
-            {latest_appointment && latest_appointment.length > 0 && <Stack spacing={2} mb={2} alignItems="flex-start">
-                <Label variant="filled" color="warning">
-                    {t("history")}
-                </Label>
-            </Stack>}
+            {latest_appointment && latest_appointment.length > 0 &&
+                <Stack id={'records'} spacing={2} mb={2} alignItems="flex-start">
+                    <Label variant="filled" color="warning">
+                        {t("history")}
+                    </Label>
+                </Stack>}
             <Stack spacing={1}>
                 {latest_appointment && latest_appointment.map((app: any, appID: number) => (
                     <React.Fragment key={`app-el-${appID}`}>
@@ -165,9 +180,9 @@ function HistoryTab({...props}) {
                                     ? dispatch(SetSelectedApp(""))
                                     : dispatch(SetSelectedApp(app.uuid));
                             }}
-                            open={false}
+                            open={app.uuid === selectedApp}
                             key={`${app.uuid}timeline`}>
-                            <AppointmentHistoryPreview {...{app, appuuid, dispatch, t}}>
+                            <AppointmentHistoryPreview {...{app, appuuid, dispatch, t, mini}}>
                                 {selectedApp === app.uuid && <Collapse
                                     in={app.uuid === selectedApp}>
                                     <AppointmentHistoryContent {...{
@@ -180,6 +195,7 @@ function HistoryTab({...props}) {
                                         setOpenDialog,
                                         session,
                                         patient,
+                                        mini,
                                         historyUUID: app.uuid,
                                         t
                                     }}/>

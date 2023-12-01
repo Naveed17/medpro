@@ -60,6 +60,7 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
         trigger,
         autoUpdate,
         mutateSheetData,
+        showToolbar,
         url
     } = props;
 
@@ -94,14 +95,16 @@ const WidgetForm: any = memo(({src, ...props}: any) => {
                 {...(autoUpdate && {
                     onBlur: (ev: { data: any; }) => {
                         const form = new FormData();
-                        form.append("modal_data", JSON.stringify({...JSON.parse(localStorage.getItem(`Modeldata${appuuid}`) as string), ...ev.data}));
+                        form.append("modal_data", JSON.stringify({...ev.data}));
                         form.append("modal_uuid", selectedModel?.default_modal.uuid);
                         trigger({
                             method: "PUT",
                             url,
                             data: form
                         }, {
-                            onSuccess: () => mutateSheetData()
+                            onSettled: () => {
+                                mutateSheetData()
+                            }
                         });
                     }
                 })}
@@ -136,6 +139,7 @@ function Widget({...props}) {
         isClose,
         handleClosePanel,
         previousData,
+        showToolbar,
         acts, setActs, selectedModel,
         url, mutateSheetData,printGlasses
     } = props;
@@ -158,7 +162,6 @@ function Widget({...props}) {
         structure: [],
         uuid: "",
     });
-
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
@@ -211,7 +214,15 @@ function Widget({...props}) {
             const ophtalmo = document.getElementById('opht');
             if (ophtalmo) {
                 const root = ReactDOM.createRoot(ophtalmo);
-                root.render(<OphtPreview {...{t,printGlasses,appuuid,url,triggerAppointmentEdit,data}}/>)
+                root.render(<OphtPreview {...{
+                    t,
+                    printGlasses,
+                    appuuid,
+                    url,
+                    triggerAppointmentEdit,
+                    data,
+                    selectedModel
+                }}/>)
             }
         }, 1000)
     }
@@ -256,11 +267,12 @@ function Widget({...props}) {
         <>
             <ConsultationModalStyled
                 sx={{
-                    height: {xs: closeMobilePanel ? "50px" : "30vh", md: "40.3rem"},
+                    //height: {xs: closeMobilePanel ? "50px" : "30vh", md: "40.3rem"},
                     position: "relative",
                     width: closePanel ? 50 : "auto",
+                    overflowX: "hidden"
                 }}>
-                <Stack
+                {showToolbar && <Stack
                     spacing={1}
                     p={2}
                     py={1}
@@ -311,7 +323,7 @@ function Widget({...props}) {
                         </Typography>
                         {!closePanel && <IconUrl path="ic-flesh-bas-y"/>}
                     </Stack>
-                </Stack>
+                </Stack>}
 
                 <CardContent
                     sx={{
@@ -374,6 +386,7 @@ function Widget({...props}) {
                                             selectedModel,
                                             trigger: triggerAppointmentEdit,
                                             mutateSheetData,
+                                            showToolbar,
                                             url
                                         }}
                                         key={m.uuid}

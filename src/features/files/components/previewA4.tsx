@@ -4,9 +4,10 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
+import {getBirthdayFormat} from "@lib/hooks";
 
 function PreviewDialog({...props}) {
-    const {componentRef, eventHandler, data, values, state, loading, date, t, nbPage} = props;
+    const {previewDocRef, componentRef, eventHandler, data, values, state, loading, date, t, nbPage} = props;
     const {data: session} = useSession();
 
     const {data: user} = session as Session;
@@ -30,14 +31,14 @@ function PreviewDialog({...props}) {
             name: 'name',
             style: {
                 'margin-bottom': 0,
-                'font-size': data.size === 'portraitA4' ? "15px" : '20px',
+                'font-size': data.size === 'portraitA4' ? "17px" : '22px',
                 'font-weight': 'bold'
             }
         },
         {
             name: 'dosage',
             style: {
-                'font-size': data.size === 'portraitA4' ? "14px" : '19px',
+                'font-size': data.size === 'portraitA4' ? "16px" : '21px',
                 'margin-top': 0,
                 'margin-bottom': '1px',
                 'margin-left': '14px'
@@ -63,7 +64,7 @@ function PreviewDialog({...props}) {
                 const elx = document.createElement('p');
                 switch (state.type) {
                     case "requested-analysis":
-                        const value = `Prière, Faire pratiquer à ${state.patient} les analyses suivantes:`
+                        const value = `Prière de faire les explorations biologiques suivantes à ${state.patient} :`
                         elx.append(value)
                         rows.push({
                             value,
@@ -73,7 +74,7 @@ function PreviewDialog({...props}) {
                         })
                         break;
                     case "requested-medical-imaging":
-                        const val = `Prière, Faire pratiquer à ${state.patient} les imageries médicales suivantes:`
+                        const val = `Prière de faire les explorations radiologiques suivantes à ${state.patient} :`
                         elx.append(val)
                         rows.push({
                             value: val,
@@ -151,7 +152,8 @@ function PreviewDialog({...props}) {
                                     style: {
                                         color: "gray",
                                         fontSize: data.size === 'portraitA4' ? "12px" : "18px",
-                                        marginTop: 0
+                                        marginTop: 0,
+                                        whiteSpace: 'pre'
                                     }
                                 })
                             }
@@ -183,7 +185,8 @@ function PreviewDialog({...props}) {
                                     style: {
                                         color: "black",
                                         fontSize: data.size === 'portraitA4' ? "14px" : "19px",
-                                        marginTop: 0
+                                        marginTop: 0,
+                                        whiteSpace: 'pre'
                                     }
                                 })
                             }
@@ -199,7 +202,7 @@ function PreviewDialog({...props}) {
                             txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
                             txt = txt.replaceAll('[date]', moment().format('DD/MM/YYYY'))
                             if (state.birthdate) {
-                                txt = txt.replaceAll('{age}', moment().diff(moment(state.birthdate, "DD-MM-YYYY"), "years") + " ans")
+                                txt = txt.replaceAll('{age}', getBirthdayFormat({birthdate:state.birthdate}, t))
                                 txt = txt.replaceAll('{birthdate}', moment(state.birthdate, "DD-MM-YYYY").format('DD-MM-YYYY'))
                             }
                             if (state.cin)
@@ -313,8 +316,9 @@ function PreviewDialog({...props}) {
 
         let lastPos = 0;
         let updatedPages = [];
-        const nbPages = Math.ceil(pageX.clientHeight / data.content.maxHeight);
-        for (let i = 0; i < nbPages; i++) {
+        const offset = (state?.type && ["write_certif"].includes(state.type)) ? 250 : 0;
+        const nbPages = Math.ceil((pageX.clientHeight - offset) / data.content.maxHeight);
+        for (let i = 0; i < (nbPages > 0 ? nbPages : 1); i++) {
             const el = document.createElement("div")
             el.id = `page${i}`
             el.style.position = "absolute"
@@ -367,7 +371,7 @@ function PreviewDialog({...props}) {
                 tt.style.textAlign = "center"
                 elx.appendChild(tt)
 
-                if (state.note){
+                if (state.note) {
                     const note = document.createElement("p");
                     note.append(`Note: ${state.note}`);
                     elx.appendChild(note)
@@ -405,12 +409,12 @@ function PreviewDialog({...props}) {
     }
 
     useEffect(() => {
-        const pageX = document.createElement("div")
-        pageX.style.visibility = "hidden"
-        pageX.style.position = "absolute"
-        pageX.style.top = "0"
-        pageX.style.opacity = "0"
-        document.body.append(pageX)
+        const pageX = document.createElement("div");
+        pageX.style.visibility = "hidden";
+        pageX.style.position = "absolute";
+        pageX.style.top = "0";
+        pageX.style.opacity = "0";
+        document.body.append(pageX);
         if (state) {
             if (state.info)
                 createPageContent(pageX, state.info)
@@ -438,9 +442,10 @@ function PreviewDialog({...props}) {
     }, [data])
 
     return (
-        <>
+        <div ref={previewDocRef}>
             {pages.slice(0, nbPage ? 1 : pages.length).map((el, idx) => (
                 <div key={idx}>
+                    <div className="page-break"/>
                     <PrescriptionA4 {...{
                         componentRef,
                         data,
@@ -456,7 +461,7 @@ function PreviewDialog({...props}) {
                     }}/>
                 </div>
             ))}
-        </>
+        </div>
     );
 }
 

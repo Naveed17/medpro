@@ -11,5 +11,6 @@ export const filterReasonOptions = (options: any[], params: FilterOptionsState<a
             name: `${t('add_reason')} "${inputValue}"`,
         });
     }
+
     return filtered;
 }

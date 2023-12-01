@@ -45,6 +45,10 @@ function MedicalPrescriptionModelDialog({...props}) {
                                 setValue(e.target.value);
                                 dispatch(setModelName(e.target.value));
                             }}
+                            {...(value.length === 0 && {
+                                error: true,
+                                helperText: t("model_missing_name")
+                            })}
                             placeholder={t("new_model", {ns: "consultation"})}
                         />
                     </Stack>

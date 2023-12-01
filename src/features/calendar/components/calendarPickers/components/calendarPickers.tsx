@@ -3,15 +3,16 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {LocaleFnsProvider} from "@lib/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
-import {TextField, useTheme} from "@mui/material";
+import {Stack, TextField, Typography, useTheme} from "@mui/material";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
 import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {highlightedDays, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 function CalendarPickers({...props}) {
     const {disabled} = props;
@@ -47,37 +48,28 @@ function CalendarPickers({...props}) {
         <CalendarPickerStyled>
             <LocalizationProvider
                 dateAdapter={AdapterDateFns}
-                adapterLocale={LocaleFnsProvider(locale)}
-            >
+                adapterLocale={LocaleFnsProvider(locale)}>
                 <StaticDatePicker
                     {...props}
                     disabled={disabled}
                     renderDay={(day, _value, DayComponentProps) => {
                         const note = appointmentDayCount && appointmentDayCount[moment(day).format('DD-MM-YYYY')];
-                        const isSelected = !DayComponentProps.outsideCurrentMonth && note;
                         return (
-                            <PickersDay {...(isSelected && {
-                                sx: {
-                                    "&:after": {
-                                        background: !(DayComponentProps.today || DayComponentProps.selected) &&
-                                            `linear-gradient(to right,
-                                            ${note >= 1 ? theme.palette.secondary.lighter : theme.palette.common.white} 25%,
-                                            ${note > 3 ? theme.palette.secondary.light : theme.palette.common.white} 25%,
-                                            ${note > 3 ? theme.palette.secondary.light : theme.palette.common.white} 50%,
-                                            ${note > 5 ? theme.palette.secondary.dark : theme.palette.common.white} 50%,
-                                            ${note > 5 ? theme.palette.secondary.dark : theme.palette.common.white} 75%,
-                                            ${note > 10 ? theme.palette.secondary.darker : theme.palette.common.white} 75%)`,
-                                        position: "absolute",
-                                        content: '""',
-                                        height: "4px",
-                                        right: 0,
-                                        left: 0,
-                                        bottom: 0
-                                    },
-                                    borderTopRightRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important",
-                                    borderTopLeftRadius: !(DayComponentProps.today || DayComponentProps.selected) && " 0 !important"
-                                }
-                            })} {...DayComponentProps} />
+                            <PickersDay {...DayComponentProps}>
+                                <Stack alignItems={"center"} justifyContent={"center"} spacing={0} m={2}>
+                                    <Typography fontSize={12} fontWeight={600}>{day.getDate()}</Typography>
+                                    {!(DayComponentProps.today || DayComponentProps.selected) && note > 0 ?
+                                        <FiberManualRecordIcon
+                                            sx={{
+                                                position: 'absolute',
+                                                bottom: 0,
+                                                width: 10,
+                                                height: 10,
+                                                color: highlightedDays(note, theme)
+                                            }}
+                                        /> : undefined}
+                                </Stack>
+                            </PickersDay>
                         );
                     }}
                     disableOpenPicker

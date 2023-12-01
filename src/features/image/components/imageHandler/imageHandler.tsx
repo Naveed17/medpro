@@ -6,7 +6,6 @@ function ImageHandler({...props}) {
     const [srcUrl, setSrcUrl] = useState(src ?? "/static/icons/Med-logo.png");
 
     return (<Image
-        {...{alt}}
         style={{borderRadius: 2}}
         onError={() => setSrcUrl("/static/icons/ic-failed-u.svg")}
         blurDataURL="/static/icons/Med-logo.png"
@@ -14,6 +13,7 @@ function ImageHandler({...props}) {
         height={20}
         {...props}
         src={srcUrl}
+        alt={alt ?? "ImageHandler"}
     />)
 }
 

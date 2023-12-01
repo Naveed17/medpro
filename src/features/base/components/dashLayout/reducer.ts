@@ -7,7 +7,8 @@ export type dashLayoutState = {
     import_data?: string[];
     newCashBox?: boolean;
     medicalEntityHasUser?: MedicalEntityHasUsersModel[];
-    medicalProfessionalData?: MedicalProfessionalDataModel[];
+    medicalProfessionalData?: MedicalProfessionalDataModel;
+    secretaryAccess?: boolean;
     appointmentTypes?: AppointmentTypeModel[];
     notifications?: any[];
     last_fiche_id?: string;
@@ -17,7 +18,7 @@ export type dashLayoutState = {
         "patient": "string";
         "type": "string";
         "patient_uuid": "string";
-    } | null;
+    }[] | null;
     next?: {
         "uuid": "string";
         "start_time": "string";
@@ -38,8 +39,7 @@ const initialState: dashLayoutState = {
 };
 
 export const DashLayoutReducer = createReducer(initialState, builder => {
-    builder
-        .addCase(setOngoing, (state, action: any) => {
-            return {...state, ...action.payload}
-        });
+    builder.addCase(setOngoing, (state, action: any) => {
+        return {...state, ...action.payload}
+    });
 });

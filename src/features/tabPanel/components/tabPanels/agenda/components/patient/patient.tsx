@@ -16,7 +16,7 @@ import {useMedicalEntitySuffix, prepareInsurancesData, increaseNumberInString} f
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function Patient({...props}) {
     const {onNext, onBack, select, onPatientSearch, handleAddPatient = null} = props;
@@ -111,10 +111,11 @@ function Patient({...props}) {
                     setAddPatient(false);
                     handleAddPatient && handleAddPatient(false);
                     mutatePatients().then(result => {
-                        const data = (result?.data as any)?.data;
+                        const {data: patients} = result
+                        const {data: patientList} = patients?.data as HttpResponse;
                         if (selectedPatient) {
                             dispatch(setAppointmentPatient(
-                                data.find((patient: PatientModel) => patient.uuid === selectedPatient.uuid)));
+                                patientList.find((patient: PatientModel) => patient.uuid === selectedPatient.uuid)));
                         }
                     });
                 }

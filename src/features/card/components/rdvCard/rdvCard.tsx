@@ -21,9 +21,9 @@ import {useAppDispatch} from "@lib/redux/hooks";
 import {Label} from "@features/label";
 import React, {useState} from "react";
 import {onAppointmentView} from "@lib/hooks/onAppointmentView";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 function RdvCard({...props}) {
     const {inner, patient, loading, handlePreConsultationDialog} = props;
@@ -183,8 +183,7 @@ function RdvCard({...props}) {
                 transformOrigin={{
                     vertical: 'top',
                     horizontal: 'right',
-                }}
-            >
+                }}>
                 <MenuItem
                     className="popover-item"
                     onClick={() => {
@@ -203,16 +202,17 @@ function RdvCard({...props}) {
                         {t(inner?.status === 5 ? "start-consultation" : "see-details")}
                     </Typography>
                 </MenuItem>
-                <MenuItem
+                {/*<MenuItem
                     onClick={(event) => {
                         event.stopPropagation();
+                        handleClose();
                         handlePreConsultationDialog(inner);
                     }}
                     className="popover-item">
                     <Typography fontSize={15} sx={{color: "#fff"}}>
                         {t("pre_consultation_data")}
                     </Typography>
-                </MenuItem>
+                </MenuItem>*/}
             </Menu>
         </>
     );

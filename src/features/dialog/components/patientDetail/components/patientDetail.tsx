@@ -1,15 +1,4 @@
-import {
-    Backdrop,
-    Box,
-    Button,
-    DialogActions,
-    Divider,
-    Drawer,
-    Paper,
-    Stack,
-    Tab,
-    Tabs
-} from "@mui/material";
+import {Backdrop, Box, Button, DialogActions, Divider, Drawer, Paper, Stack, Tab, Tabs} from "@mui/material";
 import {consultationSelector, PatientDetailsToolbar, SetSelectedDialog} from "@features/toolbar";
 import {onOpenPatientDrawer} from "@features/table";
 import {PatientDetailsCard} from "@features/card";
@@ -25,10 +14,12 @@ import {
     setAppointmentPatient,
     setOpenUploadDialog,
     TabPanel,
-    TimeSchedule, TransactionPanel
+    TimeSchedule,
+    TransactionPanel
 } from "@features/tabPanel";
 import {GroupTable} from "@features/groupTable";
 import Icon from "@themes/urlIcon";
+import IconUrl from "@themes/urlIcon";
 import {SpeedDial} from "@features/speedDial";
 import {CustomStepper} from "@features/customStepper";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -41,10 +32,6 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import React, {SyntheticEvent, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
-import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
@@ -56,7 +43,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
 import {useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
-import {useProfilePhoto, useAntecedentTypes, useSendNotification} from "@lib/hooks/rest";
+import {useAntecedentTypes, useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Theme} from "@mui/material/styles";
@@ -64,6 +51,7 @@ import {SwitchPrescriptionUI} from "@features/buttons";
 import AddIcon from "@mui/icons-material/Add";
 import {DefaultCountry} from "@lib/constants";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function a11yProps(index: number) {
     return {
@@ -134,7 +122,6 @@ function PatientDetail({...props}) {
     const [state, setState] = useState<any>();
     const [info, setInfo] = useState<null | string>("");
     const [antecedentsData, setAntecedentsData] = useState<any[] | null>(null);
-    const [patient, setPatient] = useState<PatientModel | null>(null);
     const [editable, setEditable] = useState({
         personalInfoCard: false,
         personalInsuranceCard: false,
@@ -164,6 +151,8 @@ function PatientDetail({...props}) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`
     } : null);
+
+    const patient = ((httpPatientDetailsResponse as HttpResponse)?.data as PatientModel) ?? null;
 
     const {data: httpPatientWallet, mutate: walletMutate} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
@@ -411,13 +400,6 @@ function PatientDetail({...props}) {
     }, [selectedDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (httpPatientDetailsResponse) {
-            const patientData = (httpPatientDetailsResponse as HttpResponse)?.data as PatientModel;
-            setPatient(patientData);
-        }
-    }, [httpPatientDetailsResponse]);
-
-    useEffect(() => {
         if (httpAntecedentsResponse) {
             setAntecedentsData((httpAntecedentsResponse as HttpResponse)?.data as any[]);
         }
@@ -452,6 +434,7 @@ function PatientDetail({...props}) {
                             patientPhoto,
                             mutatePatientList,
                             mutateAgenda,
+                            roles,
                             setEditableSection: setEditable,
                             rest, devise
                         }}
@@ -514,17 +497,19 @@ function PatientDetail({...props}) {
                             textAlign: "right",
                             display: {md: "block", xs: "none"}
                         }}>
-                        <LoadingButton
-                            variant={"text"}
-                            color={"black"}
-                            loading={loadingRequest}
-                            disabled={!patient}
-                            loadingPosition="start"
-                            onClick={() => dispatch(setOpenUploadDialog(true))}
-                            size="medium"
-                            startIcon={<Icon
-                                path="ic-doc"
-                                color={!patient ? "white" : "black"}/>}>{t('upload_document')}
+
+
+                        <LoadingButton onClick={() => dispatch(setOpenUploadDialog(true))}
+                                       sx={{
+                                           borderColor: 'divider',
+                                           bgcolor: theme => theme.palette.grey['A500'],
+                                       }}
+                                       variant="outlined"
+                                       color="info"
+                                       loading={loadingRequest}
+
+                                       startIcon={<IconUrl path="fileadd" width={20} height={20}/>}>
+                            {t("upload_document")}
                         </LoadingButton>
 
                         <Button

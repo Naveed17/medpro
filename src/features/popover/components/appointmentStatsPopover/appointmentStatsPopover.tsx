@@ -1,16 +1,15 @@
-import {Avatar, Box, List, ListItem, ListSubheader, Stack, Typography, useTheme} from "@mui/material";
+import {Box, List, ListItem, ListSubheader, Typography, useTheme} from "@mui/material";
 import {AppointmentStatus} from "@features/calendar";
 import React from "react";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function AppointmentStatsPopover() {
     const theme = useTheme();
     const {t, ready} = useTranslation('common');
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <List

@@ -15,6 +15,7 @@
   "duplication": "Détection des doublons",
   "in-consultation-error": "Vous avez une consultation en cours, veuillez cliquer ici pour la finaliser.",
   "timer-status": "En consultation",
+  "agenda-mode": "Mode d'affichage",
   "agenda-view": {
     "timeGridDay": "Jour",
     "timeGridWeek": "Semaine",
@@ -91,6 +92,12 @@
         "title-trash": "Pas de rendez-vous supprimés",
         "description": "",
         "button-text": "Ajouter un RDV"
+      },
+      "vacation": {
+        "title": "Ajouter votre premier absence",
+        "sub-title": "Pas de absences",
+        "description": "",
+        "button-text": "Ajouter un absence"
       }
     }
   },
@@ -157,6 +164,7 @@
         "nationality": "Nationalité",
         "nationality-placeholder": "Sélectionner la nationalité du patient",
         "gender-error": "Veuillez choisir le genre.",
+        "special-text-error": "Seuement les alphabets sont autorisés pour ce champ.",
         "group-placeholder": "Sélectionner un groupe",
         "civility": "Civilité",
         "mr": "M.",
@@ -168,6 +176,8 @@
         "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
         "first-name-placeholder": "Tapez le prénom du patient",
         "date-of-birth": "Date de naissance",
+        "old": "Âge",
+        "old-placeholder": "Ajouter L'âge",
         "family_doctor": "Médecin correspondant",
         "family_doctor-placeholder": "Médecin correspondant",
         "day": "Jour",
@@ -290,6 +300,20 @@
     },
     "pending-dialog": {
       "title": "Rendez-vous en attente"
+    },
+    "absence-dialog": {
+      "title": "Ajouter congé ou absence",
+      "sub-title": "Liste des congés et absences proches",
+      "description": "Titre de congé",
+      "type-placeholder": "Saisir le titre du congé",
+      "startDate": "Date début",
+      "endDate": "Date fin",
+      "vacation": {
+        "yearly": "Congé annuel",
+        "sick": "Congé de maladie",
+        "conference": "Conférence",
+        "absence": "Autre motif d'absence"
+      }
     }
   },
   "alert": {

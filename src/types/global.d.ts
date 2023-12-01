@@ -11,10 +11,10 @@ declare global {
         session?: any;
         dehydratedState?: any;
         sx?: any;
-    };
+    }
 
     interface Array<T> {
-        group(o: T, fn: Function): Array<T>;
+        group(fn: Function): Array<T>;
     }
 }
 
@@ -32,7 +32,15 @@ declare module "notistack" {
         offline: true;
     }
 }
+declare module "@mui/material/Fab" {
+    interface FabPropsColorOverrides {
+        text: true,
+        white: true;
+        black: true;
+    }
+}
 declare module "@mui/material/Button" {
+
     interface ButtonPropsVariantOverrides {
         google: true;
         white: true;
@@ -56,6 +64,7 @@ declare module "@mui/material/CircularProgress" {
         white: true
     }
 }
+
 declare module "@mui/material/Chip" {
     interface ChipPropsVariantOverrides {
         contained: true;
@@ -71,7 +80,6 @@ declare module "@mui/material/SvgIcon" {
 }
 
 declare module "@mui/material" {
-
     interface Color {
         0: number | string;
         "500_32": string;
@@ -89,6 +97,9 @@ declare module "@mui/material" {
         A700: string;
         A800: string;
         A900: string;
+        B900: string;
+        B901: string;
+        B902: string;
     }
 
     interface PaletteColor {
@@ -128,8 +139,12 @@ declare module "@fullcalendar/interaction" {
     }
 }
 
-declare global {
-    interface Array<T> {
-        group(o: T, fn: Function): Array<T>;
+declare module '@emotion/styled/types' {
+    interface CreateStyled<T> {
+        isDragging?: Boolean
     }
+}
+
+declare module '@pqina/flip' {
+
 }

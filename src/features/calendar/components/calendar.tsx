@@ -1,11 +1,11 @@
 import FullCalendar from "@fullcalendar/react"; // => request placed at the top
 import {
     Backdrop,
-    Box, Chip,
+    Box,
     ClickAwayListener,
     IconButton,
     Menu,
-    MenuItem, Popover,
+    MenuItem,
     Theme,
     useMediaQuery,
     useTheme
@@ -26,15 +26,14 @@ import {
     DayOfWeek,
     Event,
     Header,
-    setCurrentDate,
-    setView,
+    setCurrentDate, setView,
     SlotFormat,
     TableHead
 } from "@features/calendar";
 import dynamic from "next/dynamic";
-import {AppointmentPopoverCard, NoDataCard} from "@features/card";
+import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
-import {BusinessHoursInput} from "@fullcalendar/core";
+import {BusinessHoursInput, DatesSetArg} from "@fullcalendar/core";
 import {useSwipeable} from "react-swipeable";
 import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
@@ -42,6 +41,8 @@ import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
+import {useTranslation} from "next-i18next";
+import {batch} from "react-redux";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -65,7 +66,9 @@ function Calendar({...props}) {
         OnAddAppointment,
         OnSelectEvent,
         OnSelectDate,
+        OnRangeDateSelect,
         OnOpenPatient,
+        OnAddAbsence,
         OnEventChange,
         OnMenuActions,
         mutate: mutateAgenda
@@ -73,14 +76,14 @@ function Calendar({...props}) {
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
+    const {t} = useTranslation('common');
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+    const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
 
-    const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {view, currentDate, config: agendaConfig, sortedData: groupSortedData} = useAppSelector(agendaSelector);
 
     const prevView = useRef(view);
 
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
-    const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
     const [events, setEvents] = useState<EventModal[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<string>();
@@ -93,19 +96,29 @@ function Calendar({...props}) {
         mouseX: number;
         mouseY: number;
     } | null>(null);
+    const [contextMenuHeader, setContextMenuHeader] = React.useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isEventDragging, setIsEventDragging] = useState(false);
+    const [hiddenDays, setHiddenDays] = useState([]);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
-    const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
     const openingHours = agendaConfig?.openingHours[0];
-    const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
-    const open = Boolean(anchorEl);
+    const calendarHeight = !isMobile ? "83vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
 
     const handleOnSelectEvent = useCallback((value: any) => {
         OnSelectEvent(value);
     }, [OnSelectEvent]);
+
+    const handleAddAbsence = useCallback((currentDate: Date) => {
+        OnAddAbsence(currentDate);
+    }, [OnAddAbsence]);
+
+    const handleRangeChange = useCallback((event: DatesSetArg) => {
+        OnRangeChange(event);
+    }, [OnRangeChange]);
 
     const getSlotsFormat = (slot: number) => {
         const duration = moment.duration(slot, "hours") as any;
@@ -130,13 +143,20 @@ function Calendar({...props}) {
         }
     };
 
-    const handleNavLinkDayClick = (date: Date) => {
+    const handleNavLinkDayClick = (date: Date, jsEvent: UIEvent) => {
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.gotoDate(date);
-            dispatch(setView("timeGridDay"));
-            dispatch(setCurrentDate({date, fallback: false}));
+            if (!['path', 'svg'].includes((jsEvent.target as any)?.nodeName)) {
+                calendarApi.gotoDate(date);
+                batch(() => {
+                    dispatch(setView("timeGridDay"));
+                    dispatch(setCurrentDate({date, fallback: false}));
+                });
+            } else {
+                console.log("date", date)
+                dispatch(setCurrentDate({date, fallback: false}));
+            }
         }
     }
 
@@ -183,31 +203,32 @@ function Calendar({...props}) {
     };
 
     const MenuContextlog = (action: string, eventMenu: EventModal) => {
-        return eventMenu && (
+        return eventMenu?.status && (
             action === "onWaitingRoom" &&
-            (moment().format("DD-MM-YYYY") !== moment(eventMenu.time).format("DD-MM-YYYY") ||
-                ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(eventMenu.status.key)) ||
+            (moment().format("DD-MM-YYYY") !== moment(eventMenu?.time).format("DD-MM-YYYY") || eventMenu?.patient?.isArchived ||
+                ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(eventMenu?.status.key)) ||
             action === "onConsultationView" &&
-            (!["FINISHED", "ON_GOING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            (!["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || roles.includes('ROLE_SECRETARY')) ||
             action === "onConsultationDetail" &&
-            (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
+            (["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(eventMenu?.status.key) || roles.includes('ROLE_SECRETARY') || eventMenu?.patient?.isArchived) ||
             action === "onPreConsultation" &&
-            ["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) ||
+            (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
             action === "onLeaveWaitingRoom" &&
-            eventMenu.status.key !== "WAITING_ROOM" ||
+            eventMenu?.status.key !== "WAITING_ROOM" ||
             action === "onCancel" &&
-            ["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(eventMenu.status.key) ||
+            (["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
             action === "onDelete" &&
-            ["FINISHED", "ON_GOING"].includes(eventMenu.status.key) ||
+            ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) ||
             action === "onMove" &&
-            (moment().isAfter(eventMenu.time) || ["FINISHED", "ON_GOING"].includes(eventMenu.status.key)) ||
+            (moment().isAfter(eventMenu?.time) || ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
             action === "onPatientNoShow" &&
-            ((moment().isBefore(eventMenu.time) || eventMenu.status.key === "ON_GOING") ||
-                eventMenu.status.key === "FINISHED") ||
+            ((moment().endOf('day').isBefore(eventMenu?.time) || eventMenu?.status.key === "ON_GOING") || eventMenu?.status.key === "FINISHED" || eventMenu?.patient?.isArchived) ||
             action === "onConfirmAppointment" &&
-            eventMenu.status.key !== "PENDING" ||
+            eventMenu?.status.key !== "PENDING" ||
             action === "onReschedule" &&
-            (moment().isBefore(eventMenu.time) && eventMenu.status.key !== "FINISHED")
+            ((moment().isBefore(eventMenu?.time) && eventMenu?.status.key !== "FINISHED") || eventMenu?.patient?.isArchived) ||
+            ["onPatientDetail", "onAddConsultationDocuments"].includes(action) &&
+            eventMenu?.patient?.isArchived
         )
     }
 
@@ -221,19 +242,14 @@ function Calendar({...props}) {
         preventScrollOnSwipe: true
     });
 
-    const isHorizontal = () => {
-        if (view === "timeGridDay")
-            return 'left';
-        else if (moment(appointmentData?.dayDate, "DD-MM-YYYY").weekday() > 4)
-            return -305;
-        else return 'right';
-    }
-
     useEffect(() => {
         let days: BusinessHoursInput[] = [];
         if (openingHours) {
             Object.entries(openingHours).forEach((openingHours: any) => {
-                openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
+                openingHours[1].forEach((openingHour: {
+                    start_time: string,
+                    end_time: string
+                }) => {
                     const min = moment.duration(openingHour?.start_time).asHours();
                     const max = moment.duration(openingHour?.end_time).asHours();
                     if (min < slotMinTime) {
@@ -261,7 +277,9 @@ function Calendar({...props}) {
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             if (currentDate.fallback) {
-                calendarApi.gotoDate(currentDate.date);
+                queueMicrotask(() => {
+                    calendarApi.gotoDate(currentDate.date);
+                });
             }
         }
     }, [currentDate]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -271,7 +289,9 @@ function Calendar({...props}) {
         if (calendarEl && prevView.current !== "listWeek") {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             if (calendarApi.view.type !== view) {
-                calendarApi.changeView(view as string);
+                queueMicrotask(() => {
+                    calendarApi.changeView(view as string);
+                })
             }
         } else {
             OnViewChange(view as string);
@@ -290,7 +310,7 @@ function Calendar({...props}) {
     }, [sortedData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <Box bgcolor="#F0FAFF">
+        <Box bgcolor="common.white">
             {isMobile && <ClickAwayListener onClickAway={() => {
                 if (slotInfoPopover) {
                     setSlotInfoPopover(false);
@@ -322,6 +342,7 @@ function Calendar({...props}) {
                     ) : (!loading && view !== "listWeek") && (
                         <Box position="relative" {...handlers} style={{touchAction: 'pan-y'}}>
                             <FullCalendar
+                                {...{hiddenDays}}
                                 weekends
                                 editable
                                 direction={isRTL ? "rtl" : "ltr"}
@@ -333,7 +354,7 @@ function Calendar({...props}) {
                                 slotEventOverlap={true}
                                 events={events}
                                 ref={calendarRef}
-                                datesSet={OnRangeChange}
+                                datesSet={handleRangeChange}
                                 defaultTimedEventDuration="00:15"
                                 allDayMaintainDuration={false}
                                 navLinkDayClick={handleNavLinkDayClick}
@@ -353,10 +374,11 @@ function Calendar({...props}) {
                                             {...{
                                                 isBeta,
                                                 open,
-                                                isEventDragging,
-                                                setAppointmentData,
-                                                event, openingHours,
-                                                view, isMobile, anchorEl, setAnchorEl
+                                                event,
+                                                openingHours,
+                                                OnMenuActions,
+                                                roles,
+                                                view
                                             }}
                                             t={translation}/>
                                     </motion.div>
@@ -368,8 +390,6 @@ function Calendar({...props}) {
                                         return ['normal']
                                     }
                                 }}
-                                eventDragStart={() => setIsEventDragging(true)}
-                                eventDragStop={() => setIsEventDragging(false)}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         setEventMenu(mountArg.event._def.publicId);
@@ -389,25 +409,33 @@ function Calendar({...props}) {
                                         }, 0);
                                     }
                                 }}
-                                dayHeaderContent={(event) =>
-                                    Header({
+                                dayHeaderContent={(event) => {
+                                    const datEvents = groupSortedData.find(events => events.date === moment(event.date).format("DD-MM-YYYY"))?.events?.length ?? 0;
+                                    return Header({
+                                        t,
                                         isGridWeek,
                                         event,
-                                        isMobile
+                                        dispatch,
+                                        datEvents,
+                                        isMobile,
+                                        currentDate,
+                                        contextMenuHeader,
+                                        setContextMenuHeader,
+                                        hiddenDays,
+                                        setHiddenDays,
+                                        OnAddAbsence: () => handleAddAbsence(currentDate.date)
                                     })
-                                }
-                                eventClick={(eventArg) => handleOnSelectEvent(eventArg.event._def)}
+                                }}
+                                eventClick={(eventArg) => (eventArg.event._def.ui.display !== "background" && !eventArg.event._def.extendedProps.patient?.isArchived) && handleOnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);
                                     OnAddAppointment("add-quick");
                                     OnSelectDate(info);
-                                    /*setTimeout(() => {
-                                        setSlotInfoPopover(true);
-                                    }, isMobile ? 100 : 0);*/
                                 }}
+                                select={(eventArg) => OnRangeDateSelect(eventArg)}
                                 showNonCurrentDates={true}
-                                //rerenderDelay={6}
+                                selectMinDistance={10}
                                 height={calendarHeight}
                                 initialDate={currentDate.date}
                                 slotMinTime={getSlotsFormat(slotMinTime)}
@@ -548,41 +576,6 @@ function Calendar({...props}) {
                                     )
                                 )}
                             </Menu>
-
-                            <Popover
-                                id="mouse-over-popover"
-                                sx={{
-                                    pointerEvents: 'none',
-                                    zIndex: 900
-                                }}
-                                open={open}
-                                anchorEl={anchorEl}
-                                anchorOrigin={{
-                                    vertical: view === "timeGridDay" ? 'bottom' : 'top',
-                                    horizontal: isHorizontal()
-                                }}
-                                onClose={() => setAnchorEl(null)}
-                                disableRestoreFocus>
-                                <motion.div
-                                    initial={{opacity: 0}}
-                                    animate={{opacity: 1}}
-                                    transition={{ease: "linear", duration: .2}}>
-                                    {appointmentData?.new &&
-                                        <Chip label={translation("event.new", {ns: 'common'})}
-                                              sx={{
-                                                  position: "absolute",
-                                                  right: 4,
-                                                  top: 4,
-                                                  fontSize: 10
-                                              }}
-                                              size="small"
-                                              color={"primary"}/>}
-                                    <AppointmentPopoverCard
-                                        {...{isBeta, t: translation}}
-                                        style={{width: "300px", border: "none"}}
-                                        data={appointmentData}/>
-                                </motion.div>
-                            </Popover>
                         </Box>
                     )}
                 </CalendarStyled>

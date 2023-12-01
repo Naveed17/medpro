@@ -1,3 +1,4 @@
 export * from "./userDrawer";
 export * from './paymentDrawer';
-export * from './inventoryDrawer'
+export * from './inventoryDrawer';
+export * from './absenceDrawer';

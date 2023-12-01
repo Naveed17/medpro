@@ -31,6 +31,8 @@ function CIPMedicalProceduresRow({...props}) {
                 />
             </TableCell>
             <TableCell>{row.act.name}</TableCell>
+            <TableCell>{row?.code ?? '--'}</TableCell>
+            <TableCell>{row?.contribution ?? '--'}</TableCell>
             <TableCell align={"center"}>
                 {row.selected && row.uuid !== 'consultation_type' ? (
                     <Stack alignItems="center" direction="row" className="counter-btn">

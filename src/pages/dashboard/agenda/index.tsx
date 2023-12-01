@@ -18,22 +18,19 @@ import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {CalendarToolbar} from "@features/toolbar";
 import {useSession} from "next-auth/react";
-import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
-import {instanceAxios, useRequestQueryMutation, useRequestQuery} from "@lib/axios";
+import {LoadingScreen} from "@features/loadingScreen";
+import {useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
 
 const humanizeDuration = require("humanize-duration");
 import FullCalendar from "@fullcalendar/react";
-import {DatesSetArg, EventChangeArg} from "@fullcalendar/core";
+import {DateSelectArg, DatesSetArg, EventChangeArg} from "@fullcalendar/core";
 import {EventDef} from "@fullcalendar/core/internal";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
-    agendaSelector,
+    agendaSelector, Calendar,
     DayOfWeek,
     openDrawer,
     setCurrentDate,
@@ -51,8 +48,8 @@ import {
     TimeSchedule
 } from "@features/tabPanel";
 import {
-    AppointmentDetail, QuickAddAppointment,
-    Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime, preConsultationSelector
+    QuickAddAppointment,
+    Dialog, dialogMoveSelector, PatientDetail, setMoveDateTime, preConsultationSelector, AppointmentDetail
 } from "@features/dialog";
 import {AppointmentListMobile, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
@@ -84,15 +81,13 @@ import {useTransactionEdit, useSendNotification} from "@lib/hooks/rest";
 import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
+import {setDialog} from "@features/topNavBar";
+import {resetAbsenceData, setAbsenceData, AbsenceDrawer, absenceDrawerSelector} from "@features/drawer";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
     {icon: <AddOutlinedIcon/>, name: 'Ajout complet', key: 'add-complete'}
 ];
-
-const Calendar = dynamic(() => import('@features/calendar/components/calendar'), {
-    ssr: false
-});
 
 function Agenda() {
     const {data: session, status} = useSession();
@@ -123,7 +118,7 @@ function Agenda() {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper,
-        selectedEvent, actionSet, openMoveDrawer, openPayDialog,
+        selectedEvent, actionSet, openMoveDrawer, openPayDialog, openAbsenceDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -135,6 +130,7 @@ function Agenda() {
     const {isActive, event: onGoingEvent} = useAppSelector(timerSelector);
     const {config: agenda, lastUpdateNotification, sortedData: groupSortedData} = useAppSelector(agendaSelector);
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
+    const absenceData = useAppSelector(absenceDrawerSelector);
 
     const [timeRange, setTimeRange] = useState({
         start: moment().startOf('week').format('DD-MM-YYYY'),
@@ -210,6 +206,7 @@ function Agenda() {
     const {trigger: triggerUploadDocuments} = useRequestQueryMutation("/agenda/appointment/documents");
     const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
     const {trigger: triggerNotificationPush} = useSendNotification();
+    const {trigger: triggerAddAbsence} = useRequestQueryMutation("/agenda/appointment/absence/add");
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
@@ -235,11 +232,22 @@ function Agenda() {
 
     const updateCalendarEvents = (result: HttpResponse) => {
         setLoading(true);
+        let eventCond = [];
+        let absences = [];
         if (query?.queryData.includes("format=list")) {
             events.current = [];
+            eventCond = result?.data;
+        } else {
+            eventCond = result?.data?.appointments;
+            absences = result?.data?.absence?.map((appointment: any) => ({
+                start: moment(appointment.startDate, "DD-MM-YYYY HH:mm").toDate(),
+                end: moment(appointment.endDate, "DD-MM-YYYY HH:mm").toDate(),
+                overlap: false,
+                color: theme.palette.grey['A300'],
+                display: 'background'
+            }));
         }
 
-        const eventCond = result?.data;
         const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
         const eventsUpdated: EventModal[] = [];
         if (!query?.filter || events.current.length === 0) {
@@ -259,7 +267,7 @@ function Agenda() {
             })
         }
         if (!query?.history) {
-            events.current = eventsUpdated;
+            events.current = [...eventsUpdated, ...absences];
         } else {
             events.current = [...eventsUpdated, ...events.current];
         }
@@ -283,7 +291,10 @@ function Agenda() {
         let localMaxSlot = 20; //20h
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
         Object.entries(openingHours).forEach((openingHours: any) => {
-            openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
+            openingHours[1].forEach((openingHour: {
+                start_time: string,
+                end_time: string
+            }) => {
                 const min = moment.duration(openingHour?.start_time).asHours();
                 const max = moment.duration(openingHour?.end_time).asHours();
                 if (min < localMinSlot) {
@@ -411,9 +422,49 @@ function Agenda() {
         }
     }
 
+    const handleRangeSelect = (event: DateSelectArg) => {
+        batch(() => {
+            dispatch(setAbsenceData({startDate: event.start, endDate: event.end}));
+            dispatch(openDrawer({type: "absence", open: true}));
+        })
+    }
+
+    const handleAddAbsence = (currentDate?: Date) => {
+        setLoadingRequest(true);
+        const params = new FormData();
+        params.append('title', currentDate ? `Congé le ${moment(currentDate).format("DD/MM/YYYY")}` : absenceData.title);
+        params.append('dates', JSON.stringify([{
+            "start_date": moment(currentDate ?? absenceData.startDate).format('DD-MM-YYYY'),
+            "start_time": moment(currentDate ?? absenceData.startDate).format('HH:mm'),
+            "end_date": moment(currentDate ?? absenceData.endDate).format('DD-MM-YYYY'),
+            "end_time": (currentDate ? moment(currentDate).endOf("day") : moment(absenceData.endDate)).format('HH:mm'),
+        }]));
+
+        triggerAddAbsence({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/absences`,
+            data: params
+        }, {
+            onSuccess: () => {
+                if (openAbsenceDrawer) {
+                    batch(() => {
+                        dispatch(openDrawer({type: "absence", open: false}));
+                        dispatch(resetAbsenceData());
+                    });
+                }
+                refreshData();
+            },
+            onSettled: () => setLoadingRequest(false)
+        });
+    }
+
     const onSelectEvent = (event: EventDef) => {
         setLoadingRequest(true);
         setTimeout(() => setEvent(event));
+        batch(() => {
+            dispatch(setSelectedEvent(event));
+            dispatch(openDrawer({type: "view", open: true}));
+        });
         const query = `?mode=details&appointment=${event.publicId}&start_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&format=week`
         triggerAppointmentDetails({
             method: "GET",
@@ -428,13 +479,10 @@ function Agenda() {
                         ...(horsWork ? ["event.hors-opening-hours"] : []),
                         ...(appointment.PatientHasAgendaAppointment ? ["event.patient-multi-event-day"] : [])];
                     setLoadingRequest(false);
-                    batch(() => {
-                        dispatch(setSelectedEvent({
-                            ...event,
-                            extendedProps: {...event.extendedProps, ...appointmentPrepareEvent(appointment, horsWork, hasErrors)}
-                        }));
-                        dispatch(openDrawer({type: "view", open: true}));
-                    });
+                    dispatch(setSelectedEvent({
+                        ...event,
+                        extendedProps: {...event.extendedProps, ...appointmentPrepareEvent(appointment, horsWork, hasErrors)}
+                    }));
                 }
             }
         });
@@ -699,6 +747,7 @@ function Agenda() {
     }
 
     const onConsultationStart = (event: EventDef) => {
+        dispatch(setSelectedEvent(event));
         if (!isActive) {
             const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
             router.push({
@@ -706,12 +755,10 @@ function Agenda() {
                 query: {inProgress: true}
             }, slugConsultation, {locale: router.locale})
         } else {
-            dispatch(openDrawer({type: "view", open: false}));
-            setError(true);
-            // hide notification after 8000ms
-            setInterval(() => {
-                setError(false);
-            }, 8000);
+            batch(() => {
+                dispatch(openDrawer({type: "view", open: false}));
+                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+            })
         }
     }
 
@@ -959,7 +1006,7 @@ function Agenda() {
         setOpenUploadDialog({...openUploadDialog, loading: true});
         const params = new FormData();
         documentConfig.files.map((file: any) => {
-            params.append(`files[${file.type}][]`, file.file, file.name.slice(0, 20));
+            params.append(`files[${file.type}][]`, file.file, file.name);
         });
         triggerUploadDocuments({
             method: "POST",
@@ -967,17 +1014,17 @@ function Agenda() {
             data: params
         }, {
             onSuccess: () => {
-                setOpenUploadDialog({loading: false, dialog: false});
                 medicalEntityHasUser && triggerNotificationPush({
                     action: "push",
                     root: "all",
                     message: " ",
                     content: JSON.stringify({
-                        mutate: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${event?.extendedProps.patient.uuid}/appointments/documents/${router.locale}`,
+                        mutate: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/documents/${router.locale}`,
                         fcm_session: jti
                     })
                 });
-            }
+            },
+            onSettled: () => setOpenUploadDialog({loading: false, dialog: false})
         });
     }
 
@@ -1005,9 +1052,7 @@ function Agenda() {
                 dispatch(setStepperIndex(0));
                 setTimeout(() => setQuickAddAppointment(false));
             },
-            onSettled: () => {
-                setLoading(false);
-            }
+            onSettled: () => setLoading(false)
         });
     }
 
@@ -1051,7 +1096,7 @@ function Agenda() {
                     }
                 }}>
                 <CalendarToolbar
-                    {...{t}}
+                    {...{t, timeRange}}
                     OnToday={handleOnToday}
                     OnSelectEvent={onSelectEvent}
                     OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
@@ -1083,7 +1128,7 @@ function Agenda() {
                         </motion.div>
                     </AnimatePresence>}
             </SubHeader>
-            <Box>
+            <Box sx={{background: "white"}}>
                 <Backdrop sx={{zIndex: 100, backgroundColor: alpha(theme.palette.common.white, 0.9)}}
                           open={openFabAdd}/>
                 <LinearProgress sx={{
@@ -1116,6 +1161,8 @@ function Agenda() {
                             OnSelectEvent={onSelectEvent}
                             OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
                             OnEventChange={onEventChange}
+                            OnRangeDateSelect={handleRangeSelect}
+                            OnAddAbsence={handleAddAbsence}
                             OnOpenPatient={(event: EventDef) => {
                                 setEvent(event);
                                 dispatch(openDrawer({type: "view", open: false}));
@@ -1213,6 +1260,7 @@ function Agenda() {
                             {...{isBeta}}
                             OnConsultation={onConsultationStart}
                             OnConfirmAppointment={onConfirmAppointment}
+                            OnUploadDocuments={(event: EventDef) => onMenuActions('onAddConsultationDocuments', event)}
                             OnConsultationView={onConsultationView}
                             OnDataUpdated={() => refreshData()}
                             OnCancelAppointment={() => refreshData()}
@@ -1296,6 +1344,50 @@ function Agenda() {
                                 }}
                                 patientId={event?.extendedProps.patient.uuid}/>}
                     </Box>
+                </Drawer>
+
+                <Drawer
+                    anchor={"right"}
+                    open={openAbsenceDrawer}
+                    dir={direction}
+                    onClose={() => {
+                        batch(() => {
+                            dispatch(openDrawer({type: "absence", open: false}));
+                            dispatch(resetAbsenceData());
+                        });
+                    }}>
+                    <AbsenceDrawer {...{t}}/>
+                    <Paper
+                        sx={{
+                            display: "inline-block",
+                            borderRadius: 0,
+                            borderWidth: 0,
+                            textAlign: "right",
+                            p: "1rem"
+                        }}
+                        className="action">
+                        <Button
+                            sx={{
+                                mr: 1
+                            }}
+                            variant="text-primary"
+                            onClick={() => {
+                                batch(() => {
+                                    dispatch(openDrawer({type: "absence", open: false}));
+                                    dispatch(resetAbsenceData());
+                                });
+                            }}>
+                            {t(`steppers.back`)}
+                        </Button>
+                        <LoadingButton
+                            loading={loadingRequest}
+                            onClick={() => handleAddAbsence()}
+                            disabled={absenceData.title.length === 0}
+                            variant="contained"
+                            color={"primary"}>
+                            {t(`dialogs.quick_add_appointment-dialog.confirm`)}
+                        </LoadingButton>
+                    </Paper>
                 </Drawer>
 
                 <Drawer
@@ -1633,15 +1725,11 @@ function Agenda() {
 
 export const getStaticProps: GetStaticProps = async ({locale}) => {
     const queryClient = new QueryClient();
-    const countries = `/api/public/places/countries/${locale}?nationality=true`;
+    const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 
-    await queryClient.prefetchQuery([countries], async () => {
-        const {data} = await instanceAxios.request({
-            url: countries,
-            method: "GET"
-        });
-        return data
-    });
+    const countries = `api/public/places/countries/${locale}?nationality=true`;
+
+    await queryClient.prefetchQuery([`/${countries}`], () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json()));
 
     return {
         props: {

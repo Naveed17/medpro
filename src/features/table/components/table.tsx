@@ -55,6 +55,7 @@ function Otable({...props}) {
         handleEvent,
         hideHeaderOnMobile,
         loading,
+        size = "medium",
         maxHeight = `calc(100vh - 220px)`,
         totalPages,
         total,
@@ -107,7 +108,7 @@ function Otable({...props}) {
         }
         setSelected(newSelected);
     }
-    
+
     const selectted = rowsActionsData.find((item) => from === item.action);
 
     const Component: any = selectted?.component;
@@ -140,11 +141,11 @@ function Otable({...props}) {
         <Box>
             <TableContainer sx={{maxHeight}}>
                 <Table
+                    {...{size}}
                     ref={tableRef}
                     stickyHeader
                     sx={{minWidth: minWidth, ...sx}}
-                    aria-labelledby="tableTitle"
-                    size={"medium"}>
+                    aria-labelledby="tableTitle">
                     <OHead
                         {...{
                             order,
@@ -202,7 +203,6 @@ function Otable({...props}) {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <Box py={1}/>
             {!loading && pagination && parseInt(totalPages) > 1 && (
                 <Pagination total={total} count={totalPages}/>
             )}

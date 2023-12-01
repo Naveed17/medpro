@@ -1,6 +1,6 @@
 import {getBirthday} from "@lib/hooks/getBirthday";
 
-export const getBirthdayFormat = (patient: PatientModel | PatientPreview, t: any, keyPrefix?: string) => {
+export const getBirthdayFormat = (patient: { birthdate:string }, t: any, keyPrefix?: string) => {
     const birthday = getBirthday(patient?.birthdate);
     return `${birthday.years ? `${birthday.years} ${t(`${keyPrefix ? `${keyPrefix}.` : ""}years`).toLowerCase()}${birthday.years <= 2 ? "," : ""} ` : ""}
          ${birthday.years <= 2 && birthday.months ? `${birthday.months} ${t(`${keyPrefix ? `${keyPrefix}.` : ""}months`).toLowerCase()}, ` : ""} 

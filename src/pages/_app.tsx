@@ -12,6 +12,8 @@ import "@styles/globals.scss";
 import 'react-medium-image-zoom/dist/styles.css';
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 // import moment locales
 import "moment/locale/ar-tn";
 import "moment/locale/fr";

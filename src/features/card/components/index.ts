@@ -26,6 +26,7 @@ export * from "./appointmentPatientCard";
 export * from "./documentCard";
 export * from "./pendingDocumentCard";
 export * from "./cipCard";
+export * from "./cipCard2nd";
 export * from "./historyCard";
 export * from "./patientCardMobile";
 export * from "./motifTypeCard";
@@ -51,3 +52,7 @@ export * from "./noteCardCollapse";
 export * from "./cashBoxMobileCard";
 export * from "./cashoutMobileCard";
 export * from "./inventoryMobileCard";
+export * from './waitingRoomMobileCard'
+export * from './transactionMobileCard'
+export * from './unpaidConsultationCard';
+export * from './newCashboxMobileCard'

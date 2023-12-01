@@ -4,13 +4,17 @@ import {styled} from "@mui/material/styles";
 const RootStyled = styled(Stack)(({theme}) => ({
     overflow: 'hidden',
     width: "100%",
-    minWidth: 1028,
 
     paddingBottom: theme.spacing(2),
     '.counter-btn': {
         padding: theme.spacing(1),
         alignSelf: 'flex-start',
+        backgroundColor: theme.palette.grey["A10"],
+        color: "black",
         minHeight: 50,
+        border:0,
+        width:"100%",
+        justifyContent: "flex-start",
         '.MuiCheckbox-root': {
             width: 20,
             height: 20,
@@ -37,18 +41,34 @@ const RootStyled = styled(Stack)(({theme}) => ({
                 width: 14,
                 height: 14
             }
+        },
+        [theme.breakpoints.down('sm')]: {
+            width: '100%',
+            flexDirection: 'column'
         }
     },
     '.MuiInputAdornment-root': {
         alignSelf: 'flex-end'
     },
-
+    ".document-card": {
+        borderRadius: 6,
+        width: "100%",
+        '.MuiCardContent-root': {
+            padding: theme.spacing(1),
+            "&:last-child": {
+                paddingBottom: theme.spacing(1)
+            }
+        }
+    },
     "@media (max-width: 1024px)": {
         minWidth: 0,
     },
-    "input::-webkit-inner-spin-button": {
-       // "-webkit-appearance": "none",
+    ["input::-webkit-outer-spin-button,input::-webkit-inner-spin-button"]: {
+        //"-webkit-appearance": "none",
         margin: 0
+    },
+    "input[type=number]": {
+        // "-moz-appearance": "textfield"
     }
 }));
 export default RootStyled;

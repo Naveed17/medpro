@@ -1,7 +1,7 @@
 import {
     Box,
     Button,
-    Card,
+    Card, CardContent,
     Checkbox,
     DialogActions,
     DialogContent,
@@ -18,7 +18,7 @@ import {
     ToggleButtonGroup,
     Typography
 } from '@mui/material'
-import {Document, Page, pdfjs} from "react-pdf";
+import {Document, Page} from "react-pdf";
 
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import {useTranslation} from 'next-i18next'
@@ -32,7 +32,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
-import dynamic from "next/dynamic";
+
 import {useReactToPrint} from "react-to-print";
 import moment from "moment";
 import ReactPlayer from "react-player";
@@ -51,10 +51,10 @@ import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import {useSnackbar} from "notistack";
+import {FacebookCircularProgress} from "@features/progressUI";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+import {LoadingScreen} from "@features/loadingScreen";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function DocumentDetailDialog({...props}) {
     const {
@@ -67,6 +67,7 @@ function DocumentDetailDialog({...props}) {
             setLoadingRequest = null
         }
     } = props
+
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
@@ -89,13 +90,15 @@ function DocumentDetailDialog({...props}) {
     const [menu, setMenu] = useState(true);
     const [isImg, setIsImg] = useState(false);
     const componentRef = useRef<any[]>([])
+    const previewDocRef = useRef<any>(null)
     const [header, setHeader] = useState(null);
     const [docs, setDocs] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState("");
     const [error, setError] = useState(false);
+    const [docPageOffset] = useState(1);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
-        header: {show: true, x: 0, y: 0},
+        header: {show: true, page: docPageOffset, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
         date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "right"},
@@ -112,6 +115,7 @@ function DocumentDetailDialog({...props}) {
     })
     const [sendEmailDrawer, setSendEmailDrawer] = useState(false);
     const [previewDoc, setPreviewDoc] = useState<any>(null);
+    const [isPrinting, setIsPrinting] = useState(false);
 
     const {direction} = useAppSelector(configSelector);
 
@@ -147,13 +151,17 @@ function DocumentDetailDialog({...props}) {
             icon: "ic-imprime",
             disabled: multimedias.some(media => media === state?.type)
         },
-        ...(generatedDocs.some(doc => doc == state?.type) ? [{
+        {
             title: 'email',
             icon: "ic-send-mail",
-            disabled: multimedias.some(media => media === state?.type)
-        }] : []),
+        },
         {
             title: data.header.show ? 'hide' : 'show',
+            icon: "ic-menu2",
+            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+        },
+        {
+            title: data.header.page === 0 ? 'hide-header-page.hide' : 'hide-header-page.show',
             icon: "ic-menu2",
             disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
@@ -199,7 +207,7 @@ function DocumentDetailDialog({...props}) {
     const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
-    } : null);
+    } : null,ReactQueryNoValidateConfig);
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -226,16 +234,20 @@ function DocumentDetailDialog({...props}) {
     }
 
     const handlePrint = () => {
-        printNow()
+        printNow();
     }
 
     const printNow = useReactToPrint({
-        content: () => componentRef.current[0],
-        documentTitle: `${t(state?.type)} ${state?.patient}`
+        content: () => previewDocRef.current,
+        documentTitle: `${t(state?.type)} ${state?.patient}`,
+        onAfterPrint: () => {
+            // Reset the Promise resolve so we can print again
+            setIsPrinting(false);
+        }
     })
 
     const downloadF = () => {
-        fetch(file).then(response => {
+        fetch(file.url).then(response => {
             response.blob().then(blob => {
                 const fileURL = window.URL.createObjectURL(blob);
                 let alink = document.createElement('a');
@@ -253,8 +265,18 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "email":
                 setSendEmailDrawer(true);
-                const file = await generatePdfFromHtml(componentRef, "blob");
-                setPreviewDoc(file);
+                if (generatedDocs.some(doc => doc == state?.type)) {
+                    const file = await generatePdfFromHtml(componentRef, "blob");
+                    setPreviewDoc(file);
+                } else {
+                    const fileType = ["png", "jpeg", "jpg"].includes(file.url.split('.').pop().split(/\#|\?/)[0]) ? 'image/png' : 'application/pdf';
+                    fetch(file.url).then(response => {
+                        response.blob().then(blob => {
+                            const file = new File([new Blob([blob])], `report${new Date().toISOString()}`, {type: fileType})
+                            setPreviewDoc(file);
+                        })
+                    })
+                }
                 break;
             case "delete":
                 setOpenRemove(true)
@@ -313,13 +335,28 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "hide":
             case "show":
-                data.header.show = !data.header.show
-                setData({...data})
+                setData({
+                    ...data,
+                    header: {
+                        ...data.header,
+                        show: !data.header.show
+                    }
+                });
                 break;
             case "hidetitle":
             case "showtitle":
                 data.title.show = !data.title.show
                 setData({...data})
+                break;
+            case "hide-header-page.hide":
+            case "hide-header-page.show":
+                setData({
+                    ...data,
+                    header: {
+                        ...data.header,
+                        page: (data.header.page === 0 ? 1 : 0)
+                    }
+                });
                 break;
             case "hidepatient":
             case "showpatient":
@@ -388,7 +425,6 @@ function DocumentDetailDialog({...props}) {
                     setOpenDialog && setOpenDialog(false);
                 }
             });
-
         } else {
             medicalEntityHasUser && triggerDocumentDelete({
                 method: "DELETE",
@@ -409,9 +445,9 @@ function DocumentDetailDialog({...props}) {
         }
     }
 
-    const doc = <Document
-        ref={(element) => (componentRef.current as any)[0] = element}
-        file={file}
+    const doc = ((file instanceof File) || file?.url) && <Document
+        {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[0] = element})}
+        file={file.url}
         loading={t('wait')}
         onLoadSuccess={onDocumentLoadSuccess}
         onLoadError={() => {
@@ -430,7 +466,7 @@ function DocumentDetailDialog({...props}) {
         form.append('subject', data.subject);
         form.append('content', data.content);
         if (data.withFile) {
-            form.append('files[]', await generatePdfFromHtml(componentRef, "blob") as any);
+            form.append('files[]', previewDoc);
         }
 
         triggerEmilSend({
@@ -452,6 +488,13 @@ function DocumentDetailDialog({...props}) {
     }, [state])
 
     useEffect(() => {
+        if (state?.print && previewDocRef.current) {
+            setIsPrinting(true);
+            setTimeout(() => handlePrint());
+        }
+    }, [state?.print, previewDocRef.current]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (httpDocumentHeader) {
             const docInfo = (httpDocumentHeader as HttpResponse).data
             setDocs(docInfo);
@@ -459,7 +502,6 @@ function DocumentDetailDialog({...props}) {
                 setLoading(false)
             } else {
                 setOpenAlert(false);
-
 
                 if (state.documentHeader) {
                     setSelectedTemplate(state.documentHeader)
@@ -469,6 +511,10 @@ function DocumentDetailDialog({...props}) {
                     if (_template) {
                         setData({
                             ..._template.header.data,
+                            header: {
+                                ..._template.header.data.header,
+                                page: docPageOffset
+                            },
                             background: {
                                 show: _template.header.data.background.show,
                                 content: _template.file ? _template.file : ''
@@ -486,9 +532,13 @@ function DocumentDetailDialog({...props}) {
                             templates.push(di)
                     })
                     if (templates.length > 0) {
-                        setSelectedTemplate(templates[0].uuid)
+                        setSelectedTemplate(templates[0].uuid);
                         setData({
                             ...templates[0].header.data,
+                            header: {
+                                ...templates[0].header.data.header,
+                                page: docPageOffset
+                            },
                             background: {
                                 show: templates[0].header.data.background.show,
                                 content: templates[0].file ? templates[0].file : ''
@@ -503,6 +553,10 @@ function DocumentDetailDialog({...props}) {
                             setSelectedTemplate(defaultdoc.uuid)
                             setData({
                                 ...defaultdoc.header.data,
+                                header: {
+                                    ...defaultdoc.header.data.header,
+                                    page: docPageOffset
+                                },
                                 background: {
                                     show: defaultdoc.header.data.background.show,
                                     content: defaultdoc.file ? defaultdoc.file : ''
@@ -513,6 +567,10 @@ function DocumentDetailDialog({...props}) {
                             setSelectedTemplate(docInfo[0].uuid)
                             setData({
                                 ...docInfo[0].header.data,
+                                header: {
+                                    ...docInfo[0].header.data.header,
+                                    page: docPageOffset
+                                },
                                 background: {
                                     show: docInfo.header?.data.background.show,
                                     content: docInfo.file ? docInfo.file : ''
@@ -531,6 +589,7 @@ function DocumentDetailDialog({...props}) {
         <div>
             {!loading && <PreviewA4
                 {...{
+                    previewDocRef,
                     componentRef,
                     eventHandler,
                     data,
@@ -557,6 +616,14 @@ function DocumentDetailDialog({...props}) {
 
     return (
         <DocumentDetailDialogStyled>
+            {isPrinting && <Card className={'loading-card'}>
+                <CardContent>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"center"} spacing={1.2}>
+                        <FacebookCircularProgress size={20}/>
+                        <Typography fontSize={16} fontWeight={600}>{t('printing')}</Typography>
+                    </Stack>
+                </CardContent>
+            </Card>}
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>

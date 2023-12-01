@@ -32,9 +32,9 @@ import {Theme} from "@mui/material/styles";
 import {agendaSelector} from "@features/calendar";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";

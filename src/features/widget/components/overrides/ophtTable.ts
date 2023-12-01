@@ -2,9 +2,7 @@ import {styled} from "@mui/material/styles";
 
 const OphtTableStyled = styled("table")(({theme}) => ({
     cursor: "zoom-in",
-    "& tr": {
-        background: "#eeeff2"
-    },
+    borderCollapse: "collapse",
     "& .title": {
         fontSize: 11,
         fontWeight: "bold"
@@ -19,8 +17,20 @@ const OphtTableStyled = styled("table")(({theme}) => ({
     },
     "& .val": {
         fontSize: 12,
-        textAlign: "center"
+        textAlign: "center",
+        fontWeight: "bold"
     },
-    "& .col": {}
+    "& .valIs0": {
+        fontSize: 12,
+        textAlign: "center",
+        color: "grey"
+    },
+    "& .col": {
+        border: "1px dashed #DDD",
+        padding: 2,
+        borderRadius: 12,
+
+
+    }
 }));
 export default OphtTableStyled;

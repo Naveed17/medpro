@@ -36,6 +36,7 @@ const menuList = [
     },
 ];
 import KeyboardVoiceRoundedIcon from '@mui/icons-material/KeyboardVoiceRounded';
+import {iconDocument} from "@lib/constants";
 
 export default function EnhancedTable({...props}) {
     const {checkedType, t, row, handleEvent} = props;
@@ -62,19 +63,7 @@ export default function EnhancedTable({...props}) {
                                 />*/}
                                 <IconUrl
                                     {...(row.documentType === "photo" && {width: "30", height: "30"})}
-                                    path={
-                                        row.documentType === "prescription" && "ic-traitement" ||
-                                        row.documentType == "requested-analysis" && "ic-analyse" ||
-                                        row.documentType == "analyse" && "ic-analyse" ||
-                                        row.documentType == "medical-imaging" && "ic-soura" ||
-                                        row.documentType == "requested-medical-imaging" && "ic-soura" ||
-                                        row.documentType === "photo" && "ic-img" ||
-                                        row.documentType === "Rapport" && "ic-text" ||
-                                        row.documentType === "medical-certificate" && "ic-text" ||
-                                        row.documentType === "video" && "ic-video-outline" ||
-                                        row.documentType === "audio" && "ic-son" ||
-                                        row.documentType !== "prescription" && "ic-pdf" || ""
-                                    }/>
+                                    path={iconDocument(row.documentType)}/>
                                 <Box>
                                     <Typography color="text.primary" fontWeight={400}>
                                         {t(row?.title)}

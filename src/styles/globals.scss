@@ -386,7 +386,7 @@ fieldset {
   margin-left: 2rem;
   -ms-transform: scale(3);
   /* IE 9 */
-  -webkit-transform: scale(3);
+  //-webkit-transform: scale(3);
   /* Safari 3-8 */
   transform: scale(3);
 }
@@ -396,7 +396,7 @@ fieldset {
   margin-left: 1rem;
   -ms-transform: scale(2.4);
   /* IE 9 */
-  -webkit-transform: scale(2.4);
+  //-webkit-transform: scale(2.4);
   /* Safari 3-8 */
   transform: scale(2.4);
 }
@@ -507,7 +507,8 @@ fieldset {
   cursor: pointer
 }
 
-.page-controls button:enabled:hover, .page-controls button:enabled:focus {
+.page-controls button:enabled:hover,
+.page-controls button:enabled:focus {
   background-color: #e6e6e6
 }
 
@@ -519,4 +520,25 @@ fieldset {
 .page-controls button:last-child {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0
+}
+
+.ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.tick-credits {
+  display: none;
+}
+
+.tick-flip {
+  width: 30px
+}
+
+.instruction-box {
+  border: 1px dashed #DDDDDD;
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
 }

@@ -3,22 +3,22 @@ import React, {useEffect, useState} from "react";
 import {
     Box,
     Button,
-    Checkbox,
+    Collapse,
+    Dialog as MuiDialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    Dialog as MuiDialog,
-    FormControlLabel,
     Grid,
-    List, MenuItem, Select,
+    List,
+    MenuItem,
+    Select,
     Stack,
     TextField,
     Tooltip,
     Typography,
     useTheme
 } from "@mui/material";
-import dynamic from "next/dynamic";
-import {ModelDot} from "@features/modelDot";
+
 import AddIcon from "@mui/icons-material/Add";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -28,8 +28,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog, prescriptionSelector, setParentModel} from "@features/dialog";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {configSelector} from "@features/base";
-import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from "@tinymce/tinymce-react";
 import {RecButton} from "@features/buttons";
 import {useSnackbar} from "notistack";
@@ -43,8 +43,11 @@ import IconUrl from "@themes/urlIcon";
 import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 import EditIcon from "@mui/icons-material/Edit";
 import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import {agendaSelector} from "@features/calendar";
+import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function CertifDialog({...props}) {
     const {data, fullScreen} = props
@@ -58,19 +61,18 @@ function CertifDialog({...props}) {
     } = useSpeechRecognition();
     const {enqueueSnackbar} = useSnackbar();
     const dispatch = useAppDispatch();
-
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {t, ready} = useTranslation("consultation");
     const {direction} = useAppSelector(configSelector);
     const {parent: modelParent} = useAppSelector(prescriptionSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
 
-    let [colors, setColors] = useState(["#FEBD15", "#FF9070", "#DF607B", "#9A5E8A", "#526686", "#96B9E8", "#0696D6", "#56A97F"]);
     const [value, setValue] = useState<string>(data.state.content);
     const [selectedColor, setSelectedColor] = useState(["#0696D6"]);
     const [title, setTitle] = useState<string>('');
     const [folder, setFolder] = useState<string>("");
     const [isStarted, setIsStarted] = useState(false);
-    const [openRemove, setOpenRemove] = useState(false);
-    const [selected, setSelected] = useState<any>();
     const [selectedModel, setSelectedModel] = useState<any>(null);
     let [oldNote, setOldNote] = useState('');
     const [templates, setTemplates] = useState([]);
@@ -84,8 +86,17 @@ function CertifDialog({...props}) {
     const [deleteModelDialog, setDeleteModelDialog] = useState<boolean>(false);
     const [dialogAction, setDialogAction] = useState<string>("");
     const [openCertificateModelDialog, setOpenCertificateModelDialog] = useState(false);
-    const [height, setHeight] = React.useState(400);
-
+    const [height, setHeight] = React.useState(440);
+    const [expanded, setExpanded] = useState(false);
+    const [expandedAntecedent, setExpandedAntecedent] = useState(false);
+    const [expandedMotif, setExpandedMotif] = useState(false);
+    const [expandedActs, setExpandedActs] = useState(false);
+    const [traking, setTraking] = useState<any[]>([]);
+    const [antecedents, setAntecedents] = useState<string[]>([]);
+    const [motifs, setMotifs] = useState<string[]>([]);
+    const [acts, setActs] = useState<string[]>([]);
+    const hasAntecedents = Object.keys(data.patient.antecedents).reduce((total,key)=>total+data.patient.antecedents[key],0) > 0
+    const hasMotif = data.sheetExam.appointment_data.consultation_reason.length > 0
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
         {name: '{doctor}', title: 'doctor', show: true},
@@ -100,6 +111,7 @@ function CertifDialog({...props}) {
     const {trigger: triggerModelParent} = useRequestQueryMutation("consultation/certif-models/parent");
     const {trigger: triggerFolderSwitch} = useRequestQueryMutation("/certif-models/folder/edit");
     const {trigger: triggerFolderDelete} = useRequestQueryMutation("/certif-models/delete");
+    const {trigger: triggerGetData} = useRequestQueryMutation("/patient/data");
 
     const {data: httpModelResponse, mutate: mutateModel} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -113,7 +125,6 @@ function CertifDialog({...props}) {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/certificate-modal-folders/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
-
 
     const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
@@ -168,16 +179,6 @@ function CertifDialog({...props}) {
             setIsStarted(true);
             setOldNote(value)
         })
-    }
-
-    const dialogSave = () => {
-        triggerModelsUpdate(selected.request, {
-            onSuccess: () => {
-                mutateModel().then(() => {
-                    setOpenRemove(false);
-                })
-            }
-        });
     }
 
     const addVal = (val: string) => {
@@ -291,8 +292,70 @@ function CertifDialog({...props}) {
         setEditModel(true);
     }
 
+    const showTrakingData = () => {
+        medicalEntityHasUser && !expanded && traking.length === 0 && triggerGetData({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${data.appuuid}/consultation-sheet/${router.locale}`
+        }, {
+            onSuccess: (result) => {
+                const data = result.data.data.modal.data
+                if (data) {
+                    let res: { key: string, value: string }[] = [];
+                    Object.keys(data).filter(key => data[key] !== "").forEach(key => {
+                        res.push({key, value: data[key]})
+                    })
+                    setTraking(res)
+                }
+            }
+        })
+        setExpanded(!expanded)
+    }
+
+    const showAntecedentData = () => {
+        medicalEntityHasUser && !expandedAntecedent && antecedents.length === 0 && triggerGetData({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.patient.uuid}/antecedents/${router.locale}`
+        }, {
+            onSuccess: (result) => {
+                const res = result.data.data
+                let ant:string[] = [];
+                Object.keys(res).forEach(key => {
+                    res[key].map((asc: { name: string; }) => ant.push(asc.name))
+                })
+                setAntecedents(ant)
+            }
+        })
+        setExpandedAntecedent(!expandedAntecedent)
+    }
+
+    const showMotifData = () =>{
+        let _motifs:string[] = [];
+         if( !expandedMotif && motifs.length === 0) {
+             data.sheetExam.appointment_data.consultation_reason.map((cr: { name: string; }) => {
+                 _motifs.push(cr.name)
+             })
+             setMotifs(_motifs);
+         }
+        setExpandedMotif(!expandedMotif)
+    }
+
+    const showActsData = () => {
+        medicalEntityHasUser && !expandedActs && agenda && acts.length === 0 && triggerGetData({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${data.appuuid}/acts/${router.locale}`
+        }, {
+            onSuccess: (result) => {
+                const res = result.data.data
+                const _acts:string[] = [];
+                res.acts.map((act: { name: string; }) => _acts.push(act.name))
+                setActs(_acts)
+            }
+        })
+        setExpandedActs(!expandedActs)
+    }
+
     const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
-    const modelsList = (httpModelResponse as HttpResponse)?.data?.reverse() ?? [];
+    const modelsList = (httpModelResponse as HttpResponse)?.data ?? [];
 
     useEffect(() => {
         const certifiesModel: any[] = [];
@@ -330,9 +393,8 @@ function CertifDialog({...props}) {
     }, [data])
 
     useEffect(() => {
-        if (isStarted) {
+        if (isStarted)
             setValue(oldNote + ' ' + transcript)
-        }
     }, [transcript, isStarted]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -343,7 +405,7 @@ function CertifDialog({...props}) {
     }, [httpDocumentHeader])
 
     useEffect(() => {
-        setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 400) : 300);
+        setHeight(fullScreen ? (window.innerHeight > 800 ? 680 : 440) : 340);
     }, [fullScreen, window.innerHeight])  // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -371,21 +433,6 @@ function CertifDialog({...props}) {
                                                 data.state.title = ev.target.value;
                                                 data.setState(data.state)
                                             }}/>
-                                        {selectedColor.map(color => (
-                                            <ModelDot
-                                                key={color}
-                                                color={color}
-                                                onClick={() => {
-                                                    if (selectedColor.length === 1)
-                                                        setSelectedColor([...colors])
-                                                    else {
-                                                        setSelectedColor([color])
-                                                        colors.splice(colors.findIndex(c => c === color), 1)
-                                                        setColors([...colors, color])
-                                                    }
-                                                }}>
-                                            </ModelDot>
-                                        ))}
                                     </Stack>
                                 </Stack>
 
@@ -401,26 +448,24 @@ function CertifDialog({...props}) {
                                             value={folder.uuid}>{folder.name}</MenuItem>)}
                                     </Select>
                                 </Stack>
-                            </Stack>
 
-                            <div style={{display: "flex"}}>
-                                <Typography style={{color: "gray"}} fontSize={12} mt={1}
-                                            mb={1}>{t('consultationIP.alertTitle')}</Typography>
-                                <div style={{marginLeft: 15}}>
-                                    {templates.map((doc: any) => (<FormControlLabel
-                                        key={doc.uuid}
-                                        control={
-                                            <Checkbox checked={selectedTemplate === doc.uuid}
-                                                      onChange={() => {
-                                                          setSelectedTemplate(doc.uuid)
-                                                          data.state.documentHeader = doc.uuid
-                                                          data.setState(data.state)
-                                                      }} name={doc.uuid}/>
-                                        }
-                                        label={doc.title}
-                                    />))}
-                                </div>
-                            </div>
+                                <Stack sx={{width: "100%"}}>
+                                    <Typography style={{color: "gray"}}
+                                                fontSize={12}>{t('consultationIP.alertTitle')}</Typography>
+                                    <Select
+                                        size={"small"}
+                                        value={selectedTemplate}
+                                        onChange={(e) => {
+                                            setSelectedTemplate(e.target.value);
+                                            data.state.documentHeader = e.target.value;
+                                            data.setState(data.state);
+                                        }}>
+                                        {templates.map((template: any, index: number) => <MenuItem
+                                            key={index}
+                                            value={template.uuid}>{template.title}</MenuItem>)}
+                                    </Select>
+                                </Stack>
+                            </Stack>
 
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
                                 <Stack direction={"row"} alignItems={"center"} spacing={1}>
@@ -432,6 +477,30 @@ function CertifDialog({...props}) {
                                                 addVal(cb.name)
                                             }} size={"small"}> <AddIcon/> {t(`consultationIP.${cb.title}`)}</Button>
                                         </Tooltip>))}
+                                    <Button onClick={() => showTrakingData()}
+                                            size={"small"}>
+                                        {t(`consultationIP.tracking_data`)}
+                                        {expanded ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
+                                    </Button>
+
+                                    {hasAntecedents && <Button onClick={() => showAntecedentData()}
+                                             size={"small"}>
+                                        {t(`consultationIP.antecedent`)}
+                                        {expandedAntecedent ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
+                                    </Button>}
+
+                                    {hasMotif && <Button onClick={() => showMotifData()} size={"small"}>
+                                        {t(`consultationIP.consultation_reason`)}
+                                        {expandedMotif ? <KeyboardArrowUpRoundedIcon/> :
+                                            <KeyboardArrowDownRoundedIcon/>}
+                                    </Button>}
+
+                                    <Button onClick={() => showActsData()} size={"small"}>
+                                        {t(`consultationIP.acts`)}
+                                        {expandedActs ? <KeyboardArrowUpRoundedIcon/> :
+                                            <KeyboardArrowDownRoundedIcon/>}
+                                    </Button>
+
                                 </Stack>
                                 <RecButton
                                     small
@@ -439,6 +508,46 @@ function CertifDialog({...props}) {
                                         startStopRec();
                                     }}/>
                             </Stack>
+                            <Collapse in={expanded} timeout="auto" unmountOnExit>
+                                {traking.map(item => (
+                                    <Button onClick={() => {
+                                        addVal(item.value.toString())
+                                    }}
+                                            key={item.key}
+                                            size={"small"}> <AddIcon/> {item.key} ({item.value})
+                                    </Button>
+                                ))}
+                            </Collapse>
+                            <Collapse in={expandedAntecedent} timeout="auto" unmountOnExit>
+                                {antecedents.map((item,index) => (
+                                    <Button onClick={() => {
+                                        addVal(item.toString())
+                                    }}
+                                            key={`antecedent${index}`}
+                                            size={"small"}> <AddIcon/> {item}
+                                    </Button>
+                                ))}
+                            </Collapse>
+                            <Collapse in={expandedMotif} timeout="auto" unmountOnExit>
+                                {motifs.map((item,index) => (
+                                    <Button onClick={() => {
+                                        addVal(item.toString())
+                                    }}
+                                            key={`motif${index}`}
+                                            size={"small"}> <AddIcon/> {item}
+                                    </Button>
+                                ))}
+                            </Collapse>
+                            <Collapse in={expandedActs} timeout="auto" unmountOnExit>
+                                {acts.map((item,index) => (
+                                    <Button onClick={() => {
+                                        addVal(item.toString())
+                                    }}
+                                            key={`motif${index}`}
+                                            size={"small"}> <AddIcon/> {item}
+                                    </Button>
+                                ))}
+                            </Collapse>
                             <div style={{height, paddingBottom: "1rem"}}>
                                 <Editor
                                     value={value}
@@ -550,26 +659,7 @@ function CertifDialog({...props}) {
                 </Grid>
             </Grid>
 
-            <Dialog
-                {...{direction}}
-                action={"remove"}
-                open={openRemove}
-                data={{selected}}
-                color={(theme: Theme) => theme.palette.error.main}
-                title={t('consultationIP.removedoc')}
-                t={t}
-                actionDialog={
-                    <DialogActions>
-                        <Button onClick={() => {
-                            setOpenRemove(false);
-                        }}
-                                startIcon={<CloseIcon/>}>{t('consultationIP.cancel')}</Button>
-                        <LoadingButton variant="contained"
-                                       sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
-                                       onClick={dialogSave}>{t('consultationIP.remove')}</LoadingButton>
-                    </DialogActions>
-                }
-            />
+
 
             <MuiDialog
                 maxWidth="xs"

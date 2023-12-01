@@ -25,10 +25,13 @@ import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {setCashBoxes, setPaymentTypesList, setSelectedBoxes} from "@features/leftActionBar/components/cashbox";
 import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {pdfjs} from "react-pdf";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
 type PageTransitionRef = React.ForwardedRef<HTMLDivElement>
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const router = useRouter();
@@ -66,17 +69,17 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         url: `${urlMedicalEntitySuffix}/professional/user/${router.locale}`
     }, ReactQueryNoValidateConfig);
 
-    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequestQuery(medicalEntityHasUser ? {
+    const {data: httpAgendasResponse} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequestQuery(agenda ? {
+    const {data: httpPendingAppointmentResponse} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpOngoingResponse, mutate} = useRequestQuery(agenda ? {
+    const {data: httpOngoingResponse} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -255,8 +258,9 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             }
 
             let demo = user.medical_entity.hasDemo;
-            if (localStorage.getItem('newCashbox'))
+            if (localStorage.getItem('newCashbox')) {
                 demo = localStorage.getItem('newCashbox') === "1";
+            }
 
             dispatch(setOngoing({
                 waiting_room: calendarData.waiting_room,
@@ -264,7 +268,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                 newCashBox: demo,
                 next: calendarData?.next ?? null,
                 last_fiche_id: increaseNumberInString(calendarData.last_fiche_id ? calendarData.last_fiche_id : '0'),
-                ongoing: calendarData?.ongoing ?? null
+                ongoing: calendarData?.ongoing ?? []
             }));
         }
     }, [httpOngoingResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -291,9 +295,9 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     useEffect(() => {
         if (httpProfessionalsResponse) {
-            const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalDataModel[];
+            const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalPermissionModel;
             dispatch(setPaymentTypesList(medicalProfessionalData[0].payments));
-            dispatch(setOngoing({medicalProfessionalData}));
+            dispatch(setOngoing({medicalProfessionalData: medicalProfessionalData[0], secretaryAccess: medicalProfessionalData?.secretary_access ?? false}));
         }
     }, [httpProfessionalsResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -1,7 +1,7 @@
 import {Box, Chip, Fab, IconButton, Stack, TextField} from '@mui/material'
 import {useTranslation} from 'next-i18next'
 import React, {useEffect, useRef, useState} from 'react';
-import dynamic from "next/dynamic";
+
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ChatMsg} from "@features/ChatMsg";
@@ -11,7 +11,7 @@ import {Player} from "@lottiefiles/react-lottie-player";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {Session} from "next-auth";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function ChatDiscussionDialog({...props}) {
     const {data} = props;

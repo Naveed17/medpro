@@ -20,9 +20,9 @@ import {Label} from "@features/label";
 import React, {useState} from "react";
 import {ModelDot} from "@features/modelDot";
 import {onAppointmentView} from "@lib/hooks/onAppointmentView";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 function RdvCard({...props}) {
     const {inner, patient, loading, handlePreConsultationDialog} = props;
@@ -73,8 +73,7 @@ function RdvCard({...props}) {
                         "&:after": {
                             bgcolor: loading ? "green" : inner?.consultationReason?.color,
                         },
-                    }}
-                >
+                    }}>
                     <Box sx={{display: "flex"}}>
                         <Icon path="ic-agenda"/>
                         <Typography variant="body2" color="text.secondary" sx={{mr: 3}}>
@@ -118,7 +117,7 @@ function RdvCard({...props}) {
                                     <Typography
                                         sx={{
                                             fontSize: 10,
-                                            ml: ["WAITING_ROOM", "NOSHOW"].includes(AppointmentStatus[inner?.status]?.key)
+                                            ml: ["WAITING_ROOM", "NOSHOW", "PAUSED"].includes(AppointmentStatus[inner?.status]?.key)
                                                 ? 0.5
                                                 : 0,
                                         }}>
@@ -186,8 +185,7 @@ function RdvCard({...props}) {
                 transformOrigin={{
                     vertical: 'top',
                     horizontal: 'right',
-                }}
-            >
+                }}>
                 <MenuItem
                     className="popover-item"
                     onClick={() => {
@@ -206,16 +204,17 @@ function RdvCard({...props}) {
                         {t(`patient-details.${inner?.status === 5 ? "view_the_consultation" : "see-details"}`)}
                     </Typography>
                 </MenuItem>
-                <MenuItem
+                {/*<MenuItem
                     onClick={(event) => {
                         event.stopPropagation();
+                        handleClose();
                         handlePreConsultationDialog(inner);
                     }}
                     className="popover-item">
                     <Typography fontSize={15} sx={{color: "#fff"}}>
                         {t("patient-details.pre_consultation_data")}
                     </Typography>
-                </MenuItem>
+                </MenuItem>*/}
             </Menu>
         </>
     );

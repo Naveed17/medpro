@@ -24,7 +24,7 @@ const CalendarPickers = dynamic(() =>
 
 function Cashbox() {
     const dispatch = useAppDispatch();
-    
+
     const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
     const {
         selectedBoxes,
@@ -47,7 +47,7 @@ function Cashbox() {
     const hours = agendaConfig?.openingHours[0];
 
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
-    const insurancesList = medicalProfessionalData ? medicalProfessionalData[0].insurances:[];
+    const insurancesList = medicalProfessionalData ? medicalProfessionalData?.insurances:[];
 
     useEffect(() => {
         let boxes = '';

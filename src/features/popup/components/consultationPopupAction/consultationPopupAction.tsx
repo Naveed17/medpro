@@ -8,17 +8,15 @@ import {
     Stack,
     Avatar,
     Box,
-    Link,
     Button, Chip
 } from '@mui/material'
-import IconUrl from "@themes/urlIcon";
 import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined";
 import PaymentRoundedIcon from '@mui/icons-material/PaymentRounded';
 import * as React from "react";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
@@ -27,19 +25,23 @@ import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {LoadingButton} from "@mui/lab";
-import {dashLayoutSelector} from "@features/base";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 function ConsultationPopupAction({...props}) {
     const {data, OnSchedule, OnPay} = props
     const router = useRouter();
+    const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation("common");
-    const {newCashBox} = useAppSelector(dashLayoutSelector)
     const {config: agenda, selectedEvent: appointment} = useAppSelector(agendaSelector);
 
-    const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment} ${t("times.days")} \r\n` : ""}, ${data.instruction}`);
+    const {data: user} = session as Session;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
+
+    const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment}  \r\n` : ""}, ${data.instruction}`);
     const [loadingRequest, setLoadingRequest] = useState(false);
 
     const {trigger: triggerTransactions} = useRequestQueryMutation("agenda/appointment/transactions");
@@ -116,7 +118,7 @@ function ConsultationPopupAction({...props}) {
                     </List>
                 </Card>
                 <Stack mt={1} spacing={2} justifyContent={"flex-end"} direction={{xs: 'column', md: "row"}}>
-                    {newCashBox && <LoadingButton
+                    {isBeta && <LoadingButton
                         loading={loadingRequest}
                         loadingPosition={"start"}
                         disabled={data.payed}
