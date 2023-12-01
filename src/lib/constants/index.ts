@@ -212,7 +212,7 @@ export const iconDocument = (data:string) => {
         data === "Rapport" && "docs/ic-ordonnance" ||
         data === "medical-certificate" && "docs/ic-ordonnance" ||
         data === "video" && "ic-video-outline" ||
-        data !== "prescription" && "ic-pdf" || ""
+        data !== "prescription" && "ic-quote" || ""
 }
 
 export const tinymcePlugins = "advlist anchor autolink autosave charmap codesample directionality  emoticons help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount table"

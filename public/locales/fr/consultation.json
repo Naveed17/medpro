@@ -87,7 +87,9 @@
     "note_fees": "Note honoraire",
     "askRemove": "Vous voulez supprimer",
     "doc_detail_title": "Document",
-    "rest": "Solde:"
+    "rest": "Solde:",
+    "wallet": "Avance",
+    "credit": "Crédit"
   },
   "end of consultation": "fin de la consultation",
   "week": "semaine" ,

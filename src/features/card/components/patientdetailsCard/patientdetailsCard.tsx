@@ -285,19 +285,15 @@ function PatientDetailsCard({...props}) {
                                                 }}
                                                 {...getFieldProps("name")}
                                             />
-                                            {isBeta && rest > 0 && <Label
-                                                variant='filled'
-                                                sx={{
-                                                    "& .MuiSvgIcon-root": {
-                                                        width: 16,
-                                                        height: 16,
-                                                        pl: 0
-                                                    }
-                                                }}
-                                                color={rest > 0 ? "expire" : "success"}>
-                                                <Typography sx={{fontSize: 12}}>
-                                                    {commonTranslation(rest > 0 ? "credit" : "wallet")} {`${rest > 0 ? '-' : '+'} ${Math.abs(rest)}`} {devise}</Typography>
-                                            </Label>}
+                                            {isBeta && rest > 0 &&
+                                                <Label variant='filled' sx={{color:theme.palette.error.main,background:theme.palette.error.lighter}}>
+                                                    <span style={{fontSize:11}}>{commonTranslation('credit')}</span>
+                                                    <span style={{fontSize: 14,
+                                                        marginLeft: 5,
+                                                        marginRight: 5,
+                                                        fontWeight: "bold"}}>{rest}</span>
+                                                    <span>{devise}</span>
+                                                </Label>}
                                         </Stack>
                                     )}
 

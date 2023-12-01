@@ -142,7 +142,7 @@ function ConsultationCard({...props}: any) {
                                                                     className={'card-title'}>{item.content !== "widget" ? t(item.content) : ""}</Typography>
                                                             </MyHeaderCardStyled>}
                                                         <Stack direction={"row"}>
-                                                            <IconButton className={"btn-full"}>
+                                                            <IconButton className={"btn-full"} style={{marginRight:5}}>
                                                                 <IconUrl path={'reduce'}/>
                                                             </IconButton>
                                                         </Stack>

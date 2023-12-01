@@ -64,7 +64,7 @@ function PreviewDialog({...props}) {
                 const elx = document.createElement('p');
                 switch (state.type) {
                     case "requested-analysis":
-                        const value = `Prière, Faire pratiquer à ${state.patient} les analyses suivantes:`
+                        const value = `Prière de faire les explorations biologiques suivantes à ${state.patient} :`
                         elx.append(value)
                         rows.push({
                             value,
@@ -74,7 +74,7 @@ function PreviewDialog({...props}) {
                         })
                         break;
                     case "requested-medical-imaging":
-                        const val = `Prière, Faire pratiquer à ${state.patient} les imageries médicales suivantes:`
+                        const val = `Prière de faire les explorations radiologiques suivantes à ${state.patient} :`
                         elx.append(val)
                         rows.push({
                             value: val,
@@ -152,7 +152,8 @@ function PreviewDialog({...props}) {
                                     style: {
                                         color: "gray",
                                         fontSize: data.size === 'portraitA4' ? "12px" : "18px",
-                                        marginTop: 0
+                                        marginTop: 0,
+                                        whiteSpace: 'pre'
                                     }
                                 })
                             }
@@ -176,6 +177,7 @@ function PreviewDialog({...props}) {
                             })
 
                             if (el.note) {
+                                console.log(el.note)
                                 imgLine.append(`• ${el.note}`)
                                 rows.push({
                                     value: `${el.note}`,
@@ -184,7 +186,8 @@ function PreviewDialog({...props}) {
                                     style: {
                                         color: "black",
                                         fontSize: data.size === 'portraitA4' ? "14px" : "19px",
-                                        marginTop: 0
+                                        marginTop: 0,
+                                        whiteSpace: 'pre'
                                     }
                                 })
                             }

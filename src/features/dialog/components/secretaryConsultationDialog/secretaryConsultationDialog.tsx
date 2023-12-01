@@ -65,7 +65,7 @@ function SecretaryConsultationDialog({...props}) {
     } = props;
     const router = useRouter();
     const theme = useTheme() as Theme;
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
     const {data: session} = useSession();
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
@@ -265,16 +265,15 @@ function SecretaryConsultationDialog({...props}) {
                                         </Stack>
                                     </Stack>
                                     {<Stack direction={"row"} alignItems={"center"}>
-                                        {demo && <Button
-                                            startIcon={patient.rest_amount === 0 ? <CheckIcon/> :
-                                                <IconUrl path={'ic-argent'} color={"white"}/>}
-                                            variant="contained"
-                                            color={patient.rest_amount === 0 ? "success" : "primary"}
-                                            style={{marginLeft: 5}}
-                                            {...(isMobile && {
-                                                sx: {minWidth: 40},
-                                            })}
-                                            onClick={openDialogPayment}>
+                                        {demo && <Button sx={{
+                                            borderColor: 'divider',
+                                            bgcolor: theme => theme.palette.grey['A500'],
+                                        }}
+                                                         startIcon={patient.rest_amount === 0 ? <CheckIcon/> :
+                                                             <IconUrl path={'ic-argent'}/>}
+                                                         variant="outlined"
+                                                         color="info"
+                                                         onClick={openDialogPayment}>
                                             <Typography>{t("pay")}</Typography>
                                             {
                                                 patient.rest_amount > 0 &&
