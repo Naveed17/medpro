@@ -8,17 +8,12 @@ import {
     Button,
     Card,
     CardMedia,
-    Collapse,
     DialogActions,
     Drawer,
     Fab,
     Grid,
     IconButton,
     LinearProgress,
-    ListItemIcon,
-    ListItemText,
-    MenuItem,
-    MenuList,
     Stack,
     Toolbar,
     Typography,
@@ -34,10 +29,9 @@ import {useRouter} from "next/router";
 import {tabs} from "@features/toolbar/components/appToolbar/config";
 import {alpha, Theme} from "@mui/material/styles";
 import {AppToolbar} from "@features/toolbar/components/appToolbar";
-import {MyCardStyled, MyHeaderCardStyled, SubHeader} from "@features/subHeader";
+import {MyCardStyled, SubHeader} from "@features/subHeader";
 import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {WidgetForm} from "@features/widget";
 import {
     appointmentSelector,
     DocumentsTab,
@@ -52,7 +46,6 @@ import {
 import AppointHistoryContainerStyled
     from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
 import IconUrl from "@themes/urlIcon";
-import Icon from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {SubFooter} from "@features/subFooter";
 import {consultationSelector, SetPatient, SetRecord, SetSelectedDialog} from "@features/toolbar";
@@ -75,9 +68,7 @@ import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-import {DragDropContext, Draggable as DraggableDnd, Droppable} from "react-beautiful-dnd";
 import Draggable from "react-draggable";
-import {ModelDot} from "@features/modelDot";
 import {DocumentPreview} from "@features/tabPanel/components/consultationTabs/documentPreview";
 import DialogTitle from "@mui/material/DialogTitle";
 import {CustomIconButton, SwitchPrescriptionUI} from "@features/buttons";
@@ -88,6 +79,7 @@ import MicIcon from "@mui/icons-material/Mic";
 import useStopwatch from "@lib/hooks/useStopwatch";
 import {useAudioRecorder} from "react-audio-voice-recorder";
 import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
+import {ConsultationCard} from "@features/consultationCard";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -225,7 +217,7 @@ function ConsultationInProgress() {
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [openDialogSave, setOpenDialogSave] = useState<boolean>(true);
     const [openSecDialog, setOpenSecDialog] = useState<boolean>(false);
-    const [meeting, setMeeting] = useState<number>(15);
+    const [meeting, setMeeting] = useState<number>(5);
     const [checkedNext, setCheckedNext] = useState(false);
     const [dialog, setDialog] = useState<string>("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
@@ -240,6 +232,11 @@ function ConsultationInProgress() {
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
     ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]]);
+    const [mobileCards, setMobileCards] = useState([[
+        {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
+        {id: 'item-3', content: 'exam', expanded: false, icon: "ic-edit-file-pen"}
+    ]]);
+
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
     const [deleteAudio, setDeleteAudio] = useState(false);
     const [saveAudio, setSaveAudio] = useState(false);
@@ -249,6 +246,7 @@ function ConsultationInProgress() {
     const [checkUp, setCheckUp] = useState<AnalysisModel[]>([]);
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
     const [fullOb, setFullOb] = useState(false);
+    const [nextAppDays, setNextAppDays] = useState("day")
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -591,11 +589,9 @@ function ConsultationInProgress() {
         form.append("root", "agenda");
         form.append("content", JSON.stringify({
             fees: total,
-            restAmount: total - restAmount,
             instruction: localInstr ? localInstr : "",
             control: checkedNext,
             edited: false,
-            payed: transactions ? restAmount === 0 : restAmount !== 0,
             nextApp: meeting ? meeting : "0",
             appUuid: app_uuid,
             dayDate: sheet?.date,
@@ -606,6 +602,7 @@ function ConsultationInProgress() {
                 firstName: patient?.firstName,
                 lastName: patient?.lastName,
                 gender: patient?.gender,
+                restAmount:patient?.rest_amount
             },
         }));
         if (recurringDates.length > 0) {
@@ -1262,214 +1259,57 @@ function ConsultationInProgress() {
                         </MyCardStyled></Card>
                         }
                         {!fullOb && <Grid container spacing={0}>
-                            <Grid item xs={showDocument ? 10 : 12}>
-                                <div style={{display: "flex", width: "100%"}}>
-                                    <DragDropContext onDragEnd={onDragEnd}>
-                                        {cards.map((el, ind) => (
-                                            <Droppable key={ind} droppableId={`${ind}`}>
-                                                {(provided, snapshot) => (
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        style={getListStyle(snapshot.isDraggingOver)}
-                                                        {...provided.droppableProps}
-                                                    >
-                                                        {el.map((item: any, index: number) => (
-                                                            <DraggableDnd
-                                                                key={item.id}
-                                                                draggableId={item.id}
-                                                                //isDragDisabled={item.content === 'exam'}
-                                                                index={index}>
-                                                                {(provided: any, snapshot: any) => (
-                                                                    <div
-                                                                        ref={provided.innerRef}
-                                                                        {...provided.draggableProps}
-                                                                        {...provided.dragHandleProps}
-                                                                        style={getItemStyle(
-                                                                            snapshot.isDragging,
-                                                                            provided.draggableProps.style
-                                                                        )}>
-                                                                        <MyCardStyled>
-                                                                            <Stack direction={"row"}
-                                                                                   style={{backgroundColor: item.content === 'widget' && selectedModel ? alpha(selectedModel?.default_modal.color, 0.3) : ""}}
-                                                                                   justifyContent={"space-between"}
-                                                                                   onClick={() => {
-                                                                                       document.activeElement && (document.activeElement as HTMLElement).blur();
-                                                                                       let _cards = [...cards];
-                                                                                       _cards[ind][index].expanded = !item.expanded
-                                                                                       _cards[ind][index].config = false
-                                                                                       setCards([..._cards])
-                                                                                       mutateSheetData()
-                                                                                   }}
-                                                                                   alignItems={"center"}>
-                                                                                {item.content === 'widget' && selectedModel ?
-                                                                                    <MyHeaderCardStyled>
-                                                                                        <Stack direction={"row"}
-                                                                                               spacing={1}
-                                                                                               alignItems={"center"}
-                                                                                               border={"1px solid white"}
-                                                                                               onClick={(e) => {
-                                                                                                   e.stopPropagation();
-                                                                                                   let _cards = [...cards];
-                                                                                                   _cards[ind][index].config = !item.config
-                                                                                                   _cards[ind][index].expanded = false
-                                                                                                   setCards([..._cards])
-                                                                                               }}
-                                                                                               style={{
-                                                                                                   padding: "3px 8px",
-                                                                                                   borderRadius: 5
-                                                                                               }}>
-                                                                                            <ModelDot
-                                                                                                color={selectedModel?.default_modal?.color}
-                                                                                                selected={false}/>
-                                                                                            <Typography
-                                                                                                className={'card-title'}>{selectedModel?.default_modal.label}</Typography>
-                                                                                            <IconUrl
-                                                                                                className={"card-icon"}
-                                                                                                path="ic-flesh-bas-y"/>
-                                                                                        </Stack>
-
-                                                                                    </MyHeaderCardStyled> :
-                                                                                    <MyHeaderCardStyled>
-                                                                                        <Icon className={'card-header'}
-                                                                                              path={item.icon}/>
-                                                                                        <Typography
-                                                                                            className={'card-title'}>{item.content !== "widget" ? t(item.content) : ""}</Typography>
-                                                                                    </MyHeaderCardStyled>}
-                                                                                <Stack direction={"row"}>
-                                                                                    <IconButton className={"btn-full"}>
-                                                                                        <IconUrl path={'reduce'}/>
-                                                                                    </IconButton>
-                                                                                </Stack>
-                                                                            </Stack>
-                                                                            <Collapse in={item.expanded} timeout="auto"
-                                                                                      unmountOnExit>
-                                                                                {item.content === 'exam' && sheet && sheetExam &&
-                                                                                    <ConsultationDetailCard
-                                                                                        {...{
-                                                                                            changes,
-                                                                                            setChanges,
-                                                                                            app_uuid,
-                                                                                            exam: sheetExam,
-                                                                                            hasDataHistory,
-                                                                                            seeHistory,
-                                                                                            closed: closeExam,
-                                                                                            setCloseExam,
-                                                                                            isClose,
-                                                                                            agenda,
-                                                                                            mutateSheetData,
-                                                                                            fullOb, setFullOb,
-                                                                                            trigger: triggerAppointmentEdit
-                                                                                        }}
-                                                                                        handleClosePanel={(v: boolean) => setCloseExam(v)}
-                                                                                    />}
-                                                                                {item.content === 'history' && <div
-                                                                                    id={"histo"}
-                                                                                    style={{
-                                                                                        padding: 10,
-                                                                                        borderTop: "1px solid #DDD",
-                                                                                        borderBottomRightRadius: 3,
-                                                                                        borderBottomLeftRadius: 3,
-                                                                                        maxHeight: "96.4vh",
-                                                                                        overflowY: "auto",
-                                                                                        backgroundColor: theme.palette.grey["A10"]
-                                                                                    }}>
-                                                                                    <HistoryTab
-                                                                                        {...{
-                                                                                            patient: {
-                                                                                                uuid: sheet?.patient,
-                                                                                                ...patient
-                                                                                            },
-                                                                                            dispatch,
-                                                                                            mini: true,
-                                                                                            t,
-                                                                                            session,
-                                                                                            acts,
-                                                                                            direction,
-                                                                                            mutate: mutatePatient,
-                                                                                            setOpenDialog,
-                                                                                            showDoc,
-                                                                                            setState,
-                                                                                            setInfo,
-                                                                                            router,
-                                                                                            setIsViewerOpen,
-                                                                                            setSelectedTab,
-                                                                                            appuuid: app_uuid,
-                                                                                            trigger: triggerAppointmentEdit
-                                                                                        }}
-                                                                                    /></div>}
-                                                                                {item.content === 'widget' && !loading && models && Array.isArray(models) && models.length > 0 && selectedModel && patient && (
-                                                                                    <WidgetForm
-                                                                                        {...{
-                                                                                            models,
-                                                                                            changes,
-                                                                                            setChanges,
-                                                                                            isClose,
-                                                                                            acts,
-                                                                                            setActs,
-                                                                                            previousData,
-                                                                                            selectedModel,
-                                                                                            appuuid: app_uuid,
-                                                                                            modal: selectedModel,
-                                                                                            data: sheetModal?.data,
-                                                                                            closed: closeExam,
-                                                                                            setSM: setSelectedModel,
-                                                                                            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
-                                                                                            mutateSheetData,
-                                                                                            printGlasses
-                                                                                        }}
-                                                                                        handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>
-                                                                                )}
-                                                                            </Collapse>
-
-                                                                            <Collapse in={item.config} timeout="auto"
-                                                                                      unmountOnExit>
-                                                                                <MenuList>
-                                                                                    {(models as any[])?.map((item: any, idx: number) => (
-                                                                                        <Box key={"widgt-x-" + idx}>
-                                                                                            {item.isEnabled && (
-                                                                                                <MenuItem
-                                                                                                    key={`model-item-${idx}`}
-                                                                                                    onClick={() => {
-                                                                                                        changeModel(item, ind, index)
-                                                                                                    }}>
-                                                                                                    <ListItemIcon>
-                                                                                                        <ModelDot
-                                                                                                            color={item.color}
-                                                                                                            selected={false}
-                                                                                                            size={21}
-                                                                                                            sizedot={13}
-                                                                                                            padding={3}
-                                                                                                        />
-                                                                                                    </ListItemIcon>
-                                                                                                    <ListItemText
-                                                                                                        style={{
-                                                                                                            textOverflow: "ellipsis",
-                                                                                                            whiteSpace: "nowrap",
-                                                                                                            overflow: "hidden",
-                                                                                                        }}>
-                                                                                                        {item.label}
-                                                                                                    </ListItemText>
-                                                                                                </MenuItem>
-                                                                                            )}
-                                                                                        </Box>
-                                                                                    ))}
-                                                                                </MenuList>
-                                                                            </Collapse>
-                                                                        </MyCardStyled>
-
-                                                                    </div>
-                                                                )}
-                                                            </DraggableDnd>
-                                                        ))}
-                                                        {provided.placeholder}
-                                                    </div>
-                                                )}
-                                            </Droppable>
-                                        ))}
-                                    </DragDropContext>
-                                </div>
-                            </Grid>
-                            <Grid item xs={showDocument ? 2 : 0}>
+                            {!isMobile && <Grid item md={showDocument ? 10 : 12}>
+                                <ConsultationCard {...{
+                                    cards,
+                                    setCards,
+                                    onDragEnd,
+                                    getListStyle,
+                                    getItemStyle,
+                                    selectedModel,
+                                    sheetExam,
+                                    closeExam,
+                                    theme,
+                                    sheet,
+                                    changes,
+                                    setChanges,
+                                    setIsClose,
+                                    app_uuid,
+                                    mutateSheetData,
+                                    hasDataHistory,
+                                    seeHistory,
+                                    setCloseExam,
+                                    dispatch,
+                                    printGlasses,
+                                    isClose,
+                                    session,
+                                    changeModel,
+                                    acts,
+                                    loading,
+                                    urlMedicalEntitySuffix,
+                                    direction,
+                                    setOpenDialog,
+                                    showDoc,
+                                    sheetModal,
+                                    setState,
+                                    mutatePatient,
+                                    setInfo,
+                                    setSelectedModel,
+                                    router,
+                                    setActs,
+                                    previousData,
+                                    setIsViewerOpen,
+                                    setSelectedTab,
+                                    models,
+                                    t,
+                                    triggerAppointmentEdit,
+                                    agenda,
+                                    fullOb,
+                                    setFullOb,
+                                    patient
+                                }}/>
+                            </Grid>}
+                            <Grid item md={showDocument ? 2 : 0}>
                                 {showDocument && <DocumentPreview {...{
                                     allDocs: changes.filter(ch => ch.index !== undefined && !ch.checked),
                                     documents,
@@ -1480,6 +1320,56 @@ function ConsultationInProgress() {
                                     t,
                                 }}/>}
                             </Grid>
+                            {isMobile && <Grid item xs={12}>
+                                <ConsultationCard {...{
+                                    cards: mobileCards,
+                                    setCards: setMobileCards,
+                                    onDragEnd,
+                                    getListStyle,
+                                    getItemStyle,
+                                    selectedModel,
+                                    sheetExam,
+                                    closeExam,
+                                    theme,
+                                    sheet,
+                                    changes,
+                                    setChanges,
+                                    setIsClose,
+                                    app_uuid,
+                                    mutateSheetData,
+                                    hasDataHistory,
+                                    seeHistory,
+                                    setCloseExam,
+                                    dispatch,
+                                    printGlasses,
+                                    isClose,
+                                    session,
+                                    changeModel,
+                                    acts,
+                                    loading,
+                                    urlMedicalEntitySuffix,
+                                    direction,
+                                    setOpenDialog,
+                                    showDoc,
+                                    sheetModal,
+                                    setState,
+                                    mutatePatient,
+                                    setInfo,
+                                    setSelectedModel,
+                                    router,
+                                    setActs,
+                                    previousData,
+                                    setIsViewerOpen,
+                                    setSelectedTab,
+                                    models,
+                                    t,
+                                    triggerAppointmentEdit,
+                                    agenda,
+                                    fullOb,
+                                    setFullOb,
+                                    patient
+                                }}/>
+                            </Grid>}
                         </Grid>}
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"documents"}>
@@ -1703,7 +1593,7 @@ function ConsultationInProgress() {
                     mutatePatient,
                     showPreview
                 }}
-                size={"md"}
+                size={"lg"}
                 color={theme.palette.error.main}
                 actionDialog={<DialogAction/>}
             />

@@ -59,6 +59,7 @@ function SecretaryConsultationDialog({...props}) {
             addFinishAppointment,
             showCheckedDoc,
             showPreview,
+            nextAppDays, setNextAppDays,
             mutatePatient
         }
     } = props;
@@ -72,7 +73,6 @@ function SecretaryConsultationDialog({...props}) {
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
-    const [selectedDose, setSelectedDose] = useState("day")
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -368,15 +368,16 @@ function SecretaryConsultationDialog({...props}) {
                                                     }
                                                 />
                                                 <RadioGroup sx={{ml: 1}} row onClick={(e) => e.stopPropagation()}>
-                                                    {['day', 'month', 'year'].map((item: string) => (
+                                                    {['day', 'week', 'month'].map((item: string) => (
                                                         <FormControlLabel
                                                             key={item}
                                                             onChange={() => {
                                                                 setCheckedNext(true);
-                                                                setTimeout(() => setSelectedDose(item));
+                                                                setMeeting(item === 'day' ? 5 : 1)
+                                                                setTimeout(() => setNextAppDays(item));
                                                             }}
                                                             value={item}
-                                                            control={<Radio checked={selectedDose === item}/>}
+                                                            control={<Radio checked={nextAppDays === item}/>}
                                                             label={startCase(t(item))}
                                                         />
                                                     ))}
