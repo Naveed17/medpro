@@ -95,11 +95,11 @@ function AddDocumentDialog({...props}) {
     return (
         <AddDocumentDialogStyled>
             <Grid container spacing={1}>
-                <Grid item xs={12} md={3}>
+                <Grid item xs={12} md={12}>
                     <Typography fontWeight={600} mb={2} variant="subtitle2">
                         {t("type_of_document")}
                     </Typography>
-                    <Grid container spacing={1} mt={6} margin={"auto"}>
+                    <Grid container spacing={1} mt={2} margin={"auto"}>
                         {loading
                             ? Array.from(new Array(6)).map((val, idx) => (
                                 <Grid key={"loading-card-" + idx} item xs={6} md={6}>
@@ -114,7 +114,7 @@ function AddDocumentDialog({...props}) {
                             ))
                             : ((httpTypeResponse as HttpResponse)?.data ?? []).map(
                                 (item: any, index: number) => (
-                                    <Grid key={index} item xs={6} sm={4} md={6}>
+                                    <Grid key={index} item xs={6} sm={4} md={2}>
                                         <DocumentButton
                                             icon={item.logo.url}
                                             active={data.state.type}
@@ -137,24 +137,26 @@ function AddDocumentDialog({...props}) {
                             )}
                     </Grid>
                 </Grid>
-                <Grid item xs={12} md={9}>
+                <Grid item xs={12} md={12}>
 
                     {files.length === 0 && <Stack width={{xs: "100%", md: "80%"}}
                                                   margin={"auto"}
                                                   mt={6}
-                                                  spacing={2}
+                                                  spacing={1}
                                                   padding={2}
-                                                  border={`1px dashed ${theme.palette.primary.main}`}
+                                                  border={`1px dashed ${theme.palette.grey["200"]}`}
                                                   borderRadius={2}>
                         <div style={{width: "fit-content", margin: "auto"}}>
-                            <IconUrl path={"ic-upload"} width={"100"} height={"100"}/>
+                            <IconUrl path="fileadd" width={80} height={80}/>
                         </div>
-                        {load && <div style={{width: "fit-content", margin: "auto"}}>
-                            <CircularProgress style={{margin: "auto"}}/>
-                        </div>}
-                        <Typography color={"gray"} textAlign={"center"}>{t("type_of_document")}</Typography>
-                        <Typography color={"gray"} textAlign={"center"}
-                                    style={{opacity: 0.5}}>{t("to_upload")}</Typography>
+                        {
+                            load && <div style={{width: "fit-content", margin: "auto"}}>
+                                <CircularProgress style={{margin: "auto"}}/>
+                            </div>
+                        }
+                        <Typography variant="subtitle1"
+                                    color="text.primary" textAlign={"center"}>{t("type_of_document")}</Typography>
+                        <Typography textAlign={"center"} fontSize={12}>{t("to_upload")}</Typography>
 
                     </Stack>}
                     <Stack spacing={2} maxWidth="90%" width={1} mx="auto" mt={3}>

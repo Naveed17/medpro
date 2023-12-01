@@ -86,9 +86,13 @@
     "note_fees": "Fee Note",
     "askRemove": "Do you want to delete",
     "doc_detail_title": "Document",
-    "rest": "Sold:"
+    "rest": "Sold:",
+    "wallet": "Wallet",
+    "credit": "Credit"
   },
   "end of consultation": "End of Consultation",
+  "week": "Week" ,
+  "month": "Month",
   "noteQuote": "The patient confirms having voluntarily chosen his treatment, being fully informed of the indications and contraindications, and undertakes to pay the fees linked to the care mentioned in this estimate.",
   "cancel": "Cancel",
   "note": "Note: ",

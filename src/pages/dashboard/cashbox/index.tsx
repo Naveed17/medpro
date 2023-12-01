@@ -14,7 +14,7 @@ import {
     Tabs,
     tabsClasses,
     Theme,
-    Typography,
+    Typography, useMediaQuery,
     useTheme,
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
@@ -220,6 +220,8 @@ function Cashbox() {
     const [total, setTotal] = useState(0);
     const [unpaid, setUnpaid] = useState(0);
     const {config: agenda} = useAppSelector(agendaSelector);
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+
     /*
         const [totalCash, setTotalCash] = useState(0);
         const [totalCheck, setTotalCheck] = useState(0);
@@ -410,7 +412,7 @@ function Cashbox() {
                         value={selectedTab}
                         onChange={handleChangeTab}
                         sx={{
-                            width: {xs: "100%", md: "50%"},
+                            width: {xs: "70%", md: "50%"},
                             [`& .${tabsClasses.scrollButtons}`]: {
                                 '&.Mui-disabled': {opacity: 0.5},
                             }, marginTop: "8px"
@@ -433,12 +435,12 @@ function Cashbox() {
                     </Tabs>
                     <Stack direction={"row"} alignItems={"center"} spacing={1}>
 
-                        <Typography fontSize={12}> {t("unpaidConsult")}</Typography>
+                        {! isMobile &&<><Typography fontSize={12}> {t("unpaidConsult")}</Typography>
                         <Typography variant="h6">
                             {unpaid} <span style={{fontSize: 10}}>{devise}</span>
                         </Typography>
                         <Typography>|</Typography>
-                        <Typography fontSize={12}> {t("total")}</Typography>
+                        <Typography fontSize={12}> {t("total")}</Typography></>}
                         <Typography variant="h6">
                             {total} <span style={{fontSize: 10}}>{devise}</span>
                         </Typography>

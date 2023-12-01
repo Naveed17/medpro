@@ -87,9 +87,12 @@
     "note_fees": "Note honoraire",
     "askRemove": "Vous voulez supprimer",
     "doc_detail_title": "Document",
-    "rest": "Solde:"
+    "rest": "Solde:",
+    "wallet": "Avance",
+    "credit": "Crédit"
   },
   "end of consultation": "fin de la consultation",
+  "week": "semaine" ,
   "noteQuote": "Le patient confirme avoir volontairement choisi son traitement, être pleinement informé des indications et contre-indications, et s'engage à payer les honoraires liés aux soins mentionnés dans ce devis.",
   "medical-imaging": "Imagerie médicale",
   "medical-certificate": "Document généré",
@@ -584,7 +587,7 @@
   "video": "Video",
   "audio": "Audio",
   "note_fees": "Note honoraire",
-  "finish_the_consutation": "Êtes-vous sûr de vouloir terminer la consutation ?",
+  "finish_the_consutation": "Êtes-vous sûr de vouloir terminer la consultation ?",
   "total_amount": "Montant total",
   "amount_paid": "Montant payé",
   "amount_to_pay": "Montant à payé",

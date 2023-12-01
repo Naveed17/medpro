@@ -126,25 +126,34 @@ function TransactionPanel({...props}) {
 
     return (
         <>
-            <Stack justifyContent={"end"} direction={"row"} spacing={1} mb={2} mt={1}>
-                <Button size='small'
-                        variant='contained'
-                        startIcon={<IconUrl path={'ic-wallet-money'} color={'white'}/>}
-                        color={"success"}>
-                    <Typography fontWeight={700}
-                                component='strong'
-                                mx={1}> {wallet}</Typography>
-                    {devise}
-                </Button>
-                <Button size='small' color={"error"} variant='contained'>
-                    <Typography>{t('credit')}</Typography>
-                    <Typography fontWeight={700} component='strong' mx={1}> {-1 * rest}</Typography>
-                    {devise}
-                </Button>
+            {isLoading && <LinearProgress/>}
+            {!isLoading && <Stack direction={"row"} justifyContent={"end"} p={1} spacing={1}>
+                <Label variant='filled'
+                       sx={{color: theme.palette.success.main, background: theme.palette.success.lighter}}>
+                    <span>{t('wallet')}</span>
+                    <span style={{
+                        fontSize: 14,
+                        marginLeft: 5,
+                        marginRight: 5,
+                        fontWeight: "bold"
+                    }}>{wallet}</span>
+                    <span>{devise}</span>
+                </Label>
 
-            </Stack>
+                <Label variant='filled' sx={{color: theme.palette.error.main, background: theme.palette.error.lighter}}>
+                    <span style={{fontSize: 11}}>{t('credit')}</span>
+                    <span style={{
+                        fontSize: 14,
+                        marginLeft: 5,
+                        marginRight: 5,
+                        fontWeight: "bold"
+                    }}>{rest}</span>
+                    <span>{devise}</span>
+                </Label>
+            </Stack>}
+
             <PanelStyled sx={{bgcolor: {xs: "transparent", sm: theme.palette.common.white}}}>
-                {isLoading && <LinearProgress/>}
+
                 {!isLoading && (
                     <Box display={{xs: "none", sm: "block"}}>
                         <CardContent>

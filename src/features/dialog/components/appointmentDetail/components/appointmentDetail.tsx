@@ -224,14 +224,15 @@ function AppointmentDetail({...props}) {
                                                                 width: 16,
                                                                 height: 16,
                                                                 pl: 0
-                                                            }
-                                                        }}
-                                                        color={appointment?.extendedProps.restAmount > 0 ? "expire" : "success"}>
+                                                            },
+                                                            color: theme.palette.error.main,
+                                                            background: theme.palette.error.lighter
+                                                        }}>
                                                         <Typography
                                                             sx={{
                                                                 fontSize: 10,
                                                             }}>
-                                                            {t(appointment?.extendedProps.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${appointment?.extendedProps.restAmount > 0 ? '-' : '+'} ${Math.abs(appointment?.extendedProps.restAmount)}`} {devise}</Typography>
+                                                            {t(appointment?.extendedProps.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${Math.abs(appointment?.extendedProps.restAmount)}`} {devise}</Typography>
                                                     </Label>}
                                             </Stack>
                                         </Typography>

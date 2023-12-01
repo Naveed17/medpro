@@ -13,7 +13,7 @@ function DocumentsTab({...props}) {
     } = props;
 
     const noCardData = {
-        mainIcon: "ic-doc",
+        mainIcon: "fileadd",
         title: "no-data.event.title",
         description: "no-data.event.description",
         buttonIcon: "ic-doc",
