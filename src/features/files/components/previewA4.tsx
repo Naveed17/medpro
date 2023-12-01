@@ -177,7 +177,6 @@ function PreviewDialog({...props}) {
                             })
 
                             if (el.note) {
-                                console.log(el.note)
                                 imgLine.append(`• ${el.note}`)
                                 rows.push({
                                     value: `${el.note}`,
