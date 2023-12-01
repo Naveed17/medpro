@@ -136,8 +136,7 @@ function HolidayDetails({...props}) {
                 autoComplete="off"
                 noValidate
                 className="root"
-                onSubmit={handleSubmit}
-            >
+                onSubmit={handleSubmit}>
                 <ContentStyled>
                     <Typography variant="h6" gutterBottom>
                         {t("holidays.dialog.add")}
@@ -148,8 +147,7 @@ function HolidayDetails({...props}) {
                             textTransform={"uppercase"}
                             fontWeight={600}
                             margin={"16px 0"}
-                            gutterBottom
-                        >
+                            gutterBottom>
                             {t("holidays.praticien")}
                         </Typography>
 
@@ -182,8 +180,7 @@ function HolidayDetails({...props}) {
                             color="text.primary"
                             marginTop={3}
                             marginBottom={1}
-                            gutterBottom
-                        >
+                            gutterBottom>
                             {t("holidays.dialog.title")}{" "}
                             <Typography component="span" color="error">
                                 *
@@ -204,8 +201,7 @@ function HolidayDetails({...props}) {
                             color="text.primary"
                             marginTop={3}
                             marginBottom={1}
-                            gutterBottom
-                        >
+                            gutterBottom>
                             {t("holidays.start")}{" "}
                         </Typography>
 
@@ -228,8 +224,7 @@ function HolidayDetails({...props}) {
                                     gutterBottom
                                     textAlign={"center"}
                                     alignItems={"center"}
-                                    margin={1}
-                                >
+                                    margin={1}>
                                     {t("holidays.dialog.at")}
                                 </Typography>
                             </Grid>
@@ -256,8 +251,7 @@ function HolidayDetails({...props}) {
                             color="text.primary"
                             marginTop={3}
                             marginBottom={1}
-                            gutterBottom
-                        >
+                            gutterBottom>
                             {t("holidays.end")}{" "}
                         </Typography>
 
@@ -280,8 +274,7 @@ function HolidayDetails({...props}) {
                                     gutterBottom
                                     textAlign={"center"}
                                     alignItems={"center"}
-                                    margin={1}
-                                >
+                                    margin={1}>
                                     {t("holidays.dialog.at")}
                                 </Typography>
                             </Grid>
@@ -326,8 +319,7 @@ function HolidayDetails({...props}) {
                     className="bottom-section"
                     justifyContent="flex-end"
                     spacing={2}
-                    direction={"row"}
-                >
+                    direction={"row"}>
                     <Button onClick={() => props.closeDraw()} color="secondary">
                         {t("motif.dialog.cancel")}
                     </Button>

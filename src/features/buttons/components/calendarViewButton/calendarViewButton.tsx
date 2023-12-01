@@ -34,6 +34,12 @@ function CalendarViewButton({...props}) {
     }
 
     useEffect(() => {
+        if (view) {
+            setSelected(views.find((mode: any) => mode.value === view))
+        }
+    }, [view]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (ref.current) {
             const element = ref.current.getBoundingClientRect();
             setWidth(element.width);

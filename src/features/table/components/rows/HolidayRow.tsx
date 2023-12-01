@@ -1,19 +1,21 @@
 import {TableRowStyled} from "@features/table"
 import TableCell from '@mui/material/TableCell';
-import {Typography, Skeleton} from '@mui/material';
+import {Typography, Skeleton, IconButton, Tooltip, Stack} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import {uniqueId} from 'lodash'
 import {Theme} from "@mui/material/styles";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import React from "react";
 
 function HolidayRow({...props}) {
+    const {row, t, handleEvent} = props
 
-    const {row} = props
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
                 {row ?
                     <Typography className='name' variant="body1" color="text.primary">
-                        {row.name}
+                        {row.title}
                     </Typography>
                     : <Skeleton variant="text" width={100}/>}
             </TableCell>
@@ -32,10 +34,8 @@ function HolidayRow({...props}) {
                                     borderLeft: `5px solid ${(theme: Theme) => theme.palette.error.main}`,
                                 }}
                                 component="span">
-                        <IconUrl path="agenda/ic-agenda2"/>
-                        {row.start}
-                        <IconUrl path="ic-time"/>
-                        {row.time_start}
+                        <IconUrl width={16} height={16} path="agenda/ic-agenda2"/>
+                        {row.startDate}
                     </Typography>
                     : <Skeleton variant="text" width={150} sx={{m: 'auto'}}/>}
             </TableCell>
@@ -54,23 +54,27 @@ function HolidayRow({...props}) {
                                     borderLeft: `5px solid ${(theme: Theme) => theme.palette.success.main}`,
                                 }}
                                 component="span">
-                        <IconUrl path="agenda/ic-agenda2"/>
-                        {row.end}
-                        <IconUrl path="ic-time"/>
-                        {row.time_end}
+                        <IconUrl width={16} height={16} path="agenda/ic-agenda2"/>
+                        {row.endDate}
                     </Typography>
                     : <Skeleton variant="text" width={150} sx={{m: 'auto'}}/>}
             </TableCell>
-            <TableCell align="center">
+            <TableCell align="right">
                 {row ?
-                    <Typography className='name' variant="body1" color="primary">
-                        {row.praticien}
-                    </Typography>
-                    : <Skeleton variant="text" width={100} sx={{m: 'auto'}}/>}
-            </TableCell>
-            <TableCell align="center">
-                {row ?
-                    <IconUrl path="ic-autre"/>
+                    <Stack direction='row' alignItems='center' justifyContent='flex-end'>
+                        <IconButton
+                            size="small"
+                            sx={{mr: {md: 1}}}
+                            onClick={() => handleEvent("onEditAbsence", row)}>
+                            <IconUrl path="setting/edit"/>
+                        </IconButton>
+                        {!row.hasData && <IconButton
+                            size="small"
+                            sx={{mr: {md: 1}}}
+                            onClick={() => handleEvent("onDeleteAbsence", row)}>
+                            <IconUrl path="setting/icdelete"/>
+                        </IconButton>}
+                    </Stack>
                     : <Skeleton variant="text" width={10} height={30} sx={{m: 'auto'}}/>}
             </TableCell>
         </TableRowStyled>

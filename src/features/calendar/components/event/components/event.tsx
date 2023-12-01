@@ -182,7 +182,7 @@ function Event({...props}) {
                                     </Stack>
                                 )
                                 :
-                                <span>{event.event._def.title}</span>
+                                <span style={{width: '100%'}}>{event.event._def.title}</span>
                             }
                         </Typography>
                         {appointment?.isOnline && <Avatar

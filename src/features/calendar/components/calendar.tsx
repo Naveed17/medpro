@@ -26,14 +26,14 @@ import {
     DayOfWeek,
     Event,
     Header,
-    setCurrentDate,
+    setCurrentDate, setView,
     SlotFormat,
     TableHead
 } from "@features/calendar";
 import dynamic from "next/dynamic";
 import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
-import {BusinessHoursInput} from "@fullcalendar/core";
+import {BusinessHoursInput, DatesSetArg} from "@fullcalendar/core";
 import {useSwipeable} from "react-swipeable";
 import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
@@ -42,6 +42,7 @@ import {alpha} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
 import {useTranslation} from "next-i18next";
+import {batch} from "react-redux";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -67,6 +68,7 @@ function Calendar({...props}) {
         OnSelectDate,
         OnRangeDateSelect,
         OnOpenPatient,
+        OnAddAbsence,
         OnEventChange,
         OnMenuActions,
         mutate: mutateAgenda
@@ -99,6 +101,7 @@ function Calendar({...props}) {
         mouseY: number;
     } | null>(null);
     const [loading, setLoading] = useState(true);
+    const [hiddenDays, setHiddenDays] = useState([]);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
@@ -108,6 +111,14 @@ function Calendar({...props}) {
     const handleOnSelectEvent = useCallback((value: any) => {
         OnSelectEvent(value);
     }, [OnSelectEvent]);
+
+    const handleAddAbsence = useCallback((currentDate: Date) => {
+        OnAddAbsence(currentDate);
+    }, [OnAddAbsence]);
+
+    const handleRangeChange = useCallback((event: DatesSetArg) => {
+        OnRangeChange(event);
+    }, [OnRangeChange]);
 
     const getSlotsFormat = (slot: number) => {
         const duration = moment.duration(slot, "hours") as any;
@@ -133,17 +144,20 @@ function Calendar({...props}) {
     };
 
     const handleNavLinkDayClick = (date: Date, jsEvent: UIEvent) => {
-        /*const calendarEl = calendarRef.current;
+        const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.gotoDate(date);
-            dispatch(setView("timeGridDay"));
-            dispatch(setCurrentDate({date, fallback: false}));
-        }*/
-    }
-
-    const handleNavLinkWeekClick = (date: Date, jsEvent: UIEvent) => {
-        console.log("handleNavLinkWeekClick", jsEvent);
+            if (!['path', 'svg'].includes((jsEvent.target as any)?.nodeName)) {
+                calendarApi.gotoDate(date);
+                batch(() => {
+                    dispatch(setView("timeGridDay"));
+                    dispatch(setCurrentDate({date, fallback: false}));
+                });
+            } else {
+                console.log("date", date)
+                dispatch(setCurrentDate({date, fallback: false}));
+            }
+        }
     }
 
     const handleTableEvent = (action: string, eventData: EventModal) => {
@@ -328,6 +342,7 @@ function Calendar({...props}) {
                     ) : (!loading && view !== "listWeek") && (
                         <Box position="relative" {...handlers} style={{touchAction: 'pan-y'}}>
                             <FullCalendar
+                                {...{hiddenDays}}
                                 weekends
                                 editable
                                 direction={isRTL ? "rtl" : "ltr"}
@@ -339,11 +354,10 @@ function Calendar({...props}) {
                                 slotEventOverlap={true}
                                 events={events}
                                 ref={calendarRef}
-                                datesSet={OnRangeChange}
+                                datesSet={handleRangeChange}
                                 defaultTimedEventDuration="00:15"
                                 allDayMaintainDuration={false}
                                 navLinkDayClick={handleNavLinkDayClick}
-                                navLinkWeekClick={handleNavLinkWeekClick}
                                 allDayContent={() => ""}
                                 eventDrop={(eventDrop) => {
                                     if (eventDrop.event._def.allDay) {
@@ -398,13 +412,18 @@ function Calendar({...props}) {
                                 dayHeaderContent={(event) => {
                                     const datEvents = groupSortedData.find(events => events.date === moment(event.date).format("DD-MM-YYYY"))?.events?.length ?? 0;
                                     return Header({
+                                        t,
                                         isGridWeek,
                                         event,
+                                        dispatch,
                                         datEvents,
                                         isMobile,
+                                        currentDate,
                                         contextMenuHeader,
                                         setContextMenuHeader,
-                                        t
+                                        hiddenDays,
+                                        setHiddenDays,
+                                        OnAddAbsence: () => handleAddAbsence(currentDate.date)
                                     })
                                 }}
                                 eventClick={(eventArg) => (eventArg.event._def.ui.display !== "background" && !eventArg.event._def.extendedProps.patient?.isArchived) && handleOnSelectEvent(eventArg.event._def)}

@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { Checkbox } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+
 export default function TextIconRadio(props) {
   const { doctor, disabled, onChange, ...rest } = props;
   const theme = useTheme();
@@ -47,13 +48,13 @@ export default function TextIconRadio(props) {
           sx={{ display: "flex", svg: { mr: 1 }, div: { height: "100%" } }}
           className="text-inner"
         >
-          <Image
+          {/*<Image
             src={doctor.img}
             alt={doctor.img}
             width={38}
             height={38}
             layout="fill"
-          />
+          />*/}
           <Box sx={{ ml: 1 }}>
             <Typography
               variant="subtitle2"

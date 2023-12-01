@@ -7,14 +7,14 @@ import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {FormikProvider, useFormik} from "formik";
 import moment from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {setVacationData, vacationDrawerSelector} from "@features/drawer";
+import {setAbsenceData, absenceDrawerSelector} from "@features/drawer";
 import {NoDataCard} from "@features/card";
 
-function VacationDrawer({...props}) {
-    const {t} = props;
+function AbsenceDrawer({...props}) {
+    const {t, main = false} = props;
     const dispatch = useAppDispatch();
 
-    const {endDate, startDate, title} = useAppSelector(vacationDrawerSelector);
+    const {endDate, startDate, title} = useAppSelector(absenceDrawerSelector);
 
     const formik = useFormik({
         enableReinitialize: false,
@@ -46,6 +46,7 @@ function VacationDrawer({...props}) {
             <Stack sx={{
                 padding: (theme) => theme.spacing(3),
                 background: (theme) => theme.palette.common.white,
+                ...(main && {height: '100%'})
             }}>
                 <FormikProvider value={formik}>
                     <Typography variant={"h6"}>{t("dialogs.absence-dialog.title")}</Typography>
@@ -61,7 +62,7 @@ function VacationDrawer({...props}) {
                                     fullWidth
                                     onChange={(e) => {
                                         setFieldValue("title", e.target.value);
-                                        dispatch(setVacationData({"title": e.target.value}));
+                                        dispatch(setAbsenceData({"title": e.target.value}));
                                     }}
                                     placeholder={t("dialogs.absence-dialog.type-placeholder")} variant="outlined"/>
                             </FormControl>
@@ -74,12 +75,13 @@ function VacationDrawer({...props}) {
                             <FormControl fullWidth size="small">
                                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <DateTimePicker
+                                        inputFormat="dd/MM/yyyy HH:mm"
                                         ampmInClock={false}
                                         ampm={false}
                                         label="Basic date time picker"
                                         onChange={event => {
                                             setFieldValue("startDate", event);
-                                            dispatch(setVacationData({"startDate": event}));
+                                            dispatch(setAbsenceData({"startDate": event}));
                                         }}
                                         renderInput={(params) => <TextField size={"small"} {...params} />}
                                         value={values.startDate}/>
@@ -94,12 +96,13 @@ function VacationDrawer({...props}) {
                             <FormControl fullWidth size="small">
                                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <DateTimePicker
+                                        inputFormat="dd/MM/yyyy HH:mm"
                                         ampmInClock={false}
                                         ampm={false}
                                         label="Basic date time picker"
                                         onChange={event => {
                                             setFieldValue("endDate", event);
-                                            dispatch(setVacationData({"endDate": event}));
+                                            dispatch(setAbsenceData({"endDate": event}));
                                         }}
                                         renderInput={(params) => <TextField size={"small"} {...params} />}
                                         value={values.endDate}/>
@@ -109,7 +112,7 @@ function VacationDrawer({...props}) {
                     </Grid>
                 </FormikProvider>
             </Stack>
-            <Stack
+            {!main && <Stack
                 sx={{
                     paddingLeft: (theme) => theme.spacing(3),
                 }}>
@@ -123,11 +126,11 @@ function VacationDrawer({...props}) {
                         title: "table.no-data.vacation.title",
                         description: "table.no-data.vacation.sub-title"
                     }}/>
-            </Stack>
+            </Stack>}
         </Stack>
 
 
     )
 }
 
-export default VacationDrawer;
+export default AbsenceDrawer;
