@@ -25,6 +25,7 @@ import {selectCheckboxReducer} from "@features/selectCheckboxCard"
 import {CashboxReducer} from "@features/leftActionBar/components/cashbox";
 import {dialogOpeningHoursReducer, selectDialogOpeningHours} from "@features/dialog/components/openingHoursDialog";
 import {vacationDrawerReducer} from "@features/drawer/components/vacationDrawer/reducer";
+import {minMaxWindowToggleReducer} from '@features/buttons'
 
 export const store = configureStore({
     reducer: {
@@ -57,6 +58,7 @@ export const store = configureStore({
         ocrDocument: ocrDocumentReducer,
         openingHours: dialogOpeningHoursReducer,
         vacation: vacationDrawerReducer,
+        minMaxWindow: minMaxWindowToggleReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {
