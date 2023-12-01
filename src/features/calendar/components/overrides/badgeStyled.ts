@@ -8,9 +8,9 @@ const BadgeStyled = styled(Badge)(({theme, ...props}: any) => ({
         left: "2rem",
         top: 12,
         background: highlightedDays(props['data-events'], theme),
-        padding: '0 4px',
-        marginLeft: "2rem"
-
+        padding: 14,
+        marginLeft: "2rem",
+        borderRadius: 20
     }
 }))
 

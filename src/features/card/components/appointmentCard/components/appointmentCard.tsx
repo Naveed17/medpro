@@ -391,7 +391,6 @@ function AppointmentCard({...props}) {
                                         onChange={(e, newValue: any) => {
                                             e.stopPropagation();
                                             const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
-                                            console.log("addReason", addReason, newValue)
                                             if (addReason) {
                                                 // Create a new value from the user input
                                                 addNewReason(addReason.inputValue);

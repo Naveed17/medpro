@@ -429,34 +429,6 @@ function AddPatientStep1({...props}) {
                             },
                         }}>
                         <Grid container spacing={{xs: 1, md: 2}}>
-                            <Grid item xs={6} md={4}>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    gutterBottom
-                                    component="span">
-                                    {t("old")}
-                                </Typography>
-                                <TextField
-                                    variant="outlined"
-                                    placeholder={t("old-placeholder")}
-                                    size="small"
-                                    fullWidth
-                                    {...getFieldProps("old")}
-                                    onChange={event => {
-                                        const old = parseInt(event.target.value);
-                                        setFieldValue("old", old ? old : "");
-                                        if (old) {
-                                            const dateInput = (values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old);
-                                            setFieldValue("birthdate", {
-                                                day: dateInput.format("DD"),
-                                                month: dateInput.format("MM"),
-                                                year: dateInput.format("YYYY"),
-                                            });
-                                        }
-                                    }}
-                                />
-                            </Grid>
                             <Grid item xs={6} md={8}>
                                 <Typography
                                     variant="body2"
@@ -487,6 +459,34 @@ function AddPatientStep1({...props}) {
                                         renderInput={(params) => <TextField {...params} fullWidth/>}
                                     />
                                 </LocalizationProvider>
+                            </Grid>
+                            <Grid item xs={6} md={4}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                    component="span">
+                                    {t("old")}
+                                </Typography>
+                                <TextField
+                                    variant="outlined"
+                                    placeholder={t("old-placeholder")}
+                                    size="small"
+                                    fullWidth
+                                    {...getFieldProps("old")}
+                                    onChange={event => {
+                                        const old = parseInt(event.target.value);
+                                        setFieldValue("old", old ? old : "");
+                                        if (old) {
+                                            const dateInput = (values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old);
+                                            setFieldValue("birthdate", {
+                                                day: dateInput.format("DD"),
+                                                month: dateInput.format("MM"),
+                                                year: dateInput.format("YYYY"),
+                                            });
+                                        }
+                                    }}
+                                />
                             </Grid>
                         </Grid>
                     </Box>
