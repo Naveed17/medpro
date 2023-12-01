@@ -30,7 +30,7 @@ const CipCardStyled = styled(LoadingButton)(({theme}) => ({
     },
     "& .timer-text": {
         textAlign: "left",
-        width: "120px",
+        maxWidth: "200px",
         whiteSpace: "nowrap",
         overflow: "hidden",
         textOverflow: "ellipsis",

@@ -208,7 +208,7 @@ function Calendar({...props}) {
             action === "onMove" &&
             (moment().isAfter(eventMenu?.time) || ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
             action === "onPatientNoShow" &&
-            ((moment().isBefore(eventMenu?.time) || eventMenu?.status.key === "ON_GOING") || eventMenu?.status.key === "FINISHED" || eventMenu?.patient?.isArchived) ||
+            ((moment().endOf('day').isBefore(eventMenu?.time) || eventMenu?.status.key === "ON_GOING") || eventMenu?.status.key === "FINISHED" || eventMenu?.patient?.isArchived) ||
             action === "onConfirmAppointment" &&
             eventMenu?.status.key !== "PENDING" ||
             action === "onReschedule" &&

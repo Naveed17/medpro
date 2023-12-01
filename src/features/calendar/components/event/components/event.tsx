@@ -156,29 +156,34 @@ function Event({...props}) {
                             pl={appointment?.dur > 15 ? 0.5 : 0}
                             variant="body2"
                             component={"span"}
-                            sx={{
-                                span: {
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    ...((appointment?.isOnline || appointment?.motif?.length > 0) && {width: "96%"}),
-                                    ...((appointment?.hasErrors?.length > 0 && (appointment?.isOnline || appointment?.motif?.length > 0)) && {width: "94%"})
+                            {...(view !== "timeGridDay" && {
+                                sx: {
+                                    span: {
+                                        whiteSpace: "nowrap",
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        ...((appointment?.isOnline || appointment?.motif?.length > 0) && {width: "96%"}),
+                                        ...((appointment?.hasErrors?.length > 0 && (appointment?.isOnline || appointment?.motif?.length > 0)) && {width: "94%"})
+                                    }
                                 }
-                            }}
+                            })}
                             color={"text.primary"}
                             fontWeight={600}
                             noWrap>
-                            <span>{event.event._def.title}</span>
-                            {view === "timeGridDay" && (
-                                <>
-                                    {appointment?.patient?.contact?.length > 0 && <>
-                                        <Icon path="ic-phone"/>
-                                        {appointment?.patient?.contact[0]?.code} {appointment?.patient?.contact[0].value}
-                                    </>}
-                                    {appointment?.motif?.length > 0 && <span
-                                        style={{marginLeft: 4}}>{"Motif: "}{appointment?.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</span>}
-                                </>
-                            )}
+                            {view === "timeGridDay" ? (
+                                    <Stack spacing={.5}>
+                                        <span>{event.event._def.title}</span>
+                                        {appointment?.patient?.contact?.length > 0 && <>
+                                            <Icon path="ic-phone"/>
+                                            {appointment?.patient?.contact[0]?.code} {appointment?.patient?.contact[0].value}
+                                        </>}
+                                        {appointment?.motif?.length > 0 &&
+                                            <span>{"Motif: "}{appointment?.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</span>}
+                                    </Stack>
+                                )
+                                :
+                                <span>{event.event._def.title}</span>
+                            }
                         </Typography>
                         {appointment?.isOnline && <Avatar
                             className={"online-appointment"}
