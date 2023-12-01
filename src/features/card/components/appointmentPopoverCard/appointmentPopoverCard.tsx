@@ -1,5 +1,5 @@
 //material-ui
-import {Box, Typography, Stack, Avatar, Chip, Skeleton, IconButton} from "@mui/material";
+import {Box, Typography, Stack, Avatar, Chip, Skeleton, IconButton, useTheme} from "@mui/material";
 // styled
 import RootStyled from "./overrides/rootStyled";
 // utils
@@ -24,6 +24,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 function AppointmentPopoverCard({...props}) {
     const {isBeta, data, style, t, OnMenuActions} = props;
     const {data: session} = useSession();
+    const theme = useTheme()
     const router = useRouter();
     const {patientPhoto} = useProfilePhoto({patientId: data?.patient?.uuid, hasPhoto: data?.patient?.hasPhoto});
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -191,14 +192,16 @@ function AppointmentPopoverCard({...props}) {
                             width: 16,
                             height: 16,
                             pl: 0
-                        }
+                        },
+                        color: theme.palette.error.main,
+                        background: theme.palette.error.lighter
                     }}
-                    color={appointmentData?.restAmount > 0 ? "expire" : "success"}>
+                    >
                     <Typography
                         sx={{
                             fontSize: 10,
                         }}>
-                        {t(appointmentData?.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${appointmentData?.restAmount > 0 ? '-' : '+'} ${Math.abs(appointmentData?.restAmount)}`} {devise}</Typography>
+                        {t(appointmentData?.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${Math.abs(appointmentData?.restAmount)}`} {devise}</Typography>
                 </Label>}
             </Stack>
 

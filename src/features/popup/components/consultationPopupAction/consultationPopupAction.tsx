@@ -41,7 +41,7 @@ function ConsultationPopupAction({...props}) {
     const {data: user} = session as Session;
     const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
-    const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment} ${t("times.days")} \r\n` : ""}, ${data.instruction}`);
+    const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment}  \r\n` : ""}, ${data.instruction}`);
     const [loadingRequest, setLoadingRequest] = useState(false);
 
     const {trigger: triggerTransactions} = useRequestQueryMutation("agenda/appointment/transactions");
