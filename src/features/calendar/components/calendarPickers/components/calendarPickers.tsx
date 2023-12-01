@@ -57,7 +57,7 @@ function CalendarPickers({...props}) {
                         return (
                             <PickersDay {...DayComponentProps}>
                                 <Stack alignItems={"center"} justifyContent={"center"} spacing={0} m={2}>
-                                    <Typography>{day.getDate()}</Typography>
+                                    <Typography fontSize={12} fontWeight={600}>{day.getDate()}</Typography>
                                     {!(DayComponentProps.today || DayComponentProps.selected) && note > 0 ?
                                         <FiberManualRecordIcon
                                             sx={{

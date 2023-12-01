@@ -88,7 +88,7 @@ function Event({...props}) {
             }>
             <EventStyled
                 sx={{
-                    ...((isBeta && !appointment?.payed) && {backgroundColor: (theme: Theme) => alpha(theme.palette.expire.main, 0.2)}),
+                    ...((isBeta && event.event._def.ui.display !== "background" && !appointment?.payed) && {backgroundColor: (theme: Theme) => alpha(theme.palette.expire.main, 0.2)}),
                     ...(appointment?.patient?.isArchived && {
                         backgroundColor: (theme: Theme) => alpha(theme.palette.grey['A100'], 0.5),
                         opacity: 0.5

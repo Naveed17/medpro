@@ -250,10 +250,11 @@ function Agenda() {
                 start: moment(appointment.startDate, "DD-MM-YYYY HH:mm").toDate(),
                 end: moment(appointment.endDate, "DD-MM-YYYY HH:mm").toDate(),
                 overlap: false,
+                color: theme.palette.grey['A300'],
                 display: 'background'
             }));
         }
-        console.log("absences", absences);
+
         const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
         const eventsUpdated: EventModal[] = [];
         if (!query?.filter || events.current.length === 0) {
@@ -436,22 +437,29 @@ function Agenda() {
     }
 
     const handleAddAbsence = () => {
+        setLoadingRequest(true);
         const params = new FormData();
         params.append('title', vacationData.title);
-        params.append('type', 'set');
-        params.append('start_date', moment(vacationData.startDate).format('DD/MM/YYYY'));
-        params.append('start_time', moment(vacationData.startDate).format('HH:mm'));
-        params.append('end_date', moment(vacationData.endDate).format('DD/MM/YYYY'));
-        params.append('end_time', moment(vacationData.startDate).format('HH:mm'));
+        params.append('dates', JSON.stringify([{
+            "start_date": moment(vacationData.startDate).format('DD-MM-YYYY'),
+            "start_time": moment(vacationData.startDate).format('HH:mm'),
+            "end_date": moment(vacationData.endDate).format('DD-MM-YYYY'),
+            "end_time": moment(vacationData.endDate).format('HH:mm'),
+        }]));
 
         triggerAddAbsence({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/absences`,
             data: params
         }, {
-            onSuccess: (value: any) => {
-
-            }
+            onSuccess: () => {
+                batch(() => {
+                    dispatch(openDrawer({type: "vacation", open: false}));
+                    dispatch(resetVacationData());
+                });
+                refreshData();
+            },
+            onSettled: () => setLoadingRequest(false)
         });
     }
 
@@ -1376,7 +1384,7 @@ function Agenda() {
                             {t(`steppers.back`)}
                         </Button>
                         <LoadingButton
-                            {...{loading}}
+                            loading={loadingRequest}
                             onClick={handleAddAbsence}
                             disabled={vacationData.title.length === 0}
                             variant="contained"

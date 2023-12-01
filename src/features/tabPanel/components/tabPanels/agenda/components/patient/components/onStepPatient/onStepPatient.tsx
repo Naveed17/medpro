@@ -49,7 +49,7 @@ import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {LoadingButton} from "@mui/lab";
 import {CountrySelect} from "@features/countrySelect";
-import {arrayUniqueByKey} from "@lib/hooks";
+import {arrayUniqueByKey, getBirthday} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 import {LoadingScreen} from "@features/loadingScreen";
@@ -188,6 +188,7 @@ function OnStepPatient({...props}) {
                             message: t("last-name-error"),
                             test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
                         }),
+                    old: Yup.string(),
                     birthday: Yup.string().nullable(),
                     phone: Yup.object().shape({
                         code: Yup.string(),
@@ -223,6 +224,7 @@ function OnStepPatient({...props}) {
             lastName: selectedPatient
                 ? selectedPatient.lastName
                 : patient.step1.last_name,
+            old: patient.step1.old,
             birthdate: selectedPatient?.birthdate
                 && {
                     day: selectedPatient.birthdate.split("-")[0] as string,
@@ -592,43 +594,77 @@ function OnStepPatient({...props}) {
                             }
                         }}
                         in={expanded} timeout="auto" unmountOnExit>
-                        <Box>
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                gutterBottom
-                                component="span">
-                                {t("date-of-birth")}
-                            </Typography>
-                            <Stack spacing={3} direction={{xs: "column", lg: "row"}}>
-                                <FormControl
-                                    sx={{
-                                        "& .MuiOutlinedInput-root button": {
-                                            padding: "5px",
-                                            minHeight: "auto",
-                                            height: "auto",
-                                            minWidth: "auto"
-                                        }
-                                    }}
-                                    size="small" fullWidth>
+                        <Box
+                            className={"inner-box"}
+                            sx={{
+                                "& .MuiOutlinedInput-root button": {
+                                    padding: "5px",
+                                    minHeight: "auto",
+                                    height: "auto",
+                                    minWidth: "auto",
+                                },
+                            }}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={6} md={8}>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        gutterBottom
+                                        component="span">
+                                        {t("date-of-birth")}
+                                    </Typography>
                                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                                         <DatePicker
-                                            value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY").toDate() : null}
+                                            value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY") : null}
                                             inputFormat="dd/MM/yyyy"
+                                            mask="__/__/____"
                                             onChange={(date) => {
-                                                if (moment(date).isValid()) {
-                                                    setFieldValue("birthdate", {
-                                                        day: moment(date).format("DD"),
-                                                        month: moment(date).format("MM"),
-                                                        year: moment(date).format("YYYY"),
-                                                    });
+                                                const dateInput = moment(date);
+                                                setFieldValue("birthdate", dateInput.isValid() ? {
+                                                    day: dateInput.format("DD"),
+                                                    month: dateInput.format("MM"),
+                                                    year: dateInput.format("YYYY"),
+                                                } : null);
+                                                if (dateInput.isValid()) {
+                                                    const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                                    setFieldValue("old", old > 120 ? "" : old);
+                                                } else {
+                                                    setFieldValue("old", "");
                                                 }
                                             }}
                                             renderInput={(params) => <TextField {...params} fullWidth/>}
                                         />
                                     </LocalizationProvider>
-                                </FormControl>
-                            </Stack>
+                                </Grid>
+                                <Grid item xs={6} md={4}>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        gutterBottom
+                                        component="span">
+                                        {t("old")}
+                                    </Typography>
+                                    <TextField
+                                        variant="outlined"
+                                        placeholder={t("old-placeholder")}
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("old")}
+                                        onChange={event => {
+                                            const old = parseInt(event.target.value);
+                                            setFieldValue("old", old ? old : "");
+                                            if (old) {
+                                                const dateInput = (values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old);
+                                                setFieldValue("birthdate", {
+                                                    day: dateInput.format("DD"),
+                                                    month: dateInput.format("MM"),
+                                                    year: dateInput.format("YYYY"),
+                                                });
+                                            }
+                                        }}
+                                    />
+                                </Grid>
+                            </Grid>
                         </Box>
                         <Box>
                             <Typography
