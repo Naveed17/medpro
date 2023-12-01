@@ -8,19 +8,21 @@ import {
     CardContent,
     Checkbox,
     DialogActions,
-    FormControlLabel,
+    FormControl,
     Grid,
     IconButton,
     LinearProgress,
+    MenuItem,
     Stack,
     Tab,
     Tabs,
+    TextField,
     Toolbar,
-    Typography
+    Typography,
+    useTheme
 } from "@mui/material";
 //components
 import {DocumentCard, NoDataCard} from "@features/card";
-import {uniqueId} from "lodash";
 import {Dialog} from "@features/dialog";
 import ImageViewer from "react-simple-image-viewer";
 
@@ -40,29 +42,29 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import moment from "moment/moment";
 import Add from "@mui/icons-material/Add";
 import DocumentCardStyled from "@features/card/components/documentCard/components/overrides/documentCardStyle";
-import EventRoundedIcon from "@mui/icons-material/EventRounded";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import Autocomplete from "@mui/material/Autocomplete";
+import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",
     "analyse", "requested-analysis",
-    "prescription", "rapport", "medical-certificate", "audio", "video"];
+    "prescription", "Rapport", "medical-certificate", "audio", "video"];
 
 const AddAppointmentCardWithoutButtonsData = {
-    mainIcon: "ic-doc",
+    mainIcon: "",
     title: "config.no-data.documents.title",
     description: "config.no-data.documents.description"
 };
 
 const AddAppointmentCardData = {
-    mainIcon: "ic-doc",
+    mainIcon: "",
     title: "config.no-data.documents.title",
     description: "config.no-data.documents.description",
     buttons: [{
         text: "config.no-data.documents.button-text",
-        icon: <Icon path={"ic-doc"} width={"18"} height={"18"}/>,
+        icon: <IconUrl width={20} height={20} path={'fileadd'}/>,
         variant: "primary",
         color: "white"
     }]
@@ -70,15 +72,81 @@ const AddAppointmentCardData = {
 
 const AddQuoteCardData = {
     mainIcon: "",
-    title: "",
+    title: "config.no-data.documents.quote-add",
     description: "config.no-data.documents.quote-description",
     buttons: [{
         text: "config.no-data.documents.add_quote",
-        icon: <Icon path={"ic-doc"} width={"18"} height={"18"}/>,
+        icon: <IconUrl width={20} height={20} path={'fileadd'}/>,
         variant: "primary",
         color: "white"
     }]
 };
+
+function DocFilter({...props}) {
+    const {titleSearch, setTitleSearch, theme, handleSelectAll, selectedAll, queryState, setQueryState, t} = props
+    return (
+        <Grid container spacing={1}>
+            <Grid item md={6} xs={12}>
+                <Typography fontSize={12} mb={1} color={"#6F7482"}>{t('search-title')}</Typography>
+                <TextField
+                    value={titleSearch}
+                    onChange={(ev) => {
+                        setTitleSearch(ev.target.value)
+                    }} style={{
+                    background: theme.palette.grey["A500"],
+                    border: `1px solid ${theme.palette.grey["200"]}`,
+                    width: "100%",
+                    borderRadius: 6
+                }} placeholder={t('search')}></TextField>
+            </Grid>
+            <Grid item md={6} xs={12}>
+                <Typography fontSize={12} mb={1} color={"#6F7482"}>{t('type-title')}</Typography>
+                <MuiAutocompleteSelectAll.Provider
+                    value={{
+                        onSelectAll: (selectedAll) => void handleSelectAll({types: selectedAll ? [] : typeofDocs}),
+                        selectedAll,
+                        indeterminate: !!queryState.types.length && !selectedAll,
+                    }}
+                >
+                    <Autocomplete
+                        size={"small"}
+                        multiple
+                        autoHighlight
+                        filterSelectedOptions
+                        limitTags={3}
+                        noOptionsText={t("noType")}
+                        ListboxComponent={MuiAutocompleteSelectAll.ListBox}
+                        value={queryState.types ? queryState.types : []}
+                        style={{width: "100%"}}
+                        onChange={(event, value) => setQueryState({types: value})}
+                        options={typeofDocs ? typeofDocs : []}
+                        getOptionLabel={option => option ? t(option) : ""}
+                        isOptionEqualToValue={(option: any, value) => option === value}
+                        renderOption={(params, option, {selected}) => (
+                            <MenuItem {...params}>
+                                <Checkbox checked={selected}/>
+                                <Typography sx={{ml: 1}}>{t(option)}</Typography>
+                            </MenuItem>)}
+                        renderInput={(params) => (
+                            <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
+                                <TextField style={{
+                                    background: theme.palette.grey["A500"],
+                                    border: `1px solid ${theme.palette.grey["200"]}`,
+                                    width: "100%",
+                                    borderRadius: 6
+                                }}
+                                           {...params}
+                                           sx={{paddingLeft: 0}}
+                                           placeholder={t("type-placeholder")}
+                                           variant="outlined"
+                                />
+                            </FormControl>)}
+                    />
+                </MuiAutocompleteSelectAll.Provider>
+            </Grid>
+        </Grid>
+    )
+}
 
 function DocumentsPanel({...props}) {
     const {
@@ -88,6 +156,7 @@ function DocumentsPanel({...props}) {
         loadingRequest, setLoadingRequest
     } = props;
     const router = useRouter();
+    const theme = useTheme();
     const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medical_professional} = useMedicalProfessionalSuffix();
@@ -98,15 +167,21 @@ function DocumentsPanel({...props}) {
     const {medicalEntityHasUser, secretaryAccess} = useAppSelector(dashLayoutSelector);
 
     // filter checked array
-    const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [document, setDocument] = useState<any>();
     const [isViewerOpen, setIsViewerOpen] = useState<string>('');
     const [currentTab, setCurrentTab] = React.useState(documentViewIndex);
     const [openQuoteDialog, setOpenQuoteDialog] = useState<boolean>(false);
     const [acts, setActs] = useState<AppointmentActModel[]>([]);
-    const [note, setNotes] = useState("");
+    const [note, setNotes] = useState(t('noteQuote'));
+    const [titleSearch, setTitleSearch] = useState("");
+    const [loading, setLoading] = useState(true);
 
+    const [queryState, setQueryState] = useState<any>({
+        types: []
+    });
+
+    const selectedAll = queryState.types.length === typeofDocs?.length;
 
     const {trigger: triggerQuoteUpdate} = useRequestQueryMutation("/patient/quote");
 
@@ -128,60 +203,77 @@ function DocumentsPanel({...props}) {
     const documents = (httpAppDocPatientResponse as HttpResponse)?.data.reduce((docs: any[], doc: any) => [...(docs ?? []), ...doc?.documents], []) ?? [];
     const quotes = (httpQuotesResponse as HttpResponse)?.data ?? [];
 
+    const handleSelectAll = (types: any): void => {
+        setQueryState(types);
+    }
+
     const tabsContent = [
         {
             title: "Documents du rendez-vous",
-            children: <Box display='grid' className={'document-container'}
-                           {...(documents.length > 0 && {
-                               sx: {
-                                   gridGap: 16,
-                                   gridTemplateColumns: {
-                                       xs: "repeat(1,minmax(0,1fr))",
-                                       md: "repeat(2,minmax(0,1fr))",
-                                       lg: "repeat(2,minmax(0,1fr))",
-                                   },
-                               }
-                           })}>
-                {documents.length > 0 ?
-                    documents.filter((doc: MedicalDocuments) =>
-                        doc.documentType !== 'photo' && selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType))
-                        .map((card: any, idx: number) =>
-                            <React.Fragment key={`doc-item-${idx}`}>
-                                <DocumentCard
-                                    onClick={() => {
-                                        showDoc(card)
-                                    }}
-                                    {...{t, data: card, date: true, time: true, title: true}}/>
-                            </React.Fragment>
-                        )
-                    :
-                    <NoDataCard t={t} ns={"patient"}
-                                onHandleClick={() => setOpenUploadDialog(true)}
-                                data={AddAppointmentCardWithoutButtonsData}/>
-                }
-            </Box>,
+            children:
+                <>
+                    <DocFilter {...{
+                        titleSearch,
+                        setTitleSearch,
+                        theme,
+                        handleSelectAll,
+                        selectedAll,
+                        queryState,
+                        setQueryState,
+                        t
+                    }}/>
+                    <Box display='grid' mt={2} className={'document-container'}
+                         {...(documents.length > 0 && {
+                             sx: {
+                                 gridGap: 16,
+                                 gridTemplateColumns: {
+                                     xs: "repeat(1,minmax(0,1fr))",
+                                     md: "repeat(2,minmax(0,1fr))",
+                                     lg: "repeat(2,minmax(0,1fr))",
+                                 },
+                             }
+                         })}>
+                        {documents.length > 0 ?
+                            documents.filter((doc: {
+                                title: string
+                            }) => doc.title.includes(titleSearch)).filter((doc: MedicalDocuments) =>
+                                queryState.types.length === 0 ? true : queryState.types.some((st: string) => st === doc.documentType)).map((card: any, idx: number) =>
+                                <React.Fragment key={`doc-item-${idx}`}>
+                                    <DocumentCard
+                                        onClick={() => {
+                                            showDoc(card)
+                                        }}
+                                        {...{t, data: card, date: true, time: true, title: true}}/>
+                                </React.Fragment>
+                            )
+                            :
+                            <NoDataCard t={t} ns={"patient"}
+                                        onHandleClick={() => setOpenUploadDialog(true)}
+                                        data={AddAppointmentCardWithoutButtonsData}/>
+                        }
+                    </Box>
+                </>,
             permission: ["ROLE_PROFESSIONAL", ...(secretaryAccess ? ["ROLE_SECRETARY"] : [])]
         },
         {
             title: "Documents du patient",
             children:
                 <>
-                    <Grid container spacing={1}>
-                        {patientDocuments?.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                            <Grid key={`doc-item-${idx}`} item md={3.6} xs={12} m={1}
-                                  alignItems={"center"}>
-                                <DocumentCard onClick={() => {
-                                    showDoc(card)
-                                }} {...{t, data: card, date: false, time: true, title: true, resize: true}}/>
-                            </Grid>
-                        )}
-                    </Grid>
-
-                    <Grid container spacing={1}>
+                    <DocFilter {...{
+                        titleSearch,
+                        setTitleSearch,
+                        theme,
+                        handleSelectAll,
+                        selectedAll,
+                        queryState,
+                        setQueryState,
+                        t
+                    }}/>
+                    <Grid container mt={2} spacing={1}>
                         {patientDocuments?.length > 0 ?
-                            patientDocuments?.filter((doc: MedicalDocuments) =>
-                                doc.documentType !== 'photo' && selectedTypes.length === 0 ? true : selectedTypes.some(st => st === doc.documentType)).map((card: any, idx: number) =>
-                                <Grid key={`doc-item-${idx}`} item md={5.6} xs={12} m={1}
+                            patientDocuments?.filter((doc) => doc.title.includes(titleSearch)).filter((doc: MedicalDocuments) =>
+                                queryState.types.length === 0 ? true : queryState.types.some((st: string) => st === doc.documentType)).map((card: any, idx: number) =>
+                                <Grid key={`doc-item-${idx}`} item md={6} xs={12}
                                       alignItems={"center"}
                                       sx={{
                                           "& .sub-title": {
@@ -209,14 +301,6 @@ function DocumentsPanel({...props}) {
     ].filter(tab => tab.permission.includes(roles[0]));
 
     // handle change for checkboxes
-    const handleToggle = (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.checked) {
-            setSelectedTypes([...selectedTypes, value])
-        } else {
-            selectedTypes.splice(selectedTypes.indexOf(value), 1);
-            setSelectedTypes([...selectedTypes])
-        }
-    };
     const handleCloseDialog = () => {
         setOpenDialog(false);
     }
@@ -321,7 +405,7 @@ function DocumentsPanel({...props}) {
                             act.selected = false
                         })
                         setActs([..._acts])
-                        setNotes('')
+                        setNotes(t('noteQuote'))
                     })
                 }
             });
@@ -382,6 +466,10 @@ function DocumentsPanel({...props}) {
                 }
             })
             setActs(_acts);
+
+            setTimeout(() => {
+                setLoading(false)
+            }, 2000)
         }
     }, [httpProfessionalsActs]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -420,7 +508,7 @@ function DocumentsPanel({...props}) {
                         {quotes.map((card: any, idx: number) =>
                             <Grid item xs={12} md={6} key={`doc-item-${idx}`}>
                                 <DocumentCardStyled style={{width: "100%"}}>
-                                    <Stack direction={"row"} spacing={1} onClick={() => {
+                                    <Stack direction={"row"} spacing={2} onClick={() => {
                                         let _acts: any[] = [];
                                         acts.map(act => _acts = [..._acts, {
                                             ...act,
@@ -431,24 +519,20 @@ function DocumentsPanel({...props}) {
                                         showQuote(card.uuid, _acts.filter(act => act.selected), card.notes)
                                     }} alignItems={"center"}
                                            padding={2}>
-                                        <IconUrl width={20} path={"ic-text"}/>
+                                        <IconUrl width={25} height={25} path={"ic-quote"}/>
                                         <Stack>
-                                            <Typography>{t("config.tabs.quotes", {ns: 'patient'})}</Typography>
-                                            <Stack direction={"row"} spacing={1}>
-                                                <EventRoundedIcon
-                                                    style={{fontSize: 15, color: "grey"}}/>
-                                                <Typography whiteSpace={"nowrap"} fontSize={12}
-                                                            sx={{color: "grey", cursor: "pointer"}}>
+                                            <Typography
+                                                fontSize={13}>{t("config.tabs.quotes", {ns: 'patient'})}</Typography>
+                                            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                <Icon path="ic-agenda" height={11} width={11}
+                                                      color={theme.palette.text.primary}/>
+                                                <Typography variant="body2">
                                                     {moment(card.date_quote, 'YYYY-MM-DD HH:mm').format('DD-MM-YYYY')}
                                                 </Typography>
 
-                                                <AccessTimeIcon style={{fontSize: 15, color: "grey"}}/>
-                                                <Typography whiteSpace={"nowrap"} fontSize={12}
-                                                            sx={{
-                                                                marginTop: 0,
-                                                                color: "grey",
-                                                                cursor: "pointer"
-                                                            }}>
+                                                <Icon path="ic-time" height={11} width={11}
+                                                      color={theme.palette.text.primary}/>
+                                                <Typography variant="body2">
                                                     {moment(card.date_quote, 'DD-MM-YYYY HH:mm').add(1, "hour").format('HH:mm')}
                                                 </Typography>
                                             </Stack>
@@ -464,54 +548,9 @@ function DocumentsPanel({...props}) {
                                                        data={AddQuoteCardData}/>}
                 </CardContent>
             </PanelCardStyled>
-            {documents.length > 0 || patientDocuments?.length > 0 ? (
+            {(documents.length > 0 || patientDocuments?.length > 0) && !loading ? (
                 <>
-                    {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').length > 0 && !roles.includes("ROLE_SECRETARY") &&
-                        <PanelCardStyled
-                            sx={{
-                                "& .MuiCardContent-root": {
-                                    background: "white"
-                                },
-                                marginBottom: "1rem"
-                            }}>
-                            <CardContent>
-                                <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
-                                    <Toolbar variant="dense">
-                                        <Box sx={{flexGrow: 1}}>
-                                            <Typography
-                                                variant="body1"
-                                                sx={{fontWeight: "bold"}}
-                                                gutterBottom>
-                                                {t("config.table.photo", {ns: 'patient'})}
-                                            </Typography>
-                                        </Box>
-                                    </Toolbar>
-                                </AppBar>
-
-                                <Grid container spacing={1}>
-                                    {documents.filter((doc: MedicalDocuments) => doc.documentType === 'photo').map((card: any, idx: number) =>
-                                        <Grid key={`doc-item-${idx}`} item md={3.6} xs={12} m={1}
-                                              alignItems={"center"}>
-                                            <DocumentCard
-                                                onClick={() => {
-                                                    showDoc(card)
-                                                }}
-                                                {...{
-                                                    t,
-                                                    data: card,
-                                                    date: false,
-                                                    time: true,
-                                                    title: true,
-                                                    resize: true
-                                                }}/>
-                                        </Grid>
-                                    )}
-                                </Grid>
-                            </CardContent>
-                        </PanelCardStyled>
-                    }
                     <PanelCardStyled
-                        className={"container"}
                         sx={{
                             "& .MuiCardContent-root": {
                                 background: "white"
@@ -522,20 +561,8 @@ function DocumentsPanel({...props}) {
                             }
                         }}>
                         <CardContent>
-                            <AppBar position="static" color={"transparent"} className={"app-bar-header"}>
-                                <Toolbar variant="dense">
-                                    <Box sx={{flexGrow: 1}}>
-                                        <Typography
-                                            variant="body1"
-                                            sx={{fontWeight: "bold"}}
-                                            gutterBottom>
-                                            {t("config.table.title", {ns: 'patient'})}
-                                        </Typography>
-                                    </Box>
-                                </Toolbar>
-                            </AppBar>
                             <>
-                                <FormControlLabel
+                                {/* <FormControlLabel
                                     key={uniqueId()}
                                     control={
                                         <Checkbox
@@ -558,8 +585,9 @@ function DocumentsPanel({...props}) {
                                         }
                                         label={t(`config.table.${type}`, {ns: 'patient'})}
                                     />
-                                ))}
+                                ))}*/}
                             </>
+
 
                             <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                                 <Tabs value={currentTab} onChange={handleTabsChange} aria-label="documents tabs">
@@ -580,7 +608,7 @@ function DocumentsPanel({...props}) {
                         </CardContent>
                     </PanelCardStyled>
                 </>
-            ) : (
+            ) : !loading &&
                 <PanelCardStyled
                     sx={{
                         "& .MuiCardContent-root": {
@@ -594,7 +622,7 @@ function DocumentsPanel({...props}) {
                                     data={AddAppointmentCardData}/>
                     </CardContent>
                 </PanelCardStyled>
-            )}
+            }
 
             <Dialog action={"document_detail"}
                     open={openDialog}

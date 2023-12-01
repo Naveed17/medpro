@@ -109,6 +109,7 @@
         "title": "Add the first document",
         "description": "You have no medical documents. Add documents by clicking on 'Add a Document'",
         "button-text": "Add a Document",
+        "quote-add": "Add first quote",
         "quote-description": "No quote, Click on 'Add a quote'",
         "add_quote": "Add quote"
       },
