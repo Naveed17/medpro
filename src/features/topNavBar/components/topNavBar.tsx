@@ -251,6 +251,7 @@ function TopNavBar({...props}) {
             const onGoingData = partition(ongoing, (event: any) => event.status === 4);
             if (onGoingData[0].length > 0) {
                 const eventsOngoing: any[] = onGoingData[0];
+                const [firstName, ...lastName] = eventsOngoing[0]?.patient.split(" ");
                 const eventOngoing: any = {
                     publicId: eventsOngoing[0]?.uuid,
                     extendedProps: {
@@ -258,8 +259,8 @@ function TopNavBar({...props}) {
                         status: AppointmentStatus[eventsOngoing[0]?.status],
                         startTime: eventsOngoing[0]?.start_time,
                         patient: {
-                            lastName: eventsOngoing[0]?.patient.split(" ")[1],
-                            firstName: eventsOngoing[0]?.patient.split(" ")[0],
+                            lastName: firstName,
+                            firstName: lastName.join(" "),
                             ...(eventsOngoing[0]?.patient_uuid && {uuid: eventsOngoing[0]?.patient_uuid})
                         },
                     },

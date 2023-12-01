@@ -295,18 +295,6 @@
     "start": "Date debut",
     "end": "Date fin",
     "praticien": "praticien",
-    "dialog": {
-      "add": "Ajouter congé ou absence",
-      "selectOne": "Choisissez le praticien qui affecte cette consultation",
-      "title": "Titre",
-      "writeTitle": "Tapez le titre",
-      "at": "à",
-      "list": "Liste des congés et absences proches",
-      "ttc": "Titre est trop court",
-      "ttl": "Titre est trop long",
-      "titlereq": "Titre est obligatoire",
-      "datereq": "date est obligatoire"
-    },
     "config": {
       "path": "Paramètres > Congé et Absences",
       "add": "Ajouter",
@@ -316,7 +304,33 @@
         "name": "Nom",
         "praticien": "praticien",
         "action": "action",
-        "add": "Ajouter"
+        "add": "Ajouter",
+        "no-data": {
+          "vacation": {
+            "title": "Ajouter votre premier absence",
+            "sub-title": "Pas de absences",
+            "description": "",
+            "button-text": "Ajouter un absence"
+          }
+        }
+      },
+      "dialogs": {
+        "absence-dialog": {
+          "title": "Ajouter congé ou absence",
+          "sub-title": "Liste des congés et absences proches",
+          "description": "Titre de congé",
+          "type-placeholder": "Saisir le titre du congé",
+          "startDate": "Date début",
+          "endDate": "Date fin",
+          "vacation": {
+            "yearly": "Congé annuel",
+            "sick": "Congé de maladie",
+            "conference": "Conférence",
+            "absence": "Autre motif d'absence"
+          },
+          "save": "Enregistrer",
+          "cancel": "Annuler"
+        }
       }
     }
   },

@@ -176,6 +176,8 @@
         "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
         "first-name-placeholder": "Tapez le prénom du patient",
         "date-of-birth": "Date de naissance",
+        "old": "Âge",
+        "old-placeholder": "Ajouter L'âge",
         "family_doctor": "Médecin correspondant",
         "family_doctor-placeholder": "Médecin correspondant",
         "day": "Jour",
@@ -302,7 +304,8 @@
     "absence-dialog": {
       "title": "Ajouter congé ou absence",
       "sub-title": "Liste des congés et absences proches",
-      "type-placeholder": "Sélectionner un type d'absence",
+      "description": "Titre de congé",
+      "type-placeholder": "Saisir le titre du congé",
       "startDate": "Date début",
       "endDate": "Date fin",
       "vacation": {

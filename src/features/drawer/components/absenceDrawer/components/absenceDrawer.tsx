@@ -1,31 +1,25 @@
 import {Stack, TextField, Typography} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import React, {useState} from "react";
+import React from "react";
 import {DateTimePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {FormikProvider, useFormik} from "formik";
 import moment from "moment-timezone";
-import {useAppSelector} from "@lib/redux/hooks";
-import {vacationDrawerSelector} from "@features/drawer";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {setAbsenceData, absenceDrawerSelector} from "@features/drawer";
 import {NoDataCard} from "@features/card";
 
-function VacationDrawer({...props}) {
-    const {t} = props;
-    const {endDate, startDate, type} = useAppSelector(vacationDrawerSelector);
+function AbsenceDrawer({...props}) {
+    const {t, main = false} = props;
+    const dispatch = useAppDispatch();
 
-    const [absenceTypes, setAbsenceTypes] = useState([
-        {label: 'dialogs.absence-dialog.vacation.yearly', value: 0},
-        {label: 'dialogs.absence-dialog.vacation.sick', value: 1},
-        {label: 'dialogs.absence-dialog.vacation.conference', value: 2},
-        {label: 'dialogs.absence-dialog.vacation.absence', value: 3}]);
+    const {endDate, startDate, title} = useAppSelector(absenceDrawerSelector);
 
     const formik = useFormik({
         enableReinitialize: false,
         initialValues: {
-            type: type ? type : "",
+            title: title,
             startDate: startDate ? startDate : moment().toDate(),
             endDate: endDate ? endDate : moment().toDate(),
             repeat: false
@@ -52,6 +46,7 @@ function VacationDrawer({...props}) {
             <Stack sx={{
                 padding: (theme) => theme.spacing(3),
                 background: (theme) => theme.palette.common.white,
+                ...(main && {height: '100%'})
             }}>
                 <FormikProvider value={formik}>
                     <Typography variant={"h6"}>{t("dialogs.absence-dialog.title")}</Typography>
@@ -59,27 +54,17 @@ function VacationDrawer({...props}) {
                     <Grid container spacing={1}>
                         <Grid item md={12} xs={12}>
                             <Typography variant="body1" color="text.primary" mt={3} mb={1}>
-                                {t("filter.type")}
+                                {t("dialogs.absence-dialog.description")}
                             </Typography>
                             <FormControl fullWidth size="small">
-                                <Select
-                                    labelId="select-duration"
-                                    id="select-duration"
-                                    onChange={event => setFieldValue("type", event.target.value)}
-                                    value={values.type}
-                                    displayEmpty
-                                    renderValue={selected => {
-                                        if (selected === "") {
-                                            return <em>{t("dialogs.absence-dialog.type-placeholder")}</em>;
-                                        }
-                                        return <>{t(absenceTypes.find(absence => absence.value === selected)?.label)}</>;
-                                    }}>
-                                    {absenceTypes?.map((absence) => (
-                                        <MenuItem value={absence.value} key={absence.value}>
-                                            {t(absence.label)}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
+                                <TextField
+                                    value={values.title}
+                                    fullWidth
+                                    onChange={(e) => {
+                                        setFieldValue("title", e.target.value);
+                                        dispatch(setAbsenceData({"title": e.target.value}));
+                                    }}
+                                    placeholder={t("dialogs.absence-dialog.type-placeholder")} variant="outlined"/>
                             </FormControl>
                         </Grid>
 
@@ -90,10 +75,14 @@ function VacationDrawer({...props}) {
                             <FormControl fullWidth size="small">
                                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <DateTimePicker
+                                        inputFormat="dd/MM/yyyy HH:mm"
                                         ampmInClock={false}
                                         ampm={false}
                                         label="Basic date time picker"
-                                        onChange={event => setFieldValue("startDate", event)}
+                                        onChange={event => {
+                                            setFieldValue("startDate", event);
+                                            dispatch(setAbsenceData({"startDate": event}));
+                                        }}
                                         renderInput={(params) => <TextField size={"small"} {...params} />}
                                         value={values.startDate}/>
                                 </LocalizationProvider>
@@ -107,10 +96,14 @@ function VacationDrawer({...props}) {
                             <FormControl fullWidth size="small">
                                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <DateTimePicker
+                                        inputFormat="dd/MM/yyyy HH:mm"
                                         ampmInClock={false}
                                         ampm={false}
                                         label="Basic date time picker"
-                                        onChange={event => setFieldValue("endDate", event)}
+                                        onChange={event => {
+                                            setFieldValue("endDate", event);
+                                            dispatch(setAbsenceData({"endDate": event}));
+                                        }}
                                         renderInput={(params) => <TextField size={"small"} {...params} />}
                                         value={values.endDate}/>
                                 </LocalizationProvider>
@@ -119,7 +112,7 @@ function VacationDrawer({...props}) {
                     </Grid>
                 </FormikProvider>
             </Stack>
-            <Stack
+            {!main && <Stack
                 sx={{
                     paddingLeft: (theme) => theme.spacing(3),
                 }}>
@@ -133,11 +126,11 @@ function VacationDrawer({...props}) {
                         title: "table.no-data.vacation.title",
                         description: "table.no-data.vacation.sub-title"
                     }}/>
-            </Stack>
+            </Stack>}
         </Stack>
 
 
     )
 }
 
-export default VacationDrawer;
+export default AbsenceDrawer;
