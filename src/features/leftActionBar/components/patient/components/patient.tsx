@@ -62,6 +62,9 @@ function Patient() {
                             hasDouble: {
                                 heading: "duplication"
                             },
+                            rest: {
+                                heading: "unPayed"
+                            },
                             gender: {
                                 heading: "gender",
                                 genders: ["male", "female"],

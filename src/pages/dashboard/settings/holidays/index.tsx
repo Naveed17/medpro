@@ -29,10 +29,16 @@ function Holidays() {
     const [loadingRequest, setLoadingRequest] = useState(false);
     const [selectedAbsence, setSelectedAbsence] = useState<any>(null);
 
+    let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
+
     const {data: httpAbsencesResponse, mutate: mutateAbsences} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/absences`
-    } : null, {refetchOnWindowFocus: false});
+    } : null, {
+        refetchOnWindowFocus: false,
+        ...(agenda && {variables: {query: `?page=${page}&limit=10&withPagination=true`}})
+
+    });
 
     const {trigger: triggerAddAbsence} = useRequestQueryMutation("/absence/add");
     const {trigger: triggerDeleteAbsence} = useRequestQueryMutation("/absence/delete");
@@ -90,7 +96,9 @@ function Holidays() {
         }
     }
 
-    const absences = ((httpAbsencesResponse as HttpResponse)?.data ?? []) as any[];
+    const absences = ((httpAbsencesResponse as HttpResponse)?.data?.list ?? []) as any[];
+    const totalPages = ((httpAbsencesResponse as HttpResponse)?.data?.totalPages ?? 0);
+    const total = ((httpAbsencesResponse as HttpResponse)?.data?.total ?? 0);
     const headCells = [
         {
             id: 'name',
@@ -151,6 +159,9 @@ function Holidays() {
                 rows={absences}
                 from={'holidays'}
                 handleEvent={handleTableActions}
+                total={total}
+                totalPages={totalPages}
+                pagination
             />
 
             <Drawer
