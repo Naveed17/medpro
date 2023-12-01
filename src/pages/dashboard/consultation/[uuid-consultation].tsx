@@ -592,7 +592,7 @@ function ConsultationInProgress() {
             instruction: localInstr ? localInstr : "",
             control: checkedNext,
             edited: false,
-            nextApp: meeting ? meeting : "0",
+            nextApp: meeting ? meeting + nextAppDays : "0",
             appUuid: app_uuid,
             dayDate: sheet?.date,
             patient: {
