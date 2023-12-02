@@ -83,7 +83,7 @@ function LangButton() {
                     }
                 }}
                 TransitionComponent={Fade}>
-                {Object.entries(Langs).map((item, key) => (
+                {Object.entries(Langs).map((item) => (
                     <MenuItem onClick={() => handleClose(item[1])} key={item[1].locale} disableRipple>
                         <Box mr={1} width={20} component="img" src={item[1].icon}/>
                         <ListItemText sx={{fontSize: 12}}>{item[1].label}</ListItemText>
