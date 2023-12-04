@@ -32,7 +32,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     agendaSelector, Calendar,
     DayOfWeek,
-    openDrawer,
+    openDrawer, setAbsences,
     setCurrentDate,
     setGroupedByDayAppointments,
     setSelectedEvent,
@@ -207,6 +207,7 @@ function Agenda() {
     const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
     const {trigger: triggerNotificationPush} = useSendNotification();
     const {trigger: triggerAddAbsence} = useRequestQueryMutation("/agenda/appointment/absence/add");
+    const {trigger: triggerDeleteAbsence} = useRequestQueryMutation("/absence/delete");
 
     const getAppointmentBugs = useCallback((date: Date) => {
         const openingHours = agenda?.openingHours[0] as OpeningHoursModel;
@@ -233,13 +234,14 @@ function Agenda() {
     const updateCalendarEvents = (result: HttpResponse) => {
         setLoading(true);
         let eventCond = [];
-        let absences = [];
+        let absences: any[] = [];
         if (query?.queryData.includes("format=list")) {
             events.current = [];
             eventCond = result?.data;
         } else {
             eventCond = result?.data?.appointments;
             absences = result?.data?.absence?.map((appointment: any) => ({
+                uuid: appointment?.uuid,
                 start: moment(appointment.startDate, "DD-MM-YYYY HH:mm").toDate(),
                 end: moment(appointment.endDate, "DD-MM-YYYY HH:mm").toDate(),
                 overlap: false,
@@ -275,7 +277,10 @@ function Agenda() {
         // Edit: to add it in the array format instead
         const groupArrays = appointmentGroupByDate(events.current);
 
-        dispatch(setGroupedByDayAppointments(groupArrays));
+        batch(() => {
+            dispatch(setGroupedByDayAppointments(groupArrays));
+            dispatch(setAbsences(absences));
+        })
 
         if (isMobile || query?.view === "listWeek") {
             // sort grouped data
@@ -454,6 +459,17 @@ function Agenda() {
                 }
                 refreshData();
             },
+            onSettled: () => setLoadingRequest(false)
+        });
+    }
+
+    const handleDeleteAbsence = (uuid: string) => {
+        setLoadingRequest(true);
+        triggerDeleteAbsence({
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/absences/${uuid}`,
+        }, {
+            onSuccess: () => refreshData(),
             onSettled: () => setLoadingRequest(false)
         });
     }
@@ -1163,6 +1179,7 @@ function Agenda() {
                             OnEventChange={onEventChange}
                             OnRangeDateSelect={handleRangeSelect}
                             OnAddAbsence={handleAddAbsence}
+                            OnDeleteAbsence={handleDeleteAbsence}
                             OnOpenPatient={(event: EventDef) => {
                                 setEvent(event);
                                 dispatch(openDrawer({type: "view", open: false}));

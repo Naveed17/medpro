@@ -92,7 +92,7 @@ function Event({...props}) {
                         backgroundColor: (theme: Theme) => alpha(theme.palette.grey['A100'], 0.5),
                         opacity: 0.5
                     }),
-                    ...(appointment?.motif?.length > 0 && {background: (theme: Theme) => `linear-gradient(90deg, ${isBeta && !appointment?.payed ? alpha(theme.palette.expire.main, 0.2) : 'rgba(255,0,0,0)'} 97.5%, ${appointment?.motif?.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
+                    ...(appointment?.motif?.length > 0 && {background: (theme: Theme) => `linear-gradient(90deg, ${isBeta && !appointment?.payed ? alpha(theme.palette.expire.main, 0.2) : 'rgba(255,0,0,0)'} ${view === "timeGridDay" ? '99.5' : '97.5'}%, ${appointment?.motif?.map((motif: ConsultationReasonModel) => `${convertHexToRGBA(motif.color, 0.8)} 5%`).join(",")})`}),
                     "&:before": {
                         background: event.borderColor
                     },
@@ -170,14 +170,15 @@ function Event({...props}) {
                             fontWeight={600}
                             noWrap>
                             {view === "timeGridDay" ? (
-                                    <Stack spacing={.5}>
+                                    <Stack spacing={.5} alignItems={"center"}
+                                           direction={appointment?.dur > 15 ? "column" : "row"}>
                                         <span>{event.event._def.title}</span>
                                         {appointment?.patient?.contact?.length > 0 && <>
                                             <Icon path="ic-phone"/>
                                             {appointment?.patient?.contact[0]?.code} {appointment?.patient?.contact[0].value}
                                         </>}
                                         {appointment?.motif?.length > 0 &&
-                                            <span>{"Motif: "}{appointment?.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</span>}
+                                            <span {...(appointment?.dur > 15 && {style: {paddingBottom: 4}})}>{"Motif: "}{appointment?.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</span>}
                                     </Stack>
                                 )
                                 :

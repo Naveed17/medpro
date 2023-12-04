@@ -66,7 +66,7 @@ function TimeSchedule({...props}) {
     const {medical_professional} = useMedicalProfessionalSuffix();
     const {current: disabledDay} = useHorsWorkDays();
 
-    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers",});
+    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
     const {
         motif,
@@ -434,6 +434,7 @@ function TimeSchedule({...props}) {
                                                 {t("stepper-1.time-message")}
                                             </Typography>
                                             <TimeSlot
+                                                {...{t}}
                                                 sx={{width: 248, margin: "auto"}}
                                                 loading={!date || loading}
                                                 data={timeSlots}
