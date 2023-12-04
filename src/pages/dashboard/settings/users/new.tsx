@@ -55,7 +55,7 @@ function NewUser() {
     const {contacts} = useContactType();
     const router = useRouter();
     const phoneInputRef = useRef(null);
-    const {enqueueSnackbar} = useSnackbar()
+    const {enqueueSnackbar} = useSnackbar();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
 

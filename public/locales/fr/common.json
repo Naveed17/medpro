@@ -381,6 +381,11 @@
       "consultation-finish": "Consultation terminée pour le patient"
     }
   },
+  "alerts": {
+    "speech-text": {
+      "title": "Le traitement audio est terminé avec succès"
+    }
+  },
   "filter": {
     "title": "Filtre",
     "patient": "Patient",

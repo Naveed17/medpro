@@ -80,6 +80,7 @@ import useStopwatch from "@lib/hooks/useStopwatch";
 import {useAudioRecorder} from "react-audio-voice-recorder";
 import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
 import {ConsultationCard} from "@features/consultationCard";
+import {useSnackbar} from "notistack";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -109,6 +110,7 @@ function ConsultationInProgress() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {models} = useWidgetModels({filter: ""})
     const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {enqueueSnackbar} = useSnackbar();
     const {
         minutes,
         seconds,
@@ -403,14 +405,32 @@ function ConsultationInProgress() {
     }
 
     const handleSpeechToText = () => {
-        setLoadingRequest(true);
-        medicalEntityHasUser && triggerDocumentSpeechToText({
-            method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/stt/${selectedAudio?.uuid}/${router.locale}`
-        }, {
-            onSuccess: () => mutateDoc(),
-            onSettled: () => setLoadingRequest(false)
-        });
+        if (selectedAudio?.data?.hasOwnProperty('text')) {
+            console.log("selectedAudio", selectedAudio);
+            setInfo("write_certif");
+            setState({
+                name: `${general_information.firstName} ${general_information.lastName}`,
+                days: '....',
+                content: selectedAudio?.data?.text ?? "",
+                title: `IA audio conversion`,
+                patient: `${patient?.firstName} ${patient?.lastName}`,
+                brithdate: `${patient?.birthdate}`,
+                cin: patient?.idCard ?? ""
+            });
+            setOpenDialog(true);
+        } else {
+            setLoadingRequest(true);
+            medicalEntityHasUser && triggerDocumentSpeechToText({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/stt/${selectedAudio?.uuid}/${router.locale}`
+            }, {
+                onSuccess: () => {
+                    enqueueSnackbar(t(`consultationIP.alerts.speech-text.title`), {variant: "info"});
+                    mutateDoc();
+                },
+                onSettled: () => setLoadingRequest(false)
+            });
+        }
     }
 
     const removeAudioDoc = () => {
