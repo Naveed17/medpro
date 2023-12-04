@@ -192,7 +192,7 @@ function FeesTab({...props}) {
         if (from === 'change')
             acts[act_index] = row
 
-        saveChanges([...acts]);
+        setActs([...acts])
     }
 
     return (
@@ -223,6 +223,7 @@ function FeesTab({...props}) {
                         from={"CIP-medical-procedures"}
                         t={t}
                         edit={editAct ? editAct : editActConsult}
+                        handleEvent={()=>{saveChanges([...acts])}}
                         devise={devise}
                         handleChange={setTotal}/>
                     {/* {!isQuoteRequest&&<Button

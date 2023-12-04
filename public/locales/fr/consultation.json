@@ -451,6 +451,8 @@
     "dosge_time": "Durée du dosage",
     "add_model": "Ajouter le modèle",
     "model_list": "Liste des modèles",
+    "way_of_life": "Facteur de risque",
+    "allergic": "Allergies",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",
