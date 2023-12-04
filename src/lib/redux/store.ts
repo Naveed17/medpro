@@ -23,10 +23,9 @@ import {navBarReducer} from "@features/topNavBar";
 import {ProgressUIReducer} from "@features/progressUI";
 import {selectCheckboxReducer} from "@features/selectCheckboxCard"
 import {CashboxReducer} from "@features/leftActionBar/components/cashbox";
-import {dialogOpeningHoursReducer, selectDialogOpeningHours} from "@features/dialog/components/openingHoursDialog";
-import {vacationDrawerReducer} from "@features/drawer/components/vacationDrawer/reducer";
+import {dialogOpeningHoursReducer} from "@features/dialog/components/openingHoursDialog";
+import {absenceDrawerReducer} from "@features/drawer/components/absenceDrawer/reducer";
 import {minMaxWindowToggleReducer} from '@features/buttons'
-
 export const store = configureStore({
     reducer: {
         theme: ConfigReducer,
@@ -57,7 +56,7 @@ export const store = configureStore({
         selectCheckbox: selectCheckboxReducer,
         ocrDocument: ocrDocumentReducer,
         openingHours: dialogOpeningHoursReducer,
-        vacation: vacationDrawerReducer,
+        absence: absenceDrawerReducer,
         minMaxWindow: minMaxWindowToggleReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(

@@ -59,12 +59,13 @@ function SecretaryConsultationDialog({...props}) {
             addFinishAppointment,
             showCheckedDoc,
             showPreview,
+            nextAppDays, setNextAppDays,
             mutatePatient
         }
     } = props;
     const router = useRouter();
     const theme = useTheme() as Theme;
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
     const {data: session} = useSession();
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
@@ -72,7 +73,6 @@ function SecretaryConsultationDialog({...props}) {
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
-    const [selectedDose, setSelectedDose] = useState("day")
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -265,16 +265,15 @@ function SecretaryConsultationDialog({...props}) {
                                         </Stack>
                                     </Stack>
                                     {<Stack direction={"row"} alignItems={"center"}>
-                                        {demo && <Button
-                                            startIcon={patient.rest_amount === 0 ? <CheckIcon/> :
-                                                <IconUrl path={'ic-argent'} color={"white"}/>}
-                                            variant="contained"
-                                            color={patient.rest_amount === 0 ? "success" : "primary"}
-                                            style={{marginLeft: 5}}
-                                            {...(isMobile && {
-                                                sx: {minWidth: 40},
-                                            })}
-                                            onClick={openDialogPayment}>
+                                        {demo && <Button sx={{
+                                            borderColor: 'divider',
+                                            bgcolor: theme => theme.palette.grey['A500'],
+                                        }}
+                                                         startIcon={patient.rest_amount === 0 ? <CheckIcon/> :
+                                                             <IconUrl path={'ic-argent'}/>}
+                                                         variant="outlined"
+                                                         color="info"
+                                                         onClick={openDialogPayment}>
                                             <Typography>{t("pay")}</Typography>
                                             {
                                                 patient.rest_amount > 0 &&
@@ -368,15 +367,16 @@ function SecretaryConsultationDialog({...props}) {
                                                     }
                                                 />
                                                 <RadioGroup sx={{ml: 1}} row onClick={(e) => e.stopPropagation()}>
-                                                    {['day', 'month', 'year'].map((item: string) => (
+                                                    {['day', 'week', 'month'].map((item: string) => (
                                                         <FormControlLabel
                                                             key={item}
                                                             onChange={() => {
                                                                 setCheckedNext(true);
-                                                                setTimeout(() => setSelectedDose(item));
+                                                                setMeeting(item === 'day' ? 5 : 1)
+                                                                setTimeout(() => setNextAppDays(item));
                                                             }}
                                                             value={item}
-                                                            control={<Radio checked={selectedDose === item}/>}
+                                                            control={<Radio checked={nextAppDays === item}/>}
                                                             label={startCase(t(item))}
                                                         />
                                                     ))}

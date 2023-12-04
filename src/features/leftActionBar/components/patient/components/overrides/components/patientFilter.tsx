@@ -19,7 +19,7 @@ import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
 import {debounce} from "lodash";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
-import { FormikProvider, useFormik} from "formik";
+import {FormikProvider, useFormik} from "formik";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import {Label} from "@features/label";
 
@@ -48,6 +48,7 @@ function PatientFilter({...props}) {
             birthdate: filter?.patient?.birthdate ? moment(filter?.patient?.birthdate, "DD-MM-YYYY").toDate() : null,
             gender: filter?.patient?.gender ?? null,
             hasDouble: filter?.patient?.hasDouble ?? false,
+            rest: filter?.patient?.rest ?? false,
         }
     });
 
@@ -117,6 +118,24 @@ function PatientFilter({...props}) {
                         <WarningRoundedIcon/>
                         <Typography sx={{fontSize: 10}}> {t(item.hasDouble?.heading)}</Typography>
                     </Label>}/>}
+                {item.rest && <FormControlLabel
+                    control={
+                        <Checkbox
+                            color="warning"
+                            size="small"
+                            checked={queryState.rest}
+                            onChange={event => {
+                                setFieldValue("rest", event.target.checked);
+                                onSearchChange({
+                                    query: {
+                                        ...filter?.patient,
+                                        ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                        rest: event.target.checked
+                                    }
+                                });
+                            }}
+                        />}
+                    label={<Typography sx={{fontSize: 12}}> {t(item.rest?.heading)}</Typography>}/>}
                 <Typography variant="body2" color="text.secondary">
                     {t(`${keyPrefix}${item.gender?.heading}`)}
                 </Typography>

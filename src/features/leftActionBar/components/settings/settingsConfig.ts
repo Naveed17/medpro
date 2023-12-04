@@ -72,7 +72,7 @@ const settingsData = {
             name: "conges",
             icon: "setting/ic-time",
             href: "/dashboard/settings/holidays",
-            disable: true
+            disable: false
         },
         {
             name: "remplaçants",

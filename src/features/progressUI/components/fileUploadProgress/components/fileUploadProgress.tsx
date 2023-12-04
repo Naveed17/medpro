@@ -1,12 +1,13 @@
 import React from 'react'
-import {Box, Typography, LinearProgress, IconButton} from '@mui/material'
+import {Box, IconButton, LinearProgress, Typography} from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close';
 import FileuploadProgressStyled from './overrides/fileUploadProgressStyle';
 import Icon from '@themes/urlIcon'
-import {useTheme, Theme} from '@mui/material/styles';
+import {Theme, useTheme} from '@mui/material/styles';
 
 export default function FileuploadProgress({...props}) {
     const {file, progress, handleRemove, ...rest} = props
+
     const theme = useTheme() as Theme;
     return (
         <FileuploadProgressStyled
@@ -18,7 +19,7 @@ export default function FileuploadProgress({...props}) {
                 mt: 2,
             }}
         >
-            <Icon path="pdf-preview"/>
+            <Icon path="ic-quote" width={30} height={30}/>
             <Box sx={{width: "100%", ml: 1}}>
                 <Typography
                     variant="body2"

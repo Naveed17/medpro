@@ -41,6 +41,12 @@ const CalendarStyled = styled('div')(({theme}) => ({
     '& .fc .fc-event': {
         borderColor: 'transparent',
         backgroundColor: 'transparent'
+    }, '& .fc .fc-timegrid-bg-harness .fc-event': {
+        borderColor: 'transparent',
+        backgroundColor: 'transparent',
+        '& div': {
+            height: '100%'
+        }
     },
     // Cell
     '& .fc .fc-col-header-cell': {

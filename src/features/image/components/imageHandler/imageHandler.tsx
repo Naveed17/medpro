@@ -11,9 +11,9 @@ function ImageHandler({...props}) {
         blurDataURL="/static/icons/Med-logo.png"
         width={20}
         height={20}
-        alt={alt ?? "ImageHandler"}
         {...props}
         src={srcUrl}
+        alt={alt ?? "ImageHandler"}
     />)
 }
 

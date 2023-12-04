@@ -313,8 +313,8 @@ function FcmLayout({...props}) {
                                     devise,
                                     nextAppointment: notificationData?.nextApp,
                                     control: notificationData?.control,
-                                    restAmount: notificationData?.restAmount,
-                                    payed: notificationData?.payed
+                                    restAmount: notificationData?.patient.restAmount,
+                                    payed: notificationData?.patient.restAmount === 0
                                 }}
                                 OnPay={() => {
                                     handleClose();

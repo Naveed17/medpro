@@ -55,6 +55,10 @@ function DocumentCard({...props}) {
                                     <img
                                         src={data.uri.thumbnails.length === 0 ? data.uri.url : data.uri.thumbnails['thumbnail_128']}
                                         style={{borderRadius: 5, width: title ? 20 : 50, height: title ? 20 : 50}}
+                                        onError={({ currentTarget }) => {
+                                            currentTarget.onerror = null; // prevents looping
+                                            currentTarget.src="/static/icons/ic-quote.svg";
+                                        }}
                                         alt={'photo history'}/>
                                     {title && <DocumentContent {...{data, date, t, resize}} />}
                                 </Stack>
@@ -70,6 +74,10 @@ function DocumentCard({...props}) {
                                     <img
                                         src={!data.uri.thumbnails.hasOwnProperty('thumbnail_128') ? data.uri.url : data.uri.thumbnails['thumbnail_128']}
                                         style={{width: "100%", height: 164, objectFit: "scale-down"}}
+                                        onError={({ currentTarget }) => {
+                                            currentTarget.onerror = null; // prevents looping
+                                            currentTarget.src="/static/icons/ic-quote.svg";
+                                        }}
                                         alt={'photo history'}/>
                                     <DocumentContent {...{data, date, t, resize}} />
                                 </Stack>

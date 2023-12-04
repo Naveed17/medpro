@@ -21,6 +21,8 @@ function InsuranceFilter({...props}) {
     const selectedAll = queryState.insurance.length === insurancesData?.length;
 
     const handleInsuranceChange = (insurances: any[]) => {
+
+        console.log(insurances)
         setQueryState({
             insurance: insurances
         });
