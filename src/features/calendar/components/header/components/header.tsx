@@ -8,38 +8,27 @@ import {BadgeStyled, openDrawer} from "@features/calendar";
 import {batch} from "react-redux";
 import {setAbsenceData} from "@features/drawer";
 
-const menuList = [
-    {
-        heading: 'calendar_view',
-        list: [
-            {
-                icon: 'ic-agenda-new',
-                title: "display_workdays",
-                action: "onDisplayWorkDays"
-            }
-        ]
-
-    },
-    {
-        heading: "program",
-        list: [
-            {
-                icon: 'ic-banned',
-                title: "add_blocked_day",
-                action: "onAddBlockedDay"
-            },
-            {
-                icon: 'ic-leave',
-                title: "add_leave",
-                action: "onAddLeave"
-            }
-        ]
-    }
-]
 
 function Header({...props}) {
-    const {isGridWeek, event, datEvents = 0, currentDate, OnAddAbsence, dispatch, isMobile, contextMenuHeader, setContextMenuHeader, hiddenDays, setHiddenDays, t} = props;
+    const {
+        isGridWeek,
+        event,
+        datEvents = 0,
+        currentDate,
+        absences,
+        OnAddAbsence,
+        OnDeleteAbsence,
+        dispatch,
+        isMobile,
+        contextMenuHeader,
+        setContextMenuHeader,
+        hiddenDays,
+        setHiddenDays,
+        t
+    } = props;
     const date = moment(event.date.toLocaleDateString("fr"), "DD/MM/YYYY");
+    const hasBlockedDay = absences.filter((absence: any) => moment(absence.start).isSame(event.date) && moment(absence.end).format('HH:mm') === '23:59')?.length > 0;
+    const hasBlockedCurrentDay = absences.filter((absence: any) => moment(absence.start).isSame(currentDate.date) && moment(absence.end).format('HH:mm') === '23:59')?.length > 0;
 
     const handleCloseMenu = () => {
         setContextMenuHeader(null);
@@ -54,9 +43,15 @@ function Header({...props}) {
             case "onAddBlockedDay":
                 OnAddAbsence();
                 break;
+            case "onDeleteBlockedDay":
+                OnDeleteAbsence();
+                break;
             case "onAddLeave":
                 batch(() => {
-                    dispatch(setAbsenceData({startDate: moment(currentDate.date).toDate(), endDate: moment(currentDate.date).endOf("day").toDate()}));
+                    dispatch(setAbsenceData({
+                        startDate: moment(currentDate.date).toDate(),
+                        endDate: moment(currentDate.date).endOf("day").toDate()
+                    }));
                     dispatch(openDrawer({type: "absence", open: true}));
                 });
                 break;
@@ -77,8 +72,8 @@ function Header({...props}) {
                     <Stack direction='row' justifyContent='space-between' width={1}>
                         {(isGridWeek) ? (
                             <BadgeStyled
-                                badgeContent={datEvents}
-                                {...{'data-events': datEvents}}
+                                badgeContent={!hasBlockedDay ? datEvents : <IconUrl path={"ic-banned"}/>}
+                                {...{'data-events': !hasBlockedDay ? datEvents : -1}}
                                 {...(date.format("DD/MM/YYYY") !== moment().format("DD/MM/YYYY") && {
                                     sx: {
                                         '& .MuiTypography-root': {
@@ -87,15 +82,17 @@ function Header({...props}) {
                                     }
                                 })}>
                                 <Stack direction={'row'} alignItems={'center'} spacing={1.2}>
-                                    <Typography variant="subtitle1" color="text.primary" fontSize={16} fontWeight={500}>
+                                    <Typography variant="subtitle1" color="text.primary" fontSize={16}
+                                                fontWeight={500}>
                                         {capitalizeFirst(date.format("ddd")).replace('.', '')}
                                     </Typography>
-                                    <Typography variant="subtitle1" color="text.primary" fontSize={16} fontWeight={500}>
+                                    <Typography variant="subtitle1" color="text.primary" fontSize={16}
+                                                fontWeight={500}>
                                         {date.format("DD")}
                                     </Typography>
                                 </Stack>
-
                             </BadgeStyled>
+
                         ) : (
                             <Typography variant="subtitle1" color="text.primary" fontSize={14}>
                                 <div>
@@ -139,7 +136,34 @@ function Header({...props}) {
                 }
             </Box>
             <ActionMenu {...{contextMenu: contextMenuHeader, handleClose: handleCloseMenu}}>
-                {menuList.map((item, index) => (
+                {[
+                    {
+                        heading: 'calendar_view',
+                        list: [
+                            {
+                                icon: 'ic-agenda-new',
+                                title: "display_workdays",
+                                action: "onDisplayWorkDays"
+                            }
+                        ]
+
+                    },
+                    {
+                        heading: "program",
+                        list: [
+                            {
+                                icon: 'ic-banned',
+                                title: hasBlockedCurrentDay ? "delete_blocked_day" : "add_blocked_day",
+                                action: hasBlockedCurrentDay ? "onDeleteBlockedDay" : "onAddBlockedDay"
+                            },
+                            {
+                                icon: 'ic-leave',
+                                title: "add_leave",
+                                action: "onAddLeave"
+                            }
+                        ]
+                    }
+                ].map((item, index) => (
                     <Box key={index} m={1}>
                         <Stack>
                             <Typography variant="subtitle1" color="common.white" fontWeight={600} fontSize={14}
