@@ -84,6 +84,7 @@ function FcmLayout({...props}) {
         const messaging = getMessaging(firebaseCloudSdk.firebase);
         onMessage(messaging, (message: any) => {
             const data = JSON.parse(message.data.detail);
+            console.log("data", data, message.data.root)
             const fcmSession = data.body?.fcm_session ?? "";
             if (fcmSession !== jti) {
                 if (data.type === "no_action") {
@@ -143,6 +144,9 @@ function FcmLayout({...props}) {
                             dispatch(setLastUpdate(data));
                             // refresh on going api
                             mutateOnGoing();
+                            break;
+                        case "documents":
+                            enqueueSnackbar(translationCommon.alerts["speech-text"].title, {variant: "success"});
                             break;
                         default:
                             data.body.mutate && invalidateQueries([data.body.mutate]);

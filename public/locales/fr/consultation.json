@@ -92,7 +92,7 @@
     "credit": "Crédit"
   },
   "end of consultation": "fin de la consultation",
-  "week": "semaine" ,
+  "week": "semaine",
   "noteQuote": "Le patient confirme avoir volontairement choisi son traitement, être pleinement informé des indications et contre-indications, et s'engage à payer les honoraires liés aux soins mentionnés dans ce devis.",
   "medical-imaging": "Imagerie médicale",
   "medical-certificate": "Document généré",
@@ -502,6 +502,9 @@
     "alerts": {
       "favorite": {
         "delete": "le favori a été supprimé avec succès"
+      },
+      "speech-text": {
+        "title": "Le traitement audio IA est en cours..."
       }
     },
     "no-data": {
