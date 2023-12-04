@@ -84,7 +84,7 @@ function UnpaidConsultRow({...props}) {
             {/***** Total *****/}
             <TableCell align={"center"}>
                 <Typography color='secondary' fontWeight={700}>
-                    {row.fees} {devise}
+                    {row.fees ? row.fees : row.appointmentRestAmount} {devise}
                 </Typography>
             </TableCell>
             {/***** Rest *****/}
@@ -97,7 +97,7 @@ function UnpaidConsultRow({...props}) {
             <TableCell align={"center"}>
                 <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"center"}>
                     <Typography color={"secondary"} fontWeight={700} textAlign={"center"}>
-                        {row.fees - row.appointmentRestAmount} {" "}
+                        { row.fees ? row.fees - row.appointmentRestAmount : 0} {" "}
                         <span>{devise}</span>
                     </Typography>
                     <Tooltip title={t('more')}>

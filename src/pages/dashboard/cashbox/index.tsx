@@ -647,6 +647,7 @@ function Cashbox() {
                     setOpenPaymentDialog,
                     mutatePatient: () => {
                         getConsultation(filterCB.start_date, filterCB.end_date)
+                        mutateTransactions()
                     }
                 }}
                 size={"lg"}

@@ -614,7 +614,7 @@ function ConsultationInProgress() {
     const saveConsultation = () => {
         setLoading(true);
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
-        const restAmount = 0;
+
         const form = new FormData();
         form.append("status", "5");
         form.append("action", "end_consultation");
@@ -1603,7 +1603,6 @@ function ConsultationInProgress() {
                 onClose={() => setOpenSecDialog(false)}
                 open={openSecDialog}
                 data={{
-
                     app_uuid,
                     agenda: agenda?.uuid,
                     patient: {
@@ -1622,6 +1621,7 @@ function ConsultationInProgress() {
                     addFinishAppointment,
                     showCheckedDoc,
                     mutatePatient,
+                    nextAppDays, setNextAppDays,
                     showPreview
                 }}
                 size={"lg"}
