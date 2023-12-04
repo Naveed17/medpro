@@ -60,7 +60,8 @@ function SecretaryConsultationDialog({...props}) {
             showCheckedDoc,
             showPreview,
             nextAppDays, setNextAppDays,
-            mutatePatient
+            mutatePatient,
+            insuranceGenerated, setInsuranceGenerated
         }
     } = props;
     const router = useRouter();
@@ -383,6 +384,32 @@ function SecretaryConsultationDialog({...props}) {
                                                 </RadioGroup>
                                             </>
                                         )}
+                                    </Button>
+
+                                    <Button
+                                        className="counter-btn"
+                                        disableRipple
+                                        variant="outlined"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setInsuranceGenerated(!insuranceGenerated);
+                                            const form = new FormData();
+                                            form.append("has_insurance", (!insuranceGenerated).toString());
+
+                                            triggerAppointmentEdit({
+                                                method: "PUT",
+                                                // url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+                                                data: form
+                                            }, {
+                                                onSuccess: (res) => {
+                                                    console.log(res)
+                                                }
+                                            })
+                                        }}>
+                                        <Stack direction="row" alignItems='center'>
+                                            <Checkbox checked={insuranceGenerated}/>
+                                            <Typography>{t("covred")}</Typography>
+                                        </Stack>
                                     </Button>
                                 </Stack>
                             </Stack>

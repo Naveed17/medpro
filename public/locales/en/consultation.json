@@ -471,6 +471,21 @@
       "youropinion": "what do you think?",
       "wait": "MedAI is writing...",
       "asDoc": "Save as document"
+    },
+    "alerts": {
+      "favorite": {
+        "delete": "favorite was successfully deleted"
+      }
+    },
+    "no-data": {
+      "imaging": {
+        "title": "No favorites",
+        "description": "Add medical images"
+      },
+      "analyse": {
+        "title": "No favorites",
+        "description": "Add balance sheets"
+      }
     }
   },
   "table": {
@@ -551,6 +566,7 @@
   "end_of_consultation": "End of the consultation",
   "edit_of_consultation": "Save changes",
   "plan_a_meeting": "Schedule a follow-up",
+  "covred": "Covered by insurance",
   "day": "Day",
   "requestedAnalyses": "Requested analyse",
   "requestedPrescription": "Prescription",
