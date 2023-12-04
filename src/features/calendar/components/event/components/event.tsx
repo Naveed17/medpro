@@ -44,7 +44,7 @@ function Event({...props}) {
         <ConditionalWrapper
             condition={event.event._def.ui.display !== "background"}
             wrapper={(children: any) => <Tooltip
-                placement="right"
+                placement={view === "timeGridDay" ? "bottom-start" : "right"}
                 enterDelay={1000}
                 leaveDelay={100}
                 componentsProps={{
