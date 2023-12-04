@@ -398,12 +398,8 @@ function SecretaryConsultationDialog({...props}) {
 
                                             triggerAppointmentEdit({
                                                 method: "PUT",
-                                                // url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+                                                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
                                                 data: form
-                                            }, {
-                                                onSuccess: (res) => {
-                                                    console.log(res)
-                                                }
                                             })
                                         }}>
                                         <Stack direction="row" alignItems='center'>
