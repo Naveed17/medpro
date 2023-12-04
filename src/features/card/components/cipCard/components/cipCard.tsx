@@ -52,7 +52,7 @@ function CipCard({...props}) {
                     {capitalizeFirst(`${event?.extendedProps.patient.firstName} ${event?.extendedProps.patient.lastName}`)}
                 </Typography>
 
-                {!isMobile && <Avatar
+                {(!isMobile && !roles.includes('ROLE_SECRETARY')) && <Avatar
                     alt="Small avatar"
                     variant={"square"}
                     src={'/static/icons/ic-stop.svg'}
@@ -76,7 +76,7 @@ function CipCard({...props}) {
 
                 <Avatar
                     alt="button avatar"
-                    {...(!isMobile && {
+                    {...((!isMobile && !roles.includes('ROLE_SECRETARY')) && {
                         onClick: (event: any) => {
                             event.stopPropagation();
                             batch(() => {
@@ -93,19 +93,23 @@ function CipCard({...props}) {
                         color: theme.palette.warning.contrastText,
                         bgcolor: theme.palette.warning.main
                     }}>
-                    <Avatar
+                    {!roles.includes('ROLE_SECRETARY') && <Avatar
                         src={`/static/icons/${isMobile ? 'ic-play-fill-dark' : 'ic-pause-mate'}.svg`}
                         sx={{
                             width: 20,
                             height: 20,
                             borderRadius: 20
-                        }}/>
-                    <Typography sx={{width: 60}} ml={0} fontSize={14}
-                                fontWeight={600}>{
-                        shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {
+                        }}/>}
+                    <Typography
+                        sx={{width: 60}}
+                        ml={0}
+                        fontSize={14}
+                        fontWeight={600}>
+                        {shortEnglishHumanizer(getMilliseconds(parseInt(timer.split(" : ")[0]), parseInt(timer.split(" : ")[1]), parseInt(timer.split(" : ")[2])), {
                             largest: 1,
                             round: true
-                        })}</Typography>
+                        })}
+                    </Typography>
                 </Avatar>
             </Stack>
         </CipCardStyled>
