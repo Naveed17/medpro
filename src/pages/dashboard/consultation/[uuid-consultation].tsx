@@ -1583,7 +1583,6 @@ function ConsultationInProgress() {
                 onClose={() => setOpenSecDialog(false)}
                 open={openSecDialog}
                 data={{
-
                     app_uuid,
                     agenda: agenda?.uuid,
                     patient: {
@@ -1602,6 +1601,7 @@ function ConsultationInProgress() {
                     addFinishAppointment,
                     showCheckedDoc,
                     mutatePatient,
+                    nextAppDays, setNextAppDays,
                     showPreview
                 }}
                 size={"lg"}
