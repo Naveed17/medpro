@@ -130,6 +130,7 @@
       "reason-consultation": "Motif",
       "reason-consultation-placeholder": "Choisissez votre motif",
       "practitioner": "Praticien",
+      "slots-unavailable": "Journée bloquée ou pas de plage horaire disponible",
       "affect-des": "Choisissez le praticien qui affecte cette consultation",
       "time-slot": "Créneau horaire",
       "selected-appointment": "Rendez-vous sélectionné",

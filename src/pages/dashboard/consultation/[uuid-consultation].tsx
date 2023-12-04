@@ -154,6 +154,7 @@ function ConsultationInProgress() {
     const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
     const {trigger: triggerNotificationPush} = useSendNotification();
     const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/document/delete");
+    const {trigger: triggerDocumentSpeechToText} = useRequestQueryMutation("/document/speech-to-text");
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -397,6 +398,17 @@ function ConsultationInProgress() {
         setOpenHistoryDialog(true);
     }
 
+    const handleSpeechToText = () => {
+        setLoadingRequest(true);
+        medicalEntityHasUser && triggerDocumentSpeechToText({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/stt/${selectedAudio?.uuid}/${router.locale}`
+        }, {
+            onSuccess: () => mutateDoc(),
+            onSettled: () => setLoadingRequest(false)
+        });
+    }
+
     const removeAudioDoc = () => {
         setLoadingRequest(true);
         triggerDocumentDelete({
@@ -602,7 +614,7 @@ function ConsultationInProgress() {
                 firstName: patient?.firstName,
                 lastName: patient?.lastName,
                 gender: patient?.gender,
-                restAmount:patient?.rest_amount
+                restAmount: patient?.rest_amount
             },
         }));
         if (recurringDates.length > 0) {
@@ -1058,12 +1070,11 @@ function ConsultationInProgress() {
         }
     }
     //%%%%%% %%%%%%%
-
     useEffect(() => {
         if (!recordingBlob || !saveAudio) return;
 
-        const file = new File([recordingBlob], 'audio', {
-            type: recordingBlob.type,
+        const file = new File([recordingBlob], `Enregistrement audio pour la consultation du ${sheet?.date}`, {
+            type: 'audio/mpeg',
             lastModified: Date.now()
         });
         uploadRecord(file);
@@ -1964,7 +1975,12 @@ function ConsultationInProgress() {
                                         customControlsSection={
                                             [
                                                 RHAP_UI.MAIN_CONTROLS,
-                                                <IconButton key={"ic-ia-document"}>
+                                                <IconButton
+                                                    key={"ic-ia-document"}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleSpeechToText();
+                                                    }}>
                                                     <IconUrl width={20} height={20} path={'ic-ia-document'}/>
                                                 </IconButton>,
                                                 <IconButton

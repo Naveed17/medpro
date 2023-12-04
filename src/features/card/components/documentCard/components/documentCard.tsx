@@ -12,7 +12,7 @@ function DocumentCard({...props}) {
         <>
             {data.uri.thumbnails.length === 0 ?
                 !resize ? <DocumentCardStyled className={"document-card"}>
-                        <Tooltip title={"Note : " + data.description ? data.description : "--"}>
+                        <Tooltip title={data.description ? `Note : ${data.description}` : data.title}>
                             <CardContent style={{padding: "2px 15px 10px"}} onClick={onClick}>
                                 <Stack spacing={2}
                                        direction={"row"}
@@ -35,7 +35,7 @@ function DocumentCard({...props}) {
                             }
                         }}>
                         <CardContent>
-                            <Tooltip title={"Note : " + data.description ? data.description : "--"}>
+                            <Tooltip title={data.description ? `Note : ${data.description}` : data.title}>
                                 <Stack onClick={onClick} alignItems="center" direction={"row"}>
                                     <IconUrl width={40} height={80} path={iconDocument(data.documentType)}/>
                                     <DocumentContent {...{data, date, t, resize}}/>
@@ -45,7 +45,7 @@ function DocumentCard({...props}) {
                     </Card>
                 :
                 !resize ? <DocumentCardStyled className={"document-card"}>
-                        <Tooltip title={"Note : " + data.description ? data.description : "--"}>
+                        <Tooltip title={data.description ? `Note : ${data.description}` : data.title}>
                             <CardContent style={{padding: "2px 15px 10px"}} onClick={onClick}>
                                 <Stack spacing={2}
                                        direction={"row"}
@@ -55,9 +55,9 @@ function DocumentCard({...props}) {
                                     <img
                                         src={data.uri.thumbnails.length === 0 ? data.uri.url : data.uri.thumbnails['thumbnail_128']}
                                         style={{borderRadius: 5, width: title ? 20 : 50, height: title ? 20 : 50}}
-                                        onError={({ currentTarget }) => {
+                                        onError={({currentTarget}) => {
                                             currentTarget.onerror = null; // prevents looping
-                                            currentTarget.src="/static/icons/ic-quote.svg";
+                                            currentTarget.src = "/static/icons/ic-quote.svg";
                                         }}
                                         alt={'photo history'}/>
                                     {title && <DocumentContent {...{data, date, t, resize}} />}
@@ -67,16 +67,16 @@ function DocumentCard({...props}) {
                     </DocumentCardStyled>
                     :
                     <DocumentCardStyled className={"document-card"}>
-                        <Tooltip title={"Note : " + data.description ? data.description : "--"}>
+                        <Tooltip title={data.description ? `Note : ${data.description}` : data.title}>
                             <CardContent style={{padding: 0}} onClick={onClick}>
                                 <Stack alignItems="center">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={!data.uri.thumbnails.hasOwnProperty('thumbnail_128') ? data.uri.url : data.uri.thumbnails['thumbnail_128']}
                                         style={{width: "100%", height: 164, objectFit: "scale-down"}}
-                                        onError={({ currentTarget }) => {
+                                        onError={({currentTarget}) => {
                                             currentTarget.onerror = null; // prevents looping
-                                            currentTarget.src="/static/icons/ic-quote.svg";
+                                            currentTarget.src = "/static/icons/ic-quote.svg";
                                         }}
                                         alt={'photo history'}/>
                                     <DocumentContent {...{data, date, t, resize}} />

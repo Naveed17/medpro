@@ -210,9 +210,10 @@
   "rapport": "Rapport",
   "today": "Aujourd’hui",
   "calendar_view": "Vues du calendrier",
-  "display_workdays": "Afficher Jours Ouvrés",
+  "display_workdays": "Masquer ce jour",
   "program": "Programme",
   "add_blocked_day": "Ajouter un jour bloqué",
+  "delete_blocked_day": "Supprimer le jour bloqué",
   "add_leave": "Ajouter un congé",
   "to": "Du",
   "permission": {

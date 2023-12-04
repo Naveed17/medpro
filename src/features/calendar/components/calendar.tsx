@@ -69,6 +69,7 @@ function Calendar({...props}) {
         OnRangeDateSelect,
         OnOpenPatient,
         OnAddAbsence,
+        OnDeleteAbsence,
         OnEventChange,
         OnMenuActions,
         mutate: mutateAgenda
@@ -80,7 +81,13 @@ function Calendar({...props}) {
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
 
-    const {view, currentDate, config: agendaConfig, sortedData: groupSortedData} = useAppSelector(agendaSelector);
+    const {
+        view,
+        currentDate,
+        config: agendaConfig,
+        sortedData: groupSortedData,
+        absences
+    } = useAppSelector(agendaSelector);
 
     const prevView = useRef(view);
 
@@ -115,6 +122,10 @@ function Calendar({...props}) {
     const handleAddAbsence = useCallback((currentDate: Date) => {
         OnAddAbsence(currentDate);
     }, [OnAddAbsence]);
+
+    const handleDeleteAbsence = useCallback((currentDate: Date) => {
+        OnDeleteAbsence(currentDate);
+    }, [OnDeleteAbsence]);
 
     const handleRangeChange = useCallback((event: DatesSetArg) => {
         OnRangeChange(event);
@@ -154,7 +165,6 @@ function Calendar({...props}) {
                     dispatch(setCurrentDate({date, fallback: false}));
                 });
             } else {
-                console.log("date", date)
                 dispatch(setCurrentDate({date, fallback: false}));
             }
         }
@@ -417,13 +427,18 @@ function Calendar({...props}) {
                                         event,
                                         dispatch,
                                         datEvents,
+                                        absences,
                                         isMobile,
                                         currentDate,
                                         contextMenuHeader,
                                         setContextMenuHeader,
                                         hiddenDays,
                                         setHiddenDays,
-                                        OnAddAbsence: () => handleAddAbsence(currentDate.date)
+                                        OnAddAbsence: () => handleAddAbsence(currentDate.date),
+                                        OnDeleteAbsence: () => {
+                                            const day: any = absences.filter((absence: any) => moment(absence.start).isSame(currentDate.date) && moment(absence.end).format('HH:mm') === '23:59')
+                                            handleDeleteAbsence(day[0].uuid);
+                                        }
                                     })
                                 }}
                                 eventClick={(eventArg) => (eventArg.event._def.ui.display !== "background" && !eventArg.event._def.extendedProps.patient?.isArchived) && handleOnSelectEvent(eventArg.event._def)}
