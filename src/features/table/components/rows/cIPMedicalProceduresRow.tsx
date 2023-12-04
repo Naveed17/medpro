@@ -9,7 +9,7 @@ import InputBaseStyled from "../overrides/inputBaseStyled";
 
 function CIPMedicalProceduresRow({...props}) {
 
-    const {row, data, editMotif} = props;
+    const {row, data, editMotif, handleEvent} = props;
 
     const theme = useTheme() as Theme;
 
@@ -26,6 +26,7 @@ function CIPMedicalProceduresRow({...props}) {
                     color="primary"
                     onChange={() => {
                         editMotif(row, "check");
+                        handleEvent()
                     }}
                     checked={row.selected}
                 />
@@ -57,6 +58,7 @@ function CIPMedicalProceduresRow({...props}) {
                             }}
                             onBlur={() => {
                                 setSelected("");
+                                handleEvent()
                             }}
                             autoFocus={selected === row.uuid + "qte"}
                             onChange={(e) => {
@@ -107,6 +109,7 @@ function CIPMedicalProceduresRow({...props}) {
                             }}
                             onBlur={() => {
                                 setSelected("");
+                                handleEvent()
                             }}
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e: any) => {
