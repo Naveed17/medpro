@@ -21,7 +21,7 @@ import {Session} from "next-auth";
 import Icon from "@themes/urlIcon";
 import {AppointmentStatus} from "@features/calendar";
 import {motion} from 'framer-motion'
-
+import {sideBarSelector} from "@features/menu";
 const imageSize: number = 40;
 
 const Container = styled.a`
@@ -83,7 +83,7 @@ function BoardItem({...props}) {
 const [counter,setCounter] = useState<number>(0)
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
-
+    const {opened} = useAppSelector(sideBarSelector);
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
@@ -97,7 +97,7 @@ const [counter,setCounter] = useState<number>(0)
             clearInterval(interval);
         };
     }, [time]);
-
+    
     return (
         <Container
             isDragging={isDragging}
@@ -112,7 +112,15 @@ const [counter,setCounter] = useState<number>(0)
             data-testid={quote?.id}
             data-index={index}
             aria-label={`${quote?.column?.name} quote ${quote?.content}`}>
-            <Card sx={{width: '100%', borderLeft:6, borderRight:10, bgcolor:[3].includes(quote.content.status) ? alpha(theme.palette.warning.lighter,.7):theme.palette.common.white}}>
+            <Card sx={{width: '100%', 
+             ...([1,2,3].includes(quote.content.status) && {
+                borderLeft:6, 
+                borderRight: quote.content.consultationReasons.length > 0 ? 10: 1,
+                borderRightColor:quote.content.consultationReasons.length > 0 ? quote.content.consultationReasons[0].color:'divider',
+                borderLeftColor:quote.content.type.color ?? theme.palette.primary.main
+
+             }),
+             bgcolor:[3].includes(quote.content.status) ? alpha(theme.palette.warning.lighter,.7):theme.palette.common.white}}>
                 <CardContent sx={{p: 1,"&:last-child":{
                     paddingBottom:1
                 }}}>
@@ -207,7 +215,10 @@ const [counter,setCounter] = useState<number>(0)
                        
                      </Stack>
                     </Stack>
-                    {!quote.content.patient?.isArchived && <Stack direction={"row"} spacing={.5}>
+                    {!quote.content.patient?.isArchived && 
+                    
+                    <Stack direction={"row"} spacing={.5}>
+                        {!opened && <>
                             {quote.content.status === 1 && <>
                                 {!roles.includes('ROLE_SECRETARY') && <IconButton
                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
@@ -273,6 +284,8 @@ const [counter,setCounter] = useState<number>(0)
                                     <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
                                 </IconButton>
                             </>}
+                            </>
+                          }
                             {!quote.content.patient?.isArchived && 
                             <IconButton
                             
