@@ -432,7 +432,7 @@ function TopNavBar({...props}) {
                                     }}
                                     sx={{
                                         scale: "0.96",
-                                        mr: 0,
+                                        mr: isActive ? 0 : 1,
                                         p: "6px 12px",
                                         backgroundColor: (theme) => theme.palette.info.lighter,
                                         '&:hover': {
