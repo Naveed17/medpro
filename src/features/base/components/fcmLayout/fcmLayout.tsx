@@ -25,7 +25,7 @@ import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
-import {resetTimer, setTimer} from "@features/card";
+import {resetTimer} from "@features/card";
 import {dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import {DefaultCountry, EnvPattern} from "@lib/constants";
@@ -143,6 +143,10 @@ function FcmLayout({...props}) {
                             dispatch(setLastUpdate(data));
                             // refresh on going api
                             mutateOnGoing();
+                            break;
+                        case "documents":
+                            enqueueSnackbar(translationCommon.alerts["speech-text"].title, {variant: "success"});
+                            invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
                             break;
                         default:
                             data.body.mutate && invalidateQueries([data.body.mutate]);

@@ -210,9 +210,10 @@
   "rapport": "Rapport",
   "today": "Aujourd’hui",
   "calendar_view": "Vues du calendrier",
-  "display_workdays": "Afficher Jours Ouvrés",
+  "display_workdays": "Masquer ce jour",
   "program": "Programme",
   "add_blocked_day": "Ajouter un jour bloqué",
+  "delete_blocked_day": "Supprimer le jour bloqué",
   "add_leave": "Ajouter un congé",
   "to": "Du",
   "permission": {
@@ -378,6 +379,11 @@
       "patient-no-show": "le rendez-vous a été modifié avec succès",
       "confirm-appointment": "le rendez-vous a été confirmé avec succès",
       "consultation-finish": "Consultation terminée pour le patient"
+    }
+  },
+  "alerts": {
+    "speech-text": {
+      "title": "Le traitement audio est terminé avec succès"
     }
   },
   "filter": {

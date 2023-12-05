@@ -66,7 +66,7 @@ function TimeSchedule({...props}) {
     const {medical_professional} = useMedicalProfessionalSuffix();
     const {current: disabledDay} = useHorsWorkDays();
 
-    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers",});
+    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
     const {
         motif,
@@ -434,6 +434,7 @@ function TimeSchedule({...props}) {
                                                 {t("stepper-1.time-message")}
                                             </Typography>
                                             <TimeSlot
+                                                {...{t}}
                                                 sx={{width: 248, margin: "auto"}}
                                                 loading={!date || loading}
                                                 data={timeSlots}
@@ -447,7 +448,7 @@ function TimeSchedule({...props}) {
                                         </>
                                     }
 
-                                    {changeTime ?
+                                    {changeTime &&
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                                             <StaticTimePicker
                                                 {...(!isMobile && {orientation: "landscape"})}
@@ -492,22 +493,22 @@ function TimeSchedule({...props}) {
                                                 }}
                                                 renderInput={(params) => <TextField {...params} />}
                                             />
-                                        </LocalizationProvider>
-                                        :
-                                        <Button
-                                            sx={{fontSize: 12, mt: 1}}
-                                            disabled={!date}
-                                            onClick={() => {
-                                                changeDateRef.current = true;
-                                                setChangeTime(true);
-                                            }}
-                                            startIcon={
-                                                <IconUrl
-                                                    width={"14"}
-                                                    height={"14"}
-                                                    {...(!date && {color: "white"})}
-                                                    path="ic-edit"/>}
-                                            variant="text">{t("stepper-1.change-time")}</Button>}
+                                        </LocalizationProvider>}
+                                    {/*:
+                                    <Button
+                                        sx={{fontSize: 12, mt: 1}}
+                                        disabled={!date}
+                                        onClick={() => {
+                                            changeDateRef.current = true;
+                                            setChangeTime(true);
+                                        }}
+                                        startIcon={
+                                            <IconUrl
+                                                width={"14"}
+                                                height={"14"}
+                                                {...(!date && {color: "white"})}
+                                                path="ic-edit"/>}
+                                        variant="text">{t("stepper-1.change-time")}</Button>}*/}
                                 </Grid>
                             </Grid>
                         </>
@@ -518,20 +519,19 @@ function TimeSchedule({...props}) {
                             <motion.div
                                 initial={{opacity: 0}}
                                 animate={{opacity: 1}}
-                                transition={{ease: "easeIn", duration: .2}}
-                            >
+                                transition={{ease: "easeIn", duration: .2}}>
                                 <Typography variant="body1" color="text.primary" mb={1}
                                             {...(recurringDates.length > 0 && {mt: 2})}>
                                     {t("stepper-1.selected-appointment")}
                                 </Typography>
                                 {recurringDates.map((recurringDate, index) => (
                                     <PatientCardMobile
+                                        onDeleteItem={() => {
+                                            onMenuActions(recurringDate, "onRemove", index)
+                                        }}
                                         onAction={(action: string) => onMenuActions(recurringDate, action, index)}
                                         button={
                                             <IconButton
-                                                onClick={() => {
-                                                    onMenuActions(recurringDate, "onRemove", index)
-                                                }}
                                                 sx={{
                                                     p: 0, "& svg": {
                                                         p: "2px"

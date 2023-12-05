@@ -61,15 +61,17 @@ function ObservationHistoryDialog({...props}) {
                         <Stack
                             spacing={1}
                             direction="row"
+                            style={{borderBottom:"1px solid #CECECE",paddingBottom:10}}
                             alignItems="center">
                             <AccessTimeIcon style={{fontSize: 13}}/>
-                            <Typography style={{
-                                fontSize: 12,
-                                fontWeight: "bold"
-                            }}>{moment(act.data, 'DD-MM-YYYY').format('DD/MM/YYYY')}</Typography>
+                            <Typography style={{fontSize: 12}}>
+                                {moment(act.data, 'DD-MM-YYYY').format('DD/MM/YYYY')}
+                            </Typography>
                         </Stack>
-                        <div dangerouslySetInnerHTML={{__html:`${t("consultationIP.notes")} : ${act.note ? act.note.map((item: any) => item.value).join(",") : '-'}`}}></div>
-                        <div dangerouslySetInnerHTML={{__html:`${t("consultationIP.diagnosis")} : ${act.diagnostics ? act.diagnostics.map((item: any) => item.value).join(",") : '-'}`}}></div>
+                        <div
+                            dangerouslySetInnerHTML={{__html: `${t("consultationIP.notes")} : ${act.note ? act.note.map((item: any) => item.value).join(",") : '-'}`}}></div>
+                        <div
+                            dangerouslySetInnerHTML={{__html: `${t("consultationIP.diagnosis")} : ${act.diagnostics ? act.diagnostics.map((item: any) => item.value).join(",") : '-'}`}}></div>
                     </Stack>
                 </CardContent>
             ))}

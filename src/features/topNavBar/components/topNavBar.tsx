@@ -19,7 +19,7 @@ import {
 // components
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ProfilMenu, sideBarSelector, siteHeader, toggleMobileBar, toggleSideBar} from "@features/menu";
-import {LangButton, navBarSelector, NavbarStepperStyled, NavbarStyled, setDialog} from "@features/topNavBar";
+import {navBarSelector, NavbarStepperStyled, NavbarStyled, setDialog} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {CipCard, resetTimer, setTimer, timerSelector} from "@features/card";
@@ -432,7 +432,7 @@ function TopNavBar({...props}) {
                                     }}
                                     sx={{
                                         scale: "0.96",
-                                        mr: 0,
+                                        mr: isActive ? 0 : 1,
                                         p: "6px 12px",
                                         backgroundColor: (theme) => theme.palette.info.lighter,
                                         '&:hover': {
@@ -532,13 +532,13 @@ function TopNavBar({...props}) {
                                     </MenuItem>
                                 </Badge>
                             ))}
-                            <Badge
+                            {/*<Badge
                                 onClick={(event) => handleClick(event, "appointment-stats")}
                                 className="custom-badge badge">
                                 <IconButton color="primary" edge="start">
                                     <Icon path={"ic-plusinfo-quetsion"}/>
                                 </IconButton>
-                            </Badge>
+                            </Badge>*/}
                             <Menu
                                 id={id}
                                 open={open}
@@ -578,7 +578,7 @@ function TopNavBar({...props}) {
                                 {popovers[popoverAction]}
                             </Menu>
                         </MenuList>
-                        <LangButton/>
+                        {/*<LangButton/>*/}
                         {!isMobile && <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 1}} disableRipple>
                                 <ProfilMenu/>
@@ -690,9 +690,9 @@ function TopNavBar({...props}) {
                             </Link>
                         </Hidden>
 
-                        <MenuList className="topbar-nav">
+                        {/*<MenuList className="topbar-nav">
                             <LangButton/>
-                        </MenuList>
+                        </MenuList>*/}
 
                         <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 0}} disableRipple>

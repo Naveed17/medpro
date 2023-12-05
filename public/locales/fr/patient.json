@@ -164,6 +164,7 @@
       "additional-information": "Informations supplémentaires",
       "fin": "Fin",
       "group": "Groupe",
+      "invalidDate": "La date est invalide",
       "duplicatedFileID": "File number already used",
       "last-assure-placeholder": "Tapez le nom de famille de l'assuré",
       "first-assure-placeholder": "Tapez le prénom de l'assuré",

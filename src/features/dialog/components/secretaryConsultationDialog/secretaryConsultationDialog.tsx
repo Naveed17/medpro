@@ -60,7 +60,8 @@ function SecretaryConsultationDialog({...props}) {
             showCheckedDoc,
             showPreview,
             nextAppDays, setNextAppDays,
-            mutatePatient
+            mutatePatient,
+            insuranceGenerated, changeCoveredBy
         }
     } = props;
     const router = useRouter();
@@ -383,6 +384,20 @@ function SecretaryConsultationDialog({...props}) {
                                                 </RadioGroup>
                                             </>
                                         )}
+                                    </Button>
+
+                                    <Button
+                                        className="counter-btn"
+                                        disableRipple
+                                        variant="outlined"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            changeCoveredBy(!insuranceGenerated)
+                                        }}>
+                                        <Stack direction="row" alignItems='center'>
+                                            <Checkbox checked={insuranceGenerated}/>
+                                            <Typography>{t("covred")}</Typography>
+                                        </Stack>
                                     </Button>
                                 </Stack>
                             </Stack>

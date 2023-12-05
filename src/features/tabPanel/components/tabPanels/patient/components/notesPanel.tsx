@@ -1,5 +1,4 @@
 import {AppBar, Box, Button, CardContent, Grid, Skeleton, Stack, Toolbar, Typography} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import IconUrl from "@themes/urlIcon";
@@ -64,14 +63,14 @@ function NotesPanel({...props}) {
                             </Box>
                             {editable ?
                                 <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
-                                    <Button onClick={() => setEditable(false)}
+                                    {/*<Button onClick={() => setEditable(false)}
                                             color={"error"}
                                             className='btn-cancel'
                                             sx={{margin: 'auto'}}
                                             size='small'
                                             startIcon={<CloseIcon/>}>
                                         {t('add-patient.cancel')}
-                                    </Button>
+                                    </Button>*/}
                                     <LoadingButton
                                         loading={requestLoading}
                                         onClick={() => {

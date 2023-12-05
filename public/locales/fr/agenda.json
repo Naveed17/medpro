@@ -130,6 +130,7 @@
       "reason-consultation": "Motif",
       "reason-consultation-placeholder": "Choisissez votre motif",
       "practitioner": "Praticien",
+      "slots-unavailable": "Journée bloquée ou pas de plage horaire disponible",
       "affect-des": "Choisissez le praticien qui affecte cette consultation",
       "time-slot": "Créneau horaire",
       "selected-appointment": "Rendez-vous sélectionné",
@@ -155,6 +156,7 @@
       "search_placeholder": "Chercher un patient",
       "patient": {
         "personal-info": "Informations",
+        "invalidDate": "La date est invalide",
         "additional-information": "Informations supplémentaires",
         "more-detail": "Afficher plus de détails",
         "less-detail": "Afficher moins de détails",

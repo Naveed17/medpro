@@ -8,6 +8,7 @@ import {
     Button,
     Card,
     CardMedia,
+    Checkbox,
     DialogActions,
     Drawer,
     Fab,
@@ -80,6 +81,8 @@ import useStopwatch from "@lib/hooks/useStopwatch";
 import {useAudioRecorder} from "react-audio-voice-recorder";
 import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
 import {ConsultationCard} from "@features/consultationCard";
+import {useSnackbar} from "notistack";
+import ObservationHistoryDialog from "@features/dialog/components/observationHistoryDialog/observationHistoryDialog";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -109,6 +112,7 @@ function ConsultationInProgress() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {models} = useWidgetModels({filter: ""})
     const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {enqueueSnackbar} = useSnackbar();
     const {
         minutes,
         seconds,
@@ -154,6 +158,7 @@ function ConsultationInProgress() {
     const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/drugs/update");
     const {trigger: triggerNotificationPush} = useSendNotification();
     const {trigger: triggerDocumentDelete} = useRequestQueryMutation("/document/delete");
+    const {trigger: triggerDocumentSpeechToText} = useRequestQueryMutation("/document/speech-to-text");
 
     const medical_entity = (user as UserDataResponse)?.medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -247,6 +252,7 @@ function ConsultationInProgress() {
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
     const [fullOb, setFullOb] = useState(false);
     const [nextAppDays, setNextAppDays] = useState("day")
+    const [insuranceGenerated, setInsuranceGenerated] = useState(false)
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -266,6 +272,7 @@ function ConsultationInProgress() {
     const sheet = (httpSheetResponse as HttpResponse)?.data
     const sheetExam = sheet?.exam;
     const sheetModal = sheet?.modal;
+
     const hasDataHistory = sheet?.hasDataHistory
     const tabsData = [...sheet?.hasHistory ? [{
         label: "patient_history",
@@ -291,7 +298,7 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
     } : null, {refetchOnWindowFocus: false});
 
-    const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : []
+    const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : [];
 
     const {trigger: triggerUploadAudio} = useRequestQueryMutation("/document/upload");
     const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
@@ -395,6 +402,33 @@ function ConsultationInProgress() {
 
     const seeHistory = () => {
         setOpenHistoryDialog(true);
+    }
+
+    const handleSpeechToText = () => {
+        if (selectedAudio?.data?.hasOwnProperty('text')) {
+            setInfo("write_certif");
+            setState({
+                name: `${general_information.firstName} ${general_information.lastName}`,
+                days: '....',
+                content: selectedAudio?.data?.text ?? "",
+                title: `IA audio conversion`,
+                patient: `${patient?.firstName} ${patient?.lastName}`,
+                brithdate: `${patient?.birthdate}`,
+                cin: patient?.idCard ?? ""
+            });
+            setOpenDialog(true);
+        } else {
+            setLoadingRequest(true);
+            medicalEntityHasUser && triggerDocumentSpeechToText({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/stt/${selectedAudio?.uuid}/${router.locale}`
+            }, {
+                onSuccess: () => {
+                    enqueueSnackbar(t(`consultationIP.alerts.speech-text.title`), {variant: "info"});
+                },
+                onSettled: () => setLoadingRequest(false)
+            });
+        }
     }
 
     const removeAudioDoc = () => {
@@ -582,7 +616,7 @@ function ConsultationInProgress() {
     const saveConsultation = () => {
         setLoading(true);
         const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
-        const restAmount = 0;
+
         const form = new FormData();
         form.append("status", "5");
         form.append("action", "end_consultation");
@@ -602,7 +636,7 @@ function ConsultationInProgress() {
                 firstName: patient?.firstName,
                 lastName: patient?.lastName,
                 gender: patient?.gender,
-                restAmount:patient?.rest_amount
+                restAmount: patient?.rest_amount
             },
         }));
         if (recurringDates.length > 0) {
@@ -1015,6 +1049,18 @@ function ConsultationInProgress() {
         showDoc(documents.filter((doc: MedicalDocuments) => doc.documentType === name)[0]);
     }
 
+    const changeCoveredBy = (insuranceGenerated: boolean) => {
+        setInsuranceGenerated(insuranceGenerated);
+        const form = new FormData();
+        form.append("has_insurance", insuranceGenerated.toString());
+
+        triggerAppointmentEdit({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+            data: form
+        });
+    }
+
     //%%%%%% %%%%%%%
     const move = (source: any, destination: any, droppableSource: any, droppableDestination: any) => {
         const sourceClone = Array.from(source);
@@ -1058,12 +1104,11 @@ function ConsultationInProgress() {
         }
     }
     //%%%%%% %%%%%%%
-
     useEffect(() => {
         if (!recordingBlob || !saveAudio) return;
 
-        const file = new File([recordingBlob], 'audio', {
-            type: recordingBlob.type,
+        const file = new File([recordingBlob], `Enregistrement audio pour la consultation du ${sheet?.date}`, {
+            type: 'audio/mpeg',
             lastModified: Date.now()
         });
         uploadRecord(file);
@@ -1081,6 +1126,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (sheet) {
             setSelectedModel(sheetModal);
+            setInsuranceGenerated(sheet?.insuranceGenerated)
             setLoading(false)
             let _acts: AppointmentActModel[] = []
             medicalProfessionalData && medicalProfessionalData.acts.map(act => {
@@ -1134,6 +1180,13 @@ function ConsultationInProgress() {
     }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        if (documents.length > 0 && selectedAudio !== null && documents.findIndex((doc: any) => doc.uuid === selectedAudio?.uuid) !== -1) {
+            // set speech to text result after processing
+            setSelectedAudio(documents.find((doc: any) => doc.uuid === selectedAudio?.uuid));
+        }
+    }, [documents]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (inProgress) {
             const form = new FormData();
             form.append('status', '4');
@@ -1151,6 +1204,41 @@ function ConsultationInProgress() {
 
     return (
         <>
+            {sheet?.patient && openHistoryDialog && <Draggable bounds="body">
+                <div style={{
+                    position: "absolute",
+                    top: 10,
+                    left: 10,
+                    width: "50%",
+                    borderRadius: 5,
+                    zIndex: 1,
+                    border: `1px solid ${theme.palette.grey["200"]}`,
+                    background: 'white',
+                    transform: "translate(220px, 133px)"
+                }}>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} spacing={1} sx={{
+                        bgcolor: theme.palette.primary.main,
+                        padding: 2,
+                        borderTopLeftRadius: 5,
+                        borderTopRightRadius: 5
+                    }}>
+                        <IconUrl color={"white"} path={'history'}/>
+                        <Typography fontSize={18}
+                                    color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
+                        <IconButton sx={{width: 30, height: 30}} onClick={() => setOpenHistoryDialog(false)}><IconUrl
+                            width={15} height={15} path={"close"}/></IconButton>
+                    </Stack>
+                    <div style={{
+                        overflow: 'auto',
+                        height: 400,
+                        padding: 20
+                    }}>
+
+                        <ObservationHistoryDialog data={{patient_uuid: sheet.patient, t}}/>
+                    </div>
+
+                </div>
+            </Draggable>}
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
                 <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
                        width={"100%"}>
@@ -1503,6 +1591,10 @@ function ConsultationInProgress() {
                                     <span>|</span>
                                     <Button
                                         variant="text-black"
+                                        sx={{
+                                            border: `1px solid ${theme.palette.grey["200"]}`,
+                                            bgcolor: theme => theme.palette.grey['A500'],
+                                        }}
                                         onClick={(event) => {
                                             setOpenDialogSave(true);
                                             let type = "";
@@ -1524,6 +1616,18 @@ function ConsultationInProgress() {
                                         startIcon={<IconUrl path="ic-imprime"/>}>
                                         {t("consultationIP.print")}
                                     </Button>
+
+                                    <Stack direction="row" alignItems='center' sx={{
+                                        border: `1px dashed ${theme.palette.grey["200"]}`,
+                                        borderRadius: 1,
+                                        padding: "2px 10px 2px 0",
+                                        bgcolor: theme => theme.palette.grey['A500'],
+                                    }}>
+                                        <Checkbox onChange={(ev) => {
+                                            changeCoveredBy(ev.target.checked)
+                                        }} checked={insuranceGenerated}/>
+                                        <Typography>{t("covred")}</Typography>
+                                    </Stack>
                                 </Stack>
                             </Stack>
                         )}
@@ -1549,18 +1653,6 @@ function ConsultationInProgress() {
             </Box>
 
             <Dialog
-                action={"patient_observation_history"}
-                open={openHistoryDialog}
-                data={{patient_uuid: sheet?.patient, t}}
-                size={"sm"}
-                direction={"ltr"}
-                title={t("consultationIP.patient_observation_history")}
-                dialogClose={() => setOpenHistoryDialog(false)}
-                onClose={() => setOpenHistoryDialog(false)}
-                icon={true}
-            />
-
-            <Dialog
                 {...{
                     direction,
                     sx: {
@@ -1572,7 +1664,6 @@ function ConsultationInProgress() {
                 onClose={() => setOpenSecDialog(false)}
                 open={openSecDialog}
                 data={{
-
                     app_uuid,
                     agenda: agenda?.uuid,
                     patient: {
@@ -1591,6 +1682,8 @@ function ConsultationInProgress() {
                     addFinishAppointment,
                     showCheckedDoc,
                     mutatePatient,
+                    nextAppDays, setNextAppDays,
+                    insuranceGenerated, changeCoveredBy,
                     showPreview
                 }}
                 size={"lg"}
@@ -1964,7 +2057,12 @@ function ConsultationInProgress() {
                                         customControlsSection={
                                             [
                                                 RHAP_UI.MAIN_CONTROLS,
-                                                <IconButton key={"ic-ia-document"}>
+                                                <IconButton
+                                                    key={"ic-ia-document"}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleSpeechToText();
+                                                    }}>
                                                     <IconUrl width={20} height={20} path={'ic-ia-document'}/>
                                                 </IconButton>,
                                                 <IconButton

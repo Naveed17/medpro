@@ -92,7 +92,7 @@
     "credit": "Crédit"
   },
   "end of consultation": "fin de la consultation",
-  "week": "semaine" ,
+  "week": "semaine",
   "noteQuote": "Le patient confirme avoir volontairement choisi son traitement, être pleinement informé des indications et contre-indications, et s'engage à payer les honoraires liés aux soins mentionnés dans ce devis.",
   "medical-imaging": "Imagerie médicale",
   "medical-certificate": "Document généré",
@@ -451,6 +451,8 @@
     "dosge_time": "Durée du dosage",
     "add_model": "Ajouter le modèle",
     "model_list": "Liste des modèles",
+    "way_of_life": "Facteur de risque",
+    "allergic": "Allergies",
     "dialogs": {
       "delete-parent-dialog": {
         "title": "Supprimer dossier",
@@ -502,6 +504,9 @@
     "alerts": {
       "favorite": {
         "delete": "le favori a été supprimé avec succès"
+      },
+      "speech-text": {
+        "title": "Le traitement audio IA est en cours..."
       }
     },
     "no-data": {
@@ -605,6 +610,7 @@
   "end_of_consultation": "Fin de la consultation",
   "edit_of_consultation": "Enregistrer modifications",
   "plan_a_meeting": "Planifier un contrôle",
+  "covred": "Prise en charge par assurance",
   "day": "Jour",
   "month": "mois",
   "year": "an",
@@ -667,7 +673,13 @@
     "sa": "SA",
     "fluo": "Fluo",
     "fo": "FO",
-    "tocorrected": "TO corrigée"
+    "tocorrected": "TO corrigée",
+    "cv": "Champ visuel",
+    "oct": "OCT",
+    "angiographie": "Angiographie",
+    "other":"Autres",
+    "tonus": "Examen de tonus",
+    "comp": "Examen complémentaire"
   },
   "pediatrician": {
     "size": "Taille",

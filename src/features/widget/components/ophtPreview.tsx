@@ -18,7 +18,7 @@ import SaveIcon from '@mui/icons-material/Save';
 
 export default function OphtPreview({...props}) {
 
-    let {t, printGlasses, appuuid, url, triggerAppointmentEdit,data,selectedModel} = props
+    let {t, printGlasses, appuuid, url, triggerAppointmentEdit, data, selectedModel} = props
     const subTitle = ['av', 'sphere', 'cylindre', 'axe']
 
     const [acuiteVisuelle, setAcuiteVisuelle] = useState([
@@ -70,10 +70,20 @@ export default function OphtPreview({...props}) {
         {name: "fluo", od: "", og: ""},
         {name: "fo", od: "", og: ""},
         {name: "annexes", od: "", og: ""},
+    ]);
+
+    const [tonus, setTonus] = useState([
         {name: "measuredTO", od: "", og: ""},
         {name: "pachymetry", od: "", og: ""},
         {name: "tocorrected", od: "", og: ""},
-    ]);
+    ])
+
+    const [complementaire, setComplementaire] = useState([
+        {name: "cv", od: "", og: ""},
+        {name: "oct", od: "", og: ""},
+        {name: "angiographie", od: "", og: ""},
+        {name: "other", od: "", og: ""},
+    ])
 
     const [open, setOpen] = useState(false);
     const [selectedEl, setSelectedEl] = useState<any>(null);
@@ -91,6 +101,9 @@ export default function OphtPreview({...props}) {
         if (data && data.eyes) {
             data.eyes.acuiteVisuelle && setAcuiteVisuelle([...data.eyes.acuiteVisuelle]);
             data.eyes.examination && setExamination([...data.eyes.examination]);
+
+            data.eyes.tonus && setTonus([...data.eyes.tonus]);
+            data.eyes.complementaire && setComplementaire([...data.eyes.complementaire]);
         }
     }, [data]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -121,6 +134,53 @@ export default function OphtPreview({...props}) {
 
             <Typography color={"#0696D6"}
                         fontSize={13}
+                        textAlign={"center"}>{t('tonus')}</Typography>
+
+            <OphtTableStyled style={{width: "100%"}} onClick={() => {
+                setOpen(true)
+            }}>
+                <tbody>
+                <tr>
+                    <td className={"col"}></td>
+                    <td className={"title center col"}>{t('rightEye')}</td>
+                    <td className={"title center col"}>{t('leftEye')}</td>
+                </tr>
+                {tonus.map((ex: any) => (
+                    <tr key={ex.name}>
+                        <td className={"title col"}>{t(ex.name)}</td>
+                        <td className={"center col"}>{ex.od ? ex.od : "-"}</td>
+                        <td className={"center col"}>{ex.og ? ex.og : "-"}</td>
+                    </tr>
+                ))}
+                </tbody>
+            </OphtTableStyled>
+
+            <Typography color={"#0696D6"}
+                        fontSize={13}
+                        textAlign={"center"}>{t('comp')}</Typography>
+
+            <OphtTableStyled style={{width: "100%"}} onClick={() => {
+                setOpen(true)
+            }}>
+                <tbody>
+                <tr>
+                    <td className={"col"}></td>
+                    <td className={"title center col"}>{t('rightEye')}</td>
+                    <td className={"title center col"}>{t('leftEye')}</td>
+                </tr>
+                {complementaire.map((ex: any) => (
+                    <tr key={ex.name}>
+                        <td className={"title col"}>{t(ex.name)}</td>
+                        <td className={"center col"}>{ex.od ? ex.od : "-"}</td>
+                        <td className={"center col"}>{ex.og ? ex.og : "-"}</td>
+                    </tr>
+                ))}
+                </tbody>
+            </OphtTableStyled>
+
+
+            <Typography color={"#0696D6"}
+                        fontSize={13}
                         textAlign={"center"}>{t('ac')}</Typography>
 
             <OphtTableStyled style={{width: "100%"}} onClick={() => {
@@ -147,13 +207,14 @@ export default function OphtPreview({...props}) {
                         {av.name && <td rowSpan={av.lignes} className={"title col"}>{t(av.ref)}</td>}
                         {subTitle.map((od, index) => (
                             <td className={"col"} key={`od-${index}`}>
-                                <Typography className={av.od[od] == "0" ?"valIs0":"val"}>{av.od[od]}</Typography>
+                                <Typography className={av.od[od] == "0" ? "valIs0" : "val"}>{av.od[od]}</Typography>
                             </td>
                         ))}
 
                         {subTitle.map((og, index) => (
                             <td className={"col"} key={`og-${index}`}>
-                                <Typography className={av.og[og] == "0" ?"valIs0":"val"} style={{color:av.og[og] == "0" ? "grey":""}}>{av.og[og]}</Typography>
+                                <Typography className={av.og[og] == "0" ? "valIs0" : "val"}
+                                            style={{color: av.og[og] == "0" ? "grey" : ""}}>{av.og[og]}</Typography>
                             </td>
                         ))}
                     </tr>
@@ -162,17 +223,24 @@ export default function OphtPreview({...props}) {
             </OphtTableStyled>
 
             <Stack direction={"row"} marginBottom={5} justifyContent={"flex-end"}>
-                <Button size={"small"} color={"primary"}
-                        onClick={() => {
-                            printGlasses([{
-                                    pfl: acuiteVisuelle.filter(av => av.ref === "pf"),
-                                    pfp: acuiteVisuelle.filter(av => av.ref === "pfp")
-                                }]
-                            )
-                        }}
-                        startIcon={<IconUrl path="ic-imprime"/>}>
+                <Button
+                    variant="text-black"
+                    sx={{
+                        border: theme => `1px solid ${theme.palette.grey["200"]}`,
+                        bgcolor: "#F9F9FB",
+                        borderRadius: 1,
+                        marginBottom: 1
+                    }}
+                    onClick={() => {
+                        printGlasses([{
+                                pfl: acuiteVisuelle.filter(av => av.ref === "pf"),
+                                pfp: acuiteVisuelle.filter(av => av.ref === "pfp")
+                            }]
+                        )
+                    }}
+                    startIcon={<IconUrl path="ic-imprime"/>}>
                     <Typography
-                        style={{textTransform: "initial", fontSize: 12}}>{t('pg')}</Typography>
+                        style={{fontSize: 13, textTransform: "initial", letterSpacing: 1}}>{t("pg")}</Typography>
                 </Button>
             </Stack>
 
@@ -185,7 +253,7 @@ export default function OphtPreview({...props}) {
                 <DialogTitle style={{
                     marginBottom: 15,
                     borderBottom: "1px solid #eeeff1",
-                    color:"#0696D6"
+                    color: "#0696D6"
                 }}
                              id="draggable-dialog-title">
                     {t('ophtalmologiqueExam')}
@@ -248,6 +316,133 @@ export default function OphtPreview({...props}) {
                                                    let _examination = [...examination]
                                                    _examination[index].og = e.target.value;
                                                    setExamination([..._examination])
+                                               }}
+                                               value={ex.og}/>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </DialogTableStyled>
+
+                    <Typography color={"#0696D6"} style={{marginBottom: 8, marginTop: 20}}>{t('tonus')}</Typography>
+
+                    <DialogTableStyled style={{width: "100%"}}
+                                       onClick={() => {
+                                           setOpen(true)
+                                       }}>
+                        <tbody>
+                        <tr>
+                            <td className={"col"}></td>
+                            <td className={"col"}><Typography className={"tt"}>{t('rightEye')}</Typography></td>
+                            <td className={"col"}><Typography className={"tt"}>{t('leftEye')}</Typography></td>
+                        </tr>
+                        {tonus.map((ex: any, index) => (
+                            <tr key={ex.name}>
+                                <td className={"col"}><Typography className={"title"}>{t(ex.name)}</Typography></td>
+                                <td className={"center col"}>
+                                    <TextField size={"small"}
+                                               style={{width: "95%", margin: 5}}
+                                               placeholder={'-'}
+                                               inputProps={{
+                                                   style: {
+                                                       textAlign: 'center',
+                                                       padding: 5,
+                                                       background: "white"
+                                                   }
+                                               }}
+                                               onChange={(e) => {
+                                                   let _tonus = [...tonus]
+                                                   _tonus[index].od = e.target.value;
+
+                                                   if (index === 4 || index === 5)
+                                                       if (_tonus[4].od && _tonus[5].od) {
+                                                           const res = impact.find(i => i.pachymetry === _tonus[5].od);
+                                                           if (res && res.correction)
+                                                               _tonus[6].od = (parseInt(_tonus[4].od) + res.correction).toString()
+                                                       }
+                                                   setTonus([..._tonus])
+                                               }}
+                                               value={ex.od}/>
+                                </td>
+                                <td className={"center col"}>
+                                    <TextField size={"small"}
+                                               style={{width: "95%", margin: 5}}
+                                               placeholder={'-'}
+                                               inputProps={{
+                                                   style: {
+                                                       textAlign: 'center',
+                                                       padding: 5,
+                                                       background: "white"
+                                                   }
+                                               }}
+                                               onChange={(e) => {
+                                                   let _tonus = [...tonus]
+                                                   _tonus[index].og = e.target.value;
+                                                   setTonus([..._tonus])
+                                               }}
+                                               value={ex.og}/>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </DialogTableStyled>
+
+                    <Typography color={"#0696D6"} style={{marginBottom: 8, marginTop: 20}}>{t('comp')}</Typography>
+
+                    <DialogTableStyled style={{width: "100%"}}
+                                       onClick={() => {
+                                           setOpen(true)
+                                       }}>
+                        <tbody>
+                        <tr>
+                            <td className={"col"}></td>
+                            <td className={"col"}><Typography className={"tt"}>{t('rightEye')}</Typography></td>
+                            <td className={"col"}><Typography className={"tt"}>{t('leftEye')}</Typography></td>
+                        </tr>
+                        {complementaire.map((ex: any, index) => (
+                            <tr key={ex.name}>
+                                <td className={"col"}><Typography className={"title"}>{t(ex.name)}</Typography></td>
+                                <td className={"center col"}>
+                                    <TextField size={"small"}
+                                               style={{width: "95%", margin: 5}}
+                                               placeholder={'-'}
+                                               inputProps={{
+                                                   style: {
+                                                       textAlign: 'center',
+                                                       padding: 5,
+                                                       background: "white"
+                                                   }
+                                               }}
+                                               onChange={(e) => {
+                                                   let _complementaire = [...complementaire]
+                                                   _complementaire[index].od = e.target.value;
+
+                                                   if (index === 4 || index === 5)
+                                                       if (_complementaire[4].od && _complementaire[5].od) {
+                                                           const res = impact.find(i => i.pachymetry === _complementaire[5].od);
+                                                           if (res && res.correction)
+                                                               _complementaire[6].od = (parseInt(_complementaire[4].od) + res.correction).toString()
+                                                       }
+
+                                                   setComplementaire([..._complementaire])
+                                               }}
+                                               value={ex.od}/>
+                                </td>
+                                <td className={"center col"}>
+                                    <TextField size={"small"}
+                                               style={{width: "95%", margin: 5}}
+                                               placeholder={'-'}
+                                               inputProps={{
+                                                   style: {
+                                                       textAlign: 'center',
+                                                       padding: 5,
+                                                       background: "white"
+                                                   }
+                                               }}
+                                               onChange={(e) => {
+                                                   let _complementaire = [...complementaire]
+                                                   _complementaire[index].og = e.target.value;
+                                                   setComplementaire([..._complementaire])
                                                }}
                                                value={ex.og}/>
                                 </td>
@@ -355,7 +550,7 @@ export default function OphtPreview({...props}) {
                                 )
                             }}
                             startIcon={<IconUrl path="ic-imprime"/>}>
-                        <Typography style={{textTransform:"initial",color:"#0696D6"}}>{t('pg')}</Typography>
+                        <Typography style={{textTransform: "initial", color: "#0696D6"}}>{t('pg')}</Typography>
                     </Button>
 
                     <Button variant="contained"
@@ -370,7 +565,9 @@ export default function OphtPreview({...props}) {
                                 res = {
                                     ...res, eyes: {
                                         acuiteVisuelle,
-                                        examination
+                                        examination,
+                                        tonus,
+                                        complementaire
                                     }
                                 }
 
