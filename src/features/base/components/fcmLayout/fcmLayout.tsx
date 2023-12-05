@@ -84,7 +84,6 @@ function FcmLayout({...props}) {
         const messaging = getMessaging(firebaseCloudSdk.firebase);
         onMessage(messaging, (message: any) => {
             const data = JSON.parse(message.data.detail);
-            console.log("data", data, message.data.root)
             const fcmSession = data.body?.fcm_session ?? "";
             if (fcmSession !== jti) {
                 if (data.type === "no_action") {
