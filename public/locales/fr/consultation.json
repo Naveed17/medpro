@@ -673,7 +673,13 @@
     "sa": "SA",
     "fluo": "Fluo",
     "fo": "FO",
-    "tocorrected": "TO corrigée"
+    "tocorrected": "TO corrigée",
+    "cv": "Champ visuel",
+    "oct": "OCT",
+    "angiographie": "Angiographie",
+    "other":"Autres",
+    "tonus": "Examen de tonus",
+    "comp": "Examen complémentaire"
   },
   "pediatrician": {
     "size": "Taille",
