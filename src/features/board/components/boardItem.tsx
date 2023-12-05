@@ -34,17 +34,17 @@ const Container = styled.a`
   user-select: none;
 
   /* anchor overrides */
- 
+
 
   &:hover,
   &:active {
-   
+
     text-decoration: none;
   }
 
   &:focus {
     outline: none;
-    
+
     box-shadow: none;
   }
 
@@ -139,7 +139,7 @@ function BoardItem({...props}) {
                                         width: "140px"
                                     }}
                                     color={"primary"} fontWeight={400} fontSize={14}>
-                                    {quote.content.patient.lastName} {quote.content.patient.firstName}
+                                    {quote.content.patient.firstName} {quote.content.patient.lastName}
                                 </Typography>
                             </Stack>
                             <Stack direction={"row"} spacing={.5} alignItems={"center"}>
