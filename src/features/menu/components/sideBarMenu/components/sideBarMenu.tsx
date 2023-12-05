@@ -47,6 +47,7 @@ import {Session} from "next-auth";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
 import StatsIcon from "@themes/overrides/icons/statsIcon";
+import Can from "@features/casl/can";
 
 const {sidebarItems} = siteHeader;
 
@@ -119,64 +120,65 @@ function SideBarMenu({children}: LayoutProps) {
                 </Link>
 
                 <List
-                    component={motion.ul}
-                    layout
+                    component={"ul"}
                     onMouseLeave={() => setCurrentIndex(null)}
                     sx={{overflow: 'hidden', px: 1.5}}>
                     {menuItems?.map((item, i) => (
-                        <Hidden key={item.name} smUp={item.name === "wallet"}>
-                            <a onClick={() => handleRouting(item.href)}>
-                                <ListItem
-                                    sx={{
-                                        margin: "0.5rem 0",
-                                        cursor: 'pointer'
-                                    }}
-                                    className={router.pathname === item.href ? "active" : ""}>
-                                    <Badge
-                                        anchorOrigin={{
-                                            vertical: "bottom",
-                                            horizontal: "right",
+                        <Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
+                            <Hidden key={item.name} smUp={item.name === "wallet"}>
+                                <a onClick={() => handleRouting(item.href)}>
+                                    <ListItem
+                                        sx={{
+                                            margin: "0.5rem 0",
+                                            cursor: 'pointer'
                                         }}
-                                        invisible={item.badge === undefined || isMobile}
-                                        color="warning"
-                                        badgeContent={item.badge}>
-                                        <ListItemIcon
-                                            onMouseEnter={(e) => {
-                                                if (router.pathname === item.href) {
-                                                    e.stopPropagation();
-                                                    setCurrentIndex(null);
-                                                    return;
-                                                }
-
-                                                setCurrentIndex(i);
-                                            }}>
-                                            <Icon path={item.icon}/>
-                                        </ListItemIcon>
-                                    </Badge>
-                                    <ListItemTextStyled primary={t("main-menu." + item.name)}/>
-                                    {isMobile && item.badge !== undefined && item.badge > 0 && (
+                                        className={router.pathname === item.href ? "active" : ""}>
                                         <Badge
-                                            badgeContent={item.badge}
-                                            color="warning"
-                                            sx={{
-                                                ".MuiBadge-badge": {
-                                                    right: 8,
-                                                },
+                                            anchorOrigin={{
+                                                vertical: "bottom",
+                                                horizontal: "right",
                                             }}
-                                        />
-                                    )}
+                                            invisible={item.badge === undefined || isMobile}
+                                            color="warning"
+                                            badgeContent={item.badge}>
+                                            <ListItemIcon
+                                                onMouseEnter={(e) => {
+                                                    if (router.pathname === item.href) {
+                                                        e.stopPropagation();
+                                                        setCurrentIndex(null);
+                                                        return;
+                                                    }
 
-                                    {i === currentIndex && (
-                                        <motion.div
-                                            className="icon-background"
-                                            layoutId="social"
-                                            key="social"
-                                            initial={false}
-                                        />
-                                    )}
-                                </ListItem>
-                            </a>
-                        </Hidden>
+                                                    setCurrentIndex(i);
+                                                }}>
+                                                <Icon path={item.icon}/>
+                                            </ListItemIcon>
+                                        </Badge>
+                                        <ListItemTextStyled primary={t("main-menu." + item.name)}/>
+                                        {isMobile && item.badge !== undefined && item.badge > 0 && (
+                                            <Badge
+                                                badgeContent={item.badge}
+                                                color="warning"
+                                                sx={{
+                                                    ".MuiBadge-badge": {
+                                                        right: 8,
+                                                    },
+                                                }}
+                                            />
+                                        )}
+
+                                        {i === currentIndex && (
+                                            <motion.div
+                                                className="icon-background"
+                                                layoutId="social"
+                                                key="social"
+                                                initial={false}
+                                            />
+                                        )}
+                                    </ListItem>
+                                </a>
+                            </Hidden>
+                        </Can>
                     ))}
                 </List>
                 <List className="list-bottom">

@@ -18,9 +18,9 @@ import {
     Theme,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
-import {Otable} from "@features/table";
+import {Otable, resetUser} from "@features/table";
 import {useRouter} from "next/router";
-import {useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard} from "@features/card";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 
@@ -113,6 +113,7 @@ function Users() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {enqueueSnackbar} = useSnackbar();
     const {trigger: triggerNotificationPush} = useSendNotification();
+    const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
     const {direction} = useAppSelector(configSelector);
@@ -201,7 +202,7 @@ function Users() {
                 <RootStyled>
                     <p style={{margin: 0}}>{t("path")}</p>
                 </RootStyled>
-                {/*<Stack direction="row" alignItems="center" spacing={2}>
+                <Stack direction="row" alignItems="center" spacing={2}>
                     <Button
                         sx={{
                             display: {xs: "none", md: "flex"},
@@ -221,7 +222,7 @@ function Users() {
                         color="success">
                         {t("add")}
                     </Button>
-                </Stack>*/}
+                </Stack>
             </SubHeader>
             <Box className="container">
                 {users && users.length > 0 ? (

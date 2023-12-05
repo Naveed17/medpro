@@ -37,6 +37,8 @@ import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
+import {buildAbilityFor} from "@lib/rbac/casl/ability";
+import {AbilityContext} from "@features/casl/can";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -75,6 +77,7 @@ function FcmLayout({...props}) {
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
 
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
+    const ability = buildAbilityFor(roles[0]);
 
     const handleClose = () => {
         setOpenDialog(false);
@@ -280,7 +283,9 @@ function FcmLayout({...props}) {
 
     return (
         <>
-            {props.children}
+            <AbilityContext.Provider value={ability}>
+                {props.children}
+            </AbilityContext.Provider>
             <Dialog
                 open={openDialog}
                 onClose={handleClose}
