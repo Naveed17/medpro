@@ -294,7 +294,7 @@ function ConsultationInProgress() {
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`
     } : null, {refetchOnWindowFocus: false});
 
-    const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : []
+    const documents = httpDocumentResponse ? (httpDocumentResponse as HttpResponse).data : [];
 
     const {trigger: triggerUploadAudio} = useRequestQueryMutation("/document/upload");
     const {trigger: triggerDrugsGet} = useRequestQueryMutation("/drugs/get");
@@ -402,7 +402,6 @@ function ConsultationInProgress() {
 
     const handleSpeechToText = () => {
         if (selectedAudio?.data?.hasOwnProperty('text')) {
-            console.log("selectedAudio", selectedAudio);
             setInfo("write_certif");
             setState({
                 name: `${general_information.firstName} ${general_information.lastName}`,
@@ -422,7 +421,6 @@ function ConsultationInProgress() {
             }, {
                 onSuccess: () => {
                     enqueueSnackbar(t(`consultationIP.alerts.speech-text.title`), {variant: "info"});
-                    mutateDoc();
                 },
                 onSettled: () => setLoadingRequest(false)
             });
@@ -1163,6 +1161,13 @@ function ConsultationInProgress() {
             setLoading(false)
         })
     }, [selectedTab]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (documents.length > 0 && selectedAudio !== null && documents.findIndex((doc: any) => doc.uuid === selectedAudio?.uuid) !== -1) {
+            // set speech to text result after processing
+            setSelectedAudio(documents.find((doc: any) => doc.uuid === selectedAudio?.uuid));
+        }
+    }, [documents]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (inProgress) {

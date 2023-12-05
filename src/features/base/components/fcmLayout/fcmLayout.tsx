@@ -147,6 +147,7 @@ function FcmLayout({...props}) {
                             break;
                         case "documents":
                             enqueueSnackbar(translationCommon.alerts["speech-text"].title, {variant: "success"});
+                            invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
                             break;
                         default:
                             data.body.mutate && invalidateQueries([data.body.mutate]);
