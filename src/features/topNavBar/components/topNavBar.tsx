@@ -19,7 +19,7 @@ import {
 // components
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ProfilMenu, sideBarSelector, siteHeader, toggleMobileBar, toggleSideBar} from "@features/menu";
-import {LangButton, navBarSelector, NavbarStepperStyled, NavbarStyled, setDialog} from "@features/topNavBar";
+import {navBarSelector, NavbarStepperStyled, NavbarStyled, setDialog} from "@features/topNavBar";
 import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {CipCard, resetTimer, setTimer, timerSelector} from "@features/card";

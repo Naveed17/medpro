@@ -44,7 +44,6 @@ import PhoneInput from "react-phone-number-input/input";
 import {useRequestQueryMutation} from "@lib/axios";
 import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
-import {DateValidationError} from "@mui/x-date-pickers/internals";
 
 export const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;

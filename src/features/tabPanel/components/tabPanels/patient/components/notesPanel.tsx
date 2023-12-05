@@ -1,5 +1,4 @@
 import {AppBar, Box, Button, CardContent, Grid, Skeleton, Stack, Toolbar, Typography} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import IconUrl from "@themes/urlIcon";
