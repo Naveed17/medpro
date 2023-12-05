@@ -156,6 +156,7 @@
       "search_placeholder": "Chercher un patient",
       "patient": {
         "personal-info": "Informations",
+        "invalidDate": "La date est invalide",
         "additional-information": "Informations supplémentaires",
         "more-detail": "Afficher plus de détails",
         "less-detail": "Afficher moins de détails",

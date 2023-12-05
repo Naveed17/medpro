@@ -44,6 +44,7 @@ import PhoneInput from "react-phone-number-input/input";
 import {useRequestQueryMutation} from "@lib/axios";
 import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
+import {DateValidationError} from "@mui/x-date-pickers/internals";
 
 export const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -75,6 +76,7 @@ function AddPatientStep1({...props}) {
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
     const [duplicatedFiche, setDuplicatedFiche] = useState(false);
+    const [error, setError] = useState<boolean>(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -225,6 +227,7 @@ function AddPatientStep1({...props}) {
             />
         );
 
+    console.log("birthdate", values.birthdate);
     return (
         <FormikProvider value={formik}>
             <Stack
@@ -450,13 +453,21 @@ function AddPatientStep1({...props}) {
                                                 year: dateInput.format("YYYY"),
                                             } : null);
                                             if (dateInput.isValid()) {
+                                                setError(false);
                                                 const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
                                                 setFieldValue("old", old > 120 ? "" : old);
                                             } else {
+                                                setError(true);
                                                 setFieldValue("old", "");
                                             }
                                         }}
-                                        renderInput={(params) => <TextField {...params} fullWidth/>}
+                                        renderInput={(params) => <TextField
+                                            {...params}
+                                            {...((values.birthdate !== null || error) && {
+                                                error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
+                                                ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText: t('invalidDate')})
+                                            })}
+                                            fullWidth/>}
                                     />
                                 </LocalizationProvider>
                             </Grid>

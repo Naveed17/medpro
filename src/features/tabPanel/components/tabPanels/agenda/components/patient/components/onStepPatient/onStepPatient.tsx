@@ -226,11 +226,11 @@ function OnStepPatient({...props}) {
                 : patient.step1.last_name,
             old: patient.step1.old,
             birthdate: selectedPatient?.birthdate
-                && {
+                ? {
                     day: selectedPatient.birthdate.split("-")[0] as string,
                     month: selectedPatient.birthdate.split("-")[1] as string,
                     year: selectedPatient.birthdate.split("-")[2] as string,
-                },
+                } : null,
             phones: (selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone") &&
                 selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone").length > 0) ?
                 selectedPatient?.contact.filter((contact: ContactModel) => contact.type === "phone").map((contact: ContactModel) => ({
@@ -297,6 +297,7 @@ function OnStepPatient({...props}) {
         label: commonTranslation(`social_insured.${Insured.label}`)
     })));
     const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<boolean>(false);
 
     const {data: httpStatesResponse} = useRequestQuery(values.country ? {
         method: "GET",
@@ -523,13 +524,21 @@ function OnStepPatient({...props}) {
                                                 year: dateInput.format("YYYY"),
                                             } : null);
                                             if (dateInput.isValid()) {
+                                                setError(false);
                                                 const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
                                                 setFieldValue("old", old > 120 ? "" : old);
                                             } else {
+                                                setError(true);
                                                 setFieldValue("old", "");
                                             }
                                         }}
-                                        renderInput={(params) => <TextField {...params} fullWidth/>}
+                                        renderInput={(params) => <TextField
+                                            {...params}
+                                            {...((values.birthdate !== null || error) && {
+                                                error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
+                                                ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText: t('invalidDate')})
+                                            })}
+                                            fullWidth/>}
                                     />
                                 </LocalizationProvider>
                             </Grid>
