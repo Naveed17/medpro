@@ -25,7 +25,7 @@ import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
 import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
-import {resetTimer, setTimer} from "@features/card";
+import {resetTimer} from "@features/card";
 import {dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import {DefaultCountry, EnvPattern} from "@lib/constants";
@@ -84,7 +84,6 @@ function FcmLayout({...props}) {
         const messaging = getMessaging(firebaseCloudSdk.firebase);
         onMessage(messaging, (message: any) => {
             const data = JSON.parse(message.data.detail);
-            console.log("data", data, message.data.root)
             const fcmSession = data.body?.fcm_session ?? "";
             if (fcmSession !== jti) {
                 if (data.type === "no_action") {
@@ -147,6 +146,7 @@ function FcmLayout({...props}) {
                             break;
                         case "documents":
                             enqueueSnackbar(translationCommon.alerts["speech-text"].title, {variant: "success"});
+                            invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
                             break;
                         default:
                             data.body.mutate && invalidateQueries([data.body.mutate]);

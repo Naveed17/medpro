@@ -774,7 +774,7 @@ function Agenda() {
             batch(() => {
                 dispatch(openDrawer({type: "view", open: false}));
                 dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-            })
+            });
         }
     }
 

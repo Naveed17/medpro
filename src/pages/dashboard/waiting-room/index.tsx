@@ -45,7 +45,7 @@ import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
 import {LoadingButton} from "@mui/lab";
-import {agendaSelector, setStepperIndex} from "@features/calendar";
+import {agendaSelector, openDrawer, setSelectedEvent, setStepperIndex} from "@features/calendar";
 import {Board} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton} from "@features/buttons";
@@ -59,6 +59,8 @@ import PersonOffIcon from "@mui/icons-material/PersonOff";
 import {leftActionBarSelector} from "@features/leftActionBar";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {batch} from "react-redux";
+import {setDialog} from "@features/topNavBar";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -186,15 +188,23 @@ function WaitingRoom() {
 
     const startConsultation = (row: any) => {
         if (!isActive) {
-            const publicId = (row?.uuid ? row.uuid : row?.publicId ? row?.publicId : (row as any)?.id) as string
-            const slugConsultation = `/dashboard/consultation/${publicId}`;
+            const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
             router.push({
                 pathname: slugConsultation,
                 query: {inProgress: true}
             }, slugConsultation, {locale: router.locale});
         } else {
-            setError(true);
-            setLoadingRequest(false);
+            const defEvent = {
+                publicId: row?.uuid,
+                extendedProps: {
+                    ...row
+                }
+            } as EventDef;
+            batch(() => {
+                dispatch(setSelectedEvent(defEvent));
+                dispatch(openDrawer({type: "view", open: false}));
+                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
+            });
         }
     }
 
@@ -422,7 +432,7 @@ function WaitingRoom() {
             </CustomIconButton>
         },
         {
-            id: '4',
+            id: '4,8',
             name: 'ongoing',
             url: '#',
             icon: <IconUrl width={20} height={20} path="ic-attendre"/>
