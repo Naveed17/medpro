@@ -61,7 +61,7 @@ function SecretaryConsultationDialog({...props}) {
             showPreview,
             nextAppDays, setNextAppDays,
             mutatePatient,
-            insuranceGenerated, setInsuranceGenerated
+            insuranceGenerated, changeCoveredBy
         }
     } = props;
     const router = useRouter();
@@ -392,15 +392,7 @@ function SecretaryConsultationDialog({...props}) {
                                         variant="outlined"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setInsuranceGenerated(!insuranceGenerated);
-                                            const form = new FormData();
-                                            form.append("has_insurance", (!insuranceGenerated).toString());
-
-                                            triggerAppointmentEdit({
-                                                method: "PUT",
-                                                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
-                                                data: form
-                                            })
+                                            changeCoveredBy(!insuranceGenerated)
                                         }}>
                                         <Stack direction="row" alignItems='center'>
                                             <Checkbox checked={insuranceGenerated}/>
