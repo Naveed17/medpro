@@ -10,7 +10,6 @@ import {
     InputBase,
     AppBar,
     Toolbar,
-    Button,
     IconButton,
     MenuItem,
     useTheme,
@@ -22,7 +21,6 @@ import {
 import {useTranslation} from "next-i18next";
 import {useFormik, Form, FormikProvider, FieldArray} from "formik";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
-import CloseIcon from '@mui/icons-material/Close';
 import IconUrl from "@themes/urlIcon";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
@@ -248,18 +246,6 @@ function PatientContactDetailCard({...props}) {
                                     </Box>
                                     {editable ?
                                         <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
-                                            <Button
-                                                onClick={() => setEditable({
-                                                    ...defaultEditStatus,
-                                                    patientDetailContactCard: false
-                                                })}
-                                                color={"error"}
-                                                className='btn-cancel'
-                                                sx={{margin: 'auto'}}
-                                                size='small'
-                                                startIcon={<CloseIcon/>}>
-                                                {t('config.add-patient.cancel')}
-                                            </Button>
                                             <LoadingButton
                                                 onClick={() => setEditable({
                                                     ...defaultEditStatus,
