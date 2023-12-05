@@ -269,11 +269,15 @@ function ConsultationInProgress() {
     const sheet = (httpSheetResponse as HttpResponse)?.data
     const sheetExam = sheet?.exam;
     const sheetModal = sheet?.modal;
+
     const hasDataHistory = sheet?.hasDataHistory
     const tabsData = [...sheet?.hasHistory ? [{
         label: "patient_history",
         value: "patient history"
     }] : [], ...tabs]
+
+    const [insuranceGenerated, setInsuranceGenerated] = useState(sheet?.insuranceGenerated)
+
 
     const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
@@ -1627,6 +1631,7 @@ function ConsultationInProgress() {
                     showCheckedDoc,
                     mutatePatient,
                     nextAppDays, setNextAppDays,
+                    insuranceGenerated, setInsuranceGenerated,
                     showPreview
                 }}
                 size={"lg"}
