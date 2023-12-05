@@ -468,14 +468,14 @@ function PatientDetailsCard({...props}) {
                                                                                     startIcon={<SaveAsIcon/>}>
                                                                                     {t('register')}
                                                                                 </LoadingButton>
-                                                                                <Button
+                                                                                {/*<Button
                                                                                     size='small'
                                                                                     color={"error"}
                                                                                     onClick={() => setEditable(false)}
                                                                                     startIcon={<CloseIcon/>}
                                                                                 >
                                                                                     {t(`cancel`)}
-                                                                                </Button>
+                                                                                </Button>*/}
                                                                             </>)
                                                                         :
                                                                         (isMobile ?

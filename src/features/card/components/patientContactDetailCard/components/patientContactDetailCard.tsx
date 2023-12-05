@@ -248,18 +248,6 @@ function PatientContactDetailCard({...props}) {
                                     </Box>
                                     {editable ?
                                         <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
-                                            <Button
-                                                onClick={() => setEditable({
-                                                    ...defaultEditStatus,
-                                                    patientDetailContactCard: false
-                                                })}
-                                                color={"error"}
-                                                className='btn-cancel'
-                                                sx={{margin: 'auto'}}
-                                                size='small'
-                                                startIcon={<CloseIcon/>}>
-                                                {t('config.add-patient.cancel')}
-                                            </Button>
                                             <LoadingButton
                                                 onClick={() => setEditable({
                                                     ...defaultEditStatus,

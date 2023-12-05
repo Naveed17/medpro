@@ -176,6 +176,7 @@ function Board({...props}) {
             setBoardData(columnDataMap(quotes));
         }
     }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
+    console.log(boardData)
     return (
         <ParentContainer>
             <DragDropContext onDragEnd={handleOnDragBoard}>

@@ -64,14 +64,14 @@ function NotesPanel({...props}) {
                             </Box>
                             {editable ?
                                 <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
-                                    <Button onClick={() => setEditable(false)}
+                                    {/*<Button onClick={() => setEditable(false)}
                                             color={"error"}
                                             className='btn-cancel'
                                             sx={{margin: 'auto'}}
                                             size='small'
                                             startIcon={<CloseIcon/>}>
                                         {t('add-patient.cancel')}
-                                    </Button>
+                                    </Button>*/}
                                     <LoadingButton
                                         loading={requestLoading}
                                         onClick={() => {
