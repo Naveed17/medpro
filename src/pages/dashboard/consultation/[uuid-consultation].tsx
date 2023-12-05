@@ -8,6 +8,7 @@ import {
     Button,
     Card,
     CardMedia,
+    Checkbox,
     DialogActions,
     Drawer,
     Fab,
@@ -248,6 +249,7 @@ function ConsultationInProgress() {
     const [imagery, setImagery] = useState<AnalysisModel[]>([]);
     const [fullOb, setFullOb] = useState(false);
     const [nextAppDays, setNextAppDays] = useState("day")
+    const [insuranceGenerated, setInsuranceGenerated] = useState(false)
 
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
@@ -273,9 +275,6 @@ function ConsultationInProgress() {
         label: "patient_history",
         value: "patient history"
     }] : [], ...tabs]
-
-    const [insuranceGenerated, setInsuranceGenerated] = useState(sheet?.insuranceGenerated)
-
 
     const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
@@ -1031,6 +1030,18 @@ function ConsultationInProgress() {
         showDoc(documents.filter((doc: MedicalDocuments) => doc.documentType === name)[0]);
     }
 
+    const changeCoveredBy = (insuranceGenerated: boolean) => {
+        setInsuranceGenerated(insuranceGenerated);
+        const form = new FormData();
+        form.append("has_insurance", insuranceGenerated.toString());
+
+        triggerAppointmentEdit({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+            data: form
+        });
+    }
+
     //%%%%%% %%%%%%%
     const move = (source: any, destination: any, droppableSource: any, droppableDestination: any) => {
         const sourceClone = Array.from(source);
@@ -1096,6 +1107,7 @@ function ConsultationInProgress() {
     useEffect(() => {
         if (sheet) {
             setSelectedModel(sheetModal);
+            setInsuranceGenerated(sheet?.insuranceGenerated)
             setLoading(false)
             let _acts: AppointmentActModel[] = []
             medicalProfessionalData && medicalProfessionalData.acts.map(act => {
@@ -1518,6 +1530,10 @@ function ConsultationInProgress() {
                                     <span>|</span>
                                     <Button
                                         variant="text-black"
+                                        sx={{
+                                            border: `1px solid ${theme.palette.grey["200"]}`,
+                                            bgcolor: theme => theme.palette.grey['A500'],
+                                        }}
                                         onClick={(event) => {
                                             setOpenDialogSave(true);
                                             let type = "";
@@ -1539,6 +1555,18 @@ function ConsultationInProgress() {
                                         startIcon={<IconUrl path="ic-imprime"/>}>
                                         {t("consultationIP.print")}
                                     </Button>
+
+                                    <Stack direction="row" alignItems='center' sx={{
+                                        border: `1px dashed ${theme.palette.grey["200"]}`,
+                                        borderRadius: 1,
+                                        padding: "2px 10px 2px 0",
+                                        bgcolor: theme => theme.palette.grey['A500'],
+                                    }}>
+                                        <Checkbox onChange={(ev) => {
+                                            changeCoveredBy(ev.target.checked)
+                                        }} checked={insuranceGenerated}/>
+                                        <Typography>{t("covred")}</Typography>
+                                    </Stack>
                                 </Stack>
                             </Stack>
                         )}
@@ -1606,7 +1634,7 @@ function ConsultationInProgress() {
                     showCheckedDoc,
                     mutatePatient,
                     nextAppDays, setNextAppDays,
-                    insuranceGenerated, setInsuranceGenerated,
+                    insuranceGenerated, changeCoveredBy,
                     showPreview
                 }}
                 size={"lg"}
