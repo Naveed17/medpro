@@ -532,13 +532,13 @@ function TopNavBar({...props}) {
                                     </MenuItem>
                                 </Badge>
                             ))}
-                            <Badge
+                            {/*<Badge
                                 onClick={(event) => handleClick(event, "appointment-stats")}
                                 className="custom-badge badge">
                                 <IconButton color="primary" edge="start">
                                     <Icon path={"ic-plusinfo-quetsion"}/>
                                 </IconButton>
-                            </Badge>
+                            </Badge>*/}
                             <Menu
                                 id={id}
                                 open={open}
@@ -578,7 +578,7 @@ function TopNavBar({...props}) {
                                 {popovers[popoverAction]}
                             </Menu>
                         </MenuList>
-                        <LangButton/>
+                        {/*<LangButton/>*/}
                         {!isMobile && <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 1}} disableRipple>
                                 <ProfilMenu/>
@@ -690,9 +690,9 @@ function TopNavBar({...props}) {
                             </Link>
                         </Hidden>
 
-                        <MenuList className="topbar-nav">
+                        {/*<MenuList className="topbar-nav">
                             <LangButton/>
-                        </MenuList>
+                        </MenuList>*/}
 
                         <MenuList className="topbar-account">
                             <MenuItem sx={{pr: 0, pl: 0}} disableRipple>
