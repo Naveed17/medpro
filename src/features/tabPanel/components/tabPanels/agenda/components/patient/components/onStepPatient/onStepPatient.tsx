@@ -151,7 +151,7 @@ function OnStepPatient({...props}) {
                     .required(t("telephone-error"))
             })),
         gender: Yup.string().required(t("gender-error")),
-        birthdate: Yup.object().shape({
+        birthdate: Yup.object().nullable().shape({
             day: Yup.string(),
             month: Yup.string(),
             year: Yup.string()
