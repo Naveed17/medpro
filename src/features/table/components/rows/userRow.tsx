@@ -4,7 +4,7 @@ import {Typography, Box, Stack, Skeleton} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useRouter} from "next/router";
 import Button from "@mui/material/Button";
-import {TableRowStyled} from "@features/table";
+import {editUser, TableRowStyled} from "@features/table";
 import Switch from "@mui/material/Switch";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {uniqueId} from "lodash";
@@ -103,7 +103,7 @@ function UserRow({...props}) {
                     <Skeleton variant="text" width={100} sx={{m: "auto"}}/>
                 )}
             </TableCell> */}
-            {/*            <TableCell align="right">
+            <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
                         <Button
@@ -112,10 +112,10 @@ function UserRow({...props}) {
                             color="primary"
                             startIcon={<IconUrl path="setting/edit"/>}
                             onClick={() => {
-                                dispatch(editUser(row));
+                                /*dispatch(editUser(row));
                                 router.push(`${pathname}/${row.uuid}`, undefined, {
                                     locale,
-                                });
+                                });*/
                             }}>
                             {t("table.update")}
                         </Button>
@@ -139,7 +139,7 @@ function UserRow({...props}) {
                         <Skeleton variant="text" width={50}/>
                     </Stack>
                 )}
-            </TableCell>*/}
+            </TableCell>
         </TableRowStyled>
     );
 }

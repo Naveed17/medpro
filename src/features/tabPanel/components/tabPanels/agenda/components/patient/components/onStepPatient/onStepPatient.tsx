@@ -151,7 +151,7 @@ function OnStepPatient({...props}) {
                     .required(t("telephone-error"))
             })),
         gender: Yup.string().required(t("gender-error")),
-        birthdate: Yup.object().shape({
+        birthdate: Yup.object().nullable().shape({
             day: Yup.string(),
             month: Yup.string(),
             year: Yup.string()
@@ -287,7 +287,7 @@ function OnStepPatient({...props}) {
         },
     });
     const {values, handleSubmit, touched, errors, setFieldValue, getFieldProps} = formik;
-
+    console.log("errors", errors);
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
     const [selectedCountry] = React.useState<any>(doctor_country);
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);

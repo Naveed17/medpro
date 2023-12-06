@@ -97,14 +97,14 @@ const headCells = [
     //     align: "center",
     //     sortable: true,
     // },
-    /* {
+     {
          id: "action",
          numeric: false,
          disablePadding: false,
          label: "action",
          align: "center",
          sortable: false,
-     },*/
+     },
 ];
 
 function Users() {
