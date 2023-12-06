@@ -10,8 +10,12 @@ const BadgeStyled = styled(Badge)(({theme, ...props}: any) => ({
         background: highlightedDays(props['data-events'], theme),
         padding: 14,
         marginLeft: "2rem",
-        borderRadius: 20
-    }
+        borderRadius: 20,
+         "@media (max-width: 1100px)": {
+        display:'none'
+    },
+    },
+    
 }))
 
 export default BadgeStyled;
