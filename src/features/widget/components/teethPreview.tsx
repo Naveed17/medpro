@@ -2,8 +2,9 @@ import {Chip, Stack, Typography} from "@mui/material";
 import React, {useEffect, useState} from "react";
 import adultTeeth from "@features/widget/components/adult";
 import childTeeth from "@features/widget/components/child";
+
 export default function TeethPreview({...props}) {
-    let {t, of, appuuid, acts, previousData, setOpenTeeth,local} = props
+    let {t, of, appuuid, acts, previousData, setOpenTeeth, local} = props
 
     let [traitements, setTraitements] = useState<TraitementTeeth[]>([{
         id: 1,
@@ -12,7 +13,7 @@ export default function TeethPreview({...props}) {
         showPicker: false,
         teeth: [],
         acts: [],
-        note:''
+        note: ''
     }]);
     const [absent, setAbsent] = useState<string[]>([]);
     const teeth = of === 'adult' ? adultTeeth : childTeeth;
@@ -25,13 +26,13 @@ export default function TeethPreview({...props}) {
                 if (res) {
                     setTraitements([...res.traitements]);
                     setAbsent(res.absent);
-                } else {
-                    if (previousData) {
-                        const previous = previousData[`${of}Teeth`];
-                        if (previous) {
-                            setTraitements([...previous.traitements]);
-                            setAbsent(previous.absent);
-                        }
+                }
+            } else {
+                if (previousData) {
+                    const previous = previousData[`${of}Teeth`];
+                    if (previous) {
+                        setTraitements([...previous.traitements]);
+                        setAbsent(previous.absent);
                     }
                 }
             }
@@ -99,12 +100,13 @@ export default function TeethPreview({...props}) {
                          }}/>))}
 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/static/img/${of === 'adult' ? local === 'fr' ?'adultTeeth':'adultTeethEN' : local === 'fr' ?'childTeeth':'childTeethEN'}.svg`}
-                     id={"t"}
-                     onClick={() => {
-                         setOpenTeeth(of)
-                     }}
-                     alt={"patient teeth"}/>
+                <img
+                    src={`/static/img/${of === 'adult' ? local === 'fr' ? 'adultTeeth' : 'adultTeethEN' : local === 'fr' ? 'childTeeth' : 'childTeethEN'}.svg`}
+                    id={"t"}
+                    onClick={() => {
+                        setOpenTeeth(of)
+                    }}
+                    alt={"patient teeth"}/>
 
                 <Stack direction={"row"} alignItems={"center"} spacing={1} p={1}>
                     <div style={{
@@ -117,13 +119,13 @@ export default function TeethPreview({...props}) {
                     <Typography fontSize={10} color={"#737780"}>{t('hiddenTeeth')}</Typography>
                 </Stack>
                 <div>
-                    {absent.map(a => (<Chip key={`${a}-absent`} style={{fontSize: 10,margin:2}} label={a}/>))}
+                    {absent.map(a => (<Chip key={`${a}-absent`} style={{fontSize: 10, margin: 2}} label={a}/>))}
                 </div>
             </div>
             <div>
                 {traitements.map(traitement => (
-                    <div key={traitement.name} style={{fontSize: 10, marginBottom:4}}>
-                        {(traitement.teeth.length > 0 || traitement.acts.length > 0) &&<div style={{
+                    <div key={traitement.name} style={{fontSize: 10, marginBottom: 4}}>
+                        {(traitement.teeth.length > 0 || traitement.acts.length > 0) && <div style={{
                             display: 'flex',
                             marginBottom: 5,
                             alignItems: 'center'
@@ -140,18 +142,23 @@ export default function TeethPreview({...props}) {
                         </div>}
 
                         <div style={{
-                            marginBottom:5,
+                            marginBottom: 5,
                         }}>
-                            {traitement.teeth.map(a => (<Chip key={`${a}-absent`} style={{fontSize: 10,margin:1}} label={a}/>))}
+                            {traitement.teeth.map(a => (
+                                <Chip key={`${a}-absent`} style={{fontSize: 10, margin: 1}} label={a}/>))}
                         </div>
 
 
                         {traitement.acts.map((act, index) => (`${acts.find((a: {
-                        uuid: string;
-                    }) => a.uuid === act).act.name}${index === traitement.acts.length - 1 ? '' : ','}`))}
+                            uuid: string;
+                        }) => a.uuid === act).act.name}${index === traitement.acts.length - 1 ? '' : ','}`))}
 
 
-                        {traitement.note && <p style={{margin: 0, letterSpacing: 0.8, color: "gray"}}>{t('note')}: {traitement.note}</p>}
+                        {traitement.note && <p style={{
+                            margin: 0,
+                            letterSpacing: 0.8,
+                            color: "gray"
+                        }}>{t('note')}: {traitement.note}</p>}
                     </div>
                 ))}
             </div>
