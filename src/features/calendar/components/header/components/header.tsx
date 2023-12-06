@@ -72,7 +72,8 @@ function Header({...props}) {
                     <Stack direction='row' justifyContent='space-between' width={1}>
                         {(isGridWeek) ? (
                             <BadgeStyled
-                                badgeContent={!hasBlockedDay ? datEvents : <IconUrl path={"ic-banned"}/>}
+                                badgeContent={!hasBlockedDay ? datEvents :
+                                    <IconUrl width={14} height={14} path={"ic-banned"}/>}
                                 {...{'data-events': !hasBlockedDay ? datEvents : -1}}
                                 {...(date.format("DD/MM/YYYY") !== moment().format("DD/MM/YYYY") && {
                                     sx: {

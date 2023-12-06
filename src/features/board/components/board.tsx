@@ -30,7 +30,7 @@ const Header = styled.div`
   transition: background-color 0.2s ease;
 
   &:hover {
-    
+
   }
 `;
 
@@ -42,7 +42,7 @@ const Title = styled.h4`
   position: relative;
 
   &:focus {
-  
+
     outline-offset: 2px;
   }
 `;
@@ -145,7 +145,8 @@ function Board({...props}) {
         }
 
         // skip drag to 3 and 4 column
-        if (["4", "5"].includes(columns.find((column: any) => column.name === destination.droppableId).id)) {
+        const columnsId = columns.find((column: any) => column.name === destination.droppableId).id.split(',');
+        if (["4", "5"].some(id => columnsId.includes(id))) {
             return;
         }
 
