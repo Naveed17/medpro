@@ -5,7 +5,7 @@ import {useRouter} from "next/router";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {PDFDocument} from 'pdf-lib';
+import {degrees, PDFDocument} from 'pdf-lib';
 import {agendaSelector} from "@features/calendar";
 import {onOpenPatientDrawer, Otable} from "@features/table";
 import {NoDataCard} from "@features/card";
@@ -52,15 +52,14 @@ function InsuranceDocumentPrint({...props}) {
                         onSuccess: async (result: any) => {
                             const data = (result?.data as HttpResponse)?.data;
                             const docFile = await fetch(data.url).then((res) => res.arrayBuffer());
-                            const firstDonorPdfDoc = await PDFDocument.load(docFile);
-                            const [CNAMDocP1] = await pdfDoc.copyPages(firstDonorPdfDoc, [0]);
-                            const [CNAMDocP2] = await pdfDoc.copyPages(firstDonorPdfDoc, [1]);
-                            const [cnamPatientInfoP1] = await pdfDoc.embedPdf(docUpdated, [0]);
-                            const [cnamPatientInfoP2] = await pdfDoc.embedPdf(docUpdated, [1]);
-                            const page1 = pdfDoc.addPage(CNAMDocP1);
-                            page1.drawPage(cnamPatientInfoP1, {x: 0, y: 0});
-                            const page2 = pdfDoc.addPage(CNAMDocP2);
-                            page2.drawPage(cnamPatientInfoP2, {x: 0, y: 28});
+                            const insurancePdfDoc = await PDFDocument.load(docFile);
+                            const copiedPages = await pdfDoc.copyPages(insurancePdfDoc, insurancePdfDoc.getPageIndices());
+                            for (const page of copiedPages) {
+                                const index = copiedPages.indexOf(page);
+                                const [cnamPatientInfoPage] = await pdfDoc.embedPdf(docUpdated, [index]);
+                                pdfDoc.addPage(page).drawPage(cnamPatientInfoPage);
+                            }
+
                             const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
                             setFile(mergedPdf);
                         }
