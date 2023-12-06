@@ -57,6 +57,7 @@
     "pre_consultation_dialog_title": "Remplir les données de suivi de la consultation",
     "consultation_pay": "Payer",
     "leave_waiting_room": "Quitter la salle d'attente",
+    "add_waiting_room": "Ajouter le patient à la salle d'attente",
     "import_document": "Importer un document",
     "cancel_appointment": "Annuler RDV",
     "delete_appointment": "Supprimer RDV",
