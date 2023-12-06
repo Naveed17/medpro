@@ -270,15 +270,18 @@ function Consultation() {
                                         <Icon path="ic-phone"/>{patient?.contact[0]}
                                     </Typography>
                                 }
-                                <Typography variant="body2" sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    "& .react-svg": {mr: 0.8},
-                                    mb: 0.3,
-                                }} color="text.secondary">
-                                    <Icon
-                                        path="ic-anniverssaire"/> {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
-                                </Typography>
+                                {patient?.birthdate && <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                    <Icon path="ic-anniverssaire"/>
+                                    <Typography variant="body2" sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        "& .react-svg": {mr: 0.8},
+                                        mb: 0.3,
+                                    }} color="text.secondary">
+                                        {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
+                                    </Typography>
+
+                                </Stack>}
 
                                 {patient?.email && (
                                     <Typography

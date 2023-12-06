@@ -709,11 +709,11 @@ function ConsultationInProgress() {
         });
     }
 
-    const printGlasses = (info: any) => {
+    const printGlasses = (info: any,type:string) => {
         setInfo("document_detail");
         setState({
-            type: "glasses",
-            name: "glasses",
+            type,
+            name: type,
             info,
             createdAt: moment().format("DD/MM/YYYY"),
             patient: ` ${patient?.firstName} ${patient?.lastName}`,

@@ -665,7 +665,8 @@
     "pf": "Prescription finale",
     "len": "Lentille",
     "ac": "Acuité visuelle",
-    "pg": "Génerer ordonnance lunette",
+    "pg": "Lunette",
+    "lens": "Lentille",
     "ophtalmologiqueExam": "Examen Ophtalmologique",
     "pachymetry": "Pachymétrie  ( 445->645 )",
     "measuredTO": "TO mesurée ( 0->70)",
@@ -679,7 +680,8 @@
     "angiographie": "Angiographie",
     "other":"Autres",
     "tonus": "Examen de tonus",
-    "comp": "Examen complémentaire"
+    "comp": "Examen complémentaire",
+    "close": "Fermer"
   },
   "pediatrician": {
     "size": "Taille",
