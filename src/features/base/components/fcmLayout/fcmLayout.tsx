@@ -57,7 +57,7 @@ function FcmLayout({...props}) {
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
-    const {config: agendaConfig, selectedEvent: appointment} = useAppSelector(agendaSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
 

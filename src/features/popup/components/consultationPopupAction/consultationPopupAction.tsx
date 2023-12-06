@@ -14,13 +14,8 @@ import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined
 import PaymentRoundedIcon from '@mui/icons-material/PaymentRounded';
 import * as React from "react";
 import {useTranslation} from "next-i18next";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import {useState} from "react";
-import {useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector} from "@features/calendar";
 import {LoadingButton} from "@mui/lab";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -32,7 +27,6 @@ function ConsultationPopupAction({...props}) {
     const {data: session} = useSession();
 
     const {t, ready} = useTranslation("common");
-    const {config: agenda, selectedEvent: appointment} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
