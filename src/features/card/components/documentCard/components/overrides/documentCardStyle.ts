@@ -9,7 +9,7 @@ const DocumentCardStyled = styled(Card)(({theme}) => ({
     "& .sub-title": {
         textOverflow: "ellipsis",
         overflow: "hidden",
-        width: "10rem"
+        width: "4rem"
     },
     ".MuiCardContent-root": {
         '.btn-more': {
