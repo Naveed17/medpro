@@ -25,9 +25,8 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import {addPatientSelector, CustomInput, onSubmitPatient} from "@features/tabPanel";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useSession} from "next-auth/react";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import {styled} from "@mui/material/styles";
 import {DatePicker} from "@features/datepicker";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
@@ -39,9 +38,12 @@ import moment from "moment-timezone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {dashLayoutSelector} from "@features/base";
 import PhoneInput from "react-phone-number-input/input";
-import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
+import {useMedicalEntitySuffix, prepareInsurancesData, useMutateOnGoing} from "@lib/hooks";
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
+import {agendaSelector} from "@features/calendar";
+import {setDuplicated} from "@features/duplicateDetected";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -72,10 +74,12 @@ function AddPatientStep2({...props}) {
     const {insurances} = useInsurances();
     const {contacts} = useContactType();
     const {countries} = useCountries("nationality=true");
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
@@ -140,6 +144,7 @@ function AddPatientStep2({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const locations = agendaConfig?.locations;
 
     const formik = useFormik({
         initialValues: {
@@ -184,26 +189,20 @@ function AddPatientStep2({...props}) {
 
     const {values, handleSubmit, getFieldProps, setFieldValue, touched, errors} = formik;
 
-    const {data: httpStatesResponse} = useRequest(values.country ? {
+    const {trigger: triggerAddPatient} = useRequestQueryMutation("/patient/add");
+
+    const {data: httpStatesResponse} = useRequestQuery(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
-    const {trigger: triggerAddPatient} = useRequestMutation(null, "add-patient");
+    const {data: httpProfessionalLocationResponse} = useRequestQuery((locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
 
-    const {mutate: mutateOnGoing} = useAppSelector(dashLayoutSelector);
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
-
-    useEffect(() => {
-        if (countries) {
-            const defaultCountry = countries.find(country =>
-                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
-            setCountriesData(countries.sort((country: CountryModel) =>
-                dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
-            setFieldValue("nationality", defaultCountry);
-            setFieldValue("country", defaultCountry);
-        }
-    }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
+    const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state;
 
     const handleChange = (event: ChangeEvent | null, {...values}) => {
         setLoading(true);
@@ -223,7 +222,7 @@ function AddPatientStep2({...props}) {
             is_support: false
         }))));
         form.append('gender', gender);
-        if (birthdate) {
+        if (birthdate && birthdate.day.length > 0) {
             form.append('birthdate', `${birthdate.day}-${birthdate.month}-${birthdate.year}`);
         }
         form.append('address', JSON.stringify({
@@ -244,22 +243,24 @@ function AddPatientStep2({...props}) {
         medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
             data: form
-        }, TriggerWithoutValidation).then(
-            (res: any) => {
+        }, {
+            onSuccess: (res: any) => {
                 const {data} = res;
-                const {status} = data;
+                const {status, data: result} = data;
                 setLoading(false);
                 if (status === "success") {
-                    mutateOnGoing && mutateOnGoing();
-                    dispatch(onSubmitPatient(data.data));
+                    dispatch(onSubmitPatient(result.data));
+                    dispatch(setDuplicated({
+                        duplications: result.duplicated,
+                        duplicationSrc: result.data,
+                        duplicationInit: result.data
+                    }));
+                    mutateOnGoing();
                     onNext(2);
                 }
             }
-        );
+        });
     };
 
     const getCountryByCode = (code: string) => {
@@ -294,6 +295,24 @@ function AddPatientStep2({...props}) {
         insurance.splice(index, 1);
         formik.setFieldValue("insurance", insurance);
     };
+
+
+    useEffect(() => {
+        if (countries) {
+            const defaultCountry = countries.find(country =>
+                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
+            setCountriesData(countries.sort((country: CountryModel) =>
+                dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
+            setFieldValue("nationality", defaultCountry);
+            setFieldValue("country", defaultCountry);
+        }
+    }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (professionalState) {
+            setFieldValue("region", professionalState.uuid);
+        }
+    }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <FormikProvider value={formik}>

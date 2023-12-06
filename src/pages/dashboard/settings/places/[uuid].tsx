@@ -2,7 +2,7 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import * as Yup from "yup";
 import {Form, FormikProvider, useFormik} from "formik";
-import React, {ReactElement, useCallback, useEffect, useRef, useState} from "react";
+import React, {ReactElement, SyntheticEvent, useCallback, useEffect, useRef, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {
@@ -10,7 +10,7 @@ import {
     Button,
     Card,
     CardContent,
-    Collapse,
+    Collapse, DialogActions,
     FormControl,
     FormControlLabel,
     Grid,
@@ -21,7 +21,7 @@ import {
     Select,
     SelectChangeEvent,
     Stack,
-    Switch,
+    Switch, Tab, Tabs,
     TextField,
     Typography,
 } from "@mui/material";
@@ -31,26 +31,28 @@ import IconUrl from "@themes/urlIcon";
 import TimePicker from "@themes/overrides/TimePicker";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import dynamic from "next/dynamic";
 import {LatLngBoundsExpression} from "leaflet";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {styled} from "@mui/material/styles";
 import moment from "moment-timezone";
 import {DateTime} from "next-auth/providers/kakao";
 import {LoadingButton} from "@mui/lab";
-import {useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector} from "@features/calendar";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CountrySelect} from "@features/countrySelect";
 import {countries as dialCountries} from "@features/countrySelect/countries";
 import {DefaultCountry} from "@lib/constants";
-import {CustomInput} from "@features/tabPanel";
+import {CustomInput, TabPanel} from "@features/tabPanel";
 import PhoneInput from "react-phone-number-input/input";
 import {isValidPhoneNumber} from "libphonenumber-js";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {a11yProps, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useContactType} from "@lib/hooks/rest";
+import CloseIcon from "@mui/icons-material/Close";
+import {Dialog, resetOpeningData} from "@features/dialog";
+import {dialogOpeningHoursSelector} from "@features/dialog/components/openingHoursDialog";
 
 const Maps = dynamic(() => import("@features/maps/components/maps"), {
     ssr: false,
@@ -64,6 +66,9 @@ const FormStyled = styled(Form)(({theme}) => ({
             padding: theme.spacing(3, 2),
             paddingRight: theme.spacing(5),
         },
+    },
+    "& .MuiTabs-flexContainer": {
+        alignItems: "center"
     },
     "& .form-control": {
         "& .MuiInputBase-root": {
@@ -124,9 +129,13 @@ function PlacesDetail() {
     const phoneInputRef = useRef(null);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {contacts: contactTypes} = useContactType();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const dispatch = useAppDispatch();
 
     const {t} = useTranslation(["settings", "common"]);
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
+    const dialogOpeningHoursData = useAppSelector(dialogOpeningHoursSelector);
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -156,17 +165,15 @@ function PlacesDetail() {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const uuind = router.query.uuid;
 
-    const {trigger} = useRequestMutation(null, "/settings/place");
-    const {data, mutate} = useRequest(uuind !== "new" ? {
+    const {trigger: triggerPlaceUpdate} = useRequestQueryMutation("/settings/place/update");
+    const {data, mutate} = useRequestQuery(uuind !== "new" ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/locations/${uuind}/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `${urlMedicalEntitySuffix}/locations/${uuind}/${router.locale}`
     } : null);
 
-    const {data: httpStateResponse} = useRequest({
+    const {data: httpStateResponse} = useRequestQuery({
         method: "GET",
-        url: `/api/public/places/countries/${medical_entity.country.uuid}/state/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`},
+        url: `/api/public/places/countries/${medical_entity.country.uuid}/state/${router.locale}`
     });
 
     const [row, setRow] = useState<any>();
@@ -179,6 +186,8 @@ function PlacesDetail() {
     const [cities, setCities] = useState<LocationModel[]>([]);
     const [horaires, setHoraires] = useState<OpeningHoursModel[]>([
         {
+            title: "Créneau horaire",
+            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"],
             isMain: false,
             isVisible: false,
             openingHours: {
@@ -192,6 +201,8 @@ function PlacesDetail() {
             },
         },
     ]);
+    const [tabIndex, setTabIndex] = useState<number>(0);
+    const [openingHoursDialog, setOpeningHoursDialog] = useState<boolean>(false);
 
     const formik = useFormik({
         enableReinitialize: true,
@@ -249,22 +260,18 @@ function PlacesDetail() {
                 url = `${urlMedicalEntitySuffix}/locations/${router.locale}`;
             }
 
-            trigger({
-                    method,
-                    data: form,
-                    url,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                {revalidate: true, populateCache: true}
-            ).then((r: any) => {
-                if (r.status === 200 || r.status === 201) {
-                    mutate();
-                    agendaConfig?.mutate[0]();
-                    router.back();
-                    setLoading(false);
+            triggerPlaceUpdate({
+                method,
+                data: form,
+                url
+            }, {
+                onSuccess: (r: any) => {
+                    if (r.status === 200 || r.status === 201) {
+                        mutate();
+                        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`])
+                        router.back();
+                        setLoading(false);
+                    }
                 }
             });
         },
@@ -280,69 +287,57 @@ function PlacesDetail() {
     } = formik;
 
     const getCities = (state: string) => {
-        trigger(
-            {
-                method: "GET",
-                url: `/api/public/places/state/${state}/cities/${router.locale}`,
-                headers: {
-                    ContentType: "application/x-www-form-urlencoded",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            },
-            {revalidate: true, populateCache: true}
-        ).then((r: any) => {
-            setCities(r.data.data);
+        triggerPlaceUpdate({
+            method: "GET",
+            url: `/api/public/places/state/${state}/cities/${router.locale}`
+        }, {
+            onSuccess: (r: any) => {
+                setCities(r.data.data);
+            }
         });
-    };
+    }
 
     const initialCites = useCallback(
         (adr: any) => {
-            trigger(
-                {
-                    method: "GET",
-                    url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                {revalidate: true, populateCache: true}
-            ).then((r: any) => {
-                setCities(r.data.data);
-                setFieldValue("city", adr.address.city.uuid);
+            triggerPlaceUpdate({
+                method: "GET",
+                url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`
+            }, {
+                onSuccess: (r: any) => {
+                    setCities(r.data.data);
+                    setFieldValue("city", adr.address.city.uuid);
+                }
             });
-        },
-        [router, session, setFieldValue, trigger]
-    );
+        }, [router, setFieldValue, triggerPlaceUpdate]);
 
     const getCountryByCode = (code: string) => {
         return dialCountries.find(country => country.phone === code)
     }
 
     const apply = () => {
-        Object.keys(horaires[0].openingHours).forEach((day) => {
+        Object.keys(horaires[tabIndex].openingHours).forEach((day) => {
             if (day !== "MON") {
-                horaires[0].openingHours[day] = [];
+                horaires[tabIndex].openingHours[day] = [];
             }
         })
-        setAllDays(true)
-    };
+        setAllDays(true);
+    }
 
     const cleanData = () => {
-        Object.keys(horaires[0].openingHours).forEach((day) => {
-            horaires[0].openingHours[day] = horaires[0].openingHours[day].filter(
+        Object.keys(horaires[tabIndex].openingHours).forEach((day) => {
+            horaires[tabIndex].openingHours[day] = horaires[tabIndex].openingHours[day].filter(
                 (hour: { start_time: string; end_time: string }) =>
                     hour.start_time !== "Invalid date" && hour.end_time !== "Invalid date"
             );
         });
         setHoraires([...horaires]);
-    };
+    }
 
     const onChangeState = (event: SelectChangeEvent) => {
         setFieldValue("town", event.target.value);
         setFieldValue("city", "");
         getCities(event.target.value);
-    };
+    }
 
     const handleAddPhone = () => {
         const phones = [
@@ -357,13 +352,36 @@ function PlacesDetail() {
             }
         ];
         setFieldValue("phones", phones);
-    };
+    }
 
     const handleRemovePhone = (props: number) => {
         const phones = values.phones.filter((item, index) => index !== props);
         setFieldValue("phones", phones);
     }
 
+    const handleADDOpeningHours = () => {
+        setHoraires([
+            ...horaires,
+            {
+                title: dialogOpeningHoursData.name,
+                permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"],
+                isMain: false,
+                isVisible: false,
+                openingHours: {
+                    MON: [],
+                    TUE: [],
+                    WED: [],
+                    THU: [],
+                    FRI: [],
+                    SAT: [],
+                    SUN: []
+                },
+            }
+        ])
+        setTimeout(() => setTabIndex(horaires.length))
+        setOpeningHoursDialog(false);
+        dispatch(resetOpeningData());
+    }
 
     useEffect(() => {
         if (data !== undefined) {
@@ -375,6 +393,8 @@ function PlacesDetail() {
             });
             setHoraires([
                 {
+                    title: "Créneau horaire",
+                    permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"],
                     isMain: false,
                     isVisible: false,
                     openingHours: {
@@ -392,14 +412,14 @@ function PlacesDetail() {
     }, [data]);
 
     useEffect(() => {
-        const monday = [...horaires[0].openingHours["MON"]]
+        const monday = [...horaires[tabIndex].openingHours["MON"]]
 
         if (alldays) {
-            Object.keys(horaires[0].openingHours).forEach((day) => {
+            Object.keys(horaires[tabIndex].openingHours).forEach((day) => {
                 if (day !== "MON") {
                     monday.forEach((hour: any, index: number) => {
-                        horaires[0].openingHours[day] = [
-                            ...horaires[0].openingHours[day],
+                        horaires[tabIndex].openingHours[day] = [
+                            ...horaires[tabIndex].openingHours[day],
                             {
                                 start_time: monday[index].start_time,
                                 end_time: monday[index].end_time,
@@ -435,6 +455,8 @@ function PlacesDetail() {
 
             const hours = [
                 {
+                    title: "Créneau horaire",
+                    permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"],
                     isMain: false,
                     isVisible: false,
                     openingHours: {
@@ -831,13 +853,37 @@ function PlacesDetail() {
                             fontWeight={600}
                             marginBottom={2}
                             gutterBottom>
-                            {t("lieux.new.timeshedule")}
+                            {t("lieux.new.horaire")}
                         </Typography>
 
-                        {horaires.map((value: any, index) => (
-                            <div key={index}>
-                                <p>{value.uuid}</p>
-                                {Object.keys(value.openingHours).map((day: any, index) => (
+                        <Tabs
+                            value={tabIndex}
+                            onChange={(event: SyntheticEvent, newValue: number) => setTabIndex(newValue)}
+                            variant="scrollable"
+                            aria-label="basic tabs example"
+                            className="tabs-bg-white">
+                            {horaires.map((tabHeader, tabHeaderIndex) => (
+                                <Tab
+                                    key={`tabHeader-${tabHeaderIndex}`}
+                                    disableRipple
+                                    label={tabHeader.title}
+                                    {...a11yProps(tabHeaderIndex)}
+                                />)
+                            )}
+                            <Button
+                                onClick={() => setOpeningHoursDialog(true)}
+                                variant={"text"}
+                                startIcon={<AddIcon/>}
+                                size={"small"}
+                                sx={{ml: "auto", mr: '1rem', height: 30}}>{t("lieux.new.add-timeshedule")}</Button>
+                        </Tabs>
+                        {horaires.map((tabContent, tabContentIndex) => (
+                            <TabPanel
+                                key={`tabContent-${tabContentIndex}`}
+                                padding={1}
+                                value={tabIndex}
+                                index={tabContentIndex}>
+                                {Object.keys(tabContent.openingHours).map((day: any, index) => (
                                     <Card
                                         key={index}
                                         sx={{
@@ -867,26 +913,26 @@ function PlacesDetail() {
                                             <Switch
                                                 onChange={(e) => {
                                                     if (e.target.checked)
-                                                        value.openingHours[day].push({
+                                                        tabContent.openingHours[day].push({
                                                             start_time: "08:00",
                                                             end_time: "12:00",
                                                         });
-                                                    else value.openingHours[day] = [];
+                                                    else tabContent.openingHours[day] = [];
                                                     setHoraires([...horaires]);
                                                 }}
-                                                checked={value.openingHours[day].length > 0}
+                                                checked={tabContent.openingHours[day].length > 0}
                                             />
                                         </Box>
 
                                         <Collapse
-                                            in={value.openingHours[day].length > 0}
+                                            in={tabContent.openingHours[day].length > 0}
                                             sx={{
                                                 bgcolor: "common.white",
                                                 borderTop: "1px solid #C9C8C8",
                                             }}>
                                             <Paper
                                                 sx={{borderRadius: 0, border: "none", px: 1, my: 2}}>
-                                                {value.openingHours[day]?.map(
+                                                {tabContent.openingHours[day]?.map(
                                                     (hour: any, i: number) => (
                                                         <Grid
                                                             container
@@ -968,7 +1014,7 @@ function PlacesDetail() {
                                                                         }}
                                                                         startIcon={<IconUrl path="icdelete"/>}
                                                                         onClick={() => {
-                                                                            value.openingHours[day].splice(i, 1);
+                                                                            tabContent.openingHours[day].splice(i, 1);
                                                                             setHoraires([...horaires]);
                                                                         }}>
                                                                         {t("lieux.new.remove")}
@@ -983,7 +1029,7 @@ function PlacesDetail() {
                                                     <Grid item lg={6} md={6} sm={12} xs={12}>
                                                         <Button
                                                             onClick={() => {
-                                                                value.openingHours[day].push({
+                                                                tabContent.openingHours[day].push({
                                                                     start_time: "",
                                                                     end_time: "",
                                                                 });
@@ -1006,8 +1052,9 @@ function PlacesDetail() {
                                         </Collapse>
                                     </Card>
                                 ))}
-                            </div>
+                            </TabPanel>
                         ))}
+
 
                         <div style={{paddingBottom: "50px"}}></div>
 
@@ -1031,6 +1078,35 @@ function PlacesDetail() {
                     </FormStyled>
                 </FormikProvider>
             </Box>
+
+            <Dialog
+                action={"openingHours"}
+                {...{
+                    direction,
+                    sx: {
+                        padding: {xs: 1, md: 2}
+                    },
+                }}
+                open={openingHoursDialog}
+                data={{t}}
+                size={"md"}
+                title={t("lieux.new.add-horaire")}
+                dialogClose={() => setOpeningHoursDialog(false)}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => setOpeningHoursDialog(false)} startIcon={<CloseIcon/>}>
+                            {t("config.cancel", {ns: "common"})}
+                        </Button>
+                        <LoadingButton
+                            disabled={moment(dialogOpeningHoursData.startDate).diff(dialogOpeningHoursData.endDate) > 0 || dialogOpeningHoursData.name.length === 0}
+                            variant="contained"
+                            onClick={handleADDOpeningHours}
+                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            {t("config.save", {ns: "common"})}
+                        </LoadingButton>
+                    </DialogActions>
+                }
+            />
         </>
     );
 }

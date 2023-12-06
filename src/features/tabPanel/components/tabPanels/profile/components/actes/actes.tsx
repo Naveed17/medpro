@@ -1,36 +1,35 @@
-import { Chip, Paper, Stack, Typography } from "@mui/material";
+import {Chip, Stack, Typography} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import BasicAlert from "@themes/overrides/Alert";
-import { MultiSelect } from "@features/multiSelect";
-import React, { useEffect, useState } from "react";
+import {MultiSelect} from "@features/multiSelect";
+import React, {useEffect, useState} from "react";
 import AddIcon from "@mui/icons-material/Add";
-import { useTranslation } from "next-i18next";
+import {useTranslation} from "next-i18next";
 import Acte from "@interfaces/Acte";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 const actes: Acte[] = [
-    { id: 1, title: "Electrothérapie" },
-    { id: 2, title: "Physiothérapie" },
-    { id: 3, title: "Accouchement sans douleur" },
-    { id: 4, title: "Rééducation en traumatologie" },
-    { id: 5, title: "Sport médical" },
-    { id: 6, title: "Rééducation périnéale" },
-    { id: 7, title: "électrofitness" },
-    { id: 8, title: "Luminothérapie 7 couleurs" },
-    { id: 11, title: " sans douleur" },
-    { id: 12, title: " en traumatologie" },
-    { id: 14, title: "Rééducation " },
-    { id: 15, title: "électrofitnesxs" },
-    { id: 16, title: "Luminothérapie" },
+    {id: 1, title: "Electrothérapie"},
+    {id: 2, title: "Physiothérapie"},
+    {id: 3, title: "Accouchement sans douleur"},
+    {id: 4, title: "Rééducation en traumatologie"},
+    {id: 5, title: "Sport médical"},
+    {id: 6, title: "Rééducation périnéale"},
+    {id: 7, title: "électrofitness"},
+    {id: 8, title: "Luminothérapie 7 couleurs"},
+    {id: 11, title: " sans douleur"},
+    {id: 12, title: " en traumatologie"},
+    {id: 14, title: "Rééducation "},
+    {id: 15, title: "électrofitnesxs"},
+    {id: 16, title: "Luminothérapie"},
 ];
 
 function Actes() {
     const [mainActes, setMainActes] = useState<Acte[]>([]);
     const [secondaryActes, setSecondaryActes] = useState<Acte[]>([]);
-    const [selected, setSelected] = useState<Acte>({ id: 0, title: "" });
+    const [selected, setSelected] = useState<Acte>({id: 0, title: ""});
     const [suggestion, setSuggestion] = useState<any[]>([...actes]);
     const [alert, setAlert] = useState<boolean>(false);
     const [secAlert, setSecAlert] = useState<boolean>(false);
@@ -59,7 +58,7 @@ function Actes() {
     const onDrag = (prop: any) => (ev: any) => {
         ev.dataTransfer.setData("Text", ev.target.id);
         ev.effectAllowed = "copy";
-        setSelected({ ...prop });
+        setSelected({...prop});
     };
 
     const allowDrop = (ev: { preventDefault: () => void }) => {
@@ -84,7 +83,7 @@ function Actes() {
         setItems(val.slice(0, 10));
     };
 
-    const { t, ready } = useTranslation('editProfile', { keyPrefix: "steppers.stepper-2" });
+    const {t, ready} = useTranslation('editProfile', {keyPrefix: "steppers.stepper-2"});
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
@@ -233,7 +232,7 @@ function Actes() {
             >
                 {t("suggestion")}
             </Typography>
-            <Stack direction="row" flexWrap="wrap" sx={{ bgcolor: "transparent" }}>
+            <Stack direction="row" flexWrap="wrap" sx={{bgcolor: "transparent"}}>
                 {suggestion.map((v) => (
                     <Chip
                         key={v.id}
@@ -245,7 +244,7 @@ function Actes() {
                         onDragStart={onDrag(v)}
                         onClick={onClickChip(v)}
                         onDelete={onClickChip(v)}
-                        deleteIcon={<AddIcon />}
+                        deleteIcon={<AddIcon/>}
                         sx={{
                             bgcolor: (theme) => theme.palette.grey["A300"],
                             filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",

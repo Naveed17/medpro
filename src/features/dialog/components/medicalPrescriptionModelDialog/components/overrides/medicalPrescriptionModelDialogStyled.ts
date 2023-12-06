@@ -1,14 +1,16 @@
 import {Stack} from "@mui/material";
-import {styled} from "@mui/material/styles";
+import {PaletteColor, styled} from "@mui/material/styles";
 
-const MedicalPrescriptionModelDialogStyled = styled(Stack)(({theme}) => ({
-    "& .Mui-checked": {
-        svg: {
-            path: {
-                fill: theme.palette.primary.main
-            }
-        },
-    },
+const MedicalPrescriptionModelDialogStyled = styled(Stack)(({theme, ...styleprops}) => ({
+    ...(styleprops?.color && {
+        "& .Mui-checked": {
+            svg: {
+                path: {
+                    fill: (theme.palette[styleprops.color as keyof typeof theme.palette] as PaletteColor).main
+                }
+            },
+        }
+    }),
     "& .MuiListItem-root": {
         paddingTop: 0,
         paddingBottom: 0
@@ -18,9 +20,11 @@ const MedicalPrescriptionModelDialogStyled = styled(Stack)(({theme}) => ({
         svg: {
             width: 16,
             height: 16,
-            path: {
-                fill: theme.palette.primary.main,
-            },
+            ...(styleprops?.color && {
+                path: {
+                    fill: (theme.palette[styleprops.color as keyof typeof theme.palette] as PaletteColor).main,
+                }
+            })
         },
     },
 }));

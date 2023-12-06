@@ -5,19 +5,20 @@ import {
     Badge,
     Box,
     Button,
+    Checkbox,
     Chip,
     IconButton,
     Skeleton,
     Stack,
-    styled,
+    Theme,
     Tooltip,
-    Typography
+    Typography, useTheme
 } from "@mui/material";
-import {onOpenPatientDrawer, TableRowStyled} from "@features/table";
+import {onOpenPatientDrawer, TableRowStyled, setSelectedRows, tableActionSelector} from "@features/table";
 import IconUrl from "@themes/urlIcon";
 import moment from "moment-timezone";
 // redux
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import Zoom from 'react-medium-image-zoom'
@@ -25,48 +26,67 @@ import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
 import {useProfilePhoto} from "@lib/hooks/rest";
-import {ImageHandler} from "@features/image";
-
-const SmallAvatar = styled(Avatar)(({theme}) => ({
-    width: 20,
-    height: 20,
-    borderRadius: 20,
-    border: `2px solid ${theme.palette.background.paper}`
-}));
+import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import {SmallAvatar} from "@features/avatar";
 
 function PatientRow({...props}) {
-    const {row, isItemSelected, t, loading, handleEvent, data} = props;
+    const {row, isItemSelected, t, loading, handleEvent, data, handleClick, selected} = props;
     const {insurances} = data;
     const dispatch = useAppDispatch();
+    const theme = useTheme() as Theme;
+
     const {patientPhoto} = useProfilePhoto({patientId: row?.uuid, hasPhoto: row?.hasPhoto});
+    const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
+
+    const handlePatientRowClick = (event: any) => {
+        event.stopPropagation();
+        dispatch(onOpenPatientDrawer({
+            patientId: row.uuid,
+            patientAction: "PATIENT_DETAILS",
+        }));
+        handleEvent("PATIENT_DETAILS", row);
+    }
+
+    const handleCheckItem = (isItemSelected: boolean, row: PatientModel) => {
+        if (isItemSelected) {
+            dispatch(setSelectedRows([...rowsSelected, row]))
+        } else {
+            dispatch(setSelectedRows(rowsSelected.filter((item: any) => item.uuid !== row.uuid)))
+        }
+    }
 
     return (
         <TableRowStyled
             hover
-            onClick={(event: any) => {
-                event.stopPropagation();
-                dispatch(
-                    onOpenPatientDrawer({
-                        patientId: row.uuid,
-                        patientAction: "PATIENT_DETAILS",
-                    })
-                );
-                handleEvent("PATIENT_DETAILS", row);
-            }}
             role="checkbox"
             aria-checked={isItemSelected}
             tabIndex={-1}
-            selected={isItemSelected}
-        >
+            selected={isItemSelected}>
+            <TableCell padding="checkbox">
+                {loading ? (
+                    <Skeleton variant="circular" width={28} height={28}/>
+                ) : (
+                    <Checkbox
+                        color="primary"
+                        checked={selected.some((uuid: any) => uuid === row.uuid)}
+                        inputProps={{
+                            "aria-labelledby": row.uuid,
+                        }}
+                        onChange={(ev) => {
+                            ev.stopPropagation();
+                            handleClick(row.uuid);
+                            handleCheckItem(ev.target.checked, row);
+                        }}
+                    />
+                )}
+            </TableCell>
             <TableCell
-                onClick={(event: any) => {
-                    event.stopPropagation();
-                }}>
+                onClick={handlePatientRowClick}>
                 <Box
                     display="flex"
                     alignItems="center"
-                    sx={{img: {borderRadius: "4px"}, minWidth: 200}}
-                >
+                    sx={{img: {borderRadius: "4px"}, minWidth: 200}}>
                     <Box ml={1}>
                         <Typography
                             variant="body1"
@@ -89,7 +109,21 @@ function PatientRow({...props}) {
                                         anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
                                         {...(row.nationality && {
                                             badgeContent:
-                                                <Tooltip title={row.nationality.nationality}>
+                                                <AvatarGroup>
+                                                    {row.hasDouble && <SmallAvatar
+                                                        sx={{
+                                                            background: theme.palette.warning.main
+                                                        }}>
+                                                        <WarningRoundedIcon
+                                                            color={"black"}
+                                                            sx={{
+                                                                width: 16,
+                                                                height: 16,
+                                                                marginLeft: .5,
+                                                                marginTop: -0.2
+                                                            }}/>
+                                                    </SmallAvatar>}
+
                                                     <SmallAvatar
                                                         {...(row.hasPhoto && {
                                                             sx: {
@@ -98,13 +132,11 @@ function PatientRow({...props}) {
                                                         })}
                                                         alt={"flag"}
                                                         src={`https://flagcdn.com/${row.nationality.code}.svg`}/>
-                                                </Tooltip>
-                                        })}
-                                    >
+                                                </AvatarGroup>
+                                        })}>
                                         <ConditionalWrapper
                                             condition={row.hasPhoto}
-                                            wrapper={(children: any) => <Zoom>{children}</Zoom>}
-                                        >
+                                            wrapper={(children: any) => <Zoom>{children}</Zoom>}>
                                             <Fragment>
                                                 <Avatar
                                                     {...(row.hasPhoto && {className: "zoom"})}
@@ -152,8 +184,7 @@ function PatientRow({...props}) {
                                             variant="body2"
                                             component="span"
                                             color="text.secondary"
-                                            className="text-time"
-                                        >
+                                            className="text-time">
                                             {loading ? (
                                                 <Skeleton variant="text" width={100}/>
                                             ) : (
@@ -173,20 +204,21 @@ function PatientRow({...props}) {
             <TableCell>
                 {loading ? <Skeleton variant="text"/> : (
                     <Stack direction={"row"} alignItems={"center"}>
-                        {row.insurances.length > 0 ?
+                        {row?.insurances?.length > 0 ?
                             <AvatarGroup sx={{"& .MuiAvatarGroup-avatar": {width: 24, height: 24}}} max={3}>
                                 {row.insurances.map((insuranceItem: any, index: number) =>
                                     <Tooltip key={index} title={insuranceItem?.insurance.name}>
                                         <Avatar variant={"circular"}>
                                             {insurances?.find((insurance: any) => insurance.uuid === insuranceItem?.insurance.uuid) &&
-                                                <ImageHandler
-                                                    alt={insuranceItem?.name}
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    style={{width: 20, height: 20}}
                                                     src={insurances.find(
                                                         (insurance: any) =>
                                                             insurance.uuid ===
                                                             insuranceItem?.insurance.uuid
                                                     ).logoUrl.url}
-                                                />}
+                                                    alt={insuranceItem?.name}/>}
                                         </Avatar>
                                     </Tooltip>
                                 )}
@@ -201,7 +233,7 @@ function PatientRow({...props}) {
                         <Skeleton variant="text" width={100}/>
                     ) : (
                         <>
-                            {(row.contact.length > 0 ? <Stack direction={"row"}>
+                            {(row?.contact?.length > 0 ? <Stack direction={"row"}>
                                 {row.contact[0].code &&
                                     <Typography variant={"body2"} color={"primary"}
                                                 sx={{ml: 0.6}}>({row.contact[0].code})</Typography>
@@ -235,7 +267,6 @@ function PatientRow({...props}) {
                                             patient: row,
                                             motif: row.nextAppointment.consultationReasons,
                                             description: "",
-                                            meeting: false,
                                             dur: row.nextAppointment.duration,
                                             status: AppointmentStatus[row.nextAppointment.status]
                                         }
@@ -364,95 +395,39 @@ function PatientRow({...props}) {
                 </Box>
             </TableCell>
 
-            <TableCell align="right" sx={{
-                display: "flex",
-                alignItems: "center",
-                minHeight: "58.85px",
-            }}>
-                {loading ? (
-                    <>
-                        <Skeleton
-                            variant="circular"
-                            width={22}
-                            height={22}
-                            sx={{ml: 1}}
-                        />
-                        <Skeleton variant="text" width={60} sx={{ml: 1}}/>
-                        <Skeleton variant="text" width={60}/>
-                    </>
-                ) : (
-                    <>
-                        <Box className="lg-down">
-                            <Button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    dispatch(
-                                        onOpenPatientDrawer({
-                                            patientId: row.uuid,
-                                            patientAction: "PATIENT_DETAILS",
-                                        })
-                                    );
-                                    handleEvent("PATIENT_DETAILS", row);
-                                }}
-                                size="small"
-                                startIcon={<IconUrl path="/ic-voir"/>}
-                            >
-                                {t("table.see-card")}
-                            </Button>
-                            {/*                            <Button
-                                size="small"
-                                sx={{
-                                    ml: 0.6
-                                }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    dispatch(
-                                        onOpenPatientDrawer({
-                                            patientId: row.uuid,
-                                            patientAction: "EDIT_PATIENT",
-                                        })
-                                    );
-                                    handleEvent("EDIT_PATIENT", row);
-                                }}
-                                startIcon={<Icon color={theme.palette.primary.main} path="setting/edit"/>}
-                            >
-                                {t("table.edit")}
-                            </Button>*/}
-                        </Box>
-                        <Box className="lg-up">
+            <TableCell
+                align="right"
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    minHeight: "58.85px",
+                }}>
+                <Box display="flex" alignItems="center" margin={"auto"}>
+                    {loading ? (
+                        <>
+                            <Skeleton
+                                variant="circular"
+                                width={22}
+                                height={22}
+                                sx={{ml: 1}}
+                            />
+                            <Skeleton variant="text" width={60} sx={{ml: 1}}/>
+                            <Skeleton variant="text" width={60}/>
+                        </>
+                    ) : (
+                        <Tooltip title={t('more')}>
                             <IconButton
-                                size="small"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    dispatch(
-                                        onOpenPatientDrawer({
-                                            patientId: row.uuid,
-                                            patientAction: "PATIENT_DETAILS",
-                                        })
-                                    );
-                                    handleEvent("PATIENT_DETAILS", row);
+                                disabled={loading}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleEvent("OPEN-POPOVER", row, event);
                                 }}
-                            >
-                                <IconUrl path="/ic-voir"/>
+                                size="small">
+                                <MoreVertIcon/>
                             </IconButton>
-                            {/*                         <IconButton
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    dispatch(
-                                        onOpenPatientDrawer({
-                                            patientId: row.uuid,
-                                            patientAction: "EDIT_PATIENT",
-                                        })
-                                    );
-                                    handleEvent("EDIT_PATIENT", row);
-                                }}
-                                size="small"
-                            >
-                                <Icon color={theme.palette.primary.main} path="setting/edit"/>
-                            </IconButton>*/}
-                        </Box>
-                    </>
-                )}
+                        </Tooltip>
+                    )}
+                </Box>
             </TableCell>
         </TableRowStyled>
     );

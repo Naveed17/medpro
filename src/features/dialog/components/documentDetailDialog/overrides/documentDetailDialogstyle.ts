@@ -1,13 +1,29 @@
-import { Stack } from "@mui/material";
-import { styled } from "@mui/material/styles";
-const DocumentDetailDialogStyled = styled(Stack)(({ theme }) => ({
+import {Stack} from "@mui/material";
+import {styled} from "@mui/material/styles";
+
+const DocumentDetailDialogStyled = styled(Stack)(({theme}) => ({
     maxWidth: 1231,
     backgroundColor: theme.palette.background.default,
     paddingTop: theme.spacing(2),
     width: "100%",
-    ".zoombar":{
-       background:"white",
-       marginBottom: 10
+    "& .loading-card": {
+        position: "absolute",
+        zIndex: 3,
+        left: 10,
+        width: 240,
+        "& .MuiCardContent-root": {
+            padding: 12
+        }
+    },
+    "& .textLayer :is(span, br)": {
+        color: "black"
+    },
+    ".zoombar": {
+        background: "white",
+        marginBottom: 10
+    },
+    "&.MuiStack-root": {
+        maxWidth: 1400
     },
     ".sidebar": {
         ".MuiList-root": {
@@ -25,13 +41,13 @@ const DocumentDetailDialogStyled = styled(Stack)(({ theme }) => ({
                         svg: {
                             width: 18,
                             height: 18,
-                            path: { fill: theme.palette.text.primary }
+                            path: {fill: theme.palette.text.primary}
                         }
                     },
                     '&.btn-delete': {
                         color: theme.palette.error.main,
                         svg: {
-                            path: { fill: theme.palette.error.main }
+                            path: {fill: theme.palette.error.main}
                         }
                     },
                     "& .MuiOutlinedInput-root": {

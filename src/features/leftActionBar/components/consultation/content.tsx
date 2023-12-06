@@ -16,13 +16,12 @@ import ContentStyled from "./overrides/contantStyle";
 import CircleIcon from "@mui/icons-material/Circle";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Add from "@mui/icons-material/Add";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
 import {pxToRem} from "@themes/formatFontSize";
-import {consultationSelector} from "@features/toolbar/components/consultationIPToolbar/selectors";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
@@ -31,32 +30,30 @@ import moment from "moment/moment";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import {SetSelectedApp} from "@features/toolbar";
 import Antecedent from "@features/leftActionBar/components/consultation/antecedent";
-import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {Theme} from "@mui/material/styles";
 import {LoadingButton} from "@mui/lab";
 import {DocumentCard} from "@features/card";
 import {onOpenPatientDrawer} from "@features/table";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {useSWRConfig} from "swr";
 import useDocumentsPatient from "@lib/hooks/rest/useDocumentsPatient";
+import {useAntecedentTypes} from "@lib/hooks/rest";
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 const Content = ({...props}) => {
-    const {id, patient, patientAntecedents, allAntecedents, analyses, mi} = props;
+    const {id, patient, url} = props;
     const dispatch = useAppDispatch();
     const {data: session, status} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {allAntecedents} = useAntecedentTypes();
+    const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {mutate: mutateInfo, mutateDoc} = useAppSelector(consultationSelector);
-    const {mutate} = useSWRConfig();
-    const {patientDocuments, mutatePatientDocuments} = useDocumentsPatient({patientId: patient?.uuid});
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState("");
@@ -68,11 +65,54 @@ const Content = ({...props}) => {
     const [openRemove, setOpenRemove] = useState(false);
     const [document, setDocument] = useState<any>();
     const [openDialogDoc, setOpenDialogDoc] = useState<boolean>(false);
+    const [treatements, setTreatements] = useState([]);
+    const [ordonnaces, setOrdonnaces] = useState([]);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {trigger} = useRequestMutation(null, "/antecedent");
+    const {trigger: triggerAntecedentCreate} = useRequestQueryMutation("/antecedent/create");
+    const {trigger: triggerAntecedentUpdate} = useRequestQueryMutation("/antecedent/update");
+
+    const {
+        data: httpAntecedents,
+        mutate: mutateAntecedents
+    } = useRequestQuery([4, 6, 7].includes(id) && medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`
+    } : null);
+
+    const {data: httpPatientAnalyses, mutate: mutateAnalyses} = useRequestQuery(id === 9 && medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`
+    } : null);
+
+    const {data: httpPatientMI, mutate: mutateMi} = useRequestQuery(id === 5 && medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`
+    } : null);
+
+    const {data: httpTreatment, mutate: mutateTreatment} = useRequestQuery(id === 1 && medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/treatments/${router.locale}`
+    } : null);
+
+    const patientAntecedents = (httpAntecedents as HttpResponse)?.data;
+    const analyses = (httpPatientAnalyses as HttpResponse)?.data ?? [];
+    const mi = (httpPatientMI as HttpResponse)?.data ?? [];
+
+    useEffect(() => {
+        if (httpTreatment) {
+            const res = (httpTreatment as HttpResponse).data
+            setTreatements(res.filter((traitment: { isOtherProfessional: boolean }) => traitment.isOtherProfessional))
+            setOrdonnaces(res.filter((traitment: { isOtherProfessional: boolean }) => !traitment.isOtherProfessional))
+        }
+
+    }, [httpTreatment])
+
+    const mutatePatient = () => {
+        invalidateQueries([url]);
+    }
 
     const getTitle = () => {
         const info = allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic);
@@ -94,82 +134,84 @@ const Content = ({...props}) => {
     const handleCloseDialog = () => {
         const form = new FormData();
         if (allAntecedents.find((ant: { slug: any; }) => ant.slug === infoDynamic)) {
-            form.append("antecedents", JSON.stringify(state));
+
+            let _res: any[] = []
+            state.forEach((item: any) => {
+                item.data.forEach((data: any) => {
+                    _res.push({
+                        ...data,
+                        uuid: item.uuid,
+                    })
+                })
+            })
+
+            form.append("antecedents", JSON.stringify(_res));
             form.append("patient_uuid", patient.uuid);
-            medicalEntityHasUser && trigger({
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
-                        slug: any;
-                    }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
-                    data: form,
-                    headers: {
-                        ContentType: "multipart/form-data",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                {revalidate: true, populateCache: true}
-            ).then(() => {
-                mutateInfo();
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+            medicalEntityHasUser && triggerAntecedentCreate({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
+                    slug: any;
+                }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
+                data: form
+            }, {
+                onSuccess: () => {
+                    mutatePatient();
+                    medicalEntityHasUser && mutateAntecedents()
+                    setState([]);
+                }
             });
         } else if (info === "add_treatment") {
             form.append("globalNote", "");
             form.append("isOtherProfessional", "true");
             form.append("drugs", JSON.stringify(state));
-            trigger(
-                {
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
-                    data: form,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                {revalidate: true, populateCache: true}
-            ).then(() => {
-                mutateInfo();
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-                setState([]);
+            triggerAntecedentCreate({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescriptions/${router.locale}`,
+                data: form
+            }, {
+                onSuccess: () => {
+                    mutatePatient();
+                    medicalEntityHasUser && mutateTreatment()
+                    setState([]);
+                }
             });
         } else if (info === "balance_sheet_pending") {
             form.append("analysesResult", JSON.stringify((state as any).hasAnalysis));
-
-            trigger(
-                {
-                    method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/appointments/${
-                        router.query["uuid-consultation"]
-                    }/requested-analysis/${(state as any).uuid}/${router.locale}`,
-                    data: form,
-                    headers: {
-                        ContentType: "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${session?.accessToken}`,
-                    },
-                },
-                {revalidate: true, populateCache: true}
-            ).then(() => {
-                mutateInfo();
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+            triggerAntecedentUpdate({
+                method: "PUT",
+                url: `${urlMedicalEntitySuffix}/appointments/${
+                    router.query["uuid-consultation"]
+                }/requested-analysis/${(state as any).uuid}/${router.locale}`,
+                data: form
+            }, {
+                onSuccess: () => {
+                    mutatePatient();
+                    if (medicalEntityHasUser) {
+                        mutateAnalyses()
+                    }
+                }
             });
         } else if (info === "medical_imaging_pending") {
-            mutateInfo();
-            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-            mutateDoc();
+            mutatePatient();
+            mutateMi()
         }
+
 
         setOpenDialog(false);
         setInfo("");
         setInfoDynamic("");
+
     };
 
     const dialogSave = () => {
-        trigger(selected.request, {revalidate: true, populateCache: true}).then(
-            () => {
-                mutateInfo();
-                medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+        triggerAntecedentUpdate(selected.request, {
+            onSuccess: () => {
+                mutatePatient();
+                if (medicalEntityHasUser) {
+                    mutateTreatment()
+                }
             }
-        );
+        });
         setOpenRemove(false);
     };
 
@@ -181,16 +223,42 @@ const Content = ({...props}) => {
             return;
         }
 
-        if (Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
+        if (patientAntecedents && Object.keys(patientAntecedents).find(key => key === action)) {
+            setState(getRes(patientAntecedents[action]));
+        }
 
         setInfo(action);
         setInfoDynamic(action)
+        if (action === 'add_traitment')
+            setSize("sm");
         setSize("sm");
         handleClickDialog();
-    };
+    }
 
+    const handleClose = () => {
+        setOpenDialog(false);
+        setInfo("");
+        setInfoDynamic("");
+        setState([]);
+    }
+
+    const getRes = (ants: any[]) => {
+        let _res: any[] = [];
+        ants.forEach(pa => {
+            const index = _res.findIndex(r => r.uuid === pa.antecedent.uuid)
+            index === -1 ?
+                _res.push({
+                    uuid: pa.antecedent.uuid,
+                    data: [pa]
+                }) : _res[index].data = [..._res[index].data, pa]
+        })
+        return _res;
+    }
     const handleOpenDynamic = (action: string) => {
-        if (Object.keys(patientAntecedents).find(key => key === action)) setState(patientAntecedents[action]);
+        if (patientAntecedents && Object.keys(patientAntecedents).find(key => key === action)) {
+
+            setState(getRes(patientAntecedents[action]));
+        }
         setInfo("dynamicAnt");
         setInfoDynamic(action);
         setSize("sm");
@@ -212,7 +280,8 @@ const Content = ({...props}) => {
                 patient: `${type} ${
                     patient.firstName
                 } ${patient.lastName}`,
-                birthdate:patient?.birthdate,
+                birthdate: patient?.birthdate,
+                cin: patient?.idCard,
                 days: card.days,
                 description: card.description,
                 createdAt: card.createdAt,
@@ -253,18 +322,19 @@ const Content = ({...props}) => {
                 patient: `${type} ${
                     patient.firstName
                 } ${patient.lastName}`,
+                cin: patient?.idCard ? patient?.idCard : "",
                 mutate: mutatePatientDocuments,
             });
             setOpenDialogDoc(true);
         }
-    };
+    }
 
-    const treatements = patient?.treatment.filter((trait: {
-        isOtherProfessional: boolean;
-    }) => trait.isOtherProfessional)
-    const ordonnaces = patient?.treatment.filter((trait: {
-        isOtherProfessional: boolean;
-    }) => !trait.isOtherProfessional)
+    /*    const treatements = patient?.treatment.filter((trait: {
+            isOtherProfessional: boolean;
+        }) => trait.isOtherProfessional)
+        const ordonnaces = patient?.treatment.filter((trait: {
+            isOtherProfessional: boolean;
+        }) => !trait.isOtherProfessional)*/
 
     if (!ready || status === "loading") return (
         <LoadingScreen color={"error"} button text={"loading-error"}/>);
@@ -302,12 +372,7 @@ const Content = ({...props}) => {
                                                         name2: `${list.duration ? list.duration : ''} ${list.durationType ? t(list.durationType) : ''}`,
                                                         request: {
                                                             method: "PATCH",
-                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
-                                                            headers: {
-                                                                ContentType:
-                                                                    "application/x-www-form-urlencoded",
-                                                                Authorization: `Bearer ${session?.accessToken}`,
-                                                            },
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`
                                                         },
                                                     });
                                                     setOpenRemove(true);
@@ -342,12 +407,7 @@ const Content = ({...props}) => {
                                                         name2: `${list.duration} ${t(list.durationType)}`,
                                                         request: {
                                                             method: "PATCH",
-                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`,
-                                                            headers: {
-                                                                ContentType:
-                                                                    "application/x-www-form-urlencoded",
-                                                                Authorization: `Bearer ${session?.accessToken}`,
-                                                            },
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/prescription-has-drugs/${list.uuid}/${router.locale}`
                                                         },
                                                     });
                                                     setOpenRemove(true);
@@ -519,12 +579,7 @@ const Content = ({...props}) => {
                                                         ),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
-                                                            headers: {
-                                                                ContentType:
-                                                                    "application/x-www-form-urlencoded",
-                                                                Authorization: `Bearer ${session?.accessToken}`,
-                                                            },
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`
                                                         },
                                                     });
                                                     setOpenRemove(true);
@@ -607,12 +662,7 @@ const Content = ({...props}) => {
                                                         ),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`,
-                                                            headers: {
-                                                                ContentType:
-                                                                    "application/x-www-form-urlencoded",
-                                                                Authorization: `Bearer ${session?.accessToken}`,
-                                                            },
+                                                            url: `${urlMedicalEntitySuffix}/appointments/${router.query["uuid-consultation"]}/requested-analysis/${ra.uuid}/${router.locale}`
                                                         },
                                                     });
                                                     setOpenRemove(true);
@@ -635,8 +685,8 @@ const Content = ({...props}) => {
                             patientAntecedents,
                             t,
                             patient,
-                            trigger,
-                            mutate: mutateInfo,
+                            trigger: triggerAntecedentUpdate,
+                            mutate: mutatePatient,
                             session,
                             setSelected,
                             setOpenRemove,
@@ -653,8 +703,8 @@ const Content = ({...props}) => {
                             patientAntecedents,
                             t,
                             patient,
-                            trigger,
-                            mutate: mutateInfo,
+                            trigger: triggerAntecedentUpdate,
+                            mutate: mutatePatient,
                             session,
                             setSelected,
                             setOpenRemove,
@@ -734,12 +784,7 @@ const Content = ({...props}) => {
                                                         ).format("MMM DD/YYYY"),
                                                         request: {
                                                             method: "DELETE",
-                                                            url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${ri.uuid}/${router.locale}`,
-                                                            headers: {
-                                                                ContentType:
-                                                                    "application/x-www-form-urlencoded",
-                                                                Authorization: `Bearer ${session?.accessToken}`,
-                                                            },
+                                                            url: `${urlMedicalEntitySuffix}/appointment/${router.query["uuid-consultation"]}/medical-imaging/${ri.uuid}/${router.locale}`
                                                         },
                                                     });
                                                     setOpenRemove(true);
@@ -805,9 +850,9 @@ const Content = ({...props}) => {
                                     allAntecedents,
                                     t,
                                     patient,
-                                    trigger,
+                                    trigger: triggerAntecedentUpdate,
                                     index,
-                                    mutate: mutateInfo,
+                                    mutate: mutatePatient,
                                     session,
                                     setSelected,
                                     setOpenRemove,
@@ -853,6 +898,7 @@ const Content = ({...props}) => {
                 <Dialog
                     action={info}
                     open={openDialog}
+                    fullWidth
                     data={{
                         state: state,
                         setState: setState,
@@ -866,24 +912,17 @@ const Content = ({...props}) => {
                     direction={direction}
                     actions={true}
                     title={getTitle()}
-                    dialogClose={() => {
-                        setOpenDialog(false);
-                        setInfo("");
-                        setInfoDynamic("");
-                    }}
+                    dialogClose={handleClose}
                     actionDialog={
                         <DialogActions>
                             <Button
-                                onClick={() => {
-                                    setOpenDialog(false);
-                                    setInfo("");
-                                    setInfoDynamic("");
-                                }}
+                                onClick={handleClose}
                                 startIcon={<CloseIcon/>}>
                                 {t("cancel")}
                             </Button>
                             <Button
                                 variant="contained"
+                                disabled={info === "add_treatment" && state?.length == 0}
                                 onClick={handleCloseDialog}
                                 startIcon={<Icon path="ic-dowlaodfile"/>}>
                                 {t("save")}

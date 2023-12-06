@@ -4,6 +4,7 @@ const CIPPatientHistoryCardStyled = styled(Stack)(({ theme }) => ({
   ".time-line": {
     position: "relative",
     minWidth: 32,
+    top:10,
     ".expand-btn": {
       backgroundColor: theme.palette.primary.light,
       padding: theme.spacing(0.5),

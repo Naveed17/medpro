@@ -252,11 +252,11 @@ export default function Button(theme) {
               },
             },
             "&:hover": {
-              boxShadow: theme.shadows[4],
+              boxShadow: theme.shadows[0],
               backgroundColor: theme.palette.common.white,
             },
             "&:active,&:focus": {
-              backgroundColor: theme.palette.primary.dark,
+              backgroundColor: "transparent",
             },
           },
         },

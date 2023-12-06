@@ -7,7 +7,6 @@ interface innerPatientDetailsRDV {
   status: string;
   borderColor: string;
   motif: string;
-  meeting: boolean;
 }
 interface PatientDetailsRDV {
   title: string;

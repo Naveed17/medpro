@@ -1,6 +1,6 @@
 import {createReducer} from '@reduxjs/toolkit';
 import {
-    openDrawer, setAction,
+    openDrawer, setAbsences, setAction,
     setAgendas, setAppointmentTypes,
     setConfig,
     setCurrentDate,
@@ -16,8 +16,10 @@ export type CalendarProps = {
     view: string | undefined;
     openViewDrawer: boolean;
     openAddDrawer: boolean;
+    openAbsenceDrawer: boolean;
     openMoveDrawer: boolean;
     openPatientDrawer: boolean;
+    openPayDialog: boolean;
     currentStepper: number;
     config: AgendaConfigurationModel | null;
     agendas: AgendaConfigurationModel[];
@@ -26,6 +28,7 @@ export type CalendarProps = {
     selectedEvent: EventDef | null;
     actionSet: any | null;
     sortedData: GroupEventsModel[];
+    absences: AppointmentModel[];
     appointmentTypes: AppointmentTypeModel[];
     lastUpdateNotification: { title: string, body: string } | null;
 };
@@ -34,8 +37,10 @@ const initialState: CalendarProps = {
     view: 'timeGridWeek',
     openViewDrawer: false,
     openAddDrawer: false,
+    openAbsenceDrawer: false,
     openPatientDrawer: false,
     openMoveDrawer: false,
+    openPayDialog: false,
     currentStepper: 0,
     config: null,
     actionSet: null,
@@ -44,6 +49,7 @@ const initialState: CalendarProps = {
     currentDate: {date: new Date(), fallback: false},
     selectedEvent: null,
     sortedData: [],
+    absences: [],
     appointmentTypes: [],
     lastUpdateNotification: null
 };
@@ -61,6 +67,12 @@ export const AgendaReducer = createReducer(initialState, builder => {
                 break;
             case "move":
                 state.openMoveDrawer = action.payload.open;
+                break;
+            case "pay":
+                state.openPayDialog = action.payload.open;
+                break;
+            case "absence":
+                state.openAbsenceDrawer = action.payload.open;
                 break;
             default:
                 state.openAddDrawer = action.payload.open;
@@ -82,6 +94,8 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.selectedEvent = action.payload;
     }).addCase(setGroupedByDayAppointments, (state, action) => {
         state.sortedData = action.payload;
+    }).addCase(setAbsences, (state, action) => {
+        state.absences = action.payload;
     }).addCase(setLastUpdate, (state, action) => {
         state.lastUpdateNotification = action.payload;
     }).addCase(setAppointmentTypes, (state, action) => {

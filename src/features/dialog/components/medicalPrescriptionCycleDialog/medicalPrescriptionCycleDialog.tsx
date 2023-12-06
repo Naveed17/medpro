@@ -4,76 +4,78 @@ import {
     Button,
     Card,
     CardContent,
+    Checkbox,
     Container,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     Divider,
-    FormControlLabel, FormHelperText,
+    FormControlLabel,
+    FormHelperText,
+    Grid,
+    IconButton, InputBase,
     List,
     ListItemButton,
     ListItemText,
     ListSubheader,
+    Paper,
+    Radio,
     Select,
+    Stack,
     Tab,
     Tabs,
     TextField,
     Theme,
-} from "@mui/material";
-import {
-    Grid,
-    Paper,
-    Stack,
     Typography,
-    IconButton,
-    Checkbox,
-    Radio,
-    useMediaQuery,
+    useMediaQuery, useTheme,
 } from "@mui/material";
 import {Form, FormikProvider, useFormik} from "formik";
 import React, {useEffect, useRef, useState} from "react";
 import {LoadingButton} from "@mui/lab";
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import MedicalPrescriptionCycleStyled from "./overrides/medicalPrescriptionCycleStyled";
+import MedicalPrescriptionCycleStyled, {ButtonWhite} from "./overrides/medicalPrescriptionCycleStyled";
 import IconUrl from "@themes/urlIcon";
 import {
-    Dialog as CustomDialog, dialogSelector, handleDrawerAction,
+    Dialog as CustomDialog,
+    dialogSelector,
+    dosageMeal,
+    duration,
+    handleDrawerAction,
+    initPrescriptionCycleData,
     ModelPrescriptionList,
     prescriptionSelector,
-    setParentModel
+    setParentModel,
 } from "@features/dialog";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector} from "@features/base";
 import CloseIcon from "@mui/icons-material/Close";
-import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import {motion, AnimatePresence} from "framer-motion";
-import {useRequest, useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {AnimatePresence, motion} from "framer-motion";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
-import {a11yProps, useMedicalProfessionalSuffix, useLastPrescription} from "@lib/hooks";
+import {a11yProps, useLastPrescription, useMedicalProfessionalSuffix,} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
-import useSWRMutation from "swr/mutation";
-import {sendRequest} from "@lib/hooks/rest";
 import {useSnackbar} from "notistack";
 import FormControl from "@mui/material/FormControl";
 import {MedicalFormUnit, PrescriptionMultiUnits} from "@lib/constants";
 import ModelSwitchButton from "./modelSwitchButton";
 import {search} from "fast-fuzzy";
-import {dosageMeal, initPrescriptionCycleData, duration} from "@features/dialog";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {SetSelectedDialog} from "@features/toolbar";
+import moment from "moment/moment";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
-    const {setState: setDrugs, state: drugs} = data;
-    const {data: session} = useSession();
+    const {setState: setDrugs, state: drugs, pendingDocuments, setPendingDocuments, setPrescription, patient} = data;
     const router = useRouter();
+    const theme = useTheme();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const refs = useRef([]);
@@ -83,76 +85,112 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const {lastPrescriptions} = useLastPrescription();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
-
     const {direction} = useAppSelector(configSelector);
     const {drawerAction} = useAppSelector(dialogSelector);
     const {name: modelName, parent: modelParent} = useAppSelector(prescriptionSelector);
 
-    const [openAddParentDialog, setOpenAddParentDialog] = useState(false);
-    const [parentModelName, setParentModelName] = useState<string>("");
-
+    const [openAddDialog, setOpenAddDialog] = useState(false);
+    const [openAddDialogAction, setOpenAddDialogAction] = useState("parent");
+    const [modelNameInput, setModelNameInput] = useState<string>("");
     const [drugsList, setDrugsList] = useState<DrugModel[]>([]);
     const [initialOpenData, setInitialOpenData] = useState<any[]>([]);
     const [openDialog, setOpenDialog] = useState(false);
-    const fractions = ["1/4", "1/2", ...Array.from({length: 30}, (v, k) => (k + 1).toString())];
+    const fractions = [
+        "1/4",
+        "1/2",
+        "1",
+        "1.25",
+        "1.5",
+        "1.75",
+        "2",
+        "2.5",
+        ...Array.from({length: 30}, (v, k) => (k + 3).toString()),
+    ];
     const [info, setInfo] = useState("");
     const [loading, setLoading] = useState(false);
     const [editModel, setEditModel] = useState<PrescriptionPatternModel | null>(null);
+    const [modelDosage, setModelDosage] = useState<any>(null);
     const [prescriptionTabIndex, setPrescriptionTabIndex] = useState(0);
 
     const validationSchema = Yup.object().shape({
-        data: Yup.array().of(Yup.object().shape({
-            drug: Yup.object().shape({
-                uuid: Yup.string(),
-                form: Yup.string().nullable(),
-                dci: Yup.string().nullable(),
-                dose: Yup.string().nullable(),
-                commercial_name: Yup.string(),
-                isVerified: Yup.boolean(),
-                inputValue: Yup.string()
-            }).nullable().required("drug_error"),
-            unit: Yup.string().nullable(),
-            cycles: Yup.array().of(Yup.object().shape({
-                count: Yup.number(),
-                dosageQty: Yup.string(),
-                dosageDuration: Yup.number(),
-                dosageMealValue: Yup.string(),
-                durationValue: Yup.string(),
-                dosageInput: Yup.boolean(),
-                cautionaryNoteInput: Yup.boolean(),
-                dosageInputText: Yup.string(),
-                cautionaryNote: Yup.string(),
-                dosageTime: Yup.array().of(Yup.object().shape({
-                    label: Yup.string(),
-                    value: Yup.boolean()
-                })).compact((v) => !v.value).min(1, "dosageTime_error"),
-                dosageMeal: Yup.array().of(Yup.object().shape({
-                    label: Yup.string(),
-                    value: Yup.string()
-                })),
-                duration: Yup.array().of(Yup.object().shape({
-                    label: Yup.string(),
-                    value: Yup.string()
-                }))
-            }))
-        }))
+        data: Yup.array().of(
+            Yup.object().shape({
+                drug: Yup.object()
+                    .shape({
+                        uuid: Yup.string(),
+                        form: Yup.string().nullable(),
+                        dci: Yup.string().nullable(),
+                        dose: Yup.string().nullable(),
+                        commercial_name: Yup.string(),
+                        isVerified: Yup.boolean(),
+                        inputValue: Yup.string(),
+                    })
+                    .nullable()
+                    .required("drug_error"),
+                unit: Yup.string().nullable(),
+                cycles: Yup.array().of(
+                    Yup.object().shape({
+                        dosageDuration: Yup.number(),
+                        dosageMealValue: Yup.string(),
+                        durationValue: Yup.string(),
+                        dosageInput: Yup.boolean(),
+                        cautionaryNoteInput: Yup.boolean(),
+                        dosageInputText: Yup.string(),
+                        cautionaryNote: Yup.string(),
+                        dosageTime: Yup.array()
+                            .of(
+                                Yup.object().shape({
+                                    label: Yup.string(),
+                                    value: Yup.boolean(),
+                                    count: Yup.number(),
+                                    qty: Yup.string()
+                                })
+                            )
+                            .compact((v) => !v.value)
+                            .min(1, "dosageTime_error"),
+                        dosageMeal: Yup.array().of(
+                            Yup.object().shape({
+                                label: Yup.string(),
+                                value: Yup.string(),
+                            })
+                        ),
+                        duration: Yup.array().of(
+                            Yup.object().shape({
+                                label: Yup.string(),
+                                value: Yup.string(),
+                            })
+                        ),
+                    })
+                ),
+            })
+        ),
     });
 
     const getMedicForm = (drug: any) => {
-        const [first, ...rest] = (drug.cycles.length > 0 ? drug.cycles[0].dosage.split(",")[0] : "")?.split(" ");
-        const unit = rest.join(' ');
+        const [first, ...rest] = (drug.cycles?.length > 0 ? drug.cycles[0].dosage.split(",")[0] : "")?.split(" ");
+        const unit = rest.join(" ");
         const hasMultiValues = PrescriptionMultiUnits.includes(unit);
-        const hasMedicalFormUnit = MedicalFormUnit.find(item => item.unit === unit);
-        return drug.cycles.length > 0 && drug.cycles[0].dosage.split(",")[0] && hasMedicalFormUnit ?
-            `${hasMedicalFormUnit.forms[0].form}${hasMultiValues ? `_${unit}` : ""}` : unit;
+        const hasMedicalFormUnit = MedicalFormUnit.find(
+            (item) => item.unit === unit
+        );
+        return (drug.cycles?.length > 0 && drug.cycles[0].dosage.split(",")[0] && hasMedicalFormUnit)
+            ? `${hasMedicalFormUnit.forms[0].form}${hasMultiValues ? `_${unit}` : ""}`.replace("(s)", "")
+            : unit.replace("(s)", "");
     }
 
     const setInitData = (drugs: DrugModel[]) => {
-        const data: any[] = drugs?.length === 0 ? [{
-            drug: null,
-            unit: null,
-            cycles: initPrescriptionCycleData.cycles as any[]
-        }] : [];
+        const data: any[] =
+            drugs?.length === 0
+                ? [
+                    {
+                        drug: null,
+                        unit: null,
+                        dosageModels: [] as any[],
+                        dosageModel: null,
+                        cycles: initPrescriptionCycleData.cycles as any[],
+                    },
+                ]
+                : [];
         drugs?.map((drug: any) => {
             data.push({
                 drug: {
@@ -161,80 +199,97 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     dci: "",
                     dose: null,
                     form: "",
-                    isVerified: true
+                    isVerified: true,
                 } as any,
                 unit: getMedicForm(drug),
-                cycles: drug.cycles.length === 0 && (drug.duration === "" || drug.duration === null) && drug.durationType === "" ? [] : drug.cycles.map((cycle: PrescriptionCycleModel) => ({
-                    count: cycle.dosage.split(" ")[0] ? cycle.dosage.split(" ")[0] === fractions[0] ? 0 : cycle.dosage.split(" ")[0] === fractions[1] ? 1 : parseInt(cycle.dosage.split(" ")[0]) + 1 : 2,
-                    dosageQty: cycle.dosage.split(" ")[0] ? cycle.dosage.split(" ")[0] : "1",
-                    dosageDuration: cycle.duration ? cycle.duration : 1,
-                    dosageMealValue: cycle.dosage !== "" && cycle.dosage.split(",")[2] && cycle.dosage.split(",")[2].length > 0 ? dosageMeal.find(meal => cycle.dosage.split(",")[2].includes(t(meal.label)))?.label : "",
-                    durationValue: cycle.durationType ? cycle.durationType : "",
-                    dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
-                    cautionaryNoteInput: cycle.note?.length > 0,
-                    dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
-                    cautionaryNote: cycle.note !== "" ? cycle.note : "",
-                    dosageTime: [
-                        {
-                            label: "morning",
-                            value: cycle.dosage.split(",")[1] ? cycle.dosage.split(",")[1].includes(t("morning")) : false,
-                        },
-                        {
-                            label: "mid_day",
-                            value: cycle.dosage.split(",")[1] ? cycle.dosage.split(",")[1].includes(t("mid_day")) : false,
-                        },
-                        {
-                            label: "evening",
-                            value: cycle.dosage.split(",")[1] ? cycle.dosage.split(",")[1].includes(t("evening")) : false,
-                        },
-                        {
-                            label: "before_sleeping",
-                            value: cycle.dosage.split(",")[1] ? cycle.dosage.split(",")[1].includes(t("before_sleeping")) : false,
-                        },
-                    ],
-                    dosageMeal,
-                    duration
-                }))
-            })
+                dosageModels: drug?.dosageModels ?? [] as any[],
+                dosageModel: null,
+                cycles: (drug.cycles?.length === 0 && (drug.duration === "" || drug.duration === null) && drug.durationType === "")
+                    ? []
+                    : drug.cycles.map((cycle: PrescriptionCycleModel) => ({
+                        dosageDuration: cycle.duration ? cycle.duration : 1,
+                        dosageMealValue:
+                            cycle.dosage !== "" &&
+                            cycle.dosage.split("•").length === 1 &&
+                            cycle.dosage.split(",")[2] && cycle.dosage.split(",")[2].length > 0
+                                ? dosageMeal.find((meal) =>
+                                    cycle.dosage.split(",")[2].includes(t(meal.label))
+                                )?.label
+                                :
+                                cycle.dosage.split("•").length > 0 &&
+                                cycle.dosage.split("•")[cycle.dosage.split("•").length - 1] &&
+                                cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(",")[2] &&
+                                cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(",")[2].length > 0 ?
+                                    dosageMeal.find((meal) =>
+                                        cycle.dosage.split("•")[cycle.dosage.split("•").length - 1].split(",")[2].includes(t(meal.label))
+                                    )?.label
+                                    :
+                                    "",
+                        durationValue: cycle.durationType ? cycle.durationType : "",
+                        dosageInput: cycle.isOtherDosage ? cycle.isOtherDosage : false,
+                        cautionaryNoteInput: cycle.note?.length > 0,
+                        dosageInputText: cycle.isOtherDosage ? cycle.dosage : "",
+                        cautionaryNote: cycle.note !== "" ? cycle.note : "",
+                        dosageTime: ["morning", "mid_day", "evening", "before_sleeping"].map(time =>
+                            ({
+                                label: time,
+                                value: cycle.dosage.split("•").findIndex(dosage => dosage.includes(t(time))) !== -1,
+                                count: cycle.dosage.split("•").find(dosage => dosage.includes(t(time)))
+                                    ? cycle.dosage.split("•").find(dosage => dosage.includes(t(time)))?.trim().split(" ")[0] === fractions[0]
+                                        ? 0
+                                        : cycle.dosage.split("•").find(dosage => dosage.includes(t(time)))?.trim().split(" ")[0] === fractions[1]
+                                            ? 1
+                                            : parseInt(cycle.dosage.split("•").find(dosage => dosage.includes(t(time)))?.trim().split(" ")[0] ?? "0") + 1
+                                    : 2,
+                                qty: cycle.dosage.split("•").find(dosage => dosage.includes(t(time)))?.trim().split(" ")[0] ?? "1"
+                            })),
+                        dosageMeal,
+                        duration,
+                    })),
+            });
         });
 
         return data;
-    }
-
+    };
     const formik = useFormik({
         enableReinitialize: false,
         initialValues: {
-            data: setInitData(drugs)
+            data: setInitData(drugs),
+            dosageValues: [],
         },
         validationSchema,
         onSubmit: (values) => {
             console.log(values);
-        }
+        },
     });
 
     const {setFieldValue, values, getFieldProps, errors, touched} = formik;
 
-    const {trigger: triggerDrugList} = useRequestMutation(null, "consultation/drugs");
-    const {trigger: triggerPrescriptionModel} = useRequestMutation(null, "consultation/prescription/model");
-    const {trigger: triggerPrescriptionParent} = useRequestMutation(null, "consultation/prescription/model/parent");
-    const {trigger: triggerEditPrescriptionModel} = useSWRMutation(["/consultation/prescription/model/edit", {Authorization: `Bearer ${session?.accessToken}`}], sendRequest as any);
+    const {trigger: triggerDrugList} = useRequestQueryMutation("consultation/drugs");
+    const {trigger: triggerPrescriptionModel} = useRequestQueryMutation("consultation/prescription/model");
+    const {trigger: triggerPrescriptionParent} = useRequestQueryMutation("consultation/prescription/model/parent");
+    const {trigger: triggerEditPrescriptionModel} = useRequestQueryMutation("/consultation/prescription/model/edit");
+    const {trigger: triggerGetDrugModel} = useRequestQueryMutation("/consultation/drug/model/get");
+    const {trigger: triggerAddDrugModel} = useRequestQueryMutation("/consultation/drug/model/add");
 
-    const {data: ParentModelResponse, mutate: mutateParentModel} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: ParentModelResponse, mutate: mutateParentModel} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const handleAddDrug = () => {
         setFieldValue("data", [
             ...values.data,
             {...initPrescriptionCycleData},
         ]).then(() => {
-            (refContainer.current as any)?.scrollIntoView({behavior: 'smooth', block: "end"});
+            (refContainer.current as any)?.scrollIntoView({
+                behavior: "smooth",
+                block: "end",
+            });
         });
     }
 
-    const switchPrescriptionModel = (drugs: DrugModel[]) => {
+    const switchModel = (drugs: DrugModel[]) => {
         setDrugs(drugs);
         setFieldValue("data", setInitData(drugs));
     }
@@ -243,142 +298,217 @@ function MedicalPrescriptionCycleDialog({...props}) {
         setEditModel(props.node);
     }
 
+    const handleAddDosageModel = () => {
+        setLoading(true);
+        const form = new FormData();
+        form.append('cycles', JSON.stringify(modelDosage.cycles));
+        form.append('name', modelNameInput);
+        form.append('drugUuid', modelDosage.drugUuid);
+        triggerAddDrugModel({
+            method: "POST",
+            url: `${urlMedicalProfessionalSuffix}/drug/posologie-models`,
+            data: form,
+        }, {
+            onSuccess: () => {
+                setOpenAddDialog(false);
+                triggerGetDrugModel({
+                    method: "GET",
+                    url: `${urlMedicalProfessionalSuffix}/drug/posologie-models/drug/${modelDosage.drugUuid}`,
+                }, {
+                    onSuccess: (result) => {
+                        const dosageModels = (result?.data as HttpResponse)?.data;
+                        setFieldValue(`data[${modelDosage.idx}].dosageModels`, dosageModels);
+                        setFieldValue(`data[${modelDosage.idx}].dosageModel`, dosageModels[0]);
+                        setModelNameInput("");
+                    }
+                })
+            },
+            onSettled: () => setLoading(false)
+        });
+    }
+
     const editPrescriptionAction = () => {
         setLoading(true);
+        const form = new FormData();
+        form.append('drugs', JSON.stringify(drugs));
+        editModel?.text && form.append('name', editModel.text);
+        editModel?.parent && form.append('parent', editModel.parent.toString());
         triggerEditPrescriptionModel({
             method: "PUT",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${editModel?.id}/${router.locale}`,
-            data: {
-                drugs: JSON.stringify(drugs),
-                name: editModel?.text,
-                parent: editModel?.parent
+            data: form,
+        }, {
+            onSuccess: (result) => {
+                mutateParentModel().then(() => {
+                    setLoading(false);
+                    setDrugsList((result?.data as HttpResponse)?.data);
+                    setEditModel(null);
+                    enqueueSnackbar(t("editWithsuccess"), {variant: "success"});
+                });
             }
-        } as any).then((result) => {
-            mutateParentModel().then(() => {
-                setLoading(false);
-                setDrugsList((result?.data as HttpResponse)?.data);
-                setEditModel(null);
-                enqueueSnackbar(t("editWithsuccess"), {variant: 'success'})
-            });
-        })
+        });
     }
 
     const handleRemoveCycle = (idx: number, value: any) => {
-        const filtered = values.data[idx].cycles.filter((item: any) => item !== value);
+        const filtered = values.data[idx].cycles.filter(
+            (item: any) => item !== value
+        );
         setFieldValue(`data[${idx}].cycles`, filtered);
     }
 
     const handleRemoveDrug = (idx: number) => {
-        const filtered = values.data.filter((item: any, index: number) => index !== idx);
+        const filtered = values.data.filter(
+            (item: any, index: number) => index !== idx
+        );
         setFieldValue(`data`, filtered);
     }
 
     const handAddCycle = (index: number) => {
         setFieldValue(`data[${index}].cycles`, [
             ...values.data[index].cycles,
-            ...initPrescriptionCycleData.cycles
+            ...initPrescriptionCycleData.cycles,
         ]);
     }
 
     const handlePrescriptionTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setPrescriptionTabIndex(newValue);
-    };
+    }
 
-    const handleDosageQty = (prop: string, index: number, idx: number) => {
+    const handleDosageQty = (prop: string, index: number, idx: number, indexDosage: number) => {
         setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
+        let dosage = values.data[idx].cycles[index].dosageTime[indexDosage].count;
+
         if (prop === "plus") {
-            if (values.data[idx].cycles[index].count < fractions.length - 1) {
-                const dosage = values.data[idx].cycles[index].count + 1;
-                setFieldValue(`data[${idx}].cycles[${index}].count`, dosage);
-                setFieldValue(`data[${idx}].cycles[${index}].dosageQty`, fractions[dosage]);
+            if (dosage < fractions.length - 1) {
+                dosage += 1;
             }
         } else {
-            if (values.data[idx].cycles[index].count > 0) {
-                const dosage = values.data[idx].cycles[index].count - 1;
-                setFieldValue(`data[${idx}].cycles[${index}].count`, dosage);
-                setFieldValue(`data[${idx}].cycles[${index}].dosageQty`, fractions[dosage]);
+            if (dosage > 0) {
+                dosage -= 1;
             }
         }
+
+        setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${indexDosage}]`, {
+            ...values.data[idx].cycles[index].dosageTime[indexDosage],
+            count: dosage,
+            qty: fractions[dosage]
+        });
     }
 
     const durationCounter = (prop: string, index: number, idx: number) => {
         setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
+        const currentDosage = values.data[idx].cycles[index].dosageDuration;
+        let sign = -1;
         if (prop === "plus") {
-            if (values.data[idx].cycles[index].dosageDuration < fractions.length - 1) {
-                setFieldValue(
-                    `data[${idx}].cycles[${index}].dosageDuration`,
-                    values.data[idx].cycles[index].dosageDuration + 1
-                );
+            if (currentDosage < fractions.length - 1) {
+                sign = 1;
             }
-        } else {
-            setFieldValue(
-                `data[${idx}].cycles[${index}].dosageDuration`,
-                values.data[idx].cycles[index].dosageDuration - 1
-            );
         }
+
+        setFieldValue(`data[${idx}].cycles[${index}].dosageDuration`, currentDosage + (sign));
     }
 
     const handleSaveDialog = () => {
         const form = new FormData();
-        form.append('globalNote', "");
-        form.append('name', modelName);
-        form.append('parent', modelParent);
-        form.append('drugs', JSON.stringify(drugs));
+        form.append("globalNote", "");
+        form.append("name", modelName);
+        form.append("parent", modelParent);
+        form.append("drugs", JSON.stringify(drugs));
         triggerPrescriptionModel({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/${router.locale}`,
             data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutateParentModel().then(() => {
-            setInitialOpenData([modelParent]);
-            setPrescriptionTabIndex(1);
-        }));
+        }, {
+            onSuccess: () =>
+                mutateParentModel().then(() => {
+                    setInitialOpenData([modelParent]);
+                    setPrescriptionTabIndex(1);
+                })
+        });
         setOpenDialog(false);
     }
 
     const handleAddParentModel = () => {
         setLoading(true);
         const form = new FormData();
-        form.append("name", parentModelName);
+        form.append("name", modelNameInput);
         triggerPrescriptionParent({
             method: "POST",
             url: `${urlMedicalProfessionalSuffix}/prescriptions/modals/parents/${router.locale}`,
             data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`},
-        }).then(() => {
-            mutateParentModel().then((result) => {
-                const models = (result?.data as HttpResponse)?.data as PrescriptionParentModel[];
-                dispatch(setParentModel(models[models.length - 1]?.uuid));
-                setOpenAddParentDialog(false);
-                setParentModelName("");
-                setLoading(false);
-            });
+        }, {
+            onSuccess: () => {
+                mutateParentModel().then((result: any) => {
+                    const models = (result?.data as HttpResponse)?.data as PrescriptionParentModel[];
+                    dispatch(setParentModel(models[models.length - 1]?.uuid));
+                    setOpenAddDialog(false);
+                    setModelNameInput("");
+                    setLoading(false);
+                });
+            }
         });
     }
 
     const getFormUnitMedic: any = (form: string) => {
-        const hasMultiValues = form.split('_');
+        const hasMultiValues = form.split("_");
         let formUnitMedic: any;
         if (hasMultiValues.length > 1) {
-            formUnitMedic = MedicalFormUnit.find((medic: any) => medic.unit == hasMultiValues[1]);
+            formUnitMedic = MedicalFormUnit.find(
+                (medic: any) => medic.unit == hasMultiValues[1]
+            );
         } else {
-            formUnitMedic = MedicalFormUnit.find((medic: any) => {
-                const matchFormUnit: string[] = search(form, medic.forms.map((data: any) => data.form),
-                    {returnMatchData: true}).reduce((filtered: string[], option) => {
-                    if (option.score >= 0.8) {
-                        filtered.push(option.item as string);
-                    }
-                    return filtered;
-                }, []);
-                return matchFormUnit.length > 0;
-            }) ?? form;
+            formUnitMedic =
+                MedicalFormUnit.find((medic: any) => {
+                    const matchFormUnit: string[] = search(
+                        form,
+                        medic.forms.map((data: any) => data.form),
+                        {returnMatchData: true}
+                    ).reduce((filtered: string[], option) => {
+                        if (option.score >= 0.8) {
+                            filtered.push(option.item as string);
+                        }
+                        return filtered;
+                    }, []);
+                    return matchFormUnit.length > 0;
+                }) ?? form;
         }
         return formUnitMedic;
     }
 
     const generateDosageText = (cycle: any, unit?: string) => {
-        return unit && cycle.dosageTime.some((time: any) => time.value) ?
-            `${cycle.dosageQty} ${getFormUnitMedic(unit).unit ?? unit}, ${cycle.dosageTime.filter((time: any) => time.value).map((time: any) => t(time.label)).join("/")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0 ? `, ${t(cycle.dosageMealValue)}` : ""}` : "";
+        return unit && cycle.dosageTime.some((time: any) => time.value)
+            ? `${Object.entries(cycle.dosageTime.filter((time: any) => time.value).group((diag: any) => diag.qty))
+                .map((time: any) => `${time[0]} ${getFormUnitMedic(unit).unit ?? unit}${parseFloat(time[0]) >= 2 ? "(s)" : ""}, ${time[1].map((dosage: any) => t(dosage.label)).join(`/`)}`).join(" • ")} ${cycle.dosageMealValue && cycle.dosageMealValue.length > 0
+                ? `, ${t(cycle.dosageMealValue)}`
+                : ""
+            }`
+            : "";
+    }
+
+    const showPreview = () => {
+        let pdoc = [...pendingDocuments]
+        pdoc.push({
+            id: 2,
+            name: "requestedPrescription",
+            status: "in_progress",
+            icon: "ic-traitement",
+            state: drugs
+        })
+        setPendingDocuments(pdoc);
+        setPrescription(drugs)
+        dispatch(SetSelectedDialog({
+            action: 'document_detail',
+            state: {
+                name: 'card.title',
+                type: 'prescription',
+                createdAt: moment().format('DD/MM/YYYY'),
+                patient: `${patient.firstName} ${patient.lastName}`,
+                info: drugs,
+            },
+            uuid: "",
+            appUuid: ""
+        }))
+
     }
 
     const models = (ParentModelResponse as HttpResponse)?.data as PrescriptionParentModel[];
@@ -391,7 +521,9 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
     useEffect(() => {
         if (drawerAction === "addDrug") {
-            handleAddDrug();
+            if (Math.abs(values.data.length - (drugs.length + 1)) === 1) {
+                handleAddDrug();
+            }
             dispatch(handleDrawerAction(""));
         }
     }, [dispatch, drawerAction]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -407,16 +539,17 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         duration: cycle.durationValue.length > 0 ? cycle.dosageDuration : null,
                         durationType: cycle.durationValue.length > 0 ? cycle.durationValue : "",
                         note: cycle.cautionaryNote?.length > 0 ? cycle.cautionaryNote : "",
-                        isOtherDosage: cycle.dosageInput
+                        isOtherDosage: cycle.dosageInput,
                     }));
                     drugs.push({
                         cycles,
                         drugUuid: drug?.uuid,
-                        name: drug?.commercial_name
+                        name: drug?.commercial_name,
+                        standard_drug: {commercial_name: drug?.commercial_name}
                     });
                 }
             });
-            if (drugs.length > 0 || values.data && values.data.length === 0) {
+            if (drugs.length > 0 || (values.data && values.data.length === 0)) {
                 setDrugs(drugs);
             }
         }
@@ -438,124 +571,247 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                 autoComplete="off"
                                 noValidate>
                                 {values.data.map((item: any, idx: number) => (
-                                    <Paper ref={element => {
-                                        (refs.current as any)[idx] = element
-                                    }}
-                                           className="custom-paper" key={idx}>
-                                        <Grid container spacing={2} alignItems="flex-end">
-                                            <Grid item md={8} xs={12}>
-                                                {drugsList && <Autocomplete
-                                                    id="cmo"
-                                                    value={item.drug}
-                                                    freeSolo
-                                                    onChange={(e, drug) => {
-                                                        e.stopPropagation();
-                                                        if ((drug as DrugModel)?.inputValue || typeof drug === "string") {
-                                                            // Create a new value from the user input
-                                                            setFieldValue(`data[${idx}].drug`, {
-                                                                commercial_name: typeof drug === "string" ? drug : (drug as DrugModel)?.inputValue,
-                                                                isVerified: false
-                                                            });
-                                                        } else {
-                                                            setFieldValue(`data[${idx}].drug`, drug as DrugModel);
-                                                            setFieldValue(`data[${idx}].unit`, drug?.form);
-                                                        }
-                                                    }}
-                                                    size='small'
-                                                    options={drugsList}
-                                                    noOptionsText={t('startWriting')}
-                                                    getOptionLabel={(option) => {
-                                                        // Value selected with enter, right from the input
-                                                        if (typeof option === 'string') {
-                                                            return option;
-                                                        }
-                                                        // Add "xxx" option created dynamically
-                                                        if (option.inputValue) {
-                                                            return option.inputValue;
-                                                        }
-                                                        // Regular option
-                                                        return option.commercial_name;
-                                                    }}
-                                                    filterOptions={(options, params) => {
-                                                        const {inputValue} = params;
-                                                        const filtered = options.filter(option => option.commercial_name.toLowerCase().includes(inputValue.toLowerCase()));
-                                                        // Suggest the creation of a new value
-                                                        const isExisting = options.some((option) => inputValue.toLowerCase() === option.commercial_name.toLowerCase());
-                                                        if (inputValue !== '' && !isExisting) {
-                                                            filtered.push({
-                                                                inputValue,
-                                                                commercial_name: `${t('add_drug')} "${inputValue}"`,
-                                                                isVerified: false
-                                                            });
-                                                        }
-                                                        return filtered;
-                                                    }}
-                                                    isOptionEqualToValue={(option, value) => option?.commercial_name === value?.commercial_name}
-                                                    renderOption={(props, option) => (
-                                                        <Stack key={option.uuid ? option.uuid : "-1"}>
-                                                            {!option.uuid && <Divider/>}
-                                                            <MenuItem
-                                                                {...props}
-                                                                {...(!option.uuid && {sx: {fontWeight: "bold"}})}
-                                                                value={option.uuid}>
-                                                                {!option.uuid && <AddOutlinedIcon/>}
-                                                                {option.commercial_name}
-                                                            </MenuItem>
-                                                        </Stack>
-                                                    )}
-                                                    renderInput={(params) => <TextField {...params}
-                                                                                        error={Boolean(touched.data && errors.data && (errors.data as any)[idx]?.drug)}
-                                                                                        onChange={(ev) => {
-                                                                                            if (ev.target.value.length >= 2) {
-                                                                                                triggerDrugList({
-                                                                                                    method: "GET",
-                                                                                                    url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
-                                                                                                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                                                                                                }).then((cnx) => setDrugsList((cnx?.data as HttpResponse).data));
-                                                                                            }
-                                                                                        }}
-                                                                                        placeholder={t('placeholder_drug_name')}/>}/>
-                                                }
+                                    <Paper
+                                        ref={(element) => {
+                                            (refs.current as any)[idx] = element;
+                                        }}
+                                        className="custom-paper"
+                                        key={idx}>
+                                        <Grid container spacing={{xs: 1, md: 2}} alignItems="center">
+                                            <Grid item sm={0.5} xs={1}>
+                                                <Stack direction="row" alignItems="center">
+                                                      <span style={{fontSize: 20, fontWeight: "bold"}}>
+                                                        {idx + 1}
+                                                      </span>
+                                                    <FiberManualRecordIcon sx={{fontSize: 6, ml: .8}}/>
+                                                </Stack>
                                             </Grid>
-                                            <Grid item md={3.2} xs={12}>
+                                            <Grid item className={"drug-input"} sm={4.3} xs={11}>
+                                                {drugsList && (
+                                                    <Autocomplete
+                                                        id="cmo"
+                                                        value={item.drug}
+                                                        freeSolo
+                                                        onChange={(e, drug) => {
+                                                            e.stopPropagation();
+                                                            if ((drug as DrugModel)?.inputValue || typeof drug === "string") {
+                                                                // Create a new value from the user input
+                                                                setFieldValue(`data[${idx}].drug`, {
+                                                                    commercial_name:
+                                                                        typeof drug === "string"
+                                                                            ? drug
+                                                                            : (drug as DrugModel)?.inputValue,
+                                                                    isVerified: false,
+                                                                });
+                                                            } else {
+                                                                setFieldValue(
+                                                                    `data[${idx}].drug`,
+                                                                    drug as DrugModel
+                                                                );
+                                                                setFieldValue(`data[${idx}].unit`, drug?.form);
+                                                                drug?.uuid && triggerGetDrugModel({
+                                                                    method: "GET",
+                                                                    url: `${urlMedicalProfessionalSuffix}/drug/posologie-models/drug/${drug.uuid}`,
+                                                                }, {
+                                                                    onSuccess: (result) => {
+                                                                        const modelDosage = (result?.data as HttpResponse)?.data;
+                                                                        setFieldValue(`data[${idx}].dosageModels`, modelDosage);
+                                                                    }
+                                                                })
+                                                            }
+                                                        }}
+                                                        size="small"
+                                                        options={drugsList}
+                                                        noOptionsText={t("startWriting")}
+                                                        getOptionLabel={(option) => {
+                                                            // Value selected with enter, right from the input
+                                                            if (typeof option === "string") {
+                                                                return option;
+                                                            }
+                                                            // Add "xxx" option created dynamically
+                                                            if (option.inputValue) {
+                                                                return option.inputValue;
+                                                            }
+                                                            // Regular option
+                                                            return option.commercial_name;
+                                                        }}
+                                                        filterOptions={(options, params) => {
+                                                            const {inputValue} = params;
+                                                            const filtered = options.filter((option) =>
+                                                                option.commercial_name
+                                                                    .toLowerCase()
+                                                                    .includes(inputValue.toLowerCase())
+                                                            );
+                                                            // Suggest the creation of a new value
+                                                            const isExisting = options.some(
+                                                                (option) =>
+                                                                    inputValue.toLowerCase() ===
+                                                                    option.commercial_name.toLowerCase()
+                                                            );
+                                                            if (inputValue !== "" && !isExisting) {
+                                                                filtered.push({
+                                                                    inputValue,
+                                                                    commercial_name: `${t(
+                                                                        "add_drug"
+                                                                    )} "${inputValue}"`,
+                                                                    isVerified: false,
+                                                                });
+                                                            }
+                                                            return filtered;
+                                                        }}
+                                                        isOptionEqualToValue={(option, value) =>
+                                                            option?.commercial_name === value?.commercial_name
+                                                        }
+                                                        renderOption={(props, option) => (
+                                                            <Stack key={`${idx}-${option.uuid ? option.uuid : "-1"}`}>
+                                                                {!option.uuid && <Divider/>}
+                                                                <MenuItem
+                                                                    {...props}
+                                                                    {...(!option.uuid && {
+                                                                        sx: {fontWeight: "bold"},
+                                                                    })}
+                                                                    value={option.uuid}>
+                                                                    {!option.uuid && <AddOutlinedIcon/>}
+                                                                    {option.commercial_name}
+                                                                </MenuItem>
+                                                            </Stack>
+                                                        )}
+                                                        renderInput={(params) => (
+                                                            <TextField
+                                                                {...params}
+                                                                error={Boolean(
+                                                                    touched.data &&
+                                                                    errors.data &&
+                                                                    (errors.data as any)[idx]?.drug
+                                                                )}
+                                                                onChange={(ev) => {
+                                                                    if (ev.target.value.length >= 2) {
+                                                                        triggerDrugList({
+                                                                            method: "GET",
+                                                                            url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
+                                                                        }, {
+                                                                            onSuccess: (cnx) => setDrugsList((cnx?.data as HttpResponse)?.data ?? [])
+                                                                        });
+                                                                    }
+                                                                }}
+                                                                placeholder={t("placeholder_drug_name")}
+                                                            />
+                                                        )}
+                                                    />
+                                                )}
+                                            </Grid>
+
+                                            <Grid item xs={1} sx={{display: {xs: 'block', sm: 'none'}}}/>
+
+                                            <Grid item sm={3.2} xs={10}>
                                                 <Autocomplete
-                                                    size='small'
+                                                    size="small"
                                                     freeSolo
-                                                    value={values.data[idx].unit ? getFormUnitMedic(values.data[idx].unit) : ""}
+                                                    value={
+                                                        values.data[idx].unit
+                                                            ? getFormUnitMedic(values.data[idx].unit)
+                                                            : ""
+                                                    }
                                                     onChange={(event, data) => {
-                                                        const hasMultiValues = data && PrescriptionMultiUnits.includes(data.unit);
-                                                        values.data[idx].cycles.forEach((element: any, index: number) => setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false));
-                                                        setFieldValue(`data[${idx}].unit`, data ? (typeof data === 'string' ? data : `${data.forms[0].form}${hasMultiValues ? `_${data.unit}` : ""}`) : "");
+                                                        const hasMultiValues =
+                                                            data &&
+                                                            PrescriptionMultiUnits.includes(data.unit);
+                                                        values.data[idx].cycles.forEach(
+                                                            (element: any, index: number) =>
+                                                                setFieldValue(
+                                                                    `data[${idx}].cycles[${index}].dosageInput`,
+                                                                    false
+                                                                )
+                                                        );
+                                                        setFieldValue(
+                                                            `data[${idx}].unit`,
+                                                            data
+                                                                ? typeof data === "string"
+                                                                    ? data
+                                                                    : `${data.forms[0].form}${
+                                                                        hasMultiValues ? `_${data.unit}` : ""
+                                                                    }`
+                                                                : ""
+                                                        );
                                                     }}
                                                     placeholder={t("unit", {ns: "consultation"})}
-                                                    noOptionsText={t('no_unit')}
+                                                    noOptionsText={t("no_unit")}
                                                     options={MedicalFormUnit}
                                                     getOptionLabel={(option) => {
                                                         // Value selected with enter, right from the input
-                                                        if (typeof option === 'string') {
+                                                        if (typeof option === "string") {
                                                             return option;
                                                         }
                                                         // Regular option
                                                         return option.unit;
                                                     }}
-                                                    isOptionEqualToValue={(option: any, value) => option?.unit === value?.unit}
-                                                    renderInput={(params) => <TextField
-                                                        placeholder={t('unit')}
-                                                        {...params} />}
+                                                    isOptionEqualToValue={(option: any, value) =>
+                                                        option?.unit === value?.unit
+                                                    }
+                                                    renderInput={(params) => (
+                                                        <TextField placeholder={t("unit")} {...params} />
+                                                    )}
                                                 />
                                             </Grid>
-                                            <Grid className={"grid-action"} item md={.8} xs={12} pb={.2}>
+                                            <Grid item sm={3.2} xs={10}>
+                                                <Autocomplete
+                                                    size="small"
+                                                    freeSolo
+                                                    value={item?.dosageModel ?? null}
+                                                    onChange={(event, data) => {
+                                                        event.stopPropagation();
+                                                        if (data) {
+                                                            switchModel([
+                                                                ...drugs.slice(0, idx),
+                                                                {
+                                                                    ...data,
+                                                                    drugUuid: item.drug.uuid,
+                                                                    dosageModels: item.dosageModels,
+                                                                    name: item.drug.commercial_name
+                                                                },
+                                                                ...drugs.slice(idx + 1)]);
+                                                        }
+                                                    }}
+                                                    placeholder={t("dosage-model", {ns: "consultation"})}
+                                                    noOptionsText={t("no_unit-dosage-model")}
+                                                    options={item?.dosageModels ?? []}
+                                                    getOptionLabel={(option) => {
+                                                        // Value selected with enter, right from the input
+                                                        if (typeof option === "string") {
+                                                            return option;
+                                                        }
+                                                        // Regular option
+                                                        return option.name;
+                                                    }}
+                                                    isOptionEqualToValue={(option: any, value) =>
+                                                        option?.name === value?.name
+                                                    }
+                                                    renderInput={(params) => (
+                                                        <TextField placeholder={t("dosage-model")} {...params} />
+                                                    )}
+                                                />
+                                            </Grid>
+                                            <Grid
+                                                className={"grid-action"}
+                                                item
+                                                sm={0.8}
+                                                xs={1}
+                                                pb={0.2}
+                                                sx={{textAlign: {xs: "right", md: "left"}}}>
+
                                                 <IconButton
-                                                    onClick={() => handleRemoveDrug(idx)}
-                                                    className="btn-del-drug">
-                                                    <IconUrl path="icdelete"/>
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleRemoveDrug(idx)
+                                                    }}
+                                                    className="btn-list-action"
+                                                    sx={{"&.btn-list-action": {p: 1, background: "white"}}}>
+                                                    <IconUrl color={theme.palette.text.primary} path="ic-delete"
+                                                             width={20} height={20}/>
                                                 </IconButton>
                                             </Grid>
                                         </Grid>
-                                        <Stack
-                                            component={AnimatePresence}
-                                            mode='wait'
-                                            spacing={2}>
+                                        <Stack component={AnimatePresence} mode="popLayout" spacing={2}>
                                             {item.cycles.map((innerItem: any, index: number) => (
                                                 <Card
                                                     component={motion.div}
@@ -568,100 +824,315 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                         <Stack>
                                                             <Stack
                                                                 spacing={3}
-                                                                direction="row"
+                                                                direction={{xs: "column", md: "row"}}
                                                                 flexWrap="wrap"
                                                                 alignItems="center">
                                                                 <Stack
+                                                                    width={{xs: "100%"}}
                                                                     spacing={0.5}
                                                                     mb={0.5}
-                                                                    flexWrap="wrap"
-                                                                    direction="row"
-                                                                    alignItems="center">
-                                                                    <Button
-                                                                        onClick={(event: any) => {
-                                                                            event.stopPropagation();
-                                                                            event.preventDefault();
-                                                                        }}
-                                                                        component="label"
-                                                                        endIcon={
-                                                                            <IconButton
-                                                                                disabled={innerItem.dosageQty === fractions[fractions.length - 1]}
-                                                                                onClick={() => handleDosageQty("plus", index, idx)}
-                                                                                size="small"
-                                                                                disableRipple>
-                                                                                <AddIcon/>
-                                                                            </IconButton>
-                                                                        }
-                                                                        startIcon={
-                                                                            <IconButton
-                                                                                disabled={innerItem.dosageQty === fractions[0]}
-                                                                                onClick={() => handleDosageQty("minus", index, idx)}
-                                                                                size="small"
-                                                                                disableRipple>
-                                                                                <RemoveIcon/>
-                                                                            </IconButton>
-                                                                        }
-                                                                        variant="white"
-                                                                        disableRipple>
-                                                                        {innerItem.dosageQty}
-                                                                    </Button>
-                                                                    {innerItem.dosageTime.map((subitem: any, i: number) => (
-                                                                        <Button
-                                                                            component="label"
-                                                                            variant="white"
-                                                                            disableRipple
-                                                                            startIcon={
-                                                                                <Checkbox
-                                                                                    checked={values.data[idx].cycles[index].dosageTime[i].value}
-                                                                                    onChange={event => {
-                                                                                        setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
-                                                                                        setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}].value`, event.target.checked);
+                                                                    direction={{xs: "column", sm: "row"}}
+                                                                    alignItems="center"
+                                                                    sx={{
+                                                                        overflowX: 'auto',
+                                                                        scrollSnapType: 'x mandatory',
+                                                                        overflowY: 'hidden'
+
+                                                                    }}>
+                                                                    {!isMobile ? (innerItem.dosageTime.map((subItem: any, i: number) => (
+                                                                            <Button
+                                                                                key={`dosageTime-${i}-${subItem.label}`}
+                                                                                sx={{
+                                                                                    scrollSnapAlign: 'center'
+                                                                                }}
+                                                                                component="label"
+                                                                                variant="white"
+                                                                                className="dosage-wrapper"
+                                                                                {...(subItem.value && {
+                                                                                    variant: "contained",
+                                                                                    color: 'primary',
+                                                                                    size: 'small',
+                                                                                    sx: {
+                                                                                        minWidth: 180,
+
+                                                                                    }
+                                                                                })}
+                                                                                disableRipple
+                                                                                startIcon={
+                                                                                    <Checkbox
+                                                                                        checkedIcon={<IconUrl width={20}
+                                                                                                              height={20}
+                                                                                                              path="ic_check_outlined"/>}
+                                                                                        checked={subItem.value}
+                                                                                        onChange={(event) => {
+                                                                                            const previousDosages: any[] = values.data[idx].cycles[index].dosageTime.filter((dosage: any) => dosage.value);
+                                                                                            setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
+
+                                                                                            if (previousDosages.length > 0) {
+                                                                                                const lastDosage = previousDosages[previousDosages.length - 1];
+                                                                                                setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}]`, {
+                                                                                                    ...subItem,
+                                                                                                    value: event.target.checked,
+                                                                                                    qty: lastDosage.qty,
+                                                                                                    count: lastDosage.count
+                                                                                                });
+                                                                                            } else {
+                                                                                                setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}].value`, event.target.checked);
+                                                                                            }
+                                                                                        }}
+                                                                                    />
+                                                                                }>
+                                                                                <Typography
+                                                                                    sx={{
+                                                                                        whiteSpace: "nowrap",
+                                                                                        overflow: "hidden",
+                                                                                        textOverflow: "ellipsis",
+                                                                                        ...(subItem.value && {width: 50})
                                                                                     }}
-                                                                                />
-                                                                            }
-                                                                            key={subitem.label}>
-                                                                            {t(subitem.label, {
-                                                                                ns: "consultation",
-                                                                            })}
-                                                                        </Button>
-                                                                    ))}
+                                                                                    component='span'
+                                                                                    variant="body2">
+                                                                                    {t(subItem.label, {ns: "consultation"})}
+                                                                                </Typography>
+
+                                                                                {subItem.value && (
+                                                                                    <Button
+                                                                                        key={`dosageTime-${i}-value-${subItem.label}`}
+                                                                                        className="btn-dosage-time-counter"
+                                                                                        sx={{
+                                                                                            justifyContent: {
+                                                                                                xs: "space-between",
+                                                                                                md: "center",
+                                                                                                width: {
+                                                                                                    xs: '100%',
+                                                                                                    md: 'auto'
+                                                                                                }
+                                                                                            },
+                                                                                            "& .MuiButton-startIcon, .MuiButton-endIcon": {
+                                                                                                m: 0
+                                                                                            }
+                                                                                        }}
+                                                                                        onClick={(event: any) => {
+                                                                                            event.stopPropagation();
+                                                                                            event.preventDefault();
+                                                                                        }}
+                                                                                        component="label"
+                                                                                        endIcon={
+                                                                                            <IconButton
+                                                                                                disabled={subItem.qty === fractions[fractions.length - 1]}
+                                                                                                onClick={() =>
+                                                                                                    handleDosageQty("plus", index, idx, i)
+                                                                                                }
+                                                                                                size="small"
+                                                                                                disableRipple>
+                                                                                                <AddIcon/>
+                                                                                            </IconButton>
+                                                                                        }
+                                                                                        startIcon={
+                                                                                            <IconButton
+                                                                                                disabled={subItem.qty === fractions[0]}
+                                                                                                onClick={() =>
+                                                                                                    handleDosageQty("minus", index, idx, i)
+                                                                                                }
+                                                                                                size="small"
+                                                                                                disableRipple>
+                                                                                                <RemoveIcon/>
+                                                                                            </IconButton>
+                                                                                        }
+                                                                                        variant="white"
+                                                                                        disableRipple>
+                                                                                        <InputBase
+                                                                                            onFocus={event => {
+                                                                                                event.target.select();
+                                                                                            }}
+                                                                                            sx={{
+                                                                                                width: 26,
+                                                                                                "& .MuiInputBase-input": {
+                                                                                                    textAlign: "center",
+                                                                                                    p: 0
+                                                                                                }
+                                                                                            }}
+                                                                                            value={subItem.qty}
+                                                                                            onClick={(e) => e.stopPropagation()}
+                                                                                            onChange={(e) => {
+                                                                                                if (parseFloat(e.target.value)) {
+                                                                                                    const indexFraction = fractions.findIndex(fraction => fraction === e.target.value);
+                                                                                                    indexFraction !== -1 && setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}]`, {
+                                                                                                        ...subItem,
+                                                                                                        count: indexFraction,
+                                                                                                        qty: e.target.value
+                                                                                                    });
+                                                                                                }
+                                                                                            }}
+                                                                                        />
+                                                                                    </Button>
+                                                                                )}
+                                                                            </Button>
+                                                                        ))
+                                                                    ) : (
+                                                                        <FormControl fullWidth>
+                                                                            <Select
+                                                                                labelId="demo-multiple-checkbox-label"
+                                                                                id="demo-multiple-checkbox"
+                                                                                fullWidth
+                                                                                multiple
+                                                                                displayEmpty={true}
+                                                                                size="small"
+                                                                                value={
+                                                                                    values.data[idx].cycles[index].dosageTime.reduce((item: any[], elm: any) => {
+                                                                                        if (elm.value) {
+                                                                                            item.push(t(elm.label, {
+                                                                                                ns: "consultation"
+                                                                                            }));
+                                                                                        }
+                                                                                        return item;
+                                                                                    }, [])
+                                                                                    || []
+                                                                                }
+                                                                                renderValue={(selected) => {
+                                                                                    if (selected.length === 0) {
+                                                                                        return (
+                                                                                            <Typography
+                                                                                                color="textSecondary">
+                                                                                                {t("dosge_time", {
+                                                                                                    ns: "consultation",
+                                                                                                })}
+                                                                                            </Typography>
+                                                                                        );
+                                                                                    }
+                                                                                    return selected.join(", ");
+                                                                                }}>
+                                                                                {innerItem.dosageTime.map((subItem: any, i: number) => (
+                                                                                        <MenuItem
+                                                                                            disableRipple
+                                                                                            key={`dosageTime-${i}-${subItem.label}`}
+                                                                                            value={t(subItem.label, {ns: "consultation"})}>
+                                                                                            <FormControlLabel
+                                                                                                control={
+                                                                                                    <Checkbox
+                                                                                                        checked={values.data[idx].cycles[index].dosageTime[i].value}
+                                                                                                        onChange={(event) => {
+                                                                                                            setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
+                                                                                                            setFieldValue(`data[${idx}].cycles[${index}].dosageTime[${i}].value`, event.target.checked);
+                                                                                                        }}
+                                                                                                    />
+                                                                                                }
+                                                                                                label={t(subItem.label, {ns: "consultation"})}
+                                                                                            />
+                                                                                            {values.data[idx].cycles[index].dosageTime[i].value && (
+                                                                                                <ButtonWhite
+                                                                                                    sx={{
+                                                                                                        justifyContent: 'space-between',
+                                                                                                        marginLeft: 'auto'
+                                                                                                    }}
+                                                                                                    onClick={(event: any) => {
+                                                                                                        event.stopPropagation();
+                                                                                                        event.preventDefault();
+                                                                                                    }}
+                                                                                                    component="label"
+                                                                                                    endIcon={
+                                                                                                        <IconButton
+                                                                                                            disabled={subItem.qty === fractions[fractions.length - 1]}
+                                                                                                            onClick={(e) => {
+                                                                                                                e.stopPropagation();
+                                                                                                                handleDosageQty("plus", index, idx, i)
+                                                                                                            }}
+                                                                                                            size="small"
+                                                                                                            disableRipple>
+                                                                                                            <AddIcon/>
+                                                                                                        </IconButton>
+                                                                                                    }
+                                                                                                    startIcon={
+                                                                                                        <IconButton
+                                                                                                            disabled={subItem.qty === fractions[0]}
+                                                                                                            onClick={(e) => {
+                                                                                                                e.stopPropagation();
+                                                                                                                handleDosageQty("minus", index, idx, i);
+                                                                                                            }}
+                                                                                                            size="small"
+                                                                                                            disableRipple>
+                                                                                                            <RemoveIcon/>
+                                                                                                        </IconButton>
+                                                                                                    }
+                                                                                                    variant="white"
+                                                                                                    disableRipple>
+                                                                                                    {subItem.qty}
+                                                                                                </ButtonWhite>
+                                                                                            )}
+                                                                                        </MenuItem>
+                                                                                    )
+                                                                                )}
+                                                                            </Select>
+                                                                        </FormControl>
+                                                                    )}
                                                                     <Select
+                                                                        fullWidth={isMobile}
                                                                         size={"small"}
                                                                         displayEmpty
+                                                                        className={"dosage-meal-select"}
                                                                         sx={{
                                                                             maxHeight: 35,
                                                                             "& .MuiSelect-select": {
-                                                                                background: "white"
-                                                                            }
+                                                                                background: "white",
+                                                                            },
                                                                         }}
                                                                         id="dosageMeal-select"
                                                                         value={item.cycles[index]?.dosageMealValue ? item.cycles[index].dosageMealValue : ""}
-                                                                        onChange={event => {
+                                                                        onChange={(event) => {
                                                                             setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false);
                                                                             setFieldValue(`data[${idx}].cycles[${index}].dosageMealValue`, event.target.value);
                                                                         }}
                                                                         renderValue={(selected) => {
-                                                                            if (!selected || selected && selected.length === 0) {
-                                                                                return <Typography
-                                                                                    color={"gray"}>
-                                                                                    {t("condition", {ns: "consultation"})}
-                                                                                </Typography>;
+                                                                            if (!selected || (selected && selected.length === 0)) {
+                                                                                return (
+                                                                                    <Typography color={"gray"}>
+                                                                                        {t("condition", {
+                                                                                            ns: "consultation",
+                                                                                        })}
+                                                                                    </Typography>
+                                                                                );
                                                                             }
 
                                                                             return t(selected, {ns: "consultation"});
                                                                         }}>
-                                                                        {innerItem.dosageMeal.map((subitem: any) =>
-                                                                            <MenuItem
-                                                                                key={subitem.label}
-                                                                                value={subitem.label}>{t(subitem.label, {ns: "consultation"})}</MenuItem>)}
+                                                                        {innerItem.dosageMeal.map(
+                                                                            (subItem: any) => (
+                                                                                <MenuItem
+                                                                                    key={subItem.label}
+                                                                                    value={subItem.label}>
+                                                                                    {t(subItem.label, {ns: "consultation"})}
+                                                                                </MenuItem>
+                                                                            )
+                                                                        )}
                                                                     </Select>
+                                                                    {index !== 0 &&
+                                                                        <IconButton
+                                                                            onClick={() => handleRemoveCycle(idx, innerItem)}
+                                                                            className="btn-list-action"
+                                                                            sx={{
+                                                                                "&.btn-list-action": {
+                                                                                    p: 1,
+                                                                                    background: "white",
+                                                                                    ml: "auto"
+                                                                                }
+                                                                            }}>
+                                                                            <IconUrl color={theme.palette.text.primary}
+                                                                                     path="ic-delete"
+                                                                                     width={16} height={16}/>
+                                                                        </IconButton>}
                                                                 </Stack>
                                                             </Stack>
 
                                                             <TextField
-                                                                sx={{mt: .5}}
-                                                                value={values.data[idx].cycles[index].dosageInput ? values.data[idx].cycles[index].dosageInputText : generateDosageText(values.data[idx].cycles[index], values.data[idx].unit)}
-                                                                onChange={event => {
+                                                                sx={{mt: 0.5}}
+                                                                value={
+                                                                    values.data[idx].cycles[index].dosageInput
+                                                                        ? values.data[idx].cycles[index].dosageInputText
+                                                                        : generateDosageText(
+                                                                            values.data[idx].cycles[index],
+                                                                            values.data[idx].unit
+                                                                        )
+                                                                }
+                                                                onChange={(event) => {
                                                                     const dosage = generateDosageText(values.data[idx].cycles[index], values.data[idx].unit);
                                                                     const inputText = event.target.value;
                                                                     const hasChange = inputText.length === 0 && values.data[idx].cycles[index].dosageInputText.length > 0;
@@ -669,19 +1140,31 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     setFieldValue(`data[${idx}].cycles[${index}].dosageInputText`, hasChange ? dosage : inputText);
                                                                 }}
                                                                 fullWidth
-                                                                placeholder={t("enter_your_dosage")}/>
+                                                                placeholder={t("enter_your_dosage")}
+                                                            />
                                                         </Stack>
-                                                        <Stack mt={1} direction={"row"} alignItems={"center"}>
+                                                        <Stack
+                                                            mt={1}
+                                                            direction={{xs: "column", md: "row"}}
+                                                            alignItems={{xs: "flex-start", md: "center"}}>
                                                             <Typography gutterBottom mr={1}>
                                                                 {t("durations", {ns: "consultation"})}
                                                             </Typography>
                                                             <Stack
                                                                 spacing={0.5}
+                                                                width={{xs: "100%", md: "auto"}}
+                                                                mr={{xs: 0, md: 1}}
                                                                 mb={0.5}
-                                                                flexWrap="wrap"
-                                                                direction="row"
+                                                                direction={{xs: "column", sm: "row"}}
                                                                 alignItems="center">
                                                                 <Button
+                                                                    sx={{
+                                                                        justifyContent: {
+                                                                            xs: "space-between",
+                                                                            md: "center",
+                                                                        },
+                                                                    }}
+
                                                                     component="label"
                                                                     onClick={(event: any) => {
                                                                         event.stopPropagation();
@@ -691,9 +1174,14 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                         <IconButton
                                                                             sx={{p: 1, m: 0}}
                                                                             disabled={
-                                                                                innerItem.dosageDuration === parseInt(fractions[fractions.length - 1])
+                                                                                innerItem.dosageDuration ===
+                                                                                parseInt(
+                                                                                    fractions[fractions.length - 1]
+                                                                                )
                                                                             }
-                                                                            onClick={() => durationCounter("plus", index, idx)}
+                                                                            onClick={() =>
+                                                                                durationCounter("plus", index, idx)
+                                                                            }
                                                                             size="small"
                                                                             disableRipple>
                                                                             <AddIcon/>
@@ -702,10 +1190,10 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     startIcon={
                                                                         <IconButton
                                                                             sx={{p: 1, m: 0}}
-                                                                            disabled={
-                                                                                innerItem.dosageDuration === 1
+                                                                            disabled={innerItem.dosageDuration === 1}
+                                                                            onClick={() =>
+                                                                                durationCounter("minus", index, idx)
                                                                             }
-                                                                            onClick={() => durationCounter("minus", index, idx)}
                                                                             size="small"
                                                                             disableRipple>
                                                                             <RemoveIcon/>
@@ -713,231 +1201,384 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     }
                                                                     variant="white"
                                                                     disableRipple>
-                                                                    {innerItem.dosageDuration}
+                                                                    <InputBase
+                                                                        onFocus={event => {
+                                                                            event.target.select();
+                                                                        }}
+                                                                        sx={{
+                                                                            width: 16,
+                                                                            "& .MuiInputBase-input": {
+                                                                                textAlign: "center",
+                                                                                p: 0
+                                                                            }
+                                                                        }}
+                                                                        value={innerItem.dosageDuration}
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                        onChange={(e) => {
+                                                                            if (parseInt(e.target.value)) {
+                                                                                setFieldValue(`data[${idx}].cycles[${index}].dosageDuration`, parseInt(e.target.value));
+                                                                            }
+                                                                        }}
+                                                                    />
                                                                 </Button>
-                                                                {innerItem.duration.map((subitem: any) => (
-                                                                    <Button
-                                                                        component="label"
-                                                                        variant="white"
-                                                                        disableRipple
-                                                                        startIcon={
-                                                                            <Radio
-                                                                                {...getFieldProps(
-                                                                                    `data[${idx}].cycles[${index}].durationValue`
-                                                                                )}
-                                                                                value={subitem.value}
-                                                                                checked={
-                                                                                    item.cycles[index].durationValue ===
-                                                                                    subitem.value
-                                                                                }
-                                                                            />
-                                                                        }
-                                                                        key={subitem.label}>
-                                                                        {t(subitem.label, {ns: "consultation"})}
-                                                                    </Button>
-                                                                ))}
-                                                                {errors.data && (errors.data as any)[idx]?.cycles && (errors.data as any)[idx]?.cycles[index]?.durationValue &&
-                                                                    <FormControl sx={{m: 3}} error
-                                                                                 variant="standard">
-                                                                        <FormHelperText>{t("duration-error", {ns: "consultation"})}</FormHelperText>
-                                                                    </FormControl>}
+                                                                {!isMobile ? (
+                                                                    innerItem.duration.map((subItem: any) => (
+                                                                        <Button
+                                                                            component="label"
+                                                                            variant="white"
+                                                                            disableRipple
+                                                                            startIcon={
+                                                                                <Radio
+                                                                                    {...getFieldProps(`data[${idx}].cycles[${index}].durationValue`)}
+                                                                                    value={subItem.value}
+                                                                                    checked={item.cycles[index].durationValue === subItem.value}
+                                                                                />
+                                                                            }
+                                                                            key={subItem.label}>
+                                                                            {t(subItem.label, {ns: "consultation"})}
+                                                                        </Button>
+                                                                    ))
+                                                                ) : (
+                                                                    <Select
+                                                                        fullWidth={isMobile}
+                                                                        size={"small"}
+                                                                        displayEmpty
+                                                                        sx={{
+                                                                            maxHeight: 35,
+                                                                            "& .MuiSelect-select": {
+                                                                                background: "white",
+                                                                            },
+                                                                        }}
+                                                                        id="durationValue-select"
+                                                                        {...getFieldProps(
+                                                                            `data[${idx}].cycles[${index}].durationValue`
+                                                                        )}
+                                                                        renderValue={(selected) => {
+                                                                            if (
+                                                                                !selected ||
+                                                                                (selected && selected.length === 0)
+                                                                            ) {
+                                                                                return (
+                                                                                    <Typography color={"gray"}>
+                                                                                        {t("durations", {ns: "consultation"})}
+                                                                                    </Typography>
+                                                                                );
+                                                                            }
+
+                                                                            return t(selected, {
+                                                                                ns: "consultation",
+                                                                            });
+                                                                        }}>
+                                                                        {innerItem.duration.map((subItem: any) => (
+                                                                            <MenuItem
+                                                                                key={subItem.label}
+                                                                                value={subItem.label}>
+                                                                                {t(subItem.label, {ns: "consultation"})}
+                                                                            </MenuItem>
+                                                                        ))}
+                                                                    </Select>
+                                                                )}
+                                                                {errors.data &&
+                                                                    (errors.data as any)[idx]?.cycles &&
+                                                                    (errors.data as any)[idx]?.cycles[index]
+                                                                        ?.durationValue && (
+                                                                        <FormControl
+                                                                            sx={{m: 3}}
+                                                                            error
+                                                                            variant="standard">
+                                                                            <FormHelperText>
+                                                                                {t("duration-error", {
+                                                                                    ns: "consultation",
+                                                                                })}
+                                                                            </FormHelperText>
+                                                                        </FormControl>
+                                                                    )}
                                                             </Stack>
                                                         </Stack>
                                                         <Stack mt={1}>
                                                             <FormControlLabel
                                                                 control={
                                                                     <Checkbox
-                                                                        checked={values.data[idx].cycles[index].cautionaryNoteInput}
+                                                                        checked={
+                                                                            values.data[idx].cycles[index]
+                                                                                .cautionaryNoteInput
+                                                                        }
                                                                         onChange={(event) => {
-                                                                            setFieldValue(`data[${idx}].cycles[${index}].cautionaryNoteInput`, event.target.checked)
+                                                                            setFieldValue(
+                                                                                `data[${idx}].cycles[${index}].cautionaryNoteInput`,
+                                                                                event.target.checked
+                                                                            );
                                                                         }}
-                                                                        name="autre"/>
+                                                                        name="autre"
+                                                                    />
                                                                 }
-                                                                label={t("cautionary_note", {ns: "consultation"})}
+                                                                label={t("cautionary_note", {
+                                                                    ns: "consultation",
+                                                                })}
                                                             />
-                                                            {values.data[idx].cycles[index].cautionaryNoteInput &&
+                                                            {values.data[idx].cycles[index].cautionaryNoteInput && (
                                                                 <TextField
-                                                                    {...getFieldProps(`data[${idx}].cycles[${index}].cautionaryNote`)}
+                                                                    {...getFieldProps(
+                                                                        `data[${idx}].cycles[${index}].cautionaryNote`
+                                                                    )}
                                                                     fullWidth
-                                                                    placeholder={t("cautionary_note_placeholder")}/>}
+                                                                    placeholder={t("cautionary_note_placeholder")}
+                                                                />
+                                                            )}
                                                         </Stack>
-                                                        <IconButton
-                                                            onClick={() =>
-                                                                handleRemoveCycle(idx, innerItem)
-                                                            }
-                                                            className="btn-del"
-                                                            disableRipple>
-                                                            <IconUrl path="icdelete"/>
-                                                        </IconButton>
                                                     </CardContent>
                                                 </Card>
                                             ))}
                                         </Stack>
-                                        <Button
-                                            {...(values.data[idx].cycles.length === 0 && {sx: {mt: 1}})}
-                                            onClick={() => handAddCycle(idx)}
-                                            size="small"
-                                            startIcon={<AddIcon/>}>
-                                            {t("cycle", {ns: "consultation"})}
-                                        </Button>
+                                        <Stack direction={"row"} sx={{width: "100%"}} justifyContent={"space-between"}>
+                                            <Button
+                                                {...(values.data[idx].cycles.length === 0 && {
+                                                    sx: {mt: 1},
+                                                })}
+                                                onClick={() => handAddCycle(idx)}
+                                                startIcon={<AddIcon/>}>
+                                                {t("cycle", {ns: "consultation"})}
+                                            </Button>
+
+                                            <Button
+                                                onClick={() => {
+                                                    setModelNameInput(drugs[idx].cycles[drugs[idx].cycles.length - 1]?.dosage ?? "");
+                                                    setModelDosage({...drugs[idx], idx});
+                                                    setOpenAddDialogAction("dosage");
+                                                    setTimeout(() => setOpenAddDialog(true));
+                                                }}
+                                                variant={"contained"}
+                                                disabled={drugs[idx]?.cycles.some((cycle: any) => cycle.dosage.length === 0) ?? true}
+                                                {...(values.data[idx].cycles.length === 0 && {
+                                                    sx: {mt: 1},
+                                                })}
+                                                startIcon={<IconUrl path={"dosage-model"}/>}>
+                                                {t("add-dosage-model", {ns: "consultation"})}
+                                            </Button>
+                                        </Stack>
+
                                     </Paper>
                                 ))}
                             </Stack>
                         </FormikProvider>
                     </Grid>
                     <Grid item md={4} xs={12}>
-                        <Stack direction="row"
-                               spacing={{xs: 1, md: 2}}
-                               {...(!isMobile && {sx: {position: "sticky", top: "0"}})}>
+                        <Stack
+                            direction="row"
+                            spacing={{xs: 1, md: 2}}
+                            {...(!isMobile && {sx: {position: "sticky", top: "0"}})}>
                             <Stack direction={"column"} sx={{width: "100%"}}>
-                                <Stack direction={"row"} spacing={1.2}>
-                                    {!editModel ? <ModelSwitchButton
-                                            {...{t, editModel, lastPrescriptions, drugs}}
-                                            {...(isMobile && {
-                                                fullWidth: true,
-                                            })}
-                                            className='custom-button'
-                                            variant="contained"
-                                            onClickEvent={(action: string) => {
-                                                switch (action) {
-                                                    case "last-prescription":
-                                                        const last: any[] = [];
-                                                        lastPrescriptions[0].prescription[0].prescription_has_drugs.map((drug: any) => {
-                                                            last.push({
-                                                                cycles: drug.cycles,
-                                                                drugUuid: drug.standard_drug.uuid,
-                                                                name: drug.standard_drug.commercial_name
-                                                            });
-                                                        })
-                                                        switchPrescriptionModel([...last]);
-                                                        break;
-                                                    case "set-prescription":
-                                                        setInfo("medical_prescription_model");
-                                                        setOpenDialog(true);
-                                                        break;
-                                                }
-                                            }}></ModelSwitchButton> :
-                                        <LoadingButton
-                                            {...{loading}}
-                                            loadingPosition="start"
-                                            disabled={drugs?.length === 0}
-                                            {...(isMobile && {
-                                                fullWidth: true,
-                                            })}
-                                            color="warning"
-                                            onClick={() => {
-                                                editPrescriptionAction();
-                                            }}
-                                            className='custom-button'
-                                            variant="contained"
-                                            startIcon={<EditIcon/>}>
-                                            {t("editModel", {ns: "consultation"})} {`${editModel?.text} ${t("model")}`}
-                                        </LoadingButton>}
-                                    {editModel &&
-                                        <Button
-                                            disabled={loading}
-                                            onClick={() => setEditModel(null)}
-                                            color={"error"}
-                                            className='custom-button'
-                                            variant="contained">
-                                            {t('cancel')}
-                                        </Button>}
-                                </Stack>
-                                <Divider
-                                    sx={{
-                                        display: {xs: "block", md: "none"},
-                                        mt: 2,
-                                        width: "calc(100% + 48px)",
-                                        position: "relative",
-                                        left: -24,
-                                    }}
-                                />
 
-                                <Box sx={{width: '100%', "& .MuiBox-root": {p: 0}}}>
-                                    <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                                        <Tabs value={prescriptionTabIndex} onChange={handlePrescriptionTabChange}
-                                              aria-label="prescription tabs">
-                                            <Tab disableFocusRipple label={t("preview")} {...a11yProps(0)} />
-                                            <Tab disableFocusRipple label={t("modeles")} {...a11yProps(1)}/>
+                                <Box sx={{width: "100%", "& .MuiBox-root": {p: 0}}}>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between'
+                                           sx={{borderBottom: 1, borderColor: "divider"}}>
+                                        <Tabs
+                                            value={prescriptionTabIndex}
+                                            onChange={handlePrescriptionTabChange}
+                                            aria-label="prescription tabs">
+                                            <Tab
+                                                disableFocusRipple
+                                                label={t("preview")}
+                                                {...a11yProps(0)}
+                                            />
+                                            <Tab
+                                                disableFocusRipple
+                                                label={t("modeles")}
+                                                {...a11yProps(1)}
+                                            />
                                         </Tabs>
-                                    </Box>
+                                        <Stack direction={"row"} spacing={1.2}>
+                                            {!editModel ? (
+                                                <ModelSwitchButton
+                                                    {...{t, editModel, lastPrescriptions, drugs}}
+                                                    {...(isMobile && {
+                                                        fullWidth: true,
+                                                    })}
+                                                    className="custom-button"
+                                                    variant="contained"
+                                                    onClickEvent={(action: string) => {
+                                                        switch (action) {
+                                                            case "last-prescription":
+                                                                const last: any[] = [];
+                                                                lastPrescriptions[0].prescription_has_drugs.map(
+                                                                    (drug: any) => {
+                                                                        last.push({
+                                                                            cycles: drug.cycles,
+                                                                            drugUuid: drug.standard_drug.uuid,
+                                                                            name: drug.standard_drug.commercial_name,
+                                                                        });
+                                                                    }
+                                                                );
+                                                                switchModel([...last]);
+                                                                break;
+                                                            case "set-prescription":
+                                                                setInfo("medical_prescription_model");
+                                                                setOpenDialog(true);
+                                                                break;
+                                                        }
+                                                    }}
+                                                />
+                                            ) : (
+                                                <LoadingButton
+                                                    {...{loading}}
+                                                    loadingPosition="start"
+                                                    disabled={drugs?.length === 0}
+                                                    {...(isMobile && {
+                                                        fullWidth: true,
+                                                    })}
+                                                    color="warning"
+                                                    onClick={() => {
+                                                        editPrescriptionAction();
+                                                    }}
+                                                    className="custom-button"
+                                                    variant="contained"
+                                                    startIcon={<EditIcon/>}>
+                                                    {t("editModel", {ns: "consultation"})}{" "}
+                                                    {`${editModel?.text} ${t("model")}`}
+                                                </LoadingButton>
+                                            )}
+                                            {editModel && (
+                                                <Button
+                                                    disabled={loading}
+                                                    onClick={() => setEditModel(null)}
+                                                    color={"error"}
+                                                    className="custom-button"
+                                                    variant="contained">
+                                                    {t("cancel")}
+                                                </Button>
+                                            )}
+                                        </Stack>
+                                    </Stack>
                                     <TabPanel value={prescriptionTabIndex} index={0}>
                                         <List
                                             className={"prescription-preview"}
                                             subheader={
-                                                <ListSubheader
-                                                    disableSticky
-                                                    component="div" id="nested-list-subheader">
-                                                    {t("drug_list", {ns: "consultation"})}
-                                                </ListSubheader>
+                                                <Stack mt={2} direction='row' alignItems="center"
+                                                       justifyContent='space-between'>
+                                                    <ListSubheader
+                                                        sx={{pl: 0}}
+                                                        disableSticky
+                                                        component="div"
+                                                        id="nested-list-subheader">
+                                                        {t("drug_list", {ns: "consultation"})}
+                                                    </ListSubheader>
+                                                    <IconButton onClick={showPreview} className="btn-list-action"
+                                                                sx={{"&.btn-list-action": {px: .8}}}>
+                                                        <IconUrl path="ic-eye-scan" width={16} height={16}/>
+                                                    </IconButton>
+                                                </Stack>
                                             }>
-                                            {drugs.map((drug: DrugCycleModel, index: number) => <ListItemButton
-                                                key={drug.drugUuid}
-                                                onClick={event => {
-                                                    event.stopPropagation();
-                                                    setTimeout(() => {
-                                                        (refs.current as any)[index]?.scrollIntoView({behavior: 'smooth'});
-                                                    }, 100);
-                                                }}
-                                                alignItems="flex-start">
-                                                <ListItemText
-                                                    primary={`${index + 1} • ${drug.name}`}
-                                                    secondary={
-                                                        <React.Fragment>
-                                                            <span style={{display: "grid"}}>
-                                                                {drug.cycles.map((cycle: PrescriptionCycleModel, indexCycle: number) =>
-                                                                    <span
-                                                                        key={`cycle-${indexCycle}`}
-                                                                        style={{display: "grid"}}>
+                                            {drugs.map((drug: DrugCycleModel, index: number) => (
+                                                <ListItemButton
+                                                    key={drug.drugUuid}
+                                                    className="drug-list-item"
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setTimeout(() => {
+                                                            (refs.current as any)[index]?.scrollIntoView({
+                                                                behavior: "smooth",
+                                                            });
+                                                        }, 100);
+                                                    }}
+                                                    alignItems="flex-start">
+                                                    <ListItemText
+                                                        primary={`${index + 1} • ${drug.name}`}
+                                                        secondary={
+                                                            <React.Fragment>
+                                                                <span style={{display: "grid"}}>
+                                                                  {drug.cycles.map((cycle: PrescriptionCycleModel, indexCycle: number) => (
+                                                                      <span
+                                                                          key={`cycle-${indexCycle}`}
+                                                                          style={{display: "grid"}}>
                                                                         <span>
-                                                                            <Typography
-                                                                                sx={{display: 'inline'}}
-                                                                                component="span"
-                                                                                variant="body2"
-                                                                                color="text.primary"
-                                                                            >
-                                                                                {`${cycle.dosage}  ${cycle?.duration ? `pendant ${cycle.duration}` : ""} ${cycle?.durationType ? t(cycle.durationType) : ""}`}
-                                                                            </Typography>
+                                                                          <Typography
+                                                                              sx={{display: "inline"}}
+                                                                              component="span"
+                                                                              variant="body2"
+                                                                              color="text.primary">
+                                                                            {`${cycle.dosage}  ${
+                                                                                cycle?.duration
+                                                                                    ? `pendant ${cycle.duration}`
+                                                                                    : ""
+                                                                            } ${
+                                                                                cycle?.durationType
+                                                                                    ? t(cycle.durationType)
+                                                                                    : ""
+                                                                            }`}
+                                                                          </Typography>
                                                                             {cycle.note?.length > 0 && `(${cycle.note})`}
                                                                         </span>
-                                                                        {(indexCycle < (drug.cycles.length - 1) &&
-                                                                                !(errors.data && ((errors.data as any)[index]?.cycles[indexCycle + 1] ||
-                                                                                    (errors.data as any)[index]?.cycles[indexCycle]))) &&
-                                                                            <span
-                                                                                style={{marginLeft: 4}}>{t("after", {ns: "consultation"})}</span>}
-                                                                    </span>
-                                                                )}
-                                                            </span>
-                                                        </React.Fragment>
-                                                    }
-                                                />
-                                                <IconButton
-                                                    onClick={event => {
-                                                        event.stopPropagation();
-                                                        handleRemoveDrug(index);
-                                                    }}
-                                                    className="btn-del"
-                                                    disableRipple>
-                                                    <IconUrl color="red" width={12} height={12} path="icdelete"/>
-                                                </IconButton>
-                                            </ListItemButton>)}
+                                                                          {indexCycle < drug.cycles?.length - 1 &&
+                                                                              !(errors.data && ((errors.data as any)[index]?.cycles[indexCycle + 1] || (errors.data as any)[index]?.cycles[indexCycle])) && (
+                                                                                  <span
+                                                                                      style={{marginLeft: 4}}>{t("after", {ns: "consultation"})}</span>
+                                                                              )}
+                                                                      </span>
+                                                                  ))}
+                                                                </span>
+                                                            </React.Fragment>
+                                                        }
+                                                    />
+                                                    <IconButton
+                                                        className="btn-edit"
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            setTimeout(() => {
+                                                                (refs.current as any)[index]?.scrollIntoView({
+                                                                    behavior: "smooth",
+                                                                });
+                                                            }, 100);
+                                                        }}
+                                                        disableRipple>
+                                                        <IconUrl
+                                                            width={12}
+                                                            height={12}
+                                                            path="ic-edit"
+                                                        />
+                                                    </IconButton>
+                                                    <IconButton
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            handleRemoveDrug(index);
+                                                        }}
+                                                        className="btn-del"
+                                                        disableRipple>
+                                                        <IconUrl
+                                                            color="red"
+                                                            width={12}
+                                                            height={12}
+                                                            path="ic-delete"
+                                                        />
+                                                    </IconButton>
+                                                </ListItemButton>
+                                            ))}
                                         </List>
                                     </TabPanel>
                                     <TabPanel value={prescriptionTabIndex} index={1}>
-                                        <ModelPrescriptionList {...{
-                                            models,
-                                            t,
-                                            initialOpenData,
-                                            switchPrescriptionModel,
-                                            editPrescriptionModel
-                                        }}/>
-                                        <Button size={"small"}
-                                                onClick={() => setOpenAddParentDialog(true)}
-                                                sx={{alignSelf: "flex-start", mb: 1}}
-                                                color={"primary"}
-                                                startIcon={<AddRoundedIcon/>}>
-                                            {t("new_file", {ns: "consultation"})}
-                                        </Button>
+                                        <Stack mt={2} direction='row' alignItems="center"
+                                               justifyContent='space-between'>
+                                            <Typography fontWeight={700}>
+                                                {t("model_list")}
+                                            </Typography>
+                                            <IconButton
+                                                onClick={() => {
+                                                    setOpenAddDialogAction("parent");
+                                                    setOpenAddDialog(true)
+                                                }}
+                                                className="btn-list-action">
+                                                <IconUrl path="ic-folder-add" width={20} height={20}/>
+                                            </IconButton>
+                                        </Stack>
+                                        <ModelPrescriptionList
+                                            {...{
+                                                models,
+                                                t,
+                                                initialOpenData,
+                                                switchModel,
+                                                editPrescriptionModel,
+                                                setOpenAddParentDialog: setOpenAddDialog
+                                            }}
+                                        />
                                     </TabPanel>
                                 </Box>
                             </Stack>
@@ -955,7 +1596,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     title: t("save_the_template_in_folder", {
                         ns: "consultation",
                     }),
-                    data: {t, dose: true, models, setOpenAddParentDialog},
+                    data: {t, dose: true, models, setOpenAddDialog},
                     actionDialog: (
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Button
@@ -984,26 +1625,29 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         width: "100%",
                     },
                 }}
-                onClose={() => setOpenAddParentDialog(false)}
-                open={openAddParentDialog}>
+                onClose={() => {
+                    setOpenAddDialog(false);
+                    setModelNameInput("");
+                }}
+                open={openAddDialog}>
                 <DialogTitle
                     sx={{
                         bgcolor: (theme: Theme) => theme.palette.primary.main,
                         mb: 2,
                     }}>
-                    {t("add_group_model", {ns: "consultation"})}
+                    {t(openAddDialogAction === "parent" ? "add_group_model" : "add_model_dosage", {ns: "consultation"})}
                 </DialogTitle>
                 <DialogContent>
                     <Typography gutterBottom>
-                        {t("group_model_name", {ns: "consultation"})}
+                        {t(openAddDialogAction === "parent" ? "group_model_name" : "model_dosage_name", {ns: "consultation"})}
                     </Typography>
                     <TextField
                         fullWidth
-                        value={parentModelName}
-                        onChange={(e) => {
-                            setParentModelName(e.target.value);
-                        }}
-                        placeholder={t("group_model_name_placeholder", {ns: "consultation"})}
+                        value={modelNameInput}
+                        onChange={(e) => setModelNameInput(e.target.value)}
+                        placeholder={t(openAddDialogAction === "parent" ? "group_model_name_placeholder" : "model_dosage_name_placeholder", {
+                            ns: "consultation",
+                        })}
                     />
                 </DialogContent>
                 <DialogActions>
@@ -1015,15 +1659,16 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         <Button
                             variant="text-black"
                             onClick={() => {
-                                setOpenAddParentDialog(false);
+                                setOpenAddDialog(false);
+                                setModelNameInput("");
                             }}
                             startIcon={<CloseIcon/>}>
                             {t("cancel", {ns: "consultation"})}
                         </Button>
                         <LoadingButton
                             {...{loading}}
-                            disabled={parentModelName.length === 0}
-                            onClick={handleAddParentModel}
+                            disabled={modelNameInput.length === 0}
+                            onClick={openAddDialogAction === "parent" ? handleAddParentModel : handleAddDosageModel}
                             startIcon={<IconUrl path="ic-dowlaodfile"/>}
                             variant="contained">
                             {t("save", {ns: "consultation"})}

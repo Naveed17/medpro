@@ -11,5 +11,6 @@ export const setAgendas = createAction<AgendaConfigurationModel[]>("agenda/setAg
 export const setPendingAppointments = createAction<AppointmentModel[]>("agenda/setPendingAppointments");
 export const setSelectedEvent = createAction<EventDef | null>("agenda/setSelectedEvent");
 export const setGroupedByDayAppointments = createAction<GroupEventsModel[]>("agenda/setGroupedByDayAppointments");
+export const setAbsences = createAction<AppointmentModel[]>("agenda/setAbsences");
 export const setAppointmentTypes = createAction<AppointmentTypeModel[]>("agenda/setAppointmentTypes");
 export const setLastUpdate = createAction<{ title: string, body: string } | null>("agenda/setLastUpdate");

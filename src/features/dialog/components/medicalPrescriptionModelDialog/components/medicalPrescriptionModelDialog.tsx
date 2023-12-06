@@ -15,12 +15,14 @@ import FolderOpenRoundedIcon from '@mui/icons-material/FolderOpenRounded';
 import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {prescriptionSelector, setModelName, setParentModel} from "@features/dialog";
+import {useTranslation} from "next-i18next";
 
 function MedicalPrescriptionModelDialog({...props}) {
     const {data: dialogData} = props;
-    const {t, models, setOpenAddParentDialog} = dialogData;
+    const {models, setOpenAddParentDialog, color = "primary"} = dialogData;
     const dispatch = useAppDispatch();
 
+    const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"});
     const {parent} = useAppSelector(prescriptionSelector);
 
     const [selectedParent, setSelectedParent] = useState<string>("");
@@ -34,7 +36,7 @@ function MedicalPrescriptionModelDialog({...props}) {
 
     return (
         <>
-            <MedicalPrescriptionModelDialogStyled>
+            <MedicalPrescriptionModelDialogStyled {...{color}}>
                 {dialogData?.dose && (
                     <Stack>
                         <TextField
@@ -43,13 +45,17 @@ function MedicalPrescriptionModelDialog({...props}) {
                                 setValue(e.target.value);
                                 dispatch(setModelName(e.target.value));
                             }}
+                            {...(value.length === 0 && {
+                                error: true,
+                                helperText: t("model_missing_name")
+                            })}
                             placeholder={t("new_model", {ns: "consultation"})}
                         />
-                        <Typography variant="body2" mt={2} fontWeight={600}>
-                            {dialogData?.t("file", {ns: "consultation"})}
-                        </Typography>
                     </Stack>
                 )}
+                <Typography variant="body2" {...(dialogData?.dose && {mt: 2})} fontWeight={600}>
+                    {t("file", {ns: "consultation"})}
+                </Typography>
                 <RadioGroup
                     aria-labelledby="prescription-group-label"
                     value={selectedParent}
@@ -71,7 +77,7 @@ function MedicalPrescriptionModelDialog({...props}) {
                                     label={
                                         <Typography>{item.isDefault ? "Répertoire par défaut" : item.name}</Typography>}
                                     control={<Radio icon={<FolderOpenRoundedIcon/>}
-                                                    checkedIcon={<FolderRoundedIcon color={"primary"}/>}/>}/>
+                                                    checkedIcon={<FolderRoundedIcon/>}/>}/>
                             </Stack>
                         </ListItem>
                     ))}
@@ -83,7 +89,9 @@ function MedicalPrescriptionModelDialog({...props}) {
                         onClick={() => setOpenAddParentDialog(true)}>
                         <Stack direction="row" alignItems="center">
                             <IconUrl path="ic-plus" className="ic-add"/>
-                            {t("new_file", {ns: "consultation"})}
+                            <Typography
+                                variant="body1"
+                                color={`${color}.main`}>{t("new_file", {ns: "consultation"})}</Typography>
                         </Stack>
                     </Link>
                 </ListItem>

@@ -7,24 +7,31 @@ import {PatientAppointmentCard} from "@features/card";
 import {AutoComplete} from "@features/autoComplete";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
-import {useRequestMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function AutoCompleteButton({...props}) {
-    const {translation, data, loading, OnClickAction, onSearchChange, OnOpenSelect = null} = props;
+    const {
+        translation,
+        data,
+        defaultValue = "",
+        loading,
+        OnClickAction,
+        onSearchChange,
+        OnOpenSelect = null,
+        size = 'medium'
+    } = props;
 
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {patient: initData} = useAppSelector(appointmentSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {trigger: PatientDetailsTrigger} = useRequestMutation(null, "patient/data");
+    const {trigger: PatientDetailsTrigger} = useRequestQueryMutation("patient/data");
 
     const [focus, setFocus] = useState(true);
     const [patient, setPatient] = useState<PatientWithNextAndLatestAppointment | null>(initData);
@@ -36,19 +43,18 @@ function AutoCompleteButton({...props}) {
     const onEditPatient = () => {
         medicalEntityHasUser && PatientDetailsTrigger({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            }
-        }).then((result: any) => {
-            const {status} = result?.data;
-            const patient = (result?.data as HttpResponse)?.data;
-            if (status === "success") {
-                dispatch(setAppointmentPatient(patient as any));
-                OnClickAction(true);
-            }
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`
+        }, {
+            onSuccess: (result: any) => {
+                const {status} = result?.data;
+                const patient = (result?.data as HttpResponse)?.data;
+                if (status === "success") {
+                    dispatch(setAppointmentPatient(patient as any));
+                    OnClickAction(true);
+                }
 
-        })
+            }
+        });
     }
 
     useEffect(() => {
@@ -79,11 +85,9 @@ function AutoCompleteButton({...props}) {
                             <ClickAwayListener onClickAway={handleClickAway}>
                                 <Box sx={{mb: 4}} className="autocomplete-container">
                                     <AutoComplete
+                                        {...{data,defaultValue, loading, onSearchChange, size}}
                                         onAddPatient={OnClickAction}
                                         t={translation}
-                                        onSearchChange={onSearchChange}
-                                        data={data}
-                                        loading={loading}
                                         onSelectData={onSubmitPatient}
                                     />
                                 </Box>
@@ -95,7 +99,7 @@ function AutoCompleteButton({...props}) {
                     key={patient.uuid}
                     item={patient}
                     listing
-                    onEdit={onEditPatient}
+                    {...(size === 'medium' && {onEdit: onEditPatient})}
                     onReset={onSubmitPatient}/>}
         </RootStyled>
     )

@@ -3,8 +3,6 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
-import {useSession} from "next-auth/react";
-import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
     Box,
@@ -31,18 +29,14 @@ import {
     useMediaQuery,
     useTheme
 } from "@mui/material";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
-import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
 import {UploadFile} from "@features/uploadFile";
 import {FileuploadProgress} from "@features/progressUI";
-import {SWRNoValidateConfig, TriggerWithoutValidation} from "@lib/swr/swrProvider";
 import Zoom from "@mui/material/Zoom";
 import PreviewA4 from "@features/files/components/previewA4";
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
@@ -62,14 +56,14 @@ import {useAppSelector} from "@lib/redux/hooks";
 import Autocomplete from "@mui/material/Autocomplete";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 function DocsConfig() {
-
-    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
     const router = useRouter();
     const theme = useTheme();
-    const {data: session} = useSession();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
     const isMobile = useMediaQuery("(max-width:669px)");
     const {enqueueSnackbar} = useSnackbar();
@@ -82,19 +76,21 @@ function DocsConfig() {
     const [files, setFiles] = useState<any[]>([]);
     const [file, setFile] = useState<File | null>(null);
     const [types, setTypes] = useState([]);
-    const [open, setOpen] = useState(false);
+    const [removeModelDialog, setRemoveModelDialog] = useState(false);
     const [title, setTitle] = useState("");
     const [isDefault, setIsDefault] = useState(false);
+    const [hasData, setHasData] = useState(false);
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
     const [data, setData] = useState<any>({
-        background: {show: false, content: {url:''}},
+        background: {show: false, content: {url: ''}},
         header: {show: true, x: 0, y: 0},
         footer: {show: false, x: 0, y: 900, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
         date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
+        cin: {show: false, prefix: 'CIN : ', content: '', x: 40, y: 274},
         size: 'portraitA4',
         content: {
             show: true,
@@ -110,22 +106,18 @@ function DocsConfig() {
 
     const selectedAll = queryState.type.length === types?.length;
 
-    const {trigger} = useRequestMutation(null, "/MP/header");
+    const {trigger: triggerHeaderUpdate} = useRequestQueryMutation("/MP/header/update");
+    const {trigger: triggerHeaderDelete} = useRequestQueryMutation("/MP/header/delete");
 
-    const {data: httpDocumentHeader, mutate} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpDocumentHeader, mutate} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+        url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpTypeResponse} = useRequest({
+    const {data: httpTypeResponse} = useRequestQuery({
         method: "GET",
-        url: `/api/private/document/types/${router.locale}?is_active=0`,
-        headers: {
-            ContentType: "multipart/form-data",
-            Authorization: `Bearer ${session?.accessToken}`,
-        },
-    });
+        url: `/api/private/document/types/${router.locale}`
+    }, {variables: {query: "?is_active=0"}});
 
     const formik = useFormik({
         children: undefined,
@@ -216,46 +208,42 @@ function DocsConfig() {
             form.append('types', typeUuids);
 
         const url = uuid === 'new' ? `${urlMedicalProfessionalSuffix}/header/${router.locale}` : `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`
-        trigger({
+        triggerHeaderUpdate({
             method: uuid === 'new' ? "POST" : "PUT",
             url,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`
+            data: form
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t("updated"), {variant: 'success'})
+                mutate().then(() => {
+                    router.back();
+                });
             }
-        }, TriggerWithoutValidation).then(() => {
-            mutate().then(() => {
-                router.back();
-            });
         })
-        enqueueSnackbar(t("updated"), {variant: 'success'})
     }
 
-    const openDialog = () => {
-        setOpen(true);
+    const openRemoveDialog = () => {
+        setRemoveModelDialog(true);
         setSelected({
             title: t('askRemove'),
             subtitle: t('subtitleRemove'),
             icon: "/static/icons/setting/ic-edit-file.svg",
             name1: title,
-            name2: "",
-            // data: props,
-            request: {
-                method: "DELETE",
-                url: `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`,
-                headers: {
-                    Authorization: `Bearer ${session?.accessToken}`
-                }
-            }
+            name2: ""
         })
     }
 
-    const remove = () => {
-        trigger(selected.request, {revalidate: true, populateCache: true}).then(() => {
-            mutate().then(() => {
-                router.back();
-                enqueueSnackbar(t("removed"), {variant: 'error'})
-            });
+    const removeModel = () => {
+        triggerHeaderDelete({
+            method: "DELETE",
+            url: `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                mutate().then(() => {
+                    router.back();
+                    enqueueSnackbar(t("removed"), {variant: 'error'})
+                });
+            }
         });
     }
 
@@ -264,24 +252,25 @@ function DocsConfig() {
         handleInsuranceChange(insurances.type);
     }
 
-
     useEffect(() => {
-        if (uuid === 'new') {
-            setTimeout(() => {
-                setLoading(false)
-            }, 1000);
-        } else if (httpDocumentHeader)
+         if (httpDocumentHeader)
             setDocHeader((httpDocumentHeader as HttpResponse).data.find((res: { uuid: string }) => res.uuid === uuid))
+
+        setTimeout(() => {
+            setLoading(false)
+        }, 2000);
     }, [httpDocumentHeader, uuid])
 
     useEffect(() => {
         if (docHeader) {
-            setTitle((docHeader as DocTemplateModel).title);
-            setIsDefault((docHeader as DocTemplateModel).isDefault);
+            const dh = (docHeader as DocTemplateModel)
+            setTitle(dh.title);
+            setIsDefault(dh.isDefault);
+            setHasData(dh.hasData);
             setQueryState({
-                type: ((docHeader as DocTemplateModel).types)
+                type: (dh.types)
             });
-            const header = (docHeader as DocTemplateModel).header.header
+            const header = dh.header.header
             if (header) {
                 setFieldValue("left1", header.left1)
                 setFieldValue("left2", header.left2)
@@ -291,7 +280,7 @@ function DocsConfig() {
                 setFieldValue("right3", header.right3)
             }
 
-            const data = (docHeader as DocTemplateModel).header.data
+            const data = dh.header.data
             if (data) {
                 if (data.footer === undefined)
                     setData({
@@ -324,7 +313,7 @@ function DocsConfig() {
             setTypes((httpTypeResponse as HttpResponse).data);
     }, [httpTypeResponse])
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -333,12 +322,12 @@ function DocsConfig() {
                     <p style={{margin: 0}}>{`${t("path")} > ${uuid === 'new' ? 'Créer document' : 'Modifier document'}`}</p>
                 </RootStyled>
 
-                {uuid !== 'new' && <Button
+                {uuid !== 'new' && !hasData && <Button
                     type="submit"
                     variant="contained"
                     color={"error"}
                     style={{marginRight: 10}}
-                    onClick={openDialog}>
+                    onClick={openRemoveDialog}>
                     {!isMobile ? t("remove") : <DeleteOutlineRoundedIcon/>}
                 </Button>}
                 <Button
@@ -650,15 +639,8 @@ function DocsConfig() {
                                             branding: false,
                                             statusbar: false,
                                             menubar: false,
-                                            plugins: [
-                                                'advlist autolink lists link image charmap print preview anchor',
-                                                'searchreplace visualblocks code fullscreen textcolor',
-                                                'insertdatetime media table paste code help wordcount'
-                                            ],
-                                            toolbar: 'undo redo | formatselect | ' +
-                                                'bold italic backcolor forecolor | alignleft aligncenter ' +
-                                                'alignright alignjustify | bullist numlist outdent indent | ' +
-                                                'removeformat | help',
+                                            plugins: tinymcePlugins,
+                                            toolbar: tinymceToolbar,
                                             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
 
                                         }}
@@ -782,6 +764,20 @@ function DocsConfig() {
                                         : {data.patient.x} , y : {data.patient.y}</Typography>
                                 </fieldset>
                             </Collapse>
+
+                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                                <Checkbox
+                                    checked={data.cin && data.cin.show}
+                                    onChange={(ev) => {
+                                        if(data.cin) {
+                                            data.cin.show = ev.target.checked;
+                                            setData({...data})
+                                        }
+                                        else setData({...data,cin:{show: true, prefix: 'CIN : ', content: '', x: 40, y: 274}})
+                                    }}
+                                />
+                                <ListItemText primary={t("cin")}/>
+                            </ListItem>
                         </List>
                     </Box>
                 </Grid>
@@ -790,7 +786,7 @@ function DocsConfig() {
                     {<Box padding={2}>
                         <Box style={{margin: 'auto', paddingTop: 20}}>
                             <Box ref={componentRef}>
-                                <PreviewA4  {...{eventHandler, data, values, loading}} />
+                                {!loading && <PreviewA4  {...{eventHandler, data, values, loading}} />}
                                 {loading &&
                                     <div className={data.size ? data.size : "portraitA5"} style={{padding: 20}}>
                                         {Array.from(Array(30)).map((item, key) => (
@@ -804,25 +800,26 @@ function DocsConfig() {
             </Grid>
 
 
-            <Dialog action={"remove"}
-                    open={open}
-                    data={selected}
-                    direction={direction}
-                    color={(theme: Theme) => theme.palette.error.main}
-                    title={t('remove')}
-                    t={t}
-                    actionDialog={
-                        <DialogActions>
-                            <Button onClick={() => {
-                                setOpen(false);
-                            }}
-                                    startIcon={<CloseIcon/>}>{t('cancel')}</Button>
-                            <LoadingButton variant="contained"
-                                           loading={loading}
-                                           sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
-                                           onClick={remove}>{t('remove')}</LoadingButton>
-                        </DialogActions>
-                    }
+            <Dialog
+                action={"remove"}
+                open={removeModelDialog}
+                data={selected}
+                direction={direction}
+                color={(theme: Theme) => theme.palette.error.main}
+                title={t('remove')}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => {
+                            setRemoveModelDialog(false);
+                        }}
+                                startIcon={<CloseIcon/>}>{t('cancel')}</Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loading}
+                            sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
+                            onClick={removeModel}>{t('remove')}</LoadingButton>
+                    </DialogActions>
+                }
             />
         </>
     );

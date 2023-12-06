@@ -1,5 +1,4 @@
 const {i18n} = require("./next-i18next.config");
-const {withTM} = require("./next-fullcalendar.config");
 const {withSentryConfig} = require('@sentry/nextjs');
 const plugins = [];
 
@@ -9,29 +8,45 @@ const withPWA = require("next-pwa")({
     disable: process.env.NODE_ENV === 'development',
     skipWaiting: true
 });
-
 plugins.push(withPWA);
 
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true',
+});
+
+plugins.push(withBundleAnalyzer);
 /**
  * @type {{}}
  */
-const nextConfig = withTM({
+const nextConfig = {
     output: 'standalone',
     i18n,
     images: {
-        domains: ["flagcdn.com", process.env.S3_URL || '']
+        dangerouslyAllowSVG: true,
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'flagcdn.com',
+                port: '',
+                pathname: '**',
+            }, {
+                protocol: 'https',
+                hostname: process.env.S3_URL || '',
+                port: '',
+                pathname: '**',
+            }]
     },
     sentry: {
         hideSourceMaps: process.env.NODE_ENV !== 'development'
     },
-    webpack: (config, {nextRuntime}) => {
+    webpack: (config) => {
         config.module.rules.push({
             test: /\.svg$/,
             use: ["@svgr/webpack", "url-loader"]
         });
         return config;
     }
-});
+}
 
 moduleExports = () => plugins.reduce((acc, next) => next(acc), nextConfig)
 

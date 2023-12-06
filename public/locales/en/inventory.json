@@ -1,0 +1,39 @@
+{
+    "title": "Inventory",
+    "add": "Add",
+    "cancel": "Cancel",
+    "save": "Save",
+    "table": {
+        "#": "#",
+        "name": "Name",
+        "quality": "Quantity",
+        "before_amount": "Before Amount",
+        "after_amount": "After Amount",
+        "total": "Total",
+        "actions": "Actions"
+    },
+    "dialog": {
+        "title": "Delete product",
+        "description": "Would you like to delete the product?",
+        "cancel": "Cancel",
+        "delete": "Delete"
+    },
+    "filter": {
+        "title": "Filter",
+        "name": "Name",
+        "product": "Product",
+        "placeholder_name": "Enter the name of Product",
+        "brand": "Brand",
+        "placeholder_brand": "Select the Brand",
+        "category": "Category",
+        "placeholder_category": "Select the category",
+        "stock": "Stock",
+        "placeholder_stock": "Select the stock",
+        "is_hidden": "Is Hidden",
+        "is_for_appointment": "Is for Appointment"
+    },
+    "no-data": {
+        "title": "Add your first product",
+        "description": "If you don't have any products, add them by clicking on 'Add a product'."
+    }
+}

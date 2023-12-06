@@ -4,7 +4,7 @@ import AddPatient from "@interfaces/AddPatient";
 import {DefaultCountry} from "@lib/constants";
 
 export type MenuState = {
-    openUploadDialog:boolean;
+    openUploadDialog: boolean;
     stepsData: AddPatient;
 };
 
@@ -21,6 +21,7 @@ export const initialPatientState: MenuState = {
                 month: "",
                 year: "",
             },
+            old: "",
             phones: [{
                 phone: "",
                 dial: DefaultCountry
@@ -50,8 +51,7 @@ export const addPatientReducer = createReducer(initialPatientState, (builder) =>
         state.stepsData.submit = action.payload;
     }).addCase(setOpenUploadDialog, (state, action) => {
         state.openUploadDialog = action.payload;
-    })
-        .addCase(onResetPatient, (state, action) => {
-            return {...state, ...initialPatientState}
-        });
+    }).addCase(onResetPatient, (state, action) => {
+        return {...state, ...initialPatientState}
+    });
 });

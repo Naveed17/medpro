@@ -1,13 +1,16 @@
-import AddEventIcon from "@themes/overrides/icons/addEventIcon";
 import React from "react";
 import StyledMenu from "./overrides/styledMenu";
-import {Box, Button, MenuItem, Typography} from "@mui/material";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import {Box, MenuItem, useTheme} from "@mui/material";
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import AddIcon from "@mui/icons-material/Add";
+import {CustomIconButton} from "@features/buttons";
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 
 function CalendarAddButton({...props}) {
-    const {onClickEvent, t, ...rest} = props;
+    const {onClickEvent, t} = props;
+    const theme = useTheme();
+
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -36,56 +39,49 @@ function CalendarAddButton({...props}) {
                     fontSize: 19
                 }
             }}>
-            <Button
-                {...rest}
-                color={"warning"}
-                id="demo-customized-button"
-                aria-controls={open ? 'demo-customized-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? 'true' : undefined}
-                variant="contained"
-                disableElevation
+            <CustomIconButton
                 onClick={handleClick}
-                startIcon={<AddEventIcon/>}
-                endIcon={<KeyboardArrowDownIcon/>}
-            >
-                {t && <Typography>{t("add")}</Typography>}
-            </Button>
+                variant="filled"
+                sx={{ p: .8}}
+                color={"warning"}
+                size={"small"}>
+                <AgendaAddViewIcon />
+            </CustomIconButton>
             <StyledMenu
+                {...{open, anchorEl}}
                 id="demo-customized-menu"
                 MenuListProps={{
                     'aria-labelledby': 'demo-customized-button',
                 }}
-                PaperProps={{
-                    elevation: 0,
-                    sx: {
-                        overflow: 'visible',
-                        filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
-                        mt: 1.5,
-                        '& .MuiAvatar-root': {
-                            width: 32,
-                            height: 32,
-                            ml: -0.5,
-                            mr: 1,
+                slotProps={{
+                    paper: {
+                        elevation: 0,
+                        sx: {
+                            overflow: 'visible',
+                            filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
+                            mt: 1.5,
+                            '& .MuiAvatar-root': {
+                                width: 32,
+                                height: 32,
+                                ml: -0.5,
+                                mr: 1,
+                            },
+                            '&:before': {
+                                content: '""',
+                                display: 'block',
+                                position: 'absolute',
+                                top: 0,
+                                right: 20,
+                                width: 10,
+                                height: 10,
+                                bgcolor: 'background.paper',
+                                transform: 'translateY(-50%) rotate(45deg)',
+                                zIndex: 0,
+                            },
                         },
-                        '&:before': {
-                            content: '""',
-                            display: 'block',
-                            position: 'absolute',
-                            top: 0,
-                            right: 14,
-                            width: 10,
-                            height: 10,
-                            bgcolor: 'background.paper',
-                            transform: 'translateY(-50%) rotate(45deg)',
-                            zIndex: 0,
-                        },
-                    },
+                    }
                 }}
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-            >
+                onClose={handleClose}>
                 <MenuItem onClick={handleAddQuickAppointment} disableRipple>
                     <FastForwardOutlinedIcon/>
                     {t("add-quick")}

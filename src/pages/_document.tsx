@@ -3,11 +3,8 @@ import Document, {
     Html,
     Head,
     Main,
-    NextScript,
-    DocumentContext,
+    NextScript
 } from "next/document";
-import createCache from "@emotion/cache";
-import createEmotionServer from "@emotion/server/create-instance";
 
 class MyDocument extends Document {
     render() {
@@ -18,11 +15,13 @@ class MyDocument extends Document {
                     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
                     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
                     <link rel="manifest" href="/manifest.json"/>
+                    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+                    <link rel="preconnect" href="https://fonts.gstatic.com"/>
                     <link
                         rel="stylesheet"
                         href="https://fonts.googleapis.com/css?family=Poppins:300,400,600&display=swa"
                     />
-                    {/* Inject MUI styles first to match with the prepend: true configuration. */}
+                    {/* Inject MUI styles first to match with to prepend: true configuration. */}
                     {(this.props as any).emotionStyleTags}
                     <link
                         rel="stylesheet"
@@ -37,41 +36,6 @@ class MyDocument extends Document {
                 </body>
             </Html>
         );
-    }
-
-    // `getInitialProps` belongs to `_document` (instead of `_app`),
-    // it's compatible with static-site generation (SSG).
-    static async getInitialProps(ctx: DocumentContext) {
-        const originalRenderPage = ctx.renderPage;
-        const cache = createCache({
-            key: "css",
-            prepend: true,
-        });
-        const {extractCriticalToChunks} = createEmotionServer(cache);
-
-        ctx.renderPage = () =>
-            originalRenderPage({
-                enhanceApp: (App: any) =>
-                    function EnhanceApp(props) {
-                        return <App emotionCache={cache} {...props} />;
-                    },
-            });
-
-        const initialProps = await Document.getInitialProps(ctx);
-        const emotionStyles = extractCriticalToChunks(initialProps.html);
-        const emotionStyleTags = emotionStyles.styles.map((style) => (
-            <style
-                data-emotion={`${style.key} ${style.ids.join(" ")}`}
-                key={style.key}
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{__html: style.css}}
-            />
-        ));
-
-        return {
-            ...initialProps,
-            emotionStyleTags,
-        };
     }
 }
 

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {memo, useEffect, useRef, useState} from 'react'
 import {
     Autocomplete,
     Box,
@@ -8,228 +8,214 @@ import {
     MenuItem,
     Stack,
     TextField,
-    Typography, useTheme
+    Tooltip,
+    Typography,
+    useTheme
 } from "@mui/material";
 import ConsultationDetailCardStyled from './overrides/consultationDetailCardStyle'
-import Icon from "@themes/urlIcon";
 import {useTranslation} from 'next-i18next'
 import {Form, FormikProvider, useFormik} from "formik";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {SetExam, SetListen} from "@features/toolbar/components/consultationIPToolbar/actions";
+import {SetExam} from "@features/toolbar/components/consultationIPToolbar/actions";
 import {consultationSelector} from "@features/toolbar";
-import SpeechRecognition, {useSpeechRecognition} from 'react-speech-recognition';
 import CircularProgress from "@mui/material/CircularProgress";
-import {useRequest, useRequestMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
-import {RecButton} from "@features/buttons";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
 import {dashLayoutSelector} from "@features/base";
 import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-import dynamic from "next/dynamic";
+
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import {debounce} from "lodash";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {Editor} from "@tinymce/tinymce-react";
+import {tinymcePlugins, tinymceToolbarNotes} from "@lib/constants";
+import IconUrl from "@themes/urlIcon";
+import NotesComponent from "@features/card/components/consultationDetailCard/notesComponent";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
-function CIPPatientHistoryCard({...props}) {
-    const {
-        exam: defaultExam,
-        changes,
-        setChanges,
-        uuind,
-        notes,
-        diagnostics,
-        seeHistory,
-        seeHistoryDiagnostic,
-        closed,
-        handleClosePanel,
-        isClose
-    } = props;
-    const router = useRouter();
-    const theme = useTheme();
+const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
+        const {
+            exam: defaultExam,
+            changes,
+            setChanges,
+            app_uuid,
+            hasDataHistory,
+            seeHistory,
+            closed,
+            isClose,
+            agenda,
+            mutateSheetData,
+            fullOb, setFullOb,
+            trigger: triggerAppointmentEdit
+        } = props;
+        const router = useRouter();
+        const theme = useTheme();
 
-    const dispatch = useAppDispatch();
-    const {data: session} = useSession();
-    const {transcript, resetTranscript, listening} = useSpeechRecognition();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+        const dispatch = useAppDispatch();
+        const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {exam, listen} = useAppSelector(consultationSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+        const {exam} = useAppSelector(consultationSelector);
+        const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+        const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const [loadingReq, setLoadingReq] = useState(false);
-    const [isStarted, setIsStarted] = useState(false);
-    let [oldNote, setOldNote] = useState('');
-    let [diseases, setDiseases] = useState<string[]>([]);
-    const [closeExam, setCloseExam] = useState<boolean>(closed);
-    const [hide, setHide] = useState<boolean>(false);
+        const app_data = defaultExam?.appointment_data;
 
-    const {trigger: triggerAddReason} = useRequestMutation(null, "/motif/add");
-    const {trigger: triggerDiseases} = useRequestMutation(null, "/diseases");
 
-    const {
-        data: httpConsultReasonResponse,
-        mutate: mutateReasonsData
-    } = useRequest(medicalEntityHasUser ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+        const [loadingReq, setLoadingReq] = useState(false);
+        let [oldNote, setOldNote] = useState(app_data?.notes ? app_data?.notes.value : "");
+        let [diseases, setDiseases] = useState<string[]>([]);
+        const [hide, setHide] = useState<boolean>(false);
+        const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
+        const [isStarted, setIsStarted] = useState(false);
+        const [loadChanges, setLoadChanges] = useState(false);
 
-    const storageData = JSON.parse(localStorage.getItem(`consultation-data-${uuind}`) as string);
-    const app_data = defaultExam?.appointment_data;
+        const modelContent = useRef(app_data?.notes ? app_data?.notes.value : "");
 
-    const formik = useFormik({
-        enableReinitialize: true,
-        initialValues: {
-            motif: storageData?.motif ? storageData.motif :
-                (app_data?.consultation_reason ?
-                    app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
-            notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
-            diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
-            disease: storageData?.disease ? storageData.disease : (app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : []),
-            treatment: exam.treatment,
-        },
-        onSubmit: async (values) => {
-            console.log('ok', values);
-        },
-    });
+        const {trigger: triggerAddReason} = useRequestQueryMutation("/motif/add");
+        const {trigger: triggerDiseases} = useRequestQueryMutation("/diseases");
 
-    const {handleSubmit, values, setFieldValue} = formik;
-    const startStopRec = () => {
-        if (listening && isStarted) {
-            SpeechRecognition.stopListening();
-            resetTranscript();
-            setIsStarted(false)
-            dispatch(SetListen(''));
-
-        } else {
-            startListening();
-        }
-
-    }
-    const startListening = () => {
-        resetTranscript();
-        SpeechRecognition.startListening({continuous: true, language: 'fr-FR'}).then(() => {
-            setIsStarted(true);
-            dispatch(SetListen('observation'));
-            setOldNote(values.notes);
-        })
-    }
-    const handleDiseasesChange = (_diseases: string[]) => {
-        setFieldValue("disease", _diseases);
-        localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-            ...storageData,
-            disease: _diseases
-        }));
-        // set data data from local storage to redux
-        dispatch(
-            SetExam({
-                disease: _diseases
-            })
-        );
-    }
-    const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
-        setFieldValue("motif", reasons.map(reason => reason.uuid));
-        localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-            ...storageData,
-            motif: reasons.map(reason => reason.uuid)
-        }));
-        // set data data from local storage to redux
-        dispatch(
-            SetExam({
-                motif: reasons.map(reason => reason.uuid)
-            })
-        );
-    }
-    const addNewReason = (name: string) => {
-        setLoadingReq(true);
-        const params = new FormData();
-        params.append("color", "#0696D6");
-        params.append("duration", "15");
-        params.append("isEnabled", "true");
-        params.append("translations", JSON.stringify({
-            [router.locale as string]: name
-        }));
-
-        medicalEntityHasUser && triggerAddReason({
-            method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
-            data: params,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutateReasonsData().then((result: any) => {
-            const {status} = result?.data;
-            const reasonsUpdated = (result?.data as HttpResponse)?.data as ConsultationReasonModel[];
-            if (status === "success") {
-                handleReasonChange([...reasons.filter(reason => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
-            }
-            setLoadingReq(false);
-        }));
-    }
-    const findDiseases = (name: string) => {
-        triggerDiseases({
+        const {
+            data: httpConsultReasonResponse,
+            mutate: mutateReasonsData
+        } = useRequestQuery(medicalEntityHasUser ? {
             method: "GET",
-            url: `/api/private/diseases/${router.locale}?name=${name}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(res => {
-            let resultats: any[] = [];
-            (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {
-                resultats.push(r.data.title['@value']);
-            });
-            setDiseases(resultats);
-        })
-    }
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+        } : null, {
+            ...ReactQueryNoValidateConfig,
+            ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
+        });
 
-    useEffect(() => {
-        setHide(closed && !isClose)
-    }, [isClose, closed])
 
-    useEffect(() => {
-        dispatch(
-            SetExam({
-                motif: storageData?.motif ? storageData.motif :
-                    (app_data?.consultation_reason ?
-                        app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : []),
-                notes: storageData?.notes ? storageData.notes : (app_data?.notes ? app_data?.notes.value : ""),
-                diagnosis: storageData?.diagnosis ? storageData.diagnosis : (app_data?.diagnostics ? app_data?.diagnostics.value : ""),
-                disease: storageData?.disease ? storageData.disease : (app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : []),
-                treatment: exam.treatment
-            })
-        );
-    }, [app_data])// eslint-disable-line react-hooks/exhaustive-deps
+        const reasons = (httpConsultReasonResponse as HttpResponse)?.data;
 
-    useEffect(() => {
-        if (isStarted) {
-            const notes = `${(oldNote ? oldNote : "")}  ${transcript}`;
-            setFieldValue("notes", notes);
-            localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                ...storageData,
-                notes
-            }));
+
+        const formik = useFormik({
+            enableReinitialize: true,
+            initialValues: {
+                motif: app_data?.consultation_reason ? app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : [],
+                notes: app_data?.notes ? app_data?.notes.value : "",
+                diagnosis: app_data?.diagnostics ? app_data?.diagnostics.value : "",
+                disease: app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : [],
+                treatment: exam.treatment,
+            },
+            onSubmit: async () => {
+            }
+        });
+
+        const {handleSubmit, values, setFieldValue} = formik;
+        const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
+            handleOnChange('consultation_reason', reasons.map(reason => reason.uuid))
+            setFieldValue("motif", reasons.map(reason => reason.uuid));
             // set data data from local storage to redux
             dispatch(
                 SetExam({
-                    notes
+                    motif: reasons.map(reason => reason.uuid)
                 })
             );
         }
-    }, [isStarted, setFieldValue, transcript])// eslint-disable-line react-hooks/exhaustive-deps
+        const addNewReason = (name: string) => {
+            setLoadingReq(true);
+            const params = new FormData();
+            params.append("color", "#0696D6");
+            params.append("duration", "15");
+            params.append("isEnabled", "true");
+            params.append("translations", JSON.stringify({
+                [router.locale as string]: name
+            }));
 
-    useEffect(() => {
-        const item = changes.find((change: { name: string }) => change.name === "fiche")
-        item.checked = Object.values(values).filter(val => val !== '').length > 0;
-        setChanges([...changes])
-    }, [values])// eslint-disable-line react-hooks/exhaustive-deps
+            medicalEntityHasUser && triggerAddReason({
+                method: "POST",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
+                data: params
+            }, {
+                onSuccess: () => mutateReasonsData().then((result: any) => {
+                    const {status, data} = result?.data?.data;
+                    const reasonsUpdated = data as ConsultationReasonModel[];
+                    if (status === "success") {
+                        handleReasonChange([...reasons.filter((reason: {
+                            uuid: any;
+                        }) => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
+                    }
+                    setLoadingReq(false);
+                })
+            });
+        }
 
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
+        const findDiseases = (name: string) => {
+            triggerDiseases({
+                method: "GET",
+                url: `/api/private/diseases/${router.locale}?name=${name}`
+            }, {
+                onSuccess: res => {
+                    let resultats: any[] = [];
+                    (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {
+                        resultats.push(r.data.title['@value']);
+                    });
+                    setDiseases(resultats);
+                }
+            });
+        }
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
-    return (
-        <ConsultationDetailCardStyled>
-            <Stack className="card-header" padding={'0.45rem'}
+        const handleOnChange = (event: string, newValue: any) => {
+            setFieldValue(event, newValue);
+            // set data data from local storage to redux
+            dispatch(
+                SetExam({
+                    [`${event}`]: newValue
+                })
+            );
+            saveChanges(event, newValue);
+        }
+
+        const saveChanges = (ev: string, newValue: any) => {
+            const form = new FormData();
+            if (ev === 'notes') {
+                modelContent.current = newValue
+                !isStarted && setOldNote(newValue);
+            }
+            form.append(ev === 'diagnosis' ? 'diagnostic' : ev, newValue);
+
+            triggerAppointmentEdit({
+                    method: "PUT",
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+                    data: form
+                },{onSuccess: ()=>{setLoadChanges(false)}}
+            )
+        }
+        const debouncedOnChange = debounce(saveChanges, 1000);
+
+
+        useEffect(() => {
+            setHide(closed && !isClose)
+        }, [isClose, closed])
+
+        useEffect(() => {
+            dispatch(
+                SetExam({
+                    motif: app_data?.consultation_reason ?
+                        app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : [],
+                    notes: app_data?.notes ? app_data?.notes.value : "",
+                    diagnosis: app_data?.diagnostics ? app_data?.diagnostics.value : "",
+                    disease: app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : [],
+                    treatment: exam.treatment
+                })
+            );
+        }, [app_data])// eslint-disable-line react-hooks/exhaustive-deps
+
+
+        useEffect(() => {
+            const item = changes.find((change: { name: string }) => change.name === "fiche")
+            item.checked = Object.values(values).filter(val => val !== '').length > 0;
+            setChanges([...changes])
+        }, [values])// eslint-disable-line react-hooks/exhaustive-deps
+
+        if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+
+        return (
+            <ConsultationDetailCardStyled style={{border: fullOb ? 0 : ""}}>
+                {/*<Stack className="card-header" padding={'0.45rem'}
                    direction="row"
                    alignItems="center"
                    justifyContent={hide ? "" : "space-between"}
@@ -240,15 +226,19 @@ function CIPPatientHistoryCard({...props}) {
                        transform: hide ? "rotate(90deg)" : "rotate(0)",
                        transformOrigin: "left",
                        width: hide ? "44.5rem" : "auto",
-                       left: hide ? 32 : 23,
+                       left: 23,
                        top: -26,
                    }}
                    borderColor="divider">
                 {hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
+                        if (isClose) {
+                            return
+                        }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
+
                     }}
                     className="btn-collapse"
                     disableRipple>
@@ -263,233 +253,228 @@ function CIPPatientHistoryCard({...props}) {
                 {!hide && <IconButton
                     sx={{display: {xs: "none", md: "flex"}}}
                     onClick={() => {
+                        if (isClose) {
+                            return
+                        }
                         setCloseExam(!closeExam);
                         handleClosePanel(!closeExam);
+
                     }}
                     className="btn-collapse"
                     disableRipple>
                     <ArrowForwardIosIcon/>
                 </IconButton>}
-            </Stack>
-            <CardContent style={{padding: 20}}>
-                <FormikProvider value={formik}>
-                    <Stack
-                        spacing={2}
-                        component={Form}
-                        autoComplete="off"
-                        noValidate
-                        style={{display: hide ? "none" : "block"}}
-                        onSubmit={handleSubmit}>
+            </Stack>*/}
+                <CardContent style={{padding: 20}}>
+                    <FormikProvider value={formik}>
+                        <Stack
+                            spacing={2}
+                            component={Form}
+                            autoComplete="off"
+                            noValidate
+                            style={{display: hide ? "none" : "block"}}
+                            onSubmit={handleSubmit}>
 
-                        <Box width={1}>
-                            <Typography variant="body2" paddingBottom={1} fontWeight={500}>
-                                {t("reason_for_consultation")}
-                            </Typography>
-                            <Autocomplete
-                                id={"motif"}
-                                disabled={!reasons}
-                                freeSolo
-                                multiple
-                                autoHighlight
-                                disableClearable
-                                size="small"
-                                value={values.motif && reasons ? reasons.filter(reason => values.motif.includes(reason.uuid)) : []}
-                                onChange={(e, newValue: any) => {
-                                    e.stopPropagation();
-                                    const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
-                                    if (addReason) {
-                                        // Create a new value from the user input
-                                        addNewReason(addReason.inputValue);
-                                    } else {
-                                        handleReasonChange(newValue);
-                                    }
-                                }}
-                                filterOptions={(options, params) => filterReasonOptions(options, params, t)}
-                                sx={{color: "text.secondary"}}
-                                options={reasons ? reasons.filter(item => item.isEnabled) : []}
-                                loading={reasons?.length === 0}
-                                getOptionLabel={(option) => {
-                                    // Value selected with enter, right from the input
-                                    if (typeof option === 'string') {
-                                        return option;
-                                    }
-                                    // Add "xxx" option created dynamically
-                                    if (option.inputValue) {
-                                        return option.inputValue;
-                                    }
-                                    // Regular option
-                                    return option.name;
-                                }}
-                                isOptionEqualToValue={(option: any, value) => option.name === value?.name}
-                                renderOption={(props, option) => (
-                                    <Stack key={option.uuid ? option.uuid : "-1"}>
-                                        {!option.uuid && <Divider/>}
-                                        <MenuItem
-                                            {...props}
-                                            {...(!option.uuid && {sx: {color:theme.palette.error.main}})}
-                                            value={option.uuid}>
-                                            {!option.uuid && <AddOutlinedIcon/>}
-                                            {option.name}
-                                        </MenuItem>
-                                    </Stack>
-                                )}
-                                renderInput={params => <TextField color={"info"}
-                                                                  {...params}
-                                                                  InputProps={{
-                                                                      ...params.InputProps,
-                                                                      endAdornment: (
-                                                                          <React.Fragment>
-                                                                              {loadingReq ?
-                                                                                  <CircularProgress color="inherit"
-                                                                                                    size={20}/> : null}
-                                                                              {params.InputProps.endAdornment}
-                                                                          </React.Fragment>
-                                                                      ),
-                                                                  }}
-                                                                  placeholder={"--"}
-                                                                  sx={{paddingLeft: 0}}
-                                                                  variant="outlined" fullWidth/>}/>
-                        </Box>
-                        <Box>
-                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
-                                <Typography variant="body2" fontWeight={500}>
-                                    {t("notes")}
+                            {!fullOb && <Box width={1}>
+                                <Typography variant="body2" paddingBottom={1} fontWeight={500}>
+                                    {t("reason_for_consultation")}
                                 </Typography>
-                                <Stack direction={"row"} spacing={2} alignItems={"center"}>
-                                    {(listen === '' || listen === 'observation') && <>
-                                        {notes?.length > 0 &&
-                                            <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                                seeHistory()
-                                            }}>{t('seeHistory')}</Typography>}
-                                    </>}
-                                    <RecButton
-                                        small
-                                        onClick={() => {
-                                            startStopRec();
-                                        }}/>
+                                <Autocomplete
+                                    id={"motif"}
+                                    disabled={!reasons}
+                                    freeSolo
+                                    multiple
+                                    autoHighlight
+                                    disableClearable
+                                    size="small"
+                                    value={values.motif && reasons ? reasons.filter((reason: {
+                                        uuid: any;
+                                    }) => values.motif.includes(reason.uuid)) : []}
+                                    onChange={(e, newValue: any) => {
+
+                                        e.stopPropagation();
+                                        const addReason = newValue.find((val: any) => Object.keys(val).includes("inputValue"))
+                                        if (addReason) {
+                                            // Create a new value from the user input
+                                            addNewReason(addReason.inputValue);
+                                        } else {
+                                            handleReasonChange(newValue);
+                                        }
+                                        setTimeout(() => {
+                                            mutateSheetData()
+                                        }, 2000)
+
+                                    }}
+                                    filterOptions={(options, params) => filterReasonOptions(options, params, t)}
+                                    sx={{color: "text.secondary"}}
+                                    options={reasons ? reasons.filter((item: {
+                                        isEnabled: any;
+                                    }) => item.isEnabled) : []}
+                                    loading={reasons?.length === 0}
+                                    getOptionLabel={(option) => {
+                                        // Value selected with enter, right from the input
+                                        if (typeof option === 'string') {
+                                            return option;
+                                        }
+                                        // Add "xxx" option created dynamically
+                                        if (option.inputValue) {
+                                            return option.inputValue;
+                                        }
+                                        // Regular option
+                                        return option.name;
+                                    }}
+                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
+                                    renderOption={(props, option) => (
+                                        <Stack key={option.uuid ? option.uuid : "-1"}>
+                                            {!option.uuid && <Divider/>}
+                                            <MenuItem
+                                                {...props}
+                                                {...(!option.uuid && {sx: {color: theme.palette.error.main}})}
+                                                value={option.uuid}>
+                                                {!option.uuid && <AddOutlinedIcon/>}
+                                                {option.name}
+                                            </MenuItem>
+                                        </Stack>
+                                    )}
+                                    renderInput={params => <TextField color={"info"}
+                                                                      {...params}
+                                                                      InputProps={{
+                                                                          ...params.InputProps,
+                                                                          endAdornment: (
+                                                                              <React.Fragment>
+                                                                                  {loadingReq ?
+                                                                                      <CircularProgress
+                                                                                          color="inherit"
+                                                                                          size={20}/> : null}
+                                                                                  {params.InputProps.endAdornment}
+                                                                              </React.Fragment>
+                                                                          ),
+                                                                      }}
+                                                                      placeholder={"--"}
+                                                                      sx={{paddingLeft: 0}}
+                                                                      variant="outlined" fullWidth/>}/>
+                            </Box>}
+
+                            <NotesComponent{...{
+                                saveChanges,
+                                values,
+                                setFieldValue,
+                                t,
+                                oldNote,
+                                hasDataHistory,
+                                mutateSheetData,
+                                seeHistory,
+                                isStarted,
+                                setIsStarted,
+                                debouncedOnChange,
+                                fullOb, setFullOb,
+                                loadChanges, setLoadChanges,
+                                modelContent
+                            }}/>
+                            {!fullOb && <Box width={1}>
+                                <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}
+                                       mb={1}>
+                                    <Typography variant="body2" fontWeight={500}>
+                                        {t("diagnosis")}
+                                    </Typography>
+
+                                    <Tooltip title={t('toolbar')}>
+                                        <IconButton className={'btn-full'} size={"small"} onClick={() => {
+                                            mutateSheetData && mutateSheetData()
+                                            setEditDiagnosic(!editDiagnosic)
+                                        }
+                                        }>
+                                            <IconUrl path={'tools'}/>
+                                        </IconButton>
+                                    </Tooltip>
                                 </Stack>
-                            </Stack>
-                            <TextField
-                                fullWidth
-                                multiline
-                                rows={8}
-                                value={values.notes}
-                                onChange={event => {
-                                    setFieldValue("notes", event.target.value);
-                                    localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                                        ...storageData,
-                                        notes: event.target.value
-                                    }));
-                                    // set data data from local storage to redux
-                                    dispatch(
-                                        SetExam({
-                                            notes: event.target.value
-                                        })
-                                    );
-                                }}
-                                placeholder={t("hint_text")}
-                            />
-                        </Box>
-                        <Box width={1}>
-                            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
-                                <Typography variant="body2" fontWeight={500}>
-                                    {t("diagnosis")}
+                                {
+                                    !editDiagnosic && <Editor
+                                        initialValue={values.diagnosis}
+                                        apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                        onEditorChange={(event) => {
+                                            debouncedOnChange("diagnosis", event)
+                                        }}
+                                        init={{
+                                            branding: false,
+                                            statusbar: false,
+                                            menubar: false,
+                                            height: 200,
+                                            toolbar: false,
+                                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                        }}/>
+                                }
+                                {
+                                    editDiagnosic && <Editor
+                                        initialValue={values.diagnosis}
+                                        apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                        onEditorChange={(event) => {
+                                            debouncedOnChange("diagnosis", event)
+                                        }}
+                                        init={{
+                                            branding: false,
+                                            statusbar: false,
+                                            menubar: false,
+                                            height: 400,
+                                            toolbar_mode: 'wrap',
+                                            plugins: tinymcePlugins,
+                                            toolbar: tinymceToolbarNotes,
+                                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                        }}/>
+                                }
+                            </Box>}
+                            {!fullOb && <Box width={1}>
+                                <Typography variant="body2" paddingBottom={1} fontWeight={500}>
+                                    {t("disease")}
                                 </Typography>
+                                <Autocomplete
+                                    id={"diseases"}
+                                    freeSolo
+                                    multiple
+                                    autoHighlight
+                                    disableClearable
+                                    size="small"
+                                    value={values.disease}
+                                    onChange={(e, newValue: any) => {
+                                        e.stopPropagation();
+                                        //handleDiseasesChange(newValue)
+                                        handleOnChange("disease", newValue)
+                                    }}
+                                    filterOptions={(options, params) => {
+                                        const {inputValue} = params;
+                                        if (inputValue.length > 0) options.unshift(inputValue)
+                                        return options
+                                    }}
+                                    sx={{color: "text.secondary"}}
+                                    options={diseases}
+                                    renderInput={params => <TextField color={"info"}
+                                                                      {...params}
+                                                                      InputProps={{
+                                                                          ...params.InputProps,
+                                                                          endAdornment: (
+                                                                              <React.Fragment>
+                                                                                  {loadingReq ?
+                                                                                      <CircularProgress
+                                                                                          color="inherit"
+                                                                                          size={20}/> : null}
+                                                                                  {params.InputProps.endAdornment}
+                                                                              </React.Fragment>
+                                                                          ),
+                                                                      }}
+                                                                      placeholder={"--"}
+                                                                      sx={{paddingLeft: 0}}
+                                                                      onChange={(ev) => {
+                                                                          findDiseases(ev.target.value)
+                                                                      }}
+                                                                      variant="outlined" fullWidth/>}/>
+                            </Box>}
+                        </Stack>
+                    </FormikProvider>
+                </CardContent>
+            </ConsultationDetailCardStyled>
+        )
+    }
 
-                                {diagnostics.length > 0 &&
-                                    <Typography color={"primary"} style={{cursor: "pointer"}} onClick={() => {
-                                        seeHistoryDiagnostic()
-                                    }}>{t('seeHistory')}</Typography>}
-                            </Stack>
-
-                            <TextField
-                                fullWidth
-                                id={"diagnosis"}
-                                size="small"
-                                value={values.diagnosis}
-                                multiline={true}
-                                rows={5}
-                                onChange={event => {
-                                    setFieldValue("diagnosis", event.target.value);
-                                    localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                                        ...storageData,
-                                        diagnosis: event.target.value
-                                    }));
-                                    // set data data from local storage to redux
-                                    dispatch(
-                                        SetExam({
-                                            diagnosis: event.target.value
-                                        })
-                                    );
-                                }}/>
-                        </Box>
-                        <Box width={1}>
-                            <Typography variant="body2" paddingBottom={1} fontWeight={500}>
-                                {t("disease")}
-                            </Typography>
-                            <Autocomplete
-                                id={"diseases"}
-                                freeSolo
-                                multiple
-                                autoHighlight
-                                disableClearable
-                                size="small"
-                                value={values.disease}
-                                onChange={(e, newValue: any) => {
-                                    e.stopPropagation();
-                                    handleDiseasesChange(newValue)
-                                }}
-                                filterOptions={(options, params) => {
-                                    const {inputValue} = params;
-                                    if (inputValue.length > 0) options.push(inputValue)
-                                    return options
-                                }}
-                                sx={{color: "text.secondary"}}
-                                options={diseases}
-                                renderInput={params => <TextField color={"info"}
-                                                                  {...params}
-                                                                  InputProps={{
-                                                                      ...params.InputProps,
-                                                                      endAdornment: (
-                                                                          <React.Fragment>
-                                                                              {loadingReq ?
-                                                                                  <CircularProgress color="inherit"
-                                                                                                    size={20}/> : null}
-                                                                              {params.InputProps.endAdornment}
-                                                                          </React.Fragment>
-                                                                      ),
-                                                                  }}
-                                                                  placeholder={"--"}
-                                                                  sx={{paddingLeft: 0}}
-                                                                  onChange={(ev) => {
-                                                                      findDiseases(ev.target.value)
-                                                                  }}
-                                                                  variant="outlined" fullWidth/>}/>
-                        </Box>
-                        {/*<Box>
-                            <Typography variant="body2" color="textSecondary" paddingBottom={1} fontWeight={500}>
-                                {t("treatment")}
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                multiline
-                                rows={5}
-                                placeholder={t("enter_your_dosage")}
-                                value={values.treatment}
-                                onChange={event => {
-                                    setFieldValue("treatment", event.target.value);
-                                    localStorage.setItem(`consultation-data-${uuind}`, JSON.stringify({
-                                        ...values,
-                                        treatment: event.target.value
-                                    }));
-                                }}
-                            />
-                        </Box>*/}
-                    </Stack>
-                </FormikProvider>
-            </CardContent>
-        </ConsultationDetailCardStyled>
-    )
-}
+CIPPatientHistoryCard.displayName = "consultation-file";
 
 export default CIPPatientHistoryCard

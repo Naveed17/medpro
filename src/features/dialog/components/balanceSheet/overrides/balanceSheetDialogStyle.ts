@@ -11,6 +11,11 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
             marginBottom: theme.spacing(1),
         },
     },
+    "& .MuiInputBase-input-hidden": {
+        ".MuiInputBase-input": {
+            padding: "2.5px 4px 2.5px 6px"
+        }
+    },
     ".items-list": {
         background: "#EEF2F6",
         borderRadius: 4,
@@ -27,7 +32,7 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
     },
     '.loading-card': {
         border: 'none',
-        background: "#EEF2F6",
+        background: "white",
         p: {
             paddingTop: theme.spacing(4),
             paddingBottom: theme.spacing(2),
@@ -35,9 +40,10 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
         }
     },
     ".list-container": {
-        maxHeight: 300,
+        maxHeight: 360,
         paddingTop: 8,
         paddingBottom: 8,
+        paddingRight: 8,
         overflowY: 'scroll'
     },
     "& .MuiOutlinedInput-root": {
@@ -45,6 +51,20 @@ const BalanceSheetDialogStyled = styled(Stack)(({theme}) => ({
     },
     "& .no-data-card .MuiTypography-body2": {
         paddingTop: 0
+    },
+    "& .chip-item": {
+        backgroundColor: theme.palette.grey["A11"],
+        filter: "drop-shadow(10px 10px 10px rgba(0, 0, 0, 0))",
+        marginBottom: 6,
+        marginLeft: 6,
+        cursor: "move",
+        "&:active": {
+            boxShadow: "none",
+            outline: "none",
+        },
+        "& .MuiChip-deleteIcon": {
+            color: theme.palette.text.primary,
+        },
     }
 }));
 export default BalanceSheetDialogStyled;

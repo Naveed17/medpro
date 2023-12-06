@@ -1,18 +1,11 @@
 // material
-import {Chip, Skeleton, Button, Badge} from "@mui/material";
-
+import {Chip, Skeleton, Button, Badge, Typography} from "@mui/material";
 // styles
 import {RootStyled} from "./overrides";
-import {useEffect, useState} from "react";
-
-interface timeDataProps {
-    start: string;
-    end: string;
-    disabled: boolean;
-}
 
 export default function TimeSlot({...props}) {
     const {
+        t,
         limit = 30,
         sx,
         data,
@@ -30,8 +23,7 @@ export default function TimeSlot({...props}) {
             className={"time-slot-container"}
             direction="row"
             justifyContent="space-between"
-            sx={{flexWrap: "wrap", ...sx}}
-        >
+            sx={{flexWrap: "wrap", ...sx}}>
             {loading ?
                 Array.from(Array(limit).keys()).map((item: number, index: number) => <Skeleton
                     variant="rectangular"
@@ -47,30 +39,33 @@ export default function TimeSlot({...props}) {
                     }}
                 />)
                 :
-                data?.slice(0, limit).map((item: TimeSlotModel, index: number) =>
-                    <Badge key={`time-slot-${index}`}
-                           sx={{
-                               '& .MuiBadge-badge': {
-                                   border: `3px solid`,
-                                   padding: '0 4px',
-                                   fontSize: "10px"
-                               }
-                           }}
-                           badgeContent={item.appointments}
-                           invisible={item.appointments === 0}
-                           color="primary">
-                        <Chip
-                            {...rest}
-                            className={value === item.start ? "active" : ""}
-                            onClick={() => onChange(item.start, index)}
-                            disabled={item.disabled}
-                            label={item.start}
-                            sx={{
-                                mb: "8px !important",
-                            }}
-                        />
-                    </Badge>
-                )
+                data.length > 0 ?
+                    data?.slice(0, limit).map((item: TimeSlotModel, index: number) =>
+                        <Badge key={`time-slot-${index}`}
+                               sx={{
+                                   '& .MuiBadge-badge': {
+                                       border: `3px solid`,
+                                       padding: '0 4px',
+                                       fontSize: "10px"
+                                   }
+                               }}
+                               badgeContent={item.appointments}
+                               invisible={item.appointments === 0}
+                               color="primary">
+                            <Chip
+                                {...rest}
+                                className={value === item.start ? "active" : ""}
+                                onClick={() => onChange(item.start, index)}
+                                disabled={item.disabled}
+                                label={item.start}
+                                sx={{
+                                    mb: "8px !important",
+                                }}
+                            />
+                        </Badge>)
+                    :
+                    <Typography textAlign={"center"} my={8}
+                                fontWeight={600}>{t('stepper-1.slots-unavailable')}</Typography>
             }
             {seeMore && (
                 <Button variant="text"

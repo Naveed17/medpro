@@ -4,6 +4,7 @@
   "leave-waiting-room": "Quitter la salle d’attente",
   "add": "Ajouter RDV",
   "add-quick": "Ajout rapide",
+  "add-quick-drawer": "Ajout rapide d'un rendez-vous",
   "add-complete": "Ajout complet",
   "view": "Voir détails",
   "restore": "Restaurer",
@@ -14,6 +15,7 @@
   "duplication": "Détection des doublons",
   "in-consultation-error": "Vous avez une consultation en cours, veuillez cliquer ici pour la finaliser.",
   "timer-status": "En consultation",
+  "agenda-mode": "Mode d'affichage",
   "agenda-view": {
     "timeGridDay": "Jour",
     "timeGridWeek": "Semaine",
@@ -22,7 +24,7 @@
   },
   "side-bar": {
     "all": "tous",
-    "motif": "Motif de consultation",
+    "motif": "Motif",
     "status": "Statut",
     "type": "Type du RDV"
   },
@@ -44,10 +46,12 @@
     "fiche": "Numéro fiche",
     "next-appointment": "Prochain rendez-vous",
     "last-appointment": "Dernier rendez-vous",
-    "reasons": "Motif de consultation",
+    "reasons": "Motif",
     "status": "Statut",
     "meetingType": "Type de RDV",
     "meetingStatus": "Statut du RDV",
+    "meetingActs": "Acte RDV",
+    "meetingDisease": "Maladie",
     "meeting": {
       "cabinet": "Cabinet",
       "home": "Domicile",
@@ -88,6 +92,12 @@
         "title-trash": "Pas de rendez-vous supprimés",
         "description": "",
         "button-text": "Ajouter un RDV"
+      },
+      "vacation": {
+        "title": "Ajouter votre premier absence",
+        "sub-title": "Pas de absences",
+        "description": "",
+        "button-text": "Ajouter un absence"
       }
     }
   },
@@ -117,9 +127,10 @@
     "stepper-1": {
       "title": "Réservez un créneau horaire",
       "sub-title": "Créneau horaire",
-      "reason-consultation": "Motif de consultation",
-      "reason-consultation-placeholder": "Choisissez votre motif de consultation",
+      "reason-consultation": "Motif",
+      "reason-consultation-placeholder": "Choisissez votre motif",
       "practitioner": "Praticien",
+      "slots-unavailable": "Journée bloquée ou pas de plage horaire disponible",
       "affect-des": "Choisissez le praticien qui affecte cette consultation",
       "time-slot": "Créneau horaire",
       "selected-appointment": "Rendez-vous sélectionné",
@@ -144,7 +155,8 @@
       "add_button": "Ajouter un nouveau patient",
       "search_placeholder": "Chercher un patient",
       "patient": {
-        "personal-info": "Informations personnelles",
+        "personal-info": "Informations",
+        "invalidDate": "La date est invalide",
         "additional-information": "Informations supplémentaires",
         "more-detail": "Afficher plus de détails",
         "less-detail": "Afficher moins de détails",
@@ -154,6 +166,7 @@
         "nationality": "Nationalité",
         "nationality-placeholder": "Sélectionner la nationalité du patient",
         "gender-error": "Veuillez choisir le genre.",
+        "special-text-error": "Seuement les alphabets sont autorisés pour ce champ.",
         "group-placeholder": "Sélectionner un groupe",
         "civility": "Civilité",
         "mr": "M.",
@@ -165,6 +178,8 @@
         "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
         "first-name-placeholder": "Tapez le prénom du patient",
         "date-of-birth": "Date de naissance",
+        "old": "Âge",
+        "old-placeholder": "Ajouter L'âge",
         "family_doctor": "Médecin correspondant",
         "family_doctor-placeholder": "Médecin correspondant",
         "day": "Jour",
@@ -288,12 +303,19 @@
     "pending-dialog": {
       "title": "Rendez-vous en attente"
     },
-    "duplication-dialog": {
-      "title": "Duplicatas détectés",
-      "later": "Le faire plus tard",
-      "no-duplicates": "Ces patients ne sont pas doublons ",
-      "selected": "Patient sélectionné",
-      "save": "Enregistrer"
+    "absence-dialog": {
+      "title": "Ajouter congé ou absence",
+      "sub-title": "Liste des congés et absences proches",
+      "description": "Titre de congé",
+      "type-placeholder": "Saisir le titre du congé",
+      "startDate": "Date début",
+      "endDate": "Date fin",
+      "vacation": {
+        "yearly": "Congé annuel",
+        "sick": "Congé de maladie",
+        "conference": "Conférence",
+        "absence": "Autre motif d'absence"
+      }
     }
   },
   "alert": {

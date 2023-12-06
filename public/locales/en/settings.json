@@ -11,7 +11,7 @@
     "horaire": "Schedule",
     "conges": "Vacations and Absences",
     "remplaçants": "Substitutes",
-    "utilisateurs": "Users",
+    "users": "Users",
     "reseau": "Addressing Network",
     "instructions": "Instructions",
     "type": "Consultation Types",
@@ -23,6 +23,8 @@
   "profil": {
     "specialities": "Specialties",
     "qualification": "Professional Qualification",
+    "sms-rappel": "Reminder SMS",
+    "sms-rappel-send": "Enable SMS reminder",
     "assurence": "Health Insurance",
     "regMode": "Payment Modes",
     "langues": "Spoken Languages",
@@ -396,6 +398,22 @@
           "title": "Add Your First Role",
           "description": "Manage your access and create your first secretary"
         }
+      },
+      "table": {
+        "accessSetting": "Setting",
+        "name": "Name",
+        "agenda": "Agenda",
+        "fonction": "Fonction",
+        "request": "Request",
+        "access": "Access",
+        "action": "Action",
+        "remove": "Remove",
+        "update": "Update",
+        "role_professional": "Professional role",
+        "secretary": "Secretary",
+        "active": "Active",
+        "docPermission": "Access to appointment documents",
+        "inactive": "Inactive"
       }
     },
     "dialog": {
@@ -451,6 +469,7 @@
     "updated": "Act is updated",
     "price_of_act": "Price",
     "save": "Save",
+    "betav":"Use the new cash box version (beta)",
     "newAct": "New act",
     "add_act": "New act",
     "placeholder_act": "e.g., act name",
@@ -616,6 +635,7 @@
         "named": "Please name the template",
         "select": "Please select your variables",
         "info": "Template Information",
+        "suggestions": "Suggestions",
         "patient": "Patient",
         "doctor": "Doctor",
         "today": "Today",
@@ -636,6 +656,8 @@
       "case2": "Second Case",
       "case3": "Third Case",
       "save": "Save",
+      "prescription": "Prescription",
+      "document": "Document",
       "preview": "Preview",
       "updated": "Document saved",
       "removed": "Document deleted",
@@ -645,6 +667,7 @@
       "patient": "Patient Name",
       "firstName": "First Name & Last Name",
       "configPatient": "Configure Patient Name",
+      "cin": "CIN",
       "prefix": "Prefix",
       "configDate": "Configure Date",
       "nom": "Name",

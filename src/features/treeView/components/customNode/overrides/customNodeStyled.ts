@@ -1,12 +1,12 @@
 import {styled} from '@mui/material/styles';
 
-const CustomNodeStyled = styled('div')(({theme, property}): any => ({
+const CustomNodeStyled = styled('div')(() => ({
     alignItems: "center",
     display: "grid",
     gridTemplateColumns: "auto auto 1fr auto",
     height: "32px",
     paddingInlineEnd: "8px",
-    ".expandIconWrapper": {
+    "& .expandIconWrapper": {
         alignItems: "center",
         fontSize: 0,
         cursor: "pointer",
@@ -17,11 +17,12 @@ const CustomNodeStyled = styled('div')(({theme, property}): any => ({
         transition: " transform linear .1s",
         transform: "rotate(0deg)",
     },
-    ".expandIconWrapper.isOpen ": {
+    "& .expandIconWrapper.isOpen ": {
         transform: "rotate(90deg)"
     },
-    ".labelGridItem": {
-        paddingInlineStart: "8px"
+    "& .labelGridItem": {
+        paddingInlineStart: "8px",
+        cursor: "pointer"
     }
 
 }));

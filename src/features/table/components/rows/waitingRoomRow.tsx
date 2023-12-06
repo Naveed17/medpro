@@ -12,7 +12,7 @@ import {
 import {useTheme} from "@mui/material/styles";
 import {Dialog} from "@features/dialog";
 import Icon from "@themes/urlIcon";
-import React, {ReactElement, useState} from "react";
+import React, {useState} from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import PlayCircleRoundedIcon from "@mui/icons-material/PlayCircleRounded";
 import moment from "moment-timezone";
@@ -24,6 +24,7 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import IconUrl from "@themes/urlIcon";
 
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
@@ -31,7 +32,7 @@ function WaitingRoomRow({...props}) {
 
     const theme = useTheme();
 
-    const {next} = useAppSelector(dashLayoutSelector);
+    const {next: is_next} = useAppSelector(dashLayoutSelector);
 
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -40,25 +41,7 @@ function WaitingRoomRow({...props}) {
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setInfo(null);
-    };
-
-    const handleClick = (action: number) => {
-        switch (action) {
-            case 1:
-                setInfo("end_consultation");
-                setOpenDialog(true);
-                setActions(false);
-                break;
-            case 2:
-                setInfo("secretary_consultation_alert");
-                setOpenDialog(true);
-                setActions(true);
-                break;
-            default:
-                setInfo(null);
-                break;
-        }
-    };
+    }
 
     const DialogAction = () => {
         return (
@@ -74,7 +57,7 @@ function WaitingRoomRow({...props}) {
                 </Button>
             </DialogActions>
         );
-    };
+    }
 
     const getDuration = (time: string) => {
         const duration: any = moment.duration(
@@ -85,17 +68,6 @@ function WaitingRoomRow({...props}) {
         const minutes =
             duration._data.minutes !== 0 ? `${duration._data.minutes}min` : "";
         return `${hours} ${minutes}`;
-    };
-
-    const onClickTooltipItem = (item: {
-        title: string;
-        icon: ReactElement;
-        action: string;
-    }) => {
-        switch (item.action) {
-            case "onOpenPatientDrawer":
-                break;
-        }
     }
 
     return (
@@ -104,11 +76,14 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Box display="flex" alignItems="center">
-                            <Typography
-                                fontSize={12}
-                                component={"span"}>
-                                {`${key + 1}`}
-                            </Typography>
+                            <Button
+                                sx={{
+                                    p: 0,
+                                    minWidth: '2.5rem',
+                                    minHeight: '.5rem',
+                                    marginRight: '4px'
+                                }} variant={"contained"}
+                                size={"small"}> AR-{key + 1}</Button>
                         </Box>
                     ) : (
                         <Skeleton variant="text" width={80}/>
@@ -118,11 +93,13 @@ function WaitingRoomRow({...props}) {
                     {row ? (
                         <Box display="flex" alignItems="center">
                             <Typography
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleEvent({action: "PATIENT_DETAILS", row, event});
-                                }}
-                                color="primary"
+                                {...(!row.patient?.isArchived && {
+                                    onClick: (event: any) => {
+                                        event.stopPropagation();
+                                        handleEvent({action: "PATIENT_DETAILS", row, event});
+                                    }
+                                })}
+                                color={row.patient?.isArchived ? "text.primary" : "primary"}
                                 sx={{ml: 0.6, cursor: "pointer"}}>
                                 {row.patient.firstName} {row.patient.lastName}
                             </Typography>
@@ -135,8 +112,8 @@ function WaitingRoomRow({...props}) {
                     {row ? (
                         <Stack
                             alignItems="center"
-                            justifyItems={"center"}
-                            justifyContent={"center"}
+                            justifyItems={"left"}
+                            justifyContent={"left"}
                             direction={"row"}
                             sx={{
                                 svg: {
@@ -150,7 +127,7 @@ function WaitingRoomRow({...props}) {
                                     ml: 0.6,
                                     fontSize: 12
                                 }}>
-                                {moment(row.arrive_time, "HH:mm")
+                                {moment(row.startTime, "HH:mm")
                                     .add(1, "hours")
                                     .format("HH:mm")}
                             </Typography>
@@ -274,46 +251,96 @@ function WaitingRoomRow({...props}) {
                     )}
                 </TableCell>
                 <TableCell>
-                    <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
-                        {!roles.includes("ROLE_SECRETARY") && <Tooltip title={t("start")}>
-                            <IconButton
-                                disabled={loading}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    setLoading(true);
-                                    handleEvent({action: "START_CONSULTATION", row, event});
-                                }}
-                                size="small">
-                                <PlayCircleIcon/>
-                            </IconButton></Tooltip>}
-                        <Tooltip title={t(row.is_next ? "is_next" : "next")}>
-                            <IconButton
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    setLoading(true);
-                                    handleEvent({action: "NEXT_CONSULTATION", row, event});
-                                }}
-                                disabled={next !== null && !row.is_next}
-                                color={"primary"}
-                                size="small">
-                                {!row.is_next && <ArrowForwardRoundedIcon/>}
-                                {row.is_next && <CloseRoundedIcon/>}
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title={t('more')}>
-                            <IconButton
-                                disabled={loading}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleEvent({action: "OPEN-POPOVER", row, event});
-                                }}
-                                size="small">
-                                <MoreVertIcon/>
-                            </IconButton>
-                        </Tooltip>
-                    </Stack>
+                    {!row.patient?.isArchived &&
+                        <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
+                            {(!roles.includes("ROLE_SECRETARY") && [5, 3].includes(row.status)) &&
+                                <Tooltip title={t("start")}>
+                            <span>
+                                <IconButton
+                                    disabled={loading}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setLoading(true);
+                                        handleEvent({action: "ON_PAY", row, event});
+                                    }}
+                                    sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}
+                                    size="small">
+                                    <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
+                                </IconButton>
+                            </span>
+                                </Tooltip>}
+                            {(!roles.includes("ROLE_SECRETARY") && [1, 3].includes(row.status)) &&
+                                <Tooltip title={t("start")}>
+                            <span>
+                                <IconButton
+                                    disabled={loading}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setLoading(true);
+                                        handleEvent({action: "START_CONSULTATION", row, event});
+                                    }}
+                                    sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}
+                                    size="small">
+                                    <PlayCircleIcon fontSize={"small"}/>
+                                </IconButton>
+                            </span>
+                                </Tooltip>}
+                            {([1, 3].includes(row.status) && (is_next !== null && is_next?.uuid === row.uuid || is_next === null)) &&
+                                <Tooltip title={t(row.is_next ? "is_next" : "next")}>
+                                <span>
+                                    <IconButton
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            setLoading(true);
+                                            handleEvent({
+                                                action: "NEXT_CONSULTATION",
+                                                row: {...row, is_next: !!is_next},
+                                                event
+                                            });
+                                        }}
+                                        sx={{
+                                            border: `1px solid ${theme.palette.divider}`,
+                                            borderRadius: 1,
+                                            ...(is_next && {background: theme.palette.primary.main, border: "none"}),
+                                        }}
+                                        size="small">
+                                        {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
+                                        {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
+                                    </IconButton>
+                                </span>
+                                </Tooltip>}
+                            {row.status === 1 && <Tooltip title={t(row.is_next ? "is_next" : "next")}>
+                                <span>
+                                    <IconButton
+                                        onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                            action: "ENTER_WAITING_ROOM",
+                                            row: row,
+                                            event
+                                        })}
+                                        size={"small"}
+                                        disableFocusRipple
+                                        sx={{background: theme.palette.primary.main, borderRadius: 1}}>
+                                    <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
+                                </IconButton>
+                                </span>
+                            </Tooltip>}
+                            <Tooltip title={t('more')}>
+                            <span>
+                                <IconButton
+                                    disabled={loading}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleEvent({action: "OPEN-POPOVER", row, event});
+                                    }}
+                                    size="small">
+                                    <MoreVertIcon/>
+                                </IconButton>
+                            </span>
+                            </Tooltip>
+                        </Stack>}
                 </TableCell>
             </TableRow>
+
             {info && (
                 <Dialog
                     action={info}

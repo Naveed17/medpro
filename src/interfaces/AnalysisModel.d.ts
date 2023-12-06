@@ -4,4 +4,5 @@ interface AnalysisModel {
     name: string,
     abbreviation?: string
     note?: string
+    expanded?: boolean
 }

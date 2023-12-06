@@ -2,8 +2,9 @@ import { Card } from '@mui/material'
 import { styled, alpha } from '@mui/material/styles'
 const CipMedicProCardStyled = styled(Card)(({ theme }) => ({
     border: 'none',
-    padding: theme.spacing(2),
-    borderLeft: `4px solid ${theme.palette.warning.main}`,
+    padding: theme.spacing(1.5),
+    cursor:'pointer',
+    borderLeft: `4px solid ${theme.palette.primary.main}`,
     '.btn-amount': {
         backgroundColor: alpha(theme.palette.success.main, 0.1),
         borderColor: theme.palette.divider,

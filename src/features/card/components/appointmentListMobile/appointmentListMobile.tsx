@@ -31,7 +31,7 @@ function AppointmentListMobile({...props}) {
     const getColor = () => {
         if (event?.status.key === "CONFIRMED")
             return "success"
-        else if (event?.status.key === "CANCELED")
+        else if (event?.status.key === "CANCELED" || event?.status.key === "PATIENT_CANCELED")
             return "error";
         else
             return "primary"
@@ -48,10 +48,7 @@ function AppointmentListMobile({...props}) {
             <Box sx={{display: "flex"}}>
                 <Box className="card-main" onClick={handleEventClick}>
                     <Typography variant={"subtitle2"} color="primary.main" className="title">
-                        <>
-                            {event.meeting ? <IconUrl path="ic-video"/> : null}
-                            <span>{event.title}</span>
-                        </>
+                        <span>{event.title}</span>
                     </Typography>
                     <Box className="time-badge-main">
                         <Typography variant={"subtitle2"} color="text.secondary">

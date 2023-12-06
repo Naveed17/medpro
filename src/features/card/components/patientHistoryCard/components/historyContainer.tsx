@@ -15,14 +15,13 @@ import IconUrl from "@themes/urlIcon";
 import moment from "moment/moment";
 import {MotifCard, PatientHistoryCard, PatientHistoryStaticCard} from "@features/card";
 import Image from "next/image";
-import {useRequestMutation} from "@lib/axios";
-import {DefaultCountry, SubMotifCard} from "@lib/constants";
+import {useRequestQueryMutation} from "@lib/axios";
+import {DefaultCountry, iconDocument, SubMotifCard} from "@lib/constants";
 import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useSWRConfig} from "swr";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 
 function HistoryContainer({...props}) {
@@ -41,12 +40,11 @@ function HistoryContainer({...props}) {
         showDoc,
         patient,
         setSelectedTab,
-        session,
-        medical_entity,
+        medical_entity
     } = props;
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {mutate} = useSWRConfig();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
@@ -54,7 +52,7 @@ function HistoryContainer({...props}) {
     const [collapse, setCollapse] = useState<any>("");
     const [selected, setSelected] = useState<string>('')
 
-    const {trigger} = useRequestMutation(null, "/editRA");
+    const {trigger: triggerRaEdit} = useRequestQueryMutation("/RA/edit");
 
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
@@ -98,22 +96,18 @@ function HistoryContainer({...props}) {
         const selectedRA = apps[iid].appointment.requestedAnalyses[idx];
         const form = new FormData();
         form.append("analysesResult", JSON.stringify(selectedRA.hasAnalysis));
-        trigger(
-            {
-                method: "PUT",
-                url: `${urlMedicalEntitySuffix}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
-                data: form,
-                headers: {
-                    ContentType: "application/x-www-form-urlencoded",
-                    Authorization: `Bearer ${session?.accessToken}`,
-                },
-            },
-            {
-                revalidate: true,
-                populateCache: true
+        triggerRaEdit({
+            method: "PUT",
+            url: `${urlMedicalEntitySuffix}/appointments/${app.appointment.uuid}/requested-analysis/${selectedRA.uuid}/${router.locale}`,
+            data: form,
+        }, {
+            onSuccess: () => {
+                if (medicalEntityHasUser) {
+                    invalidateQueries([
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`]);
+                }
             }
-        ).then(() => {
-            medicalEntityHasUser && mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/documents/${router.locale}`);
         });
     }
 
@@ -129,7 +123,8 @@ function HistoryContainer({...props}) {
         capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis = [...capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis]
         capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis[sheetAnalysisID] = data
 
-        setApps(capps)
+        setApps && setApps(capps)
+        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history-list/${router.locale}`]);
     }
 
     return (
@@ -247,18 +242,7 @@ function HistoryContainer({...props}) {
                                                                         }} alignItems="center">
                                                                             {data.documentType !== 'photo' &&
                                                                                 <IconUrl height={25} width={25}
-                                                                                         path={
-                                                                                             data.documentType === "prescription" && "ic-traitement" ||
-                                                                                             data.documentType == "requested-analysis" && "ic-analyse" ||
-                                                                                             data.documentType == "analyse" && "ic-analyse" ||
-                                                                                             data.documentType == "medical-imaging" && "ic-soura" ||
-                                                                                             data.documentType == "requested-medical-imaging" && "ic-soura" ||
-                                                                                             data.documentType === "audio" && "ic-son" ||
-                                                                                             data.documentType === "Rapport" && "ic-text" ||
-                                                                                             data.documentType === "medical-certificate" && "ic-text" ||
-                                                                                             data.documentType === "video" && "ic-video-outline" ||
-                                                                                             data.documentType !== "prescription" && "ic-pdf" || ""
-                                                                                         }/>}
+                                                                                         path={iconDocument(data.documentType)}/>}
                                                                             {data.documentType === 'photo' &&
                                                                                 <Image width={25}
                                                                                        height={25}
@@ -376,18 +360,7 @@ function HistoryContainer({...props}) {
                                                                                                 {card.documentType !== 'photo' &&
                                                                                                     <IconUrl height={25}
                                                                                                              width={25}
-                                                                                                             path={
-                                                                                                                 card.documentType === "prescription" && "ic-traitement" ||
-                                                                                                                 card.documentType == "requested-analysis" && "ic-analyse" ||
-                                                                                                                 card.documentType == "analyse" && "ic-analyse" ||
-                                                                                                                 card.documentType == "medical-imaging" && "ic-soura" ||
-                                                                                                                 card.documentType == "requested-medical-imaging" && "ic-soura" ||
-                                                                                                                 card.documentType === "audio" && "ic-son" ||
-                                                                                                                 card.documentType === "Rapport" && "ic-text" ||
-                                                                                                                 card.documentType === "medical-certificate" && "ic-text" ||
-                                                                                                                 card.documentType === "video" && "ic-video-outline" ||
-                                                                                                                 card.documentType !== "prescription" && "ic-pdf" || ""
-                                                                                                             }/>}
+                                                                                                             path={iconDocument(card.documentType)}/>}
                                                                                                 {card.documentType === 'photo' &&
                                                                                                     <Image width={25}
                                                                                                            height={25}

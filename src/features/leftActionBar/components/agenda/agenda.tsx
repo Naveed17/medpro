@@ -7,7 +7,7 @@ import {
     PatientFilter,
     setFilter,
     AppointmentStatusFilter,
-    AppointmentTypesFilter
+    AppointmentTypesFilter,
 } from "@features/leftActionBar";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
@@ -16,7 +16,7 @@ import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {dashLayoutSelector} from "@features/base";
 import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
@@ -47,6 +47,7 @@ function Agenda() {
                     children: (
                         <FilterRootStyled>
                             <PatientFilter
+                                {...{t}}
                                 OnSearch={(data: { query: ActionBarState }) => {
                                     dispatch(setFilter({patient: data.query}));
                                 }}
@@ -66,7 +67,6 @@ function Agenda() {
                                         ],
                                     },
                                 }}
-                                t={t}
                             />
                         </FilterRootStyled>
                     ),
@@ -88,7 +88,7 @@ function Agenda() {
                     },
                     expanded: false,
                     children: (<AppointmentStatusFilter/>)
-                },
+                }
             ]);
         }
     }, [appointmentTypes]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -105,10 +105,7 @@ function Agenda() {
                 }
             />
             <Accordion
-                translate={{
-                    t: t,
-                    ready: ready,
-                }}
+                translate={{t, ready}}
                 data={accordionData}
                 setData={setAccordionData}
             />

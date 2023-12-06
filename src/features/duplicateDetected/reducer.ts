@@ -7,15 +7,19 @@ import {
 export type duplicatedState = {
     openDialog?: boolean;
     duplicationSrc?: PatientModel | null;
+    duplicationInit?: PatientModel | null;
     duplications?: PatientModel[];
     fields?: string[];
+    mutate?: Function | null;
 };
 
 const initialState: duplicatedState = {
     openDialog: false,
     duplicationSrc: null,
+    duplicationInit: null,
     duplications: [],
-    fields: []
+    fields: [],
+    mutate: null
 };
 
 export const DuplicatedReducer = createReducer(initialState, builder => {

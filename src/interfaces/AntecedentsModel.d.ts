@@ -7,4 +7,5 @@ interface AntecedentsModel {
     response:any
     value_type:number
     ascendantOf?:string
+    data:any[]
 }

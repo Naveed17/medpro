@@ -1,24 +1,16 @@
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useEffect, useState} from "react";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function useCountries(params?: string) {
     const router = useRouter();
-    const [countries, setCountries] = useState<CountryModel[]>([]);
 
-    const {data: httpCountriesResponse} = useRequest({
+    const {data: httpCountriesResponse} = useRequestQuery({
         method: "GET",
         url: `/api/public/places/countries/${router.locale}${params ? `?${params}` : ""}`
-    }, SWRNoValidateConfig);
+    }, ReactQueryNoValidateConfig);
 
-    useEffect(() => {
-        if (httpCountriesResponse) {
-            setCountries((httpCountriesResponse as HttpResponse)?.data);
-        }
-    }, [httpCountriesResponse]);
-
-    return {countries}
+    return {countries: (Array.isArray(httpCountriesResponse) ? httpCountriesResponse : ((httpCountriesResponse as HttpResponse)?.data ?? [])) as CountryModel[]}
 }
 
 export default useCountries;

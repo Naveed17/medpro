@@ -5,10 +5,8 @@ import Zoom from "react-medium-image-zoom";
 import {getBirthdayFormat, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery} from "@lib/axios";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {WidgetForm} from "@features/widget";
@@ -18,11 +16,11 @@ import {useInsurances} from "@lib/hooks/rest";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import PreConsultationDialogStyled from "./overrides/preConsultationDialogStyled";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function PreConsultationDialog({...props}) {
     const {data} = props;
-    const {patient, uuid} = data;
-    const {data: session} = useSession();
+    const {patient, uuid = null} = data;
     const router = useRouter();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -57,17 +55,15 @@ function PreConsultationDialog({...props}) {
     const [selectedModel, setSelectedModel] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const {data: httpSheetResponse} = useRequest(medicalEntityHasUser && agenda ? {
+    const {data: httpSheetResponse} = useRequestQuery(medicalEntityHasUser && agenda && uuid ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null);
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`
+    } : null, {refetchOnWindowFocus: false});
 
-    const {data: httpModelResponse} = useRequest(urlMedicalProfessionalSuffix ? {
+    const {data: httpModelResponse} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
-        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`,
-        headers: {Authorization: `Bearer ${session?.accessToken}`}
-    } : null, SWRNoValidateConfig);
+        url: `${urlMedicalProfessionalSuffix}/modals/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
 
     const models = (httpModelResponse as HttpResponse)?.data as ModalModel[];
     const sheetModal = (httpSheetResponse as HttpResponse)?.data?.modal;
@@ -176,12 +172,20 @@ function PreConsultationDialog({...props}) {
                 </Box>
             </Stack>
 
-            {(models && sheetModal && !loading) && <WidgetForm
-                {...{models, changes, setChanges, isClose}}
+            {(models && Array.isArray(models) && sheetModal && !loading && selectedModel) && <WidgetForm
+                {...{
+                    models,
+                    changes,
+                    setChanges,
+                    isClose,
+                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${uuid}/data/${router.locale}`,
+                }}
                 expandButton={false}
                 modal={selectedModel}
                 data={sheetModal.data}
+                autoUpdate={false}
                 appuuid={uuid}
+                showToolbar={true}
                 setSM={setSelectedModel}
                 handleClosePanel={(v: boolean) => setIsClose(v)}></WidgetForm>}
         </PreConsultationDialogStyled>)

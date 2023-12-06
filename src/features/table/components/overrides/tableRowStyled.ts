@@ -1,7 +1,7 @@
 import {styled} from "@mui/material/styles";
 import TableRow from "@mui/material/TableRow";
 
-const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
+const TableRowStyled = styled(TableRow)<any>(({theme, styleprops,...rest}) => ({
     "& .MuiTableCell-root": {
         div: {
             color: "black",
@@ -171,8 +171,8 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
     },
     '.counter-btn': {
         borderRadius: 5,
-        width:"fit-content",
-        height:25,
+        width: "fit-content",
+        height: 25,
         margin: "auto",
         alignSelf: 'flex-start',
         border: `1px solid ${theme.palette.grey["A600"]}`,
@@ -185,7 +185,7 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
         },
         '.MuiInputBase-root': {
             width: 35,
-            height:22,
+            height: 22,
             borderRadius: 5,
             border: 0,
             margin: 0,
@@ -196,8 +196,8 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
         '.MuiIconButton-root': {
             borderRadius: 4,
             padding: 2,
-            width:25,
-            height:25,
+            width: 25,
+            height: 25,
             backgroundColor: theme.palette.grey["A600"],
             svg: {
                 width: 14,
@@ -214,6 +214,67 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops}) => ({
     },
     "& .source-icon": {
         margin: "auto"
+    },
+    "& .MuiAvatar-root .error": {
+        marginLeft: 8,
+        width: 14
+    },
+    ".collapse-wrapper": {
+        marginLeft: -1,
+        marginRight: -1,
+        ".means-wrapper": {
+            padding: theme.spacing(2),
+            backgroundColor: theme.palette.background.default,
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+            borderTop: 'none'
+        },
+        '.consultation-card': {
+            position: 'relative',
+
+            ".MuiCardContent-root": {
+                "&:last-child": {
+                    padding: theme.spacing(2)
+                }
+            },
+            "&:not(:last-child)": {
+                marginBottom: theme.spacing(2),
+            }
+        }
+    },
+    "&.row-cashbox": {
+        ".MuiTableCell-root": {
+            backgroundColor:rest.rest !== undefined ?rest.rest ?"#FDF6D0":"#F4D9E1": "",
+            "&.MuiTableCell-root": {
+                borderTop: `1px solid ${theme.palette.divider}`,
+                borderBottom: `1px solid ${theme.palette.divider}`,
+
+                "&:first-of-type": {
+                    borderLeft: `1px solid ${theme.palette.divider}`,
+                    borderTopLeftRadius: 6,
+                    borderBottomLeftRadius: 6,
+                },
+                "&:last-of-type": {
+                    borderRight: `1px solid ${theme.palette.divider}`,
+                    borderTopRightRadius: 6,
+                    borderBottomRightRadius: 6,
+
+                },
+            }
+        },
+        "&.row-collapse": {
+            ".MuiTableCell-root": {
+                "&.MuiTableCell-root": {
+                    "&:first-of-type": {
+                        borderBottomLeftRadius: 0,
+                    },
+                    "&:last-of-type": {
+                        borderBottomRightRadius: 0,
+                    }
+                }
+            }
+        }
     }
+
 }));
 export default TableRowStyled;

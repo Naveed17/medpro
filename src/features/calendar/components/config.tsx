@@ -22,6 +22,9 @@ import CoPresentOutlinedIcon from '@mui/icons-material/CoPresentOutlined';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import PersonOffIcon from '@mui/icons-material/PersonOff';
 import {Avatar} from "@mui/material";
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import PauseIcon from "@themes/overrides/icons/pauseIcon";
+import CancelAppointmentPatientIcon from "@themes/overrides/icons/cancelAppointmentPatientIcon";
 
 export const IconsTypes: any = {
     "ic-consultation": <EventOutlinedIcon/>,
@@ -38,7 +41,7 @@ export const IconsTypes: any = {
 export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
     0: {
         key: "PENDING",
-        value: "En attende",
+        value: "En attente",
         color: "#FFD400",
         classColor: "warning",
         icon: <DefaultCircleIcon/>,
@@ -86,7 +89,13 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
         classColor: "expire",
         icon: <ExpiredCircleIcon/>,
     },
-    8: {key: "PAUSED", value: "Pausé", color: "#ff6660", classColor: "warning"},
+    8: {
+        key: "PAUSED",
+        value: "En pause",
+        color: "#ff6660",
+        classColor: "warning",
+        icon: <PauseIcon/>
+    },
     9: {
         key: "DELETED",
         value: "Supprimé",
@@ -114,6 +123,13 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
             src="/static/icons/Med-logo_.svg"
         />,
     },
+    15: {
+        key: "PATIENT_CANCELED",
+        value: "Annulé",
+        color: "#CC1D91",
+        classColor: "error",
+        icon: <CancelAppointmentPatientIcon/>,
+    }
 };
 
 export const TableHead = [
@@ -147,12 +163,12 @@ export const TableHead = [
         align: "center",
         sortable: true,
     },
-    {
-        id: "agenda",
-        label: "header.agenda",
-        align: "center",
-        sortable: true,
-    },
+    /*    {
+            id: "agenda",
+            label: "header.agenda",
+            align: "center",
+            sortable: true,
+        },*/
     {
         id: "fees",
         label: "header.fees",
@@ -205,6 +221,11 @@ export const CalendarContextMenu = [
         action: "onPreConsultation",
     },
     {
+        title: "import_document",
+        icon: <UploadFileOutlinedIcon/>,
+        action: "onAddConsultationDocuments",
+    },
+    {
         title: "confirm_appointment",
         icon: <CheckCircleOutlineRoundedIcon/>,
         action: "onConfirmAppointment",
@@ -231,9 +252,7 @@ export const CalendarContextMenu = [
     },
     {
         title: "see_patient_form",
-        icon: (
-            <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>
-        ),
+        icon: <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
         action: "onPatientDetail",
     },
     {

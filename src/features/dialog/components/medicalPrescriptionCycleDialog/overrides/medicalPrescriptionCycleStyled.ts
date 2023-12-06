@@ -1,17 +1,24 @@
-import {Stack, styled} from "@mui/material";
+import {Button, Stack, styled, ButtonProps} from "@mui/material";
+
+interface Props extends ButtonProps {
+    component: string
+}
 
 const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
     "& .MuiContainer-root": {
         padding: 0,
-        maxWidth: "1400px"
+        maxWidth: "1400px",
     },
     "& .MuiCardContent-root": {
-        paddingBottom: 10
+        paddingBottom: 10,
     },
     "& .MuiOutlinedInput-root.Mui-focused": {
         background: theme.palette.background.default,
     },
     "& .grid-action": {
+        paddingLeft: 8,
+    },
+    "& .MuiGrid-root .drug-input": {
         paddingLeft: 8
     },
     ".btn-del-drug": {
@@ -34,6 +41,13 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
                 },
             },
         },
+        [theme.breakpoints.down("sm")]: {
+            marginLeft: theme.spacing(-1)
+
+        },
+    },
+    "& .dosage-wrapper svg": {
+        height: 20
     },
     ".custom-paper": {
         backgroundColor: theme.palette.background.default,
@@ -55,7 +69,16 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
                 border: `1px solid ${theme.palette.grey[300]}`,
                 cursor: "default",
                 padding: theme.spacing(0.5, 1),
-                minWidth: 56,
+                minWidth: 92,
+                [theme.breakpoints.up("sm")]: {
+                    minWidth: 100
+                },
+                [theme.breakpoints.down("sm")]: {
+                    width: '100%'
+                },
+                [theme.breakpoints.up("md")]: {
+                    minWidth: 92
+                },
                 ".MuiIconButton-root": {
                     ".MuiSvgIcon-root": {
                         fontSize: "1rem",
@@ -90,6 +113,11 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
                         },
                     },
                 },
+                "&.dosage-wrapper": {
+                    justifyContent: 'flex-start',
+                    minWidth: 90,
+
+                }
             },
             ".btn-del": {
                 position: "absolute",
@@ -115,6 +143,16 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
                     },
                 },
             },
+            [theme.breakpoints.down("md")]: {
+                paddingTop: theme.spacing(3),
+            },
+            ".btn-dosage-time-counter": {
+                "&.btn-dosage-time-counter": {
+                    width: 'auto',
+                    marginLeft: theme.spacing(1),
+                    height: 25,
+                }
+            }
         },
     },
     ".model-collapse": {
@@ -136,19 +174,105 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
         },
     },
     "& .prescription-preview": {
-        width: '100%',
+        width: "100%",
         "& .MuiListItemButton-root": {
-            paddingTop: 0,
-            paddingRight: 0
+            border: `1px solid ${theme.palette.divider}`,
+            borderRadius: 8,
+            alignItems: 'center',
+            marginBottom: theme.spacing(1),
+            "&:last-child": {
+                marginBottom: 0,
+            },
+            ".MuiListItemText-root": {
+                margin: 0,
+            },
+            button: {
+                border: `1px solid ${theme.palette.divider}`,
+                borderRadius: 8,
+                padding: 5,
+                width: 32,
+                height: 32,
+                svg: {
+                    width: 16,
+                    height: 16,
+                    path: {
+                        fill: theme.palette.text.secondary,
+                    }
+                },
+                "&.btn-del": {
+                    marginLeft: theme.spacing(1),
+                    svg: {
+                        path: {
+                            fill: theme.palette.text.primary
+                        }
+                    }
+                },
+            }
         },
         "& .MuiListItemText-primary": {
-            fontWeight: "bold"
-        }
+            fontWeight: 500,
+
+        },
     },
     "& .custom-button": {
         px: {xs: 0.5, md: 1},
         fontSize: {xs: 12, md: 14},
-        alignSelf: "flex-start"
+        alignSelf: "flex-start",
+    },
+    '.btn-list-action': {
+        border: `1px solid ${theme.palette.divider}`,
+        borderRadius: 8,
+        padding: 5,
+    },
+    "& .dosage-meal-select": {
+        marginRight: 4
     }
 }));
 export default MedicalPrescriptionCycleStyled;
+export const ButtonWhite = styled(Button)<Props>(({theme}) => ({
+    border: `1px solid ${theme.palette.grey[300]}`,
+    cursor: "default",
+    padding: theme.spacing(0.5, 1),
+    minWidth: 56,
+    [theme.breakpoints.up("sm")]: {
+        minWidth: 100
+    },
+
+    [theme.breakpoints.up("md")]: {
+        minWidth: 56
+    },
+    ".MuiIconButton-root": {
+        ".MuiSvgIcon-root": {
+            fontSize: "1rem",
+            path: {
+                fill: theme.palette.primary.main,
+            },
+        },
+        "&.Mui-disabled": {
+            ".MuiSvgIcon-root": {
+                path: {
+                    fill: theme.palette.divider,
+                },
+            },
+        },
+    },
+    "&:hover": {
+        backgroundColor: theme.palette.common.white,
+    },
+    ".MuiButtonBase-root": {
+        width: 25,
+        height: 25,
+        svg: {
+            path: {
+                fill: theme.palette.divider,
+            },
+        },
+        ".react-svg": {
+            svg: {
+                path: {
+                    fill: theme.palette.common.white,
+                },
+            },
+        },
+    }
+}))

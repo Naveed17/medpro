@@ -1,25 +1,16 @@
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useEffect, useState} from "react";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function useInsurances() {
     const router = useRouter();
 
-    const [insurances, setInsurances] = useState<InsuranceModel[]>([]);
-
-    const {data: httpInsuranceResponse} = useRequest({
+    const {data: httpInsuranceResponse} = useRequestQuery({
         method: "GET",
-        url: "/api/public/insurances/" + router.locale,
-    }, SWRNoValidateConfig);
+        url: `/api/public/insurances/${router.locale}`,
+    }, ReactQueryNoValidateConfig);
 
-    useEffect(() => {
-        if (httpInsuranceResponse) {
-            setInsurances((httpInsuranceResponse as HttpResponse)?.data);
-        }
-    }, [httpInsuranceResponse]);
-
-    return {insurances}
+    return {insurances: (Array.isArray(httpInsuranceResponse) ? httpInsuranceResponse : ((httpInsuranceResponse as HttpResponse)?.data ?? [])) as InsuranceModel[]}
 }
 
 export default useInsurances;

@@ -3,15 +3,17 @@ interface AppointmentModel {
     type: AppointmentTypeModel;
     dayDate: string;
     startTime: string;
+    time?: string;
     createdAt: string;
     updatedAt: string;
     globalInstructions: string;
     instruction: string;
     reminder: any[];
-    fees: string;
+    payed: boolean;
     endTime: string;
     status: number;
     duration: number;
+    restAmount: number;
     isVip: boolean;
     isOnline: boolean;
     PatientHasAgendaAppointment: boolean | null;

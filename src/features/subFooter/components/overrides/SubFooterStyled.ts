@@ -1,12 +1,12 @@
 //component styles
 import { styled, Theme } from "@mui/system";
 import { AppBar } from "@mui/material";
-
+import { MobileContainer } from "@lib/constants";
 const SubFooterStyled = styled(AppBar)(({ theme }: { theme: Theme }) => ({
     bottom: 0,
     top: 'unset',
     transition: 'all ease-in-out 0.5s',
-    [theme.breakpoints.up('sm')]: {
+    [`@media (min-width: ${MobileContainer + 1}px)`]: {
         width: `calc(100% - 84px)`,
         marginLeft: 84,
         "&.opened-sidebar": {

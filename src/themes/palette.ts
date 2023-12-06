@@ -51,7 +51,7 @@ const ERROR = {
     light: "#f1cbdf",
     main: "#E83B68",
     dark: "#B72136",
-    darker: "#E83B68"
+    darker: "#8B0D01"
 };
 
 const EXPIRE = {
@@ -99,6 +99,7 @@ export const GREY = {
     900: "#161C24",
     A0: "#959CBD",
     A10: "#f8fafc",
+    A11: "#E4E4E4",
     A50: "#647F94",
     A60: "#7E7E7E",
     A100: "#E3EAEF",
@@ -110,6 +111,9 @@ export const GREY = {
     A700: "#E7F5FB",
     A800: "#FCFCFC",
     A900: "#EEEEEE",
+    B900: "#F89C47",
+    B901: "#7E8299",
+    B902: "#FAFAFA",
     500_8: alpha("#919EAB", 0.08),
     500_12: alpha("#919EAB", 0.12),
     500_16: alpha("#919EAB", 0.16),
@@ -117,7 +121,7 @@ export const GREY = {
     500_32: alpha("#919EAB", 0.32),
     500_48: alpha("#919EAB", 0.48),
     500_56: alpha("#919EAB", 0.56),
-    500_80: alpha("#919EAB", 0.8)
+    500_80: alpha("#919EAB", 0.8),
 };
 
 const GRADIENTS = {

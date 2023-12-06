@@ -30,15 +30,15 @@ import {useSession} from "next-auth/react";
 import axios from "axios";
 import {Theme} from "@mui/material/styles";
 import {agendaSelector} from "@features/calendar";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
-import Image from "next/image";
+import {LoadingScreen} from "@features/loadingScreen";
+
 import {unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
+import Image from "next/image";
 
 function ProfilMenu() {
     const {data: session} = useSession();
@@ -60,7 +60,7 @@ function ProfilMenu() {
     const roles = (user as UserDataResponse).general_information.roles as Array<string>
     const general_information = (user as UserDataResponse).general_information;
 
-    const {trigger} = useRequestMutation(null, "/settings");
+    const {trigger: triggerSettingsUpdate} = useRequestQueryMutation("/settings/update");
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -69,14 +69,15 @@ function ProfilMenu() {
     };
 
     const switchAgenda = (agenda: AgendaConfigurationModel) => {
-        medicalEntityHasUser && trigger({
+        medicalEntityHasUser && triggerSettingsUpdate({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda.uuid}/switch/${router.locale}`,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => {
-            setLoading(true);
-            router.reload();
-        })
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda.uuid}/switch/${router.locale}`
+        }, {
+            onSuccess: () => {
+                setLoading(true);
+                router.reload();
+            }
+        });
     }
 
     const handleMenuItem = async (action: string) => {
@@ -109,7 +110,7 @@ function ProfilMenu() {
         dispatch(openMenu(false));
     };
 
-    if (loading) return (<LoadingScreen text={"loading-switch"}/>);
+    if (loading) return (<LoadingScreen button text={"loading-switch"}/>);
 
     return (
         <ProfileSectionStyled
@@ -124,7 +125,7 @@ function ProfilMenu() {
                     className="profile-img"
                     component="img"
                     alt="Connected user"
-                    src={`/static/mock-images/avatars/avatar_${roles.includes('ROLE_SECRETARY') ? "sec" : "dr"}.png`}
+                    src={`/static/icons/Med-logo_.svg`}
                     width={26}
                     height={26}
                 />
@@ -161,7 +162,7 @@ function ProfilMenu() {
                                                     className="profile-img"
                                                     component="img"
                                                     alt="The house from the offer."
-                                                    src={`/static/mock-images/avatars/avatar_${roles.includes('ROLE_SECRETARY') ? "sec" : "dr"}.png`}
+                                                    src={`/static/icons/Med-logo_.svg`}
                                                     width={pxToRem(46)}
                                                     height={pxToRem(46)}
                                                 />

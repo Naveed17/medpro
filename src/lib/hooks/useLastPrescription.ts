@@ -1,26 +1,22 @@
-import {useEffect, useState} from "react";
 import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector} from "@features/toolbar";
+import {useRequestQuery} from "@lib/axios";
+import {useRouter} from "next/router";
+import {useMedicalEntitySuffix} from "@lib/hooks/index";
+
 // ----------------------------------------------------------------------
 function useLastPrescription() {
-    const {appointement} = useAppSelector(consultationSelector);
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const [lastPrescriptions, setLastPrescriptions] = useState<any[]>([]);
+    const {patient} = useAppSelector(consultationSelector);
 
-    useEffect(() => {
-        let lastPrescription: any[] = []
-        if (appointement !== null) {
-            appointement.latestAppointments.map((la: { documents: any[]; }) => {
-                const prescriptions = la.documents.filter(doc => doc.documentType === "prescription");
-                if (prescriptions.length > 0) {
-                    lastPrescription = [...lastPrescription, ...prescriptions]
-                }
-            })
-            setLastPrescriptions(lastPrescription)
-        }
-    }, [appointement])
+    const {data: httpLastPrescriptionsResponse} = useRequestQuery(patient ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/patients/${patient?.uuid}/last-prescription/${router.locale}`,
+    } : null, {keepPreviousData: true});
 
-    return {lastPrescriptions};
+    return {lastPrescriptions: (httpLastPrescriptionsResponse as HttpResponse)?.data && !Array.isArray((httpLastPrescriptionsResponse as HttpResponse).data) ? [(httpLastPrescriptionsResponse as HttpResponse).data] : []};
 }
 
 export default useLastPrescription;

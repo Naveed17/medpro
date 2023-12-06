@@ -18,13 +18,16 @@ interface PatientModel {
     account: AccountModel;
     hasAccount: boolean;
     hasPhoto: boolean;
+    isArchived?: boolean;
     isParent: boolean;
     medicalEntityPatientBase: MedicalEntityPatientBaseModel[];
     nextAppointments: [];
+    nextAppointment?: any;
     documents: [];
     latestAppointments: [];
     previousAppointments: [];
     requestedAnalyses: [];
     requestedImaging: [];
     treatment?: [];
+    checked?: boolean;
 }

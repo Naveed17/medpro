@@ -47,6 +47,17 @@ function ThemeConfig({children}: LayoutProps) {
 
     const themeWithLocale = useMemo(
         () => createTheme({
+            components: {
+                MuiBackdrop: {
+                    styleOverrides: {
+                        root: {
+                            '&[style*="opacity: 0"]': {
+                                pointerEvents: 'none',
+                            },
+                        },
+                    },
+                },
+            },
             palette: {...palette, mode: mode},
             typography,
             direction: dir,

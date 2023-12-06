@@ -1,6 +1,6 @@
 import NextAuth, {NextAuthOptions} from "next-auth"
 import KeycloakProvider from "next-auth/providers/keycloak";
-import requestAxios, {setAxiosToken} from "@lib/axios/config";
+import {setAxiosToken} from "@lib/axios/config";
 import CredentialsProvider from "next-auth/providers/credentials";
 import {JWT} from "next-auth/jwt";
 
@@ -144,7 +144,7 @@ export const authOptions: NextAuthOptions = {
     // when an action is performed.
     // https://next-auth.js.org/configuration/callbacks
     callbacks: {
-        async signIn({user, account, profile, email, credentials}) {
+        async signIn({user}) {
             return !(user as any).error
         },
         async redirect({url, baseUrl}) {
@@ -153,16 +153,17 @@ export const authOptions: NextAuthOptions = {
             if (url.startsWith("/")) return new URL(url, baseUrl).toString();
             return baseUrl;
         },
-        async session({session, token, user}) {
+        async session({session, token}) {
             // Send properties to the client, like an access_token from a provider.
             (session as any).accessToken = token.accessToken;
             session.data = token.data as UserDataResponse;
+            (session as any).user.jti = token.jti;
             if (token.error) {
                 (session as any).error = token.error;
             }
             return session;
         },
-        async jwt({token, user, account, profile, trigger, session}) {
+        async jwt({token, user, account, trigger, session}) {
             // Persist the OAuth access_token to the token right after signin
             if (trigger === "update" && session?.agenda_default_view) {
                 // Note, that `session` can be any arbitrary object, remember to validate it!
@@ -180,11 +181,11 @@ export const authOptions: NextAuthOptions = {
                 return token;
             }
 
-            if (account && user) {
+            if ((account && user) || (trigger === "update" && session?.refresh)) {
                 // Send properties to the client, like an access_token from a provider.
-                if (account.provider === "credentials") {
+                if (account && account.provider === "credentials") {
                     token = user as any;
-                } else {
+                } else if (account) {
                     // Add access_token, refresh_token and expirations to the token right after signin
                     token.accessToken = account.access_token;
                     token.refreshToken = account.refresh_token;
@@ -194,20 +195,40 @@ export const authOptions: NextAuthOptions = {
                 }
                 setAxiosToken(<string>token.accessToken);
 
-                const res = await requestAxios({
-                    url: "/api/private/users/fr",
+                const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
+                const response = await fetch(`${baseURL}api/private/users/fr`, {
                     method: "GET",
                     headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
                         Authorization: `Bearer ${token.accessToken}`
                     }
                 });
+                const res = await response.json();
+                if (res.status === "error") {
+                    const errorData = res;
+                    if (errorData.code === 4006) {
+                        token.error = errorData;
+                        return token;
+                    } else if (errorData.code === 4000) {
+                        // Access token has expired, try to update it
+                        return refreshAccessToken(token);
+                    }
+                } else {
+                    if (token.error && res?.data) {
+                        delete token['error']
+                    }
 
-                Object.assign(res?.data.data, {
-                    medical_entity: res?.data.data.medical_entities?.find((entity: MedicalEntityDefault) =>
-                        entity.is_default)?.medical_entity
-                });
-                token.data = res?.data.data;
-                return token
+                    if (!token.error) {
+                        Object.assign(res?.data, {
+                            medical_entity: res?.data?.medical_entities?.find((entity: MedicalEntityDefault) =>
+                                entity.is_default)?.medical_entity
+                        });
+                        token.data = res?.data;
+                    }
+
+                    return token;
+                }
             }
 
             // Return previous token if the access token has not expired yet

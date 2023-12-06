@@ -22,7 +22,7 @@ function AppointmentTypesFilter({...props}) {
                         .find((typeObject) => type.uuid === typeObject) !== undefined,
             });
         });
-    });
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (<>{types.map((item, index) => (
         <React.Fragment key={index}>

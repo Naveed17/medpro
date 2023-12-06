@@ -2,9 +2,9 @@ import {signIn, useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import React, {useEffect, useState} from "react";
 import {Redirect} from "@features/redirect";
@@ -26,11 +26,12 @@ function SignIn() {
         }
     });
 
-    if (loading) return (<LoadingScreen/>);
+    if (loading) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         status === "unauthenticated" ?
             <LoadingScreen
+                button
                 {...{color: "error", ...(error && {text: "loading-error"})}}
             /> :
             <Redirect to='/dashboard/agenda'/>)

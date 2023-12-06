@@ -38,7 +38,7 @@ function CountrySelect({...props}) {
             onChange={(e, v) => {
                 onSelectState(v);
             }}
-            value={initCountry}
+            value={countries.find(country => country.code.toLocaleLowerCase() === initCountry.code.toLocaleLowerCase())}
             options={countriesData}
             autoHighlight
             disableClearable

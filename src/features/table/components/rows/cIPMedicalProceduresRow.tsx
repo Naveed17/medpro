@@ -9,7 +9,7 @@ import InputBaseStyled from "../overrides/inputBaseStyled";
 
 function CIPMedicalProceduresRow({...props}) {
 
-    const {row, data, editMotif} = props;
+    const {row, data, editMotif, handleEvent} = props;
 
     const theme = useTheme() as Theme;
 
@@ -26,11 +26,14 @@ function CIPMedicalProceduresRow({...props}) {
                     color="primary"
                     onChange={() => {
                         editMotif(row, "check");
+                        handleEvent()
                     }}
                     checked={row.selected}
                 />
             </TableCell>
             <TableCell>{row.act.name}</TableCell>
+            <TableCell>{row?.code ?? '--'}</TableCell>
+            <TableCell>{row?.contribution ?? '--'}</TableCell>
             <TableCell align={"center"}>
                 {row.selected && row.uuid !== 'consultation_type' ? (
                     <Stack alignItems="center" direction="row" className="counter-btn">
@@ -55,6 +58,7 @@ function CIPMedicalProceduresRow({...props}) {
                             }}
                             onBlur={() => {
                                 setSelected("");
+                                handleEvent()
                             }}
                             autoFocus={selected === row.uuid + "qte"}
                             onChange={(e) => {
@@ -105,6 +109,7 @@ function CIPMedicalProceduresRow({...props}) {
                             }}
                             onBlur={() => {
                                 setSelected("");
+                                handleEvent()
                             }}
                             onClick={(e) => e.stopPropagation()}
                             onChange={(e: any) => {

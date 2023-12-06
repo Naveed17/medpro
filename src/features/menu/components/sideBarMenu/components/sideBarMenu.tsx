@@ -1,17 +1,16 @@
 // Material
 import {
+    Badge,
     Box,
     Drawer,
+    Hidden,
     List,
     ListItem,
     ListItemIcon,
     ListItemText,
-    Hidden,
     Toolbar,
-    useMediaQuery,
-    Badge
+    useMediaQuery
 } from "@mui/material";
-import {Theme} from "@mui/material/styles";
 // utils
 import Icon from "@themes/icon";
 
@@ -21,8 +20,6 @@ import {useTranslation} from "next-i18next";
 
 import {useRouter} from "next/router";
 import Link from "next/link";
-
-const {sidebarItems} = siteHeader;
 //style
 import "@styles/sidebarMenu.module.scss";
 import Image from "next/image";
@@ -30,12 +27,12 @@ import SettingsIcon from "@themes/overrides/icons/settingsIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import React, {useEffect, useRef, useState} from "react";
 import {
-    sideBarSelector,
-    toggleMobileBar,
-    logout,
     ListItemTextStyled,
+    logout,
     MainMenuStyled,
     MobileDrawerStyled,
+    sideBarSelector,
+    toggleMobileBar,
 } from "@features/menu";
 import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";
@@ -44,18 +41,23 @@ import {useSession} from "next-auth/react";
 import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
 import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
 import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
+import {MobileContainer} from "@lib/constants";
+import {motion} from "framer-motion";
+import StatsIcon from "@themes/overrides/icons/statsIcon";
+
+const {sidebarItems} = siteHeader;
+
+const LoadingScreen = dynamic(
+    () => import("@features/loadingScreen/components/loadingScreen")
+);
 
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("sm")
-    );
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+    const [currentIndex, setCurrentIndex] = useState<number | null>(null);
     const router = useRouter();
     const dispatch = useAppDispatch();
 
@@ -64,13 +66,14 @@ function SideBarMenu({children}: LayoutProps) {
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room} = useAppSelector(dashLayoutSelector);
+    const {waiting_room, newCashBox} = useAppSelector(dashLayoutSelector);
     const {sortedData} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("menu");
 
     let container: any = useRef<HTMLDivElement>(null);
-    const [menuItems, setMenuItems] = useState(sidebarItems);
-
+    const [menuItems, setMenuItems] = useState(
+        sidebarItems.filter((item) => item.enabled)
+    );
 
     const handleRouting = (path: string) => {
         // Always do navigations after the first render
@@ -88,7 +91,7 @@ function SideBarMenu({children}: LayoutProps) {
             method: "GET",
         });
         dispatch(logout({redirect: true, path}));
-    }
+    };
 
     const handleSettingRoute = () => {
         isMobile
@@ -102,89 +105,142 @@ function SideBarMenu({children}: LayoutProps) {
     }
 
     const drawer = (
-        <div>
-            <Link href="https://www.med.tn/">
-                <Box className={"med-logo"} sx={{marginTop: 1}}>
-                    <Image
-                        height={38}
-                        width={38}
-                        alt="company logo"
-                        src="/static/icons/Med-logo_.svg"
-                        priority
-                    />
-                </Box>
-            </Link>
+            <div>
+                <Link href="https://www.med.tn/">
+                    <Box className={"med-logo"} sx={{marginTop: 1}}>
+                        <Image
+                            height={38}
+                            width={38}
+                            alt="company logo"
+                            src="/static/icons/Med-logo_.svg"
+                            priority
+                        />
+                    </Box>
+                </Link>
 
-            <List>
-                {menuItems?.map((item) => (
-                    <Hidden key={item.name} smUp={item.name === "wallet"}>
-                        <a onClick={() => handleRouting(item.href)}>
-                            <ListItem
-                                sx={{
-                                    margin: "0.5rem 0",
-                                }}
-                                disableRipple
-                                button
-                                className={router.pathname === item.href ? "active" : ""}>
-                                <Badge
-                                    anchorOrigin={{
-                                        vertical: "bottom",
-                                        horizontal: "right",
+                <List
+                    component={motion.ul}
+                    layout
+                    onMouseLeave={() => setCurrentIndex(null)}
+                    sx={{overflow: 'hidden', px: 1.5}}>
+                    {menuItems?.map((item, i) => (
+                        <Hidden key={item.name} smUp={item.name === "wallet"}>
+                            <a onClick={() => handleRouting(item.href)}>
+                                <ListItem
+                                    sx={{
+                                        margin: "0.5rem 0",
+                                        cursor: 'pointer'
                                     }}
-                                    invisible={item.badge === undefined || isMobile}
-                                    color="warning"
-                                    badgeContent={item.badge}>
-                                    <ListItemIcon>
-                                        <Icon path={item.icon}/>
-                                    </ListItemIcon>
-                                </Badge>
-                                <ListItemTextStyled primary={t("main-menu." + item.name)}/>
-                                {isMobile && item.badge !== undefined && item.badge > 0 && (
+                                    className={router.pathname === item.href ? "active" : ""}>
                                     <Badge
-                                        badgeContent={item.badge}
+                                        anchorOrigin={{
+                                            vertical: "bottom",
+                                            horizontal: "right",
+                                        }}
+                                        invisible={item.badge === undefined || isMobile}
                                         color="warning"
-                                    />
-                                )}
-                            </ListItem>
-                        </a>
-                    </Hidden>
-                ))}
-            </List>
-            <List className="list-bottom">
-                <ListItem
-                    onClick={handleSettingRoute}
-                    disableRipple
-                    button
-                    className={
-                        router.pathname.startsWith("/dashboard/settings")
-                            ? "active mt-2"
-                            : "mt-2"
-                    }>
-                    <ListItemIcon>
-                        <SettingsIcon/>
-                    </ListItemIcon>
-                    <Hidden smUp>
-                        <ListItemText primary={t("main-menu." + "settings")}/>
-                    </Hidden>
-                </ListItem>
-                <Hidden smUp>
-                    <ListItem onClick={() => handleLogout()}>
+                                        badgeContent={item.badge}>
+                                        <ListItemIcon
+                                            onMouseEnter={(e) => {
+                                                if (router.pathname === item.href) {
+                                                    e.stopPropagation();
+                                                    setCurrentIndex(null);
+                                                    return;
+                                                }
+
+                                                setCurrentIndex(i);
+                                            }}>
+                                            <Icon path={item.icon}/>
+                                        </ListItemIcon>
+                                    </Badge>
+                                    <ListItemTextStyled primary={t("main-menu." + item.name)}/>
+                                    {isMobile && item.badge !== undefined && item.badge > 0 && (
+                                        <Badge
+                                            badgeContent={item.badge}
+                                            color="warning"
+                                            sx={{
+                                                ".MuiBadge-badge": {
+                                                    right: 8,
+                                                },
+                                            }}
+                                        />
+                                    )}
+
+                                    {i === currentIndex && (
+                                        <motion.div
+                                            className="icon-background"
+                                            layoutId="social"
+                                            key="social"
+                                            initial={false}
+                                        />
+                                    )}
+                                </ListItem>
+                            </a>
+                        </Hidden>
+                    ))}
+                </List>
+                <List className="list-bottom">
+                    <ListItem
+                        onClick={() => handleRouting("/dashboard/statistics")}
+                        disableRipple
+                        button
+                        className={
+                            router.pathname.startsWith("/dashboard/statistics")
+                                ? "active mt-2"
+                                : "mt-2"
+                        }>
                         <ListItemIcon>
-                            <Icon path="ic-deconnexion-1x"/>
+                            <StatsIcon/>
                         </ListItemIcon>
-                        <ListItemText primary={t("main-menu." + "logout")}/>
+                        <Hidden smUp>
+                            <ListItemText primary={t("main-menu." + "stats")}/>
+                        </Hidden>
                     </ListItem>
-                </Hidden>
-            </List>
-        </div>
-    );
+                    <ListItem
+                        onClick={handleSettingRoute}
+                        disableRipple
+                        button
+                        className={
+                            router.pathname.startsWith("/dashboard/settings")
+                                ? "active mt-2"
+                                : "mt-2"
+                        }>
+                        <ListItemIcon>
+                            <SettingsIcon/>
+                        </ListItemIcon>
+                        <Hidden smUp>
+                            <ListItemText primary={t("main-menu." + "settings")}/>
+                        </Hidden>
+                    </ListItem>
+                    <Hidden smUp>
+                        <ListItem onClick={() => handleLogout()}>
+                            <ListItemIcon>
+                                <Icon path="ic-deconnexion-1x"/>
+                            </ListItemIcon>
+                            <ListItemText primary={t("main-menu." + "logout")}/>
+                        </ListItem>
+                    </Hidden>
+                </List>
+            </div>
+        )
+    ;
 
     useEffect(() => {
         container.current = document.body as HTMLDivElement;
     });
 
     useEffect(() => {
-        const currentDay = sortedData.find((event) => event.date === moment().format("DD-MM-YYYY"));
+        let demo = user.medical_entity.hasDemo;
+        if (localStorage.getItem("newCashbox"))
+            demo = localStorage.getItem("newCashbox") === "1";
+        menuItems[3].href = demo ? "/dashboard/cashbox" : "/dashboard/payment";
+        setMenuItems([...menuItems]);
+    }, [newCashBox]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        const currentDay = sortedData.find(
+            (event) => event.date === moment().format("DD-MM-YYYY")
+        );
         setMenuItems([
             {...menuItems[0], badge: currentDay ? currentDay.events.length : 0},
             {...menuItems[1], badge: waiting_room},
@@ -192,7 +248,7 @@ function SideBarMenu({children}: LayoutProps) {
         ]);
     }, [sortedData, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
     return (
         <MainMenuStyled>
@@ -218,7 +274,7 @@ function SideBarMenu({children}: LayoutProps) {
                 </Drawer>
             </Box>
             <Box
-                display={{xs: "none", sm: "block"}}
+                display={isMobile ? "none" : "block"}
                 component="nav"
                 className={`action-side-nav ${opened ? "active" : ""}`}>
                 <div className="action-bar-open">

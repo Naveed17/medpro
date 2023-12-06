@@ -11,16 +11,15 @@ import RootStyled from "./overrides/rootStyled";
 import Icon from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {openDrawer} from "@features/calendar";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useSession} from "next-auth/react";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {HtmlTooltip} from "@features/tooltip";
 import {useAntecedentTypes} from "@lib/hooks/rest";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 const emptyObject = {
     title: "",
@@ -28,9 +27,8 @@ const emptyObject = {
 };
 
 function AntecedentsCard({...props}) {
-    const {loading, patient, antecedentsData, mutateAntecedents} = props;
+    const {loading, patient, antecedentsData, mutateAntecedents, setEditable} = props;
     const router = useRouter();
-    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {allAntecedents: antecedentsType} = useAntecedentTypes();
@@ -45,7 +43,7 @@ function AntecedentsCard({...props}) {
     const [size, setSize] = useState<string>("sm");
     const [state, setState] = useState<AntecedentsModel[] | FamilyAntecedentsModel[]>([]);
 
-    const {trigger} = useRequestMutation(null, "/antecedent");
+    const {trigger: triggerAntecedentUpdate} = useRequestQueryMutation("/patient/antecedent");
 
     const isObject = (val: any) => {
         if (val === null) {
@@ -59,33 +57,60 @@ function AntecedentsCard({...props}) {
     };
 
     const handleCloseDialog = () => {
+
+        let _res: any[] = []
+        state.forEach((item: any) => {
+            item.data.forEach((data: any) => {
+                _res.push({
+                    ...data,
+                    uuid: item.uuid,
+                })
+            })
+        })
         const form = new FormData();
-        form.append("antecedents", JSON.stringify(state));
+        form.append("antecedents", JSON.stringify(_res));
         form.append("patient_uuid", patient.uuid);
-        medicalEntityHasUser && trigger({
+        medicalEntityHasUser && triggerAntecedentUpdate({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
                 slug: any;
             }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
-            data: form,
-            headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-            },
-        }).then(() => {
-            setOpenDialog(false);
-            setInfo("");
-            setInfoDynamic("");
-            mutateAntecedents();
+            data: form
+        }, {
+            onSuccess: () => {
+                setOpenDialog(false);
+                setInfo("");
+                setInfoDynamic("");
+                mutateAntecedents();
+            }
         });
     };
 
+    const getRes = (ants: any[]) => {
+        let _res: any[] = [];
+        ants.forEach(pa => {
+            const index = _res.findIndex(r => r.uuid === pa.antecedent.uuid)
+            index === -1 ?
+                _res.push({
+                    uuid: pa.antecedent.uuid,
+                    data: [pa]
+                }) : _res[index].data = [..._res[index].data, pa]
+        })
+        return _res;
+    }
+
     const handleOpen = (action: string) => {
+        setEditable({
+            patientDetailContactCard: false,
+            personalInsuranceCard: false,
+            personalInfoCard: false
+        });
         if (action === "consultation") {
             dispatch(openDrawer({type: "add", open: true}));
             return;
         }
-        if (antecedentsData && Object.keys(antecedentsData).find(key => key === action)) { // @ts-ignore
-            setState(antecedentsData[action]);
+        if (antecedentsData && Object.keys(antecedentsData).find(key => key === action)) {
+            setState(getRes(antecedentsData[action]));
         } else setState([])
 
         setInfo("dynamicAnt");
@@ -111,6 +136,7 @@ function AntecedentsCard({...props}) {
         else return [];
 
     }
+
     const getNote = (item: { response: string | any[]; }) => {
         if (item?.response)
             if (typeof item?.response === "string")
@@ -120,7 +146,8 @@ function AntecedentsCard({...props}) {
             else return '-';
         else return '-';
     }
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <RootStyled>
@@ -135,8 +162,7 @@ function AntecedentsCard({...props}) {
                 )}
             </Typography>
             <Grid container spacing={2}>
-                {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map(
-                    (antecedent, idx: number) => (
+                {(loading || !antecedentsType ? [emptyObject] : antecedentsType).map((antecedent: any, idx: number) => (
                         <React.Fragment key={idx}>
                             {antecedent.slug && antecedent.slug !== "antecedents" && antecedent.slug !== "treatment" &&
                                 <Grid item md={6} sm={12} xs={12}>
@@ -168,15 +194,11 @@ function AntecedentsCard({...props}) {
                                                             : {item?.startDate ? item?.startDate : "-"}</Typography>
                                                         <Typography fontSize={12}>Date fin
                                                             : {item?.endDate ? item?.endDate : "-"}</Typography>
-                                                        {item?.ascendantOf && <Typography
-                                                            fontSize={12}>{t(item?.ascendantOf)}</Typography>}
+                                                        {item?.ascendantOf &&
+                                                            <Typography fontSize={12}>{t(item?.ascendantOf)}</Typography>}
                                                         <Typography fontSize={12}>Note : {getNote(item)}</Typography>
                                                         {item?.note &&
                                                             <Typography fontSize={12}>RQ : {item?.note}</Typography>}
-                                                        {isObject(item?.response) && Object.keys(item?.response).map((rep: any) => (
-                                                            <Typography color="gray" fontSize={12}
-                                                                        key={rep}>{rep} : {item?.response[rep]}</Typography>
-                                                        ))}
                                                     </React.Fragment>
                                                 }
                                             >
@@ -192,7 +214,6 @@ function AntecedentsCard({...props}) {
                                                             {item.startDate ? " / " + item.startDate : ""}{" "}
                                                             {item.endDate ? " - " + item.endDate : ""}
                                                             {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
-                                                            {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
                                                         </span>}
                                                 </Typography>
                                             </HtmlTooltip>
@@ -223,7 +244,8 @@ function AntecedentsCard({...props}) {
                 <Dialog
                     {...{
                         direction,
-                        size
+                        size,
+                        sx: {px: {xs: 1.2, md: 3}}
                     }}
                     action={info}
                     open={openDialog}

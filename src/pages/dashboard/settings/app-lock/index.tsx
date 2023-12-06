@@ -20,9 +20,9 @@ import {LoadingButton} from "@mui/lab";
 import {setLock} from "@features/appLock";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {toggleSideBar} from "@features/menu";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function AppLock() {
@@ -34,8 +34,7 @@ function AppLock() {
         newPassword: Yup.string().required("This field is required"),
         confirmPassword: Yup.string().when("newPassword", {
             is: (val: any) => (!!(val && val.length > 0)),
-            then: Yup.string()
-                .required("This Field is Required")
+            then: (schema) => schema.required("This Field is Required")
                 .oneOf([Yup.ref("newPassword")], "Both password need to be the same"),
         }),
     });
@@ -66,7 +65,7 @@ function AppLock() {
         resetForm
     } = formik;
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>

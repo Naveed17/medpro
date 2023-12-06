@@ -1,22 +1,20 @@
-import {Box, Button, IconButton, Stack, Typography} from "@mui/material";
+import {Box, IconButton, Stack, Typography} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import HistoryCardStyled from "./overrides/historyCardStyle";
-import moment from "moment/moment";
-import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
+import {AppointmentStatus} from "@features/calendar";
 import {openDrawer} from "@features/dialog";
 import {useAppDispatch} from "@lib/redux/hooks";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 export default function HistoryCard({...props}) {
 
-    const {row, patient} = props
+    const {row} = props
     const dispatch = useAppDispatch();
     const status = AppointmentStatus[row.status];
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"});
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
     return (
         <HistoryCardStyled>
             <Stack spacing={4} direction="row" alignItems='center'>
@@ -48,7 +46,7 @@ export default function HistoryCard({...props}) {
                     </Stack>
                 </Box>
                 <Stack spacing={2} direction="row" alignItems='center' ml={'auto !important'}>
-                    <Button className="btn-more" onClick={() => {
+                    {/*<Button className="btn-more" onClick={() => {
                         const event = {
                             title: `${patient.firstName}  ${patient.lastName}`,
                             publicId: row.uuid,
@@ -57,13 +55,12 @@ export default function HistoryCard({...props}) {
                                 patient: patient,
                                 motif: row.consultationReasons,
                                 description: "",
-                                meeting: false,
                                 status
                             }
                         }
                         dispatch(setSelectedEvent(event as any));
                         dispatch(openDrawer(true));
-                    }} size="small">{t('see_details')}</Button>
+                    }} size="small">{t('see_details')}</Button>*/}
                     <IconButton
                         onClick={() => {
                             dispatch(openDrawer(true));

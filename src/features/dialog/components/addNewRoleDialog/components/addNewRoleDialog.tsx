@@ -16,8 +16,7 @@ import {
 } from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {useSession} from "next-auth/react";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
 import {TreeCheckbox} from "@features/treeViewCheckbox";
@@ -28,7 +27,6 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 function AddNewRoleDialog({...props}) {
     const {data: {selected, handleMutate, handleClose}} = props;
     const {enqueueSnackbar} = useSnackbar();
-    const {data: session} = useSession();
     const {permissions: allPermissions} = usePermissions();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
@@ -36,7 +34,10 @@ function AddNewRoleDialog({...props}) {
 
     const [loading, setLoading] = useState(false);
     const [permissions, setPermissions] = useState<any>([]);
-    const {trigger} = useRequestMutation(null, "/profile");
+
+    const {trigger: triggerProfileCreate} = useRequestQueryMutation("/profile/create");
+    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
+
     useEffect(() => {
         if (allPermissions) {
             const permissions = allPermissions.map((item: any) => {
@@ -112,37 +113,33 @@ function AddNewRoleDialog({...props}) {
             form.append("is_standard ", values.is_standard.toString());
             form.append("permissions", JSON.stringify(checkedPermissions.join(",")));
             if (selected) {
-                trigger({
+                triggerProfileUpdate({
                     method: "PUT",
                     url: `${urlMedicalEntitySuffix}/profile/${selected.uuid}`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                }).then(() => {
-                    enqueueSnackbar(t("users.alert.updated-role"), {variant: "success"})
-                    handleMutate();
-                    handleClose();
-                    setLoading(false)
-                }).catch((err) => {
-                    enqueueSnackbar(err?.response?.data?.message, {variant: "error"})
-                    setLoading(false)
-
-                })
+                    data: form
+                }, {
+                    onSuccess: () => {
+                        enqueueSnackbar(t("users.alert.updated-role"), {variant: "success"})
+                        handleMutate();
+                        handleClose();
+                        setLoading(false)
+                    },
+                    onError: () => setLoading(false)
+                });
             } else {
-                trigger({
+                triggerProfileCreate({
                     method: "POST",
                     url: `${urlMedicalEntitySuffix}/profile`,
-                    data: form,
-                    headers: {Authorization: `Bearer ${session?.accessToken}`}
-                }).then(() => {
-                    enqueueSnackbar(t("users.alert.added-role"), {variant: "success"})
-                    handleMutate();
-                    handleClose();
-                    setLoading(false)
-                }).catch((err) => {
-                    enqueueSnackbar(err?.response?.data?.message, {variant: "error"})
-                    setLoading(false)
-
-                })
+                    data: form
+                }, {
+                    onSuccess: () => {
+                        enqueueSnackbar(t("users.alert.added-role"), {variant: "success"})
+                        handleMutate();
+                        handleClose();
+                        setLoading(false)
+                    },
+                    onError: () => setLoading(false)
+                });
             }
         },
         validationSchema: RoleSchema,
@@ -229,7 +226,7 @@ function AddNewRoleDialog({...props}) {
         });
         const checkedData = updatedData.map((item: any) => {
             if (item.children.length > 0) {
-                item.value = item.children.every((child: any) => child.value === true) ? true : false
+                item.value = !!item.children.every((child: any) => child.value === true)
             }
             return item;
         });

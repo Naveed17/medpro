@@ -16,9 +16,14 @@ export default withAuth(
             return NextResponse.rewrite(req.nextUrl)
         }
 
-        if (req.nextUrl.pathname.startsWith('/dashboard')) {
-            const {data: user} = req.nextauth.token as any;
-            const medical_professional: MedicalProfessionalModel = user.medical_professional;
+        const token = req.nextauth.token as any;
+
+        if (token.error && token.error !== "RefreshAccessTokenError") {
+            return NextResponse.rewrite(
+                new URL('/initialization', req.url)
+            )
+        } else if (req.nextUrl.pathname.startsWith('/dashboard')) {
+            const medical_professional: MedicalProfessionalModel = token?.user?.medical_professional;
             if (medical_professional !== undefined && medical_professional.registrationStep < 3) {
                 return NextResponse.rewrite(
                     new URL(`/edit-profile?from=${req.nextUrl.pathname}&step=${medical_professional.registrationStep}`, req.url)
@@ -31,7 +36,7 @@ export default withAuth(
             authorized({req, token}) {
                 if (token) return true // If there is a token, the user is authenticated
             }
-        },
+        }
     }
 )
 
@@ -39,5 +44,5 @@ export const config = {
     api: {
         externalResolver: true
     },
-    matcher: ["/dashboard/:path*", "/edit-profile"]
+    matcher: ["/dashboard/:path*", "/edit-profile", "/maintenance", "/initialization"]
 }

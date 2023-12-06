@@ -36,6 +36,12 @@ function ModelSwitchButton({...props}) {
                 }
             }}>
             <Button
+            sx={{
+                ".MuiButton-startIcon":{
+                    mr:{xs:0,md:1},
+                    ml:{xs:0,md:-0.5}
+                }
+            }}
                 {...rest}
                 id="switch-button"
                 aria-controls={open ? 'switch-button' : undefined}
@@ -44,40 +50,41 @@ function ModelSwitchButton({...props}) {
                 variant="contained"
                 disableElevation
                 onClick={handleClick}
-                endIcon={<KeyboardArrowDownIcon/>}
-            >
-                <Typography>{t('model_prescription')}</Typography>
+                startIcon={<AddIcon/>}>
+                <Typography display={{xs:'none',md:'block'}}>{t('add_model')}</Typography>
             </Button>
             <StyledMenu
                 id="switch-button"
                 MenuListProps={{
                     'aria-labelledby': 'demo-customized-button',
                 }}
-                PaperProps={{
-                    elevation: 0,
-                    sx: {
-                        overflow: 'visible',
-                        filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
-                        mt: 1.5,
-                        '& .MuiAvatar-root': {
-                            width: 32,
-                            height: 32,
-                            ml: -0.5,
-                            mr: 1,
+                slotProps={{
+                    paper: {
+                        elevation: 0,
+                        sx: {
+                            overflow: 'visible',
+                            filter: (theme) => `drop-shadow(${theme.customShadows.popover})`,
+                            mt: 1.5,
+                            '& .MuiAvatar-root': {
+                                width: 32,
+                                height: 32,
+                                ml: -0.5,
+                                mr: 1,
+                            },
+                            '&:before': {
+                                content: '""',
+                                display: 'block',
+                                position: 'absolute',
+                                top: 0,
+                                right: 30,
+                                width: 10,
+                                height: 10,
+                                bgcolor: 'background.paper',
+                                transform: 'translateY(-50%) rotate(45deg)',
+                                zIndex: 0,
+                            },
                         },
-                        '&:before': {
-                            content: '""',
-                            display: 'block',
-                            position: 'absolute',
-                            top: 0,
-                            left: 14,
-                            width: 10,
-                            height: 10,
-                            bgcolor: 'background.paper',
-                            transform: 'translateY(-50%) rotate(45deg)',
-                            zIndex: 0,
-                        },
-                    },
+                    }
                 }}
                 anchorEl={anchorEl}
                 open={open}

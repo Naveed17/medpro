@@ -18,4 +18,5 @@ const PatientDetailStyled = styled(Stack)(({theme}) => ({
         backgroundColor: alpha(theme.palette.common.white, 0.9)
     }
 }));
+
 export default PatientDetailStyled;

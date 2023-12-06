@@ -7,26 +7,26 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 
 export default function Pagination({...props}) {
-    const {total, count} = props;
+    const {total, count, pageTotal = 10, ...rest} = props;
     const router = useRouter();
-    const {page: currentPage} = router.query;
-    const [page, setPage] = React.useState<number>(1);
+    const currentPage = parseInt((new URL(location.href)).searchParams.get("page") || "1");
+    const [page, setPage] = React.useState<number>(currentPage);
     const {t} = useTranslation('common');
 
     React.useEffect(() => {
-        setPage(parseInt((currentPage as any) || "1"));
+        setPage(currentPage);
     }, [currentPage]);
 
     return (
-        <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box display="flex" justifyContent="space-between" alignItems="center" {...rest}>
             <Typography variant="body1" color="text.primary">
-                {page * 10 - 9} - {total < page * 10 ? total : page * 10} {t('of')} {total}
+                {page * pageTotal - (pageTotal - 1)} - {total < page * pageTotal ? total : page * pageTotal} {t('of')} {total}
             </Typography>
             <Stack spacing={2}>
                 <BasicPagination
                     onChange={(e, v) => {
                         setPage(v);
-                        router.push({
+                        router.replace({
                             query: {page: v},
                         });
                     }}

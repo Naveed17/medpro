@@ -17,7 +17,7 @@ import {
     Skeleton,
     DialogActions,
     useMediaQuery,
-    Theme, Tooltip,
+    Theme, Tooltip, FormControlLabel, Switch,
 } from "@mui/material";
 import CardStyled from "@themes/overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
@@ -29,27 +29,26 @@ import {SubHeader} from "@features/subHeader";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {checkListSelector} from "@features/checkList";
 import {useRouter} from "next/router";
-import {useRequestMutation} from "@lib/axios";
+import {useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import CloseIcon from "@mui/icons-material/Close";
 import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ImageHandler} from "@features/image";
-import {useSWRConfig} from "swr";
 
 function Profil() {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {mutate} = useSWRConfig();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation("settings");
     const {direction} = useAppSelector(configSelector);
@@ -64,22 +63,25 @@ function Profil() {
     const [qualifications, setQualifications] = useState<QualificationModel[]>([]);
     const [info, setInfo] = useState<any[]>([]);
     const [name, setName] = useState<string>("");
+    const [smsRappel, setSmsRappel] = useState(false);
     const [acts, setActs] = useState<MedicalProfessionalActModel[]>([]);
     const [speciality, setSpeciality] = useState<string>("");
     const [medical_professional_uuid, setMedicalProfessionalUuid] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
-    const initialData = Array.from(new Array(3));
 
+    const initialData = Array.from(new Array(3));
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
 
-    const {trigger} = useRequestMutation(null, "/settings");
+    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/settings/profile/update");
+    const {trigger: triggerSmsRappelEdit} = useRequestQueryMutation("/settings/medicalProfessional/edit");
 
     useEffect(() => {
         if (medicalProfessionalData) {
-            const infoData = medicalProfessionalData[0];
+            const infoData = medicalProfessionalData;
             const medical_professional = infoData.medical_professional as MedicalProfessionalModel;
             setName(medical_professional?.publicName);
+            setSmsRappel(medical_professional?.sendSms ?? false);
             let lngs: LanguageModel[] = [];
             medical_professional?.languages.map((lang) => lngs.push(lang.language));
             setLanguages(lngs);
@@ -102,15 +104,13 @@ function Profil() {
 
     const [dialogContent, setDialogContent] = useState("");
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
-
     const dialogClose = () => {
         setOpen(false);
-    };
+    }
 
     const mutateMedicalProfessionalData = () => {
-        mutate(`${urlMedicalEntitySuffix}/professionals/${router.locale}`);
-    };
+        invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`]);
+    }
 
     const dialogSave = () => {
         setOpen(false);
@@ -150,7 +150,7 @@ function Profil() {
             default:
                 break;
         }
-    };
+    }
 
     const dialogOpen = (action: string) => {
         setDialogContent(action);
@@ -171,51 +171,57 @@ function Profil() {
                 break;
         }
         setOpen(true);
-    };
+    }
 
     const editQualification = (qualif: string) => {
         const form = new FormData();
         form.append("qualifications", qualif);
-        trigger({
+        triggerProfileUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional_uuid}/qualifications/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutateMedicalProfessionalData());
-    };
+            data: form
+        }, {
+            onSuccess: () => mutateMedicalProfessionalData()
+        });
+    }
 
     const editInscurance = (inscurance: string) => {
         const form = new FormData();
         form.append("insurance", inscurance);
-        trigger({
+        triggerProfileUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/insurance/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutateMedicalProfessionalData());
-    };
+            data: form
+        }, {
+            onSuccess: () => mutateMedicalProfessionalData()
+        });
+    }
 
     const editLanguages = (languages: string) => {
         const form = new FormData();
         form.append("languages", languages);
-        trigger({
+        triggerProfileUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/${medical_professional_uuid}/languages/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutateMedicalProfessionalData());
-    };
+            data: form
+        }, {
+            onSuccess: () => mutateMedicalProfessionalData()
+        });
+    }
 
     const editPaymentMeans = (paymentMeans: string) => {
         const form = new FormData();
         form.append("paymentMeans", paymentMeans);
-        trigger({
+        triggerProfileUpdate({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/professionals/paymentMeans/${router.locale}`,
-            data: form,
-            headers: {Authorization: `Bearer ${session?.accessToken}`}
-        }).then(() => mutateMedicalProfessionalData());
-    };
+            data: form
+        }, {
+            onSuccess: () => mutateMedicalProfessionalData()
+        });
+    }
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -232,7 +238,7 @@ function Profil() {
                                     src={
                                         medical_entity.profilePhoto
                                             ? medical_entity.profilePhoto
-                                            : "/static/img/avatar.svg"
+                                            : "/static/icons/Med-logo_.svg"
                                     }
                                 />
                             )}
@@ -378,6 +384,55 @@ function Profil() {
                                         onClick={() => dialogOpen("assurance")}>
                                         <IconUrl path="ic-edit"/>
                                     </IconButton>
+                                </Stack>
+                            </ListItem>
+                            <ListItem>
+                                <Stack
+                                    spacing={2.3}
+                                    direction="row"
+                                    alignItems="flex-start"
+                                    width={1}>
+                                    <IconUrl className="left-icon" path="ic-send-mail" width={18} height={18}/>
+                                    <Stack spacing={1} alignItems="flex-start" width={1}>
+                                        <Typography
+                                            variant="subtitle2"
+                                            gutterBottom
+                                            fontWeight={600}>
+                                            {t("profil.sms-rappel")}
+                                        </Typography>
+                                        <Stack
+                                            spacing={1}
+                                            direction={{xs: "column", md: "row"}}
+                                            alignItems={{xs: "stretch", md: "flex-start"}}
+                                            width={1}>
+                                            {loading ? (initialData.map((mode: any, index) => (
+                                                    <Button
+                                                        key={index}
+                                                        variant="outlined"
+                                                        color="info"
+                                                        onClick={() => dialogOpen("mode")}>
+                                                        {<Skeleton width={50} variant="text"/>}
+                                                    </Button>
+                                                ))
+                                            ) : <FormControlLabel
+                                                control={<Switch
+                                                    checked={smsRappel}
+                                                    onChange={e => {
+                                                        setSmsRappel(e.target.checked)
+                                                        const form = new FormData();
+                                                        form.append("attribute", "isSendSms");
+                                                        form.append("value", e.target.checked.toString());
+                                                        triggerSmsRappelEdit({
+                                                            method: "PATCH",
+                                                            url: `${urlMedicalProfessionalSuffix}/config/${router.locale}`,
+                                                            data: form
+                                                        }, {
+                                                            onSuccess: () => invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`]),
+                                                        });
+                                                    }}/>}
+                                                label={t("profil.sms-rappel-send")}/>}
+                                        </Stack>
+                                    </Stack>
                                 </Stack>
                             </ListItem>
                             <ListItem>

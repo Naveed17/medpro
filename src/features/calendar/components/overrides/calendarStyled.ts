@@ -4,10 +4,14 @@ const CalendarStyled = styled('div')(({theme}) => ({
     width: 'calc(100% + 2px)',
     marginLeft: -1,
     marginBottom: -1,
+    '& .container': {
+        background: theme.palette.background.default
+    },
     '& .fc': {
         '--fc-list-event-dot-width': '8px',
         '--fc-border-color': theme.palette.divider,
-        '--fc-more-link-bg-color': theme.palette.warning.main,
+        '--fc-more-link-bg-color': theme.palette.primary.main,
+        '--fc-more-link-text-color': theme.palette.background.default,
         '--fc-event-border-color': theme.palette.info.light,
         '--fc-non-business-color': 'rgba(221, 238, 246, 0.4)',
         '--fc-now-indicator-color': theme.palette.error.main,
@@ -23,11 +27,11 @@ const CalendarStyled = styled('div')(({theme}) => ({
     },
     '& .fc .fc-license-message': {display: 'none'},
     '& .fc a': {color: theme.palette.text.primary},
+    '& .fc a.fc-timegrid-more-link': {color: theme.palette.grey[0]},
 
     // Table Head
     '& .fc .fc-col-header ': {
         boxShadow: `inset 0 -1px 0 ${theme.palette.divider}`,
-        '& th': {borderColor: 'transparent'},
         '& .fc-col-header-cell-cushion': {
             ...theme.typography.subtitle2,
             padding: '13px 0'
@@ -37,9 +41,23 @@ const CalendarStyled = styled('div')(({theme}) => ({
     '& .fc .fc-event': {
         borderColor: 'transparent',
         backgroundColor: 'transparent'
+    }, '& .fc .fc-timegrid-bg-harness .fc-event': {
+        borderColor: 'transparent',
+        backgroundColor: 'transparent',
+        '& div': {
+            height: '100%'
+        }
+    },
+    // Cell
+    '& .fc .fc-col-header-cell': {
+        //background: theme.palette.grey['B902']
+    },// Cell
+    '& .fc .fc-day-today': {
+        background: "rgba(255, 249, 217, 0.1)"
     },
     '& .fc .fc-event .fc-event-main': {
         padding: 0,
+        minHeight: 20,
         borderRadius: 4,
         backgroundColor: theme.palette.common.white,
         transition: theme.transitions.create('filter'),
@@ -63,6 +81,9 @@ const CalendarStyled = styled('div')(({theme}) => ({
             zIndex: 7,
             opacity: 0.24,
             backgroundColor: 'currentColor'
+        },
+        "& > div": {
+            height: "100%"
         }
     },
     '& .fc .fc-event .fc-event-main-frame': {
@@ -160,7 +181,7 @@ const CalendarStyled = styled('div')(({theme}) => ({
     },
     '& .fc .fc-list-table': {
         '& th, td': {
-            borderColor: 'transparent'
+            borderColor: 'white'
         }
     },
 }));

@@ -9,27 +9,24 @@ const FormBuilder: any = dynamic(
 );
 const AntecedentWidget: any = memo(
     ({src, ...props}: any) => {
-        const {state, list, setState} = props;
-        const [value, setValue] = useState(list);
+        const {state,data, list, setState} = props;
+
         const getData = () => {
-            const res = state.find((i: AntecedentsModel) => i.uuid === value.uuid)
-            return res ? res.response : "";
+            return data.response
         }
         return (
             <>
                 <FormBuilder
                     onChange={(ev: any) => {
-                        let items = state.map((item: AntecedentsModel) => ({...item}));
-                        let item = items.find((i: AntecedentsModel) => i.uuid === value.uuid)
-                        if (item) item.response = JSON.stringify(ev.data);
-                        setState(items)
+                        data.response = JSON.stringify(ev.data);
+                        setState([...state])
                     }}
                     submission={{
                         data: getData()
                     }}
                     form={{
                         display: "form",
-                        components: value.values,
+                        components: list.values,
                     }}
                 />
                 {/*

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useCallback} from "react";
 import {
     Typography,
     Box,
@@ -8,9 +8,11 @@ import {
 import {useRouter} from "next/router";
 import _ from "lodash";
 import {useIsMountedRef} from "@lib/hooks";
-import {useRequest} from "@lib/axios";
-import {SWRNoValidateConfig} from "@lib/swr/swrProvider";
+import {useRequestQuery} from "@lib/axios";
 import {useCountries} from "@lib/hooks/rest";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useAppSelector} from "@lib/redux/hooks";
+import {leftActionBarSelector} from "@features/leftActionBar";
 
 interface StateProps {
     states: string;
@@ -18,10 +20,12 @@ interface StateProps {
 }
 
 function PlaceFilter({...props}) {
-    const {item, t, keyPrefix = "", OnSearch, setOpend} = props;
+    const {item, t, keyPrefix = "", OnSearch} = props;
     const router = useRouter();
     const isMounted = useIsMountedRef();
     const {countries} = useCountries();
+
+    const {query: filter} = useAppSelector(leftActionBarSelector);
 
     const [queryState, setQueryState] = useState<StateProps>({
         states: "",
@@ -35,27 +39,36 @@ function PlaceFilter({...props}) {
         states: []
     });
 
-    const {data: httpStatesResponse} = useRequest(state.country.length > 0 ? {
+    const {data: httpStatesResponse} = useRequestQuery(state.country.length > 0 ? {
         method: "GET",
         url: `/api/public/places/countries/${state.country}/state/${router.locale}`
-    } : null, SWRNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     const {query} = router;
     const {states} = query as { states: string };
 
+    const handleOnSearch = useCallback((value: any) => {
+        OnSearch(value);
+    }, [OnSearch]);
+
     const handleChangeCity = (country: CountryModel) => {
         setstate({country: country ? country.uuid : "", states: []});
-        setOpend('');
         if (!country) {
-            const query = _.omit(queryState, "country");
-            OnSearch({
-                query
+            const query = _.omit(queryState, ["country", "states"]);
+            const queryGlobal = _.omit(filter?.patient, ["country", "states"]);
+            handleOnSearch({
+                query: {
+                    ...query,
+                    ...queryGlobal
+                }
             });
         } else {
             const query = _.omit(queryState, "states");
-            OnSearch({
+            const queryGlobal = _.omit(filter?.patient, "states");
+            handleOnSearch({
                 query: {
                     ...query,
+                    ...queryGlobal,
                     country: country.uuid
                 }
             });
@@ -68,17 +81,21 @@ function PlaceFilter({...props}) {
         setQueryState({...queryState, states: value.join(",")});
         if (value.length === 0) {
             const query = _.omit(queryState, "states");
-            OnSearch({
+            const queryGlobal = _.omit(filter?.patient, "states");
+            handleOnSearch({
                 query: {
                     ...query,
+                    ...queryGlobal,
                     country: state.country
                 }
             });
         } else {
             const query = _.omit(queryState, "country");
-            OnSearch({
+            const queryGlobal = _.omit(filter?.patient, "country");
+            handleOnSearch({
                 query: {
                     ...query,
+                    ...queryGlobal,
                     states: value.join(",")
                 }
             });
@@ -99,11 +116,10 @@ function PlaceFilter({...props}) {
     const statesCountry = (httpStatesResponse as HttpResponse)?.data as any[];
 
     return (
-        <Box component="figure" sx={{m: 0}}>
+        <>
             <Typography variant="body2" color="text.secondary" gutterBottom>
                 {t(`${keyPrefix}${item.country?.heading}`)}
             </Typography>
-
             <Autocomplete
                 id="country"
                 sx={{width: "100%"}}
@@ -130,7 +146,7 @@ function PlaceFilter({...props}) {
                     </Box>
                 )}
                 renderInput={(params) => (
-                    <FormControl component="form" fullWidth>
+                    <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
                         <TextField
                             {...params}
                             placeholder={t(`${keyPrefix}country-placeholder`)}
@@ -146,7 +162,6 @@ function PlaceFilter({...props}) {
             <Typography mt={2} variant="body2" color="text.secondary" gutterBottom>
                 {t(`${keyPrefix}${item.city?.heading}`)}
             </Typography>
-
             <Autocomplete
                 id="state"
                 sx={{width: "100%"}}
@@ -167,7 +182,7 @@ function PlaceFilter({...props}) {
                     </Box>
                 )}
                 renderInput={(params) => (
-                    <FormControl component="form" fullWidth>
+                    <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
                         <TextField
                             {...params}
                             placeholder={t(`${keyPrefix}city-placeholder`)}
@@ -175,8 +190,7 @@ function PlaceFilter({...props}) {
                     </FormControl>
                 )}
             />
-        </Box>
-    )
+        </>)
 }
 
 export default PlaceFilter;

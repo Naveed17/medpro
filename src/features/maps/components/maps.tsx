@@ -10,7 +10,10 @@ function PlacesMarker({...props}) {
 
     return position === null
         ? null
-        : cords.map((v: { points: L.LatLngExpression; name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, i: number) => (
+        : cords.map((v: {
+            points: L.LatLngExpression;
+            name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined;
+        }, i: number) => (
             <Marker key={i}
                     position={v.points}
                     icon={icon}>
@@ -69,7 +72,7 @@ function LocationMarker({...props}) {
 }
 
 function Maps({...props}) {
-    const {data, outerBounds,draggable,editCords} = props
+    const {data, outerBounds, draggable, editCords} = props
     return (
         <>
             {props && outerBounds.length > 0 &&
