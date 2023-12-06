@@ -27,7 +27,7 @@ function InsuranceRow({...props}) {
     const {loadingReq} = data;
     const [backgroundDoc, setBackgroundDoc] = useState<string[]>([]);
     const [open, setOpen] = React.useState(false);
-    console.log("backgroundDoc", backgroundDoc);
+
     return (
         <>
             <TableRowStyled sx={{'& > *': {borderBottom: 'unset'}}}>
