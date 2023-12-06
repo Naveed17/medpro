@@ -13,8 +13,8 @@ import React, {useEffect, useState} from "react";
 import OphtTableStyled from "@features/widget/components/overrides/ophtTable";
 import DialogTableStyled from "@features/widget/components/overrides/dialogTableStyle";
 import {defaultValues, impact} from "@features/widget/components/overrides/defaultValues";
-import IconUrl from "@themes/urlIcon";
 import SaveIcon from '@mui/icons-material/Save';
+import CloseIcon from "@mui/icons-material/Close";
 
 export default function OphtPreview({...props}) {
 
@@ -223,6 +223,27 @@ export default function OphtPreview({...props}) {
             </OphtTableStyled>
 
             <Stack direction={"row"} marginBottom={5} justifyContent={"flex-end"}>
+
+                <Button
+                    variant="text-black"
+                    sx={{
+                        border: theme => `1px solid ${theme.palette.grey["200"]}`,
+                        bgcolor: "#F9F9FB",
+                        borderRadius: 1,
+                        marginBottom: 1,
+                        marginLeft: 1,
+                        marginRight: 1
+                    }}
+                    onClick={() => {
+                        printGlasses([{
+                                pfl: acuiteVisuelle.filter(av => av.ref === "pf"),
+                                pfp: acuiteVisuelle.filter(av => av.ref === "pfp")
+                            }], "lens"
+                        )
+                    }}>
+                    <Typography
+                        style={{fontSize: 13, textTransform: "initial"}}>{t("lens")}</Typography>
+                </Button>
                 <Button
                     variant="text-black"
                     sx={{
@@ -235,12 +256,11 @@ export default function OphtPreview({...props}) {
                         printGlasses([{
                                 pfl: acuiteVisuelle.filter(av => av.ref === "pf"),
                                 pfp: acuiteVisuelle.filter(av => av.ref === "pfp")
-                            }]
+                            }], "glasses"
                         )
-                    }}
-                    startIcon={<IconUrl path="ic-imprime"/>}>
+                    }}>
                     <Typography
-                        style={{fontSize: 13, textTransform: "initial", letterSpacing: 1}}>{t("pg")}</Typography>
+                        style={{fontSize: 13, textTransform: "initial"}}>{t("pg")}</Typography>
                 </Button>
             </Stack>
 
@@ -541,16 +561,47 @@ export default function OphtPreview({...props}) {
                 </DialogContent>
                 <DialogActions style={{borderTop: "1px solid #eeeff1"}}>
 
+
                     <Button size={"small"}
+                            color={"info"}
+                            sx={{
+                                border: theme => `1px solid ${theme.palette.grey["200"]}`,
+                                bgcolor: "#F9F9FB",
+                                borderRadius: 1,
+                            }}
                             onClick={() => {
                                 printGlasses([{
                                         pfl: acuiteVisuelle.filter(av => av.ref === "pf"),
                                         pfp: acuiteVisuelle.filter(av => av.ref === "pfp")
-                                    }]
+                                    }], 'lens'
                                 )
+                            }}>
+                        <Typography style={{textTransform: "initial", color: "black"}}>{t('lens')}</Typography>
+                    </Button>
+
+                    <Button size={"small"}
+                            color={"info"}
+                            sx={{
+                                border: theme => `1px solid ${theme.palette.grey["200"]}`,
+                                bgcolor: "#F9F9FB",
+                                borderRadius: 1,
                             }}
-                            startIcon={<IconUrl path="ic-imprime"/>}>
-                        <Typography style={{textTransform: "initial", color: "#0696D6"}}>{t('pg')}</Typography>
+                            onClick={() => {
+                                printGlasses([{
+                                        pfl: acuiteVisuelle.filter(av => av.ref === "pf"),
+                                        pfp: acuiteVisuelle.filter(av => av.ref === "pfp")
+                                    }], 'glasses'
+                                )
+                            }}>
+                        <Typography style={{textTransform: "initial", color: "black"}}>{t('pg')}</Typography>
+                    </Button>
+
+                    <Button size={"small"}
+                            startIcon={<CloseIcon/>}
+                            onClick={() => {
+                                setOpen(false)
+                            }}>
+                        <Typography style={{textTransform: "initial", color: "black"}}>{t('close')}</Typography>
                     </Button>
 
                     <Button variant="contained"
