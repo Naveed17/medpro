@@ -23,7 +23,7 @@ import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NewCashboxMobileCard, NoDataCard} from "@features/card";
+import {NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -469,13 +469,34 @@ function Cashbox() {
                                     </Typography>
                                 </Stack>
                             </Stack>
+                            <DesktopContainer>
                             <Otable
                                 {...{rows: apps, t, insurances, pmList, mutateTransactions, filterCB}}
                                 headers={consultationCells}
                                 from={"unpaidconsult"}
                                 handleEvent={handleTableActions}
                             />
-                        </CardContent></Card>
+                            </DesktopContainer>
+                            <MobileContainer>
+                                <Stack spacing={1}>
+                                    {apps.map((row) => (
+                                        <React.Fragment key={row.uuid}>
+                                            <UnpaidConsultationCard {...{
+                                                row,
+                                                devise,
+                                                t,
+                                                insurances,
+                                                handleEvent:handleTableActions
+                                                
+                                            }}/>
+                                        </React.Fragment>
+                                    ))}
+                                
+                                </Stack>
+                            </MobileContainer>
+                        </CardContent>
+                        
+                        </Card>
                 </TabPanel>
 
                 <TabPanel padding={1} value={selectedTab} index={"transactions"}>
