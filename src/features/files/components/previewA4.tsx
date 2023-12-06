@@ -202,7 +202,7 @@ function PreviewDialog({...props}) {
                             txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
                             txt = txt.replaceAll('[date]', moment().format('DD/MM/YYYY'))
                             if (state.birthdate) {
-                                txt = txt.replaceAll('{age}', getBirthdayFormat({birthdate:state.birthdate}, t))
+                                txt = txt.replaceAll('{age}', getBirthdayFormat({birthdate: state.birthdate}, t))
                                 txt = txt.replaceAll('{birthdate}', moment(state.birthdate, "DD-MM-YYYY").format('DD-MM-YYYY'))
                             }
                             if (state.cin)
@@ -305,6 +305,33 @@ function PreviewDialog({...props}) {
                             pageX.appendChild(prescLine)
 
                             setTitle("Ordonnance lunette");
+                            break;
+                        case "lens":
+                            const lensLine = document.createElement('p');
+                            let odl = "";
+                            let ogl = ""
+                            const st = ['sphere', 'cylindre', 'axe']
+
+                            st.map(key => {
+                                odl += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
+                                ogl += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
+                            })
+
+                            rows = [
+                                {
+                                    value: `• OD : ${odl}`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0, marginLeft: 30}
+                                },
+                                {
+                                    value: `• OG : ${ogl}`,
+                                    name: "name",
+                                    element: "p",
+                                    style: {marginBottom: 0}
+                                }]
+                            pageX.appendChild(lensLine)
+                            setTitle("Lentille");
                     }
                 } else {
                     const elx = document.createElement('p');

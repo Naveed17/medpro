@@ -619,7 +619,8 @@
     "pf": "Final prescription",
     "len": "Lenses",
     "ac": "Visual acuity",
-    "pg": "Prescription glasses",
+    "pg": "Glasses",
+    "lens": "Lens",
     "ophtalmologiqueExam": "Ophthalmological Examination",
     "pachymetry": "Pachymetry  ( 445->645 )",
     "measuredTO": "Measured TO ( 0->70)",
@@ -632,8 +633,8 @@
     "angiographie": "Angiography",
     "other":"Others",
     "tonus": "Toning exam",
-    "comp": "Complementary exam"
-
+    "comp": "Complementary exam",
+    "close": "Close"
   },
   "pediatrician": {
     "size": "Size",
