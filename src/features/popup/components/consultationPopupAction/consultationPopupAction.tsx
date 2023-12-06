@@ -32,7 +32,6 @@ function ConsultationPopupAction({...props}) {
     const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment}  \r\n` : ""}, ${data.instruction}`);
-    const [loadingRequest, setLoadingRequest] = useState(false);
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -102,8 +101,6 @@ function ConsultationPopupAction({...props}) {
                 </Card>
                 <Stack mt={1} spacing={2} justifyContent={"flex-end"} direction={{xs: 'column', md: "row"}}>
                     {isBeta && <LoadingButton
-                        loading={loadingRequest}
-                        loadingPosition={"start"}
                         disabled={data.payed}
                         onClick={OnPay}
                         variant="contained"
