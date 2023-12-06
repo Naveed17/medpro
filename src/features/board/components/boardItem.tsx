@@ -82,6 +82,7 @@ function BoardItem({...props}) {
 
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
+    const [duration, setDuration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote.content.dayDate} ${quote.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -186,8 +187,14 @@ function BoardItem({...props}) {
                 <CardActions sx={{width: "100%", pt: 0}}>
                     <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
                         <Stack direction={"row"} spacing={.5} alignItems={"center"}>
-                            <AccessTimeIcon sx={{width: 16, height: 16}}/>
-                            <Typography variant="body2" fontWeight={700} fontSize={14} color="text.primary">
+                            <AccessTimeIcon
+                                {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: "expire" as any})}
+                                sx={{width: 16, height: 16}}/>
+                            <Typography
+                                variant="body2"
+                                fontWeight={700}
+                                fontSize={14}
+                                color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
                                 {quote.content.status === 4 && time ?
                                     moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
                                     quote.content.status !== 3 ?

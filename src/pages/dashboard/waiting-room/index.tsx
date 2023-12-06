@@ -97,7 +97,6 @@ function WaitingRoom() {
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
     const [loading] = useState<boolean>(status === 'loading');
-    const [error, setError] = useState<boolean>(false);
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
@@ -471,30 +470,6 @@ function WaitingRoom() {
                     }
                 }}>
                 <RoomToolbar {...{t, tabIndex, setTabIndex, columns}}/>
-
-                {error &&
-                    <AnimatePresence>
-                        <motion.div
-                            initial={{opacity: 0}}
-                            animate={{opacity: 1}}
-                            transition={{ease: "easeIn", duration: 1}}>
-                            <Alert variant="filled"
-                                   onClick={() => {
-                                       const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
-                                       if (router.asPath !== slugConsultation) {
-                                           router.replace(slugConsultation, slugConsultation, {locale: router.locale});
-                                       }
-                                   }}
-                                   onClose={(event) => {
-                                       event.stopPropagation();
-                                       setError(false);
-                                   }}
-                                   sx={{marginBottom: 2, marginTop: 1, border: "none", cursor: "pointer"}}
-                                   severity="error">
-                                {t("in-consultation-error", {ns: "common"})}
-                            </Alert>
-                        </motion.div>
-                    </AnimatePresence>}
             </SubHeader>
             <Box>
                 <LinearProgress sx={{

@@ -55,7 +55,7 @@ function SwitchConsultationDialog({...props}) {
 
     const [instruction, setInstruction] = useState("");
     const [checkedNext, setCheckedNext] = useState(false);
-    const [meeting, setMeeting] = useState<number>(15);
+    const [meeting, setMeeting] = useState<number>(5);
     const [selectedDose, setSelectedDose] = useState("day")
 
     const {data: httpTransactionsResponse} = useRequestQuery(agendaConfig && event ? {
@@ -92,7 +92,7 @@ function SwitchConsultationDialog({...props}) {
             <Typography
                 sx={{textAlign: "center"}}>{t(`dialogs.switch-consultation-dialog.description`).split(',')[1]}</Typography>
 
-            <Stack direction={"row"} py={3} alignItems={"center"} justifyContent={"space-between"} sx={{width: '60%'}}>
+            <Stack direction={"row"} py={3} alignItems={"center"} justifyContent={"space-between"} sx={{width: '80%'}}>
                 <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
                     <Avatar sx={{width: 40, height: 40, bgcolor: 'primary.main'}}/>
                     <Stack>
@@ -116,13 +116,26 @@ function SwitchConsultationDialog({...props}) {
                         </Label>}
                 </Stack>
                 {isBeta && <Button
+                    sx={{
+                        borderColor: 'divider',
+                        bgcolor: theme => theme.palette.grey['A500'],
+                    }}
                     startIcon={event?.extendedProps.restAmount === 0 ? <CheckIcon/> :
-                        <IconUrl path={'ic-argent'} color={"white"}/>}
-                    variant="contained"
-                    color={event?.extendedProps.restAmount === 0 ? "success" : "primary"}
-                    style={{marginLeft: 5}}
+                        <IconUrl path={'ic-argent'}/>}
+                    variant="outlined"
+                    color="info"
                     onClick={() => setOpenPaymentDialog(true)}>
                     <Typography>{t("pay")}</Typography>
+                    {event?.extendedProps.restAmount > 0 &&
+                        <>
+                            <Typography component='span'
+                                        fontWeight={700}
+                                        variant="subtitle2" ml={1}>
+                                {event?.extendedProps.restAmount}
+                            </Typography>
+                            <Typography fontSize={10}>{devise}</Typography>
+                        </>
+                    }
                 </Button>
                 }
             </Stack>
@@ -200,7 +213,7 @@ function SwitchConsultationDialog({...props}) {
                                 }
                             />
                             <RadioGroup sx={{ml: 1}} row onClick={(e) => e.stopPropagation()}>
-                                {[t('times.day'), t('times.month'), t('times.year')].map((item: string) => (
+                                {['day', 'week', 'month'].map((item: string) => (
                                     <FormControlLabel
                                         key={item}
                                         onChange={() => {
@@ -209,7 +222,7 @@ function SwitchConsultationDialog({...props}) {
                                         }}
                                         value={item}
                                         control={<Radio checked={selectedDose === item}/>}
-                                        label={startCase(t(item))}
+                                        label={startCase(t(`times.${item}`))}
                                     />
                                 ))}
                             </RadioGroup>
