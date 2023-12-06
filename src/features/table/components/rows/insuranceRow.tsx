@@ -11,7 +11,6 @@ import {
     Collapse,
     Table, TableBody
 } from '@mui/material';
-import {uniqueId} from 'lodash'
 import ListItemIcon from "@mui/material/ListItemIcon";
 import {ImageHandler} from "@features/image";
 import ListItemText from "@mui/material/ListItemText";
@@ -19,8 +18,6 @@ import React, {useState} from "react";
 import {LoadingButton} from "@mui/lab";
 import LocalPrintshopRoundedIcon from "@mui/icons-material/LocalPrintshopRounded";
 import LocalPrintshopOutlinedIcon from "@mui/icons-material/LocalPrintshopOutlined";
-import moment from "moment-timezone";
-import {alpha, Theme} from "@mui/material/styles";
 import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import TableRow from "@mui/material/TableRow";
@@ -28,7 +25,7 @@ import TableRow from "@mui/material/TableRow";
 function InsuranceRow({...props}) {
     const {row, data, handleEvent, t} = props;
     const {loadingReq} = data;
-    const [backgroundDoc, setBackgroundDoc] = useState(true);
+    const [backgroundDoc, setBackgroundDoc] = useState<string[]>([]);
     const [open, setOpen] = React.useState(false);
 
     return (
@@ -92,8 +89,12 @@ function InsuranceRow({...props}) {
                                                 <FormControlLabel
                                                     control={<Checkbox
                                                         size={"small"}
-                                                        checked={backgroundDoc}
-                                                        onChange={e => setBackgroundDoc(e.target.checked)}/>}
+                                                        checked={backgroundDoc.findIndex(docBack => docBack === doc.uuid) !== -1}
+                                                        onChange={e => {
+                                                            const backgroundDocs = [...backgroundDoc];
+                                                            backgroundDocs.splice(backgroundDoc.findIndex(docBack => docBack === doc.uuid));
+                                                            setBackgroundDoc(e.target.checked ? [...backgroundDoc, doc.uuid] : backgroundDocs)
+                                                        }}/>}
                                                     label={t("consultationIP.print_document_background")}/>
                                                 <LoadingButton
                                                     loading={loadingReq}
@@ -102,7 +103,7 @@ function InsuranceRow({...props}) {
                                                     variant={"contained"}
                                                     startIcon={backgroundDoc ? <LocalPrintshopRoundedIcon/> :
                                                         <LocalPrintshopOutlinedIcon/>}
-                                                    onClick={() => handleEvent("onGenerateInsuranceDoc", doc, backgroundDoc)}>
+                                                    onClick={() => handleEvent("onGenerateInsuranceDoc", doc, backgroundDoc.findIndex(docBack => docBack === doc.uuid) !== -1)}>
                                                     <Typography
                                                         fontSize={13}>{t("consultationIP.print_document_result")}</Typography>
                                                 </LoadingButton>

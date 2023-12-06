@@ -1143,7 +1143,7 @@ function ConsultationInProgress() {
             })
             setNbDoc(nb);
             setChanges([...changes])
-
+            localStorage.setItem(`Modeldata${app_uuid}`,JSON.stringify(sheetModal.data))
             if (hasDataHistory === false) {
                 setCards([[
                     {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"}

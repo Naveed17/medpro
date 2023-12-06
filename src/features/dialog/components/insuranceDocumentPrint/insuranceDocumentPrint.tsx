@@ -3,18 +3,21 @@ import React, {useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import {PDFDocument} from 'pdf-lib';
 import {agendaSelector} from "@features/calendar";
-import {Otable} from "@features/table";
+import {onOpenPatientDrawer, Otable} from "@features/table";
+import {NoDataCard} from "@features/card";
+import IconUrl from "@themes/urlIcon";
 
 function InsuranceDocumentPrint({...props}) {
-    const {data: {appuuid, state: patient, t}} = props;
+    const {data: {appuuid, state: patient, t, setOpenDialog}} = props;
     const router = useRouter();
     const {insurances} = useInsurances();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const dispatch = useAppDispatch();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
@@ -25,7 +28,12 @@ function InsuranceDocumentPrint({...props}) {
 
     const {trigger: triggerDocInsurance} = useRequestQueryMutation("insurance/document");
 
-    const docInsurances = insurances?.filter(insurance => (insurance?.documents ?? []).length > 0) ?? [];
+    const docInsurances = patient.insurances?.reduce((docs: any[], doc: any) => [
+        ...(docs ?? []),
+        ...(doc?.insurance?.documents.length > 0 ? [{
+            ...doc?.insurance,
+            logoUrl: insurances.find(insurance => insurance.uuid === doc?.insurance?.uuid)?.logoUrl ?? ""
+        }] : [])], []) ?? [];
 
     const generateInsuranceDoc = (insuranceDocument: string, backgroundDoc: boolean) => {
         medicalEntityHasUser && triggerInsuranceDocs({
@@ -44,15 +52,14 @@ function InsuranceDocumentPrint({...props}) {
                         onSuccess: async (result: any) => {
                             const data = (result?.data as HttpResponse)?.data;
                             const docFile = await fetch(data.url).then((res) => res.arrayBuffer());
-                            const firstDonorPdfDoc = await PDFDocument.load(docFile);
-                            const [CNAMDocP1] = await pdfDoc.copyPages(firstDonorPdfDoc, [0]);
-                            const [CNAMDocP2] = await pdfDoc.copyPages(firstDonorPdfDoc, [1]);
-                            const [cnamPatientInfoP1] = await pdfDoc.embedPdf(docUpdated, [0]);
-                            const [cnamPatientInfoP2] = await pdfDoc.embedPdf(docUpdated, [1]);
-                            const page1 = pdfDoc.addPage(CNAMDocP1);
-                            page1.drawPage(cnamPatientInfoP1, {x: 0, y: 0});
-                            const page2 = pdfDoc.addPage(CNAMDocP2);
-                            page2.drawPage(cnamPatientInfoP2, {x: 0, y: 28});
+                            const insurancePdfDoc = await PDFDocument.load(docFile);
+                            const copiedPages = await pdfDoc.copyPages(insurancePdfDoc, insurancePdfDoc.getPageIndices());
+                            for (const page of copiedPages) {
+                                const index = copiedPages.indexOf(page);
+                                const [cnamPatientInfoPage] = await pdfDoc.embedPdf(docUpdated, [index]);
+                                pdfDoc.addPage(page).drawPage(cnamPatientInfoPage);
+                            }
+
                             const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
                             setFile(mergedPdf);
                         }
@@ -75,29 +82,49 @@ function InsuranceDocumentPrint({...props}) {
                 break;
         }
     }
+
     return (
         <>
-            <Otable
-                size="small"
-                {...{t, loadingReq: loading}}
-                headers={[
-                    {
-                        id: "insurance",
-                        numeric: false,
-                        disablePadding: true,
-                        label: "insurance",
-                        sortable: true,
-                        align: "left",
-                    }, {
-                        id: "action",
-                        label: "action",
-                        align: "center",
-                        sortable: false,
-                    }]}
-                handleEvent={handleTableEvent}
-                rows={docInsurances}
-                from={"insurance"}
-            />
+            {docInsurances.length > 0 ? <Otable
+                    size="small"
+                    {...{t, loadingReq: loading}}
+                    headers={[
+                        {
+                            id: "insurance",
+                            numeric: false,
+                            disablePadding: true,
+                            label: "insurance",
+                            sortable: true,
+                            align: "left",
+                        }, {
+                            id: "action",
+                            label: "action",
+                            align: "center",
+                            sortable: false,
+                        }]}
+                    handleEvent={handleTableEvent}
+                    rows={docInsurances}
+                    from={"insurance"}
+                />
+                :
+                <NoDataCard
+                    sx={{mt: 16}}
+                    {...{t}}
+                    onHandleClick={() => {
+                        dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                        setOpenDialog(false);
+                    }}
+                    data={{
+                        mainIcon: <IconUrl width={100} height={100} path={"fileadd"}/>,
+                        title: t("consultationIP.empty-insurance-docs"),
+                        description: t("consultationIP.empty-insurance-docs-description"),
+                        buttons: [{
+                            text: t("consultationIP.patient-fiche"),
+                            variant: "primary",
+                            color: "white"
+                        }]
+                    }}/>
+            }
 
             {file && <embed
                 src={file}
