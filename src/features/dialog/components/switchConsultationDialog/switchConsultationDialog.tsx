@@ -9,20 +9,16 @@ import {
     Stack, TextField,
     Typography, useMediaQuery, useTheme
 } from "@mui/material";
-import React, {useEffect, useState} from "react";
+import React, { useState} from "react";
 import {useTranslation} from "next-i18next";
 import {startCase} from 'lodash'
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {setTimer, timerSelector} from "@features/card";
-import {capitalizeFirst, getMilliseconds, shortEnglishHumanizer, useMedicalEntitySuffix, useTimer} from "@lib/hooks";
+import { useAppSelector} from "@lib/redux/hooks";
+import {timerSelector} from "@features/card";
+import {capitalizeFirst, getMilliseconds, shortEnglishHumanizer, useTimer} from "@lib/hooks";
 import {Label} from "@features/label";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import SwitchConsultationDialogStyled from "./overrides/switchConsultationDialogStyled";
-import {useRequestQuery} from "@lib/axios";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {agendaSelector} from "@features/calendar";
-import {useRouter} from "next/router";
 import CheckIcon from "@mui/icons-material/Check";
 import IconUrl from "@themes/urlIcon";
 import {Session} from "next-auth";
@@ -37,11 +33,8 @@ function SwitchConsultationDialog({...props}) {
     } = props;
     const {timer} = useTimer();
     const theme = useTheme();
-    const router = useRouter();
     const {data: session} = useSession();
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const dispatch = useAppDispatch();
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -51,37 +44,11 @@ function SwitchConsultationDialog({...props}) {
 
     const {t} = useTranslation(["common", "consultation"]);
     const {event} = useAppSelector(timerSelector);
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [instruction, setInstruction] = useState("");
     const [checkedNext, setCheckedNext] = useState(false);
-    const [meeting, setMeeting] = useState<number>(15);
+    const [meeting, setMeeting] = useState<number>(5);
     const [selectedDose, setSelectedDose] = useState("day")
-
-    const {data: httpTransactionsResponse} = useRequestQuery(agendaConfig && event ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId}/transactions/${router.locale}`,
-    } : null, ReactQueryNoValidateConfig);
-
-    useEffect(() => {
-        if (httpTransactionsResponse) {
-            const transactionsData = (httpTransactionsResponse as HttpResponse)?.data;
-            dispatch(setTimer({
-                event: {
-                    ...event,
-                    extendedProps: {
-                        ...event?.extendedProps,
-                        ...(transactionsData.transactions && {
-                            patient: transactionsData.transactions[0]?.appointment?.patient,
-                            transactions: transactionsData.transactions
-                        }),
-                        total: transactionsData?.fees ? transactionsData.fees : 0,
-                        restAmount: transactionsData?.rest_amount ? transactionsData.rest_amount : 0
-                    }
-                }
-            }));
-        }
-    }, [httpTransactionsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SwitchConsultationDialogStyled sx={{minHeight: 150}} alignItems={"center"}>
@@ -92,7 +59,7 @@ function SwitchConsultationDialog({...props}) {
             <Typography
                 sx={{textAlign: "center"}}>{t(`dialogs.switch-consultation-dialog.description`).split(',')[1]}</Typography>
 
-            <Stack direction={"row"} py={3} alignItems={"center"} justifyContent={"space-between"} sx={{width: '60%'}}>
+            <Stack direction={"row"} py={3} alignItems={"center"} justifyContent={"space-between"} sx={{width: '80%'}}>
                 <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
                     <Avatar sx={{width: 40, height: 40, bgcolor: 'primary.main'}}/>
                     <Stack>
@@ -116,13 +83,26 @@ function SwitchConsultationDialog({...props}) {
                         </Label>}
                 </Stack>
                 {isBeta && <Button
+                    sx={{
+                        borderColor: 'divider',
+                        bgcolor: theme => theme.palette.grey['A500'],
+                    }}
                     startIcon={event?.extendedProps.restAmount === 0 ? <CheckIcon/> :
-                        <IconUrl path={'ic-argent'} color={"white"}/>}
-                    variant="contained"
-                    color={event?.extendedProps.restAmount === 0 ? "success" : "primary"}
-                    style={{marginLeft: 5}}
+                        <IconUrl path={'ic-argent'}/>}
+                    variant="outlined"
+                    color="info"
                     onClick={() => setOpenPaymentDialog(true)}>
                     <Typography>{t("pay")}</Typography>
+                    {event?.extendedProps.restAmount > 0 &&
+                        <>
+                            <Typography component='span'
+                                        fontWeight={700}
+                                        variant="subtitle2" ml={1}>
+                                {event?.extendedProps.restAmount}
+                            </Typography>
+                            <Typography fontSize={10}>{devise}</Typography>
+                        </>
+                    }
                 </Button>
                 }
             </Stack>
@@ -200,7 +180,7 @@ function SwitchConsultationDialog({...props}) {
                                 }
                             />
                             <RadioGroup sx={{ml: 1}} row onClick={(e) => e.stopPropagation()}>
-                                {[t('times.day'), t('times.month'), t('times.year')].map((item: string) => (
+                                {['day', 'week', 'month'].map((item: string) => (
                                     <FormControlLabel
                                         key={item}
                                         onChange={() => {
@@ -209,7 +189,7 @@ function SwitchConsultationDialog({...props}) {
                                         }}
                                         value={item}
                                         control={<Radio checked={selectedDose === item}/>}
-                                        label={startCase(t(item))}
+                                        label={startCase(t(`times.${item}`))}
                                     />
                                 ))}
                             </RadioGroup>

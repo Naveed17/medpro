@@ -8,66 +8,30 @@ import {
     Stack,
     Avatar,
     Box,
-    Button, Chip
+    Button
 } from '@mui/material'
 import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined";
 import PaymentRoundedIcon from '@mui/icons-material/PaymentRounded';
 import * as React from "react";
 import {useTranslation} from "next-i18next";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import {useState} from "react";
-import {useRequestQueryMutation} from "@lib/axios";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, setSelectedEvent} from "@features/calendar";
-import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@lib/hooks";
 import {LoadingButton} from "@mui/lab";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import CheckIcon from "@mui/icons-material/Check";
+import IconUrl from "@themes/urlIcon";
 
 function ConsultationPopupAction({...props}) {
-    const {data, OnSchedule, OnPay} = props
-    const router = useRouter();
+    const {data, OnSchedule, OnPay, devise} = props
     const {data: session} = useSession();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation("common");
-    const {config: agenda, selectedEvent: appointment} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const [instruction] = useState(`${data.control ? `${t("next-appointment-control")} ${data.nextAppointment}  \r\n` : ""}, ${data.instruction}`);
-    const [loadingRequest, setLoadingRequest] = useState(false);
-
-    const {trigger: triggerTransactions} = useRequestQueryMutation("agenda/appointment/transactions");
-
-    const getAllTransactions = () => {
-        setLoadingRequest(true);
-        triggerTransactions({
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${data.appUuid}/transactions/${router.locale}`,
-        }, {
-            onSuccess: (result: any) => {
-                const transactionsData = (result?.data as HttpResponse)?.data;
-                dispatch(setSelectedEvent({
-                    ...appointment,
-                    extendedProps: {
-                        ...appointment?.extendedProps,
-                        patient: transactionsData.transactions[0]?.appointment?.patient,
-                        total: data.fees,
-                        transactions: transactionsData.transactions
-                    }
-                } as any));
-                OnPay();
-                setLoadingRequest(false);
-            }
-        });
-    }
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -104,10 +68,28 @@ function ConsultationPopupAction({...props}) {
                                     </Typography>
                                 </Stack>
                                 <Stack spacing={0.5} direction="row" alignItems='center'>
-                                    <Chip
-                                        color={data.payed ? "success" : "warning"}
-                                        label={`${data.restAmount !== 0 ? (data.fees - data.restAmount) + '/' : ''}${data.fees} ${data.devise}`}
-                                    />
+                                    <Button
+                                        sx={{
+                                            borderColor: 'divider',
+                                            bgcolor: theme => theme.palette.grey['A500'],
+                                        }}
+                                        startIcon={data.restAmount === 0 ? <CheckIcon/> :
+                                            <IconUrl path={'ic-argent'}/>}
+                                        variant="outlined"
+                                        color="info"
+                                        onClick={OnPay}>
+                                        <Typography>{t("pay")}</Typography>
+                                        {data.restAmount > 0 &&
+                                            <>
+                                                <Typography component='span'
+                                                            fontWeight={700}
+                                                            variant="subtitle2" ml={1}>
+                                                    {data.restAmount}
+                                                </Typography>
+                                                <Typography fontSize={10}>{devise}</Typography>
+                                            </>
+                                        }
+                                    </Button>
                                 </Stack>
                             </Stack>
                         </ListItem>
@@ -119,10 +101,8 @@ function ConsultationPopupAction({...props}) {
                 </Card>
                 <Stack mt={1} spacing={2} justifyContent={"flex-end"} direction={{xs: 'column', md: "row"}}>
                     {isBeta && <LoadingButton
-                        loading={loadingRequest}
-                        loadingPosition={"start"}
                         disabled={data.payed}
-                        onClick={getAllTransactions}
+                        onClick={OnPay}
                         variant="contained"
                         startIcon={<PaymentRoundedIcon/>}>
                         {t("dialogs.finish-dialog.pay")}

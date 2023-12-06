@@ -254,7 +254,7 @@ function WaitingRoomRow({...props}) {
                     {!row.patient?.isArchived &&
                         <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
                             {(!roles.includes("ROLE_SECRETARY") && [5, 3].includes(row.status)) &&
-                                <Tooltip title={t("start")}>
+                                <Tooltip title={t("consultation_pay")}>
                             <span>
                                 <IconButton
                                     disabled={loading}
@@ -309,7 +309,7 @@ function WaitingRoomRow({...props}) {
                                     </IconButton>
                                 </span>
                                 </Tooltip>}
-                            {row.status === 1 && <Tooltip title={t(row.is_next ? "is_next" : "next")}>
+                            {row.status === 1 && <Tooltip title={t("add_waiting_room")}>
                                 <span>
                                     <IconButton
                                         onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
