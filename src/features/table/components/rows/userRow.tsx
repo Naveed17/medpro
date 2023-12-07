@@ -1,4 +1,3 @@
-import Lable from "@themes/overrides/Lable";
 import TableCell from "@mui/material/TableCell";
 import {Typography, Box, Stack, Skeleton} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
@@ -14,7 +13,6 @@ function UserRow({...props}) {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {row, handleChange, t, editMotif} = props;
-    const [isActive, setIsActive] = useState(row.isActive);
     const [hasDocPermission, setHasDocPermission] = useState(row.canSeeDoc);
 
     return (

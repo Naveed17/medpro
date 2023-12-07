@@ -20,19 +20,14 @@ import {
     MenuItem,
     FormControl, IconButton,
 } from "@mui/material";
-import {Theme} from "@mui/material/styles";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {DashLayout} from "@features/base";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppDispatch} from "@lib/redux/hooks";
 import {addUser} from "@features/table";
-import {agendaSelector} from "@features/calendar";
 import {FormStyled} from "@features/forms";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -62,15 +57,10 @@ function NewUser() {
     const {data: session} = useSession();
 
     const {t, ready} = useTranslation("settings");
-    const {agendas} = useAppSelector(agendaSelector);
 
     const [loading, setLoading] = useState(false);
     const [profiles, setProfiles] = useState<any[]>([]);
     const [agendaRoles] = useState([]);
-    const [roles, setRoles] = useState([
-        {id: "read", name: "Accès en lecture"},
-        {id: "write", name: "Accès en écriture"}
-    ]);
 
     const {data: userSession} = session as Session;
     const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
