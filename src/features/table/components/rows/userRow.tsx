@@ -112,10 +112,8 @@ function UserRow({...props}) {
                             color="primary"
                             startIcon={<IconUrl path="setting/edit"/>}
                             onClick={() => {
-                                /*dispatch(editUser(row));
-                                router.push(`${pathname}/${row.uuid}`, undefined, {
-                                    locale,
-                                });*/
+                                dispatch(editUser(row));
+                                router.push(`${router.pathname}/${row.uuid}`, undefined, {locale: router.locale});
                             }}>
                             {t("table.update")}
                         </Button>

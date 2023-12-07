@@ -18,7 +18,7 @@ import {
     FormControlLabel,
     Checkbox,
     MenuItem,
-    FormControl,
+    FormControl, IconButton,
 } from "@mui/material";
 import {Theme} from "@mui/material/styles";
 import {RootStyled} from "@features/toolbar";
@@ -45,6 +45,8 @@ import PhoneInput from "react-phone-number-input/input";
 import {CustomInput} from "@features/tabPanel";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {useContactType} from "@lib/hooks/rest";
+import AddIcon from "@mui/icons-material/Add";
+import IconUrl from "@themes/urlIcon";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -74,17 +76,17 @@ function NewUser() {
     const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
 
-    const {trigger: triggerUserAdd} = useRequestQueryMutation("/users/add");
     const {data: httpProfilesResponse} = useRequestQuery({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/profile`
     });
 
+    const {trigger: triggerUserAdd} = useRequestQueryMutation("/users/add");
+
     const validationSchema = Yup.object().shape({
         name: Yup.string().min(3, t("users.ntc")).max(50, t("users.ntl")).required(t("users.nameReq")),
         email: Yup.string().email(t("users.mailInvalid")).required(t("users.mailReq")),
-        consultation_fees: Yup.string().required(),
-        birthdate: Yup.string().required(),
+        birthdate: Yup.string().nullable(),
         firstname: Yup.string().required(),
         lastname: Yup.string().required(),
         password: Yup.string().required(),
@@ -102,8 +104,7 @@ function NewUser() {
                         test: (value) => {
                             return value ? isValidPhoneNumber(value) : false
                         }
-                    })
-                    .required(),
+                    }),
             })
         ),
         confirmPassword: Yup.string().when('password', (password, field) =>
@@ -112,7 +113,6 @@ function NewUser() {
     });
 
     const formik = useFormik({
-        enableReinitialize: true,
         initialValues: {
             role: "",
             agendas: agendaRoles.map((agenda: any) => ({...agenda, role: ""})),
@@ -125,11 +125,7 @@ function NewUser() {
             birthdate: null,
             firstname: "",
             lastname: "",
-            phones: [
-                {
-                    phone: "", dial: doctor_country
-                }
-            ],
+            phones: [],
             password: "",
             confirmPassword: "",
             profile: ""
@@ -146,11 +142,10 @@ function NewUser() {
             form.append('is_accepted', 'true');
             form.append('is_public', "true");
             form.append('is_default', "true");
-            form.append('consultation_fees', values.consultation_fees);
-            form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
+            values.birthdate && form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
             form.append('firstname', values.firstname);
             form.append('lastname', values.lastname);
-            form.append('phone', JSON.stringify(values.phones.map(phoneData => ({
+            values.phones.length > 0 && form.append('phone', JSON.stringify(values.phones.map((phoneData: any) => ({
                 code: phoneData.dial?.phone,
                 value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
                 type: "phone",
@@ -159,7 +154,8 @@ function NewUser() {
                 is_support: false
             }))));
             form.append('password', values.password);
-            form.append('profile', values.profile);
+            !values.admin && form.append('profile', values.profile);
+
             triggerUserAdd({
                 method: "POST",
                 url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
@@ -208,46 +204,46 @@ function NewUser() {
                         </Typography>
                         <Card className="venue-card">
                             <CardContent>
-                                <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.pro")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={values.professionnel}
-                                                        onChange={() => {
-                                                            setFieldValue("professionnel", true);
-                                                        }}
-                                                    />
-                                                }
-                                                label={t("users.yes")}
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={!values.professionnel}
-                                                        onChange={() => {
-                                                            setFieldValue("professionnel", false);
-                                                        }}
-                                                    />
-                                                }
-                                                label={t("users.no")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
+                                {/*<Box mb={2}>*/}
+                                {/*    <Grid*/}
+                                {/*        container*/}
+                                {/*        spacing={{lg: 2, xs: 1}}*/}
+                                {/*        alignItems="center">*/}
+                                {/*        <Grid item xs={12} lg={2}>*/}
+                                {/*            <Typography*/}
+                                {/*                textAlign={{lg: "right", xs: "left"}}*/}
+                                {/*                color="text.secondary"*/}
+                                {/*                variant="body2"*/}
+                                {/*                fontWeight={400}>*/}
+                                {/*                {t("users.pro")}*/}
+                                {/*            </Typography>*/}
+                                {/*        </Grid>*/}
+                                {/*        <Grid item xs={12} lg={10}>*/}
+                                {/*            <FormControlLabel*/}
+                                {/*                control={*/}
+                                {/*                    <Checkbox*/}
+                                {/*                        checked={values.professionnel}*/}
+                                {/*                        onChange={() => {*/}
+                                {/*                            setFieldValue("professionnel", true);*/}
+                                {/*                        }}*/}
+                                {/*                    />*/}
+                                {/*                }*/}
+                                {/*                label={t("users.yes")}*/}
+                                {/*            />*/}
+                                {/*            <FormControlLabel*/}
+                                {/*                control={*/}
+                                {/*                    <Checkbox*/}
+                                {/*                        checked={!values.professionnel}*/}
+                                {/*                        onChange={() => {*/}
+                                {/*                            setFieldValue("professionnel", false);*/}
+                                {/*                        }}*/}
+                                {/*                    />*/}
+                                {/*                }*/}
+                                {/*                label={t("users.no")}*/}
+                                {/*            />*/}
+                                {/*        </Grid>*/}
+                                {/*    </Grid>*/}
+                                {/*</Box>*/}
                                 <Box mb={2}>
                                     <Grid
                                         container
@@ -317,42 +313,7 @@ function NewUser() {
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.consultation_fees")}{" "}
-                                                <Typography component="span" color="error">
-                                                    *
-                                                </Typography>
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <TextField
-                                                variant="outlined"
-                                                type="number"
-                                                placeholder={t("users.consultation_fees")}
-                                                fullWidth
-                                                required
-                                                error={Boolean(touched.consultation_fees && errors.consultation_fees)}
-                                                {...getFieldProps("consultation_fees")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                                <Box mb={2}
-
-                                >
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.birthdate")}{" "}
-                                                <Typography component="span" color="error">
-                                                    *
-                                                </Typography>
+                                                {t("users.birthdate")}
                                             </Typography>
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
@@ -431,7 +392,7 @@ function NewUser() {
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                {values.phones.map((phoneObject, index: number) => (
+                                {values.phones.map((phoneObject: any, index: number) => (
                                     <Box mb={2} key={index}>
                                         <Grid
                                             container
@@ -443,10 +404,7 @@ function NewUser() {
                                                     color="text.secondary"
                                                     variant="body2"
                                                     fontWeight={400}>
-                                                    {t("users.phone")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
-                                                    </Typography>
+                                                    {t("users.phone")}
                                                 </Typography>
                                             </Grid>
                                             <Grid item xs={12} md={10}>
@@ -460,7 +418,7 @@ function NewUser() {
                                                             }}
                                                         />
                                                     </Grid>
-                                                    <Grid item xs={12} md={8}>
+                                                    <Grid item xs={12} md={7.5}>
                                                         {phoneObject && <PhoneInput
                                                             ref={phoneInputRef}
                                                             international
@@ -474,11 +432,101 @@ function NewUser() {
                                                             inputComponent={CustomInput as any}
                                                         />}
                                                     </Grid>
+                                                    <Grid item xs={12} md={.5}>
+                                                        <IconButton
+                                                            sx={{mt: .5}}
+                                                            onClick={() => {
+                                                                const phones = [...values.phones];
+                                                                console.log(phones, index)
+                                                                phones.splice(index, 1)
+                                                                setFieldValue(`phones`, values.phones.length > 0 ? phones : [])
+                                                            }}
+                                                            size="small">
+                                                            <IconUrl path="setting/icdelete"/>
+                                                        </IconButton>
+                                                    </Grid>
                                                 </Grid>
                                             </Grid>
                                         </Grid>
                                     </Box>
                                 ))}
+                                <Box mb={4} ml={5}>
+                                    <Button
+                                        size={"small"}
+                                        onClick={() => {
+                                            setFieldValue(`phones`, [
+                                                ...values.phones,
+                                                {
+                                                    phone: "", dial: doctor_country
+                                                }])
+                                        }}
+                                        startIcon={<AddIcon/>}>
+                                        {t("lieux.new.addNumber")}
+                                    </Button>
+                                </Box>
+
+                                <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}></Grid>
+                                        <Grid item xs={12} lg={10}>
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        checked={values.admin}
+                                                        onClick={() => {
+                                                            setFieldValue("admin", !values.admin);
+                                                        }}
+                                                    />
+                                                }
+                                                label={t("users.admin")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                {!values.admin && <Box mb={4}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.profile")}{" "}
+
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                            <FormControl size="small" fullWidth
+                                                         error={Boolean(touched.profile && errors.profile)}>
+                                                <Select
+                                                    labelId="demo-simple-select-label"
+                                                    id={"role"}
+                                                    {...getFieldProps("profile")}
+                                                    renderValue={selected => {
+                                                        if (selected.length === 0) {
+                                                            return <em>{t("users.profile")}</em>;
+                                                        }
+                                                        const profile = profiles?.find(profile => profile.uuid === selected);
+                                                        return <Typography>{profile?.name}</Typography>
+                                                    }}
+                                                    displayEmpty
+                                                    sx={{color: "text.secondary"}}>
+                                                    {profiles.map(profile =>
+                                                        <MenuItem key={profile.uuid}
+                                                                  value={profile.uuid}>{profile.name}</MenuItem>)}
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
+                                    </Grid>
+                                </Box>}
+
+
                                 <Box mb={2}>
                                     <Grid
                                         container
@@ -539,195 +587,6 @@ function NewUser() {
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.profile")}{" "}
-
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <FormControl size="small" fullWidth
-                                                         error={Boolean(touched.profile && errors.profile)}>
-                                                <Select
-                                                    labelId="demo-simple-select-label"
-                                                    id={"role"}
-                                                    {...getFieldProps("profile")}
-                                                    renderValue={selected => {
-                                                        if (selected.length === 0) {
-                                                            return <em>{t("users.profile")}</em>;
-                                                        }
-                                                        const profile = profiles?.find(profile => profile.uuid === selected);
-                                                        return <Typography>{profile?.name}</Typography>
-                                                    }}
-                                                    displayEmpty
-                                                    sx={{color: "text.secondary"}}>
-                                                    {profiles.map(profile =>
-                                                        <MenuItem key={profile.uuid}
-                                                                  value={profile.uuid}>{profile.name}</MenuItem>)}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                                <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}></Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={values.admin}
-                                                        onClick={() => {
-                                                            setFieldValue("admin", !values.admin);
-                                                        }}
-                                                    />
-                                                }
-                                                label={t("users.admin")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                        <Typography marginBottom={2} gutterBottom>
-                            {t("users.roles")}
-                        </Typography>
-                        <Card>
-                            <Box mb={2}>
-                                <Grid
-                                    container
-                                    spacing={{lg: 2, xs: 1}}
-                                    justifyContent="center"
-                                    sx={{
-                                        background: (theme: Theme) => theme.palette.primary.light,
-                                        borderBottom: `1px solid ${(theme: Theme) =>
-                                            theme.palette.divider}`,
-                                    }}
-                                    padding={"16px"}
-                                    alignItems="center">
-                                    <Grid item xs={12} lg={4}>
-                                        <Typography variant="body2" fontWeight={400}>
-                                            {t("users.all")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={12} lg={7}>
-                                        <FormControl size="small" fullWidth>
-                                            <Select
-                                                labelId="demo-simple-select-label"
-                                                id={"role"}
-                                                {...getFieldProps("role")}
-                                                onChange={event => {
-                                                    setFieldValue("role", event.target.value);
-                                                    agendaRoles.map((agenda, index) => {
-                                                        setFieldValue(`agendas[${index}].role`, event.target.value);
-                                                    })
-                                                }}
-                                                renderValue={selected => {
-                                                    if (selected.length === 0) {
-                                                        return <em>{t("users.config.roleAccess")}</em>;
-                                                    }
-                                                    const role = roles?.find(role => role.id === selected);
-                                                    return <Typography>{role?.name}</Typography>
-                                                }}
-                                                displayEmpty
-                                                sx={{color: "text.secondary"}}>
-                                                {roles.map(role =>
-                                                    <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>)}
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-                                </Grid>
-                            </Box>
-                            {values.agendas.map((agenda, index) => (
-                                <Box mb={2} key={index}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        justifyContent="center"
-                                        padding={"0 20px 16px"}
-                                        margin={0}
-                                        sx={{
-                                            borderBottom:
-                                                index !== agendas.length - 1
-                                                    ? `1px solid ${(theme: Theme) =>
-                                                        theme.palette.divider}`
-                                                    : "0",
-                                        }}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={4}>
-                                            <FormControlLabel
-                                                control={<Checkbox/>}
-                                                label={agenda.name}
-
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} lg={7}>
-                                            <FormControl size="small" fullWidth>
-                                                <Select
-                                                    placeholder={"motif.dialog.selectGroupe"}
-                                                    displayEmpty={true}
-                                                    {...getFieldProps(`agendas[${index}].role`)}
-                                                    sx={{color: "text.secondary", padding: 0}}
-                                                    renderValue={selected => {
-                                                        if (selected.length === 0) {
-                                                            return <em>{t("users.config.roleAccess")}</em>;
-                                                        }
-                                                        const role = roles?.find(role => role.id === selected);
-                                                        return <Typography>{role?.name}</Typography>
-                                                    }}>
-                                                    {roles.map(role => <MenuItem key={role.id}
-                                                                                 value={role.id}>{role.name}</MenuItem>)}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                            ))}
-                        </Card>
-                        <Typography marginBottom={2} gutterBottom>
-                            {t("users.send")}
-                        </Typography>
-                        <Card>
-                            <CardContent>
-                                <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="flex-start">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.message")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={9}>
-                                            <TextField
-                                                variant="outlined"
-                                                placeholder={t("users.tmessage")}
-                                                multiline
-                                                rows={4}
-                                                fullWidth
-                                                required
-                                                {...getFieldProps("message")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
                             </CardContent>
                         </Card>
 
@@ -740,7 +599,9 @@ function NewUser() {
                             <Button onClick={() => router.back()}>
                                 {t("motif.dialog.cancel")}
                             </Button>
-                            <LoadingButton loading={loading} type="submit" variant="contained" color="primary">
+                            <LoadingButton
+                                disabled={values.email.length === 0 || Object.keys(errors).length > 0}
+                                loading={loading} type="submit" variant="contained" color="primary">
                                 {t("motif.dialog.save")}
                             </LoadingButton>
                         </Stack>
