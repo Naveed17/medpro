@@ -9,10 +9,10 @@ import {
     Stack, TextField,
     Typography, useMediaQuery, useTheme
 } from "@mui/material";
-import React, { useState} from "react";
+import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import {startCase} from 'lodash'
-import { useAppSelector} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {timerSelector} from "@features/card";
 import {capitalizeFirst, getMilliseconds, shortEnglishHumanizer, useTimer} from "@lib/hooks";
 import {Label} from "@features/label";
@@ -92,7 +92,7 @@ function SwitchConsultationDialog({...props}) {
                     variant="outlined"
                     color="info"
                     onClick={() => setOpenPaymentDialog(true)}>
-                    <Typography>{t("pay")}</Typography>
+                    <Typography>{t("pay", {ns: "consultation"})}</Typography>
                     {event?.extendedProps.restAmount > 0 &&
                         <>
                             <Typography component='span'
