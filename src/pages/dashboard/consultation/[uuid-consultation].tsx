@@ -1202,7 +1202,6 @@ function ConsultationInProgress() {
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
 
-    console.log("info", info)
     return (
         <>
             {sheet?.patient && openHistoryDialog && <Draggable bounds="body">
