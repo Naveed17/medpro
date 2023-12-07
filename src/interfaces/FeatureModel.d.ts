@@ -1,6 +1,7 @@
 interface FeatureModel {
   uuid: string;
   name: string;
-  category: number;
+  category?: number;
   slug: string;
+  isAutoRenewal: boolean
 }

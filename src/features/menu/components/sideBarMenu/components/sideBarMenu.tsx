@@ -182,38 +182,42 @@ function SideBarMenu({children}: LayoutProps) {
                     ))}
                 </List>
                 <List className="list-bottom">
-                    <ListItem
-                        onClick={() => handleRouting("/dashboard/statistics")}
-                        disableRipple
-                        button
-                        className={
-                            router.pathname.startsWith("/dashboard/statistics")
-                                ? "active mt-2"
-                                : "mt-2"
-                        }>
-                        <ListItemIcon>
-                            <StatsIcon/>
-                        </ListItemIcon>
-                        <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "stats")}/>
-                        </Hidden>
-                    </ListItem>
-                    <ListItem
-                        onClick={handleSettingRoute}
-                        disableRipple
-                        button
-                        className={
-                            router.pathname.startsWith("/dashboard/settings")
-                                ? "active mt-2"
-                                : "mt-2"
-                        }>
-                        <ListItemIcon>
-                            <SettingsIcon/>
-                        </ListItemIcon>
-                        <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "settings")}/>
-                        </Hidden>
-                    </ListItem>
+                    <Can I={"read"} a={"statistics"}>
+                        <ListItem
+                            onClick={() => handleRouting("/dashboard/statistics")}
+                            disableRipple
+                            button
+                            className={
+                                router.pathname.startsWith("/dashboard/statistics")
+                                    ? "active mt-2"
+                                    : "mt-2"
+                            }>
+                            <ListItemIcon>
+                                <StatsIcon/>
+                            </ListItemIcon>
+                            <Hidden smUp>
+                                <ListItemText primary={t("main-menu." + "stats")}/>
+                            </Hidden>
+                        </ListItem>
+                    </Can>
+                    <Can I={"read"} a={"settings"}>
+                        <ListItem
+                            onClick={handleSettingRoute}
+                            disableRipple
+                            button
+                            className={
+                                router.pathname.startsWith("/dashboard/settings")
+                                    ? "active mt-2"
+                                    : "mt-2"
+                            }>
+                            <ListItemIcon>
+                                <SettingsIcon/>
+                            </ListItemIcon>
+                            <Hidden smUp>
+                                <ListItemText primary={t("main-menu." + "settings")}/>
+                            </Hidden>
+                        </ListItem>
+                    </Can>
                     <Hidden smUp>
                         <ListItem onClick={() => handleLogout()}>
                             <ListItemIcon>

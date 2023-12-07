@@ -44,12 +44,7 @@ function AddNewRoleDialog({...props}) {
                 return {
                     ...item,
                     value: false,
-                    children: item.children.map((child: any) => {
-                        return {
-                            ...child,
-                            value: false,
-                        }
-                    })
+                    children: []
                 };
             });
             const updatePermissions = handleUpdatedPermissions(permissions);

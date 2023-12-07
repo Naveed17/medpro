@@ -1,4 +1,5 @@
 interface MedicalEntityDefault {
-  is_default : boolean,
-  medical_entity: MedicalEntityModel
+    is_default: boolean,
+    medical_entity: MedicalEntityModel
+    features: FeatureModel[]
 }

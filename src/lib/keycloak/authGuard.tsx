@@ -1,10 +1,7 @@
 import {signIn, useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import React, {useEffect} from "react";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import LockIcon from "@themes/overrides/icons/lockIcon";
 import {setLock} from "@features/appLock";
 import {toggleSideBar} from "@features/menu";
@@ -15,13 +12,8 @@ function AuthGuard({children}: LayoutProps) {
     const dispatch = useAppDispatch();
     const router = useRouter();
 
-    const roles = (session?.data as UserDataResponse)?.general_information.roles as Array<string>
-    const userPermission = [
-        "/dashboard/settings/profil",
-        "/dashboard/settings/acts",
-        "/dashboard/settings/actfees",
-        "/dashboard/consultation/[uuid-consultation]"
-    ];
+    const features = (session?.data as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
+    const hasPermission = features?.map((feature: FeatureModel) => feature.slug).includes(router.pathname.split('/')[2]) ?? true;
 
     useEffect(() => {
         if (localStorage.getItem('lock-on') === 'true') {
@@ -52,9 +44,13 @@ function AuthGuard({children}: LayoutProps) {
         return <LoadingScreen/>
     }
 
-    if (userPermission.includes(router.pathname) && roles.includes('ROLE_SECRETARY')) {
+    if (!hasPermission && router.pathname !== '/dashboard') {
         console.log("auth guard loading")
-        return <LoadingScreen text={"permission"} iconNote={<LockIcon/>} button={'back'}/>
+        return <LoadingScreen
+            text={"permission"}
+            iconNote={<LockIcon/>}
+            button={'back'}
+            OnClick={() => router.push("/dashboard")}/>
     }
 
     return <>{children}</>;

@@ -112,7 +112,7 @@ function LoadingScreen({...props}) {
                     )}
 
                     {text !== "loading" && (
-                        <Typography variant="h6" mb={2} px={2} color="text.primary">
+                        <Typography variant="h6" mb={2} px={2}  width={'20rem'} color="text.primary">
                             {t(`${text}.title`)}
                         </Typography>
                     )}
