@@ -57,7 +57,7 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
-import {a11yProps, useLastPrescription, useMedicalProfessionalSuffix,} from "@lib/hooks";
+import {a11yProps, prescriptionPreviewDosage, useLastPrescription, useMedicalProfessionalSuffix,} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
@@ -1496,7 +1496,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                               component="span"
                                                                               variant="body2"
                                                                               color="text.primary">
-                                                                            {`${cycle.dosage}  ${
+                                                                            {`${prescriptionPreviewDosage(cycle.dosage)}  ${
                                                                                 cycle?.duration
                                                                                     ? `pendant ${cycle.duration}`
                                                                                     : ""
