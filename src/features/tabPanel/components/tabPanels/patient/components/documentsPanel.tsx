@@ -49,7 +49,7 @@ import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",
-    "analyse", "requested-analysis",
+    "analyse", "requested-analysis", "photo",
     "prescription", "Rapport", "medical-certificate", "audio", "video"];
 
 const AddAppointmentCardWithoutButtonsData = {

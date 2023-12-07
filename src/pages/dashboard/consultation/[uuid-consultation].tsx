@@ -151,6 +151,7 @@ function ConsultationInProgress() {
     const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData.medical_professional.uuid;
     const app_uuid = router.query["uuid-consultation"];
     const general_information = (user as UserDataResponse).general_information;
+    const cardPositions = localStorage.getItem('cardPositions') !== null ? JSON.parse((localStorage.getItem('cardPositions') as string)) : null
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
@@ -234,9 +235,20 @@ function ConsultationInProgress() {
     const [showDocument, setShowDocument] = useState(false);
     const [nbDoc, setNbDoc] = useState(0);
     const [cards, setCards] = useState([[
-        {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
+        {
+            id: 'item-1',
+            content: 'widget',
+            expanded: cardPositions ? cardPositions.widget : false,
+            config: false,
+            icon: "ic-edit-file-pen"
+        },
         {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
-    ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]]);
+    ], [{
+        id: 'item-3',
+        content: 'exam',
+        expanded: cardPositions ? cardPositions.exam : true,
+        icon: "ic-edit-file-pen"
+    }]]);
     const [mobileCards, setMobileCards] = useState([[
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-3', content: 'exam', expanded: false, icon: "ic-edit-file-pen"}
@@ -325,11 +337,10 @@ function ConsultationInProgress() {
             })
         );
 
-        let _cards = [...cards];
+        let _cards: any[] = [...cards];
         _cards[ind][index].expanded = true;
         _cards[ind][index].config = false;
         setCards([..._cards])
-
     };
 
     const showDoc = (card: any) => {
@@ -1144,10 +1155,25 @@ function ConsultationInProgress() {
             setNbDoc(nb);
             setChanges([...changes])
             localStorage.setItem(`Modeldata${app_uuid}`, JSON.stringify(sheetModal.data))
+
+            if (!cardPositions)
+                localStorage.setItem(`cardPositions`, JSON.stringify({widget: false, exam: true, history: false}))
+
             if (hasDataHistory === false) {
                 setCards([[
-                    {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"}
-                ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]])
+                    {
+                        id: 'item-1',
+                        content: 'widget',
+                        expanded: cardPositions ? cardPositions.widget : false,
+                        config: false,
+                        icon: "ic-edit-file-pen"
+                    }
+                ], [{
+                    id: 'item-3',
+                    content: 'exam',
+                    expanded: cardPositions ? cardPositions.exam : true,
+                    icon: "ic-edit-file-pen"
+                }]])
             }
 
         }

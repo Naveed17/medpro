@@ -231,7 +231,7 @@ function LifeStyleDialog({...props}) {
                                                                             control={
                                                                                 <Checkbox
                                                                                     name={list.uuid}
-                                                                                    checked={state?.find(inf => inf.uuid == list.uuid)?.ascendantOf === 'father'}
+                                                                                    checked={data.ascendantOf === 'father'}
                                                                                     onChange={() => {
 
                                                                                         if (data.ascendantOf === 'father')
@@ -250,7 +250,7 @@ function LifeStyleDialog({...props}) {
                                                                             control={
                                                                                 <Checkbox
                                                                                     name={list.uuid}
-                                                                                    checked={state?.find(inf => inf.uuid === list.uuid)?.ascendantOf === 'mother'}
+                                                                                    checked={data.ascendantOf === 'mother'}
                                                                                     onChange={() => {
                                                                                         if (data.ascendantOf === 'mother')
                                                                                             data.ascendantOf = '';
@@ -266,7 +266,7 @@ function LifeStyleDialog({...props}) {
                                                                             control={
                                                                                 <Checkbox
                                                                                     name={list.uuid}
-                                                                                    checked={state?.find(inf => inf.uuid === list.uuid)?.ascendantOf === 'both'}
+                                                                                    checked={data.ascendantOf === 'both'}
                                                                                     onChange={() => {
 
                                                                                         if (data.ascendantOf === 'both')
@@ -370,6 +370,7 @@ function LifeStyleDialog({...props}) {
                                                         style={{width: "fit-content"}}
                                                         onClick={() => {
                                                             const x: any = state[state.findIndex(ant => ant.uuid === list.uuid)];
+                                                            x.data.map((d:any,index:number) => d.note=(index+1).toString())
                                                             x.data.push({
                                                                 antecedent: {uuid: x?.uuid},
                                                                 name: '',
@@ -377,7 +378,7 @@ function LifeStyleDialog({...props}) {
                                                                 endDate: '',
                                                                 response: '',
                                                                 ascendantOf: null,
-                                                                note: ''
+                                                                note:  (x.data.length +1).toString()
                                                             })
                                                             setState([...state])
                                                         }}
@@ -423,18 +424,21 @@ function LifeStyleDialog({...props}) {
                                             multiple: false
                                         })
                                         setState([...state, {
-                                            endDate: "",
-                                            name: res.name,
-                                            res: "",
-                                            startDate: "",
                                             uuid: res.uuid,
+                                            data: [{
+                                                antecedent: {uuid: res.uuid},
+                                                endDate: "",
+                                                name: res.name,
+                                                res: "",
+                                                startDate: ""
+                                            }]
                                         }])
                                         setAntecedents([...antecedents])
                                     }
                                 });
                             }}
                             startIcon={<AddIcon/>}>
-                        {["way_of_life","allergic"].includes(action) ?`${t('add')} ${t(action)}`:t("createAnt")}
+                        {["way_of_life", "allergic"].includes(action) ? `${t('add')} ${t(action)}` : t("createAnt")}
                     </Button>
                 }
             </Box>
