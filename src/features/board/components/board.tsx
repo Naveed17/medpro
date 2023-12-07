@@ -15,36 +15,36 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {sideBarSelector} from "@features/menu";
 
 const ParentContainer = styled.div`
-  margin-top: -1rem;
-  padding-bottom: 1rem;
-  overflow-x: hidden;
-  overflow-y: auto;
+    margin-top: -1rem;
+    padding-bottom: 1rem;
+    overflow-x: hidden;
+    overflow-y: auto;
 `;
 
 const Header = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-top-left-radius: 1px;
-  border-top-right-radius: 1px;
-  transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top-left-radius: 1px;
+    border-top-right-radius: 1px;
+    transition: background-color 0.2s ease;
 
-  &:hover {
+    &:hover {
 
-  }
+    }
 `;
 
 const Title = styled.h4`
-  padding: 1px;
-  transition: background-color ease 0.2s;
-  flex-grow: 1;
-  user-select: none;
-  position: relative;
+    padding: 1px;
+    transition: background-color ease 0.2s;
+    flex-grow: 1;
+    user-select: none;
+    position: relative;
 
-  &:focus {
+    &:focus {
 
-    outline-offset: 2px;
-  }
+        outline-offset: 2px;
+    }
 `;
 
 function Board({...props}) {
@@ -169,7 +169,10 @@ function Board({...props}) {
                 data[itemGroup[0]].map((item: any) => {
                     quotes.push({
                         id: item.uuid,
-                        content: {...item, isDraggable: (![4, 5].includes(item.status) && !item.patient?.isArchived)},
+                        content: {
+                            ...item,
+                            isDraggable: (![4, 8, 5].includes(item.status) && !item.patient?.isArchived)
+                        },
                         column: columns.find((column: BoardColumnsModel) => column.id.split(",").includes(itemGroup[0])),
                     })
                 })
