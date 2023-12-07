@@ -709,7 +709,7 @@ function ConsultationInProgress() {
         });
     }
 
-    const printGlasses = (info: any,type:string) => {
+    const printGlasses = (info: any, type: string) => {
         setInfo("document_detail");
         setState({
             type,
@@ -1143,7 +1143,7 @@ function ConsultationInProgress() {
             })
             setNbDoc(nb);
             setChanges([...changes])
-            localStorage.setItem(`Modeldata${app_uuid}`,JSON.stringify(sheetModal.data))
+            localStorage.setItem(`Modeldata${app_uuid}`, JSON.stringify(sheetModal.data))
             if (hasDataHistory === false) {
                 setCards([[
                     {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"}
@@ -1202,6 +1202,7 @@ function ConsultationInProgress() {
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
 
+    console.log("info", info)
     return (
         <>
             {sheet?.patient && openHistoryDialog && <Draggable bounds="body">
@@ -1795,13 +1796,13 @@ function ConsultationInProgress() {
                                                     path={"iconfinder_save"}/>}>
                                             {t("consultationIP.save")}
                                         </Button>
-                                        <Button
+                                        {info !== "add_a_document" && <Button
                                             variant="contained"
                                             onClick={() => handleSaveDialog()}
                                             disabled={info.includes("medical_prescription") && state.length === 0}
                                             startIcon={<IconUrl path={"ic-imprime"}/>}>
                                             {t("consultationIP.save_print")}
-                                        </Button>
+                                        </Button>}
                                     </>}
                                 </Stack>
                             </Stack>
