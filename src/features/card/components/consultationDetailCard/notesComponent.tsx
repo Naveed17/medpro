@@ -219,10 +219,13 @@ function NotesComponent({...props}) {
                             </Select>
                             }
                             {hasDataHistory &&
-                                <IconButton className={"btn-full"} size={"small"}
-                                            onClick={() => seeHistory()}>
-                                    <IconUrl path={'history'}/>
-                                </IconButton>}
+                                <Tooltip title={t('history')}>
+                                    <IconButton className={"btn-full"} size={"small"}
+                                                onClick={() => seeHistory()}>
+                                        <IconUrl path={'history'}/>
+                                    </IconButton>
+                                </Tooltip>
+                            }
                         </Stack>}
                     <Tooltip title={t('toolbar')}>
                         <IconButton
@@ -235,18 +238,20 @@ function NotesComponent({...props}) {
                             <IconUrl path={'tools'}/>
                         </IconButton>
                     </Tooltip>
-                    <RecButton
-                        small
-                        onClick={() => {
-                            startStopRec();
-                        }}/>
-                    <IconButton size={"small"} onClick={(e) => {
-                        e.stopPropagation();
-                        mutateSheetData && mutateSheetData()
-                        setFullOb(!fullOb)
-                    }} className={"btn-full"} style={{marginRight: 0, marginLeft: 5}}>
-                        <IconUrl path={'fullscreen'}/>
-                    </IconButton>
+                        <RecButton
+                            small
+                            onClick={() => {
+                                startStopRec();
+                            }}/>
+                    <Tooltip title={t(fullOb ? 'reduce':"zoom")}>
+                        <IconButton size={"small"} onClick={(e) => {
+                            e.stopPropagation();
+                            mutateSheetData && mutateSheetData()
+                            setFullOb(!fullOb)
+                        }} className={"btn-full"} style={{marginRight: 0, marginLeft: 5}}>
+                            <IconUrl path={'fullscreen'}/>
+                        </IconButton>
+                    </Tooltip>
                 </Stack>
             </Stack>
 
