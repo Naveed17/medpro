@@ -4,7 +4,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import PrescriptionA4 from "@features/files/components/prescriptionA4";
-import {getBirthdayFormat} from "@lib/hooks";
+import {getBirthdayFormat, prescriptionPreviewDosage} from "@lib/hooks";
 
 function PreviewDialog({...props}) {
     const {previewDocRef, componentRef, eventHandler, data, values, state, loading, date, t, nbPage} = props;
@@ -106,7 +106,7 @@ function PreviewDialog({...props}) {
                                         break;
                                     case "dosage":
                                         el.cycles.map((cycle: any, index: number) => {
-                                            let val = cycle.dosage ? `- ${cycle.dosage}` : ''
+                                            let val = cycle.dosage ? `- ${prescriptionPreviewDosage(cycle.dosage)}` : ''
                                             if (cycle.duration)
                                                 val += ` pendant ${cycle.duration} ${t(cycle.durationType)}`
                                             if (cycle.note)

@@ -1821,13 +1821,13 @@ function ConsultationInProgress() {
                                                     path={"iconfinder_save"}/>}>
                                             {t("consultationIP.save")}
                                         </Button>
-                                        <Button
+                                        {info !== "add_a_document" && <Button
                                             variant="contained"
                                             onClick={() => handleSaveDialog()}
                                             disabled={info.includes("medical_prescription") && state.length === 0}
                                             startIcon={<IconUrl path={"ic-imprime"}/>}>
                                             {t("consultationIP.save_print")}
-                                        </Button>
+                                        </Button>}
                                     </>}
                                 </Stack>
                             </Stack>
