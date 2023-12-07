@@ -82,6 +82,7 @@ import {useAudioRecorder} from "react-audio-voice-recorder";
 import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
 import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
+import ObservationHistoryDialog from "@features/dialog/components/observationHistoryDialog/observationHistoryDialog";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -708,11 +709,11 @@ function ConsultationInProgress() {
         });
     }
 
-    const printGlasses = (info: any) => {
+    const printGlasses = (info: any,type:string) => {
         setInfo("document_detail");
         setState({
-            type: "glasses",
-            name: "glasses",
+            type,
+            name: type,
             info,
             createdAt: moment().format("DD/MM/YYYY"),
             patient: ` ${patient?.firstName} ${patient?.lastName}`,
@@ -1142,7 +1143,7 @@ function ConsultationInProgress() {
             })
             setNbDoc(nb);
             setChanges([...changes])
-
+            localStorage.setItem(`Modeldata${app_uuid}`,JSON.stringify(sheetModal.data))
             if (hasDataHistory === false) {
                 setCards([[
                     {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"}
@@ -1203,6 +1204,41 @@ function ConsultationInProgress() {
 
     return (
         <>
+            {sheet?.patient && openHistoryDialog && <Draggable bounds="body">
+                <div style={{
+                    position: "absolute",
+                    top: 10,
+                    left: 10,
+                    width: "50%",
+                    borderRadius: 5,
+                    zIndex: 1,
+                    border: `1px solid ${theme.palette.grey["200"]}`,
+                    background: 'white',
+                    transform: "translate(220px, 133px)"
+                }}>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} spacing={1} sx={{
+                        bgcolor: theme.palette.primary.main,
+                        padding: 2,
+                        borderTopLeftRadius: 5,
+                        borderTopRightRadius: 5
+                    }}>
+                        <IconUrl color={"white"} path={'history'}/>
+                        <Typography fontSize={18}
+                                    color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
+                        <IconButton sx={{width: 30, height: 30}} onClick={() => setOpenHistoryDialog(false)}><IconUrl
+                            width={15} height={15} path={"close"}/></IconButton>
+                    </Stack>
+                    <div style={{
+                        overflow: 'auto',
+                        height: 400,
+                        padding: 20
+                    }}>
+
+                        <ObservationHistoryDialog data={{patient_uuid: sheet.patient, t}}/>
+                    </div>
+
+                </div>
+            </Draggable>}
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
                 <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
                        width={"100%"}>
@@ -1615,18 +1651,6 @@ function ConsultationInProgress() {
                     </Stack>
                 </SubFooter>
             </Box>
-
-            <Dialog
-                action={"patient_observation_history"}
-                open={openHistoryDialog}
-                data={{patient_uuid: sheet?.patient, t}}
-                size={"sm"}
-                direction={"ltr"}
-                title={t("consultationIP.patient_observation_history")}
-                dialogClose={() => setOpenHistoryDialog(false)}
-                onClose={() => setOpenHistoryDialog(false)}
-                icon={true}
-            />
 
             <Dialog
                 {...{

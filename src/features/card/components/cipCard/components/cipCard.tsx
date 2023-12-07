@@ -49,7 +49,7 @@ function CipCard({...props}) {
                     fontSize={16}
                     color="common.white"
                     display={{xs: 'none', md: "block"}}>
-                    {capitalizeFirst(`${event?.extendedProps.patient.firstName} ${event?.extendedProps.patient.lastName}`)}
+                    {capitalizeFirst(`${event?.extendedProps.patient.lastName} ${event?.extendedProps.patient.firstName}`)}
                 </Typography>
 
                 {(!isMobile && !roles.includes('ROLE_SECRETARY')) && <Avatar

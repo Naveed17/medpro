@@ -136,7 +136,7 @@ function AddTreatmentDialog({...props}) {
                                 <SearchIcon/>
                             </InputAdornment>,
                         }}
-                        placeholder={t('placeholder_medical_imagery')}
+                        placeholder={t('search')}
                         fullWidth/>}
             </Box>
 

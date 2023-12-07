@@ -23,10 +23,11 @@ import {
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
+import {Dialog as CustomDialog} from "@features/dialog";
 import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
 import {resetTimer} from "@features/card";
-import {dashLayoutSelector, setOngoing} from "@features/base";
+import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import {DefaultCountry, EnvPattern} from "@lib/constants";
 import {setMoveDateTime} from "@features/dialog";
@@ -60,12 +61,14 @@ function FcmLayout({...props}) {
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
     const [notificationData, setNotificationData] = useState<any>(null);
     const [noConnection, setNoConnection] = useState<SnackbarKey | undefined>(undefined);
     const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -286,6 +289,25 @@ function FcmLayout({...props}) {
             <AbilityContext.Provider value={ability}>
                 {props.children}
             </AbilityContext.Provider>
+            <CustomDialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 460
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    patient: notificationData?.patient,
+                    setOpenPaymentDialog,
+                    mutatePatient: () => mutateOnGoing()
+                }}
+                size={"lg"}
+                fullWidth
+                title={translationCommon.payment_dialog_title}
+                dialogClose={() => setOpenPaymentDialog(false)}
+            />
             <Dialog
                 open={openDialog}
                 onClose={handleClose}
@@ -327,9 +349,7 @@ function FcmLayout({...props}) {
                                 }}
                                 OnPay={() => {
                                     handleClose();
-                                    router.push("/dashboard/agenda").then(() => {
-                                        dispatch(openDrawer({type: "pay", open: true}));
-                                    });
+                                    setOpenPaymentDialog(true);
                                 }}
                                 OnSchedule={() => {
                                     handleClose();
