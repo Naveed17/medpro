@@ -709,11 +709,11 @@ function ConsultationInProgress() {
         });
     }
 
-    const printGlasses = (info: any) => {
+    const printGlasses = (info: any,type:string) => {
         setInfo("document_detail");
         setState({
-            type: "glasses",
-            name: "glasses",
+            type,
+            name: type,
             info,
             createdAt: moment().format("DD/MM/YYYY"),
             patient: ` ${patient?.firstName} ${patient?.lastName}`,
@@ -1143,7 +1143,7 @@ function ConsultationInProgress() {
             })
             setNbDoc(nb);
             setChanges([...changes])
-
+            localStorage.setItem(`Modeldata${app_uuid}`,JSON.stringify(sheetModal.data))
             if (hasDataHistory === false) {
                 setCards([[
                     {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"}

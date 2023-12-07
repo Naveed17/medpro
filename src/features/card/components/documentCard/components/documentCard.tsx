@@ -66,14 +66,14 @@ function DocumentCard({...props}) {
                         </Tooltip>
                     </DocumentCardStyled>
                     :
-                    <DocumentCardStyled className={"document-card"}>
+                    <DocumentCardStyled className={"document-card"} style={{display:"flex",alignItems:"center"}}>
                         <Tooltip title={data.description ? `Note : ${data.description}` : data.title}>
-                            <CardContent style={{padding: 0}} onClick={onClick}>
-                                <Stack alignItems="center">
+                            <CardContent style={{padding: 0}}  onClick={onClick}>
+                                <Stack direction={"row"} alignItems="center">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={!data.uri.thumbnails.hasOwnProperty('thumbnail_128') ? data.uri.url : data.uri.thumbnails['thumbnail_128']}
-                                        style={{width: "100%", height: 164, objectFit: "scale-down"}}
+                                        style={{width: 50, height: 50, objectFit: "scale-down",borderRadius:5,marginLeft:5}}
                                         onError={({currentTarget}) => {
                                             currentTarget.onerror = null; // prevents looping
                                             currentTarget.src = "/static/icons/ic-quote.svg";

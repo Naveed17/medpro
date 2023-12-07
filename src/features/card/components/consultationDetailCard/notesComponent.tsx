@@ -18,7 +18,7 @@ import {
 import IconUrl from "@themes/urlIcon";
 import {RecButton} from "@features/buttons";
 import {Editor} from "@tinymce/tinymce-react";
-import {tinymcePlugins, tinymceToolbarNotes} from "@lib/constants";
+import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 import React, {useEffect, useState} from "react";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
@@ -43,7 +43,7 @@ function NotesComponent({...props}) {
         isStarted, setIsStarted,
         modelContent,
         fullOb, setFullOb,
-        loadChanges,setLoadChanges
+        loadChanges, setLoadChanges
     } = props
 
     const [showToolbar, setShowToolbar] = useState<boolean>(false);
@@ -242,6 +242,7 @@ function NotesComponent({...props}) {
                         }}/>
                     <IconButton size={"small"} onClick={(e) => {
                         e.stopPropagation();
+                        mutateSheetData && mutateSheetData()
                         setFullOb(!fullOb)
                     }} className={"btn-full"} style={{marginRight: 0, marginLeft: 5}}>
                         <IconUrl path={'fullscreen'}/>
@@ -264,7 +265,7 @@ function NotesComponent({...props}) {
                     height: fullOb ? "50vh" : 400,
                     toolbar_mode: 'wrap',
                     plugins: tinymcePlugins,
-                    toolbar: showToolbar ? tinymceToolbarNotes : false,
+                    toolbar: tinymceToolbar,
                     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                 }}/>}
 
