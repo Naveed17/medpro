@@ -1509,7 +1509,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                             {cycle.note?.length > 0 && `(${cycle.note})`}
                                                                         </span>
                                                                           {indexCycle < drug.cycles?.length - 1 &&
-                                                                              !(errors.data && ((errors.data as any)[index]?.cycles[indexCycle + 1] || (errors.data as any)[index]?.cycles[indexCycle])) && (
+                                                                              !(errors.data && ((((errors.data as any)[index]?.cycles?.length > indexCycle + 1) && (errors.data as any)[index]?.cycles[indexCycle + 1]) || ((errors.data as any)[index]?.cycles?.length > indexCycle && (errors.data as any)[index]?.cycles[indexCycle]))) && (
                                                                                   <span
                                                                                       style={{marginLeft: 4}}>{t("after", {ns: "consultation"})}</span>
                                                                               )}
