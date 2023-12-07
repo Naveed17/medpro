@@ -7,7 +7,6 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {
-    Alert,
     Box,
     Button,
     Card,
@@ -41,7 +40,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import {DefaultCountry, WaitingHeadCells} from "@lib/constants";
-import {AnimatePresence, motion} from "framer-motion";
 import {EventDef} from "@fullcalendar/core/internal";
 import PendingIcon from "@themes/overrides/icons/pendingIcon";
 import {LoadingButton} from "@mui/lab";
@@ -77,7 +75,7 @@ function WaitingRoom() {
     const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
-    const {isActive, event} = useAppSelector(timerSelector);
+    const {isActive} = useAppSelector(timerSelector);
     const {model} = useAppSelector(preConsultationSelector);
     const {
         motif,
