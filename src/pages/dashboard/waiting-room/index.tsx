@@ -628,7 +628,7 @@ function WaitingRoom() {
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={3}>
-                        {waitingRoomsGroup[4] ?
+                        {(waitingRoomsGroup[4] || waitingRoomsGroup[8]) ?
                             <>
                                 <DesktopContainer>
                                     <Otable
@@ -640,7 +640,10 @@ function WaitingRoom() {
                                             setLoading: setLoadingRequest
                                         }}
                                         headers={WaitingHeadCells}
-                                        rows={waitingRoomsGroup[4]}
+                                        rows={[
+                                            ...(waitingRoomsGroup[4] ? waitingRoomsGroup[4] : []),
+                                            ...(waitingRoomsGroup[8] ? waitingRoomsGroup[8] : [])
+                                        ]}
                                         from={"waitingRoom"}
                                         t={t}
                                         pagination
@@ -650,7 +653,10 @@ function WaitingRoom() {
                                 <MobileContainer>
                                     <Stack spacing={1}>
                                         {
-                                            waitingRoomsGroup[4].map((item: any, i: number) => (
+                                            [
+                                                ...(waitingRoomsGroup[4] ? waitingRoomsGroup[4] : []),
+                                                ...(waitingRoomsGroup[8] ? waitingRoomsGroup[8] : [])
+                                            ].map((item: any, i: number) => (
                                                 <React.Fragment key={item.uuid}>
                                                     <WaitingRoomMobileCard
                                                         quote={item}
