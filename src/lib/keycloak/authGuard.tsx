@@ -12,7 +12,9 @@ function AuthGuard({children}: LayoutProps) {
     const dispatch = useAppDispatch();
     const router = useRouter();
 
-    const features = (session?.data as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
+    const medical_entity = (session?.data as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default);
+    const features = medical_entity?.features;
+    const isOwner = medical_entity?.is_owner;
     const hasPermission = features?.map((feature: FeatureModel) => feature.slug).includes(router.pathname.split('/')[2]) ?? true;
 
     useEffect(() => {
@@ -44,7 +46,7 @@ function AuthGuard({children}: LayoutProps) {
         return <LoadingScreen/>
     }
 
-    if (!hasPermission && router.pathname !== '/dashboard') {
+    if (!hasPermission && router.pathname !== '/dashboard' && !isOwner) {
         console.log("auth guard loading")
         return <LoadingScreen
             text={"permission"}

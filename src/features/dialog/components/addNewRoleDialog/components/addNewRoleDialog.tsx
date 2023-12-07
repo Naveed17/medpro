@@ -54,20 +54,11 @@ function AddNewRoleDialog({...props}) {
 
     const handleUpdatedPermissions = (permissions: any) => {
         if (selected) {
-            const permissionsArray = [...permissions]
-            selected.permissions.forEach((permission: any) => {
-                permissionsArray.forEach((item: any) => {
-                    if (item.uuid === permission.parent) {
-                        item.value = item.children.every((child: any) => child.uuid === permission.uuid)
-                        item.children.forEach((child: any) => {
-                            if (child.uuid === permission.uuid) {
-                                child.value = true;
-                            }
-                        })
-                    }
-                })
-            });
-            return permissionsArray
+            const permissionsArray = [...permissions];
+            return permissionsArray.map(permission => ({
+                ...permission,
+                value: selected.features.map((feature: FeatureModel) => feature.uuid).includes(permission.uuid)
+            }))
         } else {
             return permissions
         }
@@ -106,7 +97,7 @@ function AddNewRoleDialog({...props}) {
             form.append("name", values.role_name);
             form.append("description", values.description);
             form.append("is_standard ", values.is_standard.toString());
-            form.append("permissions", JSON.stringify(checkedPermissions.join(",")));
+            form.append("features", JSON.stringify(checkedPermissions.join(",")));
             if (selected) {
                 triggerProfileUpdate({
                     method: "PUT",
