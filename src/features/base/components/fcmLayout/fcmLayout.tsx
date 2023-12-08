@@ -48,7 +48,7 @@ function PaperComponent(props: PaperProps) {
 }
 
 function FcmLayout({...props}) {
-    const {data: session} = useSession();
+    const {data: session, update} = useSession();
     const {jti} = session?.user as any;
     const router = useRouter();
     const theme = useTheme();
@@ -112,6 +112,8 @@ function FcmLayout({...props}) {
                             dispatch(setProgress(parseFloat(data.body.progress)));
                         }
                     }
+                } else if (data.type === "session") {
+                    update({[message.data.root]: data.body});
                 } else {
                     switch (message.data.root) {
                         case "agenda":

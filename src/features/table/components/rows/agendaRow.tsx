@@ -8,7 +8,8 @@ import IconUrl from "@themes/urlIcon";
 import {uniqueId} from "lodash";
 
 function AgendaRow({...props}) {
-    const {row, handleChange, handleConfig, edit, t} = props;
+    const {row, handleChange} = props;
+
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>

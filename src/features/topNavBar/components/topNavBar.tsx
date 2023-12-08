@@ -46,6 +46,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {batch} from "react-redux";
 import {resetAppointment} from "@features/tabPanel";
 import {partition} from "lodash";
+import Can from "@features/casl/can";
 
 let deferredPrompt: any;
 
@@ -497,16 +498,18 @@ function TopNavBar({...props}) {
                                         setPatientDetailDrawer(true);
                                     }}/>
                             }
-                            <Badge
-                                color="warning"
-                                badgeContent={pausedConsultation.length}
-                                sx={{ml: 1}}
-                                onClick={(event) => handleClick(event, "paused")}
-                                className="custom-badge badge">
-                                <IconButton color="primary" edge="start">
-                                    <Icon path={"ic-consultation-pause"}/>
-                                </IconButton>
-                            </Badge>
+                            <Can I={"read"} a={"consultation"}>
+                                <Badge
+                                    color="warning"
+                                    badgeContent={pausedConsultation.length}
+                                    sx={{ml: 1}}
+                                    onClick={(event) => handleClick(event, "paused")}
+                                    className="custom-badge badge">
+                                    <IconButton color="primary" edge="start">
+                                        <Icon path={"ic-consultation-pause"}/>
+                                    </IconButton>
+                                </Badge>
+                            </Can>
                             {(installable && !isMobile) &&
                                 <Button sx={{mr: 2, p: "6px 12px"}}
                                         onClick={handleInstallClick}

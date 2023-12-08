@@ -427,6 +427,11 @@
     "desc": "Lorsque vous recevrez des notification, elles apparaîtront ici",
     "button": "Actualiser"
   },
+  "loading-error-404-reset": {
+    "title": "Utilisateur non valide",
+    "description": "Essayez de vérifier votre utilisateur.",
+    "button": "Actualiser"
+  },
   "paused-consultation-notification": {
     "empty": "Aucune consultation en pause pour le moment",
     "desc": "Lorsque vous mettez les consultations en pause, elles apparaissent ici"

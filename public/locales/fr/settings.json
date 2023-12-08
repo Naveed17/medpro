@@ -396,6 +396,7 @@
       "manageAccess": "Gestion des accès",
       "roleAccess": "Sélectionnez le rôle de l'utilisateur",
       "path": "Paramètres > Utilisateurs",
+      "profile-placeholder": "Sélectionner le profil de l'utilisateur",
       "access_management": "Gestion des accès",
       "add_new_role": "Ajouter nouveau rôle",
       "add_a_new_role": "Ajouter un nouveau rôle",
@@ -425,7 +426,7 @@
         "name": "Nom",
         "agenda": "Agenda",
         "fonction": "Fonction",
-        "request": "Demande",
+        "profile": "Profil",
         "access": "accès",
         "action": "Action",
         "remove": "Supprimer",
@@ -449,6 +450,7 @@
     },
     "alert": {
       "success": "l'utilisateur a été ajouté avec succès",
+      "updated-role": "Le profil a été mis à jour avec succès",
       "went_wrong": "Quelque chose n'a pas fonctionné",
       "update": "l'utilisateur a été mis à jour avec succès"
     }

@@ -75,14 +75,14 @@ function ModifyUser() {
     const {uuid} = router.query;
 
     const {trigger: triggerUserUpdate} = useRequestQueryMutation("/user/update");
-    const {data: httpProfilesResponse,} = useRequestQuery({
+    const {data: httpProfilesResponse, isLoading: isProfilesLoading} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/profile`
     });
-    const {data: httpUserResponse} = useRequestQuery({
+    const {data: httpUserResponse, error} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`
-    });
+    }, {refetchOnWindowFocus: false});
 
     const user = (httpUserResponse as HttpResponse)?.data ?? null;
     const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as any[];
@@ -194,16 +194,15 @@ function ModifyUser() {
         setFieldValue,
     } = formik;
 
-    if (!ready) return (<LoadingScreen
-        button
-        {...(uuid && {
-            error: true,
-            button: 'loading-error-404-reset',
-            text: 'loading-error'
-        })}
-    />);
-
-    if (!user) return (<LoadingScreen button text={"loading-error-data-404"}/>);
+    if (!ready || isProfilesLoading || error) {
+        return <LoadingScreen
+            button
+            {...(error ? {
+                OnClick: () => router.push('/dashboard/settings/users'),
+                text: 'loading-error-404-reset'
+            } : {})}
+        />;
+    }
 
     return (
         <>

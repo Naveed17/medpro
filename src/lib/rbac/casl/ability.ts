@@ -8,6 +8,7 @@ type Subjects =
     | 'payment'
     | 'cashbox'
     | 'documents'
+    | 'consultation'
     | 'inventory'
     | 'statistics'
     | 'settings';

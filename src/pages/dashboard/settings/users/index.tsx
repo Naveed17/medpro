@@ -23,10 +23,7 @@ import {useRouter} from "next/router";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {NoDataCard} from "@features/card";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import IconUrl from "@themes/urlIcon";
 import {AccessMenage} from "@features/drawer";
 import {useMedicalEntitySuffix} from "@lib/hooks";
@@ -72,15 +69,15 @@ const headCells = [
         label: "access",
         align: "center",
         sortable: true,
-    },
+    },*/
     {
-        id: "access",
+        id: "profile",
         numeric: false,
         disablePadding: false,
-        label: "accessSetting",
+        label: "profile",
         align: "center",
         sortable: true,
-    },*/
+    },
     {
         id: "permission",
         numeric: false,
@@ -97,14 +94,14 @@ const headCells = [
     //     align: "center",
     //     sortable: true,
     // },
-     {
-         id: "action",
-         numeric: false,
-         disablePadding: false,
-         label: "action",
-         align: "center",
-         sortable: false,
-     },
+    {
+        id: "action",
+        numeric: false,
+        disablePadding: false,
+        label: "action",
+        align: "center",
+        sortable: false,
+    },
 ];
 
 function Users() {
@@ -124,7 +121,7 @@ function Users() {
     const [selected, setSelected] = useState<any>("");
     const [open, setOpen] = useState(false);
 
-    const {jti} = session?.user as any;
+    const {jti, id: currentUser} = session?.user as any;
 
     const {trigger: triggerUserUpdate} = useRequestQueryMutation("/users/update");
     const {trigger: triggerUserDelete} = useRequestQueryMutation("/users/delete");
@@ -132,14 +129,20 @@ function Users() {
     const {data: httpUsersResponse, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
-    });
+    }, {refetchOnWindowFocus: false});
 
-    const users = (httpUsersResponse as HttpResponse)?.data as UserModel[];
+    const {data: httpProfilesResponse} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/profile`
+    }, {refetchOnWindowFocus: false});
 
-    const handleChange = (action: string, props: any, event: any) => {
+    const users = ((httpUsersResponse as HttpResponse)?.data ?? []) as UserModel[];
+    const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as ProfileModel[];
+
+    const handleDocPermission = (action: string, props: any, value: any) => {
         const form = new FormData();
-        form.append("attribute", action === "ACCESS" ? "isActive" : "isDocSee");
-        form.append("value", JSON.stringify(event.target.checked));
+        form.append("attribute", action);
+        form.append("value", value);
         triggerUserUpdate({
             method: "PATCH",
             url: `${urlMedicalEntitySuffix}/edit/user/${props.uuid}/${router.locale}`,
@@ -148,7 +151,7 @@ function Users() {
             onSuccess: () => {
                 mutate();
                 enqueueSnackbar(t("updated"), {variant: "success"});
-                if (action === "DOC_PERMISSION") {
+                if (action === "isDocSee") {
                     medicalEntityHasUser && triggerNotificationPush({
                         action: "push",
                         root: "all",
@@ -161,6 +164,16 @@ function Users() {
                 }
             }
         });
+    }
+    const handleChange = (action: string, props: any, event: any) => {
+        switch (action) {
+            case "PROFILE":
+                handleDocPermission("profile", props, event)
+                break;
+            default:
+                handleDocPermission(action === "ACCESS" ? "isActive" : "isDocSee", props, event.target.checked)
+                break;
+        }
     }
 
     const closeDraw = () => {
@@ -230,9 +243,9 @@ function Users() {
                         <DesktopContainer>
                             <Otable
                                 headers={headCells}
-                                rows={users.filter(user => !user.isProfessional)}
+                                rows={users}
                                 from={"users"}
-                                {...{t, handleChange}}
+                                {...{t, currentUser, profiles, handleChange}}
                                 edit={onDelete}
                             />
                         </DesktopContainer>

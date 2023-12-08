@@ -1,5 +1,5 @@
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Stack, Skeleton} from "@mui/material";
+import {Typography, Box, Stack, Skeleton, Select} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useRouter} from "next/router";
 import Button from "@mui/material/Button";
@@ -7,12 +7,14 @@ import {editUser, TableRowStyled} from "@features/table";
 import Switch from "@mui/material/Switch";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {uniqueId} from "lodash";
-import {useState} from "react";
+import React, {useState} from "react";
+import MenuItem from "@mui/material/MenuItem";
 
 function UserRow({...props}) {
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const {row, handleChange, t, editMotif} = props;
+    const {row, handleChange, t, editMotif, data} = props;
+    const {currentUser, profiles} = data;
     const [hasDocPermission, setHasDocPermission] = useState(row.canSeeDoc);
 
     return (
@@ -49,35 +51,37 @@ function UserRow({...props}) {
                     </Stack>
                 )}
             </TableCell>
-            {/*<TableCell align="center">
-                {row ? (
-                    <Lable variant="filled" color={row.isActive ? "success" : "error"} sx={{px: 1.5}}>
-                        {row.isActive ? t("table.active") : t("table.inactive")}
-                    </Lable>
-                ) : (
-                    <Skeleton
-                        variant="text"
-                        width={100}
-                        height={40}
-                        sx={{mx: "auto"}}
-                    />
-                )}
-            </TableCell>
             <TableCell align="center">
-                {row ? (
-                    <Switch
-                        name="active"
-                        onChange={(e) => {
-                            setIsActive(e.target.checked);
-                            handleChange("ACCESS", row, e)
+                {row?.profile && <Select
+                    size={"small"}
+                    displayEmpty
+                    value={row?.profile?.uuid ?? null}
+                    sx={{
+                        maxHeight: 35,
+                        "& .MuiSelect-select": {
+                            background: "white",
+                        },
+                    }}
+                    id="profile-select"
+                    onChange={(event) => handleChange("PROFILE", row, event.target.value)}
+                    renderValue={(selected: any) => {
+                        if (!selected || (selected && selected.length === 0)) {
+                            return <Typography color={"gray"}>
+                                {t("profile-placeholder")}
+                            </Typography>;
                         }
-                        }
-                        checked={isActive}
-                    />
-                ) : (
-                    <Skeleton width={50} height={40} sx={{m: "auto"}}/>
-                )}
-            </TableCell>*/}
+
+                        return profiles.find((profile: ProfileModel) => profile?.uuid === selected)?.name;
+                    }}>
+                    {profiles.map((subItem: any) => (
+                        <MenuItem
+                            key={subItem.uuid}
+                            value={subItem.uuid}>
+                            {subItem.name}
+                        </MenuItem>
+                    ))}
+                </Select>}
+            </TableCell>
             <TableCell align="center">
                 {row ? (
                     <Switch
@@ -92,30 +96,21 @@ function UserRow({...props}) {
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>
                 )}
             </TableCell>
-            {/* <TableCell align="center">
-                {row ? (
-                    <Typography className="name" variant="body1" color="text.primary">
-                        {row.isIntern} {t("table.agenda")}
-                    </Typography>
-                ) : (
-                    <Skeleton variant="text" width={100} sx={{m: "auto"}}/>
-                )}
-            </TableCell> */}
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        <Button
+                        {row?.ssoId === currentUser && <Button
                             variant="text"
                             size="small"
                             color="primary"
                             startIcon={<IconUrl path="setting/edit"/>}
                             onClick={() => {
                                 dispatch(editUser(row));
-                                router.push(`${router.pathname}/${row.uuid}`, undefined, {locale: router.locale});
+                                router.push(`${router.pathname}/${row.uuid}`, `${router.pathname}/${row.uuid}`, {locale: router.locale});
                             }}>
                             {t("table.update")}
-                        </Button>
-                        <Button
+                        </Button>}
+                        {!row.isProfessional && <Button
                             variant="text"
                             size="small"
                             color="error"
@@ -123,7 +118,7 @@ function UserRow({...props}) {
                             onClick={() => editMotif(row)}
                             sx={{mr: 1}}>
                             {t("table.remove")}
-                        </Button>
+                        </Button>}
                     </Box>
                 ) : (
                     <Stack
