@@ -33,7 +33,7 @@ function AgendaRow({...props}) {
             <TableCell align="center">
                 <Switch
                     name="isAutoConfirm"
-                    onChange={(e) => handleChange(row, "isAutoConfirm", "")}
+                    onChange={() => handleChange(row, "isAutoConfirm", "")}
                     checked={row.isAutoConfirm}
                 />
             </TableCell>
@@ -42,7 +42,7 @@ function AgendaRow({...props}) {
                 {row ? (
                     <Checkbox
                         name="isDefault"
-                        onChange={(e) => handleChange(row, "isDefault", "")}
+                        onChange={() => handleChange(row, "isDefault", "")}
                         checked={row.isDefault}
                     />
                 ) : (

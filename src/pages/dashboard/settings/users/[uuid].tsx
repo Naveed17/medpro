@@ -20,7 +20,6 @@ import {
     MenuItem,
     FormControl, IconButton,
 } from "@mui/material";
-import {Theme} from "@mui/material/styles";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
@@ -66,10 +65,6 @@ function ModifyUser() {
 
     const [loading, setLoading] = useState(false);
     const [agendaRoles] = useState(agendas);
-    const [roles] = useState([
-        {id: "read", name: "Accès en lecture"},
-        {id: "write", name: "Accès en écriture"}
-    ]);
 
     const {data: userData} = session as Session;
     const medical_entity = (userData as UserDataResponse).medical_entity as MedicalEntityModel;
