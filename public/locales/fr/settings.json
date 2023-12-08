@@ -387,6 +387,7 @@
     "firstname": "Prénom",
     "lastname": "Nom de famille",
     "phone": "Téléphone",
+    "oldPassword": "Mot de passe actuel",
     "password": "Mot de passe",
     "confirm_password": "confirmer le mot de passe",
     "profile": "Profil",

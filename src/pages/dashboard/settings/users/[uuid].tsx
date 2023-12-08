@@ -13,12 +13,8 @@ import {
     Box,
     TextField,
     Grid,
-    Select,
     Button,
-    FormControlLabel,
-    Checkbox,
-    MenuItem,
-    FormControl, IconButton,
+    IconButton,
 } from "@mui/material";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
@@ -40,10 +36,7 @@ import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import PhoneInput from "react-phone-number-input/input";
-import {
-    CustomInput,
-
-} from "@features/tabPanel";
+import {CustomInput} from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -109,7 +102,15 @@ function ModifyUser() {
             })
         ),
         profile: Yup.string().required(),
+        oldPassword: Yup.string().when('password', {
+            is: (val: string) => val && val.length > 0,
+            then: (schema) => schema.required(t("password-error"))
+        }),
+        password: Yup.string(),
+        confirmPassword: Yup.string().when('password', (password, field) =>
+            password ? field.required().oneOf([Yup.ref('password')]) : field),
     });
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -125,7 +126,10 @@ function ModifyUser() {
             FirstName: user?.FirstName || "",
             lastName: user?.lastName || "",
             phones: [],
-            profile: user?.profile?.uuid || ""
+            profile: user?.profile?.uuid || "",
+            oldPassword: "",
+            password: "",
+            confirmPassword: "",
         },
         validationSchema,
         onSubmit: async (values) => {
@@ -150,6 +154,9 @@ function ModifyUser() {
                 is_support: false
             }))));
             form.append('profile', values.profile);
+            form.append('oldPassword', values.oldPassword);
+            form.append('password', values.password);
+
             triggerUserUpdate({
                 method: "PUT",
                 url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
@@ -400,10 +407,9 @@ function ModifyUser() {
                                                     </Grid>
                                                     <Grid item xs={12} md={.5}>
                                                         <IconButton
-                                                            sx={{mt: .5}}
+                                                            sx={{mt: .2, p: 1, ml: -1}}
                                                             onClick={() => {
                                                                 const phones = [...values.phones];
-                                                                console.log(phones, index)
                                                                 phones.splice(index, 1)
                                                                 setFieldValue(`phones`, values.phones.length > 0 ? phones : [])
                                                             }}
@@ -434,6 +440,104 @@ function ModifyUser() {
                             </CardContent>
                         </Card>
 
+                        <Typography marginBottom={2} gutterBottom>
+                            {t("users.password")}
+                        </Typography>
+                        <Card className="venue-card">
+                            <CardContent>
+                                <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.oldPassword")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                            <TextField
+                                                type="password"
+                                                variant="outlined"
+                                                placeholder={t("users.oldPassword")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.oldPassword && errors.oldPassword)}
+                                                {...getFieldProps("oldPassword")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.password")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                            <TextField
+                                                type="password"
+                                                variant="outlined"
+                                                placeholder={t("users.password")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.password && errors.password)}
+                                                {...getFieldProps("password")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.confirm_password")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                            <TextField
+                                                type="password"
+                                                variant="outlined"
+                                                placeholder={t("users.confirm_password")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.confirmPassword && errors.confirmPassword)}
+                                                {...getFieldProps("confirmPassword")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                            </CardContent>
+                        </Card>
+
                         <div style={{paddingBottom: "50px"}}></div>
                         <Stack
                             className="bottom-section"
@@ -443,7 +547,10 @@ function ModifyUser() {
                             <Button onClick={() => router.back()}>
                                 {t("motif.dialog.cancel")}
                             </Button>
-                            <LoadingButton loading={loading} type="submit" variant="contained" color="primary">
+                            <LoadingButton
+                                {...{loading}}
+                                disabled={Object.keys(errors).length > 0}
+                                type="submit" variant="contained" color="primary">
                                 {t("motif.dialog.save")}
                             </LoadingButton>
                         </Stack>

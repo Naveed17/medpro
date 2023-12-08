@@ -189,7 +189,8 @@ function AddNewRoleDialog({...props}) {
 
             setFieldValue("permissions", newPermissions);
         }
-    };
+    }
+
     const handleNodeCheck = (id: string, checked: boolean) => {
         const updatedData = values.permissions.map((node: any) => {
             if (node.uuid === id) {
@@ -217,7 +218,8 @@ function AddNewRoleDialog({...props}) {
             return item;
         });
         setFieldValue("permissions", checkedData);
-    };
+    }
+
     return (
         <>
             <FormikProvider value={formik}>
@@ -284,9 +286,11 @@ function AddNewRoleDialog({...props}) {
                             {t("users.dialog.cancel")}
                         </Button>
                         <LoadingButton
+                            {...{loading}}
+                            disabled={values.permissions.filter((permission: any) => permission.value).length === 0 || values.role_name.length === 0}
+                            loadingPosition={"start"}
                             type="submit"
                             variant="contained"
-                            loading={loading}
                             startIcon={<IconUrl path="ic-dowlaodfile"/>}>
                             {t("users.dialog.save")}
                         </LoadingButton>

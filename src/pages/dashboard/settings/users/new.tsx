@@ -194,46 +194,6 @@ function NewUser() {
                         </Typography>
                         <Card className="venue-card">
                             <CardContent>
-                                {/*<Box mb={2}>*/}
-                                {/*    <Grid*/}
-                                {/*        container*/}
-                                {/*        spacing={{lg: 2, xs: 1}}*/}
-                                {/*        alignItems="center">*/}
-                                {/*        <Grid item xs={12} lg={2}>*/}
-                                {/*            <Typography*/}
-                                {/*                textAlign={{lg: "right", xs: "left"}}*/}
-                                {/*                color="text.secondary"*/}
-                                {/*                variant="body2"*/}
-                                {/*                fontWeight={400}>*/}
-                                {/*                {t("users.pro")}*/}
-                                {/*            </Typography>*/}
-                                {/*        </Grid>*/}
-                                {/*        <Grid item xs={12} lg={10}>*/}
-                                {/*            <FormControlLabel*/}
-                                {/*                control={*/}
-                                {/*                    <Checkbox*/}
-                                {/*                        checked={values.professionnel}*/}
-                                {/*                        onChange={() => {*/}
-                                {/*                            setFieldValue("professionnel", true);*/}
-                                {/*                        }}*/}
-                                {/*                    />*/}
-                                {/*                }*/}
-                                {/*                label={t("users.yes")}*/}
-                                {/*            />*/}
-                                {/*            <FormControlLabel*/}
-                                {/*                control={*/}
-                                {/*                    <Checkbox*/}
-                                {/*                        checked={!values.professionnel}*/}
-                                {/*                        onChange={() => {*/}
-                                {/*                            setFieldValue("professionnel", false);*/}
-                                {/*                        }}*/}
-                                {/*                    />*/}
-                                {/*                }*/}
-                                {/*                label={t("users.no")}*/}
-                                {/*            />*/}
-                                {/*        </Grid>*/}
-                                {/*    </Grid>*/}
-                                {/*</Box>*/}
                                 <Box mb={2}>
                                     <Grid
                                         container
@@ -424,10 +384,9 @@ function NewUser() {
                                                     </Grid>
                                                     <Grid item xs={12} md={.5}>
                                                         <IconButton
-                                                            sx={{mt: .5}}
+                                                            sx={{mt: .2, p: 1, ml: -1}}
                                                             onClick={() => {
                                                                 const phones = [...values.phones];
-                                                                console.log(phones, index)
                                                                 phones.splice(index, 1)
                                                                 setFieldValue(`phones`, values.phones.length > 0 ? phones : [])
                                                             }}
