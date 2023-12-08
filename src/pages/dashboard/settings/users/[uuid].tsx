@@ -173,8 +173,7 @@ function ModifyUser() {
                     enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
                 }
             });
-
-        },
+        }
     });
 
     const {
