@@ -18,7 +18,7 @@ import {
     FormControlLabel,
     Checkbox,
     MenuItem,
-    FormControl,
+    FormControl, IconButton,
 } from "@mui/material";
 import {Theme} from "@mui/material/styles";
 import {RootStyled} from "@features/toolbar";
@@ -45,6 +45,8 @@ import {
     CustomInput,
 
 } from "@features/tabPanel";
+import IconUrl from "@themes/urlIcon";
+import AddIcon from "@mui/icons-material/Add";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -74,15 +76,17 @@ function ModifyUser() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const {uuid} = router.query;
 
-    const {trigger: triggerUserUpdate} = useRequestQueryMutation("/user/update");
     const {data: httpProfilesResponse, isLoading: isProfilesLoading} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/profile`
     });
+
     const {data: httpUserResponse, error} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`
     }, {refetchOnWindowFocus: false});
+
+    const {trigger: triggerUserUpdate} = useRequestQueryMutation("/user/update");
 
     const user = (httpUserResponse as HttpResponse)?.data ?? null;
     const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as any[];
@@ -95,8 +99,7 @@ function ModifyUser() {
         email: Yup.string()
             .email(t("users.mailInvalid"))
             .required(t("users.mailReq")),
-        consultation_fees: Yup.string().required(),
-        birthdate: Yup.string().required(),
+        birthdate: Yup.string().nullable(),
         FirstName: Yup.string().required(),
         lastName: Yup.string().required(),
         phones: Yup.array().of(
@@ -114,11 +117,9 @@ function ModifyUser() {
                             return value ? isValidPhoneNumber(value) : false
                         }
                     })
-                    .required(),
             })
         ),
-        profile: Yup.string()
-            .required(),
+        profile: Yup.string().required(),
     });
     const formik = useFormik({
         enableReinitialize: true,
@@ -134,11 +135,7 @@ function ModifyUser() {
             birthdate: user?.birthDate || null,
             FirstName: user?.FirstName || "",
             lastName: user?.lastName || "",
-            phones: [
-                {
-                    phone: "", dial: doctor_country
-                }
-            ],
+            phones: [],
             profile: user?.profile?.uuid || ""
         },
         validationSchema,
@@ -153,11 +150,10 @@ function ModifyUser() {
             form.append('is_accepted', 'true');
             form.append('is_public', "true");
             form.append('is_default', "true");
-            form.append('consultation_fees', values.consultation_fees);
-            form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
+            values.birthdate && form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
             form.append('firstname', values.FirstName);
             form.append('lastname', values.lastName);
-            form.append('phone', JSON.stringify(values.phones.map(phoneData => ({
+            values.phones.length > 0 && form.append('phone', JSON.stringify(values.phones.map((phoneData: any) => ({
                 code: phoneData.dial?.phone,
                 value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
                 type: "phone",
@@ -231,46 +227,6 @@ function ModifyUser() {
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.pro")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={values.isProfessional}
-                                                        onChange={() => {
-                                                            setFieldValue("isProfessional", true);
-                                                        }}
-                                                    />
-                                                }
-                                                label={t("users.yes")}
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={!values.isProfessional}
-                                                        onChange={() => {
-                                                            setFieldValue("isProfessional", false);
-                                                        }}
-                                                    />
-                                                }
-                                                label={t("users.no")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                                <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
                                                 {t("users.mail")}{" "}
                                                 <Typography component="span" color="error">
                                                     *
@@ -308,42 +264,13 @@ function ModifyUser() {
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
                                             <TextField
+                                                disabled
                                                 variant="outlined"
                                                 placeholder={t("users.tname")}
                                                 fullWidth
                                                 required
                                                 error={Boolean(touched.name && errors.name)}
                                                 {...getFieldProps("name")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                                <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.consultation_fees")}{" "}
-                                                <Typography component="span" color="error">
-                                                    *
-                                                </Typography>
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <TextField
-                                                type="number"
-                                                variant="outlined"
-                                                placeholder={t("users.consultation_fees")}
-                                                fullWidth
-                                                required
-                                                error={Boolean(touched.consultation_fees && errors.consultation_fees)}
-                                                {...getFieldProps("consultation_fees")}
                                             />
                                         </Grid>
                                     </Grid>
@@ -442,7 +369,7 @@ function ModifyUser() {
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                {values.phones.map((phoneObject, index: number) => (
+                                {values.phones.map((phoneObject: any, index: number) => (
                                     <Box mb={2} key={index}>
                                         <Grid
                                             container
@@ -454,10 +381,7 @@ function ModifyUser() {
                                                     color="text.secondary"
                                                     variant="body2"
                                                     fontWeight={400}>
-                                                    {t("users.phone")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
-                                                    </Typography>
+                                                    {t("users.phone")}
                                                 </Typography>
                                             </Grid>
                                             <Grid item xs={12} md={10}>
@@ -471,7 +395,7 @@ function ModifyUser() {
                                                             }}
                                                         />
                                                     </Grid>
-                                                    <Grid item xs={12} md={8}>
+                                                    <Grid item xs={12} md={7.5}>
                                                         {phoneObject && <PhoneInput
                                                             ref={phoneInputRef}
                                                             international
@@ -485,13 +409,40 @@ function ModifyUser() {
                                                             inputComponent={CustomInput as any}
                                                         />}
                                                     </Grid>
+                                                    <Grid item xs={12} md={.5}>
+                                                        <IconButton
+                                                            sx={{mt: .5}}
+                                                            onClick={() => {
+                                                                const phones = [...values.phones];
+                                                                console.log(phones, index)
+                                                                phones.splice(index, 1)
+                                                                setFieldValue(`phones`, values.phones.length > 0 ? phones : [])
+                                                            }}
+                                                            size="small">
+                                                            <IconUrl path="setting/icdelete"/>
+                                                        </IconButton>
+                                                    </Grid>
                                                 </Grid>
                                             </Grid>
                                         </Grid>
                                     </Box>
                                 ))}
+                                <Box mb={4} ml={5}>
+                                    <Button
+                                        size={"small"}
+                                        onClick={() => {
+                                            setFieldValue(`phones`, [
+                                                ...values.phones,
+                                                {
+                                                    phone: "", dial: doctor_country
+                                                }])
+                                        }}
+                                        startIcon={<AddIcon/>}>
+                                        {t("lieux.new.addNumber")}
+                                    </Button>
+                                </Box>
 
-                                <Box mb={2}>
+                                {user?.profile && <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -529,8 +480,9 @@ function ModifyUser() {
                                             </FormControl>
                                         </Grid>
                                     </Grid>
-                                </Box>
-                                <Box mb={2}>
+                                </Box>}
+
+                                {(!user?.isProfessional || user?.profile) && <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
@@ -550,136 +502,7 @@ function ModifyUser() {
                                             />
                                         </Grid>
                                     </Grid>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                        <Typography marginBottom={2} gutterBottom>
-                            {t("users.roles")}
-                        </Typography>
-                        <Card>
-                            <Box mb={2}>
-                                <Grid
-                                    container
-                                    spacing={{lg: 2, xs: 1}}
-                                    justifyContent="center"
-                                    sx={{
-                                        background: (theme: Theme) => theme.palette.primary.light,
-                                        borderBottom: `1px solid ${(theme: Theme) =>
-                                            theme.palette.divider}`,
-                                    }}
-                                    padding={"16px"}
-                                    alignItems="center">
-                                    <Grid item xs={12} lg={4}>
-                                        <Typography variant="body2" fontWeight={400}>
-                                            {t("users.all")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={12} lg={7}>
-                                        <FormControl size="small" fullWidth>
-                                            <Select
-                                                labelId="demo-simple-select-label"
-                                                id={"role"}
-                                                {...getFieldProps("role")}
-                                                onChange={event => {
-                                                    setFieldValue("role", event.target.value);
-                                                    agendaRoles.map((agenda, index) => {
-                                                        setFieldValue(`agendas[${index}].role`, event.target.value);
-                                                    })
-                                                }}
-                                                renderValue={selected => {
-                                                    if (selected.length === 0) {
-                                                        return <em>{t("users.config.roleAccess")}</em>;
-                                                    }
-                                                    const role = roles?.find(role => role.id === selected);
-                                                    return <Typography>{role?.name}</Typography>
-                                                }}
-                                                displayEmpty
-                                                sx={{color: "text.secondary"}}>
-                                                {roles.map(role =>
-                                                    <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>)}
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-                                </Grid>
-                            </Box>
-                            {values.agendas.map((agenda, index) => (
-                                <Box mb={2} key={index}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        justifyContent="center"
-                                        padding={"0 20px 16px"}
-                                        margin={0}
-                                        sx={{
-                                            borderBottom:
-                                                index !== agendas.length - 1
-                                                    ? `1px solid ${(theme: Theme) =>
-                                                        theme.palette.divider}`
-                                                    : "0",
-                                        }}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={4}>
-                                            <FormControlLabel
-                                                control={<Checkbox/>}
-                                                label={agenda.name}
-
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} lg={7}>
-                                            <FormControl size="small" fullWidth>
-                                                <Select
-                                                    placeholder={"motif.dialog.selectGroupe"}
-                                                    displayEmpty={true}
-                                                    {...getFieldProps(`agendas[${index}].role`)}
-                                                    sx={{color: "text.secondary", padding: 0}}
-                                                    renderValue={selected => {
-                                                        if (selected.length === 0) {
-                                                            return <em>{t("users.config.roleAccess")}</em>;
-                                                        }
-                                                        const role = roles?.find(role => role.id === selected);
-                                                        return <Typography>{role?.name}</Typography>
-                                                    }}>
-                                                    {roles.map(role => <MenuItem key={role.id}
-                                                                                 value={role.id}>{role.name}</MenuItem>)}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                            ))}
-                        </Card>
-                        <Typography marginBottom={2} gutterBottom>
-                            {t("users.send")}
-                        </Typography>
-                        <Card>
-                            <CardContent>
-                                <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="flex-start">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.message")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={9}>
-                                            <TextField
-                                                variant="outlined"
-                                                placeholder={t("users.tmessage")}
-                                                multiline
-                                                rows={4}
-                                                fullWidth
-                                                required
-                                                {...getFieldProps("message")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
+                                </Box>}
                             </CardContent>
                         </Card>
 

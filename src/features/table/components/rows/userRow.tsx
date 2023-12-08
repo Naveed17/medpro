@@ -83,16 +83,14 @@ function UserRow({...props}) {
                 </Select>}
             </TableCell>
             <TableCell align="center">
-                {row ? (
-                    <Switch
-                        name="active"
-                        onChange={(e) => {
-                            setHasDocPermission(e.target.checked);
-                            handleChange("DOC_PERMISSION", row, e)
-                        }}
-                        checked={hasDocPermission}
-                    />
-                ) : (
+                {row ? !row?.isProfessional && <Switch
+                    name="active"
+                    onChange={(e) => {
+                        setHasDocPermission(e.target.checked);
+                        handleChange("DOC_PERMISSION", row, e)
+                    }}
+                    checked={hasDocPermission}
+                /> : (
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>
                 )}
             </TableCell>
@@ -132,7 +130,8 @@ function UserRow({...props}) {
                 )}
             </TableCell>
         </TableRowStyled>
-    );
+    )
+        ;
 }
 
 export default UserRow;

@@ -77,13 +77,7 @@ function LoadingScreen({...props}) {
                             mb: 3,
                         }}>
                         <MedProIcon
-                            color={
-                                (
-                                    theme.palette[
-                                        color as keyof typeof theme.palette
-                                        ] as PaletteColor
-                                ).main
-                            }
+                            color={(theme.palette[(text !== "loading" ? color : "primary") as keyof typeof theme.palette] as PaletteColor).main}
                         />
                     </Box>
 
@@ -112,7 +106,7 @@ function LoadingScreen({...props}) {
                     )}
 
                     {text !== "loading" && (
-                        <Typography variant="h6" mb={2} px={2}  width={'20rem'} color="text.primary">
+                        <Typography variant="h6" mb={2} px={2} width={'20rem'} color="text.primary">
                             {t(`${text}.title`)}
                         </Typography>
                     )}
