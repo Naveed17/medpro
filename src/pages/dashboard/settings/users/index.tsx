@@ -36,6 +36,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {useSendNotification} from "@lib/hooks/rest";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
+import {Redirect} from "@features/redirect";
 
 const CardData = {
     mainIcon: "ic-user",
@@ -211,6 +212,10 @@ function Users() {
                 text={"loading-error"}
             />
         );
+
+    if (roles.includes('ROLE_SECRETARY')) {
+        return <Redirect to='/dashboard/settings'/>
+    }
 
     return (
         <>

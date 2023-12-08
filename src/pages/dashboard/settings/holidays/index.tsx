@@ -6,7 +6,7 @@ import {RootStyled} from "@features/toolbar";
 import {useTranslation} from "next-i18next";
 import {Box, Button, Drawer, Paper} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
-import {onOpenPatientDrawer, Otable} from "@features/table";
+import {Otable} from "@features/table";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -33,7 +33,11 @@ function Holidays() {
 
     let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
 
-    const {data: httpAbsencesResponse,isLoading: isAbsencesLoading, mutate: mutateAbsences} = useRequestQuery(agenda ? {
+    const {
+        data: httpAbsencesResponse,
+        isLoading: isAbsencesLoading,
+        mutate: mutateAbsences
+    } = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/absences`
     } : null, {
