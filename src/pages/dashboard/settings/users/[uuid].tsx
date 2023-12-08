@@ -108,7 +108,7 @@ function ModifyUser() {
         }),
         password: Yup.string(),
         confirmPassword: Yup.string().when('password', (password, field) =>
-            password ? field.required().oneOf([Yup.ref('password')]) : field),
+            password ? field.oneOf([Yup.ref('password')]) : field),
     });
 
     const formik = useFormik({
@@ -159,7 +159,7 @@ function ModifyUser() {
 
             triggerUserUpdate({
                 method: "PUT",
-                url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/edit/user/${uuid}/${router.locale}`,
                 data: form
             }, {
                 onSuccess: () => {
@@ -195,6 +195,8 @@ function ModifyUser() {
             } : {})}
         />;
     }
+
+    console.log(errors);
 
     return (
         <>

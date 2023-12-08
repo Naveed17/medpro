@@ -35,6 +35,7 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useSendNotification} from "@lib/hooks/rest";
 import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 const CardData = {
     mainIcon: "ic-user",
@@ -122,6 +123,8 @@ function Users() {
     const [open, setOpen] = useState(false);
 
     const {jti, id: currentUser} = session?.user as any;
+    const {data: user} = session as Session;
+    const roles = (user as UserDataResponse)?.general_information.roles;
 
     const {trigger: triggerUserUpdate} = useRequestQueryMutation("/users/update");
     const {trigger: triggerUserDelete} = useRequestQueryMutation("/users/delete");

@@ -6,7 +6,7 @@ import {RootStyled} from "@features/toolbar";
 import {useTranslation} from "next-i18next";
 import {Box, Button, Drawer, Paper} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
-import {Otable} from "@features/table";
+import {onOpenPatientDrawer, Otable} from "@features/table";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -16,6 +16,8 @@ import {agendaSelector, openDrawer} from "@features/calendar";
 import {batch} from "react-redux";
 import {AbsenceDrawer, absenceDrawerSelector, resetAbsenceData, setAbsenceData} from "@features/drawer";
 import {LoadingButton} from "@mui/lab";
+import IconUrl from "@themes/urlIcon";
+import {NoDataCard} from "@features/card";
 
 function Holidays() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -31,7 +33,7 @@ function Holidays() {
 
     let page = parseInt((new URL(location.href)).searchParams.get("page") || "1");
 
-    const {data: httpAbsencesResponse, mutate: mutateAbsences} = useRequestQuery(agenda ? {
+    const {data: httpAbsencesResponse,isLoading: isAbsencesLoading, mutate: mutateAbsences} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/absences`
     } : null, {
@@ -86,7 +88,12 @@ function Holidays() {
             case "onEditAbsence":
                 setSelectedAbsence(event);
                 batch(() => {
-                    dispatch(setAbsenceData({title: event.title, mode: "edit", startDate: moment(event.startDate, "DD-MM-YYYY HH:mm").toDate(), endDate: moment(event.endDate, "DD-MM-YYYY HH:mm").toDate()}));
+                    dispatch(setAbsenceData({
+                        title: event.title,
+                        mode: "edit",
+                        startDate: moment(event.startDate, "DD-MM-YYYY HH:mm").toDate(),
+                        endDate: moment(event.endDate, "DD-MM-YYYY HH:mm").toDate()
+                    }));
                     dispatch(openDrawer({type: "absence", open: true}));
                 });
                 break;
@@ -153,16 +160,28 @@ function Holidays() {
         </SubHeader>
 
         <Box className="container">
-            <Otable
-                {...{t}}
-                headers={headCells}
-                rows={absences}
-                from={'holidays'}
-                handleEvent={handleTableActions}
-                total={total}
-                totalPages={totalPages}
-                pagination
-            />
+            {(absences.length > 0 || isAbsencesLoading) ?
+                <Otable
+                    {...{t}}
+                    headers={headCells}
+                    rows={absences}
+                    from={'holidays'}
+                    handleEvent={handleTableActions}
+                    total={total}
+                    totalPages={totalPages}
+                    pagination
+                />
+                :
+                <NoDataCard
+                    sx={{mt: 16}}
+                    ns={"settings"}
+                    {...{t}}
+                    data={{
+                        mainIcon: <IconUrl width={100} height={100} path={"setting/ic-time"}/>,
+                        title: "table.no-data.vacation.sub-title",
+                        description: "table.no-data.vacation.title"
+                    }}/>
+            }
 
             <Drawer
                 anchor={"right"}
