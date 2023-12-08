@@ -67,7 +67,6 @@ function DocumentDetailDialog({...props}) {
             setLoadingRequest = null
         }
     } = props
-console.log(state)
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
