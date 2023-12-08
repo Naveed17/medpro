@@ -33,6 +33,7 @@ function Settings() {
 
     const locations = agendaConfig?.locations;
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
+    const {id: currentUser} = session?.user as any;
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -56,12 +57,16 @@ function Settings() {
                                 }
                                 key={v.name}
                                 {...((roles?.includes('ROLE_SECRETARY') &&
-                                    ['profile', 'acts', 'actfees', 'import-data', 'users'].includes(v.name) || v.disable) && {sx: {display: "none"}})}
+                                    ['profile', 'acts', 'actfees', 'import-data'].includes(v.name) || v.disable) && {sx: {display: "none"}})}
                                 className={router.pathname === v.href ? 'active' : ''}
                                 disablePadding>
                                 <ListItemButton
                                     onClick={() => {
-                                        router.push(`${locations && v?.deep === "location" ? `${v.href.replace('[uuid]', '')}${locations && locations[0]}` : v.href}`);
+                                        if (v.name === "users" && roles?.includes('ROLE_SECRETARY')) {
+                                            router.push(`${v.href}/${currentUser}`);
+                                        } else {
+                                            router.push(`${locations && v?.deep === "location" ? `${v.href.replace('[uuid]', '')}${locations && locations[0]}` : v.href}`);
+                                        }
                                     }}
                                     disabled={v.disable}
                                     disableRipple>

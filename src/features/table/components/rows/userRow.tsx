@@ -58,6 +58,7 @@ function UserRow({...props}) {
                     value={row?.profile?.uuid ?? null}
                     sx={{
                         maxHeight: 35,
+                        width: 160,
                         "& .MuiSelect-select": {
                             background: "white",
                         },
@@ -104,7 +105,7 @@ function UserRow({...props}) {
                             startIcon={<IconUrl path="setting/edit"/>}
                             onClick={() => {
                                 dispatch(editUser(row));
-                                router.push(`${router.pathname}/${row.uuid}`, `${router.pathname}/${row.uuid}`, {locale: router.locale});
+                                router.push(`${router.pathname}/${row.ssoId}`, `${router.pathname}/${row.ssoId}`, {locale: router.locale});
                             }}>
                             {t("table.update")}
                         </Button>}
@@ -130,8 +131,7 @@ function UserRow({...props}) {
                 )}
             </TableCell>
         </TableRowStyled>
-    )
-        ;
+    );
 }
 
 export default UserRow;

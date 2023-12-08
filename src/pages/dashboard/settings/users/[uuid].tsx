@@ -71,11 +71,6 @@ function ModifyUser() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const {uuid} = router.query;
 
-    const {data: httpProfilesResponse, isLoading: isProfilesLoading} = useRequestQuery({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/profile`
-    });
-
     const {data: httpUserResponse, error} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`
@@ -84,7 +79,6 @@ function ModifyUser() {
     const {trigger: triggerUserUpdate} = useRequestQueryMutation("/user/update");
 
     const user = (httpUserResponse as HttpResponse)?.data ?? null;
-    const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as any[];
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -185,7 +179,7 @@ function ModifyUser() {
         setFieldValue,
     } = formik;
 
-    if (!ready || isProfilesLoading || error) {
+    if (!ready || error) {
         return <LoadingScreen
             button
             {...(error ? {
@@ -437,67 +431,6 @@ function ModifyUser() {
                                     </Button>
                                 </Box>
 
-                                {user?.profile && <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.profile")}{" "}
-
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <FormControl size="small" fullWidth
-                                                         error={Boolean(touched.profile && errors.profile)}>
-                                                <Select
-                                                    labelId="demo-simple-select-label"
-                                                    id={"role"}
-                                                    {...getFieldProps("profile")}
-                                                    renderValue={selected => {
-                                                        if (selected.length === 0) {
-                                                            return <em>{t("users.profile")}</em>;
-                                                        }
-                                                        const profile = profiles?.find(profile => profile.uuid === selected);
-                                                        return <Typography>{profile?.name}</Typography>
-                                                    }}
-                                                    displayEmpty
-                                                    sx={{color: "text.secondary"}}>
-                                                    {profiles.map(profile =>
-                                                        <MenuItem key={profile.uuid}
-                                                                  value={profile.uuid}>{profile.name}</MenuItem>)}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid>
-                                </Box>}
-
-                                {(!user?.isProfessional || user?.profile) && <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}></Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={values.admin}
-                                                        onClick={() => {
-                                                            setFieldValue("admin", !values.admin);
-                                                        }}
-                                                    />
-                                                }
-                                                label={t("users.admin")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>}
                             </CardContent>
                         </Card>
 
