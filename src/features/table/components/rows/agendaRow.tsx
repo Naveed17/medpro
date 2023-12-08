@@ -54,7 +54,7 @@ function AgendaRow({...props}) {
                 {row ? (
                     <Switch
                         name="isActive"
-                        onChange={(e) => handleChange(row, "isActive", "")}
+                        onChange={() => handleChange(row, "isActive", "")}
                         checked={row.isActive}
                     />
                 ) : (
@@ -67,7 +67,7 @@ function AgendaRow({...props}) {
                 {row ? (
                     <Switch
                         name="isPublic"
-                        onChange={(e) => handleChange(row, "isPublic", "")}
+                        onChange={() => handleChange(row, "isPublic", "")}
                         checked={row.isPublic}
                     />
                 ) : (
