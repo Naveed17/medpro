@@ -8,8 +8,6 @@ import {Label} from "@features/label";
 import IconUrl from "@themes/urlIcon";
 import {differenceInMinutes} from "date-fns";
 import React, {useEffect, useState} from "react";
-import {useAppSelector} from "@lib/redux/hooks";
-import {sideBarSelector} from "@features/menu";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
 import {useSession} from "next-auth/react";
@@ -27,8 +25,6 @@ function CalendarRowDetail({...props}) {
 
     const {data: session} = useSession();
     const theme = useTheme();
-
-    const {opened: sideBarOpened} = useAppSelector(sideBarSelector);
 
     const [loading, setLoading] = useState<boolean>(false);
 
