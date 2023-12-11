@@ -42,7 +42,7 @@ import moment from "moment-timezone";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
-import {useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {useAntecedentTypes, useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -282,6 +282,7 @@ function PatientDetail({...props}) {
                             appUuid: selectedDialog.appUuid,
                             createdAt: moment().format('DD/MM/YYYY'),
                             description: "",
+                            age: res[0].patient?.birthdate ? getBirthdayFormat({birthdate: res[0].patient.birthdate}, t): "",
                             patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
                         });
                         setOpenDialog(true);

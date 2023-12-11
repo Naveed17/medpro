@@ -226,7 +226,6 @@ function AddPatientStep1({...props}) {
             />
         );
 
-    console.log("birthdate", values.birthdate);
     return (
         <FormikProvider value={formik}>
             <Stack
