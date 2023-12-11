@@ -31,6 +31,7 @@ export * from "./generatePdfFromHtml";
 export * from "./shortEnglishHumanizer";
 export * from "./a11yProps";
 export * from "./useStopwatch";
+export * from "./prepareContextMenu";
 export * from "./highlightedDays";
 export * from "./prescriptionPreviewDosage";
 export * from './rest/useContactType';

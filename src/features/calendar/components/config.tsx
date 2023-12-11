@@ -25,6 +25,7 @@ import {Avatar} from "@mui/material";
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import PauseIcon from "@themes/overrides/icons/pauseIcon";
 import CancelAppointmentPatientIcon from "@themes/overrides/icons/cancelAppointmentPatientIcon";
+import IconUrl from "@themes/urlIcon";
 
 export const IconsTypes: any = {
     "ic-consultation": <EventOutlinedIcon/>,
@@ -214,6 +215,11 @@ export const CalendarContextMenu = [
         title: "start_the_consultation",
         icon: <PlayCircleFilledWhiteOutlinedIcon/>,
         action: "onConsultationDetail",
+    },
+    {
+        title: "consultation_pay",
+        icon: <IconUrl color={"white"} path="ic-fees"/>,
+        action: "onPay",
     },
     {
         title: "pre_consultation_data",
