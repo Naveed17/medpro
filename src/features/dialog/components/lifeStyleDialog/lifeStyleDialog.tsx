@@ -438,7 +438,9 @@ function LifeStyleDialog({...props}) {
                                 });
                             }}
                             startIcon={<AddIcon/>}>
-                        {["way_of_life", "allergic"].includes(action) ? `${t('add')} ${t(action)}` : t("createAnt")}
+                        {`${t('add')} ${allAntecedents.find((ant: {
+                            slug: any;
+                        }) => ant.slug === action).name}`}
                     </Button>
                 }
             </Box>

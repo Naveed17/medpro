@@ -14,7 +14,8 @@ import {
     Tabs,
     tabsClasses,
     Theme,
-    Typography, useMediaQuery,
+    Typography,
+    useMediaQuery,
     useTheme,
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
@@ -44,7 +45,7 @@ import {LoadingButton} from "@mui/lab";
 import {TabPanel} from "@features/tabPanel";
 import moment from "moment-timezone";
 import {agendaSelector} from "@features/calendar";
-import { saveAs } from "file-saver";
+import {saveAs} from "file-saver";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -232,15 +233,17 @@ function Cashbox() {
     */
     const [loading, setLoading] = useState(true);
     const [selectedCashBox, setCashbox] = useState<any>(null);
-    let [selectedTab, setSelectedTab] = useState('transactions');
+    let [selectedTab, setSelectedTab] = useState('consultations');
     const tabsData = [
+         {
+            label: "consultations",
+            value: "consultations"
+        },
         {
             label: "transactions",
             value: "transactions"
-        }, {
-            label: "consultations",
-            value: "consultations"
-        }]
+        }
+        ]
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -483,8 +486,8 @@ function Cashbox() {
                         {rows.length > 0 ? (
                             <Card>
                                 <CardContent>
-                                    <Stack direction='row' alignItems={{xs: 'flex-start', md: 'center'}}
-                                           justifyContent="space-between" mb={2} pb={1} borderBottom={1}
+                                    <Stack direction='row' alignItems={{xs: 'center', md: 'center'}}
+                                           justifyContent="space-between"  mb={2} pb={1} borderBottom={1}
                                            borderColor='divider'>
                                         <Typography fontWeight={700}>
                                             {t("transactions")}

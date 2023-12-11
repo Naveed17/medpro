@@ -9,6 +9,8 @@
     "years": "Years",
     "week": "week(s)",
     "months": "Months",
+    "start": "Start",
+    "end": "End",
     "days": "Days",
     "documents": "Patient Documents",
     "ficheID": "File No.",
