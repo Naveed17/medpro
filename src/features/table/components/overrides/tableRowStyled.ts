@@ -244,7 +244,7 @@ const TableRowStyled = styled(TableRow)<any>(({theme, styleprops,...rest}) => ({
     },
     "&.row-cashbox": {
         ".MuiTableCell-root": {
-            backgroundColor:rest.rest !== undefined ?rest.rest ?"#FDF6D0":"#F4D9E1": "",
+            backgroundColor: rest.rest === 0 ?"#c7ffe1":rest.fees - rest.rest === 0 ?"#FDF6D0":"#F4D9E1",
             "&.MuiTableCell-root": {
                 borderTop: `1px solid ${theme.palette.divider}`,
                 borderBottom: `1px solid ${theme.palette.divider}`,

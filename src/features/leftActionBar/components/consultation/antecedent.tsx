@@ -1,6 +1,5 @@
 import {pxToRem} from "@themes/formatFontSize";
-import {Button, CardContent, IconButton, List, ListItem, ListItemIcon, Stack, Typography} from "@mui/material";
-import CircleIcon from "@mui/icons-material/Circle";
+import {Button, CardContent, IconButton, List, ListItem, Stack, Typography} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import Add from "@mui/icons-material/Add";
 import ContentStyled from "./overrides/contantStyle";
@@ -48,24 +47,40 @@ function Antecedent({...props}) {
                                 note: string;
                                 ascendantOf: string;
                                 response: string | any[];
-                                antecedent:{multiple:boolean};
+                                antecedent: { multiple: boolean };
                             },
                             index: number
                         ) => (
-                            <ListItem key={`list-${index}`}>
-                                <ListItemIcon>
-                                    <CircleIcon/>
-                                </ListItemIcon>
-                                <Typography variant="body2" style={{cursor: 'pointer'}} color="text.secondary">
-                                    {item.name}{" "}
-                                    {item.startDate ? " / " + item.startDate : ""}{" "}
-                                    {item.endDate ? " - " + item.endDate : ""}
-                                    {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}
-{/*
-                                    {item.response ? typeof item.response === "string" ? '(' + item.response + ')' : item.response.length > 0 ? '(' + item.response[0]?.value + ')' : '' : ''}
-*/}
-                                    {item.note && ` ( ${item.note} )`}
-                                </Typography>
+                            <ListItem
+                                style={{border: "1px dashed #DDD", borderRadius: 5, marginTop: 5, paddingLeft: 10}}
+                                key={`list-${index}`}>
+                                <Stack spacing={1}>
+                                    <Typography variant="body2" style={{cursor: 'pointer'}}>
+                                        {item.name}{" "}<span>{item.response ? typeof item.response === "string" ? !item.response.includes("{") && ' | ' + item.response : item.response.length > 0 ? ' | ' + item.response[0]?.value : '' : ''}</span>
+                                        {item.note && <span>{` | ${item.note}`}</span>}
+                                    </Typography>
+                                    {item.ascendantOf && <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                        <Icon path="ic-user2" height={11} width={11}/>
+                                        <Typography fontSize={11}
+                                                    fontWeight={"bold"}>{`${t(item.ascendantOf)}`}</Typography>
+                                    </Stack>}
+                                    {(item.startDate || item.endDate) &&
+                                        <Stack direction={"row"} spacing={2} alignItems={"center"}>
+                                            {item.startDate &&
+                                                <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                                                    <Icon path="ic-agenda" height={11} width={11}/>
+                                                    <Typography fontSize={11}>{t('start')} <span
+                                                        style={{fontWeight: "bold"}}>{item.startDate}</span></Typography>
+                                                </Stack>}
+                                            {item.endDate && <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                                                <Icon path="ic-agenda" height={11} width={11}/>
+                                                <Typography fontSize={11}>{t('end')} <span
+                                                    style={{fontWeight: "bold"}}>{item.endDate}</span></Typography>
+                                            </Stack>}
+                                        </Stack>}
+                                </Stack>
+
+
                                 <IconButton
                                     size="small"
                                     onClick={() => {

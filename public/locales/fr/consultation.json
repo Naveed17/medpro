@@ -9,6 +9,8 @@
     "month": "mois",
     "years": "Ans",
     "week": "semaine(s)",
+    "start": "Début",
+    "end": "Fin",
     "months": "Mois",
     "days": "Jours",
     "documents": "Documents patient",
