@@ -4,14 +4,14 @@ import {useRef} from "react";
 import {Typography} from "@mui/material";
 
 function QuickAddAppointment({...props}) {
-    const {handleAddPatient, t} = props;
+    const {handleAddPatient, t, withoutDateTime = false} = props;
     const bottomRef = useRef(null);
 
     return (
         <QuickAddAppointmentStyled>
             <Typography variant={"body2"}>{t("add-quick-drawer")}</Typography>
             <EventType select defaultType={0}/>
-            <TimeSchedule select/>
+            {!withoutDateTime && <TimeSchedule select/>}
             <Patient
                 select
                 {...{handleAddPatient}}

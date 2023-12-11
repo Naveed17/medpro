@@ -365,8 +365,8 @@
     },
     "manage-consultation-dialog": {
       "title": "Consultation",
-      "sub-title": "Vous devez mettre fin ou mettre en pause la consultation actuelle.",
-      "description": "",
+      "sub-title": "Êtes-vous sûr de vouloir terminer ou mettre en pause la consultation en cours ?",
+      "description": "Vous devez mettre fin, ou mettre en pause la consultation actuelle.",
       "cancel": "Annuler",
       "finish": "Terminer",
       "pause": "Mettre en Pause"

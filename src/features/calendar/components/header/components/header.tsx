@@ -38,7 +38,8 @@ function Header({...props}) {
         handleCloseMenu();
         switch (action) {
             case "onDisplayWorkDays":
-                setHiddenDays([...hiddenDays, moment(currentDate.date).isoWeekday()])
+                const weekDay = moment(currentDate.date).isoWeekday();
+                setHiddenDays([...hiddenDays, weekDay === 7 ? 0 : weekDay])
                 break;
             case "onAddBlockedDay":
                 OnAddAbsence();

@@ -41,7 +41,7 @@ import {
 import {
     appointmentSelector,
     EventType,
-    Instruction,
+    Instruction, onResetPatient,
     Patient, resetAppointment, resetSubmitAppointment,
     setAppointmentDate, setAppointmentPatient,
     setAppointmentRecurringDates, setAppointmentSubmit,
@@ -53,7 +53,7 @@ import {
 } from "@features/dialog";
 import {AppointmentListMobile, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {AgendaFilter, leftActionBarSelector, cashBoxSelector} from "@features/leftActionBar";
+import {AgendaFilter, leftActionBarSelector, cashBoxSelector, resetFilterPatient} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -83,6 +83,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {setDialog} from "@features/topNavBar";
 import {resetAbsenceData, setAbsenceData, AbsenceDrawer, absenceDrawerSelector} from "@features/drawer";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 
 const actions = [
     {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
@@ -1100,6 +1101,10 @@ function Agenda() {
             }
         );
     }
+
+    useLeavePageConfirm(() => {
+        dispatch(resetFilterPatient());
+    });
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 

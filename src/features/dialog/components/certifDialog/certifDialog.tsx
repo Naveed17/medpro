@@ -357,7 +357,7 @@ function CertifDialog({...props}) {
             onSuccess: (result) => {
                 const res = result.data.data
                 const _acts: string[] = [];
-                res.acts.map((act: { name: string; }) => _acts.push(act.name))
+                res.acts?.map((act: { name: string; }) => _acts.push(act.name))
                 setActs(_acts)
             }
         })

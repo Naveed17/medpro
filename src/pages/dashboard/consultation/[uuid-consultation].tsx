@@ -1784,7 +1784,7 @@ function ConsultationInProgress() {
                                 <Button
                                     variant="contained"
                                     onClick={handleSaveCertif}
-                                    disabled={info.includes("medical_prescription") && state.length === 0}
+                                    disabled={info.includes("medical_prescription") && state?.length === 0}
                                     startIcon={<SaveRoundedIcon/>}>
                                     {t("consultationIP.save")}
                                 </Button>
@@ -1823,17 +1823,17 @@ function ConsultationInProgress() {
                                             color={"info"}
                                             variant="outlined"
                                             onClick={() => handleSaveDialog(false)}
-                                            disabled={info.includes("medical_prescription") && state.length === 0}
+                                            disabled={info.includes("medical_prescription") && state?.length === 0}
                                             startIcon={
                                                 <IconUrl
-                                                    {...(info.includes("medical_prescription") && state.length === 0 && {color: "white"})}
+                                                    {...(info.includes("medical_prescription") && state?.length === 0 && {color: "white"})}
                                                     path={"iconfinder_save"}/>}>
                                             {t("consultationIP.save")}
                                         </Button>
                                         {info !== "add_a_document" && <Button
                                             variant="contained"
                                             onClick={() => handleSaveDialog()}
-                                            disabled={info.includes("medical_prescription") && state.length === 0}
+                                            disabled={info.includes("medical_prescription") && state?.length === 0}
                                             startIcon={<IconUrl path={"ic-imprime"}/>}>
                                             {t("consultationIP.save_print")}
                                         </Button>}
