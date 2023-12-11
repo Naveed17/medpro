@@ -48,7 +48,10 @@
     "to": "à",
     "day": "Jour",
     "added": "RDV ajouté",
-    "description": ""
+    "description": "",
+    "stepper-1": {
+      "slots-unavailable": "Journée bloquée ou pas de plage horaire disponible"
+    }
   },
   "config": {
     "reason_for_consultation": "Motif",

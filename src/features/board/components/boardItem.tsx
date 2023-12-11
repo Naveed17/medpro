@@ -24,32 +24,32 @@ import {AppointmentStatus} from "@features/calendar";
 const imageSize: number = 40;
 
 const Container = styled.a`
-  border-radius: 1px;
-  text-decoration: auto;
-  border: 2px solid transparent;
-  box-sizing: border-box;
-  padding: 1px;
-  min-height: ${imageSize}px;
-  margin-bottom: 1px;
-  user-select: none;
+    border-radius: 1px;
+    text-decoration: auto;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+    padding: 1px;
+    min-height: ${imageSize}px;
+    margin-bottom: 1px;
+    user-select: none;
 
-  /* anchor overrides */
+    /* anchor overrides */
 
 
-  &:hover,
-  &:active {
+    &:hover,
+    &:active {
 
-    text-decoration: none;
-  }
+        text-decoration: none;
+    }
 
-  &:focus {
-    outline: none;
+    &:focus {
+        outline: none;
 
-    box-shadow: none;
-  }
+        box-shadow: none;
+    }
 
-  /* flexbox */
-  display: flex;
+    /* flexbox */
+    display: flex;
 `;
 
 function getStyle(provided: DraggableProvided, style: Object | null) {
@@ -132,7 +132,7 @@ function BoardItem({...props}) {
                                         minHeight: '.5rem',
                                         marginRight: '4px'
                                     }} variant={"contained"}
-                                    size={"small"}> AR-{index + 1}</Button> : !isDragging && AppointmentStatus[quote.content.status].icon}
+                                    size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button> : !isDragging && AppointmentStatus[quote.content.status].icon}
                                 <Typography
                                     className={"ellipsis"}
                                     sx={{
@@ -185,23 +185,26 @@ function BoardItem({...props}) {
                     </Stack>
                 </CardContent>
                 <CardActions sx={{width: "100%", pt: 0}}>
-                    <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
-                        <Stack direction={"row"} spacing={.5} alignItems={"center"}>
-                            <AccessTimeIcon
-                                {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: "expire" as any})}
-                                sx={{width: 16, height: 16}}/>
-                            <Typography
-                                variant="body2"
-                                fontWeight={700}
-                                fontSize={14}
-                                color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
-                                {quote.content.status === 4 && time ?
-                                    moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
-                                    quote.content.status !== 3 ?
-                                        quote.content.startTime :
-                                        getDiffDuration(`${quote.content.dayDate} ${quote.content.startTime}`)}
-                            </Typography>
-                        </Stack>
+                    <Stack direction={"row"}
+                           justifyContent={quote.content.startTime === "00:00" ? "flex-end" : "space-between"}
+                           sx={{width: "100%"}}>
+                        {quote.content.startTime !== "00:00" &&
+                            <Stack direction={"row"} spacing={.5} alignItems={"center"}>
+                                <AccessTimeIcon
+                                    {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: "expire" as any})}
+                                    sx={{width: 16, height: 16}}/>
+                                <Typography
+                                    variant="body2"
+                                    fontWeight={700}
+                                    fontSize={14}
+                                    color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
+                                    {quote.content.status === 4 && time ?
+                                        moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
+                                        quote.content.status !== 3 ?
+                                            quote.content.startTime :
+                                            getDiffDuration(`${quote.content.dayDate} ${quote.content.startTime}`)}
+                                </Typography>
+                            </Stack>}
 
                         {!quote.content.patient?.isArchived && <Stack direction={"row"} spacing={1}>
                             {quote.content.status === 1 && <>

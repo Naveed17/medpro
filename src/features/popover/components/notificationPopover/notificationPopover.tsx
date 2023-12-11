@@ -43,7 +43,7 @@ function a11yProps(index: number) {
 }
 
 function NotificationPopover({...props}) {
-    const {onClose} = props;
+    const {onClose, setOpenPaymentDialog} = props;
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
@@ -96,11 +96,11 @@ function NotificationPopover({...props}) {
             title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
             icon: <EventIcon/>,
             buttons: [
-                /*{
+                {
                     text: t("dialogs.finish-dialog.pay"),
                     color: "primary",
                     action: "onPay"
-                },*/
+                },
                 {
                     text: t("dialogs.finish-dialog.reschedule"),
                     color: "primary",
@@ -206,6 +206,10 @@ function NotificationPopover({...props}) {
                 break;
             case "onConfirm":
                 onConfirmAppointment(eventUpdated);
+                break;
+            case "onPay":
+                dispatch(setSelectedEvent(eventUpdated));
+                setOpenPaymentDialog(true);
                 break;
             case "onReschedule":
                 const localStorageNotifications = localStorage.getItem("notifications");
