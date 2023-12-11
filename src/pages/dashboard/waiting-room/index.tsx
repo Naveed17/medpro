@@ -50,15 +50,22 @@ import {CustomIconButton} from "@features/buttons";
 import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
-import {appointmentSelector, setAppointmentSubmit, TabPanel} from "@features/tabPanel";
+import {
+    appointmentSelector,
+    onResetPatient,
+    resetAppointment,
+    setAppointmentSubmit,
+    TabPanel
+} from "@features/tabPanel";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
-import {leftActionBarSelector} from "@features/leftActionBar";
+import {leftActionBarSelector, resetFilterPatient, resetOcrData} from "@features/leftActionBar";
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -208,10 +215,10 @@ function WaitingRoom() {
     const handleAddAppointment = () => {
         setLoadingRequest(true);
         const params = new FormData();
-        params.append('dates', JSON.stringify(recurringDates.map(recurringDate => ({
-            "start_date": recurringDate.date,
-            "start_time": recurringDate.time
-        }))));
+        params.append('dates', JSON.stringify([{
+            "start_date": moment().format("DD-MM-YYYY"),
+            "start_time": "00:00"
+        }]));
         motif && params.append('consultation_reasons', motif.toString());
         params.append('title', `${patient?.firstName} ${patient?.lastName}`);
         params.append('patient_uuid', patient?.uuid as string);
@@ -399,8 +406,8 @@ function WaitingRoom() {
             id: '1',
             name: 'today-rdv',
             url: '#',
-            icon: <CalendarIcon sx={{width: 24, height: 24}}/>,
-            action: <CustomIconButton
+            icon: <CalendarIcon sx={{width: 24, height: 24}}/>
+            /*action: <CustomIconButton
                 sx={{mr: 1}}
                 onClick={() => {
                     setQuickAddAppointment(true);
@@ -410,7 +417,7 @@ function WaitingRoom() {
                 color={"primary"}
                 size={"small"}>
                 <AddIcon fontSize={"small"} htmlColor={"white"}/>
-            </CustomIconButton>
+            </CustomIconButton>*/
         },
         {
             id: '3',
@@ -457,6 +464,11 @@ function WaitingRoom() {
             dispatch(toggleSideBar(false));
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useLeavePageConfirm(() => {
+        dispatch(resetFilterPatient());
+    });
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -772,6 +784,7 @@ function WaitingRoom() {
                 }}>
                 <QuickAddAppointment
                     {...{t}}
+                    withoutDateTime
                     handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
                 <Paper
                     sx={{
@@ -799,7 +812,7 @@ function WaitingRoom() {
                             event.stopPropagation();
                             handleAddAppointment();
                         }}
-                        disabled={recurringDates.length === 0 || type === "" || !patient}>
+                        disabled={type === "" || !patient}>
                         {t("save", {ns: "common"})}
                     </LoadingButton>
                 </Paper>

@@ -525,6 +525,10 @@
       "analyse": {
         "title": "Aucun favorite",
         "description": "Ajouter des bilans"
+      },
+      "prescription": {
+        "title": "Aucun médicament sélectionné",
+        "description": "Sélectionner le médicament et rédiger la prescription"
       }
     }
   },

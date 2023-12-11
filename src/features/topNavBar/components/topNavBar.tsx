@@ -329,7 +329,7 @@ function TopNavBar({...props}) {
         [key: string]: EmotionJSX.Element
     } = {
         "appointment-stats": <AppointmentStatsPopover/>,
-        notification: <NotificationPopover onClose={() => setAnchorEl(null)}/>,
+        notification: <NotificationPopover {...{setOpenPaymentDialog}} onClose={() => setAnchorEl(null)}/>,
         paused: <PausedConsultationPopover
             {...{
                 pausedConsultation,
@@ -600,7 +600,8 @@ function TopNavBar({...props}) {
                         open={switchConsultationDialog}
                         title={commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.title`)}
                         actionDialog={
-                            <Stack direction={"row"} justifyContent={"space-between"} sx={{width: "100%"}}>
+                            <Stack direction={isMobile ? "column" : "row"} justifyContent={"space-between"}
+                                   sx={{width: "100%"}}>
                                 <Button
                                     variant="text-primary"
                                     onClick={() => dispatch(setDialog({
@@ -610,7 +611,7 @@ function TopNavBar({...props}) {
                                     startIcon={<CloseIcon/>}>
                                     {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.cancel`)}
                                 </Button>
-                                <Stack direction={"row"} spacing={2}>
+                                <Stack direction={isMobile ? "column" : "row"}  spacing={2}>
                                     <LoadingButton
                                         loading={loadingReq}
                                         loadingPosition="start"

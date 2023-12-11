@@ -102,7 +102,7 @@ function AddDocumentDialog({...props}) {
                     <Grid container spacing={1} mt={2} margin={"auto"}>
                         {loading
                             ? Array.from(new Array(6)).map((val, idx) => (
-                                <Grid key={"loading-card-" + idx} item xs={6} md={6}>
+                                <Grid key={"loading-card-" + idx} item xs={6} sm={4} md={2}>
                                     <DocumentButton
                                         selected={""}
                                         height={100}
@@ -138,7 +138,6 @@ function AddDocumentDialog({...props}) {
                     </Grid>
                 </Grid>
                 <Grid item xs={12} md={12}>
-
                     {files.length === 0 && <Stack width={{xs: "100%", md: "80%"}}
                                                   margin={"auto"}
                                                   mt={6}
