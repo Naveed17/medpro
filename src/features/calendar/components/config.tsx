@@ -141,6 +141,12 @@ export const TableHead = [
         sortable: true,
     },
     {
+        id: "patient",
+        label: "header.patient",
+        align: "center",
+        sortable: true,
+    },
+    {
         id: "motif",
         label: "header.motif",
         align: "left",
@@ -155,12 +161,6 @@ export const TableHead = [
     {
         id: "status",
         label: "header.status",
-        align: "center",
-        sortable: true,
-    },
-    {
-        id: "patient",
-        label: "header.patient",
         align: "center",
         sortable: true,
     },

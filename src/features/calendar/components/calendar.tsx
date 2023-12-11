@@ -171,7 +171,8 @@ function Calendar({...props}) {
         }
     }
 
-    const handleTableEvent = (action: string, eventData: EventModal) => {
+    const handleTableEvent = (action: string, eventData: EventModal, event?: any) => {
+        console.log("eventData", action, eventData.id);
         switch (action) {
             case "showEvent":
                 handleOnSelectEvent(eventData);
@@ -190,6 +191,10 @@ function Calendar({...props}) {
                 break;
             case "moveEvent":
                 OnMoveEvent(eventData);
+                break;
+            case "OPEN-POPOVER":
+                setEventMenu(eventData.id);
+                handleContextMenu(event);
                 break;
         }
     };
@@ -290,6 +295,9 @@ function Calendar({...props}) {
         setEventGroupByDay(sortedData);
     }, [sortedData]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    console.log(eventGroupByDay.reduce((eventsData: EventCalendarModel[], data) =>
+        [...(eventsData ?? []), ...data?.events], []).find(event =>
+        event.id === eventMenu))
     return (
         <Box bgcolor="common.white">
             {isMobile && <ClickAwayListener onClickAway={() => {
@@ -310,8 +318,8 @@ function Calendar({...props}) {
                                 maxHeight={`calc(100vh - 180px)`}
                                 headers={TableHead}
                                 rows={eventGroupByDay}
-                                handleEvent={(action: string, eventData: EventModal) =>
-                                    handleTableEvent(action, eventData)
+                                handleEvent={(action: string, eventData: EventModal, event: any) =>
+                                    handleTableEvent(action, eventData, event)
                                 }
                                 from={"calendar"}
                                 t={translation}
@@ -539,7 +547,11 @@ function Calendar({...props}) {
                                     vertical: 'top',
                                     horizontal: 'left',
                                 }}>
-                                {CalendarContextMenu.filter(data => !prepareContextMenu(data.action, events.find(event => event.id === eventMenu) as EventModal, roles)).map((v: any) => (
+                                {CalendarContextMenu.filter(data =>
+                                    !prepareContextMenu(data.action,
+                                        (view === "listWeek" ? eventGroupByDay.reduce((eventsData: EventCalendarModel[], data) =>
+                                            [...(eventsData ?? []), ...data?.events], []) : events).find(event =>
+                                            event.id === eventMenu) as EventModal, roles)).map((v: any) => (
                                         <IconButton
                                             key={uniqueId()}
                                             onClick={() => {
