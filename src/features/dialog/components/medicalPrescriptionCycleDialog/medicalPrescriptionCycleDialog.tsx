@@ -57,7 +57,13 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
-import {a11yProps, prescriptionPreviewDosage, useLastPrescription, useMedicalProfessionalSuffix,} from "@lib/hooks";
+import {
+    a11yProps,
+    getBirthdayFormat,
+    prescriptionPreviewDosage,
+    useLastPrescription,
+    useMedicalProfessionalSuffix,
+} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
@@ -503,6 +509,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 type: 'prescription',
                 createdAt: moment().format('DD/MM/YYYY'),
                 patient: `${patient.firstName} ${patient.lastName}`,
+                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t): "",
                 info: drugs,
             },
             uuid: "",

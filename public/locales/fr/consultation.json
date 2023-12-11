@@ -129,6 +129,7 @@
   "yes": "Oui",
   "wait": "quelques instants...",
   "quote": "Devis",
+  "noData": "Aucune données...",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
@@ -140,6 +141,9 @@
     "patient_history": "Historique",
     "title": "Titre",
     "lens": "Lens",
+    "reduce": "Réduire",
+    "zoom": "Zoom",
+    "history": "Historique",
     "saveAsModel": "Enregistrer comme modèle",
     "receiver": "Recipient",
     "subject": "Sujet",

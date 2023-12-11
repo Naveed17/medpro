@@ -48,6 +48,7 @@ import {agendaSelector} from "@features/calendar";
 import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import CertifDialogStyled from "@features/dialog/components/certifDialog/certifDialogStyle";
 
 function CertifDialog({...props}) {
     const {data, fullScreen} = props
@@ -95,7 +96,7 @@ function CertifDialog({...props}) {
     const [antecedents, setAntecedents] = useState<string[]>([]);
     const [motifs, setMotifs] = useState<string[]>([]);
     const [acts, setActs] = useState<string[]>([]);
-    const hasAntecedents = Object.keys(data.patient.antecedents).reduce((total,key)=>total+data.patient.antecedents[key],0) > 0
+    const hasAntecedents = Object.keys(data.patient.antecedents).reduce((total, key) => total + data.patient.antecedents[key], 0) > 0
     const hasMotif = data.sheetExam.appointment_data.consultation_reason.length > 0
     const contentBtns = [
         {name: '{patient}', title: 'patient', show: true},
@@ -295,20 +296,23 @@ function CertifDialog({...props}) {
     const showTrakingData = () => {
         medicalEntityHasUser && !expanded && traking.length === 0 && triggerGetData({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${data.appuuid}/consultation-sheet/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${data.appuuid}/consultation-data/${router.locale}`
         }, {
             onSuccess: (result) => {
-                const data = result.data.data.modal.data
+                const data = result.data.data
                 if (data) {
-                    let res: { key: string, value: string }[] = [];
+                    let res: { key: string, value: string,description:string }[] = [];
                     Object.keys(data).filter(key => data[key] !== "").forEach(key => {
-                        res.push({key, value: data[key]})
+                        res.push({key:data[key].label, value: (Object.values(data[key].data)[0] as string), description:data[key].description})
                     })
                     setTraking(res)
                 }
             }
         })
         setExpanded(!expanded)
+        setExpandedAntecedent(false)
+        setExpandedActs(false)
+        setExpandedMotif(false)
     }
 
     const showAntecedentData = () => {
@@ -318,7 +322,7 @@ function CertifDialog({...props}) {
         }, {
             onSuccess: (result) => {
                 const res = result.data.data
-                let ant:string[] = [];
+                let ant: string[] = [];
                 Object.keys(res).forEach(key => {
                     res[key].map((asc: { name: string; }) => ant.push(asc.name))
                 })
@@ -326,17 +330,23 @@ function CertifDialog({...props}) {
             }
         })
         setExpandedAntecedent(!expandedAntecedent)
+        setExpanded(false)
+        setExpandedActs(false)
+        setExpandedMotif(false)
     }
 
-    const showMotifData = () =>{
-        let _motifs:string[] = [];
-         if( !expandedMotif && motifs.length === 0) {
-             data.sheetExam.appointment_data.consultation_reason.map((cr: { name: string; }) => {
-                 _motifs.push(cr.name)
-             })
-             setMotifs(_motifs);
-         }
+    const showMotifData = () => {
+        let _motifs: string[] = [];
+        if (!expandedMotif && motifs.length === 0) {
+            data.sheetExam.appointment_data.consultation_reason.map((cr: { name: string; }) => {
+                _motifs.push(cr.name)
+            })
+            setMotifs(_motifs);
+        }
         setExpandedMotif(!expandedMotif)
+        setExpanded(false)
+        setExpandedActs(false)
+        setExpandedAntecedent(false)
     }
 
     const showActsData = () => {
@@ -346,12 +356,15 @@ function CertifDialog({...props}) {
         }, {
             onSuccess: (result) => {
                 const res = result.data.data
-                const _acts:string[] = [];
+                const _acts: string[] = [];
                 res.acts.map((act: { name: string; }) => _acts.push(act.name))
                 setActs(_acts)
             }
         })
         setExpandedActs(!expandedActs)
+        setExpanded(false)
+        setExpandedMotif(false)
+        setExpandedAntecedent(false)
     }
 
     const ParentModels = (httpParentModelResponse as HttpResponse)?.data ?? [];
@@ -411,7 +424,7 @@ function CertifDialog({...props}) {
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
-        <>
+        <CertifDialogStyled>
             <Grid container sx={{height: "100%"}}>
                 <Grid item xs={12} md={9}>
                     <List sx={{
@@ -467,40 +480,52 @@ function CertifDialog({...props}) {
                                 </Stack>
                             </Stack>
 
+                            <Typography style={{color: "gray"}} fontSize={12} mt={1}
+                                        mb={1}>{t('consultationIP.contenu')}</Typography>
+
                             <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} mt={1}>
-                                <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                                    <Typography style={{color: "gray"}} fontSize={12} mt={1}
-                                                mb={1}>{t('consultationIP.contenu')}</Typography>
+                                <Stack direction={"row"} alignItems={"center"} spacing={1} style={{flexWrap: "wrap"}}>
                                     {contentBtns.filter(cb => cb.show).map(cb => (
                                         <Tooltip key={cb.name} title={t(`consultationIP.${cb.title}_placeholder`)}>
-                                            <Button onClick={() => {
-                                                addVal(cb.name)
-                                            }} size={"small"}> <AddIcon/> {t(`consultationIP.${cb.title}`)}</Button>
+                                            <Button color={"info"}
+                                                    variant="outlined"
+                                                    onClick={() => {
+                                                        addVal(cb.name)
+                                                    }} size={"small"}> <AddIcon/> {t(`consultationIP.${cb.title}`)}
+                                            </Button>
                                         </Tooltip>))}
-                                    <Button onClick={() => showTrakingData()}
+                                    <Button color={expanded ? "primary" : "info"}
+                                            variant="outlined"
+                                            onClick={() => showTrakingData()}
                                             size={"small"}>
                                         {t(`consultationIP.tracking_data`)}
                                         {expanded ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
                                     </Button>
 
-                                    {hasAntecedents && <Button onClick={() => showAntecedentData()}
-                                             size={"small"}>
+                                    {hasAntecedents && <Button color={expandedAntecedent ? "primary" : "info"}
+                                                               variant="outlined"
+                                                               onClick={() => showAntecedentData()}
+                                                               size={"small"}>
                                         {t(`consultationIP.antecedent`)}
-                                        {expandedAntecedent ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
+                                        {expandedAntecedent ? <KeyboardArrowUpRoundedIcon/> :
+                                            <KeyboardArrowDownRoundedIcon/>}
                                     </Button>}
 
-                                    {hasMotif && <Button onClick={() => showMotifData()} size={"small"}>
+                                    {hasMotif && <Button color={expandedMotif ? "primary" : "info"}
+                                                         variant="outlined"
+                                                         onClick={() => showMotifData()} size={"small"}>
                                         {t(`consultationIP.consultation_reason`)}
                                         {expandedMotif ? <KeyboardArrowUpRoundedIcon/> :
                                             <KeyboardArrowDownRoundedIcon/>}
                                     </Button>}
 
-                                    <Button onClick={() => showActsData()} size={"small"}>
+                                    <Button color={expandedActs ? "primary" : "info"}
+                                            variant="outlined"
+                                            onClick={() => showActsData()} size={"small"}>
                                         {t(`consultationIP.acts`)}
                                         {expandedActs ? <KeyboardArrowUpRoundedIcon/> :
                                             <KeyboardArrowDownRoundedIcon/>}
                                     </Button>
-
                                 </Stack>
                                 <RecButton
                                     small
@@ -509,44 +534,66 @@ function CertifDialog({...props}) {
                                     }}/>
                             </Stack>
                             <Collapse in={expanded} timeout="auto" unmountOnExit>
-                                {traking.map(item => (
-                                    <Button onClick={() => {
-                                        addVal(item.value.toString())
-                                    }}
-                                            key={item.key}
-                                            size={"small"}> <AddIcon/> {item.key} ({item.value})
-                                    </Button>
-                                ))}
+                                <div className={'suggestion'}>
+                                    {traking.map(item => (
+                                        <Button color={"info"}
+                                                variant="outlined"
+                                                onClick={() => {
+                                                    addVal(`${item.key}: ${item.value.toString()} ${item.description}`)
+                                                }}
+                                                style={{width: "fit-content", margin: 2}}
+                                                key={item.key}
+                                                size={"small"}> <AddIcon/> {item.key} ({item.value} {item.description})
+                                        </Button>
+                                    ))}
+                                    {traking.length === 0 && <Typography className={'empty'}>{t('noData')}</Typography>}
+                                </div>
                             </Collapse>
                             <Collapse in={expandedAntecedent} timeout="auto" unmountOnExit>
-                                {antecedents.map((item,index) => (
-                                    <Button onClick={() => {
-                                        addVal(item.toString())
-                                    }}
-                                            key={`antecedent${index}`}
-                                            size={"small"}> <AddIcon/> {item}
-                                    </Button>
-                                ))}
+                                <div className={'suggestion'}>
+                                    {antecedents.map((item, index) => (
+                                        <Button style={{width: "fit-content", margin: 2}}
+                                                onClick={() => {
+                                                    addVal(item.toString())
+                                                }}
+                                                color={"info"}
+                                                variant="outlined"
+                                                key={`antecedent${index}`}
+                                                size={"small"}> <AddIcon/> {item}
+                                        </Button>
+                                    ))}
+                                    {antecedents.length === 0 && <Typography className={'empty'}>{t('noData')}</Typography>}
+                                </div>
                             </Collapse>
                             <Collapse in={expandedMotif} timeout="auto" unmountOnExit>
-                                {motifs.map((item,index) => (
-                                    <Button onClick={() => {
-                                        addVal(item.toString())
-                                    }}
-                                            key={`motif${index}`}
-                                            size={"small"}> <AddIcon/> {item}
-                                    </Button>
-                                ))}
+                                <div className={'suggestion'}>
+                                    {motifs.map((item, index) => (
+                                        <Button color={"info"}
+                                                variant="outlined"
+                                                style={{width: "fit-content", margin: 2}} onClick={() => {
+                                            addVal(item.toString())
+                                        }}
+                                                key={`motif${index}`}
+                                                size={"small"}> <AddIcon/> {item}
+                                        </Button>
+                                    ))}
+                                    {motifs.length === 0 && <Typography className={'empty'}>{t('noData')}</Typography>}
+                                </div>
                             </Collapse>
                             <Collapse in={expandedActs} timeout="auto" unmountOnExit>
-                                {acts.map((item,index) => (
-                                    <Button onClick={() => {
-                                        addVal(item.toString())
-                                    }}
-                                            key={`motif${index}`}
-                                            size={"small"}> <AddIcon/> {item}
-                                    </Button>
-                                ))}
+                                <div className={'suggestion'}>
+                                    {acts.map((item, index) => (
+                                        <Button color={"info"}
+                                                variant="outlined"
+                                                style={{width: "fit-content", margin: 2}} onClick={() => {
+                                            addVal(item.toString())
+                                        }}
+                                                key={`motif${index}`}
+                                                size={"small"}> <AddIcon/> {item}
+                                        </Button>
+                                    ))}
+                                    {acts.length === 0 && <Typography className={'empty'}>{t('noData')}</Typography>}
+                                </div>
                             </Collapse>
                             <div style={{height, paddingBottom: "1rem"}}>
                                 <Editor
@@ -658,7 +705,6 @@ function CertifDialog({...props}) {
                     </Button>
                 </Grid>
             </Grid>
-
 
 
             <MuiDialog
@@ -787,7 +833,7 @@ function CertifDialog({...props}) {
                         </LoadingButton>
                     </Stack>
                 )}/>
-        </>
+        </CertifDialogStyled>
     )
 }
 

@@ -151,7 +151,7 @@ const Content = ({...props}) => {
                 method: "POST",
                 url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
                     slug: any;
-                }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
+                }) => ant.slug === infoDynamic).uuid}/fr`,
                 data: form
             }, {
                 onSuccess: () => {

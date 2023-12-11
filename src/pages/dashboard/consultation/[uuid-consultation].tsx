@@ -25,7 +25,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ConsultationDetailCard, PendingDocumentCard, resetTimer, timerSelector} from "@features/card";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
-import {useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {getBirthdayFormat, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {tabs} from "@features/toolbar/components/appToolbar/config";
 import {alpha, Theme} from "@mui/material/styles";
@@ -151,6 +151,7 @@ function ConsultationInProgress() {
     const medical_professional_uuid = medicalProfessionalData && medicalProfessionalData.medical_professional.uuid;
     const app_uuid = router.query["uuid-consultation"];
     const general_information = (user as UserDataResponse).general_information;
+    const cardPositions = localStorage.getItem('cardPositions') !== null ? JSON.parse((localStorage.getItem('cardPositions') as string)) : null
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/status/update");
@@ -234,9 +235,20 @@ function ConsultationInProgress() {
     const [showDocument, setShowDocument] = useState(false);
     const [nbDoc, setNbDoc] = useState(0);
     const [cards, setCards] = useState([[
-        {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
+        {
+            id: 'item-1',
+            content: 'widget',
+            expanded: cardPositions ? cardPositions.widget : false,
+            config: false,
+            icon: "ic-edit-file-pen"
+        },
         {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
-    ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]]);
+    ], [{
+        id: 'item-3',
+        content: 'exam',
+        expanded: cardPositions ? cardPositions.exam : true,
+        icon: "ic-edit-file-pen"
+    }]]);
     const [mobileCards, setMobileCards] = useState([[
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-3', content: 'exam', expanded: false, icon: "ic-edit-file-pen"}
@@ -325,11 +337,10 @@ function ConsultationInProgress() {
             })
         );
 
-        let _cards = [...cards];
+        let _cards: any[] = [...cards];
         _cards[ind][index].expanded = true;
         _cards[ind][index].config = false;
         setCards([..._cards])
-
     };
 
     const showDoc = (card: any) => {
@@ -349,6 +360,7 @@ function ConsultationInProgress() {
                 birthdate: patient?.birthdate,
                 cin: patient?.idCard,
                 tel: patient?.contact && patient?.contact.length > 0 ? patient?.contact[0] : "",
+                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                 days: card.days,
                 description: card.description,
                 title: card.title,
@@ -386,6 +398,7 @@ function ConsultationInProgress() {
                 description: card.description,
                 info: info,
                 detectedType: card.type,
+                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                 uuidDoc: uuidDoc,
                 patient: `${type} ${
                     patient?.firstName
@@ -694,6 +707,7 @@ function ConsultationInProgress() {
                     doctor: '',
                     patient: state.patient,
                     birthdate: state.birthdate,
+                    age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                     cin: '',
                     createdAt: moment().format('DD/MM/YYYY'),
                     description: "",
@@ -717,6 +731,7 @@ function ConsultationInProgress() {
             info,
             createdAt: moment().format("DD/MM/YYYY"),
             patient: ` ${patient?.firstName} ${patient?.lastName}`,
+            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
         });
         setOpenDialog(true);
     }
@@ -774,6 +789,7 @@ function ConsultationInProgress() {
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
                                 patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                 print: true
                             });
                             setOpenDialog(true);
@@ -821,6 +837,7 @@ function ConsultationInProgress() {
                                 description: "",
                                 info: res[0].analyses,
                                 patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
+                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                 print: true
                             });
                             setOpenDialog(true);
@@ -862,6 +879,7 @@ function ConsultationInProgress() {
                                 type: "requested-medical-imaging",
                                 info: res[0]["medical-imaging"],
                                 createdAt: moment().format('DD/MM/YYYY'),
+                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                 description: "",
                                 patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`,
                                 print: true,
@@ -926,6 +944,7 @@ function ConsultationInProgress() {
                                 doctor: state.name,
                                 patient: state.patient,
                                 birthdate: patient?.birthdate,
+                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                 cin: patient?.idCard,
                                 createdAt: moment().format('DD/MM/YYYY'),
                                 description: "",
@@ -1144,10 +1163,25 @@ function ConsultationInProgress() {
             setNbDoc(nb);
             setChanges([...changes])
             localStorage.setItem(`Modeldata${app_uuid}`, JSON.stringify(sheetModal.data))
+
+            if (!cardPositions)
+                localStorage.setItem(`cardPositions`, JSON.stringify({widget: false, exam: true, history: false}))
+
             if (hasDataHistory === false) {
                 setCards([[
-                    {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"}
-                ], [{id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}]])
+                    {
+                        id: 'item-1',
+                        content: 'widget',
+                        expanded: cardPositions ? cardPositions.widget : false,
+                        config: false,
+                        icon: "ic-edit-file-pen"
+                    }
+                ], [{
+                    id: 'item-3',
+                    content: 'exam',
+                    expanded: cardPositions ? cardPositions.exam : true,
+                    icon: "ic-edit-file-pen"
+                }]])
             }
 
         }
@@ -1202,7 +1236,6 @@ function ConsultationInProgress() {
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
 
-    console.log("info", info)
     return (
         <>
             {sheet?.patient && openHistoryDialog && <Draggable bounds="body">
@@ -1609,6 +1642,7 @@ function ConsultationInProgress() {
                                                 name: "Honoraire",
                                                 info: acts.filter(act => act.selected),
                                                 createdAt: moment().format("DD/MM/YYYY"),
+                                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                                 patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
                                             });
                                             setOpenDialog(true);

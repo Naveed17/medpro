@@ -127,6 +127,7 @@
   "yes": "Yes",
   "wait": "Few moments",
   "quote": "Quote",
+  "noData": "No data...",
   "consultationIP": {
     "importResult": "Please import the result of the balance sheet",
     "recent-search": "Select the requested medical imaging",
@@ -139,6 +140,9 @@
     "patient_history": "Patient History",
     "title": "Title",
     "lens": "Lens",
+    "reduce": "Reduce",
+    "zoom": "Zoom",
+    "history": "History",
     "email": "Send by email",
     "back": "Back to today's consultation",
     "updateHistory": "You are updating the consultation of ",

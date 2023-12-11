@@ -47,7 +47,8 @@ function Antecedent({...props}) {
                                 endDate: string;
                                 note: string;
                                 ascendantOf: string;
-                                response: string | any[]
+                                response: string | any[];
+                                antecedent:{multiple:boolean};
                             },
                             index: number
                         ) => (
@@ -70,7 +71,7 @@ function Antecedent({...props}) {
                                     onClick={() => {
                                         medicalEntityHasUser && setSelected({
                                             title: t('askRemove'),
-                                            subtitle: t(antecedent),
+                                            subtitle: "",
                                             icon: "/static/icons/ic-recherche.svg",
                                             name1: item.name,
                                             name2: "",

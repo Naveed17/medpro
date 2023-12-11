@@ -177,18 +177,6 @@ function ActFees() {
         setNewFees({act: null, fees: "", code: "", contribution: ""});
     };
 
-    const editFees = () => {
-        const form = new FormData();
-        form.append("consultation_fees", consultationFees.toString());
-        triggerActUpdate({
-            method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/${router.locale}`,
-            data: form
-        }, {
-            onSuccess: () => enqueueSnackbar(t("alert.updated"), {variant: "success"})
-        });
-    }
-
     const removeFees = (uuid: string) => {
         setLoading(true)
         triggerActDelete({
@@ -405,7 +393,7 @@ function ActFees() {
                 />
             </Card>
 
-            {isMobile && (
+            {/*{isMobile && (
                 <Box padding={2}>
                     <Stack
                         spacing={1}
@@ -437,7 +425,7 @@ function ActFees() {
                         </Button>
                     </Stack>
                 </Box>
-            )}
+            )}*/}
             <Box
                 sx={{
                     p: {xs: "40px 8px", sm: "30px 8px", md: 2},

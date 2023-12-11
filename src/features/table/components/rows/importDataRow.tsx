@@ -335,7 +335,6 @@ function ImportDataRow({...props}) {
                                                                                 }}
                                                                                 onClick={(event) => {
                                                                                     event.stopPropagation();
-                                                                                    console.log(info)
                                                                                     dispatch(onOpenPatientDrawer({patientId: info?.patient}));
                                                                                     setPatientDetailDrawer(true);
                                                                                 }}
