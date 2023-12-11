@@ -4,7 +4,7 @@ import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {getBirthdayFormat, useMedicalEntitySuffix} from "@lib/hooks";
 import {Session} from "next-auth";
 import {MotifCard} from "@features/card";
 import {DefaultCountry, iconDocument, SubMotifCard} from "@lib/constants";
@@ -73,6 +73,7 @@ function AppointmentHistoryContent({...props}) {
             info: selectedActs,
             consultationFees: app.appointment.consultation_fees,
             createdAt: moment(app.appointment.dayDate, "DD-MM-YYYY").format('DD/MM/YYYY'),
+            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t): "",
             patient: `${type} ${patient.firstName} ${patient.lastName}`,
         });
         setOpenDialog(true);

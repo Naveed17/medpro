@@ -83,7 +83,7 @@ function WaitingRoomRow({...props}) {
                                     minHeight: '.5rem',
                                     marginRight: '4px'
                                 }} variant={"contained"}
-                                size={"small"}> AR-{key + 1}</Button>
+                                size={"small"}> {row.startTime !== "00:00" ? "AR" : "SR"}-{key + 1}</Button>
                         </Box>
                     ) : (
                         <Skeleton variant="text" width={80}/>
@@ -109,7 +109,7 @@ function WaitingRoomRow({...props}) {
                     )}
                 </TableCell>
                 <TableCell align={"center"}>
-                    {row ? (
+                    {row ?
                         <Stack
                             alignItems="center"
                             justifyItems={"left"}
@@ -127,14 +127,14 @@ function WaitingRoomRow({...props}) {
                                     ml: 0.6,
                                     fontSize: 12
                                 }}>
-                                {moment(row.startTime, "HH:mm")
+                                {row.startTime !== "00:00" ? moment(row.startTime, "HH:mm")
                                     .add(1, "hours")
-                                    .format("HH:mm")}
+                                    .format("HH:mm") : "--"}
                             </Typography>
                         </Stack>
-                    ) : (
-                        <Skeleton variant="text" width={80}/>
-                    )}
+                        : (
+                            <Skeleton variant="text" width={80}/>
+                        )}
                 </TableCell>
                 <TableCell>
                     {row ? (
@@ -189,20 +189,20 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Stack spacing={2} direction="row" alignItems="center">
-                            {row.appointment_type ? (
-                                <>
+                            {row.type ? (
+                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                     <ModelDot
                                         icon={
-                                            row.appointment_type &&
-                                            IconsTypes[row.appointment_type?.icon]
+                                            row.type &&
+                                            IconsTypes[row.type?.icon]
                                         }
-                                        color={row.appointment_type?.color}
+                                        color={row.type?.color}
                                         selected={false}
                                         marginRight={0}></ModelDot>
-                                    {/*<Typography color="primary">
-                                        {row.appointment_type?.name}
-                                    </Typography>*/}
-                                </>
+                                    <Typography fontSize={12} color="primary">
+                                        {row.type?.name}
+                                    </Typography>
+                                </Stack>
                             ) : (
                                 " -- "
                             )}
@@ -214,10 +214,10 @@ function WaitingRoomRow({...props}) {
                 <TableCell>
                     {row ? (
                         <Stack direction="row" alignItems="center" spacing={1}>
-                            {row.consultation_reasons?.length > 0 ? (
+                            {row.consultationReasons?.length > 0 ? (
                                 <Typography
                                     variant="body2">
-                                    {row.consultation_reasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
+                                    {row.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
                                 </Typography>
                             ) : (
                                 " -- "
@@ -260,7 +260,6 @@ function WaitingRoomRow({...props}) {
                                     disabled={loading}
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        setLoading(true);
                                         handleEvent({action: "ON_PAY", row, event});
                                     }}
                                     sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}

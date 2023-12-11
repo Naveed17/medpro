@@ -6,6 +6,7 @@ import {RootStyled} from "./overrides";
 export default function TimeSlot({...props}) {
     const {
         t,
+        prefixTranslation = null,
         limit = 30,
         sx,
         data,
@@ -65,7 +66,7 @@ export default function TimeSlot({...props}) {
                         </Badge>)
                     :
                     <Typography textAlign={"center"} my={8}
-                                fontWeight={600}>{t('stepper-1.slots-unavailable')}</Typography>
+                                fontWeight={600}>{t(`${prefixTranslation ?? ""}stepper-1.slots-unavailable`)}</Typography>
             }
             {seeMore && (
                 <Button variant="text"

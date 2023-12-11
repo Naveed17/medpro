@@ -41,7 +41,7 @@ import {
     AddPatientStep1,
     AddPatientStep2,
     AddPatientStep3, appointmentSelector,
-    onResetPatient, resetSubmitAppointment,
+    onResetPatient, resetAppointment, resetSubmitAppointment,
     setAppointmentPatient,
 } from "@features/tabPanel";
 import {
@@ -89,6 +89,7 @@ import Icon from "@themes/urlIcon";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
+import {batch} from "react-redux";
 
 const humanizeDuration = require("humanize-duration");
 

@@ -43,6 +43,7 @@ import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
 import {useTranslation} from "next-i18next";
 import {batch} from "react-redux";
+import {prepareContextMenu} from "@lib/hooks";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -211,36 +212,6 @@ function Calendar({...props}) {
     const handleClose = () => {
         setContextMenu(null);
     };
-
-    const MenuContextlog = (action: string, eventMenu: EventModal) => {
-        return eventMenu?.status && (
-            action === "onWaitingRoom" &&
-            (moment().format("DD-MM-YYYY") !== moment(eventMenu?.time).format("DD-MM-YYYY") || eventMenu?.patient?.isArchived ||
-                ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(eventMenu?.status.key)) ||
-            action === "onConsultationView" &&
-            (!["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || roles.includes('ROLE_SECRETARY')) ||
-            action === "onConsultationDetail" &&
-            (["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(eventMenu?.status.key) || roles.includes('ROLE_SECRETARY') || eventMenu?.patient?.isArchived) ||
-            action === "onPreConsultation" &&
-            (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
-            action === "onLeaveWaitingRoom" &&
-            eventMenu?.status.key !== "WAITING_ROOM" ||
-            action === "onCancel" &&
-            (["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
-            action === "onDelete" &&
-            ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) ||
-            action === "onMove" &&
-            (moment().isAfter(eventMenu?.time) || ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
-            action === "onPatientNoShow" &&
-            ((moment().endOf('day').isBefore(eventMenu?.time) || eventMenu?.status.key === "ON_GOING") || eventMenu?.status.key === "FINISHED" || eventMenu?.patient?.isArchived) ||
-            action === "onConfirmAppointment" &&
-            eventMenu?.status.key !== "PENDING" ||
-            action === "onReschedule" &&
-            ((moment().isBefore(eventMenu?.time) && eventMenu?.status.key !== "FINISHED") || eventMenu?.patient?.isArchived) ||
-            ["onPatientDetail", "onAddConsultationDocuments"].includes(action) &&
-            eventMenu?.patient?.isArchived
-        )
-    }
 
     const handlers = useSwipeable({
         onSwipedLeft: () => {
@@ -568,7 +539,7 @@ function Calendar({...props}) {
                                     vertical: 'top',
                                     horizontal: 'left',
                                 }}>
-                                {CalendarContextMenu.filter(data => !MenuContextlog(data.action, events.find(event => event.id === eventMenu) as EventModal)).map((v: any) => (
+                                {CalendarContextMenu.filter(data => !prepareContextMenu(data.action, events.find(event => event.id === eventMenu) as EventModal, roles)).map((v: any) => (
                                         <IconButton
                                             key={uniqueId()}
                                             onClick={() => {

@@ -69,7 +69,7 @@ export default function MobileTable({...props}) {
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
-                                    color: "text.secondary",
+                                    color: "text.primary",
                                     mr: 1,
                                     "& svg": {
                                         width: 12,
@@ -88,7 +88,7 @@ export default function MobileTable({...props}) {
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
-                                    color: "text.secondary",
+                                    color: "text.primary",
                                     "& svg": {
                                         width: 12,
                                         height: 12,

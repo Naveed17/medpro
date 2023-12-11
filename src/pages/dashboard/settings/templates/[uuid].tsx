@@ -91,6 +91,7 @@ function DocsConfig() {
         date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
         cin: {show: false, prefix: 'CIN : ', content: '', x: 40, y: 274},
+        age: {show: true, prefix: 'AGE:', content: '', x: 40, y: 316},
         size: 'portraitA4',
         content: {
             show: true,
@@ -98,7 +99,7 @@ function DocsConfig() {
             maxWidth: 130,
             content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
             x: 0,
-            y: 300
+            y: 320
         }
     })
     const [queryState, setQueryState] = useState<any>({type: []});
@@ -253,7 +254,7 @@ function DocsConfig() {
     }
 
     useEffect(() => {
-         if (httpDocumentHeader)
+        if (httpDocumentHeader)
             setDocHeader((httpDocumentHeader as HttpResponse).data.find((res: { uuid: string }) => res.uuid === uuid))
 
         setTimeout(() => {
@@ -765,19 +766,44 @@ function DocsConfig() {
                                 </fieldset>
                             </Collapse>
 
+                            {/*CIN*/}
                             <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
                                 <Checkbox
                                     checked={data.cin && data.cin.show}
                                     onChange={(ev) => {
-                                        if(data.cin) {
+                                        if (data.cin) {
                                             data.cin.show = ev.target.checked;
                                             setData({...data})
-                                        }
-                                        else setData({...data,cin:{show: true, prefix: 'CIN : ', content: '', x: 40, y: 274}})
+                                        } else setData({
+                                            ...data,
+                                            cin: {show: true, prefix: 'CIN : ', content: '', x: 40, y: 274}
+                                        })
                                     }}
                                 />
                                 <ListItemText primary={t("cin")}/>
                             </ListItem>
+
+                            {/*AGE*/}
+                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                                <Checkbox
+                                    checked={data.age && data.age.show}
+                                    onChange={(ev) => {
+                                        let _data = {...data}
+                                        if (_data.age)
+                                            _data.age.show = ev.target.checked;
+                                        else {
+                                            _data = {
+                                                ..._data,
+                                                age: {show: true, prefix: 'AGE:', content: '', x: 40, y: 316}
+                                            }
+                                        }
+
+                                        setData({..._data})
+                                    }}
+                                />
+                                <ListItemText primary={t("age")}/>
+                            </ListItem>
+
                         </List>
                     </Box>
                 </Grid>

@@ -32,8 +32,10 @@ function UnpaidConsultRow({...props}) {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
+    const _fees = row.fees ? row.fees : row.appointmentRestAmount
+
     return (
-        <TableRowStyled rest={row.fees - row.appointmentRestAmount} tabIndex={-1} className={`row-cashbox`}>
+        <TableRowStyled rest={row.appointmentRestAmount} fees={_fees} tabIndex={-1} className={`row-cashbox`}>
             <TableCell>
                 <Stack
                     direction="row"
@@ -68,7 +70,7 @@ function UnpaidConsultRow({...props}) {
                     {
                         row.patient.insurances ? row.patient.insurances.map((insurance: any) => (
                             <Tooltip
-                                key={insurance.insurance?.uuid + "ins"}
+                                key={insurance.uuid + "ins"}
                                 title={insurance.name}>
                                 <Avatar variant={"circular"}>
                                     <ImageHandler
@@ -84,7 +86,7 @@ function UnpaidConsultRow({...props}) {
             {/***** Total *****/}
             <TableCell align={"center"}>
                 <Typography color='secondary' fontWeight={700}>
-                    {row.fees ? row.fees : row.appointmentRestAmount} {devise}
+                    {_fees} {devise}
                 </Typography>
             </TableCell>
             {/***** Rest *****/}
@@ -97,7 +99,7 @@ function UnpaidConsultRow({...props}) {
             <TableCell align={"center"}>
                 <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"center"}>
                     <Typography color={"secondary"} fontWeight={700} textAlign={"center"}>
-                        { row.fees ? row.fees - row.appointmentRestAmount : 0} {" "}
+                        { _fees - row.appointmentRestAmount} {" "}
                         <span>{devise}</span>
                     </Typography>
                     <Tooltip title={t('more')}>

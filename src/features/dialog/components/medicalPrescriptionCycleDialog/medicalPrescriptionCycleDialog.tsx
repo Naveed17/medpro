@@ -57,7 +57,13 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
-import {a11yProps, prescriptionPreviewDosage, useLastPrescription, useMedicalProfessionalSuffix,} from "@lib/hooks";
+import {
+    a11yProps,
+    getBirthdayFormat,
+    prescriptionPreviewDosage,
+    useLastPrescription,
+    useMedicalProfessionalSuffix,
+} from "@lib/hooks";
 import {TabPanel} from "@features/tabPanel";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
@@ -70,6 +76,8 @@ import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {SetSelectedDialog} from "@features/toolbar";
 import moment from "moment/moment";
+import Icon from "@themes/urlIcon";
+import {NoDataCard} from "@features/card";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;
@@ -503,6 +511,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                 type: 'prescription',
                 createdAt: moment().format('DD/MM/YYYY'),
                 patient: `${patient.firstName} ${patient.lastName}`,
+                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                 info: drugs,
             },
             uuid: "",
@@ -1359,6 +1368,22 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
                                     </Paper>
                                 ))}
+
+                                {values.data?.length === 0 && <NoDataCard
+                                    {...{t}}
+                                    sx={{my: 8}}
+                                    onHandleClick={() => dispatch(handleDrawerAction("addDrug"))}
+                                    ns={"consultation"}
+                                    data={{
+                                        mainIcon: "docs/ic-prescription",
+                                        title: "no-data.prescription.title",
+                                        description: "no-data.prescription.description",
+                                        buttons: [{
+                                            text: "add_drug",
+                                            variant: "warning",
+                                            color: "white"
+                                        }]
+                                    }}/>}
                             </Stack>
                         </FormikProvider>
                     </Grid>
@@ -1468,7 +1493,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     </IconButton>
                                                 </Stack>
                                             }>
-                                            {drugs.map((drug: DrugCycleModel, index: number) => (
+                                            {drugs?.map((drug: DrugCycleModel, index: number) => (
                                                 <ListItemButton
                                                     key={drug.drugUuid}
                                                     className="drug-list-item"
@@ -1596,7 +1621,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                     title: t("save_the_template_in_folder", {
                         ns: "consultation",
                     }),
-                    data: {t, dose: true, models, setOpenAddDialog},
+                    data: {t, dose: true, models, setOpenAddParentDialog: setOpenAddDialog},
                     actionDialog: (
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Button

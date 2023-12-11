@@ -2,7 +2,7 @@
   "path": "Caisse",
   "total": "Total",
   "wallet": "Avance",
-  "credit": "Reste",
+  "credit": "Crédit",
   "paid_total": "Total payé",
   "insurance": "Assurance",
   "btn_header_1": "Dépense",
@@ -10,7 +10,7 @@
   "cancel": "Annuler",
   "save": "Enregistrer",
   "dialog_title": "Ajouter un paiement",
-  "btn_remain": "Reste a payé",
+  "btn_remain": "Reste à payer",
   "add_quote": "Devis",
   "cash": "Espèce",
   "card": "Carte bancaire",
@@ -47,7 +47,7 @@
   "addsuccess": "Paiement ajouté",
   "cashout": "Décaisser",
   "appointment_date": "Date du RDV",
-  "remainder_to_pay": "Reste a payé",
+  "remainder_to_pay": "Reste à payer",
   "current_consultation": "Consultation actuelle",
   "consultation": "Consultation",
   "today": "Aujourd’hui",
@@ -56,7 +56,7 @@
   "act": "Act",
   "qte": "Qte",
   "print": "Imprimer",
-  "rest_pay": "Reste a Payé",
+  "rest_pay": "Reste à payer",
   "other_consultation": "Autre consultations",
   "payment": "Paiement",
   "add_payment": "Ajouter un paiement",
@@ -88,7 +88,7 @@
   "table": {
     "date": "Date et heure",
     "time": "Heure",
-    "name": "Nom de patient",
+    "name": "Nom du patient",
     "insurance": "Assurances",
     "type": "Type",
     "payment_type": "Paiement",
@@ -121,7 +121,7 @@
     "empty": "",
     "export": "Export",
     "total": "Total",
-    "rest": "Reste à payé"
+    "rest": "Reste à payer"
   },
   "no-data": {
     "title": "Aucune transaction",

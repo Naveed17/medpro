@@ -67,7 +67,6 @@ function DocumentDetailDialog({...props}) {
             setLoadingRequest = null
         }
     } = props
-
     const router = useRouter();
     const {data: session} = useSession();
     const dispatch = useAppDispatch();
@@ -103,6 +102,8 @@ function DocumentDetailDialog({...props}) {
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
         date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "right"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
+        cin: {show: false, prefix: 'CIN : ', content: '', x: 40, y: 274},
+        age: {show: true, content: '', x: 40, y: 316},
         size: 'portraitA4',
         content: {
             show: true,
