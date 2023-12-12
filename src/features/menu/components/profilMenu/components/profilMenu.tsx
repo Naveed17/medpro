@@ -7,6 +7,7 @@ import {
     ProfileSectionStyled
 } from "@features/menu";
 import {
+    Avatar,
     Box,
     ClickAwayListener,
     Grow,
@@ -15,7 +16,7 @@ import {
     MenuItem,
     MenuList,
     Paper,
-    Popper,
+    Popper, Stack, ToggleButton, ToggleButtonGroup,
     Typography,
     useMediaQuery
 } from "@mui/material";
@@ -32,13 +33,11 @@ import {Theme} from "@mui/material/styles";
 import {agendaSelector} from "@features/calendar";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import {unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
-import {dashLayoutSelector} from "@features/base";
-import Image from "next/image";
+import {configSelector, dashLayoutSelector, setLocalization} from "@features/base";
+import Langs from "@features/topNavBar/components/langButton/config";
+import GlobeIcon from "@themes/overrides/icons/globeIcon";
 
 function ProfilMenu() {
     const {data: session} = useSession();
@@ -52,6 +51,7 @@ function ProfilMenu() {
     const {opened} = useAppSelector(profileMenuSelector);
     const {agendas, config} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {locale} = useAppSelector(configSelector);
 
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
     const [loading, setLoading] = useState<boolean>(false);
@@ -66,7 +66,7 @@ function ProfilMenu() {
 
     const handleToggle = () => {
         dispatch(openMenu(!opened));
-    };
+    }
 
     const switchAgenda = (agenda: AgendaConfigurationModel) => {
         medicalEntityHasUser && triggerSettingsUpdate({
@@ -108,7 +108,7 @@ function ProfilMenu() {
             return;
         }
         dispatch(openMenu(false));
-    };
+    }
 
     if (loading) return (<LoadingScreen button text={"loading-switch"}/>);
 
@@ -177,20 +177,47 @@ function ProfilMenu() {
                                             </MenuItem>
                                         </MenuList>
                                     </MenuItem>
-
                                     <MenuItem
-                                        onClick={() => handleMenuItem("rooting")}
                                         className={`item-list`}
                                         disableRipple>
-                                        <Image height={18}
-                                               width={18}
-                                               alt="company logo"
-                                               src="/static/icons/Med-logo_.svg"
-                                               priority
-                                        />
-                                        <Typography variant="body1" className="item-name">
-                                            {t("patientSpace")}
+                                        <GlobeIcon/>
+                                        <Typography variant="body1" mr={1} ml={.5} color={"text.secondary"}>
+                                            {t("lang")}
                                         </Typography>
+                                        <ToggleButtonGroup
+                                            size={"small"}
+                                            color="primary"
+                                            value={locale}
+                                            exclusive
+                                            onChange={(event, locale) => {
+                                                const lang = locale.substring(0, 2);
+                                                dispatch(setLocalization(locale));
+                                                router.replace(router.pathname, router.asPath, {locale: lang});
+                                            }}
+                                            aria-label="Lang">
+                                            {Object.entries(Langs).map((item) => (
+                                                <ToggleButton onClick={() => handleClose(item[1])} key={item[1].locale}
+                                                              value={item[0]}>
+                                                    <Stack direction={"row"} alignItems={"center"}>
+                                                        <Avatar
+                                                            sx={{
+                                                                width: 20,
+                                                                height: 16,
+                                                                borderRadius: 0.4,
+                                                                mx: ".5rem"
+                                                            }}
+                                                            alt={"country"}
+                                                            src={item[1].icon}
+                                                        />
+                                                        <Typography sx={{
+                                                            fontSize: 10,
+                                                            fontWeight: "bold"
+                                                        }}>{item[1].label}</Typography>
+                                                    </Stack>
+
+                                                </ToggleButton>
+                                            ))}
+                                        </ToggleButtonGroup>
                                     </MenuItem>
 
                                     {ProfileMenuConfig.map((item: any, index) => (
