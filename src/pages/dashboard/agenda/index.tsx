@@ -118,7 +118,7 @@ function Agenda() {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper,
-        selectedEvent, actionSet, openMoveDrawer, openPayDialog, openAbsenceDrawer,
+        selectedEvent, actionSet, openMoveDrawer, openAbsenceDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
