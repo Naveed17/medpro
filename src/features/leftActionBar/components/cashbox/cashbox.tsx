@@ -31,7 +31,7 @@ function Cashbox() {
         insurances,
         paymentTypes,
         paymentTypesList,
-        filterCB
+        filterCB,selectedTab
     } = useAppSelector(cashBoxSelector);
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
@@ -141,59 +141,8 @@ function Cashbox() {
                             }}/>
                         ),
                     },
-                    {
-                        heading: {
-                            id: "boxes",
-                            icon: "ic-invoice",
-                            title: "boxes",
-                        },
-                        expanded: true,
-                        children: (
-                            <BoxesFilter/>
-                        ),
-                    },
-                    /*{
-                        heading: {
-                            id: "facturation",
-                            icon: "ic-invoice",
-                            title: "facturationState",
-                        },
-                        expanded: true,
-                        children: (
-                            <Stack direction={"row"}>
-                                <FormControlLabel
-                                    label={t('yes')}
-                                    control={
-                                        <Checkbox
-                                            checked={filterCB.status_transaction === '1'}
-                                            onChange={(ev) => {
-                                                dispatch(setFilterCB({
-                                                    ...filterCB,
-                                                    status_transaction: ev.target.checked ? '1' : ''
-                                                }));
-                                            }}
-                                        />
-                                    }
-                                />
-                                <FormControlLabel
-                                    label={t('no')}
-                                    control={
-                                        <Checkbox
-                                            checked={filterCB.status_transaction === '2'}
-                                            onChange={(ev) => {
-                                                dispatch(setFilterCB({
-                                                    ...filterCB,
-                                                    status_transaction: ev.target.checked ? '2' : ''
-                                                }));
-                                            }
-                                            }
-                                        />
-                                    }
-                                />
-                            </Stack>
-                        ),
-                    },*/
-                    {
+
+                    ...(selectedTab === "transactions" ?[{
                         heading: {
                             id: "paymentType",
                             icon: "ic-argent",
@@ -224,8 +173,19 @@ function Cashbox() {
                                                                               color={"gray"}>{t('nopaymentMeans')}</Typography>}
                             </Box>
                         ),
-                    },
-                    {
+                    }]:[]),
+                    ...(selectedTab === "transactions" ? [{
+                        heading: {
+                            id: "boxes",
+                            icon: "ic-invoice",
+                            title: "boxes",
+                        },
+                        expanded: true,
+                        children: (
+                            <BoxesFilter/>
+                        ),
+                    }] : []),
+                    ...(selectedTab === "transactions" ? [{
                         heading: {
                             id: "insurance",
                             icon: "ic-assurance",
@@ -256,41 +216,7 @@ function Cashbox() {
                                                                             color={"gray"}>{t('noInsurance')}</Typography>}
                             </Box>
                         ),
-                    },
-                    /*{
-                        heading: {
-                            id: "patient",
-                            icon: "ic-patient",
-                            title: "patient",
-                        },
-                        expanded: true,
-                        children: (
-                            <FilterRootStyled>
-                                <PatientFilter
-                                    OnSearch={(data: { query: ActionBarState }) => {
-                                        dispatch(setFilterCB({
-                                            ...filterCB, ...data.query
-                                        }));
-                                    }}
-                                    item={{
-                                        heading: {
-                                            icon: "ic-patient",
-                                            title: "patient",
-                                        },
-                                        gender: {
-                                            heading: "gender",
-                                            genders: ["male", "female"],
-                                        },
-                                        textField: {
-                                            labels: [
-                                                {label: "name", placeholder: "search"},
-                                                {label: "birthdate", placeholder: "--/--/----"}
-                                            ],
-                                        },
-                                    }} t={t}/>
-                            </FilterRootStyled>
-                        ),
-                    }*/
+                    }] : [])
                 ]}
                 setData={() => {
 

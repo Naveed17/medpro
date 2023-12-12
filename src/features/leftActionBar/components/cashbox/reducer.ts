@@ -4,7 +4,7 @@ import {
     setCashBoxes,
     setInsurancesList, setMutate,
     setPaymentTypesList,
-    setSelectedBoxes
+    setSelectedBoxes, SetSelectedTab
 } from "@features/leftActionBar/components/cashbox/actions";
 
 const initialState: any = {
@@ -15,6 +15,7 @@ const initialState: any = {
     selectedBoxes: [],
     cashboxes: [],
     mutate: null,
+    selectedTab:'consultations',
     filterCB: {
         type_transaction: '',
         status_transaction: '',
@@ -55,5 +56,8 @@ export const CashboxReducer = createReducer(initialState, builder => {
         })
         .addCase(setMutate, (state, action) => {
             state.mutate = action.payload;
+        })
+        .addCase(SetSelectedTab, (state, action) => {
+            state.selectedTab = action.payload;
         })
 });
