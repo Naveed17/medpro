@@ -1903,6 +1903,7 @@ function ConsultationInProgress() {
                     }}>
                     <RecondingBoxStyle
                         id={"record"}
+                        className={"btn-action"}
                         direction={"row"}
                         spacing={1}
                         style={{width: "100%", padding: 10}}>
@@ -2011,7 +2012,7 @@ function ConsultationInProgress() {
                                     </Stack>
                                     :
                                     <>
-                                        <Stack direction={"row"} spacing={1}>
+                                        <Stack direction={"row"} className={"btn-action"} spacing={1}>
                                             <LoadingButton
                                                 className={"btn-action"}
                                                 loading={loadingRequest}
