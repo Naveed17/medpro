@@ -46,7 +46,6 @@ function LangButton() {
                 aria-haspopup="true"
                 onClick={handleClick}>
                 {selected.label}
-
             </Button>
             <MenuStyled
                 id="simple-menu"
