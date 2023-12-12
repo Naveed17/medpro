@@ -75,17 +75,18 @@ const Prescription = ({...props}) => {
 
             {id === 0 && <>
                 {data.title.show &&
-                    <Draggable onStop={(ev, data) => {
-                        eventHandler(ev, data, 'title');
-                        setSelected("");
-                    }}
-                               onStart={() => {
-                                   setSelected("title");
-                                   setLastSelected("title");
-                               }}
-                               disabled={eventHandler === null}
-                               defaultPosition={{x: data.title.x, y: data.title.y}}
-                               bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
+                    <Draggable
+                        onStop={(ev, data) => {
+                            eventHandler(ev, data, 'title');
+                            setSelected("");
+                        }}
+                        onStart={() => {
+                            setSelected("title");
+                            setLastSelected("title");
+                        }}
+                        disabled={eventHandler === null}
+                        defaultPosition={{x: data.title.x, y: data.title.y}}
+                        bounds={{left: 0, top: 0, right: 460, bottom: 740}}>
                         <div style={{
                             width: "100%",
                             fontWeight: "bold",
@@ -204,8 +205,14 @@ const Prescription = ({...props}) => {
             </>}
 
             <Draggable
-                defaultPosition={{x: data.content.x, y: ((id > 0 && data.header.page > 0) ? data.content.y - offset : data.content.y)}}
-                position={{x: data.content.x, y: ((id > 0 && data.header.page > 0) ? data.content.y - offset : data.content.y)}}
+                defaultPosition={{
+                    x: data.content.x,
+                    y: ((id > 0 && data.header.page > 0) ? data.content.y - offset : data.content.y)
+                }}
+                position={{
+                    x: data.content.x,
+                    y: ((id > 0 && data.header.page > 0) ? data.content.y - offset : data.content.y)
+                }}
                 disabled={eventHandler === null}
                 allowAnyClick={false}
                 onStop={(ev, data) => {
