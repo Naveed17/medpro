@@ -1126,20 +1126,11 @@ function Agenda() {
                                 mutate: refreshData
                             }}
                             OnAddAppointment={handleAddAppointment}
-                            OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
-                            OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
-                            OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
                             OnSelectEvent={onSelectEvent}
-                            OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
                             OnEventChange={onEventChange}
                             OnRangeDateSelect={handleRangeSelect}
                             OnAddAbsence={handleAddAbsence}
                             OnDeleteAbsence={handleDeleteAbsence}
-                            OnOpenPatient={(event: EventDef) => {
-                                setEvent(event);
-                                dispatch(openDrawer({type: "view", open: false}));
-                                dispatch(openDrawer({type: "patient", open: true}));
-                            }}
                             OnMenuActions={onMenuActions}
                             OnSelectDate={onSelectDate}
                             OnViewChange={onViewChange}

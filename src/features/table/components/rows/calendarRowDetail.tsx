@@ -252,7 +252,7 @@ function CalendarRowDetail({...props}) {
                                     disabled={loading}
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        handleEvent("ON_PAY", data, event);
+                                        handleEvent("onPay", data, event);
                                     }}
                                     sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}
                                     size="small">
@@ -267,8 +267,7 @@ function CalendarRowDetail({...props}) {
                                     disabled={loading}
                                     onClick={(event) => {
                                         event.stopPropagation();
-                                        setLoading(true);
-                                        handleEvent("START_CONSULTATION", data, event);
+                                        handleEvent("onConsultationDetail", data, event);
                                     }}
                                     sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}
                                     size="small">
@@ -280,7 +279,7 @@ function CalendarRowDetail({...props}) {
                                 <span>
                                     <IconButton
                                         onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent(
-                                            "ENTER_WAITING_ROOM",
+                                            "onWaitingRoom",
                                             data,
                                             event
                                         )}
