@@ -54,7 +54,7 @@ function DocumentsPreview({...props}) {
                                     style={{
                                         fontSize: "0.6875rem",
                                         cursor: "pointer"
-                                    }}>{t(`consultationIP.${doc.name}`)}</Typography>
+                                    }}>{t(`consultationIP.${doc.txt}`)}</Typography>
                             </Stack>
                             <AddRoundedIcon color={"primary"}/>
                         </Stack>

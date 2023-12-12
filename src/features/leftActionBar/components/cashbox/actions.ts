@@ -8,3 +8,4 @@ export const setPaymentTypesList = createAction<any>('cachbox/setPaymentTypesLis
 export const setSelectedBoxes = createAction<any>('cachbox/setSelectedBoxes');
 export const setCashBoxes = createAction<any>('cachbox/setCashBoxes');
 export const setMutate = createAction<any>('cachbox/setMutate');
+export const SetSelectedTab = createAction<any>('cachbox/setSelectedTab');

@@ -59,16 +59,11 @@ function Calendar({...props}) {
         t: translation,
         sortedData,
         doctor_country,
-        OnLeaveWaitingRoom,
-        OnConfirmEvent,
-        OnMoveEvent,
-        OnWaitingRoom,
         OnViewChange = null,
         OnAddAppointment,
         OnSelectEvent,
         OnSelectDate,
         OnRangeDateSelect,
-        OnOpenPatient,
         OnAddAbsence,
         OnDeleteAbsence,
         OnEventChange,
@@ -171,28 +166,23 @@ function Calendar({...props}) {
         }
     }
 
-    const handleTableEvent = (action: string, eventData: EventModal) => {
+    const handleTableEvent = (action: string, eventData: EventModal, event?: any) => {
         switch (action) {
-            case "showEvent":
-                handleOnSelectEvent(eventData);
+            case "OPEN-POPOVER":
+                setEventMenu(eventData.id);
+                handleContextMenu(event);
                 break;
-            case "showPatient":
-                OnOpenPatient(eventData);
-                break;
-            case "waitingRoom":
-                OnWaitingRoom(eventData);
-                break;
-            case "leaveWaitingRoom":
-                OnLeaveWaitingRoom(eventData);
-                break;
-            case "confirmEvent":
-                OnConfirmEvent(eventData);
-                break;
-            case "moveEvent":
-                OnMoveEvent(eventData);
+            default:
+                const eventUpdated = {
+                    publicId: eventData.id,
+                    extendedProps: {
+                        ...eventData
+                    }
+                }
+                OnMenuActions(action, eventUpdated);
                 break;
         }
-    };
+    }
 
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
@@ -310,8 +300,8 @@ function Calendar({...props}) {
                                 maxHeight={`calc(100vh - 180px)`}
                                 headers={TableHead}
                                 rows={eventGroupByDay}
-                                handleEvent={(action: string, eventData: EventModal) =>
-                                    handleTableEvent(action, eventData)
+                                handleEvent={(action: string, eventData: EventModal, event: any) =>
+                                    handleTableEvent(action, eventData, event)
                                 }
                                 from={"calendar"}
                                 t={translation}
@@ -506,64 +496,67 @@ function Calendar({...props}) {
                                     {translation('add-complete')}
                                 </MenuItem>
                             </StyledMenu>}
-
-                            <Menu
-                                open={contextMenu !== null}
-                                onClose={handleClose}
-                                anchorReference="anchorPosition"
-                                slotProps={{
-                                    paper: {
-                                        elevation: 0,
-                                        sx: {
-                                            backgroundColor: theme.palette.text.primary,
-                                            "& .popover-item": {
-                                                padding: theme.spacing(2),
-                                                display: "flex",
-                                                alignItems: "center",
-                                                svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
-                                                cursor: "pointer",
-                                            }
-                                        }
-                                    }
-                                }}
-                                anchorPosition={
-                                    contextMenu !== null
-                                        ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
-                                        : undefined
-                                }
-                                anchorOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'left',
-                                }}
-                                transformOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'left',
-                                }}>
-                                {CalendarContextMenu.filter(data => !prepareContextMenu(data.action, events.find(event => event.id === eventMenu) as EventModal, roles)).map((v: any) => (
-                                        <IconButton
-                                            key={uniqueId()}
-                                            onClick={() => {
-                                                const appointment = events.find(event => event.id === eventMenu) as EventModal;
-                                                const event = {
-                                                    publicId: appointment.id,
-                                                    extendedProps: {
-                                                        ...appointment
-                                                    }
-                                                }
-                                                OnMenuActions(v.action, event);
-                                                handleClose();
-                                            }}
-                                            className="popover-item">
-                                            {v.icon}
-                                            <Typography fontSize={15} sx={{color: "#fff"}}>
-                                                {translation(`${v.title}`, {ns: 'common'})}
-                                            </Typography>
-                                        </IconButton>
-                                    )
-                                )}
-                            </Menu>
                         </Box>
                     )}
+                    <Menu
+                        open={contextMenu !== null}
+                        onClose={handleClose}
+                        anchorReference="anchorPosition"
+                        slotProps={{
+                            paper: {
+                                elevation: 0,
+                                sx: {
+                                    backgroundColor: theme.palette.text.primary,
+                                    "& .popover-item": {
+                                        padding: theme.spacing(2),
+                                        display: "flex",
+                                        alignItems: "center",
+                                        svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
+                                        cursor: "pointer",
+                                    }
+                                }
+                            }
+                        }}
+                        anchorPosition={
+                            contextMenu !== null
+                                ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
+                                : undefined
+                        }
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}>
+                        {CalendarContextMenu.filter(data =>
+                            !prepareContextMenu(data.action,
+                                (view === "listWeek" ? eventGroupByDay.reduce((eventsData: EventCalendarModel[], data) =>
+                                    [...(eventsData ?? []), ...data?.events], []) : events).find(event =>
+                                    event.id === eventMenu) as EventModal, roles)).map((v: any) => (
+                                <IconButton
+                                    key={uniqueId()}
+                                    onClick={() => {
+                                        const appointment = events.find(event => event.id === eventMenu) as EventModal;
+                                        const event = {
+                                            publicId: appointment.id,
+                                            extendedProps: {
+                                                ...appointment
+                                            }
+                                        }
+                                        OnMenuActions(v.action, event);
+                                        handleClose();
+                                    }}
+                                    className="popover-item">
+                                    {v.icon}
+                                    <Typography fontSize={15} sx={{color: "#fff"}}>
+                                        {translation(`${v.title}`, {ns: 'common'})}
+                                    </Typography>
+                                </IconButton>
+                            )
+                        )}
+                    </Menu>
                 </CalendarStyled>
             </RootStyled>
         </Box>
