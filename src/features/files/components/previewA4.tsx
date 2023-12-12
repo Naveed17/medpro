@@ -312,7 +312,7 @@ function PreviewDialog({...props}) {
                             let ogl = ""
                             const st = ['sphere', 'cylindre', 'axe']
 
-                            st.map(key => {
+                            st.forEach(key => {
                                 odl += `${t(key)} : ${el.pfl[0].od[key] ? el.pfl[0].od[key] : ' - '}  `;
                                 ogl += `${t(key)} : ${el.pfl[0].og[key] ? el.pfl[0].og[key] : ' - '}  `;
                             })

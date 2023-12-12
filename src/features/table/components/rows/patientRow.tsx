@@ -170,7 +170,7 @@ function PatientRow({...props}) {
                                         <Stack direction={"row"} alignItems={"center"}>
                                             <Typography
                                                 className={"ellipsis"}
-                                                width={40}
+                                                maxWidth={140}
                                                 fontSize={12}
                                                 color={"primary.main"}>{`N°${row.fiche_id} - `}</Typography>
                                             <Typography

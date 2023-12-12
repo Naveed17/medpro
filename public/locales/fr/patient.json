@@ -130,7 +130,7 @@
       }
     },
     "table": {
-      "name": "Nom du patient",
+      "name": "Patient",
       "telephone": "Téléphone",
       "insurance": "Assurances",
       "city": "ville",
