@@ -53,7 +53,7 @@ import {
 } from "@features/dialog";
 import {AppointmentListMobile, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {AgendaFilter, leftActionBarSelector, cashBoxSelector, resetFilterPatient} from "@features/leftActionBar";
+import {AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -77,7 +77,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {MobileContainer as smallScreen} from "@lib/constants";
-import {useTransactionEdit, useSendNotification} from "@lib/hooks/rest";
+import {useSendNotification} from "@lib/hooks/rest";
 import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
@@ -118,7 +118,7 @@ function Agenda() {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper,
-        selectedEvent, actionSet, openMoveDrawer, openPayDialog, openAbsenceDrawer,
+        selectedEvent, actionSet, openMoveDrawer, openAbsenceDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -249,6 +249,7 @@ function Agenda() {
 
         const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
         const eventsUpdated: EventModal[] = [];
+
         if (!query?.filter || events.current.length === 0) {
             appointments?.forEach((appointment) => {
                 const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
@@ -258,13 +259,13 @@ function Agenda() {
                 eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
             });
         } else {
-            events.current.forEach(event => {
-                eventsUpdated.push({
-                    ...event,
-                    filtered: !appointments?.find(appointment => appointment.uuid === event.id)
-                })
-            })
+            const filteredEvents = appointments.map(appointment => appointmentPrepareEvent(appointment, false, []))
+            eventsUpdated.push(...[...events.current, ...filteredEvents].map(event => ({
+                ...event,
+                filtered: !appointments?.find(appointment => appointment.uuid === event.id)
+            })));
         }
+
         if (!query?.history) {
             events.current = [...eventsUpdated, ...absences];
         } else {
