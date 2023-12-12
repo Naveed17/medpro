@@ -489,6 +489,7 @@ function CertifDialog({...props}) {
                                         <Tooltip key={cb.name} title={t(`consultationIP.${cb.title}_placeholder`)}>
                                             <Button color={"info"}
                                                     variant="outlined"
+                                                    style={{marginBottom:5}}
                                                     onClick={() => {
                                                         addVal(cb.name)
                                                     }} size={"small"}> <AddIcon/> {t(`consultationIP.${cb.title}`)}
@@ -496,6 +497,7 @@ function CertifDialog({...props}) {
                                         </Tooltip>))}
                                     <Button color={expanded ? "primary" : "info"}
                                             variant="outlined"
+                                            style={{marginBottom:5}}
                                             onClick={() => showTrakingData()}
                                             size={"small"}>
                                         {t(`consultationIP.tracking_data`)}
@@ -504,6 +506,7 @@ function CertifDialog({...props}) {
 
                                     {hasAntecedents && <Button color={expandedAntecedent ? "primary" : "info"}
                                                                variant="outlined"
+                                                               style={{marginBottom:5}}
                                                                onClick={() => showAntecedentData()}
                                                                size={"small"}>
                                         {t(`consultationIP.antecedent`)}
@@ -513,6 +516,7 @@ function CertifDialog({...props}) {
 
                                     {hasMotif && <Button color={expandedMotif ? "primary" : "info"}
                                                          variant="outlined"
+                                                         style={{marginBottom:5}}
                                                          onClick={() => showMotifData()} size={"small"}>
                                         {t(`consultationIP.consultation_reason`)}
                                         {expandedMotif ? <KeyboardArrowUpRoundedIcon/> :
@@ -521,6 +525,7 @@ function CertifDialog({...props}) {
 
                                     <Button color={expandedActs ? "primary" : "info"}
                                             variant="outlined"
+                                            style={{marginBottom:5}}
                                             onClick={() => showActsData()} size={"small"}>
                                         {t(`consultationIP.acts`)}
                                         {expandedActs ? <KeyboardArrowUpRoundedIcon/> :
