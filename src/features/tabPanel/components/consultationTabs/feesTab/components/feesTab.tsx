@@ -223,30 +223,28 @@ function FeesTab({...props}) {
                         from={"CIP-medical-procedures"}
                         t={t}
                         edit={editAct ? editAct : editActConsult}
-                        handleEvent={()=>{saveChanges([...acts])}}
+                        handleEvent={() => {
+                            saveChanges([...acts])
+                        }}
                         devise={devise}
                         handleChange={setTotal}/>
-                    {/* {!isQuoteRequest&&<Button
-                    onClick={() => {
-                        router.push("/dashboard/settings/actfees")
-                    }}
-                    size="small"
-                    startIcon={<TuneRoundedIcon/>}>
-                    {t('consultationIP.config')}
-                </Button>}*/}
                 </DesktopContainer>
                 <MobileContainer>
                     {
-                        <Stack spacing={2}>
+                        <Stack spacing={1}>
                             {
                                 acts?.filter((act: any) => {
                                     return act.act.name?.toLowerCase().includes(search.toLowerCase())
                                 }).map((act: any) => (
-                                    <React.Fragment key={act.uuid}>
-                                        <CipMedicProCard row={act} devise={devise}
-                                                         edit={editAct ? editAct : editActConsult}
-                                        />
-                                    </React.Fragment>
+                                    <CipMedicProCard key={act.uuid}
+                                                     row={act}
+                                                     devise={devise}
+                                                     edit={editAct ? editAct : editActConsult}
+                                                     handleChange={setTotal}
+                                                     t={t}
+                                                     handleEvent={() => {
+                                                         saveChanges([...acts])
+                                                     }}/>
                                 ))
                             }
 

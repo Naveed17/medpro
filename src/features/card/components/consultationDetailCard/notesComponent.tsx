@@ -27,6 +27,7 @@ import {consultationSelector, SetExam, SetListen} from "@features/toolbar";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import isMobile from "ismobilejs";
 
 function NotesComponent({...props}) {
 
@@ -144,7 +145,7 @@ function NotesComponent({...props}) {
                 <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
                     {(listen === '' || listen === 'observation') &&
                         <Stack direction={"row"} alignItems={"center"} spacing={1.2} ml={1}>
-                            {models && models.length > 0 && <Select
+                            {models && models.length > 0 && !isMobile && <Select
                                 labelId="select-type"
                                 id="select-type"
                                 renderValue={selected => {
@@ -238,12 +239,12 @@ function NotesComponent({...props}) {
                             <IconUrl path={'tools'}/>
                         </IconButton>
                     </Tooltip>
-                        <RecButton
-                            small
-                            onClick={() => {
-                                startStopRec();
-                            }}/>
-                    <Tooltip title={t(fullOb ? 'reduce':"zoom")}>
+                    <RecButton
+                        small
+                        onClick={() => {
+                            startStopRec();
+                        }}/>
+                    <Tooltip title={t(fullOb ? 'reduce' : "zoom")}>
                         <IconButton size={"small"} onClick={(e) => {
                             e.stopPropagation();
                             mutateSheetData && mutateSheetData()
@@ -333,4 +334,4 @@ function NotesComponent({...props}) {
     )
 }
 
-export default NotesComponent
+export default NotesComponent;

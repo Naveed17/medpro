@@ -65,7 +65,7 @@ function PaymentCard({...props}) {
                                     <FormControl
                                         size="small"
                                         sx={{
-                                            minWidth: 60,
+                                            minWidth: 115,
                                             ".MuiInputBase-root": {
                                                 bgcolor: (theme: Theme) =>
                                                     theme.palette.primary.main + "!important",
@@ -93,6 +93,7 @@ function PaymentCard({...props}) {
                                                     sx: {
                                                         bgcolor: (theme: Theme) => theme.palette.back.main,
                                                         p: 1,
+                                                        minWidth: 115,
                                                         ".MuiMenuItem-root": {
                                                             "&:not(:last-child)": {
                                                                 mb: 1,
@@ -128,6 +129,9 @@ function PaymentCard({...props}) {
                                                             style={{width: 16}}
                                                             src={payment?.logoUrl?.url}
                                                             alt={"payment means"}/>
+                                                        <Typography style={{color: "white"}} fontSize={12}>
+                                                            {payment?.name}
+                                                        </Typography>
                                                     </Stack>
                                                 );
                                             }}
@@ -164,7 +168,7 @@ function PaymentCard({...props}) {
                                         onFocus={() => setSelectedPayment(i)}
                                         value={item.amount}
                                         onChange={(e) => {
-                                            if(!isNaN(parseInt(e.target.value, 10))) {
+                                            if (!isNaN(parseInt(e.target.value, 10))) {
                                                 payments[i].amount = e.target.value ? parseInt(e.target.value, 10) : ''
                                                 setPayments([...payments])
                                             } else {
@@ -229,7 +233,6 @@ function PaymentCard({...props}) {
                                                 fullWidth
                                                 autoHighlight
                                                 disableClearable
-                                                placeholder={t("bank")}
                                                 size="small"
                                                 value={item.data.bank}
                                                 onChange={(e, newValue: any) => {
