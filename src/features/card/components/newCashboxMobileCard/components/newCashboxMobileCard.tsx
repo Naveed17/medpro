@@ -67,6 +67,7 @@ export default function NewCashboxMobileCard({ ...props }) {
               justifyContent="space-between"
             >
               <Stack>
+                  <Typography color={"primary"}>{`${row.patient.firstName} ${row.patient.lastName}`}</Typography>
                 <Stack direction="row" alignItems="center" spacing={0.5}>
                   <IconUrl
                     path="ic-agenda"
@@ -105,7 +106,7 @@ export default function NewCashboxMobileCard({ ...props }) {
               >
                 {row.payment_means &&
                   row.payment_means.map((mean: any) => (
-                    <Tooltip key={mean.slug+"mobile"} title={`${mean.amount} ${devise}`}>
+                    <Tooltip key={mean.uuid+"mobile"} title={`${mean.amount} ${devise}`}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         style={{ width: 15 }}
