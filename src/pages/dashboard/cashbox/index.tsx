@@ -235,7 +235,7 @@ function Cashbox() {
     const [selectedCashBox, setCashbox] = useState<any>(null);
     let [selectedTab, setSelectedTab] = useState('consultations');
     const tabsData = [
-         {
+        {
             label: "consultations",
             value: "consultations"
         },
@@ -243,7 +243,7 @@ function Cashbox() {
             label: "transactions",
             value: "transactions"
         }
-        ]
+    ]
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -308,12 +308,13 @@ function Cashbox() {
         else setRows([]);
         if (filterQuery.includes("cashboxes")) setLoading(false);
     }
+
     const getConsultation = (start: string, end: string) => {
         const query = `?mode=rest&start_date=${moment(start, "DD-MM-YYYY").format("DD-MM-YYYY")}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week`
-        triggerAppointmentDetails(agenda ? {
+        agenda && triggerAppointmentDetails({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}${query}`
-        } : null, {
+        }, {
             onSuccess: (result) => {
                 const res = result.data.data
                 setApps(res)
@@ -323,6 +324,7 @@ function Cashbox() {
             }
         });
     }
+
     const handleTableActions = (data: any) => {
         const {action, event, row} = data
         switch (action) {
@@ -397,7 +399,7 @@ function Cashbox() {
         triggerExport({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`
-        },{
+        }, {
             onSuccess: (result) => {
                 const buffer = Buffer.from(result.data, "base64") //Buffer is only available when using nodejs
                 saveAs(new Blob([buffer]), "transaction.xlsx")
@@ -424,26 +426,25 @@ function Cashbox() {
                         textColor="primary"
                         disabled={loading}
                         indicatorColor="primary">
-                        {
-                            tabsData.map((tab: { label: string; }) => (
-                                <Tab
-                                    className="custom-tab"
-                                    key={tab.label}
-                                    value={tab.label}
-                                    disabled={loading}
-                                    label={t(tab.label)}
-                                />
-                            ))
+                        {tabsData.map((tab: { label: string; }) => (
+                            <Tab
+                                className="custom-tab"
+                                key={tab.label}
+                                value={tab.label}
+                                disabled={loading}
+                                label={t(tab.label)}
+                            />
+                        ))
                         }
                     </Tabs>
                     <Stack direction={"row"} alignItems={"center"} spacing={1}>
 
-                        {! isMobile &&<><Typography fontSize={12}> {t("unpaidConsult")}</Typography>
-                        <Typography variant="h6">
-                            {unpaid} <span style={{fontSize: 10}}>{devise}</span>
-                        </Typography>
-                        <Typography>|</Typography>
-                        <Typography fontSize={12}> {t("total")}</Typography></>}
+                        {!isMobile && <><Typography fontSize={12}> {t("unpaidConsult")}</Typography>
+                            <Typography variant="h6">
+                                {unpaid} <span style={{fontSize: 10}}>{devise}</span>
+                            </Typography>
+                            <Typography>|</Typography>
+                            <Typography fontSize={12}> {t("total")}</Typography></>}
                         <Typography variant="h6">
                             {total} <span style={{fontSize: 10}}>{devise}</span>
                         </Typography>
@@ -473,12 +474,12 @@ function Cashbox() {
                                 </Stack>
                             </Stack>
                             <DesktopContainer>
-                            <Otable
-                                {...{rows: apps, t, insurances, pmList, mutateTransactions, filterCB}}
-                                headers={consultationCells}
-                                from={"unpaidconsult"}
-                                handleEvent={handleTableActions}
-                            />
+                                <Otable
+                                    {...{rows: apps, t, insurances, pmList, mutateTransactions, filterCB}}
+                                    headers={consultationCells}
+                                    from={"unpaidconsult"}
+                                    handleEvent={handleTableActions}
+                                />
                             </DesktopContainer>
                             <MobileContainer>
                                 <Stack spacing={1}>
@@ -489,17 +490,16 @@ function Cashbox() {
                                                 devise,
                                                 t,
                                                 insurances,
-                                                handleEvent:handleTableActions
-                                                
+                                                handleEvent: handleTableActions
                                             }}/>
                                         </React.Fragment>
                                     ))}
-                                
+
                                 </Stack>
                             </MobileContainer>
                         </CardContent>
-                        
-                        </Card>
+
+                    </Card>
                 </TabPanel>
 
                 <TabPanel padding={1} value={selectedTab} index={"transactions"}>
@@ -508,7 +508,7 @@ function Cashbox() {
                             <Card>
                                 <CardContent>
                                     <Stack direction='row' alignItems={{xs: 'center', md: 'center'}}
-                                           justifyContent="space-between"  mb={2} pb={1} borderBottom={1}
+                                           justifyContent="space-between" mb={2} pb={1} borderBottom={1}
                                            borderColor='divider'>
                                         <Typography fontWeight={700}>
                                             {t("transactions")}
