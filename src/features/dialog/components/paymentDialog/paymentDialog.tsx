@@ -581,9 +581,9 @@ function PaymentDialog({...props}) {
                     {getTotalApps() === 0 ? t('dialog.addavance') : t('dialog.pay')} {getTotalPayments()} {devise}
                 </Button> : <Button startIcon={<IconUrl path={'ic-argent'}/>}
                                     onClick={() => setOpenPaymentDialog(false)}
-                                    color={"warning"}
-                                    disabled={loading}
-                                    variant={"contained"}>{t('dialog.later')}</Button>}
+                                    color={"info"}
+                                    variant="outlined"
+                                    disabled={loading}>{t('dialog.later')}</Button>}
             </Stack>
         </PaymentDialogStyled>
     );
