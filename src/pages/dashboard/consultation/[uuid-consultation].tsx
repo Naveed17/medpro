@@ -1084,6 +1084,40 @@ function ConsultationInProgress() {
         });
     }
 
+    const HistoryDialog = ()=>{
+        return (<div style={{
+            position: "absolute",
+            top: 10,
+            left: 10,
+            width: "50%",
+            borderRadius: 5,
+            zIndex: 1,
+            border: `1px solid ${theme.palette.grey["200"]}`,
+            background: 'white',
+            transform: "translate(220px, 133px)"
+        }}>
+            <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} spacing={1} sx={{
+                bgcolor: theme.palette.primary.main,
+                padding: 2,
+                borderTopLeftRadius: 5,
+                borderTopRightRadius: 5
+            }}>
+                <IconUrl color={"white"} path={'history'}/>
+                <Typography fontSize={18} color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
+                <IconButton sx={{width: 30, height: 30}} onClick={() => setOpenHistoryDialog(false)}><IconUrl
+                    width={15} height={15} path={"close"}/></IconButton>
+            </Stack>
+            <div style={{
+                overflow: 'auto',
+                height: 400,
+                padding: 20
+            }}>
+                <ObservationHistoryDialog data={{patient_uuid: sheet.patient, t}}/>
+            </div>
+
+        </div>)
+    }
+
     //%%%%%% %%%%%%%
     const move = (source: any, destination: any, droppableSource: any, droppableDestination: any) => {
         const sourceClone = Array.from(source);
@@ -1126,41 +1160,8 @@ function ConsultationInProgress() {
             setCards(newState);
         }
     }
-
-    const HistoryDialog = ()=>{
-        return (<div style={{
-            position: "absolute",
-            top: 10,
-            left: 10,
-            width: "50%",
-            borderRadius: 5,
-            zIndex: 1,
-            border: `1px solid ${theme.palette.grey["200"]}`,
-            background: 'white',
-            transform: "translate(220px, 133px)"
-        }}>
-            <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} spacing={1} sx={{
-                bgcolor: theme.palette.primary.main,
-                padding: 2,
-                borderTopLeftRadius: 5,
-                borderTopRightRadius: 5
-            }}>
-                <IconUrl color={"white"} path={'history'}/>
-                <Typography fontSize={18} color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
-                <IconButton sx={{width: 30, height: 30}} onClick={() => setOpenHistoryDialog(false)}><IconUrl
-                    width={15} height={15} path={"close"}/></IconButton>
-            </Stack>
-            <div style={{
-                overflow: 'auto',
-                height: 400,
-                padding: 20
-            }}>
-                <ObservationHistoryDialog data={{patient_uuid: sheet.patient, t}}/>
-            </div>
-
-        </div>)
-    }
     //%%%%%% %%%%%%%
+
     useEffect(() => {
         if (!recordingBlob || !saveAudio) return;
 
@@ -1189,7 +1190,8 @@ function ConsultationInProgress() {
             medicalProfessionalData && medicalProfessionalData.acts.map(act => {
                 _acts.push({qte: 1, selected: false, ...act})
             })
-            setActs(_acts);
+
+            acts.length === 0 && setActs(_acts);
             setMPActs(_acts);
             let nb = 0;
             changes.map(change => {
@@ -1338,7 +1340,7 @@ function ConsultationInProgress() {
 
 
             {<HistoryAppointementContainer {...{isHistory, loading}}>
-                <Box style={{backgroundColor: !isHistory ? theme.palette.info.main : ""}} id={"container-tab"}
+                <Box style={{paddingBottom:60,backgroundColor: !isHistory ? theme.palette.info.main : ""}} id={"container-tab"}
                      className="container-scroll">
                     <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
                         <HistoryTab
@@ -1606,7 +1608,6 @@ function ConsultationInProgress() {
 
             </HistoryAppointementContainer>}
 
-            <Box pt={8}>
                 <SubFooter>
                     <Stack
                         width={1}
@@ -1692,7 +1693,6 @@ function ConsultationInProgress() {
                         </LoadingButton>}
                     </Stack>
                 </SubFooter>
-            </Box>
 
             <DialogMui
                 open={openHistoryDialog && isMobile}

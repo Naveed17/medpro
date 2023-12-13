@@ -103,14 +103,15 @@ function FeesTab({...props}) {
 
 
     const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
-    const {data: httpAppointmentFees, mutate} = useRequestQuery(app_uuid ? {
+    const {data: httpAppointmentFees, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/acts/${router.locale}`
-    } : null);
+    });
 
     const res = (httpAppointmentFees as HttpResponse)?.data;
 
     useEffect(() => {
+        console.log(res)
         if (res) {
             let _acts = [{
                 act: {name: res.type.name},
