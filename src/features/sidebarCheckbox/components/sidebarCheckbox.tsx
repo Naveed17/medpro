@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {Checkbox, ListItemIcon, ListItemText} from '@mui/material'
 import SidebarCheckboxStyled from './overrides/sidebarCheckboxStyled';
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
@@ -13,12 +13,18 @@ export default function SidebarCheckbox({...props}) {
     const handleChange = (event: any) => {
         setChecked(event.target.checked);
         onChange(event.target.checked)
-    };
+    }
+
+    useEffect(() => {
+        setChecked(checkState);
+    }, [checkState]);
+
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
-        <SidebarCheckboxStyled styleprops={data?.color ? data.color : 'primary'}
-                               component='label' htmlFor={data.uuid}>
+        <SidebarCheckboxStyled
+            styleprops={data?.color ? data.color : 'primary'}
+            component='label' htmlFor={data.uuid}>
             <Checkbox
                 size="small"
                 checked={checked}

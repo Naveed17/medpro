@@ -1903,7 +1903,6 @@ function ConsultationInProgress() {
                     }}>
                     <RecondingBoxStyle
                         id={"record"}
-                        className={"btn-action"}
                         direction={"row"}
                         spacing={1}
                         style={{width: "100%", padding: 10}}>
@@ -2080,6 +2079,7 @@ function ConsultationInProgress() {
                                                 RHAP_UI.PROGRESS_BAR,
                                                 RHAP_UI.CURRENT_TIME,
                                                 <IconButton
+                                                    className={"btn-action"}
                                                     key={"close-icon"}
                                                     sx={{ml: 1}}
                                                     onClick={(event) => {
@@ -2094,6 +2094,7 @@ function ConsultationInProgress() {
                                             [
                                                 RHAP_UI.MAIN_CONTROLS,
                                                 <IconButton
+                                                    className={"btn-action"}
                                                     key={"ic-ia-document"}
                                                     onClick={(event) => {
                                                         event.stopPropagation();
@@ -2102,6 +2103,7 @@ function ConsultationInProgress() {
                                                     <IconUrl width={20} height={20} path={'ic-ia-document'}/>
                                                 </IconButton>,
                                                 <IconButton
+                                                    className={"btn-action"}
                                                     key={"ic-trash"}
                                                     onClick={(event) => {
                                                         event.stopPropagation();
@@ -2113,21 +2115,23 @@ function ConsultationInProgress() {
                                         }
                                         customIcons={{
                                             play: <CustomIconButton
+                                                className={"btn-action"}
                                                 variant="filled"
                                                 color={"primary"}
                                                 size={"small"}>
                                                 <IconUrl path={'ic-play-audio'}/>
                                             </CustomIconButton>,
                                             pause: <CustomIconButton
+                                                className={"btn-action"}
                                                 variant="filled"
                                                 color={"primary"}
                                                 size={"small"}>
                                                 <IconUrl path={'ic-pause'}/>
                                             </CustomIconButton>,
-                                            rewind: <IconButton>
+                                            rewind: <IconButton className={"btn-action"}>
                                                 <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-back'}/>
                                             </IconButton>,
-                                            forward: <IconButton>
+                                            forward: <IconButton className={"btn-action"}>
                                                 <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-forward'}/>
                                             </IconButton>
                                         }}
@@ -2138,6 +2142,7 @@ function ConsultationInProgress() {
                                     <>
                                         <Stack direction={"row"} spacing={1}>
                                             <LoadingButton
+                                                className={"btn-action"}
                                                 loading={loadingRequest}
                                                 loadingPosition={"start"}
                                                 startIcon={<IconUrl width={20} height={20} path={'ic-trash'}/>}
@@ -2158,6 +2163,7 @@ function ConsultationInProgress() {
                                                 <Typography>{t("consultationIP.yes-delete")}</Typography>
                                             </LoadingButton>
                                             <Button
+                                                className={"btn-action"}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     setDeleteAudio(false);
@@ -2176,7 +2182,7 @@ function ConsultationInProgress() {
                                             </Button>
                                         </Stack>
                                         <IconButton
-                                            className={"close-button"}
+                                            className={"close-button btn-action"}
                                             onClick={(event) => {
                                                 event.stopPropagation();
                                                 setSelectedAudio(null);

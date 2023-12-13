@@ -1,4 +1,4 @@
-import React, {Fragment, KeyboardEvent, useCallback} from "react";
+import React, {Fragment, KeyboardEvent, useCallback, useEffect, useRef, useState} from "react";
 import {
     Typography,
     Box,
@@ -22,6 +22,7 @@ import {leftActionBarSelector} from "@features/leftActionBar";
 import {FormikProvider, useFormik} from "formik";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import {Label} from "@features/label";
+import Switch from "@mui/material/Switch";
 
 interface Lab {
     label: string;
@@ -36,13 +37,17 @@ const Gender: { [key: number]: string } = {
 
 function PatientFilter({...props}) {
     const {item, t, keyPrefix = "", OnSearch} = props;
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const {query: filter} = useAppSelector(leftActionBarSelector);
+
+    const [edited, setEdited] = useState(false);
 
     const formik = useFormik({
         onSubmit<Values>(): void | Promise<any> {
             return undefined;
         },
+        enableReinitialize: true,
         initialValues: {
             name: filter?.patient?.name ?? "",
             birthdate: filter?.patient?.birthdate ? moment(filter?.patient?.birthdate, "DD-MM-YYYY").toDate() : null,
@@ -59,6 +64,7 @@ function PatientFilter({...props}) {
     }, [OnSearch]);
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lab: Lab) => {
+        setEdited(true);
         setFieldValue("name", event.target.value);
         if (event.target.value.length >= 1) {
             onSearchChange({
@@ -83,59 +89,69 @@ function PatientFilter({...props}) {
 
     const debouncedOnChange = debounce(handleOnChange, 500);
 
+    useEffect(() => {
+        if (queryState?.name.length === 0 && !edited && inputRef.current) {
+            inputRef.current.value = "";
+        }
+        setEdited(false);
+    }, [queryState?.name]) // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <FormikProvider value={formik}>
             <Box component="figure" sx={{m: 0}}>
-                {item.hasDouble && <FormControlLabel
-                    control={
-                        <Checkbox
-                            color="warning"
-                            size="small"
-                            checked={queryState.hasDouble}
-                            onChange={event => {
-                                setFieldValue("hasDouble", event.target.checked);
-                                onSearchChange({
-                                    query: {
-                                        ...filter?.patient,
-                                        ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                        hasDouble: event.target.checked
-                                    }
-                                });
-                            }}
-                        />}
-                    label={<Label
-                        variant="filled"
-                        sx={{
-                            cursor: "pointer",
-                            "& .MuiSvgIcon-root": {
-                                width: 14,
-                                height: 14,
-                                pl: 0,
-                                mr: 1
-                            }
-                        }}
-                        color={"warning"}>
-                        <WarningRoundedIcon/>
-                        <Typography sx={{fontSize: 10}}> {t(item.hasDouble?.heading)}</Typography>
-                    </Label>}/>}
-                {item.rest && <FormControlLabel
-                    control={
-                        <Checkbox
-                            color="warning"
-                            size="small"
-                            checked={queryState.rest}
-                            onChange={event => {
-                                setFieldValue("rest", event.target.checked);
-                                onSearchChange({
-                                    query: {
-                                        ...filter?.patient,
-                                        ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                        rest: event.target.checked
-                                    }
-                                });
-                            }}
-                        />}
-                    label={<Typography sx={{fontSize: 12}}> {t(item.rest?.heading)}</Typography>}/>}
+                {item.hasDouble &&
+                    <>
+                        <Typography variant="body2" color="text.secondary">
+                            {t(item.hasDouble?.heading)}
+                        </Typography>
+
+                        <FormControlLabel
+                            sx={{ml: .2, my: 1}}
+                            control={
+                                <Switch
+                                    color="warning"
+                                    size="small"
+                                    checked={queryState.hasDouble}
+                                    onChange={event => {
+                                        setFieldValue("hasDouble", event.target.checked);
+                                        onSearchChange({
+                                            query: {
+                                                ...filter?.patient,
+                                                ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                                hasDouble: event.target.checked
+                                            }
+                                        });
+                                    }}
+                                />}
+                            label={<Typography sx={{fontSize: 12}}> {t(`${keyPrefix}duplicate`)}</Typography>}/>
+                    </>
+                }
+                {item.rest &&
+                    <>
+                        <Typography variant="body2" color="text.secondary">
+                            {t(`${keyPrefix}payment`)}
+                        </Typography>
+                        <FormControlLabel
+                            sx={{ml: .2, my: 1}}
+                            control={
+                                <Switch
+                                    color="primary"
+                                    size="small"
+                                    checked={queryState.rest}
+                                    onChange={event => {
+                                        setFieldValue("rest", event.target.checked);
+                                        onSearchChange({
+                                            query: {
+                                                ...filter?.patient,
+                                                ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                                rest: event.target.checked
+                                            }
+                                        });
+                                    }}
+                                />}
+                            label={<Typography sx={{fontSize: 12}}> {t(item.rest?.heading)}</Typography>}/>
+                    </>
+                }
                 <Typography variant="body2" color="text.secondary">
                     {t(`${keyPrefix}${item.gender?.heading}`)}
                 </Typography>
@@ -202,6 +218,7 @@ function PatientFilter({...props}) {
                                         fullWidth
                                         onSubmit={e => e.preventDefault()}>
                                         <TextField
+                                            {...{inputRef}}
                                             defaultValue={queryState.name}
                                             onChange={(e) => debouncedOnChange(e, lab)}
                                             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {

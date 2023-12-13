@@ -1,6 +1,6 @@
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {SidebarCheckbox} from "@features/sidebarCheckbox";
 import {leftActionBarSelector, setFilter} from "@features/leftActionBar";
 
@@ -11,28 +11,22 @@ function AppointmentTypesFilter({...props}) {
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {query} = useAppSelector(leftActionBarSelector);
 
-    const types = appointmentTypes ? [...appointmentTypes] : [];
+    const [types, setTypes] = useState<any[]>(appointmentTypes ? [...appointmentTypes] : []);
 
     useEffect(() => {
-        types?.map((type) => {
-            Object.assign({...type}, {
-                checked:
-                    query?.type
-                        ?.split(",")
-                        .find((typeObject) => type.uuid === typeObject) !== undefined,
-            });
-        });
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+        setTypes(types.map((type) => ({
+            ...type,
+            checked:
+                query?.type?.split(",")?.find(typeObject => type.uuid === typeObject) !== undefined ?? false
+        })));
+    }, [query?.type]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    return (<>{types.map((item, index) => (
+    return types.map((item, index) => (
         <React.Fragment key={index}>
             <SidebarCheckbox
                 label={"name"}
                 checkState={item.checked}
-                translate={{
-                    t: t,
-                    ready: ready,
-                }}
+                translate={{t, ready}}
                 data={item}
                 onChange={(selected: boolean) => {
                     if (selected && !query?.type?.includes(item.uuid)) {
@@ -45,7 +39,7 @@ function AppointmentTypesFilter({...props}) {
                 }}
             />
         </React.Fragment>
-    ))}</>)
+    ))
 }
 
 export default AppointmentTypesFilter;

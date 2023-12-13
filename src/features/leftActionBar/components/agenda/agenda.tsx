@@ -7,7 +7,7 @@ import {
     PatientFilter,
     setFilter,
     AppointmentStatusFilter,
-    AppointmentTypesFilter,
+    AppointmentTypesFilter, FilterOverview,
 } from "@features/leftActionBar";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
@@ -104,6 +104,7 @@ function Agenda() {
                     disabledDay.includes(moment(date).weekday())
                 }
             />
+            <FilterOverview/>
             <Accordion
                 translate={{t, ready}}
                 data={accordionData}

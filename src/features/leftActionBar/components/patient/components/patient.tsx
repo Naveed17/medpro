@@ -12,7 +12,7 @@ import {
     ActionBarState,
     AppointmentActs,
     AppointmentDisease,
-    AppointmentReasonsFilter, InsuranceFilter,
+    AppointmentReasonsFilter, FilterOverview, InsuranceFilter,
     setFilter
 } from "@features/leftActionBar";
 import React, {useState} from "react";
@@ -51,6 +51,7 @@ function Patient() {
             children: (
                 <FilterRootStyled>
                     <PatientFilter
+                        {...{t}}
                         OnSearch={(data: { query: ActionBarState }) => {
                             handleFilterChange({patient: data.query});
                         }}
@@ -77,7 +78,6 @@ function Patient() {
                             },
                         }}
                         keyPrefix={"filter."}
-                        t={t}
                     />
                 </FilterRootStyled>
             ),
@@ -167,6 +167,7 @@ function Patient() {
                     gutterBottom>
                     {t(`filter.title`)}
                 </Typography>
+                <FilterOverview/>
                 <Accordion
                     translate={{t, ready}}
                     data={dataPatient}

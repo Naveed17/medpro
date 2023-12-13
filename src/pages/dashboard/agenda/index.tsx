@@ -260,9 +260,14 @@ function Agenda() {
             });
         } else {
             const filteredEvents = appointments.map(appointment => appointmentPrepareEvent(appointment, false, []))
-            eventsUpdated.push(...[...events.current, ...filteredEvents].map(event => ({
+            const mergedMap = new Map();
+            filteredEvents.forEach((item) => mergedMap.set(item.id, {...item}));
+            events.current.forEach((item) => mergedMap.set(item.id, {...mergedMap.get(item.id), ...item}));
+            const mergedArray = Array.from(mergedMap.values());
+
+            eventsUpdated.push(...mergedArray.map(event => ({
                 ...event,
-                filtered: !appointments?.find(appointment => appointment.uuid === event.id)
+                filtered: localFilter.length > 0 && !appointments?.find(appointment => appointment.uuid === event.id)
             })));
         }
 

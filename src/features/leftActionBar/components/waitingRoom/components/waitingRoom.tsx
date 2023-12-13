@@ -5,7 +5,7 @@ import {Accordion} from '@features/accordion';
 import {useTranslation} from "next-i18next";
 import {
     ActionBarState,
-    AppointmentTypesFilter,
+    AppointmentTypesFilter, FilterOverview,
     FilterRootStyled,
     PatientFilter,
     setFilter
@@ -82,10 +82,10 @@ function WaitingRoom() {
                 variant="h6"
                 color="text.primary"
                 sx={{py: 1.48, pl: "10px", mb: "0.21em"}}
-                gutterBottom
-            >
+                gutterBottom>
                 {t(`title`)}
             </Typography>
+            <FilterOverview/>
             <Accordion
                 translate={{
                     t: t,
