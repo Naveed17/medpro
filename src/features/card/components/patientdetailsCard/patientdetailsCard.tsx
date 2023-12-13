@@ -287,7 +287,7 @@ function PatientDetailsCard({...props}) {
                                             />
                                             {isBeta && rest > 0 &&
                                                 <Label variant='filled' sx={{color:theme.palette.error.main,background:theme.palette.error.lighter}}>
-                                                    <span style={{fontSize:11}}>{commonTranslation('credit')}</span>
+                                                    {!isMobile &&<span style={{fontSize: 11}}>{commonTranslation('credit')}</span>}
                                                     <span style={{fontSize: 14,
                                                         marginLeft: 5,
                                                         marginRight: 5,

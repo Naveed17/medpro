@@ -68,7 +68,9 @@ function LifeStyleDialog({...props}) {
                 })
             })
             setState([...state])
-            setLoading(false)
+            setTimeout(()=>{
+                setLoading(false)
+            },1000)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [antecedents])
@@ -95,6 +97,9 @@ function LifeStyleDialog({...props}) {
                 ]
             }
             setState([...state, _antecedent])
+            const el = document.getElementById("ctn")
+            if (el)
+                el.scrollIntoView(true);
         } else {
             setState([
                 ...state.slice(0, index),
@@ -106,7 +111,7 @@ function LifeStyleDialog({...props}) {
 
     return (
         <LifeStyleDialogStyled display='block'>
-            <Box maxWidth={{xs: '100%', md: '100%'}} mx="auto">
+            <Box maxWidth={'100%'} mx="auto" id={"ctn"}>
                 {loading ?
                     initalData.map((item, index) => (
                         <Box
@@ -145,12 +150,11 @@ function LifeStyleDialog({...props}) {
                             }}
                         />
 
-                        {antecedents.filter((item: AntecedentsTypeModel) => item.name.toLowerCase().includes(value.toLowerCase())).map((list: any, idx: number) =>
+                        {state && antecedents.sort((a, b) => (state?.find(inf => inf.uuid == a.uuid) !== undefined ? -1 : 1))
+                            .filter((item: AntecedentsTypeModel) => item.name.toLowerCase().includes(value.toLowerCase())).map((list: any, idx: number) =>
                             <Stack key={idx} spacing={0}>
                                 <ListItem>
-                                    <FormGroup
-                                        className={state?.find(inf => inf.uuid == list.uuid) !== undefined ? "selected-ant" : ""}
-                                        row>
+                                    <FormGroup className={state?.find(inf => inf.uuid == list.uuid) !== undefined ? "selected-ant" : ""} row>
                                         <Stack style={{width: "100%"}}>
                                             <FormControlLabel
                                                 control={

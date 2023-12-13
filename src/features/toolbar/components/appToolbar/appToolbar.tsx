@@ -315,7 +315,6 @@ function AppToolbar({...props}) {
                         allowScrollButtonsMobile={isMobile}
                         scrollButtons={true}
                         textColor="primary"
-                        disabled={loading}
                         indicatorColor="primary"
                         aria-label="patient_history">
                         {tabsData.map((tab: { label: string; }) => (

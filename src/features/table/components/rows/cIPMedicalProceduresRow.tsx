@@ -45,6 +45,7 @@ function CIPMedicalProceduresRow({...props}) {
                                 e.stopPropagation();
                                 row.qte = row.qte - 1;
                                 editMotif(row, "change");
+                                handleEvent()
                             }}>
                             <RemoveIcon width={1} height={1}/>
                         </IconButton>
@@ -52,6 +53,7 @@ function CIPMedicalProceduresRow({...props}) {
                         <InputBaseStyled
                             placeholder={"1"}
                             value={row.qte}
+                            readOnly={true}
                             onClick={(e) => e.stopPropagation()}
                             onFocus={() => {
                                 setSelected(row.uuid + "qte");
@@ -75,6 +77,7 @@ function CIPMedicalProceduresRow({...props}) {
                                 e.stopPropagation();
                                 row.qte = row.qte + 1;
                                 editMotif(row, "change");
+                                handleEvent()
                             }}>
                             <AddIcon/>
                         </IconButton>

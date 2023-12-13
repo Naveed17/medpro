@@ -46,6 +46,7 @@ import {TabPanel} from "@features/tabPanel";
 import moment from "moment-timezone";
 import {agendaSelector} from "@features/calendar";
 import {saveAs} from "file-saver";
+import {SetSelectedTab} from "@features/leftActionBar/components/cashbox";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -394,6 +395,7 @@ function Cashbox() {
     }
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
+        dispatch(SetSelectedTab(newValue))
     }
     const exportDoc = () => {
         triggerExport({
@@ -424,7 +426,6 @@ function Cashbox() {
                         }}
                         scrollButtons={true}
                         textColor="primary"
-                        disabled={loading}
                         indicatorColor="primary">
                         {tabsData.map((tab: { label: string; }) => (
                             <Tab
