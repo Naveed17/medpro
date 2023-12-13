@@ -19,7 +19,7 @@ function FilterOverview() {
 
     const [filterData, setFilterData] = useState<FilterModel[]>([]);
 
-    const handleDelete = (data: FilterModel, index: number) => {
+    const handleDelete = (data: FilterModel) => {
         if (filter) {
             let queryGlobal = null;
             switch (data.parent) {
@@ -57,7 +57,7 @@ function FilterOverview() {
     useEffect(() => {
         if (filter) {
             let filters: any[] = [];
-            Object.entries(filter).forEach((filterItem, index) => {
+            Object.entries(filter).forEach((filterItem) => {
                 if (filterItem[1]) {
                     switch (filterItem[0]) {
                         case "patient":
@@ -107,7 +107,7 @@ function FilterOverview() {
                     label={data.value}
                     color="primary"
                     deleteIcon={<CloseIcon/>}
-                    onDelete={() => handleDelete(data, index)}
+                    onDelete={() => handleDelete(data)}
                 />))}
             </Stack>
         </FilterOverviewStyled>)

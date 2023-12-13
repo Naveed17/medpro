@@ -7,7 +7,7 @@ import {
     FormControlLabel,
     Radio,
     TextField,
-    InputLabel, IconButton, Stack, Checkbox,
+    InputLabel, IconButton, Stack
 } from "@mui/material";
 import _ from "lodash";
 import moment from "moment-timezone";
@@ -20,8 +20,6 @@ import {debounce} from "lodash";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {FormikProvider, useFormik} from "formik";
-import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import {Label} from "@features/label";
 import Switch from "@mui/material/Switch";
 
 interface Lab {

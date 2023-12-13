@@ -230,7 +230,7 @@ function Agenda() {
 
     const updateCalendarEvents = (result: HttpResponse) => {
         setLoading(true);
-        let eventCond = [];
+        let eventCond;
         let absences: any[] = [];
         if (query?.queryData.includes("format=list")) {
             events.current = [];
