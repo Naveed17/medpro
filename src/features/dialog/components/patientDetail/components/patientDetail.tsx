@@ -480,7 +480,7 @@ function PatientDetail({...props}) {
                             handleItemClick={handleActionFab}
                             actions={[
                                 {icon: <SpeedDialIcon/>, name: t("tabs.add-appo"), action: "add-appointment"},
-                                {icon: <CloudUploadIcon/>, name: t("tabs.import"), action: "import-document"},
+                                {icon: <IconUrl path="fileadd" width={20} height={20}/>, name: t("tabs.import"), action: "import-document"},
                             ]}
                         />
                     </Box>
