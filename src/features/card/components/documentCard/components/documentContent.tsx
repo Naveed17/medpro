@@ -7,18 +7,18 @@ import {MobileContainer} from "@lib/constants";
 import Icon from "@themes/urlIcon";
 
 function DocumentContent({...props}) {
-    const {t, data, date, resize} = props;
+    const {t, data, date, resize,width = null} = props;
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const theme = useTheme();
 
     return (
         <Stack {...(!resize ? {direction: "column"} : {alignItems: "flex-start", m: 1})}>
             <Typography
-                className={"sub-title ellipsis"} variant='subtitle2'
+                className={"sub-title ellipsis"} style={{width: width ?width:""}} variant='subtitle2'
                 whiteSpace={"nowrap"}
                 sx={{cursor: "pointer", textOverflow: "ellipsis",
-                    overflow: "hidden",
-                    width: "4rem"}}
+                    overflow: "hidden"
+                    }}
                 textAlign={"left"}
                 fontSize={13}>
                 {t(data.title)}

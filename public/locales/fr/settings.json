@@ -307,7 +307,7 @@
         "add": "Ajouter",
         "no-data": {
           "vacation": {
-            "title": "Ajouter votre premier absence",
+            "title": "Ajouter votre première absence",
             "sub-title": "Pas de absences",
             "description": "",
             "button-text": "Ajouter un absence"

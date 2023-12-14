@@ -13,7 +13,7 @@ interface StateProps {
 }
 
 function AppointmentFilter({...props}) {
-    const {item, t, ready, keyPrefix = "", OnSearch} = props;
+    const {item, t, keyPrefix = "", OnSearch} = props;
     const dispatch = useAppDispatch();
 
     const {query} = useAppSelector(leftActionBarSelector);
@@ -31,13 +31,10 @@ function AppointmentFilter({...props}) {
             <Box>
                 {appointmentTypes?.map((item, index) =>
                     <SidebarCheckbox
+                        {...{t}}
                         key={index}
                         label={"name"}
                         checkState={item.checked}
-                        translate={{
-                            t: t,
-                            ready: ready,
-                        }}
                         data={item}
                         onChange={(selected: boolean) => {
                             if (selected && !query?.type?.includes(item.uuid)) {

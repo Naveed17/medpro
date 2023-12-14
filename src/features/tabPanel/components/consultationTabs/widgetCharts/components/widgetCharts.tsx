@@ -1,8 +1,9 @@
 import React from "react";
-import {Card, Grid, Stack} from "@mui/material";
+import {Card, Grid, Stack, useMediaQuery} from "@mui/material";
 import 'react-h5-audio-player/lib/styles.css';
 import dynamic from "next/dynamic";
 import {Label} from "@features/label";
+import {MobileContainer as smallScreen} from "@lib/constants";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), {ssr: false});
 
@@ -15,6 +16,7 @@ function WidgetCharts({...props}) {
     } = props;
 
     let data: any[] = [];
+    const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const getCategories = (key: string) => {
         let res: string[] = [];
@@ -59,13 +61,13 @@ function WidgetCharts({...props}) {
             }]
         })
     });
-
+console.log(data)
     return (
         <Stack spacing={1}>
             <Grid container spacing={1} marginBottom={2}>
                 {
-                    data.map((chart, index) => (
-                        <Grid item key={`chart-${index}`} xs={mini ? 12 : 6}>
+                    data.filter(chart => chart.series[0].data.length > 1).map((chart, index) => (
+                        <Grid item key={`chart-${index}`} xs={mini ||isMobile ? 12 : 6}>
                             <Stack>
                                 <Stack spacing={2} mb={2} alignItems="flex-start">
                                     <Label variant="filled" color="warning">

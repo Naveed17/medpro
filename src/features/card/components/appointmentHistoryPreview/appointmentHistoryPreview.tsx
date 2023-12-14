@@ -78,7 +78,7 @@ function AppointmentHistoryPreview({...props}) {
                         color="text.secondary"
                         sx={{cursor: "pointer"}}
                         textTransform={"capitalize"}>
-                        {moment(app.date, "DD-MM-YYYY").format(
+                        {!isMobile &&moment(app.date, "DD-MM-YYYY").format(
                             "ddd DD-MM-YYYY"
                         )}{" "}
                         <AccessTimeIcon

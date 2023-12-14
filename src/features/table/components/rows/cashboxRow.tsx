@@ -157,7 +157,7 @@ function CashboxRow({...props}) {
                         justifyContent="center"
                         spacing={1}>
                         {row.payment_means && row.payment_means.map((mean: any) => (
-                            <HtmlTooltip key={mean.slug + "pm"} title={<React.Fragment>
+                            <HtmlTooltip key={mean.uuid + "pm"} title={<React.Fragment>
                                 {
                                     mean.data && <Stack>
                                         {mean.data.nb && <Typography fontSize={12}>Chq N°<span

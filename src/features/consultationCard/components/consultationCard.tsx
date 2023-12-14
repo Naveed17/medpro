@@ -103,6 +103,9 @@ function ConsultationCard({...props}: any) {
                                                                let _cards = [...cards];
                                                                _cards[ind][index].expanded = !item.expanded
                                                                _cards[ind][index].config = false
+                                                               const _locPosition = JSON.parse(localStorage.getItem("cardPositions") as string)
+                                                               localStorage.setItem(`cardPositions`, JSON.stringify({..._locPosition,widget: item.expanded}))
+
                                                                setCards([..._cards])
                                                                mutateSheetData()
                                                            }}

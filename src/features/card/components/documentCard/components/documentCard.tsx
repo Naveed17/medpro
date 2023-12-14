@@ -6,7 +6,7 @@ import {DocumentContent} from "@features/card";
 import {iconDocument} from "@lib/constants";
 
 function DocumentCard({...props}) {
-    const {data, onClick, t, date, title, resize} = props;
+    const {data, onClick, t, date, title, resize,width = null} = props;
 
     return (
         <>
@@ -20,7 +20,7 @@ function DocumentCard({...props}) {
                                        alignItems="center">
                                     <IconUrl width={title ? "20" : "50"} height={title ? "20" : "50"}
                                              path={iconDocument(data.documentType)}/>
-                                    {title && <DocumentContent {...{data, date, t, resize}}/>}
+                                    {title && <DocumentContent {...{data, date, t, resize,width}}/>}
                                 </Stack>
                             </CardContent>
                         </Tooltip>
@@ -38,7 +38,7 @@ function DocumentCard({...props}) {
                             <Tooltip title={data.description ? `Note : ${data.description}` : data.title}>
                                 <Stack onClick={onClick} alignItems="center" direction={"row"}>
                                     <IconUrl width={40} height={80} path={iconDocument(data.documentType)}/>
-                                    <DocumentContent {...{data, date, t, resize}}/>
+                                    <DocumentContent {...{data, date, t, resize,width}}/>
                                 </Stack>
                             </Tooltip>
                         </CardContent>
@@ -60,7 +60,7 @@ function DocumentCard({...props}) {
                                             currentTarget.src = "/static/icons/ic-quote.svg";
                                         }}
                                         alt={'photo history'}/>
-                                    {title && <DocumentContent {...{data, date, t, resize}} />}
+                                    {title && <DocumentContent {...{data, date, t, resize,width}} />}
                                 </Stack>
                             </CardContent>
                         </Tooltip>
@@ -79,7 +79,7 @@ function DocumentCard({...props}) {
                                             currentTarget.src = "/static/icons/ic-quote.svg";
                                         }}
                                         alt={'photo history'}/>
-                                    <DocumentContent {...{data, date, t, resize}} />
+                                    <DocumentContent {...{data, date, t, resize,width}} />
                                 </Stack>
                             </CardContent>
                         </Tooltip>

@@ -23,7 +23,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import IconUrl from "@themes/urlIcon";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {DefaultCountry} from "@lib/constants";
+import {DefaultCountry, MobileContainer} from "@lib/constants";
+import {agendaSelector} from "@features/calendar";
 
 function SwitchConsultationDialog({...props}) {
     const {
@@ -35,6 +36,7 @@ function SwitchConsultationDialog({...props}) {
     const theme = useTheme();
     const {data: session} = useSession();
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -44,6 +46,7 @@ function SwitchConsultationDialog({...props}) {
 
     const {t} = useTranslation(["common", "consultation"]);
     const {event} = useAppSelector(timerSelector);
+    const {selectedEvent} = useAppSelector(agendaSelector);
 
     const [instruction, setInstruction] = useState("");
     const [checkedNext, setCheckedNext] = useState(false);
@@ -53,14 +56,14 @@ function SwitchConsultationDialog({...props}) {
     return (
         <SwitchConsultationDialogStyled sx={{minHeight: 150}} alignItems={"center"}>
             <Typography sx={{textAlign: "center"}}
-                        variant="subtitle1">{t(`dialogs.switch-consultation-dialog.sub-title`)} </Typography>
+                        variant="subtitle1">{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.sub-title`)} </Typography>
             <Typography sx={{textAlign: "center"}}
-                        marginTop={2}>{t(`dialogs.switch-consultation-dialog.description`).split(',')[0]},</Typography>
+                        marginTop={2}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description`).split(',')[0]},</Typography>
             <Typography
-                sx={{textAlign: "center"}}>{t(`dialogs.switch-consultation-dialog.description`).split(',')[1]}</Typography>
+                sx={{textAlign: "center"}}>{t(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.description`).split(',')[1]}</Typography>
 
             <Stack direction={"row"} py={3} alignItems={"center"} justifyContent={"space-between"} sx={{width: '80%'}}>
-                <Stack direction={"row"} alignItems={"center"} spacing={1.2}>
+                <Stack direction={isMobile ? "column" : "row"}  alignItems={"center"} spacing={1.2}>
                     <Avatar sx={{width: 40, height: 40, bgcolor: 'primary.main'}}/>
                     <Stack>
                         <Stack direction={"row"} alignItems={"center"} spacing={.5}>

@@ -14,7 +14,8 @@ import {
     Tabs,
     tabsClasses,
     Theme,
-    Typography, useMediaQuery,
+    Typography,
+    useMediaQuery,
     useTheme,
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
@@ -23,7 +24,7 @@ import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NewCashboxMobileCard, NoDataCard} from "@features/card";
+import {NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -44,7 +45,8 @@ import {LoadingButton} from "@mui/lab";
 import {TabPanel} from "@features/tabPanel";
 import moment from "moment-timezone";
 import {agendaSelector} from "@features/calendar";
-import { saveAs } from "file-saver";
+import {saveAs} from "file-saver";
+import {SetSelectedTab} from "@features/leftActionBar/components/cashbox";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -232,15 +234,17 @@ function Cashbox() {
     */
     const [loading, setLoading] = useState(true);
     const [selectedCashBox, setCashbox] = useState<any>(null);
-    let [selectedTab, setSelectedTab] = useState('transactions');
+    let [selectedTab, setSelectedTab] = useState('consultations');
     const tabsData = [
+        {
+            label: "consultations",
+            value: "consultations"
+        },
         {
             label: "transactions",
             value: "transactions"
-        }, {
-            label: "consultations",
-            value: "consultations"
-        }]
+        }
+    ]
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -305,12 +309,13 @@ function Cashbox() {
         else setRows([]);
         if (filterQuery.includes("cashboxes")) setLoading(false);
     }
+
     const getConsultation = (start: string, end: string) => {
         const query = `?mode=rest&start_date=${moment(start, "DD-MM-YYYY").format("DD-MM-YYYY")}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week`
-        triggerAppointmentDetails(agenda ? {
+        agenda && triggerAppointmentDetails({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}${query}`
-        } : null, {
+        }, {
             onSuccess: (result) => {
                 const res = result.data.data
                 setApps(res)
@@ -320,6 +325,7 @@ function Cashbox() {
             }
         });
     }
+
     const handleTableActions = (data: any) => {
         const {action, event, row} = data
         switch (action) {
@@ -389,12 +395,13 @@ function Cashbox() {
     }
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue)
+        dispatch(SetSelectedTab(newValue))
     }
     const exportDoc = () => {
         triggerExport({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedBoxes[0].uuid}/export/${router.locale}${filterQuery}`
-        },{
+        }, {
             onSuccess: (result) => {
                 const buffer = Buffer.from(result.data, "base64") //Buffer is only available when using nodejs
                 saveAs(new Blob([buffer]), "transaction.xlsx")
@@ -419,28 +426,26 @@ function Cashbox() {
                         }}
                         scrollButtons={true}
                         textColor="primary"
-                        disabled={loading}
                         indicatorColor="primary">
-                        {
-                            tabsData.map((tab: { label: string; }) => (
-                                <Tab
-                                    className="custom-tab"
-                                    key={tab.label}
-                                    value={tab.label}
-                                    disabled={loading}
-                                    label={t(tab.label)}
-                                />
-                            ))
+                        {tabsData.map((tab: { label: string; }) => (
+                            <Tab
+                                className="custom-tab"
+                                key={tab.label}
+                                value={tab.label}
+                                disabled={loading}
+                                label={t(tab.label)}
+                            />
+                        ))
                         }
                     </Tabs>
                     <Stack direction={"row"} alignItems={"center"} spacing={1}>
 
-                        {! isMobile &&<><Typography fontSize={12}> {t("unpaidConsult")}</Typography>
-                        <Typography variant="h6">
-                            {unpaid} <span style={{fontSize: 10}}>{devise}</span>
-                        </Typography>
-                        <Typography>|</Typography>
-                        <Typography fontSize={12}> {t("total")}</Typography></>}
+                        {!isMobile && <><Typography fontSize={12}> {t("unpaidConsult")}</Typography>
+                            <Typography variant="h6">
+                                {unpaid} <span style={{fontSize: 10}}>{devise}</span>
+                            </Typography>
+                            <Typography>|</Typography>
+                            <Typography fontSize={12}> {t("total")}</Typography></>}
                         <Typography variant="h6">
                             {total} <span style={{fontSize: 10}}>{devise}</span>
                         </Typography>
@@ -469,13 +474,33 @@ function Cashbox() {
                                     </Typography>
                                 </Stack>
                             </Stack>
-                            <Otable
-                                {...{rows: apps, t, insurances, pmList, mutateTransactions, filterCB}}
-                                headers={consultationCells}
-                                from={"unpaidconsult"}
-                                handleEvent={handleTableActions}
-                            />
-                        </CardContent></Card>
+                            <DesktopContainer>
+                                <Otable
+                                    {...{rows: apps, t, insurances, pmList, mutateTransactions, filterCB}}
+                                    headers={consultationCells}
+                                    from={"unpaidconsult"}
+                                    handleEvent={handleTableActions}
+                                />
+                            </DesktopContainer>
+                            <MobileContainer>
+                                <Stack spacing={1}>
+                                    {apps.map((row) => (
+                                        <React.Fragment key={row.uuid}>
+                                            <UnpaidConsultationCard {...{
+                                                row,
+                                                devise,
+                                                t,
+                                                insurances,
+                                                handleEvent: handleTableActions
+                                            }}/>
+                                        </React.Fragment>
+                                    ))}
+
+                                </Stack>
+                            </MobileContainer>
+                        </CardContent>
+
+                    </Card>
                 </TabPanel>
 
                 <TabPanel padding={1} value={selectedTab} index={"transactions"}>
@@ -483,7 +508,7 @@ function Cashbox() {
                         {rows.length > 0 ? (
                             <Card>
                                 <CardContent>
-                                    <Stack direction='row' alignItems={{xs: 'flex-start', md: 'center'}}
+                                    <Stack direction='row' alignItems={{xs: 'center', md: 'center'}}
                                            justifyContent="space-between" mb={2} pb={1} borderBottom={1}
                                            borderColor='divider'>
                                         <Typography fontWeight={700}>

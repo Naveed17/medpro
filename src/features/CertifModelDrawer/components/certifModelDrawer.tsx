@@ -188,7 +188,14 @@ function CertifModelDrawer({...props}) {
                                                     sizedot={12}
                                                     padding={3} marginRight={5}
                                                     selected={false}/>
-                                                <Typography variant="body2" style={{cursor: "pointer"}}>
+                                                <Typography variant="body2" style={{
+                                                    cursor: "pointer",
+                                                    whiteSpace: "nowrap",
+                                                    fontSize: 13,
+                                                    textOverflow: "ellipsis",
+                                                    overflow: "hidden",
+                                                    width: "4rem"
+                                                }}>
                                                     {sug.title}
                                                 </Typography>
                                             </Stack>
