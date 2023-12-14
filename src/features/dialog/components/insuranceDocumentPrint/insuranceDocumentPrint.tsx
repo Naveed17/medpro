@@ -55,25 +55,21 @@ function InsuranceDocumentPrint({...props}) {
                         url: `/api/public/insurances/documents/${insuranceDocument}/${router.locale}`
                     }, {
                         onSuccess: async (result: any) => {
-                            console.log("document", document);
                             const data = (result?.data as HttpResponse)?.data;
                             const docFile = await fetch(data.url).then((res) => res.arrayBuffer());
-
-                            console.log("pagedFields", pagedFields);
                             const insurancePdfDoc = await PDFDocument.load(docFile);
                             const copiedPages = await pdfDoc.copyPages(insurancePdfDoc, insurancePdfDoc.getPageIndices());
-                            console.log("copiedPages", copiedPages)
                             for (const page of copiedPages) {
-                                console.log("getWidth", page.getWidth())
-                                console.log("getHeight", page.getHeight())
                                 const index = copiedPages.indexOf(page);
                                 pagedFields[index + 1]?.forEach((field: any) => {
-                                    page.drawText(field.value?.toString() ?? "", {
-                                        x: field.posX ?? 0,
-                                        y: field.posY + 220,
-                                        font: helveticaFont,
-                                        size: 10
-                                    })
+                                    if (field.posX && field.posY) {
+                                        page.drawText(field.value?.toString() ?? "", {
+                                            x: field.posX,
+                                            y: field.posY,
+                                            font: helveticaFont,
+                                            size: 10
+                                        });
+                                    }
                                 });
                                 pdfDoc.addPage(page);
                             }
@@ -86,12 +82,14 @@ function InsuranceDocumentPrint({...props}) {
                     Object.entries(pagedFields).forEach((fields: any) => {
                         const page = pdfDoc.addPage([PageSizes.A4[1], PageSizes.A4[0]]);
                         fields[1]?.forEach((field: any) => {
-                            page.drawText(field.value?.toString() ?? "", {
-                                x: field.posX,
-                                y: field.posY + 320,
-                                font: helveticaFont,
-                                size: 10
-                            })
+                            if (field.posX && field.posY) {
+                                page.drawText(field.value?.toString() ?? "", {
+                                    x: field.posX,
+                                    y: field.posY,
+                                    font: helveticaFont,
+                                    size: 10
+                                })
+                            }
                         });
                     });
                     const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
