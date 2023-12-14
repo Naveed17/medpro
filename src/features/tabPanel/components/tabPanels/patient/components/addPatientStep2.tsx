@@ -314,7 +314,6 @@ function AddPatientStep2({...props}) {
         }
     }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    console.log('step 2 ', values);
     return (
         <FormikProvider value={formik}>
             <Stack
