@@ -67,10 +67,10 @@ function InsuranceDocumentPrint({...props}) {
                                 console.log("getWidth", page.getWidth())
                                 console.log("getHeight", page.getHeight())
                                 const index = copiedPages.indexOf(page);
-                                pagedFields[index + 1].forEach((field: any) => {
+                                pagedFields[index + 1]?.forEach((field: any) => {
                                     page.drawText(field.value?.toString() ?? "", {
-                                        x: field.posX,
-                                        y: field.posY,
+                                        x: field.posX ?? 0,
+                                        y: field.posY + 320,
                                         font: helveticaFont,
                                         size: 10
                                     })
@@ -87,8 +87,8 @@ function InsuranceDocumentPrint({...props}) {
                         const page = pdfDoc.addPage([PageSizes.A4[1], PageSizes.A4[0]]);
                         fields[1]?.forEach((field: any) => {
                             page.drawText(field.value?.toString() ?? "", {
-                                x: field.posX ?? 0,
-                                y: (field.posY + 320)?? 0,
+                                x: field.posX,
+                                y: field.posY + 320,
                                 font: helveticaFont,
                                 size: 10
                             })
