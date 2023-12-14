@@ -5,7 +5,7 @@ import {useRouter} from "next/router";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {PDFDocument, StandardFonts} from 'pdf-lib';
+import {PageSizes, PDFDocument, StandardFonts} from 'pdf-lib';
 import {agendaSelector} from "@features/calendar";
 import {onOpenPatientDrawer, Otable} from "@features/table";
 import {NoDataCard} from "@features/card";
@@ -42,9 +42,14 @@ function InsuranceDocumentPrint({...props}) {
         }, {
             onSuccess: async (result: any) => {
                 const document = (result?.data as HttpResponse)?.data;
+                const pdfDoc = await PDFDocument.create();
+                const helveticaFont = await pdfDoc.embedFont(StandardFonts.Courier);
+                const fields: any[] = document.insurance.map((field: any) => ({
+                    ...field,
+                    value: document.data[field.key][0]
+                }));
+                const pagedFields = fields.group((field: any) => field.page);
                 if (backgroundDoc) {
-                    const pdfDoc = await PDFDocument.create();
-                    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Courier)
                     triggerDocInsurance({
                         method: "GET",
                         url: `/api/public/insurances/documents/${insuranceDocument}/${router.locale}`
@@ -53,15 +58,14 @@ function InsuranceDocumentPrint({...props}) {
                             console.log("document", document);
                             const data = (result?.data as HttpResponse)?.data;
                             const docFile = await fetch(data.url).then((res) => res.arrayBuffer());
-                            const fields: any[] = document.insurance.map((field: any) => ({
-                                ...field,
-                                value: document.data[field.key][0]
-                            }));
-                            const pagedFields = fields.group((field: any) => field.page);
+
                             console.log("pagedFields", pagedFields);
                             const insurancePdfDoc = await PDFDocument.load(docFile);
                             const copiedPages = await pdfDoc.copyPages(insurancePdfDoc, insurancePdfDoc.getPageIndices());
+                            console.log("copiedPages", copiedPages)
                             for (const page of copiedPages) {
+                                console.log("getWidth", page.getWidth())
+                                console.log("getHeight", page.getHeight())
                                 const index = copiedPages.indexOf(page);
                                 pagedFields[index + 1].forEach((field: any) => {
                                     page.drawText(field.value?.toString() ?? "", {
@@ -79,7 +83,19 @@ function InsuranceDocumentPrint({...props}) {
                         }
                     })
                 } else {
-                    setFile(`data:application/pdf;base64,${document}`)
+                    Object.entries(pagedFields).forEach((fields: any) => {
+                        const page = pdfDoc.addPage([PageSizes.A4[1], PageSizes.A4[0]]);
+                        fields[1].forEach((field: any) => {
+                            page.drawText(field.value?.toString() ?? "", {
+                                x: field.posX,
+                                y: field.posY,
+                                font: helveticaFont,
+                                size: 10
+                            })
+                        });
+                    });
+                    const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
+                    setFile(mergedPdf);
                 }
             },
             onSettled: () => {
