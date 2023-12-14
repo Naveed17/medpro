@@ -68,7 +68,7 @@ function WaitingRoom() {
                         title: "meetingType",
                     },
                     expanded: true,
-                    children: (<AppointmentTypesFilter {...{t, ready}} />)
+                    children: (<AppointmentTypesFilter/>)
                 },
             ])
         }

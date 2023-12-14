@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 import {SidebarCheckbox} from "@features/sidebarCheckbox";
 import {leftActionBarSelector, setFilter} from "@features/leftActionBar";
 
-function AppointmentTypesFilter({...props}) {
+function AppointmentTypesFilter() {
     const dispatch = useAppDispatch();
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);

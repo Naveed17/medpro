@@ -78,7 +78,7 @@ function Agenda() {
                         title: "meetingType",
                     },
                     expanded: false,
-                    children: (<AppointmentTypesFilter {...{t, ready}} />)
+                    children: (<AppointmentTypesFilter/>)
                 },
                 {
                     heading: {
