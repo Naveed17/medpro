@@ -310,11 +310,11 @@ export default function OphtPreview({...props}) {
                                                    let _examination = [...examination]
                                                    _examination[index].od = e.target.value;
 
-                                                   if (index === 4 || index === 5)
-                                                       if (_examination[4].od && _examination[5].od) {
-                                                           const res = impact.find(i => i.pachymetry === _examination[5].od);
+                                                   if (index === 0 || index === 1)
+                                                       if (_examination[0].od && _examination[1].od) {
+                                                           const res = impact.find(i => i.pachymetry === _examination[1].od);
                                                            if (res && res.correction)
-                                                               _examination[6].od = (parseInt(_examination[4].od) + res.correction).toString()
+                                                               _examination[2].od = (parseInt(_examination[0].od) + res.correction).toString()
                                                        }
 
                                                    setExamination([..._examination])
@@ -374,11 +374,11 @@ export default function OphtPreview({...props}) {
                                                    let _tonus = [...tonus]
                                                    _tonus[index].od = e.target.value;
 
-                                                   if (index === 4 || index === 5)
-                                                       if (_tonus[4].od && _tonus[5].od) {
-                                                           const res = impact.find(i => i.pachymetry === _tonus[5].od);
+                                                   if (index === 0 || index === 1)
+                                                       if (_tonus[0].od && _tonus[1].od) {
+                                                           const res = impact.find(i => i.pachymetry === _tonus[1].od);
                                                            if (res && res.correction)
-                                                               _tonus[6].od = (parseInt(_tonus[4].od) + res.correction).toString()
+                                                               _tonus[2].od = (parseInt(_tonus[0].od) + res.correction).toString()
                                                        }
                                                    setTonus([..._tonus])
                                                }}
@@ -398,6 +398,12 @@ export default function OphtPreview({...props}) {
                                                onChange={(e) => {
                                                    let _tonus = [...tonus]
                                                    _tonus[index].og = e.target.value;
+                                                   if (index === 0 || index === 1)
+                                                       if (_tonus[0].og && _tonus[1].og) {
+                                                           const res = impact.find(i => i.pachymetry === _tonus[1].og);
+                                                           if (res && res.correction)
+                                                               _tonus[2].og = (parseInt(_tonus[0].og) + res.correction).toString()
+                                                       }
                                                    setTonus([..._tonus])
                                                }}
                                                value={ex.og}/>

@@ -709,8 +709,9 @@
       "subtitleRemove": "Si vous supprimez ce modèle, vous ne pourrez plus l'utiliser à nouveau.",
       "remove": "Supprimer",
       "titleholder": "Ordonnance...",
-      "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
-      "asDefault": "Sélectionnez-le comme modèle par défaut",
+      "selectTypes": "Appliquer ce modèle sur",
+      "docSize": "Taille document",
+      "asDefault": "Modèle par défaut",
       "modifier": "Modifier",
       "close": "Terminer",
       "analyses": "Analyses",
@@ -720,7 +721,8 @@
       "years": "Ans",
       "months": "Mois",
       "days": "Jours",
-      "blankDoc": "document blanc"
+      "blankDoc": "document blanc",
+      "modelProprities": "Propriétés du modèle"
     }
   }
 }
