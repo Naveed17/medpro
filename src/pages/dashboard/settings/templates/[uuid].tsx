@@ -7,24 +7,16 @@ import {useFormik} from "formik";
 import {
     Box,
     Button,
-    Card,
-    CardContent,
     Checkbox,
     Collapse,
     DialogActions,
     FormControl,
     Grid,
     IconButton,
-    List,
-    ListItem,
-    ListItemText,
     MenuItem,
-    Skeleton,
+    Select,
     Stack,
     TextField,
-    ToggleButton,
-    ToggleButtonGroup,
-    Tooltip,
     Typography,
     useMediaQuery,
     useTheme
@@ -32,18 +24,9 @@ import {
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
+import Paper from '@mui/material/Paper';
 
 import {useReactToPrint} from "react-to-print";
-import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
-import {UploadFile} from "@features/uploadFile";
-import {FileuploadProgress} from "@features/progressUI";
-import Zoom from "@mui/material/Zoom";
-import PreviewA4 from "@features/files/components/previewA4";
-import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
-import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
-import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
-import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
-import {Editor} from '@tinymce/tinymce-react';
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
@@ -57,9 +40,10 @@ import Autocomplete from "@mui/material/Autocomplete";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
-
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import {LoadingScreen} from "@features/loadingScreen";
+import {Resizable} from "re-resizable";
 
 function DocsConfig() {
     const router = useRouter();
@@ -80,6 +64,7 @@ function DocsConfig() {
     const [title, setTitle] = useState("");
     const [isDefault, setIsDefault] = useState(false);
     const [hasData, setHasData] = useState(false);
+    const [propsModel, setPropsModel] = useState(true);
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
@@ -340,43 +325,17 @@ function DocsConfig() {
             </SubHeader>
 
             <Grid container>
-                <Grid item xs={12} md={5}>
-                    <Box padding={2} style={{background: "white"}}
-                         borderRight={'1px solid #c7c6c7'}
-                         height={'100%'}>
-                        <Stack direction={"row"}
-                               alignItems={"center"}
-                               paddingBottom={1}
-                               borderBottom={'1px solid rgba(0,0,0,.1)'}
-                               justifyContent={"space-between"}>
-                            <Typography fontSize={16}>
-                                {t('proprety')}
-                            </Typography>
-                            <Stack direction={"row"}>
-                                <Tooltip title={t("preview")} TransitionComponent={Zoom}>
-                                    <IconButton onClick={printNow} sx={{
-                                        border: "1px solid",
-                                        mr: 1,
-                                        borderRadius: 2,
-                                        color: theme.palette.grey[400]
-                                    }}>
-                                        <LocalPrintshopRoundedIcon
-                                            style={{color: theme.palette.grey[400], fontSize: 16}}/>
-                                    </IconButton>
-                                </Tooltip>
-                            </Stack>
+                <Grid item xs={12} md={3}>
+                    <Box padding={2} style={{background: "white", height: "81vh", overflowX: "auto"}}>
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
+                               style={{borderBottom: "1px solid #DDD"}}>
+                            <Typography fontSize={16} fontWeight={"bold"}>{t('modelProprities')}</Typography>
+                            <IconButton onClick={() => setPropsModel(!propsModel)}>
+                                {propsModel ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
+                            </IconButton>
                         </Stack>
-
-                        <List
-                            sx={{width: '100%', bgcolor: 'background.paper'}}
-                            component="nav"
-                            aria-labelledby="nested-list-subheader">
-
-                            <Typography fontSize={12} color={'#999'} mb={1}>{t('titleModel')}{" "}
-                                <Typography component="span" color="error">
-                                    *
-                                </Typography>
-                            </Typography>
+                        <Collapse in={propsModel} style={{paddingTop: 10}}>
+                            <Typography fontSize={14} color={'#999'} mb={1}>{t('titleModel')}</Typography>
                             <TextField
                                 variant="outlined"
                                 placeholder={t('titleholder')}
@@ -388,11 +347,8 @@ function DocsConfig() {
                                 }}
                                 fullWidth/>
 
-                            <Typography fontSize={12} color={'#999'} mb={1}>{t('selectTypes')}{" "}
-                                <Typography component="span" color="error">
-                                    *
-                                </Typography>
-                            </Typography>
+
+                            <Typography fontSize={14} color={'#999'} mb={1}>{t('selectTypes')}</Typography>
 
                             <MuiAutocompleteSelectAll.Provider
                                 value={{
@@ -435,380 +391,195 @@ function DocsConfig() {
                             </MuiAutocompleteSelectAll.Provider>
 
 
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
-                                <Checkbox
-                                    checked={isDefault}
+                            <Typography fontSize={14} color={'#999'} mb={1}>{t('docSize')}</Typography>
+                            <FormControl fullWidth>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    value={data.size}
+                                    size={"small"}
                                     onChange={(ev) => {
-                                        setIsDefault(ev.target.checked)
-                                    }}
-                                />
-                                <ListItemText primary={t("asDefault")}/>
-                            </ListItem>
-
-                            <div style={{
-                                width: '100%',
-                                borderTop: '1px solid rgba(0,0,0,.1)',
-                                marginBottom: 20,
-                                marginTop: 10
-                            }}></div>
-                            {/*Content*/}
-                            <fieldset style={{marginBottom: 10}}>
-                                <legend>{t('configContent')}</legend>
-                                <Typography fontSize={12} color={'#999'} mb={1}>{t('maxHeight')}</Typography>
-                                <TextField
-                                    variant="outlined"
-                                    placeholder={"400"}
-                                    required
-                                    type={"number"}
-                                    value={data.content.maxHeight}
-                                    onChange={(ev) => {
-                                        data.content.maxHeight = ev.target.value
+                                        data.size = ev.target.value;
+                                        console.log(ev.target.value)
                                         setData({...data})
-                                    }}
-                                    fullWidth/>
-                                <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
-                                    : {data.content.x} , y : {data.content.y}</Typography>
-                            </fieldset>
+                                    }}>
+                                    <MenuItem value={"portraitA4"}>A4</MenuItem>
+                                    <MenuItem value={"portraitA5"}>A5</MenuItem>
+                                </Select>
+                            </FormControl>
 
-                            {/*we will add it late*/}
-                            <fieldset style={{marginBottom: 10}}>
-                                <legend>{t('paperSize')}</legend>
-                                <ListItem style={{padding: 0, marginBottom: 5}}>
-                                    <Checkbox
-                                        checked={data.size === 'portraitA5'}
-                                        onChange={() => {
-                                            data.size = 'portraitA5';
-                                            setData({...data})
-                                        }}
-                                    />
-                                    <ListItemText primary={t("A5")}/>
-                                </ListItem>
-                                <ListItem style={{padding: 0, marginBottom: 5}}>
-                                    <Checkbox
-                                        checked={data.size === 'portraitA4'}
-                                        onChange={() => {
-                                            data.size = 'portraitA4';
-                                            setData({...data})
-                                        }}
-                                    />
-                                    <ListItemText primary={t("A4")}/>
-                                </ListItem>
-                            </fieldset>
-                            {/*Import document*/}
-                            <ListItem style={{padding: 0, marginBottom: 5}}>
-                                <Checkbox
-                                    checked={data.background.show}
-                                    onChange={(ev) => {
-                                        data.background.show = ev.target.checked;
-                                        setData({...data})
-                                    }}
-                                />
-                                <ListItemText primary={t("background")}/>
-                            </ListItem>
-                            <Collapse in={data.background.show} timeout="auto" unmountOnExit>
-                                {files.length === 0 &&
-                                    <UploadFile
-                                        files={files}
-                                        accept={{'image/jpeg': ['.png', '.jpeg', '.jpg']}}
-                                        onDrop={handleDrop}
-                                        singleFile={true}/>}
+                            <Stack direction="row" alignItems='center' sx={{
+                                border: `1px solid ${theme.palette.grey["200"]}`,
+                                borderRadius: 1,
+                                marginTop: 2,
+                                padding: "2px 10px 2px 0",
+                                bgcolor: theme => theme.palette.grey['A500'],
+                            }}>
+                                <Checkbox checked={isDefault} onChange={ev => setIsDefault(ev.target.checked)}/>
 
-                                <Stack spacing={2} maxWidth={{xs: "100%", md: "100%"}}>
-                                    {files?.map((file: any, index: number) => (
-                                        <FileuploadProgress
-                                            key={index}
-                                            file={file}
-                                            progress={100}
-                                            handleRemove={handleRemove}
-                                        />
-                                    ))}
-                                </Stack>
-                            </Collapse>
-
-                            {/*Header config*/}
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
-                                <Checkbox
-                                    checked={data.header.show}
-                                    onChange={(ev) => {
-                                        data.header.show = ev.target.checked;
-                                        setData({...data})
-                                    }}
-                                />
-                                <ListItemText primary={t("header")}/>
-                            </ListItem>
-                            <Collapse in={data.header.show} timeout="auto" unmountOnExit>
-                                <Card>
-                                    <CardContent>
-                                        <Stack spacing={2}>
-                                            <Stack direction={"row"} justifyContent={"space-between"} spacing={1}>
-                                                <Typography color={'#999'}
-                                                            fontSize={12}>{t('leftSide')}</Typography>
-                                                <Typography color={'#999'}
-                                                            fontSize={12}>{t('rightSide')}</Typography>
-                                            </Stack>
-
-                                            <Stack direction={"row"} justifyContent={"space-between"} spacing={1}>
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("case1")}
-                                                    required
-                                                    {...getFieldProps("left1")}
-                                                    fullWidth/>
-
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("case1")}
-                                                    required
-                                                    inputProps={{
-                                                        style: {
-                                                            textAlign: "right"
-                                                        },
-                                                    }}
-                                                    {...getFieldProps("right1")}
-                                                    fullWidth/>
-                                            </Stack>
-                                            <Stack direction={"row"} justifyContent={"space-between"} spacing={1}>
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("case2")}
-                                                    required
-                                                    {...getFieldProps("left2")}
-                                                    fullWidth/>
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("case2")}
-                                                    inputProps={{
-                                                        style: {
-                                                            textAlign: "right"
-                                                        },
-                                                    }}
-                                                    {...getFieldProps("right2")}
-                                                    required
-                                                    fullWidth/>
-                                            </Stack>
-                                            <Stack direction={"row"} justifyContent={"space-between"} spacing={1}>
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("case3")}
-                                                    required
-                                                    multiline
-                                                    rows={4}
-                                                    {...getFieldProps("left3")}
-
-                                                    fullWidth/>
-                                                <TextField
-                                                    variant="outlined"
-                                                    placeholder={t("case3")}
-                                                    required
-                                                    multiline
-                                                    rows={4}
-                                                    inputProps={{
-                                                        style: {
-                                                            textAlign: "right"
-                                                        },
-                                                    }}
-                                                    {...getFieldProps("right3")}
-                                                    fullWidth/>
-                                            </Stack>
-                                        </Stack>
-                                    </CardContent>
-                                </Card>
-                            </Collapse>
-
-                            {/*Footer config*/}
-                            {data.footer && <Box>
-                                <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
-                                    <Checkbox
-                                        checked={data.footer?.show}
-                                        onChange={(ev) => {
-                                            data.footer.show = ev.target.checked;
-                                            setData({...data})
-                                        }}
-                                    />
-                                    <ListItemText primary={t("footer")}/>
-                                </ListItem>
-
-                                {!loading && <Collapse in={data.footer.show} timeout="auto" unmountOnExit>
-                                    <Editor
-                                        value={data.footer.content}
-                                        apiKey={process.env.EDITOR_KEY}
-                                        onEditorChange={(res) => {
-                                            data.footer.content = res;
-                                            setData({...data});
-                                        }}
-                                        init={{
-                                            branding: false,
-                                            statusbar: false,
-                                            menubar: false,
-                                            plugins: tinymcePlugins,
-                                            toolbar: tinymceToolbar,
-                                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-
-                                        }}
-                                    />
-                                </Collapse>}
-                            </Box>}
-
-
-                            {/*Title document*/}
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
-                                <Checkbox
-                                    checked={data.title.show}
-                                    onChange={(ev) => {
-                                        data.title.show = ev.target.checked;
-                                        setData({...data})
-                                    }}
-                                />
-                                <ListItemText primary={t("title")}/>
-                            </ListItem>
-                            {/*
-                                <Collapse in={data.title.show} timeout="auto" unmountOnExit>
-                                    <fieldset>
-                                        <legend>{t('configTitle')}</legend>
-                                        <Typography fontSize={12} color={'#999'} mb={1}>{t('nom')}</Typography>
-                                        <TextField
-                                            variant="outlined"
-                                            placeholder={t("nameDoc")}
-                                            required
-
-                                            value={data.title.content}
-                                            onChange={(ev) => {
-                                                data.title.content = ev.target.value
-                                                setData({...data})
-                                            }}
-                                            fullWidth/>
-                                        <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
-                                            : {data.title.x} , y : {data.title.y}</Typography>
-                                    </fieldset>
-                                </Collapse>
-*/}
-
-                            {/*Date*/}
-
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
-                                <Checkbox
-                                    checked={data.date.show}
-                                    onChange={(ev) => {
-                                        data.date.show = ev.target.checked;
-                                        setData({...data})
-                                    }}
-                                />
-                                <ListItemText primary={t("date")}/>
-                            </ListItem>
-                            <Collapse in={data.date.show} timeout="auto" unmountOnExit>
-                                <fieldset>
-                                    <legend>{t('configDate')}</legend>
-
-                                    <Stack padding={1}>
-                                        <ToggleButtonGroup
-                                            value={data.date.textAlign}
-                                            exclusive
-                                            onChange={handleAlignment}
-                                            aria-label="text alignment">
-                                            <ToggleButton value="left" aria-label="left aligned">
-                                                <FormatAlignLeftIcon/>
-                                            </ToggleButton>
-                                            <ToggleButton value="center" aria-label="centered">
-                                                <FormatAlignCenterIcon/>
-                                            </ToggleButton>
-                                            <ToggleButton value="right" aria-label="right aligned">
-                                                <FormatAlignRightIcon/>
-                                            </ToggleButton>
-                                            <ToggleButton value="justify" aria-label="justified" disabled>
-                                                <FormatAlignJustifyIcon/>
-                                            </ToggleButton>
-                                        </ToggleButtonGroup>
-                                    </Stack>
-
-                                    <Typography fontSize={12} color={'#999'} mb={1}>{t('prefix')}</Typography>
-                                    <TextField
-                                        variant="outlined"
-                                        placeholder={t("le")}
-                                        required
-                                        value={data.date.prefix}
-                                        onChange={(ev) => {
-                                            data.date.prefix = ev.target.value
-                                            setData({...data})
-                                        }}
-                                        fullWidth/>
-                                    <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
-                                        : {data.date.x} , y : {data.date.y}</Typography>
-                                </fieldset>
-                            </Collapse>
-
-                            {/*Patient name*/}
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
-                                <Checkbox
-                                    checked={data.patient.show}
-                                    onChange={(ev) => {
-                                        data.patient.show = ev.target.checked;
-                                        setData({...data})
-                                    }}
-                                />
-                                <ListItemText primary={t("patient")}/>
-                            </ListItem>
-                            <Collapse in={data.patient.show} timeout="auto" unmountOnExit>
-                                <fieldset>
-                                    <legend>{t('configPatient')}</legend>
-                                    <Typography fontSize={12} color={'#999'} mb={1}>{t('prefix')}</Typography>
-                                    <TextField
-                                        variant="outlined"
-                                        placeholder={t("firstName")}
-                                        required
-                                        value={data.patient.prefix}
-                                        onChange={(ev) => {
-                                            data.patient.prefix = ev.target.value
-                                            setData({...data})
-                                        }}
-                                        fullWidth/>
-                                    <Typography fontSize={12} color={'#999'} textAlign={"right"} mt={1}>x
-                                        : {data.patient.x} , y : {data.patient.y}</Typography>
-                                </fieldset>
-                            </Collapse>
-
-                            {/*CIN*/}
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
-                                <Checkbox
-                                    checked={data.cin && data.cin.show}
-                                    onChange={(ev) => {
-                                        if (data.cin) {
-                                            data.cin.show = ev.target.checked;
-                                            setData({...data})
-                                        } else setData({
-                                            ...data,
-                                            cin: {show: true, prefix: 'CIN : ', content: '', x: 40, y: 274}
-                                        })
-                                    }}
-                                />
-                                <ListItemText primary={t("cin")}/>
-                            </ListItem>
-
-                            {/*AGE*/}
-                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
-                                <Checkbox
-                                    checked={data.age && data.age.show}
-                                    onChange={(ev) => {
-                                        let _data = {...data}
-                                        if (_data.age)
-                                            _data.age.show = ev.target.checked;
-                                        else {
-                                            _data = {
-                                                ..._data,
-                                                age: {show: true, prefix: 'AGE:', content: '', x: 40, y: 316}
-                                            }
-                                        }
-
-                                        setData({..._data})
-                                    }}
-                                />
-                                <ListItemText primary={t("age")}/>
-                            </ListItem>
-
-                        </List>
+                                <Typography>{t("asDefault")}</Typography>
+                            </Stack>
+                        </Collapse>
                     </Box>
                 </Grid>
 
-                <Grid item xs={12} md={7}>
+                <Grid item xs={12} md={9}>
+                        <IconButton onClick={printNow} sx={{
+                            border: "1px solid",
+                            mr: 1,
+                            borderRadius: 2,
+                            color: theme.palette.grey[400]
+                        }}>
+                        </IconButton>
+                    <Box padding={2} style={{height: "81vh", overflowX: "auto"}}>
+                        <Box className={"portraitA4"} style={{margin:"auto",padding:50}} ref={componentRef}>
+
+                            <Resizable
+                                style={{border:"1px solid"}}
+                                defaultSize={{
+                                    width: 320,
+                                    height: 200,
+                                }}>
+
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
+                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
+                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
+                                m&eacute;dicamenteux, etc.]</p>
+                            </Resizable>
+
+                        </Box>
+                    </Box>
+                </Grid>
+
+                {/* <Grid item xs={12} md={7}>
                     {<Box padding={2}>
                         <Box style={{margin: 'auto', paddingTop: 20}}>
                             <Box ref={componentRef}>
@@ -822,7 +593,7 @@ function DocsConfig() {
                         </Box>
 
                     </Box>}
-                </Grid>
+                </Grid>*/}
             </Grid>
 
 
