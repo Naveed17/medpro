@@ -131,7 +131,9 @@ function BoardItem({...props}) {
                                         minWidth: '2.5rem',
                                         minHeight: '.5rem',
                                         marginRight: '4px'
-                                    }} variant={"contained"}
+                                    }}
+                                    {...(quote.content.startTime === "00:00" && {color: 'warning'})}
+                                    variant={"contained"}
                                     size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button> : !isDragging && AppointmentStatus[quote.content.status].icon}
                                 <Typography
                                     className={"ellipsis"}

@@ -7,7 +7,7 @@ import {
     FormControlLabel,
     Radio,
     TextField,
-    InputLabel, IconButton, Stack
+    InputLabel, IconButton, Stack, InputAdornment
 } from "@mui/material";
 import _ from "lodash";
 import moment from "moment-timezone";
@@ -21,6 +21,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {FormikProvider, useFormik} from "formik";
 import Switch from "@mui/material/Switch";
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 
 interface Lab {
     label: string;
@@ -97,113 +98,6 @@ function PatientFilter({...props}) {
     return (
         <FormikProvider value={formik}>
             <Box component="figure" sx={{m: 0}}>
-                {item.hasDouble &&
-                    <>
-                        <Typography variant="body2" color="text.secondary">
-                            {t(item.hasDouble?.heading)}
-                        </Typography>
-
-                        <FormControlLabel
-                            sx={{ml: .2, my: 1}}
-                            control={
-                                <Switch
-                                    color="warning"
-                                    size="small"
-                                    checked={queryState.hasDouble}
-                                    onChange={event => {
-                                        setFieldValue("hasDouble", event.target.checked);
-                                        onSearchChange({
-                                            query: {
-                                                ...filter?.patient,
-                                                ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                                hasDouble: event.target.checked
-                                            }
-                                        });
-                                    }}
-                                />}
-                            label={<Typography sx={{fontSize: 12}}> {t(`${keyPrefix}duplicate`)}</Typography>}/>
-                    </>
-                }
-                {item.rest &&
-                    <>
-                        <Typography variant="body2" color="text.secondary">
-                            {t(`${keyPrefix}payment`)}
-                        </Typography>
-                        <FormControlLabel
-                            sx={{ml: .2, my: 1}}
-                            control={
-                                <Switch
-                                    color="primary"
-                                    size="small"
-                                    checked={queryState.rest}
-                                    onChange={event => {
-                                        setFieldValue("rest", event.target.checked);
-                                        onSearchChange({
-                                            query: {
-                                                ...filter?.patient,
-                                                ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                                rest: event.target.checked
-                                            }
-                                        });
-                                    }}
-                                />}
-                            label={<Typography sx={{fontSize: 12}}> {t(item.rest?.heading)}</Typography>}/>
-                    </>
-                }
-                <Typography variant="body2" color="text.secondary">
-                    {t(`${keyPrefix}${item.gender?.heading}`)}
-                </Typography>
-                <FormControl component="fieldset">
-                    <RadioGroup
-                        row
-                        aria-label="gender"
-                        onChange={(e) => {
-                            setFieldValue("gender", e.target.value)
-                            onSearchChange({
-                                query: {
-                                    ...filter?.patient,
-                                    ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                    gender: e.target.value
-                                }
-                            });
-                        }}
-                        value={queryState.gender}
-                        name="row-radio-buttons-group"
-                        sx={{
-                            ml: .5,
-                            "& .MuiRadio-root": {
-                                width: 36, height: 36
-                            }
-                        }}>
-                        {item.gender?.genders.map((gender: string, i: number) => (
-                            <FormControlLabel
-                                key={`gender-${i}`}
-                                value={Gender[i]}
-                                control={<Radio/>}
-                                label={<Stack direction={"row"} alignItems={"center"} spacing={.5}>
-                                    {gender === "male" ? <MaleRoundedIcon sx={{width: 16}}/> :
-                                        <FemaleRoundedIcon sx={{width: 16}}/>}
-                                    {t(`${keyPrefix}${gender}`)}
-                                </Stack>}
-                            />
-                        ))}
-                        {queryState.gender &&
-                            <IconButton size="small" onClick={() => {
-                                const query = _.omit(queryState, "gender");
-                                const queryGlobal = _.omit(filter?.patient, "gender");
-                                setFieldValue("gender", null)
-                                onSearchChange({
-                                    query: {
-                                        ...query,
-                                        ...queryGlobal,
-                                        ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")}),
-                                    },
-                                });
-                            }}>
-                                <HighlightOffRoundedIcon color={"error"}/>
-                            </IconButton>}
-                    </RadioGroup>
-                </FormControl>
                 {item.textField?.labels.map((lab: Lab, i: number) => (
                         <Fragment key={`patient-filter-label-${i}`}>
                             {lab.label === "name" ? (
@@ -216,7 +110,15 @@ function PatientFilter({...props}) {
                                         fullWidth
                                         onSubmit={e => e.preventDefault()}>
                                         <TextField
+                                            className={'search-input'}
                                             {...{inputRef}}
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <SearchRoundedIcon color={"white"}/>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
                                             defaultValue={queryState.name}
                                             onChange={(e) => debouncedOnChange(e, lab)}
                                             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
@@ -294,6 +196,117 @@ function PatientFilter({...props}) {
                         </Fragment>
                     )
                 )}
+
+                <Typography variant="body2" color="text.secondary" mt={2}>
+                    {t(`${keyPrefix}${item.gender?.heading}`)}
+                </Typography>
+                <FormControl component="fieldset">
+                    <RadioGroup
+                        row
+                        aria-label="gender"
+                        onChange={(e) => {
+                            setFieldValue("gender", e.target.value)
+                            onSearchChange({
+                                query: {
+                                    ...filter?.patient,
+                                    ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                    gender: e.target.value
+                                }
+                            });
+                        }}
+                        value={queryState.gender}
+                        name="row-radio-buttons-group"
+                        sx={{
+                            ml: .5,
+                            "& .MuiRadio-root": {
+                                width: 36, height: 36
+                            }
+                        }}>
+                        {item.gender?.genders.map((gender: string, i: number) => (
+                            <FormControlLabel
+                                key={`gender-${i}`}
+                                value={Gender[i]}
+                                control={<Radio/>}
+                                label={<Stack direction={"row"} alignItems={"center"} spacing={.5}>
+                                    {gender === "male" ? <MaleRoundedIcon sx={{width: 16}}/> :
+                                        <FemaleRoundedIcon sx={{width: 16}}/>}
+                                    {t(`${keyPrefix}${gender}`)}
+                                </Stack>}
+                            />
+                        ))}
+                        {queryState.gender &&
+                            <IconButton size="small" onClick={() => {
+                                const query = _.omit(queryState, "gender");
+                                const queryGlobal = _.omit(filter?.patient, "gender");
+                                setFieldValue("gender", null)
+                                onSearchChange({
+                                    query: {
+                                        ...query,
+                                        ...queryGlobal,
+                                        ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")}),
+                                    },
+                                });
+                            }}>
+                                <HighlightOffRoundedIcon color={"error"}/>
+                            </IconButton>}
+                    </RadioGroup>
+                </FormControl>
+
+                {item.hasDouble &&
+                    <>
+                        <Typography variant="body2" color="text.secondary" mt={1}>
+                            {t(item.hasDouble?.heading)}
+                        </Typography>
+
+                        <FormControlLabel
+                            sx={{ml: .2, my: 1}}
+                            control={
+                                <Switch
+                                    color="warning"
+                                    size="small"
+                                    checked={queryState.hasDouble}
+                                    onChange={event => {
+                                        setFieldValue("hasDouble", event.target.checked);
+                                        onSearchChange({
+                                            query: {
+                                                ...filter?.patient,
+                                                ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                                hasDouble: event.target.checked
+                                            }
+                                        });
+                                    }}
+                                />}
+                            label={<Typography sx={{fontSize: 12}}> {t(`${keyPrefix}duplicate`)}</Typography>}/>
+                    </>
+                }
+
+                {item.rest &&
+                    <>
+                        <Typography variant="body2" color="text.secondary">
+                            {t(`${keyPrefix}payment`)}
+                        </Typography>
+                        <FormControlLabel
+                            sx={{ml: .2, my: 1}}
+                            control={
+                                <Switch
+                                    color="primary"
+                                    size="small"
+                                    checked={queryState.rest}
+                                    onChange={event => {
+                                        setFieldValue("rest", event.target.checked);
+                                        onSearchChange({
+                                            query: {
+                                                ...filter?.patient,
+                                                ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                                rest: event.target.checked
+                                            }
+                                        });
+                                    }}
+                                />}
+                            label={<Typography sx={{fontSize: 12}}> {t(item.rest?.heading)}</Typography>}/>
+                    </>
+                }
+
             </Box>
         </FormikProvider>
     )

@@ -31,13 +31,10 @@ function AppointmentFilter({...props}) {
             <Box>
                 {appointmentTypes?.map((item, index) =>
                     <SidebarCheckbox
+                        {...{t}}
                         key={index}
                         label={"name"}
                         checkState={item.checked}
-                        translate={{
-                            t: t,
-                            ready: ready,
-                        }}
                         data={item}
                         onChange={(selected: boolean) => {
                             if (selected && !query?.type?.includes(item.uuid)) {

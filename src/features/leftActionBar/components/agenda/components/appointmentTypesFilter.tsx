@@ -26,7 +26,6 @@ function AppointmentTypesFilter({...props}) {
             <SidebarCheckbox
                 label={"name"}
                 checkState={item.checked}
-                translate={{t, ready}}
                 data={item}
                 onChange={(selected: boolean) => {
                     if (selected && !query?.type?.includes(item.uuid)) {

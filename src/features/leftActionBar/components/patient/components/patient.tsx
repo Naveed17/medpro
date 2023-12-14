@@ -60,22 +60,22 @@ function Patient() {
                                 icon: "ic-patient",
                                 title: "patient",
                             },
-                            hasDouble: {
-                                heading: "duplication"
-                            },
-                            rest: {
-                                heading: "unPayed"
-                            },
-                            gender: {
-                                heading: "gender",
-                                genders: ["male", "female"],
-                            },
                             textField: {
                                 labels: [
                                     {label: "name", placeholder: "search"},
                                     {label: "birthdate", placeholder: "--/--/----"},
                                 ],
                             },
+                            gender: {
+                                heading: "gender",
+                                genders: ["male", "female"],
+                            },
+                            hasDouble: {
+                                heading: "duplication"
+                            },
+                            rest: {
+                                heading: "unPayed"
+                            }
                         }}
                         keyPrefix={"filter."}
                     />
