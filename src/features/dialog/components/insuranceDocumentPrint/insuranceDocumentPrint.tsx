@@ -85,10 +85,10 @@ function InsuranceDocumentPrint({...props}) {
                 } else {
                     Object.entries(pagedFields).forEach((fields: any) => {
                         const page = pdfDoc.addPage([PageSizes.A4[1], PageSizes.A4[0]]);
-                        fields[1].forEach((field: any) => {
+                        fields[1]?.forEach((field: any) => {
                             page.drawText(field.value?.toString() ?? "", {
                                 x: field.posX ?? 0,
-                                y: field.posY ?? 0,
+                                y: (field.posY + 320)?? 0,
                                 font: helveticaFont,
                                 size: 10
                             })
