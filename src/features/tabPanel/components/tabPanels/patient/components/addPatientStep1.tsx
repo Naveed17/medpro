@@ -226,6 +226,7 @@ function AddPatientStep1({...props}) {
             />
         );
 
+    console.log('values step 1', values)
     return (
         <FormikProvider value={formik}>
             <Stack
@@ -487,6 +488,7 @@ function AddPatientStep1({...props}) {
                                         const old = parseInt(event.target.value);
                                         setFieldValue("old", old ? old : "");
                                         if (old) {
+                                            setError(false);
                                             const dateInput = (values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old);
                                             setFieldValue("birthdate", {
                                                 day: dateInput.format("DD"),
@@ -600,7 +602,11 @@ function AddPatientStep1({...props}) {
                             color="primary">
                             {t("cancel")}
                         </Button>
-                        <Button variant="contained" type="submit" color="primary">
+                        <Button
+                            disabled={error}
+                            variant="contained"
+                            type="submit"
+                            color="primary">
                             {t("next")}
                         </Button>
                     </Stack>

@@ -314,6 +314,7 @@ function AddPatientStep2({...props}) {
         }
     }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    console.log('step 2 ', values);
     return (
         <FormikProvider value={formik}>
             <Stack
@@ -362,21 +363,23 @@ function AddPatientStep2({...props}) {
                                     getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
                                     isOptionEqualToValue={(option: any, value) => option.nationality === value.nationality}
                                     renderOption={(props, option) => (
-                                        <MenuItem
-                                            {...props}
-                                            key={`nationality-${option.uuid}`}
-                                            value={option.uuid}>
-                                            {option?.code && <Avatar
-                                                sx={{
-                                                    width: 26,
-                                                    height: 18,
-                                                    borderRadius: 0.4
-                                                }}
-                                                alt={"flags"}
-                                                src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
-                                            />}
-                                            <Typography sx={{ml: 1}}>{option.nationality}</Typography>
-                                        </MenuItem>
+                                        <Stack key={`nationality-${option.uuid}`}>
+                                            <MenuItem
+                                                {...props}
+
+                                                value={option.uuid}>
+                                                {option?.code && <Avatar
+                                                    sx={{
+                                                        width: 26,
+                                                        height: 18,
+                                                        borderRadius: 0.4
+                                                    }}
+                                                    alt={"flags"}
+                                                    src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
+                                                />}
+                                                <Typography sx={{ml: 1}}>{option.nationality}</Typography>
+                                            </MenuItem>
+                                        </Stack>
                                     )}
                                     renderInput={params => {
                                         const country = countries?.find(country => country.uuid === getFieldProps("nationality").value);
@@ -444,21 +447,23 @@ function AddPatientStep2({...props}) {
                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
                                     isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                     renderOption={(props, option) => (
-                                        <MenuItem
-                                            {...props}
-                                            key={`country-${option.uuid}`}
-                                            value={option.uuid}>
-                                            {option?.code && <Avatar
-                                                sx={{
-                                                    width: 26,
-                                                    height: 18,
-                                                    borderRadius: 0.4
-                                                }}
-                                                alt={"flags"}
-                                                src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
-                                            />}
-                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
-                                        </MenuItem>
+                                        <Stack key={`country-${option.uuid}`}>
+                                            <MenuItem
+                                                {...props}
+                                                key={`country-${option.uuid}`}
+                                                value={option.uuid}>
+                                                {option?.code && <Avatar
+                                                    sx={{
+                                                        width: 26,
+                                                        height: 18,
+                                                        borderRadius: 0.4
+                                                    }}
+                                                    alt={"flags"}
+                                                    src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
+                                                />}
+                                                <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                            </MenuItem>
+                                        </Stack>
                                     )}
                                     renderInput={params => {
                                         const country = countries?.find(country => country.uuid === getFieldProps("country").value);
@@ -514,12 +519,14 @@ function AddPatientStep2({...props}) {
                                             getOptionLabel={(option) => option?.name ? option.name : ""}
                                             isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                             renderOption={(props, option) => (
-                                                <MenuItem
-                                                    {...props}
-                                                    key={option.uuid}
-                                                    value={option.uuid}>
-                                                    <Typography sx={{ml: 1}}>{option.name}</Typography>
-                                                </MenuItem>
+                                                <Stack key={`region-${option.uuid}`}>
+                                                    <MenuItem
+                                                        {...props}
+                                                        key={option.uuid}
+                                                        value={option.uuid}>
+                                                        <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                                    </MenuItem>
+                                                </Stack>
                                             )}
                                             renderInput={params => <TextField color={"info"}
                                                                               {...params}
@@ -650,22 +657,25 @@ function AddPatientStep2({...props}) {
                                                             getOptionLabel={option => option?.name ? option.name : ""}
                                                             isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                                             renderOption={(params, option) => (
-                                                                <MenuItem
-                                                                    {...params}
-                                                                    key={option.uuid}
-                                                                    value={option.uuid}>
-                                                                    <Avatar
-                                                                        sx={{
-                                                                            width: 20,
-                                                                            height: 20,
-                                                                            borderRadius: 0.4
-                                                                        }}
-                                                                        alt={"insurance"}
-                                                                        src={option.logoUrl.url}
-                                                                    />
-                                                                    <Typography
-                                                                        sx={{ml: 1}}>{option.name}</Typography>
-                                                                </MenuItem>)}
+                                                                <Stack key={`assurance-${option.uuid}`}>
+                                                                    <MenuItem
+                                                                        {...params}
+
+                                                                        value={option.uuid}>
+                                                                        <Avatar
+                                                                            sx={{
+                                                                                width: 20,
+                                                                                height: 20,
+                                                                                borderRadius: 0.4
+                                                                            }}
+                                                                            alt={"insurance"}
+                                                                            src={option.logoUrl.url}
+                                                                        />
+                                                                        <Typography
+                                                                            sx={{ml: 1}}>{option.name}</Typography>
+                                                                    </MenuItem>
+                                                                </Stack>
+                                                            )}
                                                             renderInput={(params) => {
                                                                 const insurance = insurances?.find(insurance => insurance.uuid === getFieldProps(`insurance[${index}].insurance_uuid`).value);
                                                                 params.InputProps.startAdornment = insurance && (
