@@ -1,19 +1,30 @@
 import React, {useEffect, useState} from "react";
-import {Box, InputAdornment, Stack, TextField} from "@mui/material";
+import {
+    Box,
+    Card,
+    CardContent,
+    Collapse,
+    InputAdornment,
+    LinearProgress,
+    Stack,
+    TextField,
+    Typography
+} from "@mui/material";
 import {Otable} from "@features/table";
-import SearchIcon from "@mui/icons-material/Search";
 import {CipMedicProCard} from '@features/card'
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useMutateOnGoing} from "@lib/hooks";
+import IconUrl from "@themes/urlIcon";
 
 function FeesTab({...props}) {
     const router = useRouter();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const [search, setSearch] = useState<string>("");
+    const [loading, setLoading] = useState(true);
 
     const headCells: readonly HeadCell[] = [
         {
@@ -92,10 +103,10 @@ function FeesTab({...props}) {
 
 
     const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
-    const {data: httpAppointmentFees, mutate} = useRequestQuery(app_uuid ? {
+    const {data: httpAppointmentFees, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/acts/${router.locale}`
-    } : null);
+    });
 
     const res = (httpAppointmentFees as HttpResponse)?.data;
 
@@ -127,6 +138,7 @@ function FeesTab({...props}) {
             setTotal(_total);
 
             setActs(_acts)
+            setLoading(false)
         }
     }, [res]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -198,36 +210,53 @@ function FeesTab({...props}) {
     return (
         <>
             <Box>
-                {!isQuoteRequest && <Stack alignItems={"flex-end"} mb={2}>
-                    <TextField
-                        placeholder={t("exempleFees")}
-                        value={search}
-                        onChange={(ev) => {
-                            setSearch(ev.target.value);
-                        }}
-                        sx={{width: '15rem'}}
-                        inputProps={{style: {background: "white"}}}
-                        InputProps={{
-                            endAdornment: <InputAdornment position="end">
-                                <SearchIcon/>
-                            </InputAdornment>,
-                        }}
-                    />
-                </Stack>}
+
                 <DesktopContainer>
-                    <Otable
-                        headers={headCells}
-                        rows={acts?.filter((act: any) => {
-                            return act.act.name?.toLowerCase().includes(search.toLowerCase())
-                        })}
-                        from={"CIP-medical-procedures"}
-                        t={t}
-                        edit={editAct ? editAct : editActConsult}
-                        handleEvent={() => {
-                            saveChanges([...acts])
-                        }}
-                        devise={devise}
-                        handleChange={setTotal}/>
+
+                    <Card>
+                        <CardContent>
+                            <Stack direction='row' alignItems={{xs: 'flex-start', md: 'center'}}
+                                   justifyContent="space-between" mb={2} pb={1} borderBottom={1}
+                                   borderColor='divider'>
+                                <Typography fontWeight={700} mt={1} mb={1}>
+                                    {t("consultationIP.medical_procedures")}
+                                </Typography>
+                                <Stack direction={'row'} alignItems="center" spacing={1}>
+                                    {!isQuoteRequest && <Stack alignItems={"flex-end"}>
+                                        <TextField
+                                            placeholder={t("exempleFees")}
+                                            value={search}
+                                            onChange={(ev) => {
+                                                setSearch(ev.target.value);
+                                            }}
+                                            sx={{width: '15rem'}}
+                                            InputProps={{
+                                                endAdornment: <InputAdornment position="end">
+                                                    <IconUrl path={"search"}/>
+                                                </InputAdornment>,
+                                            }}/>
+                                    </Stack>}
+                                </Stack>
+                            </Stack>
+                            {loading && <LinearProgress/>}
+                            <Collapse in={!loading}>
+                                <Otable
+                                    headers={headCells}
+                                    rows={acts?.filter((act: any) => {
+                                        return act.act.name?.toLowerCase().includes(search.toLowerCase())
+                                    })}
+                                    from={"CIP-medical-procedures"}
+                                    t={t}
+                                    edit={editAct ? editAct : editActConsult}
+                                    handleEvent={() => {
+                                        saveChanges([...acts])
+                                    }}
+                                    devise={devise}
+                                    handleChange={setTotal}/>
+                            </Collapse>
+
+                        </CardContent></Card>
+
                 </DesktopContainer>
                 <MobileContainer>
                     {

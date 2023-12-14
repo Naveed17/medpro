@@ -207,6 +207,7 @@ const Content = ({...props}) => {
         triggerAntecedentUpdate(selected.request, {
             onSuccess: () => {
                 mutatePatient();
+                mutateAntecedents();
                 if (medicalEntityHasUser) {
                     mutateTreatment()
                 }
@@ -354,7 +355,8 @@ const Content = ({...props}) => {
                                     )}
 
                                     {treatements.map((list: any, index: number) => (
-                                        <ListItem className={"ant-item"} style={{paddingLeft:10,paddingRight:10}} key={index}>
+                                        <ListItem className={"ant-item"} style={{paddingLeft: 10, paddingRight: 10}}
+                                                  key={index}>
                                             <Typography variant="body2" color={"text.secondary"}>
                                                 {list.name} {list.duration > 0 ? ` / ${list.duration} ${t(list.durationType)}` : ''}
                                             </Typography>
@@ -386,7 +388,8 @@ const Content = ({...props}) => {
                                         </Typography>
                                     )}
                                     {ordonnaces.map((list: any, index: number) => (
-                                        <ListItem className={"ant-item"} style={{paddingLeft:10,paddingRight:10}} key={index}>
+                                        <ListItem className={"ant-item"} style={{paddingLeft: 10, paddingRight: 10}}
+                                                  key={index}>
                                             <Typography variant="body2">
                                                 {list.name} {list.duration > 0 ? ` / ${list.duration} ${t(list.durationType)}` : ''}
                                             </Typography>
@@ -620,7 +623,8 @@ const Content = ({...props}) => {
                                 <Stack spacing={2} alignItems="flex-start">
                                     <List dense>
                                         {ra.hasAnalysis.map((list: any, index: number) => (
-                                            <ListItem key={index} className={"ant-item"} style={{paddingLeft:10,paddingRight:10}}>
+                                            <ListItem key={index} className={"ant-item"}
+                                                      style={{paddingLeft: 10, paddingRight: 10}}>
                                                 <Typography variant="body2">
                                                     {list.analysis.name}
                                                     {list.result ? " : " + list.result : ""}
@@ -739,7 +743,8 @@ const Content = ({...props}) => {
                                 <Stack spacing={2} alignItems="flex-start">
                                     <List dense>
                                         {ri["medical-imaging"]?.map((list: any, index: number) => (
-                                            <ListItem className={'ant-item'} style={{paddingLeft:10,paddingRight:10}} key={index}>
+                                            <ListItem className={'ant-item'} style={{paddingLeft: 10, paddingRight: 10}}
+                                                      key={index}>
 
                                                 <Typography variant="body2">
                                                     {list["medical-imaging"]?.name}

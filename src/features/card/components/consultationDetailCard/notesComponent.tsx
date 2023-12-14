@@ -12,13 +12,13 @@ import {
     TextField,
     Theme,
     Tooltip,
-    Typography,
+    Typography, useMediaQuery,
     useTheme
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {RecButton} from "@features/buttons";
 import {Editor} from "@tinymce/tinymce-react";
-import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
+import {MobileContainer, tinymcePlugins, tinymceToolbar} from "@lib/constants";
 import React, {useEffect, useState} from "react";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
@@ -27,7 +27,6 @@ import {consultationSelector, SetExam, SetListen} from "@features/toolbar";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import isMobile from "ismobilejs";
 
 function NotesComponent({...props}) {
 
@@ -57,6 +56,8 @@ function NotesComponent({...props}) {
     const {listen} = useAppSelector(consultationSelector);
     const router = useRouter();
     const theme = useTheme();
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+
     const dispatch = useAppDispatch();
 
     const {trigger: triggerObModels} = useRequestQueryMutation("/observation-models");
