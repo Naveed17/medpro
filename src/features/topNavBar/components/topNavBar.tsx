@@ -157,7 +157,7 @@ function TopNavBar({...props}) {
     const refreshAgendaData = () => {
         // refresh on going api
         mutateOnGoing();
-        router.push(selectedEvent === null ? router.pathname : "/dashboard/agenda").then(() => {
+        router.push(selectedEvent === null && router.pathname !== "/dashboard/consultation/[uuid-consultation]" ? router.pathname : "/dashboard/agenda").then(() => {
             // invalidate agenda query
             invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${router.locale}`]).then(() => setLoadingReq(false));
         });
@@ -611,7 +611,7 @@ function TopNavBar({...props}) {
                                     startIcon={<CloseIcon/>}>
                                     {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.cancel`)}
                                 </Button>
-                                <Stack direction={isMobile ? "column" : "row"}  spacing={2}>
+                                <Stack direction={isMobile ? "column" : "row"} spacing={2}>
                                     <LoadingButton
                                         loading={loadingReq}
                                         loadingPosition="start"

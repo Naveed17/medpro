@@ -1,7 +1,7 @@
 import {styled} from "@mui/material/styles";
 import TableRow from "@mui/material/TableRow";
 
-const TableRowStyled = styled(TableRow)<any>(({theme, styleprops,...rest}) => ({
+const TableRowStyled = styled(TableRow)<any>(({theme, styleprops, ...rest}) => ({
     "& .MuiTableCell-root": {
         div: {
             color: "black",

@@ -309,8 +309,7 @@ function PatientFilter({...props}) {
 
             </Box>
         </FormikProvider>
-    )
-        ;
+    );
 }
 
 export default PatientFilter;
