@@ -5,11 +5,12 @@ import {useRouter} from "next/router";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {PDFDocument} from 'pdf-lib';
+import {PDFDocument, StandardFonts} from 'pdf-lib';
 import {agendaSelector} from "@features/calendar";
 import {onOpenPatientDrawer, Otable} from "@features/table";
 import {NoDataCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
+import {partition} from "lodash";
 
 function InsuranceDocumentPrint({...props}) {
     const {data: {appuuid, state: patient, t, setOpenDialog}} = props;
@@ -41,23 +42,37 @@ function InsuranceDocumentPrint({...props}) {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/${appuuid}/insurance-document/${insuranceDocument}/${router.locale}`,
         }, {
             onSuccess: async (result: any) => {
-                const document = result?.data as any;
+                const document = (result?.data as HttpResponse)?.data;
                 if (backgroundDoc) {
                     const pdfDoc = await PDFDocument.create();
-                    const docUpdated = await fetch(`data:application/pdf;base64,${document}`).then((res) => res.arrayBuffer());
+                    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Courier)
                     triggerDocInsurance({
                         method: "GET",
                         url: `/api/public/insurances/documents/${insuranceDocument}/${router.locale}`
                     }, {
                         onSuccess: async (result: any) => {
+                            console.log("document", document);
                             const data = (result?.data as HttpResponse)?.data;
                             const docFile = await fetch(data.url).then((res) => res.arrayBuffer());
+                            const fields: any[] = document.insurance.map((field: any) => ({
+                                ...field,
+                                value: document.data[field.key][0]
+                            }));
+                            const pagedFields = fields.group((field: any) => field.page);
+                            console.log("pagedFields", pagedFields);
                             const insurancePdfDoc = await PDFDocument.load(docFile);
                             const copiedPages = await pdfDoc.copyPages(insurancePdfDoc, insurancePdfDoc.getPageIndices());
                             for (const page of copiedPages) {
                                 const index = copiedPages.indexOf(page);
-                                const [cnamPatientInfoPage] = await pdfDoc.embedPdf(docUpdated, [index]);
-                                pdfDoc.addPage(page).drawPage(cnamPatientInfoPage);
+                                pagedFields[index + 1].forEach((field: any) => {
+                                    page.drawText(field.value?.toString() ?? "", {
+                                        x: field.posX,
+                                        y: field.posY,
+                                        font: helveticaFont,
+                                        size: 10
+                                    })
+                                });
+                                pdfDoc.addPage(page);
                             }
 
                             const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
