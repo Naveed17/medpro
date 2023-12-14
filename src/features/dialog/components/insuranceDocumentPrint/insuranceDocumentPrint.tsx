@@ -70,7 +70,7 @@ function InsuranceDocumentPrint({...props}) {
                                 pagedFields[index + 1]?.forEach((field: any) => {
                                     page.drawText(field.value?.toString() ?? "", {
                                         x: field.posX ?? 0,
-                                        y: field.posY + 320,
+                                        y: field.posY + 276,
                                         font: helveticaFont,
                                         size: 10
                                     })
