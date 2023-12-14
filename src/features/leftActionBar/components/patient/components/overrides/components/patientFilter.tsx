@@ -1,4 +1,4 @@
-import React, {Fragment, KeyboardEvent, useCallback} from "react";
+import React, {Fragment, KeyboardEvent, useCallback, useEffect, useRef, useState} from "react";
 import {
     Typography,
     Box,
@@ -7,7 +7,7 @@ import {
     FormControlLabel,
     Radio,
     TextField,
-    InputLabel, IconButton, Stack, Checkbox,
+    InputLabel, IconButton, Stack, InputAdornment
 } from "@mui/material";
 import _ from "lodash";
 import moment from "moment-timezone";
@@ -20,8 +20,8 @@ import {debounce} from "lodash";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {FormikProvider, useFormik} from "formik";
-import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import {Label} from "@features/label";
+import Switch from "@mui/material/Switch";
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 
 interface Lab {
     label: string;
@@ -36,13 +36,17 @@ const Gender: { [key: number]: string } = {
 
 function PatientFilter({...props}) {
     const {item, t, keyPrefix = "", OnSearch} = props;
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const {query: filter} = useAppSelector(leftActionBarSelector);
+
+    const [edited, setEdited] = useState(false);
 
     const formik = useFormik({
         onSubmit<Values>(): void | Promise<any> {
             return undefined;
         },
+        enableReinitialize: true,
         initialValues: {
             name: filter?.patient?.name ?? "",
             birthdate: filter?.patient?.birthdate ? moment(filter?.patient?.birthdate, "DD-MM-YYYY").toDate() : null,
@@ -59,6 +63,7 @@ function PatientFilter({...props}) {
     }, [OnSearch]);
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, lab: Lab) => {
+        setEdited(true);
         setFieldValue("name", event.target.value);
         if (event.target.value.length >= 1) {
             onSearchChange({
@@ -83,113 +88,16 @@ function PatientFilter({...props}) {
 
     const debouncedOnChange = debounce(handleOnChange, 500);
 
+    useEffect(() => {
+        if (queryState?.name.length === 0 && !edited && inputRef.current) {
+            inputRef.current.value = "";
+        }
+        setEdited(false);
+    }, [queryState?.name]) // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <FormikProvider value={formik}>
             <Box component="figure" sx={{m: 0}}>
-                {item.hasDouble && <FormControlLabel
-                    control={
-                        <Checkbox
-                            color="warning"
-                            size="small"
-                            checked={queryState.hasDouble}
-                            onChange={event => {
-                                setFieldValue("hasDouble", event.target.checked);
-                                onSearchChange({
-                                    query: {
-                                        ...filter?.patient,
-                                        ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                        hasDouble: event.target.checked
-                                    }
-                                });
-                            }}
-                        />}
-                    label={<Label
-                        variant="filled"
-                        sx={{
-                            cursor: "pointer",
-                            "& .MuiSvgIcon-root": {
-                                width: 14,
-                                height: 14,
-                                pl: 0,
-                                mr: 1
-                            }
-                        }}
-                        color={"warning"}>
-                        <WarningRoundedIcon/>
-                        <Typography sx={{fontSize: 10}}> {t(item.hasDouble?.heading)}</Typography>
-                    </Label>}/>}
-                {item.rest && <FormControlLabel
-                    control={
-                        <Checkbox
-                            color="warning"
-                            size="small"
-                            checked={queryState.rest}
-                            onChange={event => {
-                                setFieldValue("rest", event.target.checked);
-                                onSearchChange({
-                                    query: {
-                                        ...filter?.patient,
-                                        ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                        rest: event.target.checked
-                                    }
-                                });
-                            }}
-                        />}
-                    label={<Typography sx={{fontSize: 12}}> {t(item.rest?.heading)}</Typography>}/>}
-                <Typography variant="body2" color="text.secondary">
-                    {t(`${keyPrefix}${item.gender?.heading}`)}
-                </Typography>
-                <FormControl component="fieldset">
-                    <RadioGroup
-                        row
-                        aria-label="gender"
-                        onChange={(e) => {
-                            setFieldValue("gender", e.target.value)
-                            onSearchChange({
-                                query: {
-                                    ...filter?.patient,
-                                    ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
-                                    gender: e.target.value
-                                }
-                            });
-                        }}
-                        value={queryState.gender}
-                        name="row-radio-buttons-group"
-                        sx={{
-                            ml: .5,
-                            "& .MuiRadio-root": {
-                                width: 36, height: 36
-                            }
-                        }}>
-                        {item.gender?.genders.map((gender: string, i: number) => (
-                            <FormControlLabel
-                                key={`gender-${i}`}
-                                value={Gender[i]}
-                                control={<Radio/>}
-                                label={<Stack direction={"row"} alignItems={"center"} spacing={.5}>
-                                    {gender === "male" ? <MaleRoundedIcon sx={{width: 16}}/> :
-                                        <FemaleRoundedIcon sx={{width: 16}}/>}
-                                    {t(`${keyPrefix}${gender}`)}
-                                </Stack>}
-                            />
-                        ))}
-                        {queryState.gender &&
-                            <IconButton size="small" onClick={() => {
-                                const query = _.omit(queryState, "gender");
-                                const queryGlobal = _.omit(filter?.patient, "gender");
-                                setFieldValue("gender", null)
-                                onSearchChange({
-                                    query: {
-                                        ...query,
-                                        ...queryGlobal,
-                                        ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")}),
-                                    },
-                                });
-                            }}>
-                                <HighlightOffRoundedIcon color={"error"}/>
-                            </IconButton>}
-                    </RadioGroup>
-                </FormControl>
                 {item.textField?.labels.map((lab: Lab, i: number) => (
                         <Fragment key={`patient-filter-label-${i}`}>
                             {lab.label === "name" ? (
@@ -202,6 +110,15 @@ function PatientFilter({...props}) {
                                         fullWidth
                                         onSubmit={e => e.preventDefault()}>
                                         <TextField
+                                            className={'search-input'}
+                                            {...{inputRef}}
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <SearchRoundedIcon color={"white"}/>
+                                                    </InputAdornment>
+                                                ),
+                                            }}
                                             defaultValue={queryState.name}
                                             onChange={(e) => debouncedOnChange(e, lab)}
                                             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
@@ -279,6 +196,117 @@ function PatientFilter({...props}) {
                         </Fragment>
                     )
                 )}
+
+                <Typography variant="body2" color="text.secondary" mt={2}>
+                    {t(`${keyPrefix}${item.gender?.heading}`)}
+                </Typography>
+                <FormControl component="fieldset">
+                    <RadioGroup
+                        row
+                        aria-label="gender"
+                        onChange={(e) => {
+                            setFieldValue("gender", e.target.value)
+                            onSearchChange({
+                                query: {
+                                    ...filter?.patient,
+                                    ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                    gender: e.target.value
+                                }
+                            });
+                        }}
+                        value={queryState.gender}
+                        name="row-radio-buttons-group"
+                        sx={{
+                            ml: .5,
+                            "& .MuiRadio-root": {
+                                width: 36, height: 36
+                            }
+                        }}>
+                        {item.gender?.genders.map((gender: string, i: number) => (
+                            <FormControlLabel
+                                key={`gender-${i}`}
+                                value={Gender[i]}
+                                control={<Radio/>}
+                                label={<Stack direction={"row"} alignItems={"center"} spacing={.5}>
+                                    {gender === "male" ? <MaleRoundedIcon sx={{width: 16}}/> :
+                                        <FemaleRoundedIcon sx={{width: 16}}/>}
+                                    {t(`${keyPrefix}${gender}`)}
+                                </Stack>}
+                            />
+                        ))}
+                        {queryState.gender &&
+                            <IconButton size="small" onClick={() => {
+                                const query = _.omit(queryState, "gender");
+                                const queryGlobal = _.omit(filter?.patient, "gender");
+                                setFieldValue("gender", null)
+                                onSearchChange({
+                                    query: {
+                                        ...query,
+                                        ...queryGlobal,
+                                        ...(query.birthdate && {birthdate: moment(query.birthdate).format("DD-MM-YYYY")}),
+                                    },
+                                });
+                            }}>
+                                <HighlightOffRoundedIcon color={"error"}/>
+                            </IconButton>}
+                    </RadioGroup>
+                </FormControl>
+
+                {item.hasDouble &&
+                    <>
+                        <Typography variant="body2" color="text.secondary" mt={1}>
+                            {t(item.hasDouble?.heading)}
+                        </Typography>
+
+                        <FormControlLabel
+                            sx={{ml: .2, my: 1}}
+                            control={
+                                <Switch
+                                    color="warning"
+                                    size="small"
+                                    checked={queryState.hasDouble}
+                                    onChange={event => {
+                                        setFieldValue("hasDouble", event.target.checked);
+                                        onSearchChange({
+                                            query: {
+                                                ...filter?.patient,
+                                                ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                                hasDouble: event.target.checked
+                                            }
+                                        });
+                                    }}
+                                />}
+                            label={<Typography sx={{fontSize: 12}}> {t(`${keyPrefix}duplicate`)}</Typography>}/>
+                    </>
+                }
+
+                {item.rest &&
+                    <>
+                        <Typography variant="body2" color="text.secondary">
+                            {t(`${keyPrefix}payment`)}
+                        </Typography>
+                        <FormControlLabel
+                            sx={{ml: .2, my: 1}}
+                            control={
+                                <Switch
+                                    color="primary"
+                                    size="small"
+                                    checked={queryState.rest}
+                                    onChange={event => {
+                                        setFieldValue("rest", event.target.checked);
+                                        onSearchChange({
+                                            query: {
+                                                ...filter?.patient,
+                                                ...(queryState.birthdate && {birthdate: moment(queryState.birthdate).format("DD-MM-YYYY")}),
+                                                rest: event.target.checked
+                                            }
+                                        });
+                                    }}
+                                />}
+                            label={<Typography sx={{fontSize: 12}}> {t(item.rest?.heading)}</Typography>}/>
+                    </>
+                }
+
             </Box>
         </FormikProvider>
     )

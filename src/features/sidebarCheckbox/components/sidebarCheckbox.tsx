@@ -1,24 +1,25 @@
-import React from 'react'
-import {Checkbox, ListItemIcon, ListItemText} from '@mui/material'
+import React, {useEffect} from 'react'
+import {Checkbox, ListItemIcon, ListItemText, Stack} from '@mui/material'
 import SidebarCheckboxStyled from './overrides/sidebarCheckboxStyled';
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
-import {LoadingScreen} from "@features/loadingScreen";
-
 export default function SidebarCheckbox({...props}) {
-    const {data, label = "text", onChange, translate, checkState = false} = props
-    const {t, ready} = translate;
+    const {data, label = "text", onChange, t = null, prefix = null, checkState = false} = props
     const [checked, setChecked] = React.useState(checkState);
 
     const handleChange = (event: any) => {
         setChecked(event.target.checked);
         onChange(event.target.checked)
-    };
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    }
+
+    useEffect(() => {
+        setChecked(checkState);
+    }, [checkState]);
 
     return (
-        <SidebarCheckboxStyled styleprops={data?.color ? data.color : 'primary'}
-                               component='label' htmlFor={data.uuid}>
+        <SidebarCheckboxStyled
+            styleprops={data?.color ? data.color : 'primary'}
+            component='label' htmlFor={data.uuid}>
             <Checkbox
                 size="small"
                 checked={checked}
@@ -26,26 +27,33 @@ export default function SidebarCheckbox({...props}) {
                 id={data.uuid}
                 name={data.uuid}
             />
-            {(data.color || data.icon) &&
-                <ListItemIcon
-                    sx={{
-                        "& svg": {
-                            border: .1,
-                            borderColor: 'divider',
-                            borderRadius: '50%',
-                            p: 0.05,
-                            m: "0 .5rem"
-                        },
-                    }}>
-                    {data.color && <FiberManualRecordIcon
+            <Stack direction={"row"} alignItems={"center"}>
+                {(data.color || typeof data.icon === "string") &&
+                    <ListItemIcon
                         sx={{
-                            color: data.color
-                        }}
-                    />}
-                    {/*{data.icon && <Icon {...(data.icon === 'ic-video') && {className: 'ic-video'}} path={data.icon}/>}*/}
-                </ListItemIcon>
-            }
-            <ListItemText primary={label === "text" ? t(data[label]) : data[label]}/>
+                            "& svg": {
+                                border: .1,
+                                borderColor: 'divider',
+                                borderRadius: '50%',
+                                p: 0.05,
+                                m: "0 .5rem"
+                            },
+                            "& .MuiAvatar-root": {
+                                margin: 1.3
+                            }
+                        }}>
+                        {(data.color && typeof data.icon === "string") ? <FiberManualRecordIcon
+                                sx={{
+                                    color: data.color
+                                }}
+                            />
+                            :
+                            data.icon
+                        }
+                    </ListItemIcon>
+                }
+                <ListItemText primary={t ? t(`${prefix + '.' ?? ""}${data[label]}`) : data[label]}/>
+            </Stack>
         </SidebarCheckboxStyled>
     )
 }
