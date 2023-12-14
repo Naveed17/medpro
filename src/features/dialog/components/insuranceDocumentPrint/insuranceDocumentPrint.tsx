@@ -10,7 +10,6 @@ import {agendaSelector} from "@features/calendar";
 import {onOpenPatientDrawer, Otable} from "@features/table";
 import {NoDataCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
-import {partition} from "lodash";
 
 function InsuranceDocumentPrint({...props}) {
     const {data: {appuuid, state: patient, t, setOpenDialog}} = props;
