@@ -1,7 +1,6 @@
 import {AppointmentStatus} from "@features/calendar";
 import React, {useEffect, useState} from "react";
-import {SidebarCheckbox, SidebarCheckboxStyled} from "@features/sidebarCheckbox";
-import {Checkbox, Typography} from "@mui/material";
+import {SidebarCheckbox} from "@features/sidebarCheckbox";
 import {leftActionBarSelector, setFilter} from "@features/leftActionBar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useTranslation} from "next-i18next";

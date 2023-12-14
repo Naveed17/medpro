@@ -5,7 +5,6 @@ import {SidebarCheckbox} from "@features/sidebarCheckbox";
 import {leftActionBarSelector, setFilter} from "@features/leftActionBar";
 
 function AppointmentTypesFilter({...props}) {
-    const {t, ready} = props;
     const dispatch = useAppDispatch();
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);

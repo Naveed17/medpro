@@ -13,7 +13,7 @@ interface StateProps {
 }
 
 function AppointmentFilter({...props}) {
-    const {item, t, ready, keyPrefix = "", OnSearch} = props;
+    const {item, t, keyPrefix = "", OnSearch} = props;
     const dispatch = useAppDispatch();
 
     const {query} = useAppSelector(leftActionBarSelector);
