@@ -21,12 +21,18 @@ import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 import {setSelectedRows} from "@features/table";
 import {batch} from "react-redux";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 function Patient() {
     const dispatch = useAppDispatch();
+    const {data: session} = useSession();
 
     const {collapse} = rightActionData.filter;
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+
+    const {data: user} = session as Session;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const handleFilterChange = (data: any) => {
         window.history.replaceState({
@@ -73,9 +79,11 @@ function Patient() {
                             hasDouble: {
                                 heading: "duplication"
                             },
-                            rest: {
-                                heading: "unPayed"
-                            }
+                            ...(isBeta && {
+                                rest: {
+                                    heading: "unPayed"
+                                }
+                            })
                         }}
                         keyPrefix={"filter."}
                     />

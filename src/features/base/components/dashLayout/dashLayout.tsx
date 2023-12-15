@@ -267,6 +267,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                 import_data: calendarData.import_data,
                 newCashBox: demo,
                 next: calendarData?.next ?? null,
+                nb_appointment: calendarData.nb_appointment ?? 0,
                 last_fiche_id: increaseNumberInString(calendarData.last_fiche_id ? calendarData.last_fiche_id : '0'),
                 ongoing: calendarData?.ongoing ?? []
             }));
@@ -297,7 +298,10 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         if (httpProfessionalsResponse) {
             const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalPermissionModel;
             dispatch(setPaymentTypesList(medicalProfessionalData[0].payments));
-            dispatch(setOngoing({medicalProfessionalData: medicalProfessionalData[0], secretaryAccess: medicalProfessionalData?.secretary_access ?? false}));
+            dispatch(setOngoing({
+                medicalProfessionalData: medicalProfessionalData[0],
+                secretaryAccess: medicalProfessionalData?.secretary_access ?? false
+            }));
         }
     }, [httpProfessionalsResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 

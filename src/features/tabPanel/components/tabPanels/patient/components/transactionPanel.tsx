@@ -416,28 +416,30 @@ function TransactionPanel({...props}) {
                                                                                 <Stack
                                                                                     direction="row"
                                                                                     justifyContent="space-between"
-                                                                                    alignItems="center"
-                                                                                >
+                                                                                    alignItems="center">
                                                                                     <Stack
                                                                                         spacing={1}
                                                                                         width={1}
                                                                                         alignItems="center"
-                                                                                        direction="row"
-                                                                                    >
+                                                                                        direction="row">
                                                                                         <Typography
+                                                                                            onClick={() => {
+                                                                                                const slugConsultation = `/dashboard/consultation/${transaction?.appointment.uuid}`;
+                                                                                                if (router.asPath !== slugConsultation) {
+                                                                                                    router.replace(slugConsultation, slugConsultation, {locale: router.locale});
+                                                                                                }
+                                                                                            }}
+                                                                                            sx={{
+                                                                                                cursor: "pointer"
+                                                                                            }}
                                                                                             fontWeight={700}
-                                                                                            minWidth={95}
-                                                                                        >
-                                                                                            {
-                                                                                                transaction?.appointment?.type
-                                                                                                    ?.name
-                                                                                            }
+                                                                                            minWidth={95}>
+                                                                                            {transaction?.appointment?.type?.name}
                                                                                         </Typography>
                                                                                         <Stack
                                                                                             direction="row"
                                                                                             alignItems="center"
-                                                                                            spacing={0.5}
-                                                                                        >
+                                                                                            spacing={0.5}>
                                                                                             <IconUrl
                                                                                                 path="ic-agenda"
                                                                                                 width={12}
@@ -447,11 +449,11 @@ function TransactionPanel({...props}) {
                                                                                                 }
                                                                                             />
                                                                                             <Typography variant="body2">
-                                                                                                {transaction?.payment_date}
+                                                                                                {transaction?.appointment?.dayDate}
                                                                                             </Typography>
                                                                                             <IconUrl path="ic-time"/>
                                                                                             <Typography variant="body2">
-                                                                                                {transaction?.payment_time}
+                                                                                                {transaction?.appointment?.startTime}
                                                                                             </Typography>
                                                                                         </Stack>
                                                                                     </Stack>
