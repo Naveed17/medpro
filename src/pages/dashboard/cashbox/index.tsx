@@ -43,7 +43,6 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {ActionMenu} from "@features/menu";
 import {LoadingButton} from "@mui/lab";
 import {TabPanel} from "@features/tabPanel";
-import moment from "moment-timezone";
 import {agendaSelector} from "@features/calendar";
 import {saveAs} from "file-saver";
 import {SetSelectedTab} from "@features/leftActionBar/components/cashbox";

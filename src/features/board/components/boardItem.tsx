@@ -5,22 +5,16 @@ import {
     Box,
     Button,
     Card,
-    CardActions,
     CardContent,
     IconButton,
     Stack,
     Typography,
     useTheme,
-    alpha, Badge, Avatar
+    alpha
 } from "@mui/material";
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import {ImageHandler} from "@features/image";
-import {ModelDot} from "@features/modelDot";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import IconUrl from "@themes/urlIcon";
 import {CustomIconButton} from "@features/buttons";
-import {countries} from "@features/countrySelect/countries";
-import {getDiffDuration} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {timerSelector} from "@features/card";
 import moment from "moment-timezone";
@@ -31,10 +25,7 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import Icon from "@themes/urlIcon";
 import {AppointmentStatus} from "@features/calendar";
-import {motion} from 'framer-motion'
 import {sideBarSelector} from "@features/menu";
-import {SmallAvatar} from "@features/avatar";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 

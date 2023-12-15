@@ -66,7 +66,7 @@ function SideBarMenu({children}: LayoutProps) {
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room, newCashBox, nb_appointment} = useAppSelector(dashLayoutSelector);
+    const {waiting_room, newCashBox} = useAppSelector(dashLayoutSelector);
     const {sortedData} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("menu");
 

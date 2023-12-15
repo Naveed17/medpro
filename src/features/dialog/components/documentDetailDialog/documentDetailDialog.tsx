@@ -42,8 +42,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
-import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import PreviewA4 from "@features/files/components/previewA4";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix, generatePdfFromHtml} from "@lib/hooks";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
