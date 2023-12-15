@@ -36,7 +36,7 @@ function WaitingRoomRow({...props}) {
 
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [actions, setActions] = useState<boolean>(false);
+    const [actions] = useState<boolean>(false);
     const currency = doctor_country.currency?.name;
     const handleCloseDialog = () => {
         setOpenDialog(false);
