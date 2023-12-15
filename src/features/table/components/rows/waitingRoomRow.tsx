@@ -36,7 +36,7 @@ function WaitingRoomRow({...props}) {
 
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [actions, setActions] = useState<boolean>(false);
+    const [actions] = useState<boolean>(false);
     const currency = doctor_country.currency?.name;
     const handleCloseDialog = () => {
         setOpenDialog(false);
@@ -77,6 +77,7 @@ function WaitingRoomRow({...props}) {
                     {row ? (
                         <Box display="flex" alignItems="center">
                             <Button
+                                {...(row.startTime === "00:00" && {color: 'warning'})}
                                 sx={{
                                     p: 0,
                                     minWidth: '2.5rem',

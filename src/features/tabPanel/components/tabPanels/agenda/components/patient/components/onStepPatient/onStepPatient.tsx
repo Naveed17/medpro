@@ -49,10 +49,11 @@ import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {LoadingButton} from "@mui/lab";
 import {CountrySelect} from "@features/countrySelect";
-import {arrayUniqueByKey, getBirthday} from "@lib/hooks";
+import {arrayUniqueByKey, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {agendaSelector} from "@features/calendar";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -110,10 +111,7 @@ function OnStepPatient({...props}) {
     const {insurances} = useInsurances();
     const {contacts} = useContactType();
     const {countries} = useCountries("nationality=true");
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
     const {t: commonTranslation} = useTranslation("common");
@@ -121,6 +119,12 @@ function OnStepPatient({...props}) {
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
     const {last_fiche_id} = useAppSelector(dashLayoutSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const locations = agendaConfig?.locations;
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
@@ -304,7 +308,13 @@ function OnStepPatient({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
+    const {data: httpProfessionalLocationResponse} = useRequestQuery((locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
+
     const states = (httpStatesResponse as HttpResponse)?.data as any[] ?? [];
+    const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state;
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
@@ -370,11 +380,21 @@ function OnStepPatient({...props}) {
 
     useEffect(() => {
         if (countries) {
+            const defaultCountry = countries.find(country =>
+                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
             const uniqueCountries = arrayUniqueByKey("nationality", countries);
             setCountriesData(uniqueCountries.sort((country: CountryModel) =>
                 dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
+            setFieldValue("nationality", defaultCountry);
+            setFieldValue("country", defaultCountry);
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (professionalState) {
+            setFieldValue("region", professionalState.uuid);
+        }
+    }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
