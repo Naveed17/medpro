@@ -229,7 +229,7 @@ function BoardItem({...props}) {
 
                                 {quote.content.startTime !== "00:00" &&
                                     <Stack direction={"row"} spacing={.5} alignItems={"center"}
-                                           minWidth={110} {...(quote.content.status === 3 && {pl: .5})}>
+                                           minWidth={100} {...(quote.content.status === 3 && {pl: .5})}>
                                         <IconUrl path={'ic-time'} width={16}
                                                  height={16} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
                                         <Typography
@@ -238,9 +238,7 @@ function BoardItem({...props}) {
                                             color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
                                             {quote.content.status === 4 && time ?
                                                 moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
-                                                quote.content.status !== 3 ?
-                                                    quote.content.startTime :
-                                                    getDiffDuration(`${quote.content.dayDate} ${quote.content.startTime}`)}
+                                                quote.content.startTime}
                                         </Typography>
                                     </Stack>}
                             </Stack>

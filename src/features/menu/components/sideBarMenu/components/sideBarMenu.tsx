@@ -45,15 +45,13 @@ import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
 import {MobileContainer} from "@lib/constants";
-import {AnimatePresence, motion} from "framer-motion";
+import {motion} from "framer-motion";
 import StatsIcon from "@themes/overrides/icons/statsIcon";
 import {minMaxWindowSelector} from "@features/buttons";
 
 const {sidebarItems} = siteHeader;
 
-const LoadingScreen = dynamic(
-    () => import("@features/loadingScreen/components/loadingScreen")
-);
+const LoadingScreen = dynamic(() => import("@features/loadingScreen/components/loadingScreen"));
 
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
@@ -68,7 +66,7 @@ function SideBarMenu({children}: LayoutProps) {
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room, newCashBox} = useAppSelector(dashLayoutSelector);
+    const {waiting_room, newCashBox, nb_appointment} = useAppSelector(dashLayoutSelector);
     const {sortedData} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("menu");
 
