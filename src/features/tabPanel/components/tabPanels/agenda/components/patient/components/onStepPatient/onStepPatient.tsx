@@ -314,7 +314,7 @@ function OnStepPatient({...props}) {
     } : null, ReactQueryNoValidateConfig);
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[] ?? [];
-    const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state;
+    const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state ?? null;
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
@@ -385,8 +385,8 @@ function OnStepPatient({...props}) {
             const uniqueCountries = arrayUniqueByKey("nationality", countries);
             setCountriesData(uniqueCountries.sort((country: CountryModel) =>
                 dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
-            setFieldValue("nationality", defaultCountry);
-            setFieldValue("country", defaultCountry);
+            !selectedPatient?.nationality && setFieldValue("nationality", defaultCountry);
+            !(address.length > 0 && address[0]?.city) && setFieldValue("country", defaultCountry);
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -714,14 +714,12 @@ function OnStepPatient({...props}) {
                                     disableClearable
                                     size="small"
                                     value={(countriesData.find(country => country.uuid === values.nationality) ?? null) as any}
-                                    onChange={(e, v: any) => {
-                                        setFieldValue("nationality", v.uuid);
-                                    }}
+                                    onChange={(e, v: any) => setFieldValue("nationality", v.uuid)}
                                     sx={{color: "text.secondary"}}
                                     options={countriesData}
                                     loading={countriesData.length === 0}
-                                    getOptionLabel={(option: any) => option?.nationality ?? ""}
-                                    isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
+                                    getOptionLabel={(option: any) => option?.name ?? ""}
+                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                     renderOption={(props, option) => (
                                         <MenuItem {...props}>
                                             {option?.code && <Avatar
@@ -733,7 +731,7 @@ function OnStepPatient({...props}) {
                                                 alt={"flags"}
                                                 src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                             />}
-                                            <Typography sx={{ml: 1}}>{option.nationality}</Typography>
+                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
                                         </MenuItem>
                                     )}
                                     renderInput={params => {
