@@ -120,7 +120,7 @@ function DocumentDetailDialog({...props}) {
 
     const {direction} = useAppSelector(configSelector);
 
-    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote', 'glasses','lens']
+    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote', 'glasses', 'lens']
     const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
     const multimedias = ['video', 'audio', 'photo'];
     const list = [
@@ -149,50 +149,50 @@ function DocumentDetailDialog({...props}) {
     const actionButtons = [
         {
             title: 'print',
-            icon: "ic-imprime",
+            icon: "menu/ic-print",
             disabled: multimedias.some(media => media === state?.type)
         },
         {
             title: 'email',
-            icon: "ic-send-mail",
+            icon: "menu/ic-send-message",
         },
         {
             title: data.header.show ? 'hide' : 'show',
-            icon: "ic-menu2",
+            icon: `menu/${!data.header.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
             disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: data.header.page === 0 ? 'hide-header-page.hide' : 'hide-header-page.show',
-            icon: "ic-menu2",
+            icon: `menu/${!data.header.page ? 'ic-open-eye' : 'ic-eye-closed'}`,
             disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: data.title.show ? 'hidetitle' : 'showtitle',
-            icon: "ft14-text",
+            icon: `menu/${!data.title.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
             disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: data.patient.show ? 'hidepatient' : 'showpatient',
-            icon: "text-strikethrough",
+            icon: `menu/${data.patient.show ? 'ic-cancel-patient' : 'ic-user'}`,
             disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: 'settings',
-            icon: "template",
+            icon: "docs/ic-note",
             disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: 'download',
-            icon: "ic-dowlaodfile",
+            icon: "menu/ic-download-square",
         },
         {
             title: 'edit',
-            icon: "ic-edit-gray",
+            icon: "ic-edit-patient",
             disabled: (state?.type !== 'prescription' && state?.type !== 'write_certif' && state?.type !== 'requested-analysis' && state?.type !== 'requested-medical-imaging') || !state?.uuid
         },
         {
             title: 'delete',
-            icon: "icdelete",
+            icon: "ic-trash",
             disabled: !state?.uuid
         }
     ];
@@ -208,7 +208,7 @@ function DocumentDetailDialog({...props}) {
     const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
-    } : null,ReactQueryNoValidateConfig);
+    } : null, ReactQueryNoValidateConfig);
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -273,7 +273,8 @@ function DocumentDetailDialog({...props}) {
                     const fileType = ["png", "jpeg", "jpg"].includes(file.url.split('.').pop().split(/\#|\?/)[0]) ? 'image/png' : 'application/pdf';
                     fetch(file.url).then(response => {
                         response.blob().then(blob => {
-                            const file = new File([new Blob([blob])], `report${new Date().toISOString()}`, {type: fileType})
+                            const file = new File([new Blob([blob])], `report${new Date().toISOString()}`
+                                , {type: fileType})
                             setPreviewDoc(file);
                         })
                     })
@@ -370,7 +371,9 @@ function DocumentDetailDialog({...props}) {
                     const fileURL = window.URL.createObjectURL((file as Blob));
                     let alink = document.createElement('a');
                     alink.href = fileURL;
-                    alink.download = `${state?.type} ${state?.patient}`
+                    alink.download =
+                        `${state?.type} ${state?.patient}`
+
                     alink.click();
                 } else {
                     downloadF();
@@ -390,7 +393,8 @@ function DocumentDetailDialog({...props}) {
         form.append('value', value);
         triggerDocumentUpdate({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/documents/${state?.uuid}/${router.locale}`,
+            url:
+                `${urlMedicalEntitySuffix}/documents/${state?.uuid}/${router.locale}`,
             data: form
         }, {
             onSuccess: () => {
@@ -415,17 +419,21 @@ function DocumentDetailDialog({...props}) {
         setLoadingRequest && setLoadingRequest(true);
         if (state?.type === "quote") {
             medicalEntityHasUser && triggerDocumentDelete({
-                method: "DELETE",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${state?.uuid}/${router.locale}`
-            }, {
-                onSuccess: () => {
-                    state?.mutate && state?.mutate();
-                    setOpenRemove(false);
-                    setLoading(false);
-                    setLoadingRequest && setLoadingRequest(false);
-                    setOpenDialog && setOpenDialog(false);
+                    method: "DELETE",
+                    url: `${urlMedicalEntitySuffix} / mehu /${medicalEntityHasUser[0].uuid}/quotes/${state?.uuid}
+    /${router.locale}`
+                },
+                {
+                    onSuccess: () => {
+                        state?.mutate && state?.mutate();
+                        setOpenRemove(false);
+                        setLoading(false);
+                        setLoadingRequest && setLoadingRequest(false);
+                        setOpenDialog && setOpenDialog(false);
+                    }
                 }
-            });
+            )
+            ;
         } else {
             medicalEntityHasUser && triggerDocumentDelete({
                 method: "DELETE",
@@ -729,9 +737,9 @@ function DocumentDetailDialog({...props}) {
                                     setMenu(false)
                                 }}>
                                     <ListItemIcon>
-                                        <CloseFullscreenIcon/>
+                                        <IconUrl path="menu/ic-close-menu"/>
                                     </ListItemIcon>
-                                    <ListItemText primary={t("close")}/>
+                                    <ListItemText sx={{ml: 1}} primary={t("close")}/>
                                 </ListItemButton>
                             </ListItem>
                             {actionButtons.map((button, idx) =>
@@ -741,7 +749,7 @@ function DocumentDetailDialog({...props}) {
                                         <ListItemIcon>
                                             <IconUrl path={button.icon}/>
                                         </ListItemIcon>
-                                        {menu && <ListItemText primary={t(button.title)}/>}
+                                        {menu && <ListItemText sx={{ml: 1}} primary={t(button.title)}/>}
                                     </ListItemButton>}
                                 </ListItem>)
                             }
@@ -832,7 +840,7 @@ function DocumentDetailDialog({...props}) {
                                             margin: 'auto',
                                             justifyContent: 'center',
                                         }}>
-                                        <OpenInFullIcon/>
+                                        <IconUrl width={24} height={24} path={'menu/ic-open-menu'}/>
                                     </ListItemIcon>
                                 </ListItemButton>
                             </ListItem>

@@ -311,19 +311,21 @@ function Cashbox() {
     }
 
     const getConsultation = (start: string, end: string) => {
-        const query = `?mode=rest&start_date=${moment(start, "DD-MM-YYYY").format("DD-MM-YYYY")}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week`
-        agenda && triggerAppointmentDetails({
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}${query}`
-        }, {
-            onSuccess: (result) => {
-                const res = result.data.data
-                setApps(res)
-                setUnpaid(res.reduce((total: number, val: {
-                    appointmentRestAmount: number
-                }) => total + val.appointmentRestAmount, 0))
-            }
-        });
+        if (start && end && agenda) {
+            const query = `?mode=rest&start_date=${start}&end_date=${end}&format=week`
+            triggerAppointmentDetails({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}${query}`
+            }, {
+                onSuccess: (result) => {
+                    const res = result.data.data
+                    setApps(res)
+                    setUnpaid(res.reduce((total: number, val: {
+                        appointmentRestAmount: number
+                    }) => total + val.appointmentRestAmount, 0))
+                }
+            });
+        }
     }
 
     const handleTableActions = (data: any) => {
