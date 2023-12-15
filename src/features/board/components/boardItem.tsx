@@ -82,7 +82,7 @@ function BoardItem({...props}) {
 
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
-    const [duration, setDuration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote.content.dayDate} ${quote.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
+    const [duration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote.content.dayDate} ${quote.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
@@ -131,7 +131,9 @@ function BoardItem({...props}) {
                                         minWidth: '2.5rem',
                                         minHeight: '.5rem',
                                         marginRight: '4px'
-                                    }} variant={"contained"}
+                                    }}
+                                    {...(quote.content.startTime === "00:00" && {color: 'warning'})}
+                                    variant={"contained"}
                                     size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button> : !isDragging && AppointmentStatus[quote.content.status].icon}
                                 <Typography
                                     className={"ellipsis"}

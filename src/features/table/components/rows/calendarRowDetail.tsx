@@ -132,7 +132,7 @@ function CalendarRowDetail({...props}) {
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
                         <Typography
                             {...(!data?.patient?.isArchived && {
-                                onClick: () => handleEventClick("showPatient", data),
+                                onClick: () => handleEventClick("onPatientDetail", data),
                                 sx: {cursor: "pointer"}
                             })}
                             variant={"body2"}

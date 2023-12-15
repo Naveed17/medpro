@@ -58,8 +58,9 @@ function Accordion({...props}) {
                     </>
                 }>
                 <Box sx={{display: "flex", alignItems: "center"}}>
-                    {/*<Icon path={item.heading.icon}/>*/}
-                    <Typography variant="body1" sx={{color: "text.secondary", ml: 1}}>
+                    <Typography
+                        variant="body1"
+                        ml={1}>
                         {upperFirst(t(item.heading.title))}
                     </Typography>
                 </Box>

@@ -12,7 +12,7 @@ import {
     ActionBarState,
     AppointmentActs,
     AppointmentDisease,
-    AppointmentReasonsFilter, InsuranceFilter,
+    AppointmentReasonsFilter, FilterOverview, InsuranceFilter,
     setFilter
 } from "@features/leftActionBar";
 import React, {useState} from "react";
@@ -51,6 +51,7 @@ function Patient() {
             children: (
                 <FilterRootStyled>
                     <PatientFilter
+                        {...{t}}
                         OnSearch={(data: { query: ActionBarState }) => {
                             handleFilterChange({patient: data.query});
                         }}
@@ -59,25 +60,24 @@ function Patient() {
                                 icon: "ic-patient",
                                 title: "patient",
                             },
-                            hasDouble: {
-                                heading: "duplication"
-                            },
-                            rest: {
-                                heading: "unPayed"
-                            },
-                            gender: {
-                                heading: "gender",
-                                genders: ["male", "female"],
-                            },
                             textField: {
                                 labels: [
                                     {label: "name", placeholder: "search"},
                                     {label: "birthdate", placeholder: "--/--/----"},
                                 ],
                             },
+                            gender: {
+                                heading: "gender",
+                                genders: ["male", "female"],
+                            },
+                            hasDouble: {
+                                heading: "duplication"
+                            },
+                            rest: {
+                                heading: "unPayed"
+                            }
                         }}
                         keyPrefix={"filter."}
-                        t={t}
                     />
                 </FilterRootStyled>
             ),
@@ -167,6 +167,7 @@ function Patient() {
                     gutterBottom>
                     {t(`filter.title`)}
                 </Typography>
+                <FilterOverview/>
                 <Accordion
                     translate={{t, ready}}
                     data={dataPatient}
