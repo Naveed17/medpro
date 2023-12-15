@@ -47,6 +47,7 @@ import moment from "moment-timezone";
 import {agendaSelector} from "@features/calendar";
 import {saveAs} from "file-saver";
 import {SetSelectedTab} from "@features/leftActionBar/components/cashbox";
+import { ImageHandler } from "@features/image";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -91,10 +92,10 @@ export const headCells: readonly HeadCell[] = [
         align: "center",
     },
     {
-        id: "type",
+        id: "method",
         numeric: true,
         disablePadding: false,
-        label: "type",
+        label: "method",
         sortable: true,
         align: "center",
     },
@@ -141,26 +142,27 @@ export const consultationCells: readonly HeadCell[] = [
         align: "left",
     },
     {
-        id: "insurance",
-        numeric: true,
+        id: "type",
+        numeric: false,
         disablePadding: false,
-        label: "insurance",
+        label: "type",
         sortable: true,
         align: "center",
     },
+    {
+        id:'status',
+        numeric: false,
+        disablePadding: false,
+        label: "status",
+        sortable: true,
+        align: "center",
+
+   },
     {
         id: 'total',
         numeric: true,
         disablePadding: false,
         label: "total",
-        sortable: true,
-        align: "center",
-    },
-    {
-        id: "rest",
-        numeric: true,
-        disablePadding: false,
-        label: "rest",
         sortable: true,
         align: "center",
     },
@@ -172,6 +174,15 @@ export const consultationCells: readonly HeadCell[] = [
         sortable: true,
         align: "center",
     },
+    {
+        id: "rest",
+        numeric: true,
+        disablePadding: false,
+        label: "rest",
+        sortable: true,
+        align: "center",
+    },
+    
 ];
 
 const noCardData = {
@@ -245,6 +256,29 @@ function Cashbox() {
             value: "transactions"
         }
     ]
+    const topCard = [
+         {
+        icon:"ic-cash-light-green",
+        amount:1200,
+        title:"total_profit",
+       },
+        {
+        icon:"ic-unpaid-light-red",
+        amount:350,
+        title:"not_paid",
+       },
+        {
+        icon:"ic-cash-light-blue",
+        amount:200,
+        title:"cash_in_hand",
+       },
+       {
+        icon:"ic-cheque-light-blue",
+        amount:500,
+        title:"cheque_cashed",
+       },
+
+]
     const {data: user} = session as Session;
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -434,6 +468,7 @@ function Cashbox() {
                                 value={tab.label}
                                 disabled={loading}
                                 label={t(tab.label)}
+                                
                             />
                         ))
                         }
@@ -459,20 +494,61 @@ function Cashbox() {
             )}
 
             <Box className="container">
+                <Stack 
+                     mb={1.2}
+                     display='grid'
+                     sx={{gap:1.2,px:1}}
+                     gridTemplateColumns="repeat(4,minmax(0,1fr))"
+                    >
+                        {topCard.map((card, idx) => (
+                        <Card sx={{border:'none'}} key={idx}>
+                        <CardContent>
+                            <Stack direction='row' alignItems='center' spacing={2}>
+                                <ImageHandler 
+                                 src={`/static/icons/${card.icon}.svg`}
+                                 alt={card.title}
+                                 width={40}
+                                 height={40}
+                                />
+                                <Stack>
+                                    <Typography variant="h6" fontWeight={700}>
+                                        {card.amount}
+                                        <span style={{fontSize: 14,marginLeft:4}}>{devise}</span>
+                                    </Typography>
+                                    <Typography variant="body2" textTransform='capitalize'>
+                                        {t(card.title)}
+                                    </Typography>
+                                
+                                </Stack>
+                            </Stack>
+                        </CardContent>
+                        </Card>
+                        ))}
+                      
+                    </Stack>
                 <TabPanel padding={1} value={selectedTab} index={"consultations"}>
-                    <Card>
+                    <Card sx={{border:'none'}}>
                         <CardContent>
                             <Stack direction='row' alignItems={{xs: 'flex-start', md: 'center'}}
                                    justifyContent="space-between" mb={2} pb={1} borderBottom={1}
                                    borderColor='divider'>
-                                <Typography fontWeight={700} mt={1} mb={1}>
+                                    <Stack>
+                                <Typography fontWeight={700}>
                                     {t("consultations")}
                                 </Typography>
-                                <Stack direction={'row'} alignItems="center" spacing={1}>
-                                    <Typography fontWeight={700}>
+                                    <Typography>
                                         {txtFilter}
                                     </Typography>
                                 </Stack>
+                               <Button onClick={exportDoc}
+                                                    sx={{
+                                                        borderColor: 'transparent',
+                                                        bgcolor: theme => theme.palette.grey['A500'],
+                                                    }}
+                                                    variant="outlined" color="info"
+                                                    startIcon={<IconUrl path="ic-export-new"/>}>
+                                                {t("export")}
+                                            </Button>
                             </Stack>
                             <DesktopContainer>
                                 <Otable
@@ -506,28 +582,30 @@ function Cashbox() {
                 <TabPanel padding={1} value={selectedTab} index={"transactions"}>
                     <Stack spacing={2}>
                         {rows.length > 0 ? (
-                            <Card>
+                            <Card sx={{border:'none'}}>
                                 <CardContent>
                                     <Stack direction='row' alignItems={{xs: 'center', md: 'center'}}
                                            justifyContent="space-between" mb={2} pb={1} borderBottom={1}
                                            borderColor='divider'>
-                                        <Typography fontWeight={700}>
+                                       
+                                        <Stack>
+                                             <Typography fontWeight={700}>
                                             {t("transactions")}
                                         </Typography>
-                                        <Stack direction={'row'} alignItems="center" spacing={1}>
-                                            <Typography fontWeight={700}>
+                                            <Typography>
                                                 {txtFilter}
                                             </Typography>
-                                            <Button onClick={exportDoc}
+                                            
+                                        </Stack>
+                                        <Button onClick={exportDoc}
                                                     sx={{
-                                                        borderColor: 'divider',
+                                                        borderColor: 'transparent',
                                                         bgcolor: theme => theme.palette.grey['A500'],
                                                     }}
                                                     variant="outlined" color="info"
                                                     startIcon={<IconUrl path="ic-export-new"/>}>
                                                 {t("export")}
                                             </Button>
-                                        </Stack>
                                     </Stack>
                                     <DesktopContainer>
                                         {!loading && (
