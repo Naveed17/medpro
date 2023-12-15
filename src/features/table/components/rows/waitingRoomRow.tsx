@@ -77,6 +77,7 @@ function WaitingRoomRow({...props}) {
                     {row ? (
                         <Box display="flex" alignItems="center">
                             <Button
+                                {...(row.startTime === "00:00" && {color: 'warning'})}
                                 sx={{
                                     p: 0,
                                     minWidth: '2.5rem',
