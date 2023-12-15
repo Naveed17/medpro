@@ -25,7 +25,6 @@ import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import Icon from "@themes/urlIcon";
 import {AppointmentStatus} from "@features/calendar";
-import {sideBarSelector} from "@features/menu";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -87,12 +86,10 @@ function BoardItem({...props}) {
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
-    const [counter, setCounter] = useState<number>(0)
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
     const [duration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote.content.dayDate} ${quote.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
 
-    const {opened} = useAppSelector(sideBarSelector);
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 

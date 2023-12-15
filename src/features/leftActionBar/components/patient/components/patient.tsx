@@ -26,7 +26,7 @@ import {Session} from "next-auth";
 
 function Patient() {
     const dispatch = useAppDispatch();
-    const {data: session, status} = useSession();
+    const {data: session} = useSession();
 
     const {collapse} = rightActionData.filter;
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
