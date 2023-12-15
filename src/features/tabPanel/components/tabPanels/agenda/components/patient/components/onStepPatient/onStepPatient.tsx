@@ -397,7 +397,7 @@ function OnStepPatient({...props}) {
     }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
-    console.log("patient loop")
+
     return (
         <FormikProvider value={formik}>
             <Stack
