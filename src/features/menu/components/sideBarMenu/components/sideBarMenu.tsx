@@ -45,8 +45,9 @@ import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
 import {MobileContainer} from "@lib/constants";
-import {motion} from "framer-motion";
+import {AnimatePresence, motion} from "framer-motion";
 import StatsIcon from "@themes/overrides/icons/statsIcon";
+import { minMaxWindowSelector } from "@features/buttons";
 
 const {sidebarItems} = siteHeader;
 
@@ -60,6 +61,7 @@ function SideBarMenu({children}: LayoutProps) {
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const {isWindowMax} = useAppSelector(minMaxWindowSelector);
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
@@ -223,7 +225,6 @@ function SideBarMenu({children}: LayoutProps) {
                 </List>
             </div>
         )
-    ;
 
     useEffect(() => {
         container.current = document.body as HTMLDivElement;
@@ -249,12 +250,25 @@ function SideBarMenu({children}: LayoutProps) {
     }, [sortedData, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
-
     return (
+        
         <MainMenuStyled>
-            <TopNavBar dashboard/>
+            <AnimatePresence>
+            {!isWindowMax && 
+            <motion.div 
+            key='navbar-top'
+            initial={{opacity: 0}}
+            animate={{opacity: 1}}
+            >
+            <TopNavBar dashboard />
+            </motion.div>
+            }
+            {!isWindowMax &&
             <Box
-                component="nav"
+                component={motion.nav}
+                 key='sidenav-main'
+                 initial={{opacity: 0}}
+                 animate={{opacity: 1}}
                 aria-label="mailbox folders"
                 className="sidenav-main">
                 {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
@@ -273,20 +287,24 @@ function SideBarMenu({children}: LayoutProps) {
                     {drawer}
                 </Drawer>
             </Box>
+            }
+            {!isWindowMax && 
             <Box
                 display={isMobile ? "none" : "block"}
-                component="nav"
-                className={`action-side-nav ${opened ? "active" : ""}`}>
+                className={`action-side-nav ${!isWindowMax && opened ? "active" :  ""}`}>
                 <div className="action-bar-open">
                     {/* side page bar */}
                     <LeftActionBar/>
                 </div>
             </Box>
-            <Box className="body-main">
-                <Toolbar sx={{minHeight: isMobile ? 66 : 56}}/>
-                <Box component="main">{children}</Box>
+             }
+            <Box className="body-main" component={"main"}>
+                <Toolbar sx={{minHeight: isMobile ? 66 : 56,display:isWindowMax ? 'none':'block'}}/>
+                <Box>{children}</Box>
             </Box>
+            </AnimatePresence>
         </MainMenuStyled>
+      
     );
 }
 
