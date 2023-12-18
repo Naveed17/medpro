@@ -10,3 +10,4 @@ export * from "./iconSwitch";
 export * from "./switchPrescriptionUI";
 export * from "./expandMore";
 export * from "./customIconButton";
+export * from './minMaxWindowButton'

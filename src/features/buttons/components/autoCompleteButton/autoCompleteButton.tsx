@@ -2,7 +2,7 @@ import RootStyled from './overrides/RootStyled'
 import {Box, Button, ClickAwayListener} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {PatientAppointmentCard} from "@features/card";
 import {AutoComplete} from "@features/autoComplete";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -36,6 +36,10 @@ function AutoCompleteButton({...props}) {
     const [focus, setFocus] = useState(true);
     const [patient, setPatient] = useState<PatientWithNextAndLatestAppointment | null>(initData);
 
+    const handleOnClickAction = useCallback((event: any) => {
+        OnClickAction(event);
+    }, [OnClickAction]);
+
     const onSubmitPatient = (data: PatientWithNextAndLatestAppointment) => {
         dispatch(setAppointmentPatient(data));
     }
@@ -50,7 +54,7 @@ function AutoCompleteButton({...props}) {
                 const patient = (result?.data as HttpResponse)?.data;
                 if (status === "success") {
                     dispatch(setAppointmentPatient(patient as any));
-                    OnClickAction(true);
+                    handleOnClickAction(true);
                 }
 
             }
@@ -86,7 +90,7 @@ function AutoCompleteButton({...props}) {
                                 <Box sx={{mb: 4}} className="autocomplete-container">
                                     <AutoComplete
                                         {...{data,defaultValue, loading, onSearchChange, size}}
-                                        onAddPatient={OnClickAction}
+                                        onAddPatient={handleOnClickAction}
                                         t={translation}
                                         onSelectData={onSubmitPatient}
                                     />

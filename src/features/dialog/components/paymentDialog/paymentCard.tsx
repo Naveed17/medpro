@@ -18,9 +18,9 @@ import {
 import IconUrl from "@themes/urlIcon";
 import {motion} from "framer-motion";
 import {DatePicker} from "@features/datepicker";
-import {filterReasonOptions} from "@lib/hooks";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import useBanks from "@lib/hooks/rest/useBanks";
+import {filterBankOptions} from "@lib/hooks/filterBankOptions";
 
 function PaymentCard({...props}) {
     const {
@@ -240,12 +240,12 @@ function PaymentCard({...props}) {
                                                     payments[i].data.bank = newValue;
                                                     setPayments([...payments])
                                                 }}
-                                                filterOptions={(options, params) => filterReasonOptions(options, params, t)}
+                                                filterOptions={(options, params) => filterBankOptions(options, params, t)}
                                                 sx={{color: "text.secondary"}}
                                                 options={banks ? banks : []}
                                                 loading={banks?.length === 0}
                                                 getOptionLabel={(option) => {
-                                                    return option.name || "";
+                                                    return option.abbreviation || "";
                                                 }}
                                                 isOptionEqualToValue={(option: any, value) => option.uuid === value?.uuid}
                                                 renderOption={(props, option) => (
@@ -256,7 +256,7 @@ function PaymentCard({...props}) {
                                                             {...props}
                                                             value={option.uuid}>
                                                             {!option.uuid && <AddOutlinedIcon/>}
-                                                            {option.name}
+                                                            {option.abbreviation}
                                                         </MenuItem>
                                                     </Stack>
                                                 )}

@@ -8,6 +8,8 @@
   "payment_dialog_title": "Paiement",
   "empty-trash": "Vider la corbeille",
   "add-payment": "Ajouter un paiement",
+  "not-payed": "Impayé",
+  "paid": "Payé",
   "cash": "Encaisse",
   "lang": "langue",
   "sms-languages": {

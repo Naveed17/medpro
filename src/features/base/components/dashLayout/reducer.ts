@@ -12,6 +12,7 @@ export type dashLayoutState = {
     appointmentTypes?: AppointmentTypeModel[];
     notifications?: any[];
     last_fiche_id?: string;
+    nb_appointment?: number;
     ongoing?: {
         "uuid": "string";
         "start_time": "string";
@@ -29,6 +30,7 @@ export type dashLayoutState = {
 
 const initialState: dashLayoutState = {
     waiting_room: 0,
+    nb_appointment: 0,
     allowNotification: false,
     import_data: [],
     notifications: [],

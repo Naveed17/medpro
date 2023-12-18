@@ -1,4 +1,4 @@
-import {Avatar, Box, Chip, Fade, IconButton, Stack, Typography} from "@mui/material";
+import {Avatar, Box, Chip, Fade, IconButton, Stack, Typography, useMediaQuery} from "@mui/material";
 import React from "react";
 import DangerIcon from "@themes/overrides/icons/dangerIcon";
 import EventStyled from './overrides/eventStyled';
@@ -15,12 +15,14 @@ import {batch} from "react-redux";
 import {openDrawer, setSelectedEvent} from "@features/calendar";
 import {setDialog} from "@features/topNavBar";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
+import {MobileContainer as smallScreen} from "@lib/constants";
 
 function Event({...props}) {
     const {isBeta, event, roles, view, open, t, OnMenuActions} = props;
     const appointment = event.event._def.extendedProps;
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const {isActive} = useAppSelector(timerSelector);
 
@@ -190,7 +192,7 @@ function Event({...props}) {
                             alt="Online appointment"
                             src="/static/icons/Med-logo_.svg"
                         />}
-                        {(event.event._def.ui.display !== "background" && !["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(appointment?.status?.key) && !roles.includes('ROLE_SECRETARY') && !appointment?.patient?.isArchived) &&
+                        {(event.event._def.ui.display !== "background" && !["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(appointment?.status?.key) && !roles.includes('ROLE_SECRETARY') && !appointment?.patient?.isArchived && !isMobile)  &&
                             <IconButton
                                 onClick={ev => {
                                     ev.stopPropagation();

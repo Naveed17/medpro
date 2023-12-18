@@ -217,6 +217,7 @@ function TopNavBar({...props}) {
                     dispatch(resetAppointment());
                     dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
                 });
+                console.log("selectedEvent", selectedEvent);
                 if (selectedEvent) {
                     handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
                 } else {

@@ -84,10 +84,12 @@ import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {setDialog} from "@features/topNavBar";
 import {resetAbsenceData, setAbsenceData, AbsenceDrawer, absenceDrawerSelector} from "@features/drawer";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+import LeaveIcon from "@themes/overrides/icons/leaveIcon";
 
 const actions = [
-    {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
-    {icon: <AddOutlinedIcon/>, name: 'Ajout complet', key: 'add-complete'}
+    {icon: <FastForwardOutlinedIcon/>, key: 'add-quick'},
+    {icon: <AddOutlinedIcon/>, key: 'add-complete'},
+    {icon: <LeaveIcon/>, key: 'add_leave'}
 ];
 
 function Agenda() {
@@ -1049,6 +1051,9 @@ function Agenda() {
     const handleActionFab = (action: any) => {
         setOpenFabAdd(false);
         switch (action.key) {
+            case "add_leave" :
+                dispatch(openDrawer({type: "absence", open: true}));
+                break;
             case "add-quick" :
                 handleAddAppointment("add-quick");
                 break;
@@ -1162,7 +1167,7 @@ function Agenda() {
                                     open={openFabAdd}>
                                     {actions.map((action) => (
                                         <SpeedDialAction
-                                            key={action.name}
+                                            key={action.key}
                                             icon={action.icon}
                                             tooltipTitle={t(`${action.key}`)}
                                             tooltipOpen
@@ -1325,7 +1330,7 @@ function Agenda() {
                             dispatch(resetAbsenceData());
                         });
                     }}>
-                    <AbsenceDrawer {...{t}}/>
+                    <AbsenceDrawer main={true} {...{t}}/>
                     <Paper
                         sx={{
                             display: "inline-block",
