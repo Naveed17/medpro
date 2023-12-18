@@ -58,16 +58,15 @@ function SideBarMenu({children}: LayoutProps) {
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {isWindowMax} = useAppSelector(minMaxWindowSelector);
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
-    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room, newCashBox, nb_appointment} = useAppSelector(dashLayoutSelector);
-    const {sortedData} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("menu");
+    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
+    const {isWindowMax} = useAppSelector(minMaxWindowSelector);
+    const {waiting_room, newCashBox, nb_appointment} = useAppSelector(dashLayoutSelector);
 
     let container: any = useRef<HTMLDivElement>(null);
     const [menuItems, setMenuItems] = useState(
