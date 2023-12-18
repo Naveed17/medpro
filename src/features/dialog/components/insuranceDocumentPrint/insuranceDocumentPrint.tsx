@@ -5,7 +5,7 @@ import {useRouter} from "next/router";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {PageSizes, PDFDocument, StandardFonts} from 'pdf-lib';
+import {degrees, PageSizes, PDFDocument, StandardFonts} from 'pdf-lib';
 import {agendaSelector} from "@features/calendar";
 import {onOpenPatientDrawer, Otable} from "@features/table";
 import {NoDataCard} from "@features/card";
@@ -60,12 +60,13 @@ function InsuranceDocumentPrint({...props}) {
                             const insurancePdfDoc = await PDFDocument.load(docFile);
                             const copiedPages = await pdfDoc.copyPages(insurancePdfDoc, insurancePdfDoc.getPageIndices());
                             for (const page of copiedPages) {
+                                console.log("page", page.getRotation());
                                 const index = copiedPages.indexOf(page);
                                 pagedFields[index + 1]?.forEach((field: any) => {
-                                    if (field.posX && field.posY) {
+                                    if (field.posXX && field.posYY) {
                                         page.drawText(field.value?.toString() ?? "", {
-                                            x: field.posX,
-                                            y: field.posY,
+                                            x: field.posXX,
+                                            y: field.posYY,
                                             font: helveticaFont,
                                             size: 10
                                         });
@@ -82,10 +83,10 @@ function InsuranceDocumentPrint({...props}) {
                     Object.entries(pagedFields).forEach((fields: any) => {
                         const page = pdfDoc.addPage([PageSizes.A4[1], PageSizes.A4[0]]);
                         fields[1]?.forEach((field: any) => {
-                            if (field.posX && field.posY) {
+                            if (field.posXX && field.posYY) {
                                 page.drawText(field.value?.toString() ?? "", {
-                                    x: field.posX,
-                                    y: field.posY,
+                                    x: field.posXX,
+                                    y: field.posYY,
                                     font: helveticaFont,
                                     size: 10
                                 })
