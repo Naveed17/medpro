@@ -250,7 +250,7 @@ export default function NewCashboxMobileCard({ ...props }) {
                   </Stack>
                 ))}
             </Stack>
-            {transaction_loading && <LinearProgress />}
+            {collapse && transaction_loading && <LinearProgress />}
             {transaction_data.length > 0 &&
               transaction_data.map((transaction: any) => (
                 <Card
