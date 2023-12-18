@@ -66,7 +66,7 @@ function SideBarMenu({children}: LayoutProps) {
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room, newCashBox} = useAppSelector(dashLayoutSelector);
+    const {waiting_room, newCashBox, nb_appointment} = useAppSelector(dashLayoutSelector);
     const {sortedData} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("menu");
 
@@ -240,11 +240,11 @@ function SideBarMenu({children}: LayoutProps) {
             (event) => event.date === moment().format("DD-MM-YYYY")
         );
         setMenuItems([
-            {...menuItems[0], badge: currentDay ? currentDay.events.length : 0},
+            {...menuItems[0], badge: nb_appointment},
             {...menuItems[1], badge: waiting_room},
             ...menuItems.slice(2),
         ]);
-    }, [sortedData, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [nb_appointment, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 

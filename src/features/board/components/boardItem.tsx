@@ -28,6 +28,7 @@ import {AppointmentStatus} from "@features/calendar";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
+import {getDiffDuration} from "@lib/hooks";
 
 const imageSize: number = 40;
 
@@ -229,7 +230,9 @@ function BoardItem({...props}) {
                                             color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
                                             {quote.content.status === 4 && time ?
                                                 moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
-                                                quote.content.startTime}
+                                                quote.content.status !== 3 ?
+                                                    quote.content.startTime :
+                                                    getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`)}
                                         </Typography>
                                         {quote.content.status === 5 && <Chip
                                             size={"small"}
