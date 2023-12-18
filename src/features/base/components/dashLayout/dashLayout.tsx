@@ -317,7 +317,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     return (
         <SideBarMenu>
-            <AppLock/>
+            {/*<AppLock/>*/}
             <PageTransition ref={ref}>
                 {children}
             </PageTransition>
