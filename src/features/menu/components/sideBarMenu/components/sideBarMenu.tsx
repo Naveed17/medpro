@@ -119,8 +119,7 @@ function SideBarMenu({children}: LayoutProps) {
             </Link>
 
             <List
-                component={motion.ul}
-                layout
+                component={"ul"}
                 onMouseLeave={() => setCurrentIndex(null)}
                 sx={{overflow: 'hidden', px: 1.5}}>
                 {menuItems?.map((item, i) => (
