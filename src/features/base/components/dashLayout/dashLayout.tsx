@@ -7,7 +7,6 @@ import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector, dashLayoutState, setOngoing, PageTransition} from "@features/base";
-import {AppLock} from "@features/appLock";
 import {Box, Button, DialogActions, Stack, Typography, useMediaQuery, useTheme} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
