@@ -10,7 +10,7 @@ import {
     Stack,
     Typography,
     useTheme,
-    alpha
+    alpha, Chip
 } from "@mui/material";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import IconUrl from "@themes/urlIcon";
@@ -27,6 +27,8 @@ import Icon from "@themes/urlIcon";
 import {AppointmentStatus} from "@features/calendar";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import {Label} from "@features/label";
+import {useTranslation} from "next-i18next";
 
 const imageSize: number = 40;
 
@@ -83,6 +85,7 @@ function BoardItem({...props}) {
     } = props;
     const theme = useTheme();
     const {data: session} = useSession();
+    const {t: commonTranslation} = useTranslation("common");
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
@@ -135,14 +138,15 @@ function BoardItem({...props}) {
                 }}>
                     <Stack direction='row' alignItems='center' justifyContent='space-between'>
                         <Stack direction='row' alignItems='center' spacing={.8}>
-                            {quote.content.status !== 3 && <Box display='flex' sx={{
-                                svg: {
-                                    width: 22,
-                                    height: 22
-                                }
-                            }}>
-                                {!isDragging && AppointmentStatus[quote.content.status].icon}
-                            </Box>}
+                            {quote.content.status !== 3 &&
+                                <Box display='flex' sx={{
+                                    svg: {
+                                        width: 22,
+                                        height: 22
+                                    }
+                                }}>
+                                    {!isDragging && AppointmentStatus[quote.content.status].icon}
+                                </Box>}
                             <Stack spacing={.4}>
                                 <Stack direction={"row"} alignItems={"center"}>
                                     {quote.content.status === 3 && <Button
@@ -228,6 +232,21 @@ function BoardItem({...props}) {
                                                 moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
                                                 quote.content.startTime}
                                         </Typography>
+                                        {quote.content.status === 5 && <Chip
+                                            size={"small"}
+                                            variant="filled"
+                                            sx={{
+                                                opacity: 0.6,
+                                                height: 20,
+                                                fontSize: 10,
+                                                "& .MuiSvgIcon-root": {
+                                                    width: 16,
+                                                    height: 16,
+                                                    pl: 0
+                                                },
+                                            }}
+                                            label={commonTranslation(quote?.restAmount === 0 ? "paid" : "not-payed")}
+                                            color={quote?.restAmount === 0 ? "success" : "error"}/>}
                                     </Stack>}
                             </Stack>
                         </Stack>
