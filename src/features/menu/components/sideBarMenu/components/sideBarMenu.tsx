@@ -39,7 +39,6 @@ import {LeftActionBar} from "@features/leftActionBar";
 import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
 import {agendaSelector} from "@features/calendar";
-import moment from "moment-timezone";
 import dynamic from "next/dynamic";
 import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
@@ -236,9 +235,6 @@ function SideBarMenu({children}: LayoutProps) {
     }, [newCashBox]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        const currentDay = sortedData.find(
-            (event) => event.date === moment().format("DD-MM-YYYY")
-        );
         setMenuItems([
             {...menuItems[0], badge: nb_appointment},
             {...menuItems[1], badge: waiting_room},
