@@ -1198,11 +1198,13 @@ function Agenda() {
                                 )}
                             </Typography>
 
-                            {row.events.map((event) => (
+                            {row.events.map((event,idx) => (
+                                
                                 <AppointmentListMobile
                                     OnMenuActions={onMenuActions}
                                     OnSelectEvent={onSelectEvent}
                                     key={event.id}
+                                    index={idx}
                                     event={event}/>
 
                             ))}
