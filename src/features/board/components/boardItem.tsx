@@ -126,7 +126,7 @@ function BoardItem({...props}) {
                     borderRightColor: quote.content.consultationReasons.length > 0 ? quote.content.consultationReasons[0].color : 'divider',
                     borderLeftColor: quote.content.type.color ?? theme.palette.primary.main
                 }),
-                bgcolor: [1].includes(quote.content.status) ? alpha(theme.palette.warning.lighter, .7) : theme.palette.common.white
+                bgcolor: [0].includes(quote.content.status) ? alpha(theme.palette.warning.lighter, .7) : theme.palette.common.white
             }}>
                 <CardContent sx={{
                     p: 1, "&:last-child": {
