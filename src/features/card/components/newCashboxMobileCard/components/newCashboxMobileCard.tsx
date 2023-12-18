@@ -259,59 +259,66 @@ export default function NewCashboxMobileCard({ ...props }) {
                 >
                   <CardContent>
                     <Stack
-                      spacing={1}
-                      width={1}
-                      alignItems="flex-start"
-                      direction={"row"}
+                      direction={{ xs: "column", sm: "row" }}
+                      spacing={{ xs: 0.5, sm: 0 }}
+                      justifyContent={{ xs: "flex-start", sm: "space-between" }}
                     >
-                      <Typography fontWeight={700}>
-                        {transaction?.appointment?.type?.name}
-                      </Typography>
-                      <Stack direction="row" alignItems="center" spacing={0.5}>
-                        <IconUrl
-                          path="ic-agenda"
-                          width={12}
-                          height={12}
-                          color={theme.palette.text.primary}
-                        />
-                        <Typography variant="body2">
-                          {transaction?.payment_date}
-                        </Typography>
-                        <IconUrl path="ic-time" width={12} height={12} />
-                        <Typography variant="body2">
-                          {transaction?.payment_time}
-                        </Typography>
-                      </Stack>
-                    </Stack>
-                    <Stack
-                      spacing={1}
-                      width={1}
-                      alignItems="center"
-                      direction="row"
-                      justifyContent="flex-start"
-                      mt={0.5}
-                      sx={{
-                        span: {
-                          fontSize: 14,
-                          strong: {
-                            mx: 0.5,
-                          },
-                        },
-                      }}
-                    >
-                      <Label
-                        variant="filled"
-                        color={
-                          transaction?.amount ===
-                          transaction?.amount?.restAmount
-                            ? "error"
-                            : "success"
-                        }
+                      <Stack
+                        spacing={1}
+                        alignItems="flex-start"
+                        direction={"row"}
                       >
-                        {t("total")}
-                        <strong>{transaction?.amount}</strong>
-                        {devise}
-                      </Label>
+                        <Typography fontWeight={700}>
+                          {transaction?.appointment?.type?.name}
+                        </Typography>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing={0.5}
+                        >
+                          <IconUrl
+                            path="ic-agenda"
+                            width={12}
+                            height={12}
+                            color={theme.palette.text.primary}
+                          />
+                          <Typography variant="body2">
+                            {transaction?.payment_date}
+                          </Typography>
+                          <IconUrl path="ic-time" width={12} height={12} />
+                          <Typography variant="body2">
+                            {transaction?.payment_time}
+                          </Typography>
+                        </Stack>
+                      </Stack>
+                      <Stack
+                        spacing={1}
+                        alignItems="center"
+                        direction="row"
+                        justifyContent="flex-start"
+                        sx={{
+                          span: {
+                            fontSize: 14,
+                            strong: {
+                              mx: 0.5,
+                            },
+                          },
+                        }}
+                      >
+                        <Label
+                          variant="filled"
+                          color={
+                            transaction?.amount ===
+                            transaction?.amount?.restAmount
+                              ? "error"
+                              : "success"
+                          }
+                        >
+                          {t("total")}
+                          <strong>{transaction?.amount}</strong>
+                          {devise}
+                        </Label>
+                      </Stack>
                     </Stack>
                   </CardContent>
                 </Card>
