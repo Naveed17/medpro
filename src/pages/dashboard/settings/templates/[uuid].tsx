@@ -43,7 +43,8 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import {LoadingScreen} from "@features/loadingScreen";
-import {Resizable} from "re-resizable";
+import Draggable from "react-draggable";
+import Page from "@features/files/components/page";
 
 function DocsConfig() {
     const router = useRouter();
@@ -424,158 +425,15 @@ function DocsConfig() {
                 </Grid>
 
                 <Grid item xs={12} md={9}>
-                        <IconButton onClick={printNow} sx={{
+                      {/*  <IconButton onClick={printNow} sx={{
                             border: "1px solid",
                             mr: 1,
                             borderRadius: 2,
                             color: theme.palette.grey[400]
                         }}>
-                        </IconButton>
-                    <Box padding={2} style={{height: "81vh", overflowX: "auto"}}>
-                        <Box className={"portraitA4"} style={{margin:"auto",padding:50}} ref={componentRef}>
-
-                            <Resizable
-                                style={{border:"1px solid"}}
-                                defaultSize={{
-                                    width: 320,
-                                    height: 200,
-                                }}>
-
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            <p>[Si n&eacute;cessaire, donnez des recommandations pour le suivi, des examens
-                                compl&eacute;mentaires ou un traitement. Par exemple, un suivi plus r&eacute;gulier, une
-                                consultation avec un sp&eacute;cialiste, des tests de laboratoire, un traitement
-                                m&eacute;dicamenteux, etc.]</p>
-                            </Resizable>
-
-                        </Box>
+                        </IconButton>*/}
+                    <Box  style={{height: "81vh", overflowX: "auto"}}>
+                        <Page {...{data,state:undefined,eventHandler,selected, setSelected}}  ref={componentRef}/>
                     </Box>
                 </Grid>
 

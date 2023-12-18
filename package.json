@@ -52,6 +52,7 @@
     "framer-motion": "^10.15.1",
     "humanize-duration": "^3.29.0",
     "i18next": "^23.7.6",
+    "interactjs": "^1.10.26",
     "js-file-download": "^0.4.12",
     "jspdf": "^2.5.1",
     "leaflet": "^1.9.4",
@@ -105,6 +106,7 @@
     "yup": "^1.2.0"
   },
   "devDependencies": {
+    "@interactjs/types": "^1.10.26",
     "@next/bundle-analyzer": "^13.4.13",
     "@svgr/webpack": "^6.5.0",
     "@types/file-saver": "^2.0.7",
