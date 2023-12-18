@@ -520,7 +520,6 @@ function WaitingRoom() {
                                         ))}
                                     </Stack>
                                 </MobileContainer>
-
                             </>
                             :
                             <NoDataCard
@@ -579,18 +578,15 @@ function WaitingRoom() {
                                 </DesktopContainer>
                                 <MobileContainer>
                                     <Stack spacing={1}>
-                                        {
-                                            waitingRoomsGroup[3].map((item: any, i: number) => (
-                                                <React.Fragment key={item.uuid}>
-                                                    <WaitingRoomMobileCard
-                                                        quote={item}
-                                                        index={i}
-                                                        handleEvent={handleTableActions}
-                                                    />
-                                                </React.Fragment>
-                                            ))
-                                        }
-
+                                        {waitingRoomsGroup[3].map((item: any, i: number) => (
+                                            <React.Fragment key={item.uuid}>
+                                                <WaitingRoomMobileCard
+                                                    quote={item}
+                                                    index={i}
+                                                    handleEvent={handleTableActions}
+                                                />
+                                            </React.Fragment>
+                                        ))}
                                     </Stack>
                                 </MobileContainer>
                             </>
