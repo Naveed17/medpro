@@ -14,6 +14,7 @@ import {
     InputBase,
     Radio,
     RadioGroup,
+    Skeleton,
     Stack,
     TextField,
     Theme,
@@ -74,6 +75,8 @@ function SecretaryConsultationDialog({...props}) {
     const localInstr = localStorage.getItem(`instruction-data-${app_uuid}`);
     const [instruction, setInstruction] = useState(localInstr ? localInstr : "");
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
+    const [rest, setRest] = useState(0);
+    const [loading, setLoading] = useState(true);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -92,6 +95,11 @@ function SecretaryConsultationDialog({...props}) {
     useEffect(() => {
         if (httpAppointmentTransactions) {
             const res = (httpAppointmentTransactions as HttpResponse)?.data
+            const _rest = res.appointments.reduce((total: number, val: {
+                rest_amount: number
+            }) => total + val.rest_amount, 0)
+            setRest(_rest)
+
             setTransactions(res.transactions ? res.transactions[0] : null);
             if (total === -1) {
                 const form = new FormData();
@@ -109,8 +117,12 @@ function SecretaryConsultationDialog({...props}) {
                     }
                 })
             }
+
+            setTimeout(() => {
+                setLoading(false)
+            }, 1500)
         }
-    }, [httpAppointmentTransactions, setTotal, setTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpAppointmentTransactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const resetDialog = () => {
         setOpenPaymentDialog(false);
@@ -266,29 +278,40 @@ function SecretaryConsultationDialog({...props}) {
                                         </Stack>
                                     </Stack>
                                     {<Stack direction={"row"} alignItems={"center"}>
-                                        {demo && <Button sx={{
+                                        {demo && !loading && <Button sx={{
                                             borderColor: 'divider',
                                             bgcolor: theme => theme.palette.grey['A500'],
                                         }}
-                                                         startIcon={patient.rest_amount === 0 ? <CheckIcon/> :
-                                                             <IconUrl path={'ic-argent'}/>}
-                                                         variant="outlined"
-                                                         color="info"
-                                                         onClick={openDialogPayment}>
+                                                                     startIcon={rest === 0 ? <CheckIcon/> :
+                                                                         <IconUrl path={'ic-argent'}/>}
+                                                                     variant="outlined"
+                                                                     color="info"
+                                                                     onClick={openDialogPayment}>
                                             <Typography>{t("pay")}</Typography>
                                             {
-                                                patient.rest_amount > 0 &&
+                                                rest > 0 &&
                                                 <>
                                                     <Typography component='span'
                                                                 fontWeight={700}
                                                                 variant="subtitle2" ml={1}>
-                                                        {patient.rest_amount}
+                                                        {rest}
                                                     </Typography>
                                                     <Typography fontSize={10}>{devise}</Typography>
                                                 </>
                                             }
                                         </Button>
                                         }
+                                        {loading && <Button sx={{
+                                            borderColor: 'divider',
+                                            bgcolor: theme => theme.palette.grey['A500'],
+                                        }}
+                                                            startIcon={rest === 0 ? <CheckIcon/> :
+                                                                <IconUrl path={'ic-argent'}/>}
+                                                            variant="outlined"
+                                                            color="info"
+                                                            onClick={openDialogPayment}>
+                                            <Skeleton width={80}/>
+                                        </Button>}
                                     </Stack>
                                     }
                                 </Stack>
