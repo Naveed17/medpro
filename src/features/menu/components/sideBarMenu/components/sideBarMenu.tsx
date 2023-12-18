@@ -47,12 +47,11 @@ import {Session} from "next-auth";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
 import StatsIcon from "@themes/overrides/icons/statsIcon";
+import {minMaxWindowSelector} from "@features/buttons";
 
 const {sidebarItems} = siteHeader;
 
-const LoadingScreen = dynamic(
-    () => import("@features/loadingScreen/components/loadingScreen")
-);
+const LoadingScreen = dynamic(() => import("@features/loadingScreen/components/loadingScreen"));
 
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
@@ -60,6 +59,7 @@ function SideBarMenu({children}: LayoutProps) {
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const {isWindowMax} = useAppSelector(minMaxWindowSelector);
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
@@ -105,125 +105,123 @@ function SideBarMenu({children}: LayoutProps) {
     }
 
     const drawer = (
-            <div>
-                <Link href="https://www.med.tn/">
-                    <Box className={"med-logo"} sx={{marginTop: 1}}>
-                        <Image
-                            height={38}
-                            width={38}
-                            alt="company logo"
-                            src="/static/icons/Med-logo_.svg"
-                            priority
-                        />
-                    </Box>
-                </Link>
+        <div>
+            <Link href="https://www.med.tn/">
+                <Box className={"med-logo"} sx={{marginTop: 1}}>
+                    <Image
+                        height={38}
+                        width={38}
+                        alt="company logo"
+                        src="/static/icons/Med-logo_.svg"
+                        priority
+                    />
+                </Box>
+            </Link>
 
-                <List
-                    component={motion.ul}
-                    layout
-                    onMouseLeave={() => setCurrentIndex(null)}
-                    sx={{overflow: 'hidden', px: 1.5}}>
-                    {menuItems?.map((item, i) => (
-                        <Hidden key={item.name} smUp={item.name === "wallet"}>
-                            <a onClick={() => handleRouting(item.href)}>
-                                <ListItem
-                                    sx={{
-                                        margin: "0.5rem 0",
-                                        cursor: 'pointer'
+            <List
+                component={"ul"}
+                onMouseLeave={() => setCurrentIndex(null)}
+                sx={{overflow: 'hidden', px: 1.5}}>
+                {menuItems?.map((item, i) => (
+                    <Hidden key={item.name} smUp={item.name === "wallet"}>
+                        <a onClick={() => handleRouting(item.href)}>
+                            <ListItem
+                                sx={{
+                                    margin: "0.5rem 0",
+                                    cursor: 'pointer'
+                                }}
+                                className={router.pathname === item.href ? "active" : ""}>
+                                <Badge
+                                    anchorOrigin={{
+                                        vertical: "bottom",
+                                        horizontal: "right",
                                     }}
-                                    className={router.pathname === item.href ? "active" : ""}>
+                                    invisible={item.badge === undefined || isMobile}
+                                    color="warning"
+                                    badgeContent={item.badge}>
+                                    <ListItemIcon
+                                        onMouseEnter={(e) => {
+                                            if (router.pathname === item.href) {
+                                                e.stopPropagation();
+                                                setCurrentIndex(null);
+                                                return;
+                                            }
+
+                                            setCurrentIndex(i);
+                                        }}>
+                                        <Icon path={item.icon}/>
+                                    </ListItemIcon>
+                                </Badge>
+                                <ListItemTextStyled primary={t("main-menu." + item.name)}/>
+                                {isMobile && item.badge !== undefined && item.badge > 0 && (
                                     <Badge
-                                        anchorOrigin={{
-                                            vertical: "bottom",
-                                            horizontal: "right",
-                                        }}
-                                        invisible={item.badge === undefined || isMobile}
+                                        badgeContent={item.badge}
                                         color="warning"
-                                        badgeContent={item.badge}>
-                                        <ListItemIcon
-                                            onMouseEnter={(e) => {
-                                                if (router.pathname === item.href) {
-                                                    e.stopPropagation();
-                                                    setCurrentIndex(null);
-                                                    return;
-                                                }
+                                        sx={{
+                                            ".MuiBadge-badge": {
+                                                right: 8,
+                                            },
+                                        }}
+                                    />
+                                )}
 
-                                                setCurrentIndex(i);
-                                            }}>
-                                            <Icon path={item.icon}/>
-                                        </ListItemIcon>
-                                    </Badge>
-                                    <ListItemTextStyled primary={t("main-menu." + item.name)}/>
-                                    {isMobile && item.badge !== undefined && item.badge > 0 && (
-                                        <Badge
-                                            badgeContent={item.badge}
-                                            color="warning"
-                                            sx={{
-                                                ".MuiBadge-badge": {
-                                                    right: 8,
-                                                },
-                                            }}
-                                        />
-                                    )}
-
-                                    {i === currentIndex && (
-                                        <motion.div
-                                            className="icon-background"
-                                            layoutId="social"
-                                            key="social"
-                                            initial={false}
-                                        />
-                                    )}
-                                </ListItem>
-                            </a>
-                        </Hidden>
-                    ))}
-                </List>
-                <List className="list-bottom">
-                    <ListItem
-                        onClick={() => handleRouting("/dashboard/statistics")}
-                        disableRipple
-                        button
-                        className={
-                            router.pathname.startsWith("/dashboard/statistics")
-                                ? "active mt-2"
-                                : "mt-2"
-                        }>
-                        <ListItemIcon>
-                            <StatsIcon/>
-                        </ListItemIcon>
-                        <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "stats")}/>
-                        </Hidden>
-                    </ListItem>
-                    <ListItem
-                        onClick={handleSettingRoute}
-                        disableRipple
-                        button
-                        className={
-                            router.pathname.startsWith("/dashboard/settings")
-                                ? "active mt-2"
-                                : "mt-2"
-                        }>
-                        <ListItemIcon>
-                            <SettingsIcon/>
-                        </ListItemIcon>
-                        <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "settings")}/>
-                        </Hidden>
-                    </ListItem>
-                    <Hidden smUp>
-                        <ListItem onClick={() => handleLogout()}>
-                            <ListItemIcon>
-                                <Icon path="ic-deconnexion-1x"/>
-                            </ListItemIcon>
-                            <ListItemText primary={t("main-menu." + "logout")}/>
-                        </ListItem>
+                                {i === currentIndex && (
+                                    <motion.div
+                                        className="icon-background"
+                                        layoutId="social"
+                                        key="social"
+                                        initial={false}
+                                    />
+                                )}
+                            </ListItem>
+                        </a>
                     </Hidden>
-                </List>
-            </div>
-        )
-    ;
+                ))}
+            </List>
+            <List className="list-bottom">
+                <ListItem
+                    onClick={() => handleRouting("/dashboard/statistics")}
+                    disableRipple
+                    button
+                    className={
+                        router.pathname.startsWith("/dashboard/statistics")
+                            ? "active mt-2"
+                            : "mt-2"
+                    }>
+                    <ListItemIcon>
+                        <StatsIcon/>
+                    </ListItemIcon>
+                    <Hidden smUp>
+                        <ListItemText primary={t("main-menu." + "stats")}/>
+                    </Hidden>
+                </ListItem>
+                <ListItem
+                    onClick={handleSettingRoute}
+                    disableRipple
+                    button
+                    className={
+                        router.pathname.startsWith("/dashboard/settings")
+                            ? "active mt-2"
+                            : "mt-2"
+                    }>
+                    <ListItemIcon>
+                        <SettingsIcon/>
+                    </ListItemIcon>
+                    <Hidden smUp>
+                        <ListItemText primary={t("main-menu." + "settings")}/>
+                    </Hidden>
+                </ListItem>
+                <Hidden smUp>
+                    <ListItem onClick={() => handleLogout()}>
+                        <ListItemIcon>
+                            <Icon path="ic-deconnexion-1x"/>
+                        </ListItemIcon>
+                        <ListItemText primary={t("main-menu." + "logout")}/>
+                    </ListItem>
+                </Hidden>
+            </List>
+        </div>
+    )
 
     useEffect(() => {
         container.current = document.body as HTMLDivElement;
@@ -252,41 +250,57 @@ function SideBarMenu({children}: LayoutProps) {
 
     return (
         <MainMenuStyled>
-            <TopNavBar dashboard/>
-            <Box
-                component="nav"
-                aria-label="mailbox folders"
-                className="sidenav-main">
-                {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-                <MobileDrawerStyled
-                    container={container.current}
-                    open={mobileOpened}
-                    variant="temporary"
-                    className="drawer-mobile"
-                    onClose={() => dispatch(toggleMobileBar(mobileOpened))}
-                    ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
-                    }}>
-                    {drawer}
-                </MobileDrawerStyled>
-                <Drawer variant="permanent" open>
-                    {drawer}
-                </Drawer>
+            {!isWindowMax &&
+                <>
+                    <motion.div
+                        key='navbar-top'
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}>
+                        <TopNavBar dashboard/>
+                    </motion.div>
+
+                    <Box
+                        component={motion.nav}
+                        key='sidenav-main'
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        aria-label="mailbox folders"
+                        className="sidenav-main">
+                        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+                        <MobileDrawerStyled
+                            container={container.current}
+                            open={mobileOpened}
+                            variant="temporary"
+                            className="drawer-mobile"
+                            onClose={() => dispatch(toggleMobileBar(mobileOpened))}
+                            ModalProps={{
+                                keepMounted: true, // Better open performance on mobile.
+                            }}>
+                            {drawer}
+                        </MobileDrawerStyled>
+                        <Drawer variant="permanent" open>
+                            {drawer}
+                        </Drawer>
+                    </Box>
+
+                    <Box
+                        display={isMobile ? "none" : "block"}
+                        className={`action-side-nav ${opened ? "active" : ""}`}>
+                        <div className="action-bar-open">
+                            {/* side page bar */}
+                            <LeftActionBar/>
+                        </div>
+                    </Box>
+                </>
+            }
+
+            <Box className="body-main" component={"main"}>
+                <Toolbar sx={{minHeight: isMobile ? 66 : 56, display: isWindowMax ? 'none' : 'block'}}/>
+                <Box>{children}</Box>
             </Box>
-            <Box
-                display={isMobile ? "none" : "block"}
-                component="nav"
-                className={`action-side-nav ${opened ? "active" : ""}`}>
-                <div className="action-bar-open">
-                    {/* side page bar */}
-                    <LeftActionBar/>
-                </div>
-            </Box>
-            <Box className="body-main">
-                <Toolbar sx={{minHeight: isMobile ? 66 : 56}}/>
-                <Box component="main">{children}</Box>
-            </Box>
+
         </MainMenuStyled>
+
     );
 }
 

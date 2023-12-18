@@ -111,7 +111,6 @@ function FeesTab({...props}) {
     const res = (httpAppointmentFees as HttpResponse)?.data;
 
     useEffect(() => {
-        console.log(res)
         if (res) {
             let _acts = [{
                 act: {name: res.type.name},

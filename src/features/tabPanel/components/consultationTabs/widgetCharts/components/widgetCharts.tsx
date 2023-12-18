@@ -61,7 +61,7 @@ function WidgetCharts({...props}) {
             }]
         })
     });
-console.log(data)
+
     return (
         <Stack spacing={1}>
             <Grid container spacing={1} marginBottom={2}>

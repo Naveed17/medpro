@@ -92,6 +92,7 @@ function WaitingRoom() {
     const {model} = useAppSelector(preConsultationSelector);
     const {
         motif,
+        recurringDates,
         duration,
         patient,
         type
@@ -102,7 +103,6 @@ function WaitingRoom() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
@@ -117,6 +117,7 @@ function WaitingRoom() {
     const [popoverActions, setPopoverActions] = useState<any[]>([]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [waitingRoomsGroup, setWaitingRoomsGroup] = useState<any[]>([]);
+    const [withoutDateTime, setWithoutDateTime] = useState<boolean>(false);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddAppointmentTab, setQuickAddAppointmentTab] = useState(1);
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
@@ -219,11 +220,19 @@ function WaitingRoom() {
 
     const handleAddAppointment = () => {
         setLoadingRequest(true);
+
         const params = new FormData();
-        params.append('dates', JSON.stringify([{
-            "start_date": moment().format("DD-MM-YYYY"),
-            "start_time": "00:00"
-        }]));
+        params.append('dates', JSON.stringify(withoutDateTime ?
+            [{
+                "start_date": moment().format("DD-MM-YYYY"),
+                "start_time": "00:00"
+            }]
+            :
+            recurringDates.map(recurringDate => ({
+                    "start_date": recurringDate.date,
+                    "start_time": recurringDate.time
+                })
+            )));
         motif && params.append('consultation_reasons', motif.toString());
         params.append('title', `${patient?.firstName} ${patient?.lastName}`);
         params.append('patient_uuid', patient?.uuid as string);
@@ -328,6 +337,12 @@ function WaitingRoom() {
             case "START_CONSULTATION":
                 startConsultation(data.row);
                 break;
+            case "CANCEL_APPOINTMENT":
+                handleAppointmentStatus(data.row?.uuid as string, '6');
+                break;
+            case "CONFIRM_APPOINTMENT":
+                handleAppointmentStatus(data.row?.uuid as string, '1');
+                break;
             case "ENTER_WAITING_ROOM":
                 handleAppointmentStatus(data.row.uuid as string, '3');
                 break;
@@ -371,10 +386,11 @@ function WaitingRoom() {
             id: '1',
             name: 'today-rdv',
             url: '#',
-            icon: <CalendarIcon sx={{width: 24, height: 24}}/>
-            /*action: <CustomIconButton
+            icon: <CalendarIcon sx={{width: 24, height: 24}}/>,
+            action: <CustomIconButton
                 sx={{mr: 1}}
                 onClick={() => {
+                    setWithoutDateTime(false);
                     setQuickAddAppointment(true);
                     setTimeout(() => setQuickAddAppointmentTab(1));
                 }}
@@ -382,7 +398,7 @@ function WaitingRoom() {
                 color={"primary"}
                 size={"small"}>
                 <AddIcon fontSize={"small"} htmlColor={"white"}/>
-            </CustomIconButton>*/
+            </CustomIconButton>
         },
         {
             id: '3',
@@ -391,6 +407,7 @@ function WaitingRoom() {
             icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
             action: <CustomIconButton
                 onClick={() => {
+                    setWithoutDateTime(true);
                     setQuickAddAppointment(true);
                     setTimeout(() => setQuickAddAppointmentTab(3));
                 }}
@@ -492,21 +509,17 @@ function WaitingRoom() {
                                 </DesktopContainer>
                                 <MobileContainer>
                                     <Stack spacing={1}>
-                                        {
-                                            waitingRoomsGroup[1].map((item: any, i: number) => (
-                                                <React.Fragment key={item.uuid}>
-                                                    <WaitingRoomMobileCard
-                                                        quote={item}
-                                                        index={i}
-                                                        handleEvent={handleTableActions}
-                                                    />
-                                                </React.Fragment>
-                                            ))
-                                        }
-
+                                        {waitingRoomsGroup[1].map((item: any, i: number) => (
+                                            <React.Fragment key={item.uuid}>
+                                                <WaitingRoomMobileCard
+                                                    quote={item}
+                                                    index={i}
+                                                    handleEvent={handleTableActions}
+                                                />
+                                            </React.Fragment>
+                                        ))}
                                     </Stack>
                                 </MobileContainer>
-
                             </>
                             :
                             <NoDataCard
@@ -565,18 +578,15 @@ function WaitingRoom() {
                                 </DesktopContainer>
                                 <MobileContainer>
                                     <Stack spacing={1}>
-                                        {
-                                            waitingRoomsGroup[3].map((item: any, i: number) => (
-                                                <React.Fragment key={item.uuid}>
-                                                    <WaitingRoomMobileCard
-                                                        quote={item}
-                                                        index={i}
-                                                        handleEvent={handleTableActions}
-                                                    />
-                                                </React.Fragment>
-                                            ))
-                                        }
-
+                                        {waitingRoomsGroup[3].map((item: any, i: number) => (
+                                            <React.Fragment key={item.uuid}>
+                                                <WaitingRoomMobileCard
+                                                    quote={item}
+                                                    index={i}
+                                                    handleEvent={handleTableActions}
+                                                />
+                                            </React.Fragment>
+                                        ))}
                                     </Stack>
                                 </MobileContainer>
                             </>
@@ -744,8 +754,7 @@ function WaitingRoom() {
                     setQuickAddAppointment(false);
                 }}>
                 <QuickAddAppointment
-                    {...{t}}
-                    withoutDateTime
+                    {...{t, withoutDateTime}}
                     handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
                 <Paper
                     sx={{
