@@ -60,7 +60,6 @@ function InsuranceDocumentPrint({...props}) {
                             const insurancePdfDoc = await PDFDocument.load(docFile);
                             const copiedPages = await pdfDoc.copyPages(insurancePdfDoc, insurancePdfDoc.getPageIndices());
                             for (const page of copiedPages) {
-                                console.log("page", page.getRotation());
                                 const index = copiedPages.indexOf(page);
                                 pagedFields[index + 1]?.forEach((field: any) => {
                                     if (field.posXX && field.posYY) {

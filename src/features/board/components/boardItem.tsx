@@ -10,7 +10,7 @@ import {
     Stack,
     Typography,
     useTheme,
-    alpha, Chip
+    alpha
 } from "@mui/material";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import IconUrl from "@themes/urlIcon";
@@ -28,6 +28,8 @@ import {AppointmentStatus} from "@features/calendar";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
+import {getDiffDuration} from "@lib/hooks";
+import {Label} from "@features/label";
 
 const imageSize: number = 40;
 
@@ -229,23 +231,14 @@ function BoardItem({...props}) {
                                             color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
                                             {quote.content.status === 4 && time ?
                                                 moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
-                                                quote.content.startTime}
+                                                quote.content.status !== 3 ?
+                                                    quote.content.startTime :
+                                                    getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`)}
                                         </Typography>
-                                        {quote.content.status === 5 && <Chip
-                                            size={"small"}
-                                            variant="filled"
-                                            sx={{
-                                                opacity: 0.6,
-                                                height: 20,
-                                                fontSize: 10,
-                                                "& .MuiSvgIcon-root": {
-                                                    width: 16,
-                                                    height: 16,
-                                                    pl: 0
-                                                },
-                                            }}
-                                            label={commonTranslation(quote?.restAmount === 0 ? "paid" : "not-payed")}
-                                            color={quote?.restAmount === 0 ? "success" : "error"}/>}
+                                        {quote.content.status === 5 &&
+                                            <Label variant={"ghost"}
+                                                   color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
+                                        }
                                     </Stack>}
                             </Stack>
                         </Stack>
