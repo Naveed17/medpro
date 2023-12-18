@@ -38,7 +38,6 @@ import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";
 import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
-import {agendaSelector} from "@features/calendar";
 import dynamic from "next/dynamic";
 import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
