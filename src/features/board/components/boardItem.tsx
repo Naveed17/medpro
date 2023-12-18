@@ -10,7 +10,7 @@ import {
     Stack,
     Typography,
     useTheme,
-    alpha, Chip
+    alpha
 } from "@mui/material";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import IconUrl from "@themes/urlIcon";
