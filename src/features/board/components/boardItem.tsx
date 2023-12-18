@@ -27,7 +27,6 @@ import Icon from "@themes/urlIcon";
 import {AppointmentStatus} from "@features/calendar";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
-import {Label} from "@features/label";
 import {useTranslation} from "next-i18next";
 
 const imageSize: number = 40;
