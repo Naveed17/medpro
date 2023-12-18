@@ -437,7 +437,8 @@ function WaitingRoom() {
 
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
-            setWaitingRoomsGroup((httpWaitingRoomsResponse as HttpResponse).data.group((diag: any) => diag.status));
+            const groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((item: any) => moment(`${item.dayDate} ${item.startTime}`, "DD-MM-YYYY HH:mm")).group((diag: any) => diag.status);
+            setWaitingRoomsGroup(groupedData);
         }
     }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
 

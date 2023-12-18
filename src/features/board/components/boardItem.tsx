@@ -233,7 +233,7 @@ function BoardItem({...props}) {
                                                 moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
                                                 quote.content.status !== 3 ?
                                                     quote.content.startTime :
-                                                    getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`)}
+                                                    `${quote.content.startTime} - ${getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}`}
                                         </Typography>
                                         {quote.content.status === 5 &&
                                             <Label variant={"ghost"}
