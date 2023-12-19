@@ -1,7 +1,7 @@
 export const siteHeader = {
     topBar: [
         {
-            icon: "ic-notif-lite",
+            icon: "ic-notification-lite",
             notifications: 0,
             name: "notif-lite",
             action: "notification"

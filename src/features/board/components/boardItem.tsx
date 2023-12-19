@@ -336,7 +336,7 @@ function BoardItem({...props}) {
                                         <PlayCircleIcon fontSize={"small"}/>
                                     </CustomIconButton>}
                                 </>}
-                                {quote.content.status === 5 && <>
+                                {(quote.content.status === 5 && quote?.content.restAmount !== 0) && <>
                                     <IconButton
                                         onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                             action: "ON_PAY",

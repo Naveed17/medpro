@@ -4,7 +4,6 @@ import {useTranslation} from "next-i18next";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import {Box, Button, Typography, useMediaQuery, useTheme} from "@mui/material";
-import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent, setStepperIndex} from "@features/calendar";
@@ -26,11 +25,12 @@ import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {useSnackbar} from "notistack";
 import {getDiffDuration, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRequestQueryMutation} from "@lib/axios";
+import IconUrl from "@themes/urlIcon";
 
 const humanizeDuration = require("humanize-duration");
 
 const popoverNotificationData = {
-    mainIcon: <NotificationsOffIcon/>,
+    mainIcon: <IconUrl path={"ic-notification-off"} width={60} height={60} color={"black"}/>,
     title: "notification.empty",
     description: "notification.desc"
 };
