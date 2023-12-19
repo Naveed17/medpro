@@ -398,7 +398,7 @@ function TopNavBar({...props}) {
                                 color="primary"
                                 edge="start"
                                 className="btn">
-                                <Icon path="ic-scan"/>
+                                <Icon path="ic-fullscreen"/>
                             </IconButton>
                             {(import_data && import_data.length > 0) &&
                                 <Box sx={{width: '16%'}}>
