@@ -37,6 +37,7 @@ function AppointmentPopoverCard({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const [height, setHeight] = useState(120)
     const componentRef = useRef<null | HTMLDivElement>(null);
@@ -196,7 +197,7 @@ function AppointmentPopoverCard({...props}) {
                         color: theme.palette.error.main,
                         background: theme.palette.error.lighter
                     }}
-                    >
+                >
                     <Typography
                         sx={{
                             fontSize: 10,
@@ -266,77 +267,78 @@ function AppointmentPopoverCard({...props}) {
                     <Typography sx={{fontSize: 12}} color={"back"}>
                         {`${t("table.header.motif")}: `}{appointmentData?.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
                 </Stack>}
-            <Stack direction='row' justifyContent={'flex-end'} spacing={1} className="btn-actions">
-                {(["PENDING", "CONFIRMED"].includes(AppointmentStatus[appointmentData?.status]?.key) && moment().format("DD-MM-YYYY") === moment(data.extendedProps.time).format("DD-MM-YYYY")) &&
-                    <IconButton
-                        className="btn-waiting-room"
-                        onClick={event => {
-                            event.stopPropagation();
-                            OnMenuActions('onWaitingRoom', data);
-                        }}>
-                        <IconUrl path="ic_waiting_room" color="white" width={20} height={20}/>
-                    </IconButton>}
-                {["WAITING_ROOM", "PENDING", "CONFIRMED"].includes(AppointmentStatus[appointmentData?.status]?.key) &&
-                    <IconButton
-                        className="btn-rdv-popover"
-                        sx={{
-                            backgroundColor: (theme) => theme.palette.warning.main
-                        }}
-                        onClick={event => {
-                            event.stopPropagation();
-                            OnMenuActions('onConsultationDetail', data);
-                        }}>
-                        <PlayCircleIcon/>
-                    </IconButton>}
-                {["PAUSED"].includes(AppointmentStatus[appointmentData?.status]?.key) &&
-                    <>
+            {(!roles.includes('ROLE_SECRETARY') && !appointmentData?.patient?.isArchived) &&
+                <Stack direction='row' justifyContent={'flex-end'} spacing={1} className="btn-actions">
+                    {(["PENDING", "CONFIRMED"].includes(AppointmentStatus[appointmentData?.status]?.key) && moment().format("DD-MM-YYYY") === moment(data.extendedProps.time).format("DD-MM-YYYY")) &&
                         <IconButton
-                            disableRipple
-                            className="btn-rdv-popover"
-                            sx={{
-                                border: (theme) => `1px solid ${theme.palette.grey['A300']}`,
-                                backgroundColor: (theme) => theme.palette.grey[0],
-                                '& .react-svg ': {
-                                    marginTop: .2
-                                }
-                            }}
+                            className="btn-waiting-room"
                             onClick={event => {
                                 event.stopPropagation();
-                                handleEndConsultation(data);
+                                OnMenuActions('onWaitingRoom', data);
                             }}>
-                            <IconUrl width={22} height={22} path={'ic-stop'}/>
-                        </IconButton>
+                            <IconUrl path="ic_waiting_room" color="white" width={20} height={20}/>
+                        </IconButton>}
+                    {["WAITING_ROOM", "PENDING", "CONFIRMED"].includes(AppointmentStatus[appointmentData?.status]?.key) &&
                         <IconButton
-                            disableRipple
                             className="btn-rdv-popover"
                             sx={{
-                                backgroundColor: (theme) => theme.palette.text.primary,
-                                '& .react-svg ': {
-                                    marginTop: .2
-                                }
+                                backgroundColor: (theme) => theme.palette.warning.main
                             }}
                             onClick={event => {
                                 event.stopPropagation();
                                 OnMenuActions('onConsultationDetail', data);
                             }}>
-                            <IconUrl width={22} height={22} path={'ic-play-paused'}/>
-                        </IconButton>
-                    </>
-                }
-                {["FINISHED"].includes(AppointmentStatus[appointmentData?.status]?.key) &&
-                    <IconButton
-                        disableRipple
-                        className="btn-rdv-popover"
-                        sx={{
-                            backgroundColor: (theme) => theme.palette.primary.main
-                        }}
-                        onClick={event => {
-                            event.stopPropagation();
-                            OnMenuActions('onConsultationView', data);
-                        }}>
-                        <IconUrl width={20} height={20} color={"white"} path={'stethoscope'}/>
-                    </IconButton>}
-            </Stack>
+                            <PlayCircleIcon/>
+                        </IconButton>}
+                    {["PAUSED"].includes(AppointmentStatus[appointmentData?.status]?.key) &&
+                        <>
+                            <IconButton
+                                disableRipple
+                                className="btn-rdv-popover"
+                                sx={{
+                                    border: (theme) => `1px solid ${theme.palette.grey['A300']}`,
+                                    backgroundColor: (theme) => theme.palette.grey[0],
+                                    '& .react-svg ': {
+                                        marginTop: .2
+                                    }
+                                }}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleEndConsultation(data);
+                                }}>
+                                <IconUrl width={22} height={22} path={'ic-stop'}/>
+                            </IconButton>
+                            <IconButton
+                                disableRipple
+                                className="btn-rdv-popover"
+                                sx={{
+                                    backgroundColor: (theme) => theme.palette.text.primary,
+                                    '& .react-svg ': {
+                                        marginTop: .2
+                                    }
+                                }}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    OnMenuActions('onConsultationDetail', data);
+                                }}>
+                                <IconUrl width={22} height={22} path={'ic-play-paused'}/>
+                            </IconButton>
+                        </>
+                    }
+                    {["FINISHED"].includes(AppointmentStatus[appointmentData?.status]?.key) &&
+                        <IconButton
+                            disableRipple
+                            className="btn-rdv-popover"
+                            sx={{
+                                backgroundColor: (theme) => theme.palette.primary.main
+                            }}
+                            onClick={event => {
+                                event.stopPropagation();
+                                OnMenuActions('onConsultationView', data);
+                            }}>
+                            <IconUrl width={20} height={20} color={"white"} path={'stethoscope'}/>
+                        </IconButton>}
+                </Stack>}
         </RootStyled>
     );
 }

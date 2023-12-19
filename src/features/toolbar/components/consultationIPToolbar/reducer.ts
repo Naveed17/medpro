@@ -1,15 +1,22 @@
 import {createReducer} from '@reduxjs/toolkit';
 import {
+    SetAnalyses,
+    SetAppointement,
     SetEnd,
     SetExam,
     SetFiche,
+    SetListen,
+    SetLoading,
+    SetMI,
     SetMutation,
     SetMutationDoc,
     SetPatient,
+    SetPatientAntecedents,
+    SetRecord,
     SetSelectedApp,
     SetSelectedDialog,
     SetSubmit,
-    SetAppointement, SetListen, SetRecord, SetTimer, SetAnalyses, SetMI, SetPatientAntecedents
+    SetTimer
 } from './actions';
 
 export type MenuState = {
@@ -28,7 +35,8 @@ export type MenuState = {
     timer: string;
     analyses: any[];
     mi: any[];
-    patientAntecedent:any;
+    loading: boolean,
+    patientAntecedent: any;
 };
 
 const initialState: MenuState = {
@@ -39,7 +47,7 @@ const initialState: MenuState = {
         notes: "",
         diagnosis: "",
         treatment: "",
-        diseases:""
+        diseases: ""
     },
     fiche: null,
     mutate: null,
@@ -53,7 +61,8 @@ const initialState: MenuState = {
     timer: '00:00',
     analyses: [],
     mi: [],
-    patientAntecedent:null
+    loading: false,
+    patientAntecedent: null
 };
 
 export const ConsultationReducer = createReducer(initialState, builder => {
@@ -69,6 +78,9 @@ export const ConsultationReducer = createReducer(initialState, builder => {
         })
         .addCase(SetPatient, (state, action) => {
             state.patient = action.payload;
+        })
+        .addCase(SetLoading, (state, action) => {
+            state.loading = action.payload;
         })
         .addCase(SetSubmit, (state, action) => {
             state.submit = action.payload;

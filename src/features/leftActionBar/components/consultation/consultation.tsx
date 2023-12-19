@@ -60,11 +60,10 @@ function Consultation() {
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
-    const {patient} = useAppSelector(consultationSelector);
+    const {patient,loading:loadingG} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
 
     const [loading, setLoading] = useState<boolean>(true);
     const [note, setNote] = useState("");
@@ -314,7 +313,9 @@ function Consultation() {
                     </Box>
                 </Stack>
                 {isBeta  && patient  &&
-                    <Stack direction={"row"} p={1} spacing={1}>
+                    <Stack direction={"row"} p={1} spacing={1} onClick={() => {
+                        dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                    }}>
                         {patient.wallet > 0 && <Label variant='filled'
                                 sx={{color: theme.palette.success.main, background: theme.palette.success.lighter}}>
                             <span>{t('wallet')}</span>
@@ -323,7 +324,7 @@ function Consultation() {
                                 marginLeft: 5,
                                 marginRight: 5,
                                 fontWeight: "bold"
-                            }}>{patient.wallet}</span>
+                            }}>{!loadingG ?patient.wallet:"-"}</span>
                             <span>{devise}</span>
                         </Label>}
 
@@ -335,7 +336,7 @@ function Consultation() {
                                 marginLeft: 5,
                                 marginRight: 5,
                                 fontWeight: "bold"
-                            }}>{Math.abs(patient.rest_amount)}</span>
+                            }}>{!loadingG ? Math.abs(patient.rest_amount) : "-"}</span>
                             <span>{devise}</span>
                         </Label>}
                     </Stack>

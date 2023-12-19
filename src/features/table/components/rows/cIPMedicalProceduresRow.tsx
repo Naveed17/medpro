@@ -6,14 +6,23 @@ import React, {useState} from "react";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import InputBaseStyled from "../overrides/inputBaseStyled";
+import {debounce} from "lodash";
+import {SetLoading} from "@features/toolbar";
+import {useAppDispatch} from "@lib/redux/hooks";
 
 function CIPMedicalProceduresRow({...props}) {
 
     const {row, data, editMotif, handleEvent} = props;
+    const dispatch = useAppDispatch();
 
     const theme = useTheme() as Theme;
 
     const [selected, setSelected] = useState<string>("");
+
+    const lostFocus = (uuid:string)=>{
+        document.getElementById(uuid)?.blur()
+    }
+    const debouncedOnChange = debounce(lostFocus, 1500);
 
     return (
         <TableRowStyled
@@ -45,6 +54,7 @@ function CIPMedicalProceduresRow({...props}) {
                                 e.stopPropagation();
                                 row.qte = row.qte - 1;
                                 editMotif(row, "change");
+                                handleEvent()
                             }}>
                             <RemoveIcon width={1} height={1}/>
                         </IconButton>
@@ -52,6 +62,7 @@ function CIPMedicalProceduresRow({...props}) {
                         <InputBaseStyled
                             placeholder={"1"}
                             value={row.qte}
+                            readOnly={true}
                             onClick={(e) => e.stopPropagation()}
                             onFocus={() => {
                                 setSelected(row.uuid + "qte");
@@ -75,6 +86,7 @@ function CIPMedicalProceduresRow({...props}) {
                                 e.stopPropagation();
                                 row.qte = row.qte + 1;
                                 editMotif(row, "change");
+                                handleEvent()
                             }}>
                             <AddIcon/>
                         </IconButton>
@@ -104,11 +116,15 @@ function CIPMedicalProceduresRow({...props}) {
                             value={row.fees}
                             placeholder={"--"}
                             autoFocus={selected === row.uuid}
-                            onFocus={() => {
+                            onFocus={(event) => {
+                                event.target.select();
                                 setSelected(row.uuid);
                             }}
                             onBlur={() => {
                                 setSelected("");
+                                setTimeout(()=>{
+                                    dispatch(SetLoading(false))
+                                },3000)
                                 handleEvent()
                             }}
                             onClick={(e) => e.stopPropagation()}
@@ -116,6 +132,8 @@ function CIPMedicalProceduresRow({...props}) {
                                 if (!isNaN(e.currentTarget.value)) {
                                     row.fees = Number(e.currentTarget.value);
                                     editMotif(row, "change", e.currentTarget.value);
+                                    dispatch(SetLoading(true))
+                                    debouncedOnChange(row.uuid)
                                 }
                             }}
                         />

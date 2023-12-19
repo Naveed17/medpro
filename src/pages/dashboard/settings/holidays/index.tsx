@@ -16,8 +16,8 @@ import {agendaSelector, openDrawer} from "@features/calendar";
 import {batch} from "react-redux";
 import {AbsenceDrawer, absenceDrawerSelector, resetAbsenceData, setAbsenceData} from "@features/drawer";
 import {LoadingButton} from "@mui/lab";
-import IconUrl from "@themes/urlIcon";
 import {NoDataCard} from "@features/card";
+import IconUrl from "@themes/urlIcon";
 
 function Holidays() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();

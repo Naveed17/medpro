@@ -29,11 +29,16 @@ import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
 import {ActionMenu, toggleSideBar} from "@features/menu";
-import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {
+    prepareContextMenu,
+    prepareSearchKeys,
+    useIsMountedRef,
+    useMedicalEntitySuffix,
+    useMutateOnGoing
+} from "@lib/hooks";
 import {appLockSelector} from "@features/appLock";
 import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
@@ -41,24 +46,32 @@ import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import {DefaultCountry, WaitingHeadCells} from "@lib/constants";
 import {EventDef} from "@fullcalendar/core/internal";
-import PendingIcon from "@themes/overrides/icons/pendingIcon";
 import {LoadingButton} from "@mui/lab";
-import {agendaSelector, openDrawer, setSelectedEvent, setStepperIndex} from "@features/calendar";
+import {
+    agendaSelector,
+    AppointmentStatus,
+    CalendarContextMenu,
+    openDrawer,
+    setSelectedEvent,
+    setStepperIndex
+} from "@features/calendar";
 import {Board} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton} from "@features/buttons";
 import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
-import {appointmentSelector, setAppointmentSubmit, TabPanel} from "@features/tabPanel";
-import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
+import {
+    appointmentSelector,
+    setAppointmentSubmit,
+    TabPanel
+} from "@features/tabPanel";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import PersonOffIcon from "@mui/icons-material/PersonOff";
-import {leftActionBarSelector} from "@features/leftActionBar";
-
+import {leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
 import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -79,10 +92,10 @@ function WaitingRoom() {
     const {model} = useAppSelector(preConsultationSelector);
     const {
         motif,
+        recurringDates,
         duration,
         patient,
-        type,
-        recurringDates
+        type
     } = useAppSelector(appointmentSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
 
@@ -90,7 +103,6 @@ function WaitingRoom() {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [isAddAppointment] = useState<boolean>(false);
@@ -105,6 +117,7 @@ function WaitingRoom() {
     const [popoverActions, setPopoverActions] = useState<any[]>([]);
     const [loadingRequest, setLoadingRequest] = useState<boolean>(false);
     const [waitingRoomsGroup, setWaitingRoomsGroup] = useState<any[]>([]);
+    const [withoutDateTime, setWithoutDateTime] = useState<boolean>(false);
     const [quickAddAppointment, setQuickAddAppointment] = useState<boolean>(false);
     const [quickAddAppointmentTab, setQuickAddAppointmentTab] = useState(1);
     const [quickAddPatient, setQuickAddPatient] = useState<boolean>(false);
@@ -121,16 +134,15 @@ function WaitingRoom() {
         data: httpWaitingRoomsResponse,
         mutate: mutateWaitingRoom
     } = useRequestQuery(agenda ? {
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
-        } : null, {
-            ...(agenda && {
-                variables: {
-                    query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
-                }
-            })
-        }
-    );
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
+    } : null, {
+        ...(agenda && {
+            variables: {
+                query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
+            }
+        })
+    });
 
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
@@ -207,11 +219,19 @@ function WaitingRoom() {
 
     const handleAddAppointment = () => {
         setLoadingRequest(true);
+
         const params = new FormData();
-        params.append('dates', JSON.stringify(recurringDates.map(recurringDate => ({
-            "start_date": recurringDate.date,
-            "start_time": recurringDate.time
-        }))));
+        params.append('dates', JSON.stringify(withoutDateTime ?
+            [{
+                "start_date": moment().format("DD-MM-YYYY"),
+                "start_time": "00:00"
+            }]
+            :
+            recurringDates.map(recurringDate => ({
+                    "start_date": recurringDate.date,
+                    "start_time": recurringDate.time
+                })
+            )));
         motif && params.append('consultation_reasons', motif.toString());
         params.append('title', `${patient?.firstName} ${patient?.lastName}`);
         params.append('patient_uuid', patient?.uuid as string);
@@ -258,8 +278,12 @@ function WaitingRoom() {
 
     const OnMenuActions = (action: string) => {
         switch (action) {
-            case "onConsultationStart":
+            case "onConsultationDetail":
                 startConsultation(row);
+                break;
+            case "onConsultationView":
+                const slugConsultation = `/dashboard/consultation/${row?.uuid}`;
+                router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 break;
             case "onPreConsultation":
                 setOpenPreConsultationDialog(true);
@@ -267,7 +291,7 @@ function WaitingRoom() {
             case "onNextConsultation":
                 nextConsultation(row);
                 break;
-            case "onEnterWaitingRoom":
+            case "onWaitingRoom":
                 handleAppointmentStatus(row?.uuid as string, '3');
                 break;
             case "onLeaveWaitingRoom":
@@ -312,6 +336,12 @@ function WaitingRoom() {
             case "START_CONSULTATION":
                 startConsultation(data.row);
                 break;
+            case "CANCEL_APPOINTMENT":
+                handleAppointmentStatus(data.row?.uuid as string, '6');
+                break;
+            case "CONFIRM_APPOINTMENT":
+                handleAppointmentStatus(data.row?.uuid as string, '1');
+                break;
             case "ENTER_WAITING_ROOM":
                 handleAppointmentStatus(data.row.uuid as string, '3');
                 break;
@@ -325,54 +355,10 @@ function WaitingRoom() {
                 handleTransactionData();
                 break;
             default:
-                setPopoverActions([
-                    ...(data.row.rest_amount !== 0 && isBeta && ![1, 6, 9, 10].includes(data.row.status) ? [{
-                        title: "consultation_pay",
-                        icon: <IconUrl color={"white"} path="ic-fees"/>,
-                        action: "onPay",
-                    }] : []),
-                    {
-                        title: "pre_consultation_data",
-                        icon: <PendingIcon/>,
-                        action: "onPreConsultation",
-                    },
-                    ...(!roles.includes('ROLE_SECRETARY') && ![5, 4, 6, 9, 10].includes(data.row.status) ? [{
-                        title: "start_the_consultation",
-                        icon: <PlayCircleIcon/>,
-                        action: "onConsultationStart",
-                    }] : []),
-                    ...(data.row.status === 3 ? [{
-                        title: "leave_waiting_room",
-                        icon: <IconUrl color={"white"} path="ic-salle"/>,
-                        action: "onLeaveWaitingRoom",
-                    }] : []),
-                    {
-                        title: "import_document",
-                        icon: <UploadFileOutlinedIcon/>,
-                        action: "onAddConsultationDocuments",
-                    },
-                    ...(data.row.status === 1 ? [{
-                        title: "patient_no_show",
-                        icon: <PersonOffIcon/>,
-                        action: "onPatientNoShow",
-                    }] : []),
-                    {
-                        title: "see_patient_form",
-                        icon: <IconUrl color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>,
-                        action: "onPatientDetail",
-                    },
-                    ...(![5, 4, 6, 9, 10].includes(data.row.status) ? [
-                        {
-                            title: "cancel_appointment",
-                            icon: <Icon color={"white"} width={"16"} height={"16"} path="close"/>,
-                            action: "onCancel",
-                        },
-                        {
-                            title: "delete_appointment",
-                            icon: <Icon color={"white"} width={"18"} height={"18"} path="icdelete"/>,
-                            action: "onDelete"
-                        }] : [])
-                ]);
+                setPopoverActions(CalendarContextMenu.filter(dataFilter => !["onReschedule", "onMove"].includes(dataFilter.action) && !prepareContextMenu(dataFilter.action, {
+                    ...data.row,
+                    status: AppointmentStatus[data.row?.status]
+                } as EventModal, roles)));
                 handleContextMenu(data.event);
                 break;
         }
@@ -399,10 +385,11 @@ function WaitingRoom() {
             id: '1',
             name: 'today-rdv',
             url: '#',
-            icon: <CalendarIcon sx={{width: 24, height: 24}}/>,
+            icon: <CalendarIcon />,
             action: <CustomIconButton
                 sx={{mr: 1}}
                 onClick={() => {
+                    setWithoutDateTime(false);
                     setQuickAddAppointment(true);
                     setTimeout(() => setQuickAddAppointmentTab(1));
                 }}
@@ -419,6 +406,7 @@ function WaitingRoom() {
             icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
             action: <CustomIconButton
                 onClick={() => {
+                    setWithoutDateTime(true);
                     setQuickAddAppointment(true);
                     setTimeout(() => setQuickAddAppointmentTab(3));
                 }}
@@ -448,7 +436,8 @@ function WaitingRoom() {
 
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
-            setWaitingRoomsGroup((httpWaitingRoomsResponse as HttpResponse).data.group((diag: any) => diag.status));
+            const groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) => moment(`${a.dayDate} ${a.startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${b.dayDate} ${b.startTime}`, "DD-MM-YYYY HH:mm").valueOf()).group((diag: any) => diag.status);
+            setWaitingRoomsGroup(groupedData);
         }
     }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -457,6 +446,19 @@ function WaitingRoom() {
             dispatch(toggleSideBar(false));
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (!openPaymentDialog) {
+            setTimeout(() => {
+                mutateWaitingRoom();
+            }, 300);
+        }
+    }, [openPaymentDialog]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useLeavePageConfirm(() => {
+        dispatch(resetFilterPatient());
+    });
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -515,21 +517,17 @@ function WaitingRoom() {
                                 </DesktopContainer>
                                 <MobileContainer>
                                     <Stack spacing={1}>
-                                        {
-                                            waitingRoomsGroup[1].map((item: any, i: number) => (
-                                                <React.Fragment key={item.uuid}>
-                                                    <WaitingRoomMobileCard
-                                                        quote={item}
-                                                        index={i}
-                                                        handleEvent={handleTableActions}
-                                                    />
-                                                </React.Fragment>
-                                            ))
-                                        }
-
+                                        {waitingRoomsGroup[1].map((item: any, i: number) => (
+                                            <React.Fragment key={item.uuid}>
+                                                <WaitingRoomMobileCard
+                                                    quote={item}
+                                                    index={i}
+                                                    handleEvent={handleTableActions}
+                                                />
+                                            </React.Fragment>
+                                        ))}
                                     </Stack>
                                 </MobileContainer>
-
                             </>
                             :
                             <NoDataCard
@@ -588,18 +586,15 @@ function WaitingRoom() {
                                 </DesktopContainer>
                                 <MobileContainer>
                                     <Stack spacing={1}>
-                                        {
-                                            waitingRoomsGroup[3].map((item: any, i: number) => (
-                                                <React.Fragment key={item.uuid}>
-                                                    <WaitingRoomMobileCard
-                                                        quote={item}
-                                                        index={i}
-                                                        handleEvent={handleTableActions}
-                                                    />
-                                                </React.Fragment>
-                                            ))
-                                        }
-
+                                        {waitingRoomsGroup[3].map((item: any, i: number) => (
+                                            <React.Fragment key={item.uuid}>
+                                                <WaitingRoomMobileCard
+                                                    quote={item}
+                                                    index={i}
+                                                    handleEvent={handleTableActions}
+                                                />
+                                            </React.Fragment>
+                                        ))}
                                     </Stack>
                                 </MobileContainer>
                             </>
@@ -739,21 +734,17 @@ function WaitingRoom() {
                     </TabPanel>
 
                     <ActionMenu {...{contextMenu, handleClose}}>
-                        {popoverActions.map(
-                            (v: any, index) => (
-                                <MenuItem
-                                    key={index}
-                                    className="popover-item"
-                                    onClick={() => {
-                                        OnMenuActions(v.action);
-                                    }}>
-                                    {v.icon}
-                                    <Typography fontSize={15} sx={{color: "#fff"}}>
-                                        {t(`${v.title}`)}
-                                    </Typography>
-                                </MenuItem>
-                            )
-                        )}
+                        {popoverActions.map((v: any, index) => (
+                            <MenuItem
+                                key={index}
+                                className="popover-item"
+                                onClick={() => OnMenuActions(v.action)}>
+                                {v.icon}
+                                <Typography fontSize={15} sx={{color: "#fff"}}>
+                                    {t(v.title)}
+                                </Typography>
+                            </MenuItem>
+                        ))}
                     </ActionMenu>
                 </Box>
 
@@ -771,7 +762,7 @@ function WaitingRoom() {
                     setQuickAddAppointment(false);
                 }}>
                 <QuickAddAppointment
-                    {...{t}}
+                    {...{t, withoutDateTime}}
                     handleAddPatient={(action: boolean) => setQuickAddPatient(action)}/>
                 <Paper
                     sx={{
@@ -799,7 +790,7 @@ function WaitingRoom() {
                             event.stopPropagation();
                             handleAddAppointment();
                         }}
-                        disabled={recurringDates.length === 0 || type === "" || !patient}>
+                        disabled={type === "" || !patient}>
                         {t("save", {ns: "common"})}
                     </LoadingButton>
                 </Paper>
@@ -885,7 +876,7 @@ function WaitingRoom() {
                 }}
                 size={"md"}
                 sx={{minHeight: 400}}
-                title={t("doc_detail_title", {ns: "common"})}
+                title={t("doc_detail_title")}
                 {...(!openUploadDialog.loading && {
                     dialogClose: () => setOpenUploadDialog({
                         ...openUploadDialog,

@@ -38,8 +38,6 @@ import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";
 import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
-import {agendaSelector} from "@features/calendar";
-import moment from "moment-timezone";
 import dynamic from "next/dynamic";
 import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
@@ -48,12 +46,11 @@ import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
 import StatsIcon from "@themes/overrides/icons/statsIcon";
 import Can from "@features/casl/can";
+import {minMaxWindowSelector} from "@features/buttons";
 
 const {sidebarItems} = siteHeader;
 
-const LoadingScreen = dynamic(
-    () => import("@features/loadingScreen/components/loadingScreen")
-);
+const LoadingScreen = dynamic(() => import("@features/loadingScreen/components/loadingScreen"));
 
 function SideBarMenu({children}: LayoutProps) {
     const {data: session} = useSession();
@@ -66,10 +63,10 @@ function SideBarMenu({children}: LayoutProps) {
     const general_information = (user as UserDataResponse).general_information;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
-    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room, newCashBox} = useAppSelector(dashLayoutSelector);
-    const {sortedData} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("menu");
+    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
+    const {isWindowMax} = useAppSelector(minMaxWindowSelector);
+    const {waiting_room, newCashBox, nb_appointment} = useAppSelector(dashLayoutSelector);
 
     let container: any = useRef<HTMLDivElement>(null);
     const [menuItems, setMenuItems] = useState(
@@ -244,53 +241,64 @@ function SideBarMenu({children}: LayoutProps) {
     }, [newCashBox]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        const currentDay = sortedData.find(
-            (event) => event.date === moment().format("DD-MM-YYYY")
-        );
         setMenuItems([
-            {...menuItems[0], badge: currentDay ? currentDay.events.length : 0},
+            {...menuItems[0], badge: nb_appointment},
             {...menuItems[1], badge: waiting_room},
             ...menuItems.slice(2),
         ]);
-    }, [sortedData, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [nb_appointment, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
     return (
         <MainMenuStyled>
-            <TopNavBar dashboard/>
-            <Box
-                component="nav"
-                aria-label="mailbox folders"
-                className="sidenav-main">
-                {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-                <MobileDrawerStyled
-                    container={container.current}
-                    open={mobileOpened}
-                    variant="temporary"
-                    className="drawer-mobile"
-                    onClose={() => dispatch(toggleMobileBar(mobileOpened))}
-                    ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
-                    }}>
-                    {drawer}
-                </MobileDrawerStyled>
-                <Drawer variant="permanent" open>
-                    {drawer}
-                </Drawer>
-            </Box>
-            <Box
-                display={isMobile ? "none" : "block"}
-                component="nav"
-                className={`action-side-nav ${opened ? "active" : ""}`}>
-                <div className="action-bar-open">
-                    {/* side page bar */}
-                    <LeftActionBar/>
-                </div>
-            </Box>
-            <Box className="body-main">
-                <Toolbar sx={{minHeight: isMobile ? 66 : 56}}/>
-                <Box component="main">{children}</Box>
+            {!isWindowMax &&
+                <>
+                    <motion.div
+                        key='navbar-top'
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}>
+                        <TopNavBar dashboard/>
+                    </motion.div>
+
+                    <Box
+                        component={motion.nav}
+                        key='sidenav-main'
+                        initial={{opacity: 0}}
+                        animate={{opacity: 1}}
+                        aria-label="mailbox folders"
+                        className="sidenav-main">
+                        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+                        <MobileDrawerStyled
+                            container={container.current}
+                            open={mobileOpened}
+                            variant="temporary"
+                            className="drawer-mobile"
+                            onClose={() => dispatch(toggleMobileBar(mobileOpened))}
+                            ModalProps={{
+                                keepMounted: true, // Better open performance on mobile.
+                            }}>
+                            {drawer}
+                        </MobileDrawerStyled>
+                        <Drawer variant="permanent" open>
+                            {drawer}
+                        </Drawer>
+                    </Box>
+
+                    <Box
+                        display={isMobile ? "none" : "block"}
+                        className={`action-side-nav ${opened ? "active" : ""}`}>
+                        <div className="action-bar-open">
+                            {/* side page bar */}
+                            <LeftActionBar/>
+                        </div>
+                    </Box>
+                </>
+            }
+
+            <Box className="body-main" component={"main"}>
+                <Toolbar sx={{minHeight: isMobile ? 66 : 56, display: isWindowMax ? 'none' : 'block'}}/>
+                <Box>{children}</Box>
             </Box>
         </MainMenuStyled>
     );

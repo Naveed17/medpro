@@ -210,7 +210,7 @@ function AntecedentsCard({...props}) {
                                                 >
                                                     {loading ? <Skeleton variant="text"/> : item &&
                                                         <span style={{cursor: 'pointer', marginLeft: 4}}>
-                                                            {item.name}{" "}
+                                                            {item.name}{" "}{item?.note ?`(${item?.note})`:""}
                                                             {item.startDate ? " / " + item.startDate : ""}{" "}
                                                             {item.endDate ? " - " + item.endDate : ""}
                                                             {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}

@@ -5,6 +5,7 @@ const plugins = [];
 const withPWA = require("next-pwa")({
     dest: "public",
     register: true,
+    maximumFileSizeToCacheInBytes: 30000000,
     disable: process.env.NODE_ENV === 'development',
     skipWaiting: true
 });

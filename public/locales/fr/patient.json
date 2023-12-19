@@ -48,7 +48,10 @@
     "to": "à",
     "day": "Jour",
     "added": "RDV ajouté",
-    "description": ""
+    "description": "",
+    "stepper-1": {
+      "slots-unavailable": "Journée bloquée ou pas de plage horaire disponible"
+    }
   },
   "config": {
     "reason_for_consultation": "Motif",
@@ -85,7 +88,7 @@
       "documents": "Documents",
       "transactions": "Paiements",
       "add-appo": "Ajouter RDV",
-      "import": "Importer un document",
+      "import": "Télécharger document patient",
       "time-slot": "Créneau horaire",
       "advice": "Instruction / Conseil",
       "end": "Fin",
@@ -127,7 +130,7 @@
       }
     },
     "table": {
-      "name": "Nom du patient",
+      "name": "Patient",
       "telephone": "Téléphone",
       "insurance": "Assurances",
       "city": "ville",
@@ -339,6 +342,8 @@
       "search": "Nom & prénom/Tél/N° fiche",
       "appointment": "Rendez-vous",
       "type": "Type",
+      "payment": "Statut du paiement",
+      "duplicate": "Voir les patients en double",
       "next-appointment": "Prochain rendez-vous",
       "last-appointment": "Dernier rendez-vous",
       "reasons": "Motif",

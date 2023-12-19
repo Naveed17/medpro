@@ -1,7 +1,7 @@
 export const siteHeader = {
     topBar: [
         {
-            icon: "ic-notif-lite",
+            icon: "ic-notification-lite",
             notifications: 0,
             name: "notif-lite",
             action: "notification"
@@ -38,7 +38,7 @@ export const siteHeader = {
             icon: "ic-docs",
             name: "docs",
             href: '/dashboard/documents',
-            enabled: true
+            enabled: process.env.NODE_ENV === 'development'
         },
         {
             icon: "shopping-bag",

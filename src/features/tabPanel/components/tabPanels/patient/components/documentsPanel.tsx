@@ -49,7 +49,7 @@ import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
 
 const typeofDocs = [
     "requested-medical-imaging", "medical-imaging",
-    "analyse", "requested-analysis",
+    "analyse", "requested-analysis", "photo",
     "prescription", "Rapport", "medical-certificate", "audio", "video"];
 
 const AddAppointmentCardWithoutButtonsData = {
@@ -234,16 +234,18 @@ function DocumentsPanel({...props}) {
                              }
                          })}>
                         {documents.length > 0 ?
-                            documents.filter((doc: {
+                            documents.sort( (a:any,b:any) => {
+                                return moment(b.createdAt, 'DD-MM-YYYY HH:mm').diff(moment(a.createdAt, 'DD-MM-YYYY HH:mm'))
+                            }).filter((doc: {
                                 title: string
-                            }) => doc.title.includes(titleSearch)).filter((doc: MedicalDocuments) =>
+                            }) => doc.title.toLowerCase().includes(titleSearch.toLowerCase())).filter((doc: MedicalDocuments) =>
                                 queryState.types.length === 0 ? true : queryState.types.some((st: string) => st === doc.documentType)).map((card: any, idx: number) =>
                                 <React.Fragment key={`doc-item-${idx}`}>
                                     <DocumentCard
                                         onClick={() => {
                                             showDoc(card)
                                         }}
-                                        {...{t, data: card, date: true, time: true, title: true}}/>
+                                        {...{t, data: card, date: true, time: true, title: true,width:"13rem"}}/>
                                 </React.Fragment>
                             )
                             :
@@ -285,7 +287,7 @@ function DocumentsPanel({...props}) {
                                             onClick={() => {
                                                 showDoc(card)
                                             }}
-                                            {...{t, data: card, date: true, time: true, title: true}}/>
+                                            {...{t, data: card, date: true, time: true, title: true,width:"13rem"}}/>
                                     </React.Fragment>
                                 </Grid>
                             )
@@ -477,7 +479,8 @@ function DocumentsPanel({...props}) {
 
     return (
         <>
-            <PanelCardStyled
+            {loading && <LinearProgress/>}
+            {!loading && <PanelCardStyled
                 sx={{
                     "& .MuiCardContent-root": {
                         background: "white"
@@ -547,7 +550,7 @@ function DocumentsPanel({...props}) {
                                                        onHandleClick={() => setOpenQuoteDialog(true)}
                                                        data={AddQuoteCardData}/>}
                 </CardContent>
-            </PanelCardStyled>
+            </PanelCardStyled>}
             {(documents.length > 0 || patientDocuments?.length > 0) && !loading ? (
                 <>
                     <PanelCardStyled
@@ -561,34 +564,6 @@ function DocumentsPanel({...props}) {
                             }
                         }}>
                         <CardContent>
-                            <>
-                                {/* <FormControlLabel
-                                    key={uniqueId()}
-                                    control={
-                                        <Checkbox
-                                            checked={selectedTypes.length === 0}
-                                            onChange={() => {
-                                                setSelectedTypes([])
-                                            }}
-                                        />
-                                    }
-                                    label={t(`config.table.all`, {ns: 'patient'})}
-                                />
-                                {typeofDocs.map((type) => (
-                                    <FormControlLabel
-                                        key={uniqueId()}
-                                        control={
-                                            <Checkbox
-                                                checked={type === 'all' ? selectedTypes.length === 0 : selectedTypes.some(t => type === t)}
-                                                onChange={handleToggle(type)}
-                                            />
-                                        }
-                                        label={t(`config.table.${type}`, {ns: 'patient'})}
-                                    />
-                                ))}*/}
-                            </>
-
-
                             <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
                                 <Tabs value={currentTab} onChange={handleTabsChange} aria-label="documents tabs">
                                     {tabsContent.map((tabHeader, tabHeaderIndex) =>

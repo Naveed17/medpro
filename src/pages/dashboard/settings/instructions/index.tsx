@@ -18,10 +18,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 
 function Instructions() {
 
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-    console.log(user);
-
     const [edit, setEdit] = useState(false);
     const [rows, setRows] = useState([
         {

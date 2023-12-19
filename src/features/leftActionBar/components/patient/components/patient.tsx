@@ -12,7 +12,7 @@ import {
     ActionBarState,
     AppointmentActs,
     AppointmentDisease,
-    AppointmentReasonsFilter, InsuranceFilter,
+    AppointmentReasonsFilter, FilterOverview, InsuranceFilter,
     setFilter
 } from "@features/leftActionBar";
 import React, {useState} from "react";
@@ -21,12 +21,18 @@ import {useAppDispatch} from "@lib/redux/hooks";
 import {LoadingScreen} from "@features/loadingScreen";
 import {setSelectedRows} from "@features/table";
 import {batch} from "react-redux";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
 
 function Patient() {
     const dispatch = useAppDispatch();
+    const {data: session} = useSession();
 
     const {collapse} = rightActionData.filter;
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
+
+    const {data: user} = session as Session;
+    const isBeta = localStorage.getItem('newCashbox') ? localStorage.getItem('newCashbox') === '1' : user.medical_entity.hasDemo;
 
     const handleFilterChange = (data: any) => {
         window.history.replaceState({
@@ -51,6 +57,7 @@ function Patient() {
             children: (
                 <FilterRootStyled>
                     <PatientFilter
+                        {...{t}}
                         OnSearch={(data: { query: ActionBarState }) => {
                             handleFilterChange({patient: data.query});
                         }}
@@ -59,25 +66,26 @@ function Patient() {
                                 icon: "ic-patient",
                                 title: "patient",
                             },
-                            hasDouble: {
-                                heading: "duplication"
-                            },
-                            rest: {
-                                heading: "unPayed"
-                            },
-                            gender: {
-                                heading: "gender",
-                                genders: ["male", "female"],
-                            },
                             textField: {
                                 labels: [
                                     {label: "name", placeholder: "search"},
                                     {label: "birthdate", placeholder: "--/--/----"},
                                 ],
                             },
+                            gender: {
+                                heading: "gender",
+                                genders: ["male", "female"],
+                            },
+                            hasDouble: {
+                                heading: "duplication"
+                            },
+                            ...(isBeta && {
+                                rest: {
+                                    heading: "unPayed"
+                                }
+                            })
                         }}
                         keyPrefix={"filter."}
-                        t={t}
                     />
                 </FilterRootStyled>
             ),
@@ -167,6 +175,7 @@ function Patient() {
                     gutterBottom>
                     {t(`filter.title`)}
                 </Typography>
+                <FilterOverview/>
                 <Accordion
                     translate={{t, ready}}
                     data={dataPatient}

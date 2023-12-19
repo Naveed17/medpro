@@ -21,7 +21,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {consultationSelector, SetSelectedApp} from "@features/toolbar";
 import {useRouter} from "next/router";
 import {BoxFees, ListItemDetailsStyled, ListItemStyled} from "@features/tabPanel";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {dashLayoutSelector} from "@features/base";
 
 function HistoryContainer({...props}) {
@@ -86,6 +86,7 @@ function HistoryContainer({...props}) {
             consultationFees: app.appointment.consultation_fees,
             createdAt: moment(app.appointment.dayDate, "DD-MM-YYYY").format('DD/MM/YYYY'),
             patient: `${type} ${patient.firstName} ${patient.lastName}`,
+            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t): ""
         });
         setOpenDialog(true);
     }

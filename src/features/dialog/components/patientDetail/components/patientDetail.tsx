@@ -29,7 +29,6 @@ import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import React, {SyntheticEvent, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {EventDef} from "@fullcalendar/core/internal";
@@ -42,7 +41,7 @@ import moment from "moment-timezone";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {useSnackbar} from "notistack";
 import {PatientFile} from "@features/files/components/patientFile";
-import {useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
+import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {useAntecedentTypes, useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -282,6 +281,7 @@ function PatientDetail({...props}) {
                             appUuid: selectedDialog.appUuid,
                             createdAt: moment().format('DD/MM/YYYY'),
                             description: "",
+                            age: res[0].patient?.birthdate ? getBirthdayFormat({birthdate: res[0].patient.birthdate}, t) : "",
                             patient: `${type} ${res[0].patient.firstName} ${res[0].patient.lastName}`
                         });
                         setOpenDialog(true);
@@ -434,6 +434,7 @@ function PatientDetail({...props}) {
                             patientPhoto,
                             mutatePatientList,
                             mutateAgenda,
+                            walletMutate,
                             roles,
                             setEditableSection: setEditable,
                             rest, devise
@@ -479,7 +480,11 @@ function PatientDetail({...props}) {
                             handleItemClick={handleActionFab}
                             actions={[
                                 {icon: <SpeedDialIcon/>, name: t("tabs.add-appo"), action: "add-appointment"},
-                                {icon: <CloudUploadIcon/>, name: t("tabs.import"), action: "import-document"},
+                                {
+                                    icon: <IconUrl path="fileadd" width={20} height={20}/>,
+                                    name: t("tabs.import"),
+                                    action: "import-document"
+                                },
                             ]}
                         />
                     </Box>

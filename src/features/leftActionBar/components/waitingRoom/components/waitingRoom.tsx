@@ -5,7 +5,7 @@ import {Accordion} from '@features/accordion';
 import {useTranslation} from "next-i18next";
 import {
     ActionBarState,
-    AppointmentTypesFilter,
+    AppointmentTypesFilter, FilterOverview,
     FilterRootStyled,
     PatientFilter,
     setFilter
@@ -22,7 +22,41 @@ function WaitingRoom() {
     const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'filter'});
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
 
-    const [accordionData, setAccordionData] = useState<any[]>([]);
+    const [accordionData, setAccordionData] = useState<any[]>([
+        {
+            heading: {
+                id: "patient",
+                icon: "ic-patient",
+                title: "patient",
+            },
+            expanded: true,
+            children: (
+                <FilterRootStyled>
+                    <PatientFilter
+                        {...{t}}
+                        OnSearch={(data: { query: ActionBarState }) => {
+                            dispatch(setFilter({patient: data.query}));
+                        }}
+                        item={{
+                            heading: {
+                                icon: "ic-patient",
+                                title: "patient",
+                            },
+                            gender: {
+                                heading: "gender",
+                                genders: ["male", "female"],
+                            },
+                            textField: {
+                                labels: [
+                                    {label: "name", placeholder: "search"},
+                                    {label: "birthdate", placeholder: "--/--/----"},
+                                ],
+                            },
+                        }}
+                    />
+                </FilterRootStyled>
+            ),
+        }]);
 
     useEffect(() => {
         if (appointmentTypes) {
@@ -68,7 +102,7 @@ function WaitingRoom() {
                         title: "meetingType",
                     },
                     expanded: true,
-                    children: (<AppointmentTypesFilter {...{t, ready}} />)
+                    children: (<AppointmentTypesFilter/>)
                 },
             ])
         }
@@ -82,10 +116,10 @@ function WaitingRoom() {
                 variant="h6"
                 color="text.primary"
                 sx={{py: 1.48, pl: "10px", mb: "0.21em"}}
-                gutterBottom
-            >
+                gutterBottom>
                 {t(`title`)}
             </Typography>
+            <FilterOverview/>
             <Accordion
                 translate={{
                     t: t,

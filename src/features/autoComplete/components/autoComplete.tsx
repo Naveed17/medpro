@@ -30,10 +30,9 @@ function AutoComplete({...props}) {
         onSearchChange(value);
     }, [onSearchChange]);
 
-    const handleOnAddPatient = useCallback((event: any) => {
-        dispatch(onResetPatient());
-        onAddPatient(event);
-    }, [dispatch, onAddPatient]);
+    const handleOnAddPatient = useCallback(() => {
+        onAddPatient();
+    }, [onAddPatient]);
 
     const handleListItemClick = ({...props}) => {
         onSelectData(props);
@@ -70,12 +69,18 @@ function AutoComplete({...props}) {
                     <IconButton
                         size="small"
                         color="primary"
-                        onClick={handleOnAddPatient}>
+                        onClick={() => {
+                            dispatch(onResetPatient());
+                            handleOnAddPatient()
+                        }}>
                         <AddIcon/>
                     </IconButton>
                     :
                     <Button
-                        onClick={handleOnAddPatient}
+                        onClick={() => {
+                            dispatch(onResetPatient());
+                            handleOnAddPatient()
+                        }}
                         size={"small"}
                         color="primary"
                         sx={{m: .5}} aria-label="directions">

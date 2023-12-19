@@ -49,10 +49,11 @@ import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {LoadingButton} from "@mui/lab";
 import {CountrySelect} from "@features/countrySelect";
-import {arrayUniqueByKey, getBirthday} from "@lib/hooks";
+import {arrayUniqueByKey, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {agendaSelector} from "@features/calendar";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -110,10 +111,7 @@ function OnStepPatient({...props}) {
     const {insurances} = useInsurances();
     const {contacts} = useContactType();
     const {countries} = useCountries("nationality=true");
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
     const {t: commonTranslation} = useTranslation("common");
@@ -121,6 +119,12 @@ function OnStepPatient({...props}) {
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
     const {last_fiche_id} = useAppSelector(dashLayoutSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const locations = agendaConfig?.locations;
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
@@ -304,7 +308,13 @@ function OnStepPatient({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
+    const {data: httpProfessionalLocationResponse} = useRequestQuery((locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
+
     const states = (httpStatesResponse as HttpResponse)?.data as any[] ?? [];
+    const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state ?? null;
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
@@ -370,11 +380,21 @@ function OnStepPatient({...props}) {
 
     useEffect(() => {
         if (countries) {
+            const defaultCountry = countries.find(country =>
+                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
             const uniqueCountries = arrayUniqueByKey("nationality", countries);
             setCountriesData(uniqueCountries.sort((country: CountryModel) =>
                 dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
+            !selectedPatient?.nationality && setFieldValue("nationality", defaultCountry);
+            !(address.length > 0 && address[0]?.city) && setFieldValue("country", defaultCountry);
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (professionalState) {
+            setFieldValue("region", professionalState.uuid);
+        }
+    }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -560,6 +580,7 @@ function OnStepPatient({...props}) {
                                         const old = parseInt(event.target.value);
                                         setFieldValue("old", old ? old : "");
                                         if (old) {
+                                            setError(false);
                                             const dateInput = (values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old);
                                             setFieldValue("birthdate", {
                                                 day: dateInput.format("DD"),
@@ -693,14 +714,12 @@ function OnStepPatient({...props}) {
                                     disableClearable
                                     size="small"
                                     value={(countriesData.find(country => country.uuid === values.nationality) ?? null) as any}
-                                    onChange={(e, v: any) => {
-                                        setFieldValue("nationality", v.uuid);
-                                    }}
+                                    onChange={(e, v: any) => setFieldValue("nationality", v.uuid)}
                                     sx={{color: "text.secondary"}}
                                     options={countriesData}
                                     loading={countriesData.length === 0}
-                                    getOptionLabel={(option: any) => option?.nationality ?? ""}
-                                    isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
+                                    getOptionLabel={(option: any) => option?.name ?? ""}
+                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                     renderOption={(props, option) => (
                                         <MenuItem {...props}>
                                             {option?.code && <Avatar
@@ -712,7 +731,7 @@ function OnStepPatient({...props}) {
                                                 alt={"flags"}
                                                 src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                             />}
-                                            <Typography sx={{ml: 1}}>{option.nationality}</Typography>
+                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
                                         </MenuItem>
                                     )}
                                     renderInput={params => {
@@ -1262,6 +1281,7 @@ function OnStepPatient({...props}) {
                     </Button>
                     <LoadingButton
                         {...{loading}}
+                        disabled={error}
                         variant="contained" type="submit" color="primary">
                         {t("next")}
                     </LoadingButton>

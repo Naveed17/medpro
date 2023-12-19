@@ -12,13 +12,13 @@ import {
     TextField,
     Theme,
     Tooltip,
-    Typography,
+    Typography, useMediaQuery,
     useTheme
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {RecButton} from "@features/buttons";
 import {Editor} from "@tinymce/tinymce-react";
-import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
+import {MobileContainer, tinymcePlugins, tinymceToolbar} from "@lib/constants";
 import React, {useEffect, useState} from "react";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
@@ -56,6 +56,8 @@ function NotesComponent({...props}) {
     const {listen} = useAppSelector(consultationSelector);
     const router = useRouter();
     const theme = useTheme();
+    const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+
     const dispatch = useAppDispatch();
 
     const {trigger: triggerObModels} = useRequestQueryMutation("/observation-models");
@@ -144,7 +146,7 @@ function NotesComponent({...props}) {
                 <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
                     {(listen === '' || listen === 'observation') &&
                         <Stack direction={"row"} alignItems={"center"} spacing={1.2} ml={1}>
-                            {models && models.length > 0 && <Select
+                            {models && models.length > 0 && !isMobile && <Select
                                 labelId="select-type"
                                 id="select-type"
                                 renderValue={selected => {
@@ -219,10 +221,13 @@ function NotesComponent({...props}) {
                             </Select>
                             }
                             {hasDataHistory &&
-                                <IconButton className={"btn-full"} size={"small"}
-                                            onClick={() => seeHistory()}>
-                                    <IconUrl path={'history'}/>
-                                </IconButton>}
+                                <Tooltip title={t('history')}>
+                                    <IconButton className={"btn-full"} size={"small"}
+                                                onClick={() => seeHistory()}>
+                                        <IconUrl path={'history'}/>
+                                    </IconButton>
+                                </Tooltip>
+                            }
                         </Stack>}
                     <Tooltip title={t('toolbar')}>
                         <IconButton
@@ -240,13 +245,15 @@ function NotesComponent({...props}) {
                         onClick={() => {
                             startStopRec();
                         }}/>
-                    <IconButton size={"small"} onClick={(e) => {
-                        e.stopPropagation();
-                        mutateSheetData && mutateSheetData()
-                        setFullOb(!fullOb)
-                    }} className={"btn-full"} style={{marginRight: 0, marginLeft: 5}}>
-                        <IconUrl path={'fullscreen'}/>
-                    </IconButton>
+                    <Tooltip title={t(fullOb ? 'reduce' : "zoom")}>
+                        <IconButton size={"small"} onClick={(e) => {
+                            e.stopPropagation();
+                            mutateSheetData && mutateSheetData()
+                            setFullOb(!fullOb)
+                        }} className={"btn-full"} style={{marginRight: 0, marginLeft: 5}}>
+                            <IconUrl path={'fullscreen'}/>
+                        </IconButton>
+                    </Tooltip>
                 </Stack>
             </Stack>
 
@@ -328,4 +335,4 @@ function NotesComponent({...props}) {
     )
 }
 
-export default NotesComponent
+export default NotesComponent;

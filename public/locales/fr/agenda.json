@@ -4,6 +4,7 @@
   "leave-waiting-room": "Quitter la salle d’attente",
   "add": "Ajouter RDV",
   "add-quick": "Ajout rapide",
+  "add_leave": "Ajouter un congé",
   "add-quick-drawer": "Ajout rapide d'un rendez-vous",
   "add-complete": "Ajout complet",
   "view": "Voir détails",
@@ -94,7 +95,7 @@
         "button-text": "Ajouter un RDV"
       },
       "vacation": {
-        "title": "Ajouter votre premier absence",
+        "title": "Ajouter votre première absence",
         "sub-title": "Pas de absences",
         "description": "",
         "button-text": "Ajouter un absence"
@@ -130,7 +131,7 @@
       "reason-consultation": "Motif",
       "reason-consultation-placeholder": "Choisissez votre motif",
       "practitioner": "Praticien",
-      "slots-unavailable": "Journée bloquée ou pas de plage horaire disponible",
+      "slots-unavailable": "La journée a été bloquée ou pas de plage horaire disponible",
       "affect-des": "Choisissez le praticien qui affecte cette consultation",
       "time-slot": "Créneau horaire",
       "selected-appointment": "Rendez-vous sélectionné",

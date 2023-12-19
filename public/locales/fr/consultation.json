@@ -9,6 +9,8 @@
     "month": "mois",
     "years": "Ans",
     "week": "semaine(s)",
+    "start": "Début",
+    "end": "Fin",
     "months": "Mois",
     "days": "Jours",
     "documents": "Documents patient",
@@ -129,6 +131,7 @@
   "yes": "Oui",
   "wait": "quelques instants...",
   "quote": "Devis",
+  "noData": "Aucune données...",
   "consultationIP": {
     "importResult": "Veuillez importer le résultat du bilan",
     "recent-search": "Sélectionner l'imagerie médicale demandée",
@@ -138,8 +141,13 @@
     "reason_for_consultation": "Motif",
     "insurance_document_print": "Documents assurance",
     "patient_history": "Historique",
+    "analysis": "Analyse",
+    "rapport": "Rapport",
     "title": "Titre",
     "lens": "Lens",
+    "reduce": "Réduire",
+    "zoom": "Zoom",
+    "history": "Historique",
     "saveAsModel": "Enregistrer comme modèle",
     "receiver": "Recipient",
     "subject": "Sujet",
@@ -521,6 +529,10 @@
       "analyse": {
         "title": "Aucun favorite",
         "description": "Ajouter des bilans"
+      },
+      "prescription": {
+        "title": "Aucun médicament sélectionné",
+        "description": "Sélectionner le médicament et rédiger la prescription"
       }
     }
   },

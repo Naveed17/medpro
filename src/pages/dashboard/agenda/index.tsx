@@ -53,7 +53,7 @@ import {
 } from "@features/dialog";
 import {AppointmentListMobile, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {AgendaFilter, leftActionBarSelector, cashBoxSelector} from "@features/leftActionBar";
+import {AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -77,16 +77,19 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {MobileContainer as smallScreen} from "@lib/constants";
-import {useTransactionEdit, useSendNotification} from "@lib/hooks/rest";
+import {useSendNotification} from "@lib/hooks/rest";
 import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {setDialog} from "@features/topNavBar";
 import {resetAbsenceData, setAbsenceData, AbsenceDrawer, absenceDrawerSelector} from "@features/drawer";
+import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+import LeaveIcon from "@themes/overrides/icons/leaveIcon";
 
 const actions = [
-    {icon: <FastForwardOutlinedIcon/>, name: 'Ajout rapide', key: 'add-quick'},
-    {icon: <AddOutlinedIcon/>, name: 'Ajout complet', key: 'add-complete'}
+    {icon: <FastForwardOutlinedIcon/>, key: 'add-quick'},
+    {icon: <AddOutlinedIcon/>, key: 'add-complete'},
+    {icon: <LeaveIcon/>, key: 'add_leave'}
 ];
 
 function Agenda() {
@@ -99,7 +102,6 @@ function Agenda() {
     const refs = useRef([]);
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
-    const {trigger: triggerTransactionEdit} = useTransactionEdit();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation(['agenda', 'common', 'patient']);
@@ -118,7 +120,7 @@ function Agenda() {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {
         openViewDrawer, currentStepper,
-        selectedEvent, actionSet, openMoveDrawer, openPayDialog, openAbsenceDrawer,
+        selectedEvent, actionSet, openMoveDrawer, openAbsenceDrawer,
         openAddDrawer, openPatientDrawer, currentDate, view
     } = useAppSelector(agendaSelector);
     const {
@@ -129,7 +131,6 @@ function Agenda() {
     } = useAppSelector(dialogMoveSelector);
     const {isActive, event: onGoingEvent} = useAppSelector(timerSelector);
     const {config: agenda, lastUpdateNotification, sortedData: groupSortedData} = useAppSelector(agendaSelector);
-    const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const absenceData = useAppSelector(absenceDrawerSelector);
 
     const [timeRange, setTimeRange] = useState({
@@ -150,7 +151,6 @@ function Agenda() {
     const [error, setError] = useState<boolean>(false);
     const [localFilter, setLocalFilter] = useState("");
     const [query, setQuery] = useState<any>(null);
-    const [selectedPayment, setSelectedPayment] = useState<any>(null);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [eventStepper, setEventStepper] = useState([
         {
@@ -175,7 +175,6 @@ function Agenda() {
     const [openFabAdd, setOpenFabAdd] = useState(false);
 
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
-
     const calendarRef = useRef<FullCalendar | null>(null);
     let events: MutableRefObject<EventModal[]> = useRef([]);
     let sortedData: MutableRefObject<GroupEventsModel[]> = useRef([]);
@@ -233,7 +232,7 @@ function Agenda() {
 
     const updateCalendarEvents = (result: HttpResponse) => {
         setLoading(true);
-        let eventCond = [];
+        let eventCond;
         let absences: any[] = [];
         if (query?.queryData.includes("format=list")) {
             events.current = [];
@@ -252,6 +251,7 @@ function Agenda() {
 
         const appointments = (eventCond?.hasOwnProperty('list') ? eventCond.list : eventCond) as AppointmentModel[];
         const eventsUpdated: EventModal[] = [];
+
         if (!query?.filter || events.current.length === 0) {
             appointments?.forEach((appointment) => {
                 const horsWork = getAppointmentBugs(moment(appointment.dayDate + ' ' + appointment.startTime, "DD-MM-YYYY HH:mm").toDate());
@@ -261,13 +261,18 @@ function Agenda() {
                 eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
             });
         } else {
-            events.current.forEach(event => {
-                eventsUpdated.push({
-                    ...event,
-                    filtered: !appointments?.find(appointment => appointment.uuid === event.id)
-                })
-            })
+            const filteredEvents = appointments.map(appointment => appointmentPrepareEvent(appointment, false, []))
+            const mergedMap = new Map();
+            filteredEvents.forEach((item) => mergedMap.set(item.id, {...item}));
+            events.current.forEach((item) => mergedMap.set(item.id, {...mergedMap.get(item.id), ...item}));
+            const mergedArray = Array.from(mergedMap.values());
+
+            eventsUpdated.push(...mergedArray.map(event => ({
+                ...event,
+                filtered: localFilter.length > 0 && !appointments?.find(appointment => appointment.uuid === event.id)
+            })));
         }
+
         if (!query?.history) {
             events.current = [...eventsUpdated, ...absences];
         } else {
@@ -335,43 +340,6 @@ function Agenda() {
             setTimeout(() => setMoveDialogInfo({...moveDialogInfo, info: true}));
         }
     }, [openMoveDrawer])  // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (openPayDialog) {
-            setEvent(selectedEvent as EventDef);
-            let payed_amount = 0;
-            let payments: any[] = [];
-            const transactions = selectedEvent?.extendedProps?.transactions;
-            transactions.forEach((transaction: any) => {
-                payed_amount += transaction.amount - transaction.rest_amount;
-                transaction.transaction_data && payments.push(...transaction.transaction_data.map((td: any) => ({
-                    uuid: td.uuid,
-                    amount: td.amount,
-                    payment_date: moment().format('DD-MM-YYYY'),
-                    payment_time: `${new Date().getHours()}:${new Date().getMinutes()}`,
-                    status_transaction: td.status_transaction_data,
-                    type_transaction: td.type_transaction_data,
-                    data: td.data,
-                    ...(td.insurance && {insurance: td.insurance.uuid}),
-                    ...(td.payment_means && {
-                        payment_means: paymentTypesList.find((pt: {
-                            slug: string;
-                        }) => pt.slug === td.payment_means.slug)
-                    })
-                })))
-            });
-            setSelectedPayment({
-                uuid: transactions[0]?.appointment.uuid,
-                payments,
-                payed_amount,
-                appointment: transactions[0]?.appointment,
-                patient: transactions[0]?.appointment?.patient,
-                total: selectedEvent?.extendedProps?.total,
-                isNew: false
-            });
-            setTimeout(() => setOpenPaymentDialog(true));
-        }
-    }, [openPayDialog])  // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (actionSet && actionSet.action === "onConfirm") {
@@ -608,6 +576,10 @@ function Agenda() {
                 break;
             case "onConsultationDetail":
                 onConsultationStart(event)
+                break;
+            case "onPay":
+                setEvent(event);
+                setOpenPaymentDialog(true);
                 break;
             case "onConsultationView":
                 const slugConsultation = `/dashboard/consultation/${event?.publicId ? event?.publicId : (event as any)?.id}`;
@@ -1079,6 +1051,9 @@ function Agenda() {
     const handleActionFab = (action: any) => {
         setOpenFabAdd(false);
         switch (action.key) {
+            case "add_leave" :
+                dispatch(openDrawer({type: "absence", open: true}));
+                break;
             case "add-quick" :
                 handleAddAppointment("add-quick");
                 break;
@@ -1088,18 +1063,9 @@ function Agenda() {
         }
     }
 
-    const handlePayTransaction = () => {
-        setLoadingRequest(true);
-        const transactions = selectedEvent?.extendedProps?.transactions;
-        triggerTransactionEdit(selectedPayment,
-            transactions && transactions?.length > 0 ? transactions[0] : null,
-            () => {
-                setOpenPaymentDialog(false);
-                setTimeout(() => setLoadingRequest(false));
-                dispatch(openDrawer({type: "pay", open: false}));
-            }
-        );
-    }
+    useLeavePageConfirm(() => {
+        dispatch(resetFilterPatient());
+    });
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -1171,20 +1137,11 @@ function Agenda() {
                                 mutate: refreshData
                             }}
                             OnAddAppointment={handleAddAppointment}
-                            OnMoveEvent={(event: EventDef) => onMenuActions("onMove", event)}
-                            OnWaitingRoom={(event: EventDef) => onMenuActions('onWaitingRoom', event)}
-                            OnLeaveWaitingRoom={(event: EventDef) => onMenuActions('onLeaveWaitingRoom', event)}
                             OnSelectEvent={onSelectEvent}
-                            OnConfirmEvent={(event: EventDef) => onConfirmAppointment(event)}
                             OnEventChange={onEventChange}
                             OnRangeDateSelect={handleRangeSelect}
                             OnAddAbsence={handleAddAbsence}
                             OnDeleteAbsence={handleDeleteAbsence}
-                            OnOpenPatient={(event: EventDef) => {
-                                setEvent(event);
-                                dispatch(openDrawer({type: "view", open: false}));
-                                dispatch(openDrawer({type: "patient", open: true}));
-                            }}
                             OnMenuActions={onMenuActions}
                             OnSelectDate={onSelectDate}
                             OnViewChange={onViewChange}
@@ -1210,7 +1167,7 @@ function Agenda() {
                                     open={openFabAdd}>
                                     {actions.map((action) => (
                                         <SpeedDialAction
-                                            key={action.name}
+                                            key={action.key}
                                             icon={action.icon}
                                             tooltipTitle={t(`${action.key}`)}
                                             tooltipOpen
@@ -1373,7 +1330,7 @@ function Agenda() {
                             dispatch(resetAbsenceData());
                         });
                     }}>
-                    <AbsenceDrawer {...{t}}/>
+                    <AbsenceDrawer main={true} {...{t}}/>
                     <Paper
                         sx={{
                             display: "inline-block",
@@ -1679,10 +1636,8 @@ function Agenda() {
                     }}
                     open={openPaymentDialog}
                     data={{
-                        selectedPayment,
-                        setSelectedPayment,
-                        appointment: event?.extendedProps,
-                        patient: event?.extendedProps.patient
+                        patient: event?.extendedProps.patient,
+                        setOpenPaymentDialog
                     }}
                     size={"lg"}
                     fullWidth
@@ -1691,26 +1646,6 @@ function Agenda() {
                         setOpenPaymentDialog(false);
                         dispatch(openDrawer({type: "pay", open: false}));
                     }}
-                    actionDialog={
-                        <DialogActions>
-                            <Button onClick={event => {
-                                event.stopPropagation();
-                                setOpenPaymentDialog(false);
-                                dispatch(openDrawer({type: "pay", open: false}));
-                            }} startIcon={<CloseIcon/>}>
-                                {t("cancel", {ns: "common"})}
-                            </Button>
-                            <LoadingButton
-                                loading={loadingRequest}
-                                loadingPosition={"start"}
-                                disabled={selectedPayment && selectedPayment.payments.length === 0}
-                                onClick={handlePayTransaction}
-                                variant="contained"
-                                startIcon={<IconUrl path="ic-dowlaodfile"/>}>
-                                {t("save", {ns: "common"})}
-                            </LoadingButton>
-                        </DialogActions>
-                    }
                 />
 
                 <MobileContainer>

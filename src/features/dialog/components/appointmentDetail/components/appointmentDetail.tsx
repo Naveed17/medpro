@@ -314,9 +314,7 @@ function AppointmentDetail({...props}) {
                                     startIcon={<PlayCircleIcon/>}
                                     onClick={() => {
                                         setLoading(true);
-                                        ["FINISHED", "ON_GOING"].includes(
-                                            appointment?.extendedProps.status.key
-                                        )
+                                        ["FINISHED", "ON_GOING"].includes(appointment?.extendedProps.status.key)
                                             ? OnConsultationView(appointment)
                                             : OnConsultation(appointment);
                                     }}>

@@ -28,10 +28,7 @@ const Header = styled.div`
     border-top-left-radius: 1px;
     border-top-right-radius: 1px;
     transition: background-color 0.2s ease;
-
-    &:hover {
-
-    }
+    height: 80px;
 `;
 
 const Title = styled.h4`
@@ -193,7 +190,7 @@ function Board({...props}) {
                     {(provided: DroppableProvided) => (
                         <Grid container spacing={1} ref={provided.innerRef} {...provided.droppableProps}>
                             {Object.keys(boardData).map((key: any, index: number) => (
-                                <Draggable key={index} draggableId={key} index={index}>
+                                <Draggable key={index} draggableId={key} index={index} isDragDisabled>
                                     {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
                                         <Grid item md={3} ref={provided.innerRef} {...provided.draggableProps}>
                                             <Header isDragging={snapshot.isDragging}>
@@ -216,7 +213,7 @@ function Board({...props}) {
                                                                     whiteSpace: "nowrap",
                                                                     overflow: "hidden",
                                                                     textOverflow: "ellipsis",
-                                                                    width: columns[index].action && opened ? 110 : "auto",
+                                                                    width: columns[index].action && opened ? 140 : "auto",
                                                                 }}>
                                                                 {t(key)} {boardData[key].length > 0 && index < 3 ? `(${boardData[key].length})` : ""}
                                                             </Typography>}
