@@ -4,7 +4,6 @@ import {useTranslation} from "next-i18next";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import {Box, Button, Typography, useMediaQuery, useTheme} from "@mui/material";
-import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent, setStepperIndex} from "@features/calendar";

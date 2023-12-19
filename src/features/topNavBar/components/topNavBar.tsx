@@ -30,7 +30,6 @@ import {appLockSelector} from "@features/appLock";
 import {agendaSelector, AppointmentStatus} from "@features/calendar";
 import IconUrl from "@themes/urlIcon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import {onOpenPatientDrawer} from "@features/table";
 import {Dialog, PatientDetail} from "@features/dialog";
 import {useRequestQueryMutation} from "@lib/axios";

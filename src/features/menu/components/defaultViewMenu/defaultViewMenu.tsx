@@ -27,7 +27,6 @@ import {useSession} from "next-auth/react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useTranslation} from "next-i18next";
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {useCallback, useEffect, useState} from "react";
 import {dashLayoutSelector} from "@features/base";
 import SettingsViewIcon from "@themes/overrides/icons/settingsViewIcon";
@@ -41,7 +40,7 @@ const VIEW_OPTIONS = [
 ];
 
 function DefaultViewMenu({...props}) {
-    const {view, onViewChange} = props;
+    const {onViewChange} = props;
     const theme = useTheme();
     const router = useRouter();
     const {data: session, update} = useSession();
@@ -97,11 +96,6 @@ function DefaultViewMenu({...props}) {
     const handleClose = () => {
         setAnchorEl(null);
     }
-
-    const handleViewChange = useCallback((view: string) => {
-        handleClose();
-        onViewChange(view);
-    }, [onViewChange])
 
     useEffect(() => {
         agenda && setAutoConfirm(agenda?.isAutoConfirm);

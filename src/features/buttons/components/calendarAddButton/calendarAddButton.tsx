@@ -3,13 +3,11 @@ import StyledMenu from "./overrides/styledMenu";
 import {Box, MenuItem, useTheme} from "@mui/material";
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import AddIcon from "@mui/icons-material/Add";
 import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 
 function CalendarAddButton({...props}) {
     const {onClickEvent, t} = props;
-    const theme = useTheme();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);

@@ -11,8 +11,6 @@ import {
     Box,
     ClickAwayListener,
     Grow,
-    IconButton,
-    ListItemText,
     MenuItem,
     MenuList,
     Paper,
@@ -20,8 +18,6 @@ import {
     Typography,
     useMediaQuery
 } from "@mui/material";
-import Icon from "@themes/icon";
-import {pxToRem} from "@themes/formatFontSize";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import React, {useRef, useState} from "react";
 import {useRouter} from "next/router";
@@ -37,7 +33,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector, setLocalization} from "@features/base";
 import Langs from "@features/topNavBar/components/langButton/config";
-import GlobeIcon from "@themes/overrides/icons/globeIcon";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
 function ProfilMenu() {
@@ -50,11 +45,9 @@ function ProfilMenu() {
 
     const {t, ready} = useTranslation('menu');
     const {opened} = useAppSelector(profileMenuSelector);
-    const {agendas, config} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {locale} = useAppSelector(configSelector);
 
-    const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
     const [loading, setLoading] = useState<boolean>(false);
 
     const {data: user} = session as Session;
