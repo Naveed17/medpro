@@ -52,16 +52,12 @@ function DocumentFilter({...props}) {
 
             {Object.entries(docTypes).map(type => <SidebarCheckboxStyled
                 key={type[0]}
-                component="label"
-                htmlFor={type[0]}
                 sx={{
                     "& .MuiSvgIcon-root": {
                         width: 16,
                         height: 16,
                     },
-                }}
-                styleprops={""}>
-
+                }}>
                 <FormControlLabel
                     control={<Checkbox
                         size="small"
