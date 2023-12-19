@@ -415,7 +415,7 @@ function TopNavBar({...props}) {
                                         sx={{mr: 3}}
                                         className={`Custom-MuiAvatar-root ${!isActive ? 'active' : ''}`}
                                         onClick={() => requestNotificationPermission()}>
-                                        <NotificationsPausedIcon color={"black"}/>
+                                        <IconUrl path={"ic-notification-off"} width={25} height={25} color={"black"}/>
                                     </Avatar>
                                 </WarningTooltip>}
                             {next &&

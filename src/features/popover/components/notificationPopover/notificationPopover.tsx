@@ -26,11 +26,12 @@ import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {useSnackbar} from "notistack";
 import {getDiffDuration, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRequestQueryMutation} from "@lib/axios";
+import IconUrl from "@themes/urlIcon";
 
 const humanizeDuration = require("humanize-duration");
 
 const popoverNotificationData = {
-    mainIcon: <NotificationsOffIcon/>,
+    mainIcon: <IconUrl path={"ic-notification-off"} width={60} height={60} color={"black"}/>,
     title: "notification.empty",
     description: "notification.desc"
 };

@@ -43,7 +43,7 @@ function CalendarAddButton({...props}) {
                 onClick={handleClick}
                 variant="filled"
                 sx={{ p: .8}}
-                color={"warning"}
+                color={"primary"}
                 size={"small"}>
                 <AgendaAddViewIcon />
             </CustomIconButton>

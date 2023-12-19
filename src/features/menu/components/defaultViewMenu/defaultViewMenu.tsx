@@ -11,8 +11,8 @@ import {
     Collapse,
     Divider,
     FormControlLabel,
-    ListItemButton, Stack,
-    SvgIcon, Switch, Tooltip,
+    ListItemButton,
+    SvgIcon, Switch,
     Typography,
     useTheme
 } from "@mui/material";
@@ -28,16 +28,15 @@ import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useTranslation} from "next-i18next";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import {useCallback, useEffect, useState} from "react";
 import {dashLayoutSelector} from "@features/base";
-import Zoom from "@mui/material/Zoom";
 import SettingsViewIcon from "@themes/overrides/icons/settingsViewIcon";
+import IconUrl from "@themes/urlIcon";
 
 const VIEW_OPTIONS = [
     {value: "timeGridDay", label: "day", text: "Jour", icon: TodayIcon},
-    {value: "timeGridWeek", label: "weeks", text: "Semaine", icon: DayIcon},
-    {value: "dayGridMonth", label: "months", text: "Mois", icon: WeekIcon},
+    {value: "timeGridWeek", label: "weeks", text: "Semaine", icon: WeekIcon},
+    {value: "dayGridMonth", label: "months", text: "Mois", icon: DayIcon},
     {value: "listWeek", label: "agenda", text: "List", icon: GridIcon}
 ];
 
@@ -119,8 +118,11 @@ function DefaultViewMenu({...props}) {
                 onClick={handleClickListItem}
                 value="dayGridMonth"
                 sx={{
-                    width: 37, height: 37, padding: 0,
-                    background: theme.palette.grey['A500']
+                    width: 35, height: 35, padding: 0,
+                    background: theme.palette.grey['A500'],
+                    "& .MuiSvgIcon-root": {
+                        width: 20
+                    }
                 }}>
                 <SettingsViewIcon/>
             </ToggleButtonStyled>
@@ -167,7 +169,7 @@ function DefaultViewMenu({...props}) {
                     }
                 }}>
                 <List>
-                  {/*  <ListItemButton>
+                    {/*  <ListItemButton>
                         <Stack direction={"row"} spacing={3} alignItems={"center"}>
                             <Typography mr={3}>{t("agenda-mode", {ns: "agenda"})} : </Typography>
                             {VIEW_OPTIONS.map((viewOption) => (
@@ -203,7 +205,7 @@ function DefaultViewMenu({...props}) {
                                     selected={index === VIEW_OPTIONS.findIndex(view => view.value === general_information?.agendaDefaultFormat)}
                                     onClick={(event) => handleMenuItemClick(event, option)}>
                                     <SvgIcon component={option.icon} fontSize={"small"}/>
-                                    <Typography ml={1} variant={"body2"}>{t(`times.${option.label}`)}</Typography>
+                                    <Typography fontSize={12} fontWeight={600} ml={1} variant={"body2"}>{t(`times.${option.label}`)}</Typography>
                                 </MenuItem>
                             ))}
                         </List>
@@ -232,7 +234,7 @@ function DefaultViewMenu({...props}) {
                         </ListItemButton>
                         <Divider/>
                         <ListItemButton onClick={() => router.push('/dashboard/agenda/trash')}>
-                            <DeleteOutlineIcon fontSize={"small"}/>
+                            <IconUrl path={"ic-trash"} color={"black"}/>
                             <ListItemText
                                 sx={{ml: 1, "& .MuiTypography-root": {fontSize: 13}}}
                                 primary={t("trash")}/>

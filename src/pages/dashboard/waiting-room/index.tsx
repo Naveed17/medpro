@@ -436,7 +436,7 @@ function WaitingRoom() {
 
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
-            const groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((item: any) => moment(`${item.dayDate} ${item.startTime}`, "DD-MM-YYYY HH:mm")).group((diag: any) => diag.status);
+            const groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) => moment(`${a.dayDate} ${a.startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${b.dayDate} ${b.startTime}`, "DD-MM-YYYY HH:mm").valueOf()).group((diag: any) => diag.status);
             setWaitingRoomsGroup(groupedData);
         }
     }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -449,7 +449,9 @@ function WaitingRoom() {
 
     useEffect(() => {
         if (!openPaymentDialog) {
-            mutateWaitingRoom()
+            setTimeout(() => {
+                mutateWaitingRoom();
+            }, 300);
         }
     }, [openPaymentDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
