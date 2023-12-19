@@ -22,7 +22,41 @@ function WaitingRoom() {
     const {t, ready} = useTranslation('waitingRoom', {keyPrefix: 'filter'});
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
 
-    const [accordionData, setAccordionData] = useState<any[]>([]);
+    const [accordionData, setAccordionData] = useState<any[]>([
+        {
+            heading: {
+                id: "patient",
+                icon: "ic-patient",
+                title: "patient",
+            },
+            expanded: true,
+            children: (
+                <FilterRootStyled>
+                    <PatientFilter
+                        {...{t}}
+                        OnSearch={(data: { query: ActionBarState }) => {
+                            dispatch(setFilter({patient: data.query}));
+                        }}
+                        item={{
+                            heading: {
+                                icon: "ic-patient",
+                                title: "patient",
+                            },
+                            gender: {
+                                heading: "gender",
+                                genders: ["male", "female"],
+                            },
+                            textField: {
+                                labels: [
+                                    {label: "name", placeholder: "search"},
+                                    {label: "birthdate", placeholder: "--/--/----"},
+                                ],
+                            },
+                        }}
+                    />
+                </FilterRootStyled>
+            ),
+        }]);
 
     useEffect(() => {
         if (appointmentTypes) {

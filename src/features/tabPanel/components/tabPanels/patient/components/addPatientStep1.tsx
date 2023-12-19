@@ -226,7 +226,6 @@ function AddPatientStep1({...props}) {
             />
         );
 
-    console.log('values step 1', values)
     return (
         <FormikProvider value={formik}>
             <Stack

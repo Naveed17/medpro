@@ -3,7 +3,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {LocaleFnsProvider} from "@lib/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
-import {Stack, TextField, Typography, useTheme} from "@mui/material";
+import {Stack, TextField, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {agendaSelector, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
@@ -13,6 +13,7 @@ import {useRouter} from "next/router";
 import {highlightedDays, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {MobileContainer as smallScreen} from "@lib/constants";
 
 function CalendarPickers({...props}) {
     const {disabled} = props;
@@ -20,6 +21,7 @@ function CalendarPickers({...props}) {
     const theme = useTheme();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const {locale} = useAppSelector(configSelector);
     const {currentDate: initData, config: agendaConfig} = useAppSelector(agendaSelector);
@@ -56,7 +58,7 @@ function CalendarPickers({...props}) {
                         const note = appointmentDayCount && appointmentDayCount[moment(day).format('DD-MM-YYYY')];
                         return (
                             <PickersDay {...DayComponentProps}>
-                                <Stack alignItems={"center"} justifyContent={"center"} spacing={0} m={2}>
+                                <Stack alignItems={"center"} justifyContent={"center"} spacing={0} m={isMobile ? 0 : 2}>
                                     <Typography fontSize={12} fontWeight={600}>{day.getDate()}</Typography>
                                     {!(DayComponentProps.today || DayComponentProps.selected) && note > 0 ?
                                         <FiberManualRecordIcon

@@ -197,23 +197,23 @@ function PreviewDialog({...props}) {
                         case "write_certif":
                             const certifLine = document.createElement('div');
                             certifLine.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
-
-                            let txt = el.name.replaceAll('{patient}', state.patient)
-                            txt = txt.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
-                            txt = txt.replaceAll('[date]', moment().format('DD/MM/YYYY'))
+                            
+                            let txt = el.name?.replaceAll('{patient}', state.patient)
+                            txt = txt?.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
+                            txt = txt?.replaceAll('[date]', moment().format('DD/MM/YYYY'))
                             if (state.birthdate) {
-                                txt = txt.replaceAll('{age}', getBirthdayFormat({birthdate: state.birthdate}, t))
-                                txt = txt.replaceAll('{birthdate}', moment(state.birthdate, "DD-MM-YYYY").format('DD-MM-YYYY'))
+                                txt = txt?.replaceAll('{age}', getBirthdayFormat({birthdate: state.birthdate}, t))
+                                txt = txt?.replaceAll('{birthdate}', moment(state.birthdate, "DD-MM-YYYY").format('DD-MM-YYYY'))
                             }
                             if (state.cin)
-                                txt = txt.replaceAll('{cin}', state.cin)
+                                txt = txt?.replaceAll('{cin}', state.cin)
                             if (state.tel)
-                                txt = txt.replaceAll('{tel}', state.tel)
-                            txt = txt.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
-                            txt = txt.replaceAll('[votre nom]', `${general_information.firstName} ${general_information.lastName}`)
-                            txt = txt.replaceAll('&nbsp;', '')
+                                txt = txt?.replaceAll('{tel}', state.tel)
+                            txt = txt?.replaceAll('{doctor}', `${general_information.firstName} ${general_information.lastName}`)
+                            txt = txt?.replaceAll('[votre nom]', `${general_information.firstName} ${general_information.lastName}`)
+                            txt = txt?.replaceAll('&nbsp;', '')
                             const parser = new DOMParser();
-                            const noeuds = parser.parseFromString(txt, 'text/html').getElementsByTagName('body')[0];
+                            const noeuds = parser.parseFromString(txt ?? "", 'text/html').getElementsByTagName('body')[0];
 
                             noeuds.childNodes.forEach(item => {
                                 rows.push({

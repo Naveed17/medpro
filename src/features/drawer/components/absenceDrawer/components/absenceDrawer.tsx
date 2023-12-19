@@ -1,4 +1,4 @@
-import {Stack, TextField, Typography} from "@mui/material";
+import {Stack, TextField, Typography, useMediaQuery} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import FormControl from "@mui/material/FormControl";
 import React from "react";
@@ -9,10 +9,12 @@ import moment from "moment-timezone";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {setAbsenceData, absenceDrawerSelector} from "@features/drawer";
 import {NoDataCard} from "@features/card";
+import {MobileContainer as smallScreen} from "@lib/constants";
 
 function AbsenceDrawer({...props}) {
     const {t, main = false} = props;
     const dispatch = useAppDispatch();
+    const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const {endDate, startDate, title} = useAppSelector(absenceDrawerSelector);
 
@@ -35,7 +37,7 @@ function AbsenceDrawer({...props}) {
         <Stack spacing={3}
                sx={{
                    height: '100vh',
-                   width: 600,
+                   ...(!isMobile && {width: 600}),
                    "& .MuiOutlinedInput-root button": {
                        padding: "5px",
                        minHeight: "auto",

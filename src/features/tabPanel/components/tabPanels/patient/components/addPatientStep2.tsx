@@ -314,7 +314,6 @@ function AddPatientStep2({...props}) {
         }
     }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    console.log('step 2 ', values);
     return (
         <FormikProvider value={formik}>
             <Stack
@@ -360,8 +359,8 @@ function AddPatientStep2({...props}) {
                                     sx={{color: "text.secondary"}}
                                     options={countriesData}
                                     loading={countriesData.length === 0}
-                                    getOptionLabel={(option: any) => option?.nationality ? option.nationality : ""}
-                                    isOptionEqualToValue={(option: any, value) => option.nationality === value.nationality}
+                                    getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                    isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                     renderOption={(props, option) => (
                                         <Stack key={`nationality-${option.uuid}`}>
                                             <MenuItem
@@ -377,7 +376,7 @@ function AddPatientStep2({...props}) {
                                                     alt={"flags"}
                                                     src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                                 />}
-                                                <Typography sx={{ml: 1}}>{option.nationality}</Typography>
+                                                <Typography sx={{ml: 1}}>{option.name}</Typography>
                                             </MenuItem>
                                         </Stack>
                                     )}

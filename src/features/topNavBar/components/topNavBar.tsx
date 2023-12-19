@@ -30,7 +30,6 @@ import {appLockSelector} from "@features/appLock";
 import {agendaSelector, AppointmentStatus} from "@features/calendar";
 import IconUrl from "@themes/urlIcon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import {onOpenPatientDrawer} from "@features/table";
 import {Dialog, PatientDetail} from "@features/dialog";
 import {useRequestQueryMutation} from "@lib/axios";
@@ -217,6 +216,7 @@ function TopNavBar({...props}) {
                     dispatch(resetAppointment());
                     dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
                 });
+                console.log("selectedEvent", selectedEvent);
                 if (selectedEvent) {
                     handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
                 } else {
@@ -414,7 +414,7 @@ function TopNavBar({...props}) {
                                         sx={{mr: 3}}
                                         className={`Custom-MuiAvatar-root ${!isActive ? 'active' : ''}`}
                                         onClick={() => requestNotificationPermission()}>
-                                        <NotificationsPausedIcon color={"black"}/>
+                                        <IconUrl path={"ic-notification-off"} width={25} height={25} color={"black"}/>
                                     </Avatar>
                                 </WarningTooltip>}
                             {next &&

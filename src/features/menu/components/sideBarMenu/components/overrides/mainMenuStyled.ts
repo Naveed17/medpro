@@ -1,8 +1,11 @@
 import {styled} from "@mui/material/styles";
-import {Box} from "@mui/material";
+import {Box,BoxProps} from "@mui/material";
 import {MobileContainer} from "@lib/constants";
+interface Prpops extends BoxProps {
 
-const MainMenuStyled = styled(Box)(({theme}) => ({
+}
+
+const MainMenuStyled = styled(Box)<Prpops>(({theme}) => ({
     display: "flex",
     [`@media (max-width: ${MobileContainer}px)`]: {
         flexDirection: "column",
@@ -10,6 +13,9 @@ const MainMenuStyled = styled(Box)(({theme}) => ({
     "& .body-main": {
         flexGrow: 1,
         overflow: "hidden",
+         transition: theme.transitions.create('all', {
+        duration: theme.transitions.duration.shortest,
+    }),
     },
     "& .sidenav-main": {
         width: 84,

@@ -5,7 +5,7 @@ import {useRouter} from "next/router";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {PDFDocument} from 'pdf-lib';
+import {PageSizes, PDFDocument, StandardFonts} from 'pdf-lib';
 import {agendaSelector} from "@features/calendar";
 import {onOpenPatientDrawer, Otable} from "@features/table";
 import {NoDataCard} from "@features/card";
@@ -41,10 +41,15 @@ function InsuranceDocumentPrint({...props}) {
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/${appuuid}/insurance-document/${insuranceDocument}/${router.locale}`,
         }, {
             onSuccess: async (result: any) => {
-                const document = result?.data as any;
+                const document = (result?.data as HttpResponse)?.data;
+                const pdfDoc = await PDFDocument.create();
+                const helveticaFont = await pdfDoc.embedFont(StandardFonts.Courier);
+                const fields: any[] = document.insurance.map((field: any) => ({
+                    ...field,
+                    value: document.data[field.key][0]
+                }));
+                const pagedFields = fields.group((field: any) => field.page);
                 if (backgroundDoc) {
-                    const pdfDoc = await PDFDocument.create();
-                    const docUpdated = await fetch(`data:application/pdf;base64,${document}`).then((res) => res.arrayBuffer());
                     triggerDocInsurance({
                         method: "GET",
                         url: `/api/public/insurances/documents/${insuranceDocument}/${router.locale}`
@@ -56,8 +61,17 @@ function InsuranceDocumentPrint({...props}) {
                             const copiedPages = await pdfDoc.copyPages(insurancePdfDoc, insurancePdfDoc.getPageIndices());
                             for (const page of copiedPages) {
                                 const index = copiedPages.indexOf(page);
-                                const [cnamPatientInfoPage] = await pdfDoc.embedPdf(docUpdated, [index]);
-                                pdfDoc.addPage(page).drawPage(cnamPatientInfoPage);
+                                pagedFields[index + 1]?.forEach((field: any) => {
+                                    if (field.posXX && field.posYY) {
+                                        page.drawText(field.value?.toString() ?? "", {
+                                            x: field.posXX,
+                                            y: field.posYY,
+                                            font: helveticaFont,
+                                            size: 10
+                                        });
+                                    }
+                                });
+                                pdfDoc.addPage(page);
                             }
 
                             const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
@@ -65,7 +79,21 @@ function InsuranceDocumentPrint({...props}) {
                         }
                     })
                 } else {
-                    setFile(`data:application/pdf;base64,${document}`)
+                    Object.entries(pagedFields).forEach((fields: any) => {
+                        const page = pdfDoc.addPage([PageSizes.A4[1], PageSizes.A4[0]]);
+                        fields[1]?.forEach((field: any) => {
+                            if (field.posXX && field.posYY) {
+                                page.drawText(field.value?.toString() ?? "", {
+                                    x: field.posXX,
+                                    y: field.posYY,
+                                    font: helveticaFont,
+                                    size: 10
+                                })
+                            }
+                        });
+                    });
+                    const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
+                    setFile(mergedPdf);
                 }
             },
             onSettled: () => {

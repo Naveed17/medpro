@@ -44,7 +44,7 @@ const ProfileSectionStyled = styled('div')(({theme}) => ({
                 position: "relative",
                 "&::before, &::after": {
                     bottom: "100%",
-                    left: "89%",
+                    left: "91%",
                     border: "solid transparent",
                     content: "''",
                     height: 0,
@@ -104,8 +104,8 @@ const ProfileSectionStyled = styled('div')(({theme}) => ({
                     },
                     "& .react-svg": {
                         "& svg": {
-                            width: pxToRem(16),
-                            height: pxToRem(16),
+                            width: pxToRem(20),
+                            height: pxToRem(20),
                         },
                     },
                     "&.has-items": {

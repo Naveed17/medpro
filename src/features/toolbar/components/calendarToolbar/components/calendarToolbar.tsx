@@ -59,8 +59,8 @@ function CalendarToolbar({...props}) {
     const [pendingDialog, setPendingDialog] = useState(false);
     const VIEW_OPTIONS = [
         {value: "timeGridDay", label: "Day", text: "Jour", icon: TodayIcon},
-        {value: "timeGridWeek", label: "Weeks", text: "Semaine", icon: DayIcon},
-        {value: "dayGridMonth", label: "Months", text: "Mois", icon: WeekIcon},
+        {value: "timeGridWeek", label: "Weeks", text: "Semaine", icon: WeekIcon},
+        {value: "dayGridMonth", label: "Months", text: "Mois", icon: DayIcon},
         {value: "listWeek", label: "Agenda", text: "List", icon: GridIcon}
     ];
 
@@ -137,7 +137,9 @@ function CalendarToolbar({...props}) {
 
                         <Button className="Current-date" variant="text-transparent">
                             <Typography variant="body2" component={"span"} fontWeight={"bold"}>
-                                {view === 'timeGridWeek' ? `${timeRange.start.split('-')[0]} - ${timeRange.end.split('-')[0]}` : ""} {moment(currentDate.date.toLocaleDateString("fr"), "DD/MM/YYYY").format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM YYYY' : 'Do MMMM, YYYY')}
+                                {view === 'timeGridWeek' ?
+                                    `${moment(timeRange.start, "DD/MM/YYYY").format(`DD ${timeRange.start.split('-')[1] !== moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("MM") ? 'MMM' : ''} ${timeRange.start.split('-')[2] !== moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("YYYY") ? 'YYYY' : ''}`)} - ${moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("DD MMM YYYY")}` :
+                                    moment(currentDate.date.toLocaleDateString("fr"), "DD/MM/YYYY").format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM YYYY' : 'Do MMMM, YYYY')}
                             </Typography>
                         </Button>
 

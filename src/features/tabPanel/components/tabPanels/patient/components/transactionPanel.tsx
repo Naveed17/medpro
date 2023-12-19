@@ -46,9 +46,12 @@ function TransactionPanel({...props}) {
     const [transaction_data, setTransaction_data] = useState<any[]>([]);
     const [transaction_loading, setTransaction_loading] = useState<boolean>(false);
     const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
+    const [loadingDeleteTransactionData, setLoadingDeleteTransactionData] = useState(false);
     const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
+    const [openDeleteTransactionData, setOpenDeleteTransactionData] = useState(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selected, setSelected] = useState<any>(null);
+    const [selectedData, setSelectedData] = useState<any>(null);
     const {trigger} = useRequestQueryMutation("/payment/cashbox");
 
     const variants = {
@@ -123,33 +126,60 @@ function TransactionPanel({...props}) {
         );
     };
 
+    const deleteTransactionData = () => {
+        const form = new FormData();
+        form.append("cash_box", selectedBoxes[0]?.uuid);
+
+        trigger({
+                method: "DELETE",
+                url: `${urlMedicalEntitySuffix}/transactions/${selected?.uuid}/transaction-data/${selectedData.uuid}/${router.locale}`,
+                data: form,
+            },
+            {
+                onSuccess: () => {
+                    mutateTransactions();
+                    mutatePatientWallet();
+                    walletMutate && walletMutate();
+                    setLoadingDeleteTransactionData(false);
+                    setOpenDeleteTransactionData(false);
+                    setCollapse(null)
+                },
+            }
+        );
+    };
+
 
     return (
         <>
             {isLoading && <LinearProgress/>}
             {!isLoading && <Stack direction={"row"} justifyContent={"end"} p={1} spacing={1}>
-                <Label variant='filled'
-                       sx={{color: theme.palette.success.main, background: theme.palette.success.lighter}}>
-                    <span>{t('wallet')}</span>
-                    <span style={{
-                        fontSize: 14,
-                        marginLeft: 5,
-                        marginRight: 5,
-                        fontWeight: "bold"
-                    }}>{wallet}</span>
-                    <span>{devise}</span>
-                </Label>
+                <div onClick={() => setOpenPaymentDialog(true)}>
+                    <Label variant='filled'
+                           sx={{color: theme.palette.success.main, background: theme.palette.success.lighter}}>
+                        <span>{t('wallet')}</span>
+                        <span style={{
+                            fontSize: 14,
+                            marginLeft: 5,
+                            marginRight: 5,
+                            fontWeight: "bold"
+                        }}>{wallet}</span>
+                        <span>{devise}</span>
+                    </Label>
+                </div>
 
-                <Label variant='filled' sx={{color: theme.palette.error.main, background: theme.palette.error.lighter}}>
-                    <span style={{fontSize: 11}}>{t('credit')}</span>
-                    <span style={{
-                        fontSize: 14,
-                        marginLeft: 5,
-                        marginRight: 5,
-                        fontWeight: "bold"
-                    }}>{rest}</span>
-                    <span>{devise}</span>
-                </Label>
+                <div onClick={() => setOpenPaymentDialog(true)}>
+                    <Label variant='filled'
+                           sx={{color: theme.palette.error.main, background: theme.palette.error.lighter}}>
+                        <span style={{fontSize: 11}}>{t('credit')}</span>
+                        <span style={{
+                            fontSize: 14,
+                            marginLeft: 5,
+                            marginRight: 5,
+                            fontWeight: "bold"
+                        }}>{rest}</span>
+                        <span>{devise}</span>
+                    </Label>
+                </div>
             </Stack>}
 
             <PanelStyled sx={{bgcolor: {xs: "transparent", sm: theme.palette.common.white}}}>
@@ -416,28 +446,30 @@ function TransactionPanel({...props}) {
                                                                                 <Stack
                                                                                     direction="row"
                                                                                     justifyContent="space-between"
-                                                                                    alignItems="center"
-                                                                                >
+                                                                                    alignItems="center">
                                                                                     <Stack
                                                                                         spacing={1}
                                                                                         width={1}
                                                                                         alignItems="center"
-                                                                                        direction="row"
-                                                                                    >
+                                                                                        direction="row">
                                                                                         <Typography
+                                                                                            onClick={() => {
+                                                                                                const slugConsultation = `/dashboard/consultation/${transaction?.appointment.uuid}`;
+                                                                                                if (router.asPath !== slugConsultation) {
+                                                                                                    router.replace(slugConsultation, slugConsultation, {locale: router.locale});
+                                                                                                }
+                                                                                            }}
+                                                                                            sx={{
+                                                                                                cursor: "pointer"
+                                                                                            }}
                                                                                             fontWeight={700}
-                                                                                            minWidth={95}
-                                                                                        >
-                                                                                            {
-                                                                                                transaction?.appointment?.type
-                                                                                                    ?.name
-                                                                                            }
+                                                                                            minWidth={95}>
+                                                                                            {transaction?.appointment?.type?.name}
                                                                                         </Typography>
                                                                                         <Stack
                                                                                             direction="row"
                                                                                             alignItems="center"
-                                                                                            spacing={0.5}
-                                                                                        >
+                                                                                            spacing={0.5}>
                                                                                             <IconUrl
                                                                                                 path="ic-agenda"
                                                                                                 width={12}
@@ -447,11 +479,11 @@ function TransactionPanel({...props}) {
                                                                                                 }
                                                                                             />
                                                                                             <Typography variant="body2">
-                                                                                                {transaction?.payment_date}
+                                                                                                {transaction?.appointment?.dayDate}
                                                                                             </Typography>
                                                                                             <IconUrl path="ic-time"/>
                                                                                             <Typography variant="body2">
-                                                                                                {transaction?.payment_time}
+                                                                                                {transaction?.appointment?.startTime}
                                                                                             </Typography>
                                                                                         </Stack>
                                                                                     </Stack>
@@ -486,6 +518,19 @@ function TransactionPanel({...props}) {
                                                                                             </strong>
                                                                                             {devise}
                                                                                         </Label>
+                                                                                        <IconButton
+                                                                                            className="btn-del"
+                                                                                            onClick={(event) => {
+                                                                                                event.stopPropagation();
+                                                                                                setSelectedData(transaction)
+                                                                                                setSelected(row);
+                                                                                                setOpenDeleteTransactionData(true);
+                                                                                            }}>
+                                                                                            <IconUrl
+                                                                                                path="ic-delete"
+                                                                                                color={theme.palette.secondary.main}
+                                                                                            />
+                                                                                        </IconButton>
                                                                                     </Stack>
                                                                                 </Stack>
                                                                             </CardContent>
@@ -611,6 +656,36 @@ function TransactionPanel({...props}) {
                             onClick={deleteTransaction}
                             startIcon={<IconUrl path="setting/icdelete" color="white"/>}
                         >
+                            {t("delete")}
+                        </LoadingButton>
+                    </Stack>
+                }
+            />
+
+            <Dialog
+                action="delete-transaction"
+                title={t("dialogs.delete-dialog.title")}
+                open={openDeleteTransactionData}
+                size="sm"
+                data={{t}}
+                color={theme.palette.error.main}
+                actionDialog={
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            onClick={() => {
+                                setLoadingDeleteTransactionData(false);
+                                setOpenDeleteTransactionData(false);
+                            }}
+                            startIcon={<CloseIcon/>}
+                        >
+                            {t("cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loadingDeleteTransactionData}
+                            color="error"
+                            onClick={deleteTransactionData}
+                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}>
                             {t("delete")}
                         </LoadingButton>
                     </Stack>

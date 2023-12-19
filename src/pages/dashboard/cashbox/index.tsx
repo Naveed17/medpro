@@ -43,7 +43,6 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {ActionMenu} from "@features/menu";
 import {LoadingButton} from "@mui/lab";
 import {TabPanel} from "@features/tabPanel";
-import moment from "moment-timezone";
 import {agendaSelector} from "@features/calendar";
 import {saveAs} from "file-saver";
 import {SetSelectedTab} from "@features/leftActionBar/components/cashbox";
@@ -311,19 +310,21 @@ function Cashbox() {
     }
 
     const getConsultation = (start: string, end: string) => {
-        const query = `?mode=rest&start_date=${moment(start, "DD-MM-YYYY").format("DD-MM-YYYY")}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week`
-        agenda && triggerAppointmentDetails({
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}${query}`
-        }, {
-            onSuccess: (result) => {
-                const res = result.data.data
-                setApps(res)
-                setUnpaid(res.reduce((total: number, val: {
-                    appointmentRestAmount: number
-                }) => total + val.appointmentRestAmount, 0))
-            }
-        });
+        if (start && end && agenda) {
+            const query = `?mode=rest&start_date=${start}&end_date=${end}&format=week`
+            triggerAppointmentDetails({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}${query}`
+            }, {
+                onSuccess: (result) => {
+                    const res = result.data.data
+                    setApps(res)
+                    setUnpaid(res.reduce((total: number, val: {
+                        appointmentRestAmount: number
+                    }) => total + val.appointmentRestAmount, 0))
+                }
+            });
+        }
     }
 
     const handleTableActions = (data: any) => {
