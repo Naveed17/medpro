@@ -108,5 +108,9 @@ const DocumentDetailDialogStyled = styled(Stack)(({theme}) => ({
     "@media (max-width: 1230px)": {
         maxWidth: "100%"
     },
+    "& .sidebar .MuiList-root .MuiListItem-root .MuiListItemButton-root .MuiListItemIcon-root svg": {
+        width: 24,
+        height: 24
+    }
 }));
 export default DocumentDetailDialogStyled;

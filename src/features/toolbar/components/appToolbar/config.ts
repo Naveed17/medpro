@@ -1,30 +1,30 @@
 export const documentButtonList = [
     {
-        icon: "ic-ordonance",
+        icon: "docs/ic-prescription",
         label: "draw_up_an_order",
     },
     {
-        icon: "ic-color-edit-file",
+        icon: "docs/ic-note",
         label: "write_certif",
     },
     {
-        icon: "ic-soura",
+        icon: "docs/ic-soura",
         label: "medical_imagery",
     },
     {
-        icon: "ic-analyse",
+        icon: "docs/ic-analyse",
         label: "balance_sheet_request",
     },
     {
-        icon: "ic-export",
+        icon: "ic-quote",
         label: "insurance_document_print",
     },
     {
-        icon: "ic-dowlaodfile",
+        icon: "fileadd",
         label: "upload_document",
     },
     {
-        icon: "ic-micro",
+        icon: "docs/ic-audio",
         label: "record",
     },
     {

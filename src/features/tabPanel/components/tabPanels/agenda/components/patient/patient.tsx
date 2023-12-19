@@ -1,7 +1,6 @@
 import Typography from "@mui/material/Typography";
 import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
-import dynamic from "next/dynamic";
 import {Box} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
@@ -10,12 +9,10 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {AutoCompleteButton} from "@features/buttons";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {appointmentSelector, setAppointmentPatient} from "@features/tabPanel";
+import {appointmentSelector, OnStepPatient, setAppointmentPatient} from "@features/tabPanel";
 import {dashLayoutSelector, setOngoing} from "@features/base";
 import {useMedicalEntitySuffix, prepareInsurancesData, increaseNumberInString} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-
-const OnStepPatient = dynamic(() => import('@features/tabPanel/components/tabPanels/agenda/components/patient/components/onStepPatient/onStepPatient'));
 import {LoadingScreen} from "@features/loadingScreen";
 
 function Patient({...props}) {
@@ -129,12 +126,14 @@ function Patient({...props}) {
 
     return (
         <div>
-            {!addPatient ? <>
+            {!addPatient ?
+                <>
                     <Box className="inner-section">
                         <Typography sx={{fontSize: "1rem", fontWeight: "bold"}} color="text.primary">
                             {t("stepper-2.title")}
                         </Typography>
-                        <Typography variant="body1" sx={{textTransform: 'uppercase'}} color="text.primary" mt={3} mb={1}>
+                        <Typography variant="body1" sx={{textTransform: 'uppercase'}} color="text.primary" mt={3}
+                                    mb={1}>
                             {t("stepper-2.sub-title")}
                         </Typography>
                         <AutoCompleteButton

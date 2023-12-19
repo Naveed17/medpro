@@ -8,6 +8,9 @@ const CalendarPickerStyled = styled(Box)(({theme}) => ({
     "& .MuiTypography-caption": {
         color: theme.palette.primary.main,
     },
+    "& .MuiPickersCalendarHeader-label": {
+        textTransform: "capitalize"
+    },
     "& .MuiPickerStaticWrapper-root": {
         backgroundColor: "transparent",
         minWidth: "auto",

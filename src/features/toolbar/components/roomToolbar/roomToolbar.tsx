@@ -5,6 +5,7 @@ import Icon from '@themes/urlIcon'
 import React, {SyntheticEvent, useCallback, useState} from 'react';
 import {MobileContainer} from '@themes/mobileContainer';
 import {a11yProps} from "@lib/hooks";
+import { MinMaxWindowButton } from '@features/buttons';
 
 function RoomToolbar({...props}) {
     const {t, tabIndex, setTabIndex, columns, data, handleCollapse} = props;
@@ -98,6 +99,8 @@ function RoomToolbar({...props}) {
                 title="Filter">
                 <WaitingRoom/>
             </DrawerBottom>
+            
+            <MinMaxWindowButton sx={{alignSelf:'flex-start'}} />
         </Stack>
     )
 }
