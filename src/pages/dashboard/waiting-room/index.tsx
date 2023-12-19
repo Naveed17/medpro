@@ -134,16 +134,15 @@ function WaitingRoom() {
         data: httpWaitingRoomsResponse,
         mutate: mutateWaitingRoom
     } = useRequestQuery(agenda ? {
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
-        } : null, {
-            ...(agenda && {
-                variables: {
-                    query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
-                }
-            })
-        }
-    );
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
+    } : null, {
+        ...(agenda && {
+            variables: {
+                query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
+            }
+        })
+    });
 
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
@@ -447,6 +446,12 @@ function WaitingRoom() {
             dispatch(toggleSideBar(false));
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (!openPaymentDialog) {
+            mutateWaitingRoom()
+        }
+    }, [openPaymentDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
         dispatch(resetFilterPatient());
