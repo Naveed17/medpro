@@ -385,7 +385,7 @@ function WaitingRoom() {
             id: '1',
             name: 'today-rdv',
             url: '#',
-            icon: <CalendarIcon sx={{width: 24, height: 24}}/>,
+            icon: <CalendarIcon />,
             action: <CustomIconButton
                 sx={{mr: 1}}
                 onClick={() => {
