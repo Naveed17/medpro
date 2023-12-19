@@ -168,7 +168,7 @@ function BoardItem({...props}) {
                                         className={"ellipsis"}
                                         width={100}
                                         variant='body2' fontWeight={600}>
-                                        {quote.content.patient.lastName} {quote.content.patient.firstName}
+                                        {quote.content.patient.firstName} {quote.content.patient.lastName}
                                     </Typography>
                                 </Stack>
 
