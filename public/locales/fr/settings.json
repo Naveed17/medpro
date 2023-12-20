@@ -373,7 +373,7 @@
     "select": "Séléctionner ...",
     "yes": "Oui",
     "no": "Non",
-    "all": "Définir l'accès aux differents agendas",
+    "features-access": "Définir l'accès aux différentes fonctionnalités",
     "nameReq": "Nom est obligatoire",
     "codeReq": "code est obligatoire",
     "townReq": "ville est obligatoire",

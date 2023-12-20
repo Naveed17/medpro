@@ -68,7 +68,7 @@ function Payment() {
             <CalendarPickers
                 renderDay
                 {...{notes, disabled: false}}
-                shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
+                shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}/>
 
             <Accordion
                 translate={{

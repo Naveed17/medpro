@@ -110,6 +110,7 @@ function UserRow({...props}) {
                             {t("table.update")}
                         </Button>}
                         {!row.isProfessional && <Button
+                            className={"delete-icon"}
                             variant="text"
                             size="small"
                             color="error"

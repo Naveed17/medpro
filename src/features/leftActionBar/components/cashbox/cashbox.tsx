@@ -109,7 +109,7 @@ function Cashbox() {
             <CalendarPickers
                 renderDay
                 {...{notes, disabled: !filterDate || byPeriod}}
-                shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
+                shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}/>
 
             <Accordion
                 translate={{

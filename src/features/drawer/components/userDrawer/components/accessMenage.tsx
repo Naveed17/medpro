@@ -130,6 +130,7 @@ function AccessMenage({...props}) {
                                 {
                                     !item ? <Skeleton width={25} height={40}/> :
                                         (<IconButton
+                                                className={"delete-icon"}
                                                 onClick={() => onDelete(item)}
                                                 size="small"
                                                 disableRipple>

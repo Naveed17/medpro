@@ -13,5 +13,11 @@ const AccessMenageStyled = styled(Stack)(({ theme }) => ({
       },
     },
   },
+  "& .delete-icon .react-svg": {
+    " & svg": {
+      height: 20,
+      width: 20
+    },
+  }
 }));
 export default AccessMenageStyled;
