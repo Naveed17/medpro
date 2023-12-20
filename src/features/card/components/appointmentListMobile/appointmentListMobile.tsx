@@ -9,7 +9,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { CustomIconButton } from "@features/buttons";
 import React, {useState} from "react";
 import {Popover} from "@features/popover";
-import {AppointmentStatus, CalendarContextMenu} from "@features/calendar";
+import { CalendarContextMenu} from "@features/calendar";
 import moment from "moment-timezone";
 import { useAppSelector } from "@lib/redux/hooks";
 import { timerSelector } from "@features/card";
@@ -20,12 +20,13 @@ function AppointmentListMobile({...props}) {
     const {event, OnSelectEvent, OnMenuActions,index,handleEvent} = props;
     const [openTooltip, setOpenTooltip] = useState(false);
     const theme = useTheme();
-    const handleEventClick = () => {
+    const handleEventClick = (action:string) => {
         OnSelectEvent(Object.assign({...event}, {
             extendedProps: {
                 ...event
             }
         }));
+        handleEvent(action,event)
     }
 
     const handleMenuClick = (data: { title: string; icon: string; action: string }) => {
@@ -69,6 +70,10 @@ function AppointmentListMobile({...props}) {
         else
             return "primary"
     }
+    console.log(new Date(event.time).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                }))
 
     return (
         // <RootStyled
@@ -128,16 +133,18 @@ function AppointmentListMobile({...props}) {
       sx={{
         width: "100%",
         mb:1,
-        ...([1, 2, 3].includes(event.status.key) && {
+        ...(["CONFIRMED", "REFUSED", "WAITING_ROOM"].includes(event.status.key) ? {
           borderLeft: 6,
-          borderRight: event.consultationReasons.length > 0 ? 10 : 1,
+          borderRight: event.motif.length > 0 ? 10 : 1,
           borderRightColor:
-            event.consultationReasons.length > 0
-              ? event.consultationReasons[0].color
+            event.motif.length > 0
+              ? event.motif[0].color
               : "divider",
           borderLeftColor: event.type.color ?? theme.palette.primary.main,
+        }:{
+          pl:0.6
         }),
-        bgcolor: [0].includes(event.status)
+        bgcolor: ["PENDING"].includes(event.status.key)
           ? alpha(theme.palette.warning.lighter, 0.7)
           : theme.palette.common.white,
       }}
@@ -156,23 +163,23 @@ function AppointmentListMobile({...props}) {
           justifyContent="space-between"
         >
           <Stack direction="row" alignItems="center" spacing={0.8}>
-            {event.status !== 3 && (
+            {event.status.key !== "WAITING_ROOM" && (
               <Box
                 display="flex"
                 sx={{
                   svg: {
-                    width: 22,
-                    height: 22,
+                    width: 32,
+                    height: 32,
                   },
                 }}
               >
-                {AppointmentStatus[event.status]?.icon}
+                {event.status?.icon}
               </Box>
             )}
             <Stack spacing={0.4}>
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Stack direction={"row"} alignItems={"center"}>
-                  {event.status === 3 && (
+                  {event.status.key === "WAITING_ROOM" && (
                     <Button
                       disableRipple
                       sx={{
@@ -183,96 +190,60 @@ function AppointmentListMobile({...props}) {
                         minWidth: "2rem",
                         minHeight: ".4rem",
                       }}
-                      {...(event.startTime === "00:00" && { color: "warning" })}
+                      {...(new Date(event.time).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                }) === "12:00 AM" && { color: "warning" })}
                       variant={"contained"}
                       size={"small"}
                     >
                       {" "}
-                      {event.startTime === "00:00" ? "SR" : "AR"}-{index + 1}
+                      {new Date(event.time).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                }) === "12:00 AM" ? "SR" : "AR"}-{index + 1}
                     </Button>
                   )}
                   <Typography
-                    {...(event.status === 3 && { pl: 1 })}
-                    className={"ellipsis"}
-                    width={100}
+                    {...(event.status.key === "WAITING_ROOM" && { pl: .5 })}
                     variant="body2"
                     fontWeight={600}
                   >
                     {event.patient.lastName} {event.patient.firstName}
                   </Typography>
                 </Stack>
-                {/*<Button disableRipple
-                                        component={motion.button}
-                                        data-counter={counter > 0}
-
-                                        {...(counter > 0 && {
-                                            startIcon: <Box onClick={() => setCounter(counter - 1)}>
-                                                <IconUrl path="ic-moin" width={10} height={10}
-                                                         color={theme.palette.primary.main}/>
-                                            </Box>
-                                        })}
-
-                                        size='small' variant='outlined' color='info'
-                                        endIcon={
-                                            <Box component={motion.div} onClick={() => setCounter(counter + 1)}>
-                                                <IconUrl path="ic-plus" width={10} height={10}
-                                                         color={theme.palette.primary.main}/>
-                                            </Box>
-                                        }
-                                        sx={{
-                                            justifyContent: "space-between",
-                                            minWidth: 22,
-                                            height: 22,
-                                            minHeight: 1,
-                                            px: .5,
-
-                                            ".MuiButton-endIcon": {
-                                                m: 0,
-                                            },
-                                            ".MuiButton-startIcon": {
-                                                m: 0
-                                            },
-                                            ...(counter === 0 && {
-                                                justifyContent: 'center'
-                                            })
-                                        }}
-                                >
-                                    {
-                                        counter > 0 &&
-                                        <Typography width={14} component='span' variant='body2' overflow={'hidden'}>
-                                            {
-                                                counter
-                                            }
-                                        </Typography>
-                                    }
-
-                                </Button>*/}
               </Stack>
-              {event.startTime !== "00:00" && (
+              {new Date(event.time).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                }) !== "12:00 AM" && (
                 <Stack
                   direction={"row"}
                   spacing={0.5}
                   alignItems={"center"}
                   width={110}
                 >
-                  <IconUrl path={"ic-time"} width={16} height={16} />
+                  <IconUrl path={"ic-time"} width={14} height={14} />
                   <Typography
                     variant="body2"
                     color={
-                      duration >= -1 && ![4, 5].includes(event.status)
+                      duration >= -1 && !["ON_GOING", "FINISHED"].includes(event.status.key)
                         ? "expire.main"
                         : "text.primary"
                     }
                     overflow="hidden"
                   >
-                    {event.status === 4 && time
+                    {event.status.key === "ON_GOING" && time
                       ? moment()
                           .utc()
                           .hour(0)
                           .minute(0)
                           .second(time)
                           .format("HH : mm : ss")
-                      : event.startTime}
+                      : new Date(event.time).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })}
                   </Typography>
                 </Stack>
               )}
@@ -280,16 +251,12 @@ function AppointmentListMobile({...props}) {
           </Stack>
           {!event.patient?.isArchived && (
             <Stack direction={"row"} spacing={0.5}>
-              {event.status === 1 && (
+              {event.status.key === "CONFIRMED" && (
                 <>
                   {!roles.includes("ROLE_SECRETARY") && (
                     <IconButton
                       onClick={(event: React.MouseEvent<HTMLButtonElement>) =>
-                        handleEvent({
-                          action: "START_CONSULTATION",
-                          row: event,
-                          event,
-                        })
+                        handleEventClick("START_CONSULTATION")
                       }
                       size={"small"}
                       sx={{
@@ -302,11 +269,10 @@ function AppointmentListMobile({...props}) {
                   )}
                   <IconButton
                     onClick={(event: React.MouseEvent<HTMLButtonElement>) =>
-                      handleEvent({
-                        action: "ENTER_WAITING_ROOM",
-                        row: event,
-                        event,
-                      })
+                      handleEventClick(
+                        "ENTER_WAITING_ROOM"
+                        
+                      )
                     }
                     size={"small"}
                     disableFocusRipple
@@ -324,15 +290,15 @@ function AppointmentListMobile({...props}) {
                   </IconButton>
                 </>
               )}
-              {event.status === 3 && (
+              {event.status.key === "WAITING_ROOM" && (
                 <>
                   <IconButton
                     onClick={(event) =>
-                      handleEvent({
-                        action: "NEXT_CONSULTATION",
-                        row: { ...event, is_next: !!is_next },
-                        event,
-                      })
+                      handleEventClick(
+                        "NEXT_CONSULTATION"
+                        
+                       
+                      )
                     }
                     size={"small"}
                     disabled={is_next !== null && is_next?.uuid !== event.uuid}
@@ -356,11 +322,9 @@ function AppointmentListMobile({...props}) {
                   {!roles.includes("ROLE_SECRETARY") && (
                     <CustomIconButton
                       onClick={(event: React.MouseEvent<HTMLButtonElement>) =>
-                        handleEvent({
-                          action: "START_CONSULTATION",
-                          row: event,
-                          event,
-                        })
+                        handleEventClick("START_CONSULTATION",
+                          
+                        )
                       }
                       variant="filled"
                       color={"warning"}
@@ -371,15 +335,13 @@ function AppointmentListMobile({...props}) {
                   )}
                 </>
               )}
-              {event.status === 5 && (
+              {event.status.key === "FINISHED" && (
                 <>
                   <IconButton
                     onClick={(event: React.MouseEvent<HTMLButtonElement>) =>
-                      handleEvent({
-                        action: "ON_PAY",
-                        row: event,
-                        event,
-                      })
+                      handleEventClick(
+                         "ON_PAY"
+                      )
                     }
                     size={"small"}
                     disableFocusRipple
