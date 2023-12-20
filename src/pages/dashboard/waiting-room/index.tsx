@@ -72,6 +72,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -137,6 +138,7 @@ function WaitingRoom() {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
     } : null, {
+        refetchOnWindowFocus: false,
         ...(agenda && {
             variables: {
                 query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`

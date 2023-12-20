@@ -290,9 +290,10 @@ function OnStepPatient({...props}) {
             }
         },
     });
-    const {values, handleSubmit, touched, errors, setFieldValue, getFieldProps} = formik;
+    const {values, handleSubmit, touched, errors, setFieldValue, getFieldProps, setValues} = formik;
     console.log("errors", errors);
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
+    console.log("expanded", expanded);
     const [selectedCountry] = React.useState<any>(doctor_country);
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
     const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
@@ -303,12 +304,12 @@ function OnStepPatient({...props}) {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<boolean>(false);
 
-    const {data: httpStatesResponse} = useRequestQuery(values.country ? {
+    const {data: httpStatesResponse} = useRequestQuery(expanded && values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpProfessionalLocationResponse} = useRequestQuery((locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+    const {data: httpProfessionalLocationResponse} = useRequestQuery((expanded && locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -318,7 +319,8 @@ function OnStepPatient({...props}) {
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
-    };
+        handleDefaultAddress();
+    }
 
     const handleAddPhone = () => {
         const phones = [...values.phones, {
@@ -377,18 +379,20 @@ function OnStepPatient({...props}) {
         }
     }, [errors, touched]);
 
-
-    useEffect(() => {
-        if (countries) {
+    const handleDefaultAddress = () => {
+        if (countries && !expanded) {
             const defaultCountry = countries.find(country =>
                 country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
             const uniqueCountries = arrayUniqueByKey("nationality", countries);
             setCountriesData(uniqueCountries.sort((country: CountryModel) =>
                 dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
-            !selectedPatient?.nationality && setFieldValue("nationality", defaultCountry);
-            !(address.length > 0 && address[0]?.city) && setFieldValue("country", defaultCountry);
+            setValues({
+                ...values,
+                "nationality": !selectedPatient?.nationality ? defaultCountry : "",
+                "country": !(address.length > 0 && address[0]?.city) ? defaultCountry : ""
+            } as any);
         }
-    }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
+    }
 
     useEffect(() => {
         if (professionalState) {
