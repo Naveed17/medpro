@@ -116,7 +116,8 @@ function CIPMedicalProceduresRow({...props}) {
                             value={row.fees}
                             placeholder={"--"}
                             autoFocus={selected === row.uuid}
-                            onFocus={() => {
+                            onFocus={(event) => {
+                                event.target.select();
                                 setSelected(row.uuid);
                             }}
                             onBlur={() => {

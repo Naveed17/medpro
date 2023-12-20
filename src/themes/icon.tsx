@@ -49,7 +49,7 @@ export default function Icon({path, className, ...props}: IconProps) {
         case 'ic-video-contour':
             selectedIcon = <NotificationIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
             break;
-        case 'ic-notif-lite':
+        case 'ic-notification-lite':
             selectedIcon = <NotificationIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
             break;
         case 'ic-plusinfo-quetsion':
@@ -61,7 +61,7 @@ export default function Icon({path, className, ...props}: IconProps) {
         case 'ic-toggle':
             selectedIcon = <ToggleIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
             break;
-        case 'ic-scan':
+        case 'ic-fullscreen':
             selectedIcon = <FullViewIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
             break;
         case 'ic-deconnexion-1x':

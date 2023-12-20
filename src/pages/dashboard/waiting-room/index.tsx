@@ -134,16 +134,15 @@ function WaitingRoom() {
         data: httpWaitingRoomsResponse,
         mutate: mutateWaitingRoom
     } = useRequestQuery(agenda ? {
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
-        } : null, {
-            ...(agenda && {
-                variables: {
-                    query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
-                }
-            })
-        }
-    );
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
+    } : null, {
+        ...(agenda && {
+            variables: {
+                query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
+            }
+        })
+    });
 
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
@@ -386,7 +385,7 @@ function WaitingRoom() {
             id: '1',
             name: 'today-rdv',
             url: '#',
-            icon: <CalendarIcon sx={{width: 24, height: 24}}/>,
+            icon: <CalendarIcon/>,
             action: <CustomIconButton
                 sx={{mr: 1}}
                 onClick={() => {
@@ -437,7 +436,9 @@ function WaitingRoom() {
 
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
-            const groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((item: any) => moment(`${item.dayDate} ${item.startTime}`, "DD-MM-YYYY HH:mm")).group((diag: any) => diag.status);
+            const groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) =>
+                moment(`${(a.startTime === "00:00" ? b : a).dayDate} ${(a.startTime === "00:00" ? b : a).startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${(b.startTime === "00:00" ? a : b).dayDate} ${(b.startTime === "00:00" ? a : b).startTime}`, "DD-MM-YYYY HH:mm").valueOf()
+            ).group((diag: any) => diag.status);
             setWaitingRoomsGroup(groupedData);
         }
     }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -447,6 +448,14 @@ function WaitingRoom() {
             dispatch(toggleSideBar(false));
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (!openPaymentDialog) {
+            setTimeout(() => {
+                mutateWaitingRoom();
+            }, 300);
+        }
+    }, [openPaymentDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
         dispatch(resetFilterPatient());
@@ -462,7 +471,16 @@ function WaitingRoom() {
                         display: "block"
                     }
                 }}>
-                <RoomToolbar {...{t, tabIndex, setTabIndex, columns}}/>
+                <RoomToolbar {...{
+                    t,
+                    tabIndex,
+                    setTabIndex,
+                    setPatientDetailDrawer,
+                    nextConsultation,
+                    columns,
+                    is_next,
+                    isActive
+                }}/>
             </SubHeader>
             <Box>
                 <LinearProgress sx={{
