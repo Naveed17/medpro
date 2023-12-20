@@ -13,8 +13,9 @@ export default function Table(theme) {
 
           "& .MuiTableBody-root .MuiTableRow-root": {
             "& .MuiTableCell-root": {
+              borderRadius: 0,
               borderTop: "1px solid transparent",
-              borderBottom: "1px solid transparent",
+              borderBottom: `1px solid ${theme.palette.divider}`,
               "&:first-of-type": {
                 borderLeft: "1px solid transparent",
               },
@@ -29,14 +30,7 @@ export default function Table(theme) {
             "&:hover": {
               "& .MuiTableCell-root": {
                 backgroundColor: theme.palette.primary.lighter,
-                borderTop: `1px solid ${theme.palette.divider}`,
                 borderBottom: `1px solid ${theme.palette.divider}`,
-                "&:first-of-type": {
-                  borderLeft: `1px solid ${theme.palette.divider}`,
-                },
-                "&:last-of-type": {
-                  borderRight: `1px solid ${theme.palette.divider}`,
-                },
                 "&.text-row": {
                   backgroundColor: "transparent",
                   borderColor: "transparent",
