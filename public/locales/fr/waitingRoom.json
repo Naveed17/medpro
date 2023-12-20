@@ -79,7 +79,7 @@
       "appointment time": "RDV à",
       "reason": "Motif",
       "status": "Statut",
-      "patient": "Patient",
+      "patient": "Nom de patient",
       "agenda": "Agenda",
       "action": "Action",
       "See details": "Voir les détails",
@@ -98,7 +98,9 @@
           "button-text": "Ajouter un RDV"
         }
       }
-    }
+    },
+    "vistor": "Visiteur",
+    "companions": "acompagnants"
   },
   "room": "salle",
   "end_consultation": "Fin de consultation",

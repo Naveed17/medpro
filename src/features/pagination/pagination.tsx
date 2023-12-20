@@ -18,7 +18,7 @@ export default function Pagination({...props}) {
     }, [currentPage]);
 
     return (
-        <Box display="flex" justifyContent="space-between" alignItems="center" {...rest}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" {...rest} mt={2}>
             <Typography variant="body1" color="text.primary">
                 {page * pageTotal - (pageTotal - 1)} - {total < page * pageTotal ? total : page * pageTotal} {t('of')} {total}
             </Typography>
