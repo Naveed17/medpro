@@ -314,7 +314,11 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             }
         }
     }, [dispatch, httpBoxesResponse]);
-
+ useEffect(() => {
+    setTimeout(() => {
+        setNewFeaturesDialogOpen(true)
+    },3000)
+ },[])
     return (
         <SideBarMenu>
             {/*<AppLock/>*/}
@@ -433,7 +437,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                 title={t(`dialogs.duplication-dialog.title`)}
             />
             <MuiDialog 
-             open={newFeaturesDialogOpen || true}
+             open={newFeaturesDialogOpen}
              maxWidth={"lg"}
              PaperProps={{
                 sx:{
