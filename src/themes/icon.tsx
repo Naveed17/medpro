@@ -61,7 +61,7 @@ export default function Icon({path, className, ...props}: IconProps) {
         case 'ic-toggle':
             selectedIcon = <ToggleIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
             break;
-        case 'ic-scan':
+        case 'ic-fullscreen':
             selectedIcon = <FullViewIcon  {...props} className={`react-svg ${className ? className : ''}`}/>;
             break;
         case 'ic-deconnexion-1x':

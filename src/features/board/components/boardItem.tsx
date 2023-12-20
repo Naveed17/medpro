@@ -168,78 +168,37 @@ function BoardItem({...props}) {
                                         className={"ellipsis"}
                                         width={100}
                                         variant='body2' fontWeight={600}>
-                                        {quote.content.patient.lastName} {quote.content.patient.firstName}
+                                        {quote.content.patient.firstName} {quote.content.patient.lastName}
                                     </Typography>
                                 </Stack>
 
 
-                                {/*<Button disableRipple
-                                            component={motion.button}
-                                            data-counter={counter > 0}
-
-                                            {...(counter > 0 && {
-                                                startIcon: <Box onClick={() => setCounter(counter - 1)}>
-                                                    <IconUrl path="ic-moin" width={10} height={10}
-                                                             color={theme.palette.primary.main}/>
-                                                </Box>
-                                            })}
-
-                                            size='small' variant='outlined' color='info'
-                                            endIcon={
-                                                <Box component={motion.div} onClick={() => setCounter(counter + 1)}>
-                                                    <IconUrl path="ic-plus" width={10} height={10}
-                                                             color={theme.palette.primary.main}/>
-                                                </Box>
-                                            }
-                                            sx={{
-                                                justifyContent: "space-between",
-                                                minWidth: 22,
-                                                height: 22,
-                                                minHeight: 1,
-                                                position: "absolute",
-                                                left: {lg: 'calc(100% - 45px)', xl: '100%'},
-                                                top: 0,
-                                                px: .5,
-
-                                                ".MuiButton-endIcon": {
-                                                    m: 0,
-                                                },
-                                                ".MuiButton-startIcon": {
-                                                    m: 0
-                                                },
-                                                ...(counter === 0 && {
-                                                    justifyContent: 'center'
-                                                })
-                                            }}>
-                                        {counter > 0 &&
-                                            <Typography width={14} component='span' variant='body2' overflow={'hidden'}>
-                                                {
-                                                    counter
-                                                }
+                                <Stack direction={"row"}
+                                       spacing={.5}
+                                       alignItems={"center"}
+                                       minWidth={100}
+                                       {...(quote.content.status === 3 && {pl: .5})}>
+                                    {quote.content.startTime !== "00:00" &&
+                                        <>
+                                            <IconUrl path={'ic-time'} width={16}
+                                                     height={16} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
+                                            <Typography
+                                                variant="body2"
+                                                fontWeight={700}
+                                                color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
+                                                {quote.content.status === 4 && time ?
+                                                    moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
+                                                    quote.content.status !== 3 ?
+                                                        quote.content.startTime :
+                                                        `${quote.content.startTime} - ${getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}`}
                                             </Typography>
-                                        }
-                                    </Button>*/}
-
-                                {quote.content.startTime !== "00:00" &&
-                                    <Stack direction={"row"} spacing={.5} alignItems={"center"}
-                                           minWidth={100} {...(quote.content.status === 3 && {pl: .5})}>
-                                        <IconUrl path={'ic-time'} width={16}
-                                                 height={16} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
-                                        <Typography
-                                            variant="body2"
-                                            fontWeight={700}
-                                            color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
-                                            {quote.content.status === 4 && time ?
-                                                moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
-                                                quote.content.status !== 3 ?
-                                                    quote.content.startTime :
-                                                    `${quote.content.startTime} - ${getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}`}
-                                        </Typography>
-                                        {quote.content.status === 5 &&
-                                            <Label variant={"ghost"}
-                                                   color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
-                                        }
-                                    </Stack>}
+                                        </>
+                                    }
+                                    {quote.content.status === 5 &&
+                                        <Label variant={"ghost"}
+                                               color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
+                                    }
+                                </Stack>
                             </Stack>
                         </Stack>
                         {!quote.content.patient?.isArchived &&
@@ -371,4 +330,5 @@ function BoardItem({...props}) {
     );
 }
 
-export default React.memo<any>(BoardItem);
+export default React.memo
+< any > (BoardItem);
