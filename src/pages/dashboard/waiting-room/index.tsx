@@ -385,7 +385,7 @@ function WaitingRoom() {
             id: '1',
             name: 'today-rdv',
             url: '#',
-            icon: <CalendarIcon />,
+            icon: <CalendarIcon/>,
             action: <CustomIconButton
                 sx={{mr: 1}}
                 onClick={() => {
@@ -436,7 +436,9 @@ function WaitingRoom() {
 
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
-            const groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) => moment(`${a.dayDate} ${a.startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${b.dayDate} ${b.startTime}`, "DD-MM-YYYY HH:mm").valueOf()).group((diag: any) => diag.status);
+            const groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) =>
+                moment(`${(a.startTime === "00:00" ? b : a).dayDate} ${(a.startTime === "00:00" ? b : a).startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${(b.startTime === "00:00" ? a : b).dayDate} ${(b.startTime === "00:00" ? a : b).startTime}`, "DD-MM-YYYY HH:mm").valueOf()
+            ).group((diag: any) => diag.status);
             setWaitingRoomsGroup(groupedData);
         }
     }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -469,7 +471,16 @@ function WaitingRoom() {
                         display: "block"
                     }
                 }}>
-                <RoomToolbar {...{t, tabIndex, setTabIndex, columns}}/>
+                <RoomToolbar {...{
+                    t,
+                    tabIndex,
+                    setTabIndex,
+                    setPatientDetailDrawer,
+                    nextConsultation,
+                    columns,
+                    is_next,
+                    isActive
+                }}/>
             </SubHeader>
             <Box>
                 <LinearProgress sx={{

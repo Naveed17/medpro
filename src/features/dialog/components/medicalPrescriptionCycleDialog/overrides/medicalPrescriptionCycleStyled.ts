@@ -1,8 +1,4 @@
-import {Button, Stack, styled, ButtonProps} from "@mui/material";
-
-interface Props extends ButtonProps {
-    component: string
-}
+import {Button, Stack, styled} from "@mui/material";
 
 const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
     "& .MuiContainer-root": {
@@ -229,7 +225,7 @@ const MedicalPrescriptionCycleStyled = styled(Stack)(({theme}) => ({
     }
 }));
 export default MedicalPrescriptionCycleStyled;
-export const ButtonWhite = styled(Button)<Props>(({theme}) => ({
+export const ButtonWhite = styled(Button)<any>(({theme}) => ({
     border: `1px solid ${theme.palette.grey[300]}`,
     cursor: "default",
     padding: theme.spacing(0.5, 1),
