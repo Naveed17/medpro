@@ -49,7 +49,7 @@ const CalendarPickerStyled = styled(Box)(({theme}) => ({
         boxShadow: theme.customShadows.calendarPicker,
         backgroundColor: theme.palette.grey["A800"],
         overflow: "hidden",
-        minHeight: 64,
+        minHeight: 62,
         marginBottom: 0,
         marginTop: 0,
         "& .MuiIconButton-edgeEnd": {
