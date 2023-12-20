@@ -45,7 +45,7 @@ const LoadingScreen = dynamic(
 function PaymentDialog({...props}) {
     const {data} = props;
     const {patient, setOpenPaymentDialog, mutatePatient = null} = data;
-
+    console.log("patient", patient);
     const theme = useTheme<Theme>();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
