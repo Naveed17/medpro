@@ -291,9 +291,9 @@ function OnStepPatient({...props}) {
         },
     });
     const {values, handleSubmit, touched, errors, setFieldValue, getFieldProps, setValues} = formik;
-    console.log("errors", errors);
+
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
-    console.log("expanded", expanded);
+
     const [selectedCountry] = React.useState<any>(doctor_country);
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
     const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
@@ -370,15 +370,6 @@ function OnStepPatient({...props}) {
         formik.setFieldValue("insurance", insurance);
     }
 
-    useEffect(() => {
-        if (errors.hasOwnProperty("firstName") ||
-            errors.hasOwnProperty("lastName") ||
-            errors.hasOwnProperty("phones") ||
-            errors.hasOwnProperty("gender")) {
-            (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
-        }
-    }, [errors, touched]);
-
     const handleDefaultAddress = () => {
         if (countries && !expanded) {
             const defaultCountry = countries.find(country =>
@@ -393,6 +384,15 @@ function OnStepPatient({...props}) {
             } as any);
         }
     }
+
+    useEffect(() => {
+        if (errors.hasOwnProperty("firstName") ||
+            errors.hasOwnProperty("lastName") ||
+            errors.hasOwnProperty("phones") ||
+            errors.hasOwnProperty("gender")) {
+            (topRef.current as unknown as HTMLElement)?.scrollIntoView({behavior: 'smooth'});
+        }
+    }, [errors, touched]);
 
     useEffect(() => {
         if (professionalState) {
