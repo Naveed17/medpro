@@ -26,7 +26,6 @@ import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
 import {useProfilePhoto} from "@lib/hooks/rest";
-import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {SmallAvatar} from "@features/avatar";
 import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
@@ -404,11 +403,9 @@ function PatientRow({...props}) {
             <TableCell
                 align="right"
                 sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    minHeight: "58.85px",
+                    marginLeft: "auto"
                 }}>
-                <Box display="flex" alignItems="center" margin={"auto"}>
+                <Box alignItems="flex-end">
                     {loading ? (
                         <>
                             <Skeleton
