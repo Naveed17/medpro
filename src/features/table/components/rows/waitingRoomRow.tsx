@@ -61,17 +61,6 @@ function WaitingRoomRow({...props}) {
         );
     }
 
-    const getDuration = (time: string) => {
-        const duration: any = moment.duration(
-            moment.utc().diff(moment.utc(time, "HH:mm"))
-        );
-        const hours =
-            duration._data.hours !== 0 ? `${duration._data.hours}H, ` : "";
-        const minutes =
-            duration._data.minutes !== 0 ? `${duration._data.minutes}min` : "";
-        return `${hours} ${minutes}`;
-    }
-
     return (
         <>
             <TableRow>
