@@ -113,7 +113,7 @@ function UnpaidConsultRow({...props}) {
                     <Tooltip title={t('more')}>
                         <IconButton
                             style={{
-                                backgroundColor: theme.palette.primary.main,
+                                backgroundColor: row.appointmentRestAmount === 0 ? theme.palette.grey["200"]:theme.palette.primary.main,
                                 borderRadius: 5,
                                 width: 30,
                                 height: 30
@@ -122,6 +122,7 @@ function UnpaidConsultRow({...props}) {
                                 event.stopPropagation();
                                 handleEvent({action: "PAYMENT", row, event});
                             }}
+                            disabled={row.appointmentRestAmount === 0}
                             size="small">
                             <IconUrl path={"ic-argent"} color={"white"}/>
                         </IconButton>
