@@ -463,7 +463,8 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                     sx: {
                         width: '100%',
                         background: 'radial-gradient(459.65% 113.63% at 85.2% 70.92%, #34BBFF 0%, #0696D6 76.56%)',
-                        boxShadow: "0px 8px 8px -4px rgba(16, 24, 40, 0.04), 0px 20px 24px -4px rgba(16, 24, 40, 0.10)"
+                        boxShadow: "0px 8px 8px -4px rgba(16, 24, 40, 0.04), 0px 20px 24px -4px rgba(16, 24, 40, 0.10)",
+                     m: {xs:1,sm:3},
                     }
                 }}
                 onClose={handleNewFeaturesClose}>
