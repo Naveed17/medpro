@@ -569,10 +569,14 @@ const Toolbar = () => (
                                         sx={{pt:0,px:0, pb:1,mr:2,borderBottom:1,borderColor:"divider",".MuiCardHeader-action":{m:0}}}
                                         avatar={columns[0].icon}
                                         {...(columns[0].action && {action: columns[0].action})}
-                                        title={<Typography
+                                        title={
+                                        <Typography
                                             color={"text.primary"} fontWeight={700}
                                             fontSize={14}>
-                                            {t(`tabs.${columns[0].name}`)} {`(${waitingRoomsGroup[1].length})`}
+                                            {t(`tabs.${columns[0].name}`)} 
+                                             <Label variant="filled" color="info" sx={{ml:1,height:'auto',p:.6,minWidth:20}}>
+                                             {waitingRoomsGroup[1].length}
+                                            </Label>
                                         </Typography>}
                                     />
                                 }
