@@ -72,6 +72,7 @@
   "status": "Status",
   "paid": "Payé",
   "unpaid": "Non Payé",
+  "partially": "Partiellement payé",
   "transactions": "Transactions",
   "date_time": "Date et heure",
   "payment_method": "Méthode de paiement",
