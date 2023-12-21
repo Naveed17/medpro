@@ -115,7 +115,7 @@ function WaitingRoom() {
             <Typography
                 variant="h6"
                 color="text.primary"
-                sx={{py: 1.48, pl: "10px", mb: "0.21em"}}
+                sx={{py: 1.38, pl: "10px", mb: "0.20em"}}
                 gutterBottom>
                 {t(`title`)}
             </Typography>
