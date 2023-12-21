@@ -129,7 +129,7 @@ function WaitingRoomRow({...props}) {
                                     ml: 0.6,
                                     fontSize: 12
                                 }}>
-                                {row.startTime !== "00:00" ? moment(row.startTime, "HH:mm")
+                                {row?.arrivalTime ? moment.utc(row.arrivalTime, "HH:mm")
                                     .add(1, "hours")
                                     .format("HH:mm") : "--"}
                             </Typography>
@@ -154,7 +154,9 @@ function WaitingRoomRow({...props}) {
                                     },
                                 }}>
                                 <Icon path="ic-time"/>
-                                {row.appointment_time}
+                                {row.startTime !== "00:00" ? moment.utc(row.startTime, "HH:mm")
+                                    .add(1, "hours")
+                                    .format("HH:mm") : "--"}
                             </Typography>
                         </Box>
                     ) : (
