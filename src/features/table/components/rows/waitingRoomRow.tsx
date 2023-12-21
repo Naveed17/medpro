@@ -25,6 +25,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconUrl from "@themes/urlIcon";
+import {getDiffDuration} from "@lib/hooks";
 
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
@@ -58,17 +59,6 @@ function WaitingRoomRow({...props}) {
                 </Button>
             </DialogActions>
         );
-    }
-
-    const getDuration = (time: string) => {
-        const duration: any = moment.duration(
-            moment.utc().diff(moment.utc(time, "HH:mm"))
-        );
-        const hours =
-            duration._data.hours !== 0 ? `${duration._data.hours}H, ` : "";
-        const minutes =
-            duration._data.minutes !== 0 ? `${duration._data.minutes}min` : "";
-        return `${hours} ${minutes}`;
     }
 
     return (
@@ -175,7 +165,7 @@ function WaitingRoomRow({...props}) {
                                 }}>
                                 <Icon path="ic-time"/>
                                 <Typography color="success" fontSize={12} sx={{ml: 0.6}}>
-                                    {row.arrive_time ? getDuration(row.arrive_time) : " -- "}
+                                    {row.arrivalTime ? getDiffDuration(`${row.dayDate} ${row.arrivalTime}`, 1) : " -- "}
                                 </Typography>
                             </Box>
                         </Box>
