@@ -12,7 +12,7 @@ export default function Pagination({ ...props }) {
   const currentPage = parseInt(
     new URL(location.href).searchParams.get("page") || "1"
   );
-  console.log(router.query);
+
   const [page, setPage] = React.useState<number>(currentPage);
   const [rowsPerPage, setRowsPerPage] = React.useState<any>(
     router.query.rowsPerPage || "10"
