@@ -31,7 +31,7 @@ const Config = [
     },*/
     {
         name: 'Settings',
-        icon: 'ic-doctor-h-setting',
+        icon: 'ic-setting',
         path: '/dashboard/settings/profil',
         action: 'profile'
     },

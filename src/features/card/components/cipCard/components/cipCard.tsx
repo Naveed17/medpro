@@ -11,6 +11,7 @@ import {setDialog} from "@features/topNavBar";
 import {setSelectedEvent} from "@features/calendar";
 import {batch} from "react-redux";
 import {MobileContainer} from "@lib/constants";
+import {minMaxWindowSelector} from "@features/buttons";
 
 function CipCard({...props}) {
     const {openPatientDialog} = props;
@@ -22,6 +23,7 @@ function CipCard({...props}) {
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
 
     const {event} = useAppSelector(timerSelector);
+    const {isWindowMax} = useAppSelector(minMaxWindowSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
@@ -41,7 +43,7 @@ function CipCard({...props}) {
         <CipCardStyled
             disableRipple
             variant={"contained"}
-            onClick={!roles.includes('ROLE_SECRETARY') ? handleConsultation : openPatientDetail}>
+            onClick={!roles.includes('ROLE_SECRETARY') && !isWindowMax ? handleConsultation : openPatientDetail}>
             <Stack spacing={{xs: 1, md: 2}} direction='row' alignItems="center" px={{xs: 0.7, md: 0}}>
                 <Typography
                     className={"timer-text"}
@@ -52,7 +54,7 @@ function CipCard({...props}) {
                     {capitalizeFirst(`${event?.extendedProps.patient.lastName} ${event?.extendedProps.patient.firstName}`)}
                 </Typography>
 
-                {(!isMobile && !roles.includes('ROLE_SECRETARY')) && <Avatar
+                {(!isMobile && !roles.includes('ROLE_SECRETARY') && !isWindowMax) && <Avatar
                     alt="Small avatar"
                     variant={"square"}
                     src={'/static/icons/ic-stop.svg'}
@@ -76,7 +78,7 @@ function CipCard({...props}) {
 
                 <Avatar
                     alt="button avatar"
-                    {...((!isMobile && !roles.includes('ROLE_SECRETARY')) && {
+                    {...((!isMobile && !roles.includes('ROLE_SECRETARY') && !isWindowMax) && {
                         onClick: (event: any) => {
                             event.stopPropagation();
                             batch(() => {
@@ -93,7 +95,7 @@ function CipCard({...props}) {
                         color: theme.palette.warning.contrastText,
                         bgcolor: theme.palette.warning.main
                     }}>
-                    {!roles.includes('ROLE_SECRETARY') && <Avatar
+                    {(!roles.includes('ROLE_SECRETARY') && !isWindowMax) && <Avatar
                         src={`/static/icons/${isMobile ? 'ic-play-fill-dark' : 'ic-pause-mate'}.svg`}
                         sx={{
                             width: 20,
