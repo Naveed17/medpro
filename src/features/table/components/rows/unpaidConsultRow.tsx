@@ -1,5 +1,5 @@
 import TableCell from "@mui/material/TableCell";
-import {Avatar, IconButton, Link, Stack, Tooltip, Typography, useTheme,} from "@mui/material";
+import {Avatar, Button, IconButton, Link, Stack, Tooltip, Typography, useTheme,} from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
@@ -12,7 +12,7 @@ import moment from "moment-timezone";
 import {ConditionalWrapper} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
-import { Label } from "@features/label";
+import {Label} from "@features/label";
 
 function UnpaidConsultRow({...props}) {
 
@@ -41,12 +41,13 @@ function UnpaidConsultRow({...props}) {
                     alignItems="center"
                     spacing={.5}>
                     <Icon path="ic-agenda-jour" height={14} width={14} color={theme.palette.text.primary}/>
-                    <Typography variant="body2" fontSize={13} fontWeight={600}>{moment(row.dayDate,'DD-MM-YYYY').format('DD-MM-YYYY')}</Typography>
+                    <Typography variant="body2" fontSize={13}
+                                fontWeight={600}>{moment(row.dayDate, 'DD-MM-YYYY').format('DD-MM-YYYY')}</Typography>
                     <Icon path="ic-time" height={14} width={14} color={theme.palette.text.primary}/>
                     <Typography
-                    fontSize={13}
-                    fontWeight={600}
-                    variant="body2">{row.startTime}</Typography>
+                        fontSize={13}
+                        fontWeight={600}
+                        variant="body2">{row.startTime}</Typography>
                 </Stack>
             </TableCell>
             {/***** patient name *****/}
@@ -55,7 +56,7 @@ function UnpaidConsultRow({...props}) {
                     <ConditionalWrapper
                         condition={!row.patient?.isArchived}
                         wrapper={(children: any) => <Link
-                            sx={{cursor: "pointer",fontSize:14,fontWeight:600}}
+                            sx={{cursor: "pointer", fontSize: 14, fontWeight: 600}}
                             onClick={(event) => {
                                 event.stopPropagation();
                                 handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
@@ -73,7 +74,7 @@ function UnpaidConsultRow({...props}) {
                             <Tooltip
                                 key={insurance.uuid + "ins"}
                                 title={insurance.name}>
-                                <Avatar variant={"circular"}>
+                                <Avatar variant={"circular"} sx={{width: 30, height: 30}}>
                                     <ImageHandler
                                         alt={insurance?.name}
                                         src={insurances.find(ins => ins.uuid === insurance?.uuid)?.logoUrl.url}
@@ -86,8 +87,9 @@ function UnpaidConsultRow({...props}) {
             </TableCell>
             {/* status */}
             <TableCell>
-                <Label color={row.appointmentRestAmount == 0 ? "success":  _fees - row.appointmentRestAmount === 0 ?"error":"warning"}>
-                    {t(row.appointmentRestAmount == 0 ? "paid":  _fees - row.appointmentRestAmount === 0 ?"unpaid":"partially")}
+                <Label
+                    color={row.appointmentRestAmount == 0 ? "success" : _fees - row.appointmentRestAmount === 0 ? "error" : "warning"}>
+                    {t(row.appointmentRestAmount == 0 ? "paid" : _fees - row.appointmentRestAmount === 0 ? "unpaid" : "partially")}
                 </Label>
             </TableCell>
             {/***** Total *****/}
@@ -99,21 +101,23 @@ function UnpaidConsultRow({...props}) {
             {/***** Amount *****/}
             <TableCell align={"center"}>
                 <Typography color={"secondary"} fontWeight={700} textAlign={"center"}>
-                        { _fees - row.appointmentRestAmount} {" "}
-                        <span>{devise}</span>
-                    </Typography>
+                    {_fees - row.appointmentRestAmount} {" "}
+                    <span>{devise}</span>
+                </Typography>
 
             </TableCell>
             {/***** Rest *****/}
             <TableCell align={"center"}>
                 <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"end"}>
                     <Typography color='secondary' textAlign={"right"} fontWeight={700}>
-                    {row.appointmentRestAmount} {devise}
-                   </Typography>
-                    <Tooltip title={t('more')}>
+                        {row.appointmentRestAmount} {devise}
+                    </Typography>
+                    <ConditionalWrapper
+                        condition={row.appointmentRestAmount !== 0}
+                        wrapper={(children: any) => <Tooltip title={t('pay')}>{children}</Tooltip>}>
                         <IconButton
                             style={{
-                                backgroundColor: row.appointmentRestAmount === 0 ? theme.palette.grey["200"]:theme.palette.primary.main,
+                                backgroundColor: row.appointmentRestAmount === 0 ? theme.palette.grey["200"] : theme.palette.primary.main,
                                 borderRadius: 5,
                                 width: 30,
                                 height: 30
@@ -126,7 +130,7 @@ function UnpaidConsultRow({...props}) {
                             size="small">
                             <IconUrl path={"ic-argent"} color={"white"}/>
                         </IconButton>
-                    </Tooltip>
+                    </ConditionalWrapper>
                 </Stack>
             </TableCell>
 
