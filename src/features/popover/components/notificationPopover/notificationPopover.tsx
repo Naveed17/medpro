@@ -4,7 +4,6 @@ import {useTranslation} from "next-i18next";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import {Box, Button, Typography, useMediaQuery, useTheme} from "@mui/material";
-import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent, setStepperIndex} from "@features/calendar";
@@ -26,11 +25,12 @@ import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {useSnackbar} from "notistack";
 import {getDiffDuration, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRequestQueryMutation} from "@lib/axios";
+import IconUrl from "@themes/urlIcon";
 
 const humanizeDuration = require("humanize-duration");
 
 const popoverNotificationData = {
-    mainIcon: <NotificationsOffIcon/>,
+    mainIcon: <IconUrl path={"ic-notification-off"} width={60} height={60} color={"black"}/>,
     title: "notification.empty",
     description: "notification.desc"
 };
@@ -91,7 +91,7 @@ function NotificationPopover({...props}) {
     const [notifications] = useState<any[]>([
         ...pendingAppointments
         , ...(localNotifications ? localNotifications.map(data => ({
-            ...data,
+            ...(data?.appointment ?? data),
             avatar: `${data.appointment?.patient.firstName.charAt(0).toUpperCase()}${data.appointment?.patient.lastName.charAt(0).toUpperCase()}`,
             title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
             icon: <EventIcon/>,
@@ -180,7 +180,7 @@ function NotificationPopover({...props}) {
 
     const handleNotificationAction = (action: string, event: any) => {
         const eventUpdated = {
-            publicId: event?.uuid,
+            publicId: event?.uuid ?? event?.appUuid,
             title: `${event?.patient?.firstName} ${event?.patient?.lastName}`,
             extendedProps: {
                 patient: event?.patient,
@@ -209,13 +209,13 @@ function NotificationPopover({...props}) {
                 break;
             case "onPay":
                 dispatch(setSelectedEvent(eventUpdated));
-                setOpenPaymentDialog(true);
+                setTimeout(() => setOpenPaymentDialog(true));
                 break;
             case "onReschedule":
                 const localStorageNotifications = localStorage.getItem("notifications");
                 if (localStorageNotifications) {
                     const notifications = JSON.parse(localStorageNotifications).map((notification: any) => {
-                        if (notification.appointment.appUuid === event.appointment.appUuid) return {
+                        if (notification.appointment.appUuid === event.appUuid) return {
                             ...notification,
                             appointment: {...notification.appointment, edited: true}
                         }
@@ -227,7 +227,7 @@ function NotificationPopover({...props}) {
                 onClose();
                 router.push("/dashboard/agenda").then(() => {
                     dispatch(setStepperIndex(1));
-                    dispatch(setAppointmentPatient(event?.appointment.patient));
+                    dispatch(setAppointmentPatient(event?.patient));
                     appointmentTypes && dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
                     dispatch(openDrawer({type: "add", open: true}));
                 });

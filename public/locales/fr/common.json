@@ -384,6 +384,10 @@
       "patient-no-show": "le rendez-vous a été modifié avec succès",
       "confirm-appointment": "le rendez-vous a été confirmé avec succès",
       "consultation-finish": "Consultation terminée pour le patient"
+    },
+    "new_features": {
+      "title": "Quoi de neuf ?",
+      "close": "Fermer"
     }
   },
   "alerts": {

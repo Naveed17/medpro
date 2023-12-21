@@ -17,7 +17,7 @@ function BasicList({...props}) {
     const {data: session} = useSession();
     const theme = useTheme();
 
-    const [dataItems] = useState(data.reverse());
+    const [dataItems] = useState([...data].reverse());
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;

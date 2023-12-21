@@ -2,7 +2,8 @@
 import {
     Avatar,
     Box,
-    Button, Grid,
+    Button,
+    Grid,
     IconButton,
     InputBase,
     Skeleton,
@@ -33,7 +34,7 @@ import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {dashLayoutSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 
 import {Label} from "@features/label";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
@@ -41,6 +42,7 @@ import moment from "moment-timezone";
 import {timerSelector} from "@features/card";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {Dialog} from "@features/dialog";
 
 function PatientDetailsCard({...props}) {
     const {
@@ -51,6 +53,7 @@ function PatientDetailsCard({...props}) {
         mutateAgenda,
         loading = false,
         setEditableSection,
+        walletMutate,
         rest,
         devise,
         roles
@@ -77,6 +80,7 @@ function PatientDetailsCard({...props}) {
     });
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {direction} = useAppSelector(configSelector);
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {t: commonTranslation} = useTranslation("common");
@@ -89,6 +93,7 @@ function PatientDetailsCard({...props}) {
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
     const [editable, setEditable] = useState(false);
     const [requestLoading, setRequestLoading] = useState(false);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
 
     const {trigger: triggerPatientUpdate} = useRequestQueryMutation("/patient/update/photo");
     const {trigger: triggerAddAppointment} = useRequestQueryMutation("/agenda/appointment/add");
@@ -286,14 +291,25 @@ function PatientDetailsCard({...props}) {
                                                 {...getFieldProps("name")}
                                             />
                                             {isBeta && rest > 0 &&
-                                                <Label variant='filled' sx={{color:theme.palette.error.main,background:theme.palette.error.lighter}}>
-                                                    {!isMobile &&<span style={{fontSize: 11}}>{commonTranslation('credit')}</span>}
-                                                    <span style={{fontSize: 14,
-                                                        marginLeft: 5,
-                                                        marginRight: 5,
-                                                        fontWeight: "bold"}}>{rest}</span>
-                                                    <span>{devise}</span>
-                                                </Label>}
+                                                <div onClick={() => {
+                                                    setOpenPaymentDialog(true)
+                                                }}>
+                                                    <Label variant='filled' sx={{
+                                                        color: theme.palette.error.main,
+                                                        background: theme.palette.error.lighter
+                                                    }}>
+                                                        {!isMobile && <span
+                                                            style={{fontSize: 11}}>{commonTranslation('credit')}</span>}
+                                                        <span style={{
+                                                            fontSize: 14,
+                                                            marginLeft: 5,
+                                                            marginRight: 5,
+                                                            fontWeight: "bold"
+                                                        }}>{rest}</span>
+                                                        <span>{devise}</span>
+                                                    </Label>
+                                                </div>
+                                            }
                                         </Stack>
                                     )}
 
@@ -587,6 +603,32 @@ function PatientDetailsCard({...props}) {
                 setOpen={(status: boolean) => {
                     setOpenUploadPicture(status);
                     uploadPatientPhoto();
+                }}
+            />
+
+            <Dialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 460
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    patient,
+                    setOpenPaymentDialog,
+                    mutatePatient: () => {
+                        mutatePatientList && mutatePatientList();
+                        mutateAgenda && mutateAgenda()
+                        walletMutate && walletMutate()
+                    }
+                }}
+                size={"lg"}
+                fullWidth
+                title={t("payment_dialog_title", {ns: "payment"})}
+                dialogClose={() => {
+                    setOpenPaymentDialog(false)
                 }}
             />
         </FormikProvider>

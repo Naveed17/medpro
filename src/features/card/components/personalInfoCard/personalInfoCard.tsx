@@ -476,6 +476,7 @@ function PersonalInfo({...props}) {
                                             <InputBase
                                                 placeholder={t("email-placeholder")}
                                                 readOnly={!editable}
+                                                type={"email"}
                                                 error={Boolean(touched.email && errors.email)}
                                                 {...getFieldProps("email")}
                                             />

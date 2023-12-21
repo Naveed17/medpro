@@ -44,9 +44,13 @@ const LoadingScreen = dynamic(
 
 function PaymentDialog({...props}) {
     const {data} = props;
+    const {patient, setOpenPaymentDialog, mutatePatient = null} = data;
+
     const theme = useTheme<Theme>();
     const {data: session} = useSession();
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const router = useRouter();
+    const apps = useRef<any[]>([])
 
     const [payments, setPayments] = useState<any>([]);
     const [appointments, setAppointments] = useState<any[]>([]);
@@ -58,30 +62,22 @@ function PaymentDialog({...props}) {
     const [loading, setLoading] = useState(true);
     const [allApps, setAllApps] = useState<any[]>([]);
 
-    const {data: user} = session as Session;
     const {t, ready} = useTranslation("payment");
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
 
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const router = useRouter();
+    const {data: user} = session as Session;
     const open = Boolean(anchorEl);
-    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
-
-    const {patient, setOpenPaymentDialog, mutatePatient = null} = data;
-    const apps = useRef<any[]>([])
-
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
-
 
     const {data: httpPatientTransactions, mutate} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/transactions/${router.locale}`
     });
+
+    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
     const generateTransactionData = (_amount: number) => {
         let transaction_data: any[] = [];
@@ -127,8 +123,9 @@ function PaymentDialog({...props}) {
                     }) => total + item.amount, 0)
                     setUsedPayments(_usedPayments)
                     setTimeout(() => {
-                        if (apps.current.length === 0)
+                        if (apps.current.length === 0) {
                             setOpenPaymentDialog(false);
+                        }
                     }, 2000)
                 });
             },
@@ -166,7 +163,7 @@ function PaymentDialog({...props}) {
             onSuccess: () => {
                 mutate().then(() => {
                     mutatePatient && mutatePatient();
-                    setOpenPaymentDialog(false)
+                    setOpenPaymentDialog(false);
                     setLoading(false)
                 });
             },
@@ -571,19 +568,22 @@ function PaymentDialog({...props}) {
                 padding: "15px 0"
             }} justifyContent={"flex-end"} spacing={1}>
                 <Button onClick={() => setOpenPaymentDialog(false)}>{t('close')}</Button>
-                {!(getTotalPayments() == 0) ? <Button
-                    startIcon={<IconUrl path={'ic-argent'} color={'white'}/>}
-                    endIcon={<AddIcon/>}
-                    disabled={loading}
-                    variant={"contained"}
-                    color={getTotalApps() === 0 ? 'success' : 'primary'}
-                    onClick={() => addTransactions()}>
-                    {getTotalApps() === 0 ? t('dialog.addavance') : t('dialog.pay')} {getTotalPayments()} {devise}
-                </Button> : <Button startIcon={<IconUrl path={'ic-argent'}/>}
-                                    onClick={() => setOpenPaymentDialog(false)}
-                                    color={"info"}
-                                    variant="outlined"
-                                    disabled={loading}>{t('dialog.later')}</Button>}
+                {!(getTotalPayments() == 0) ?
+                    <Button
+                        startIcon={<IconUrl path={'ic-argent'} color={'white'}/>}
+                        endIcon={<AddIcon/>}
+                        disabled={loading}
+                        variant={"contained"}
+                        color={getTotalApps() === 0 ? 'success' : 'primary'}
+                        onClick={() => addTransactions()}>
+                        {getTotalApps() === 0 ? t('dialog.addavance') : t('dialog.pay')} {getTotalPayments()} {devise}
+                    </Button>
+                    :
+                    <Button startIcon={<IconUrl path={'ic-argent'}/>}
+                            onClick={() => setOpenPaymentDialog(false)}
+                            color={"info"}
+                            variant="outlined"
+                            disabled={loading}>{t('dialog.later')}</Button>}
             </Stack>
         </PaymentDialogStyled>
     );
