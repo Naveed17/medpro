@@ -1652,7 +1652,7 @@ function ConsultationInProgress() {
                                             setOpenDialog(true);
 
                                         }}
-                                        startIcon={<IconUrl path="ic-imprime"/>}>
+                                        startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
                                         {t("consultationIP.print")}
                                     </Button>}
 

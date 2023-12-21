@@ -27,7 +27,7 @@ export default function Table(theme) {
               padding: 0,
             },
             "&:hover": {
-              "& .MuiTableCell-root": {
+              "& > .MuiTableCell-root": {
                 backgroundColor: theme.palette.primary.lighter,
                 borderTop: `1px solid ${theme.palette.divider}`,
                 borderBottom: `1px solid ${theme.palette.divider}`,

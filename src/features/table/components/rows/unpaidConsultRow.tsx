@@ -12,6 +12,7 @@ import moment from "moment-timezone";
 import {ConditionalWrapper} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
+import { Label } from "@features/label";
 
 function UnpaidConsultRow({...props}) {
 
@@ -31,9 +32,7 @@ function UnpaidConsultRow({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
-
     const _fees = row.fees ? row.fees : row.appointmentRestAmount
-
     return (
         <TableRowStyled rest={row.appointmentRestAmount} fees={_fees} tabIndex={-1} className={`row-cashbox`}>
             <TableCell>
@@ -41,11 +40,13 @@ function UnpaidConsultRow({...props}) {
                     direction="row"
                     alignItems="center"
                     spacing={.5}>
-                    <Icon path="ic-agenda" height={11} width={11} color={theme.palette.text.primary}/>
-                    <Typography variant="body2">{moment(row.dayDate,'DD-MM-YYYY').format('DD-MM-YYYY')}</Typography>
-                    <Icon path="ic-time" height={11} width={11} color={theme.palette.text.primary}/>
+                    <Icon path="ic-agenda-jour" height={14} width={14} color={theme.palette.text.primary}/>
+                    <Typography variant="body2" fontSize={13} fontWeight={600}>{moment(row.dayDate,'DD-MM-YYYY').format('DD-MM-YYYY')}</Typography>
+                    <Icon path="ic-time" height={14} width={14} color={theme.palette.text.primary}/>
                     <Typography
-                        variant="body2">{row.startTime}</Typography>
+                    fontSize={13}
+                    fontWeight={600}
+                    variant="body2">{row.startTime}</Typography>
                 </Stack>
             </TableCell>
             {/***** patient name *****/}
@@ -54,7 +55,7 @@ function UnpaidConsultRow({...props}) {
                     <ConditionalWrapper
                         condition={!row.patient?.isArchived}
                         wrapper={(children: any) => <Link
-                            sx={{cursor: "pointer"}}
+                            sx={{cursor: "pointer",fontSize:14,fontWeight:600}}
                             onClick={(event) => {
                                 event.stopPropagation();
                                 handleEvent({action: "PATIENT_DETAILS", row: row.patient, event});
@@ -68,7 +69,7 @@ function UnpaidConsultRow({...props}) {
             <TableCell>
                 <Stack direction={"row"} justifyContent={"center"}>
                     {
-                        row.patient.insurances ? row.patient.insurances.map((insurance: any) => (
+                        !!row.patient.insurances.length ? row.patient.insurances.map((insurance: any) => (
                             <Tooltip
                                 key={insurance.uuid + "ins"}
                                 title={insurance.name}>
@@ -79,9 +80,15 @@ function UnpaidConsultRow({...props}) {
                                     />
                                 </Avatar>
                             </Tooltip>
-                        )) : <Typography>-</Typography>
+                        )) : <Typography fontWeight={600}>-</Typography>
                     }
                 </Stack>
+            </TableCell>
+            {/* status */}
+            <TableCell>
+                <Label color={row.appointmentRestAmount == 0 ? "success":  _fees - row.appointmentRestAmount === 0 ?"error":"warning"}>
+                    {t(row.appointmentRestAmount == 0 ? "paid":  _fees - row.appointmentRestAmount === 0 ?"unpaid":"partially")}
+                </Label>
             </TableCell>
             {/***** Total *****/}
             <TableCell align={"center"}>
@@ -89,31 +96,33 @@ function UnpaidConsultRow({...props}) {
                     {_fees} {devise}
                 </Typography>
             </TableCell>
-            {/***** Rest *****/}
-            <TableCell align={"center"}>
-                <Typography color='secondary' fontWeight={700}>
-                    {row.appointmentRestAmount} {devise}
-                </Typography>
-            </TableCell>
             {/***** Amount *****/}
             <TableCell align={"center"}>
-                <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"center"}>
-                    <Typography color={"secondary"} fontWeight={700} textAlign={"center"}>
+                <Typography color={"secondary"} fontWeight={700} textAlign={"center"}>
                         { _fees - row.appointmentRestAmount} {" "}
                         <span>{devise}</span>
                     </Typography>
+
+            </TableCell>
+            {/***** Rest *****/}
+            <TableCell align={"center"}>
+                <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"end"}>
+                    <Typography color='secondary' textAlign={"right"} fontWeight={700}>
+                    {row.appointmentRestAmount} {devise}
+                   </Typography>
                     <Tooltip title={t('more')}>
                         <IconButton
                             style={{
-                                backgroundColor: theme.palette.primary.main,
-                                borderRadius: 8,
-                                width: 40,
-                                height: 40
+                                backgroundColor: row.appointmentRestAmount === 0 ? theme.palette.grey["200"]:theme.palette.primary.main,
+                                borderRadius: 5,
+                                width: 30,
+                                height: 30
                             }}
                             onClick={event => {
                                 event.stopPropagation();
                                 handleEvent({action: "PAYMENT", row, event});
                             }}
+                            disabled={row.appointmentRestAmount === 0}
                             size="small">
                             <IconUrl path={"ic-argent"} color={"white"}/>
                         </IconButton>
