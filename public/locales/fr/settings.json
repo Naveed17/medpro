@@ -722,7 +722,11 @@
       "months": "Mois",
       "days": "Jours",
       "blankDoc": "document blanc",
-      "modelProprities": "Propriétés du modèle"
+      "modelProprities": "Propriétés du modèle",
+      "elDoc": "Elément du document",
+      "upload_document": "Importer",
+      "bg": "Background",
+      "section": "Sections du document"
     }
   }
 }

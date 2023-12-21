@@ -7,6 +7,7 @@ import {useFormik} from "formik";
 import {
     Box,
     Button,
+    ButtonGroup,
     Checkbox,
     Collapse,
     DialogActions,
@@ -14,7 +15,6 @@ import {
     Grid,
     IconButton,
     MenuItem,
-    Select,
     Stack,
     TextField,
     Typography,
@@ -24,7 +24,6 @@ import {
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
-import Paper from '@mui/material/Paper';
 
 import {useReactToPrint} from "react-to-print";
 import {SubHeader} from "@features/subHeader";
@@ -43,8 +42,11 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import {LoadingScreen} from "@features/loadingScreen";
-import Draggable from "react-draggable";
-import Page from "@features/files/components/page";
+import {Page} from "@features/page";
+import CropLandscapeIcon from '@mui/icons-material/CropLandscape';
+import CropPortraitIcon from '@mui/icons-material/CropPortrait';
+import IconUrl from "@themes/urlIcon";
+import interact from "interactjs";
 
 function DocsConfig() {
     const router = useRouter();
@@ -65,7 +67,8 @@ function DocsConfig() {
     const [title, setTitle] = useState("");
     const [isDefault, setIsDefault] = useState(false);
     const [hasData, setHasData] = useState(false);
-    const [propsModel, setPropsModel] = useState(true);
+    const [propsModel, setPropsModel] = useState(false);
+    const [elDoc, setElDoc] = useState(true);
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
@@ -329,14 +332,15 @@ function DocsConfig() {
                 <Grid item xs={12} md={3}>
                     <Box padding={2} style={{background: "white", height: "81vh", overflowX: "auto"}}>
                         <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
-                               style={{borderBottom: "1px solid #DDD"}}>
-                            <Typography fontSize={16} fontWeight={"bold"}>{t('modelProprities')}</Typography>
-                            <IconButton onClick={() => setPropsModel(!propsModel)}>
+                               onClick={() => setPropsModel(!propsModel)}>
+                            <Typography fontSize={16} style={{cursor: "default"}}
+                                        fontWeight={"bold"}>{t('modelProprities')}</Typography>
+                            <IconButton>
                                 {propsModel ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
                             </IconButton>
                         </Stack>
-                        <Collapse in={propsModel} style={{paddingTop: 10}}>
-                            <Typography fontSize={14} color={'#999'} mb={1}>{t('titleModel')}</Typography>
+                        <Collapse in={propsModel}>
+                            <Typography fontSize={14} color={'#999'} mt={1} mb={1}>{t('titleModel')}</Typography>
                             <TextField
                                 variant="outlined"
                                 placeholder={t('titleholder')}
@@ -391,49 +395,123 @@ function DocsConfig() {
                                 />
                             </MuiAutocompleteSelectAll.Provider>
 
-
                             <Typography fontSize={14} color={'#999'} mb={1}>{t('docSize')}</Typography>
-                            <FormControl fullWidth>
-                                <Select
-                                    labelId="demo-simple-select-label"
-                                    id="demo-simple-select"
-                                    value={data.size}
-                                    size={"small"}
-                                    onChange={(ev) => {
-                                        data.size = ev.target.value;
-                                        console.log(ev.target.value)
+
+                            <Stack direction={"row"} spacing={1} justifyContent={"center"}>
+                                <ButtonGroup color={"info"} variant="outlined" aria-label="outlined button group">
+                                    <Button onClick={() => {
+                                        data.size = "portraitA4";
+                                        data.content.width = "90%"
                                         setData({...data})
                                     }}>
-                                    <MenuItem value={"portraitA4"}>A4</MenuItem>
-                                    <MenuItem value={"portraitA5"}>A5</MenuItem>
-                                </Select>
-                            </FormControl>
+                                        <Typography
+                                            color={data.size === "portraitA4" ? "primary" : "inherit"}>A4</Typography>
+                                    </Button>
+                                    <Button onClick={() => {
+                                        data.size = "portraitA5";
+                                        data.content.width = "90%"
+                                        setData({...data})
+                                    }}>
+                                        <Typography
+                                            color={data.size === "portraitA5" ? "primary" : "inherit"}>A5</Typography>
+                                    </Button>
+                                </ButtonGroup>
+                                <ButtonGroup color={"info"} variant="outlined" aria-label="outlined button group">
+                                    <Button onClick={() => {
+                                        data.layout = "";
+                                        data.content.width = "90%"
+                                        setData({...data})
+                                    }}>
+                                        <CropPortraitIcon
+                                            color={data.layout === undefined || data.layout === "" ? "primary" : "inherit"}/>
+                                    </Button>
+                                    <Button onClick={() => {
+                                        data.layout = "landscape";
+                                        data.content.width = "90%"
+                                        setData({...data})
+                                    }}>
+                                        <CropLandscapeIcon color={data.layout === "landscape" ? "primary" : "inherit"}/>
+                                    </Button>
+                                </ButtonGroup>
+                            </Stack>
 
                             <Stack direction="row" alignItems='center' sx={{
                                 border: `1px solid ${theme.palette.grey["200"]}`,
                                 borderRadius: 1,
                                 marginTop: 2,
+                                marginBottom: 2,
                                 padding: "2px 10px 2px 0",
                                 bgcolor: theme => theme.palette.grey['A500'],
                             }}>
                                 <Checkbox checked={isDefault} onChange={ev => setIsDefault(ev.target.checked)}/>
-
                                 <Typography>{t("asDefault")}</Typography>
                             </Stack>
                         </Collapse>
+
+                        <div style={{borderBottom: "1px solid #DDD", marginTop: 5, marginBottom: 5}}></div>
+
+                        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
+                               onClick={() => setElDoc(!elDoc)}>
+                            <Typography fontSize={16} style={{cursor: "default"}}
+                                        fontWeight={"bold"}>{t('elDoc')}</Typography>
+                            <IconButton>
+                                {elDoc ? <KeyboardArrowUpRoundedIcon/> : <KeyboardArrowDownRoundedIcon/>}
+                            </IconButton>
+                        </Stack>
+
+                        <Collapse in={elDoc} style={{paddingTop: 10}}>
+                            <Typography mb={2}>{t('bg')}</Typography>
+                            <Button onClick={() => {
+                            }}
+                                    variant="outlined"
+                                    color="info"
+                                    startIcon={<IconUrl path="ic-gallery" width={20} height={20}/>}>
+                                {t("upload_document")}
+                            </Button>
+                            <Typography mt={2} mb={2}>{t('section')}</Typography>
+
+                            <Grid
+                                container
+                                spacing={1}
+                                alignItems="center">
+                                <Grid item xs={6}>
+                                    <div id="yes-drop" className="drag-drop">
+                                        <Stack direction={"row"} spacing={1} alignItems={"center"}
+                                               style={{
+                                                   backgroundColor: "#F0FAFF",
+                                                   height: 40,
+                                                   padding: 10,
+                                                   borderRadius: 6
+                                               }}>
+                                            <IconUrl path={"ic-drag"}/>
+                                            <Typography textAlign={"center"} width={"100%"}>name</Typography>
+                                        </Stack>
+                                    </div>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Stack direction={"row"} spacing={1} alignItems={"center"}
+                                           style={{
+                                               backgroundColor: "#F0FAFF",
+                                               height: 40,
+                                               padding: 10,
+                                               borderRadius: 6
+                                           }}>
+                                        <IconUrl path={"ic-drag"}/>
+                                        <Typography textAlign={"center"} width={"100%"}>name</Typography>
+                                    </Stack>
+                                </Grid>
+                            </Grid>
+                        </Collapse>
+
                     </Box>
                 </Grid>
 
                 <Grid item xs={12} md={9}>
-                      {/*  <IconButton onClick={printNow} sx={{
-                            border: "1px solid",
-                            mr: 1,
-                            borderRadius: 2,
-                            color: theme.palette.grey[400]
-                        }}>
-                        </IconButton>*/}
-                    <Box  style={{height: "81vh", overflowX: "auto"}}>
-                        <Page {...{data,state:undefined,eventHandler,selected, setSelected}}  ref={componentRef}/>
+                    <Box style={{height: "81vh", overflowX: "auto"}}>
+                        <Button onClick={printNow}>PRINT</Button>
+                        {!loading && <Box ref={componentRef}>
+                            <Page {...{data, setData, state: undefined, eventHandler, selected, setSelected}}/>
+                        </Box>}
                     </Box>
                 </Grid>
 

@@ -694,7 +694,11 @@
       "asDefault": "Set it as the default template",
       "modifier": "Update",
       "close": "Close",
-      "analyses": "Analyses"
+      "analyses": "Analyses",
+      "elDoc": "Document elements",
+      "upload_document": "Upload",
+      "bg": "Background",
+      "section": "Document sections"
     }
   }
 }
