@@ -126,7 +126,7 @@ export default function NewCashboxMobileCard({ ...props }) {
 
               {row.payment_means &&
                 row.payment_means.map((mean: any) => (
-                  <Stack direction="row" alignItems="center" spacing={0.5}>
+                  <Stack key={`${mean.uuid}-mobile`} direction="row" alignItems="center" spacing={0.5}>
                     <Tooltip
                       key={mean.uuid + "mobile"}
                       title={`${mean.amount} ${devise}`}
