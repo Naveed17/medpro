@@ -146,6 +146,7 @@ const Prescription = ({...props}) => {
                         width: "fit-content",
                         position: "absolute",
                         zIndex: lastSelected === "patient" ? 999 : 1,
+                        fontWeight:"bold",
                         opacity: selected === "" || selected === "patient" ? 1 : 0.5,
                         border: state === undefined ? selected === 'patient' ? '2px solid #0096d6' : '1px dashed #0096d6' : '0',
                     }}>
