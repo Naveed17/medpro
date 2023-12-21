@@ -80,7 +80,7 @@ function UnpaidConsultRow({...props}) {
                                     />
                                 </Avatar>
                             </Tooltip>
-                        )) : <Typography fontWeight={600}>--</Typography>
+                        )) : <Typography fontWeight={600}>-</Typography>
                     }
                 </Stack>
             </TableCell>
@@ -106,17 +106,17 @@ function UnpaidConsultRow({...props}) {
             </TableCell>
             {/***** Rest *****/}
             <TableCell align={"center"}>
-                <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"center"}>
-                    <Typography color='secondary' fontWeight={700}>
+                <Stack direction={"row"} spacing={1} alignItems={"center"} justifyContent={"end"}>
+                    <Typography color='secondary' textAlign={"right"} fontWeight={700}>
                     {row.appointmentRestAmount} {devise}
                    </Typography>
                     <Tooltip title={t('more')}>
                         <IconButton
                             style={{
                                 backgroundColor: theme.palette.primary.main,
-                                borderRadius: 8,
-                                width: 40,
-                                height: 40
+                                borderRadius: 5,
+                                width: 30,
+                                height: 30
                             }}
                             onClick={event => {
                                 event.stopPropagation();
