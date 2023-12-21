@@ -404,11 +404,9 @@ function PatientRow({...props}) {
             <TableCell
                 align="right"
                 sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    minHeight: "58.85px",
+                    marginLeft: "auto"
                 }}>
-                <Box display="flex" alignItems="center" margin={"auto"}>
+                <Box alignItems="flex-end">
                     {loading ? (
                         <>
                             <Skeleton
