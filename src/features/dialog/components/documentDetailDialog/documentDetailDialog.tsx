@@ -1,7 +1,8 @@
 import {
     Box,
     Button,
-    Card, CardContent,
+    Card,
+    CardContent,
     Checkbox,
     DialogActions,
     DialogContent,
@@ -43,7 +44,7 @@ import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import PreviewA4 from "@features/files/components/previewA4";
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix, generatePdfFromHtml} from "@lib/hooks";
+import {generatePdfFromHtml, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
@@ -648,12 +649,18 @@ function DocumentDetailDialog({...props}) {
                                             }
                                         }}>
                                             {!isImg && !error && doc}
-                                            {!isImg && error && <Card style={{padding: 10}} onClick={downloadF}>
+                                            {!isImg && error && <Card style={{padding: 10}}>
                                                 <Stack alignItems={"center"} spacing={1} justifyContent={"center"}>
-                                                    <IconUrl width={100} height={100} path={"ic-download"}/>
+                                                    <IconUrl width={100} height={100} path={"ic-corrupted"}/>
                                                     <Typography>{t('ureadbleFile')}</Typography>
                                                     <Typography fontSize={12}
                                                                 style={{opacity: 0.5}}>{t('downloadnow')}</Typography>
+                                                    <Button onClick={downloadF} color={"info"}
+                                                            variant="outlined"
+                                                            startIcon={<IconUrl path="menu/ic-download-square" width={20}
+                                                                                height={20}/>}>
+                                                        {t('download')}
+                                                    </Button>
                                                 </Stack>
                                             </Card>}
 
