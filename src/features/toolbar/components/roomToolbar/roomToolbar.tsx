@@ -12,6 +12,8 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import {CipCard} from "@features/card";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 function RoomToolbar({...props}) {
     const {
@@ -28,8 +30,12 @@ function RoomToolbar({...props}) {
     } = props;
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const dispatch = useAppDispatch();
+    const {data: session} = useSession();
 
     const {isWindowMax} = useAppSelector(minMaxWindowSelector);
+
+    const {data: user} = session as Session;
+    const roles = (user as UserDataResponse).general_information.roles as Array<string>;
 
     const [open, set0pen] = useState(false);
     const [tabsContent] = useState([
@@ -198,7 +204,7 @@ function RoomToolbar({...props}) {
                             setPatientDetailDrawer(true);
                         }}/>
                 }
-                <MinMaxWindowButton/>
+                {roles.includes('ROLE_SECRETARY') && <MinMaxWindowButton/>}
             </Stack>
 
         </Stack>
