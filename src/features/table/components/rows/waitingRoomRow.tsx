@@ -60,7 +60,7 @@ function WaitingRoomRow({...props}) {
             </DialogActions>
         );
     }
-    console.log(row)
+
     return (
         <>
             <TableRow>
@@ -127,7 +127,7 @@ function WaitingRoomRow({...props}) {
                             fontWeight={600}
                             color='text.primary'
                                 sx={{
-                                
+
                                     ml: 0.6,
                                     fontSize: 13
                                 }}>
@@ -153,9 +153,9 @@ function WaitingRoomRow({...props}) {
                                     fontWeight: 600,
                                     color: "text.primary",
                                     svg: {
-                                    
+
                                         mr: 0.5,
-                                        
+
                                     },
                                 }}>
                                 <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary}/>
@@ -188,7 +188,7 @@ function WaitingRoomRow({...props}) {
                                 <Typography
                                     variant="body2"
                                     fontSize={13}
-                                    color='text.primary' 
+                                    color='text.primary'
                                     fontWeight={600}
                                     >
                                     {row.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
@@ -204,7 +204,7 @@ function WaitingRoomRow({...props}) {
                         </Stack>
                     )}
                 </TableCell>
-                
+
                 <TableCell>
                     {!row.patient?.isArchived &&
                         <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
