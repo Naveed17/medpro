@@ -5,10 +5,12 @@ import IconUrl from "@themes/urlIcon";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import React, {useState} from "react";
 import {Popover} from "@features/popover";
-import {CalendarContextMenu} from "@features/calendar";
+import {AppointmentStatus, CalendarContextMenu} from "@features/calendar";
+import {prepareContextMenu} from "@lib/hooks";
 
 function AppointmentListMobile({...props}) {
-    const {event, OnSelectEvent, OnMenuActions} = props;
+    const {event, OnSelectEvent, OnMenuActions, roles} = props;
+
     const [openTooltip, setOpenTooltip] = useState(false);
 
     const handleEventClick = () => {
@@ -21,11 +23,16 @@ function AppointmentListMobile({...props}) {
 
     const handleMenuClick = (data: { title: string; icon: string; action: string }) => {
         setOpenTooltip(false)
-        OnMenuActions(data.action, Object.assign(event, {
-            extendedProps: {
-                ...event
+        OnMenuActions(
+            data.action,
+            {
+                title: `${event?.patient.firstName}  ${event?.patient.lastName}`,
+                publicId: event.uuid,
+                extendedProps: {
+                    ...event
+                }
             }
-        }));
+        );
     }
 
     const getColor = () => {
@@ -47,19 +54,22 @@ function AppointmentListMobile({...props}) {
             }}>
             <Box sx={{display: "flex"}}>
                 <Box className="card-main" onClick={handleEventClick}>
-                    <Typography variant={"subtitle2"} color="primary.main" className="title">
-                        <span>{event.title}</span>
+                    <Typography fontSize={14} variant={"body2"} color="primary.main" className="title">
+                        {event.title}
                     </Typography>
                     <Box className="time-badge-main">
-                        <Typography variant={"subtitle2"} color="text.secondary">
-                            <AccessTimeOutlinedIcon/>
+                        {new Date(event.time).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        }) !== "00:00" && <Typography fontSize={14} variant={"body2"} color="text.secondary">
+                            <AccessTimeOutlinedIcon sx={{width: 18, height: 18}}/>
                             <span>
                                 {new Date(event.time).toLocaleTimeString([], {
                                     hour: "2-digit",
                                     minute: "2-digit",
                                 })}
                             </span>
-                        </Typography>
+                        </Typography>}
                         <Label variant='filled'
                                sx={{ml: 1}}
                                color={getColor()}>
@@ -74,16 +84,17 @@ function AppointmentListMobile({...props}) {
                     <Popover
                         open={openTooltip}
                         handleClose={() => setOpenTooltip(false)}
-                        menuList={CalendarContextMenu}
+                        menuList={CalendarContextMenu.filter(dataFilter =>
+                            !prepareContextMenu(dataFilter.action, {
+                                ...event,
+                                status: event?.status
+                            } as EventModal, roles))}
                         onClickItem={handleMenuClick}
                         button={
                             <IconButton
-                                onClick={() => {
-                                    setOpenTooltip(true);
-                                }}
+                                onClick={() => setOpenTooltip(true)}
                                 sx={{display: "block", ml: "auto"}}
-                                size="small"
-                            >
+                                size="small">
                                 <IconUrl path="more-vert"/>
                             </IconButton>
                         }
