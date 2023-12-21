@@ -14,10 +14,7 @@ import {Dialog} from "@features/dialog";
 import Icon from "@themes/urlIcon";
 import React, {useState} from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import PlayCircleRoundedIcon from "@mui/icons-material/PlayCircleRounded";
 import moment from "moment-timezone";
-import {IconsTypes} from "@features/calendar";
-import {ModelDot} from "@features/modelDot";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
@@ -38,7 +35,6 @@ function WaitingRoomRow({...props}) {
     const [info, setInfo] = useState<null | string>(null);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [actions] = useState<boolean>(false);
-    const currency = doctor_country.currency?.name;
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
@@ -170,7 +166,7 @@ function WaitingRoomRow({...props}) {
                     {row ? (
                         <Stack spacing={2} direction="row" alignItems="center">
                             {row.type ? (
-                                    <Typography fontSize={13}color='text.primary' fontWeight={600}>
+                                    <Typography fontSize={13} color='text.primary' fontWeight={600}>
                                         {row.type?.name}
                                     </Typography>
                             ) : (
