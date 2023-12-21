@@ -46,7 +46,7 @@ function InsuranceDocumentPrint({...props}) {
                 const helveticaFont = await pdfDoc.embedFont(StandardFonts.Courier);
                 const fields: any[] = document.insurance.map((field: any) => ({
                     ...field,
-                    value: document.data[field.key][0]
+                    value: document.data[field.key]
                 }));
                 const pagedFields = fields.group((field: any) => field.page);
                 if (backgroundDoc) {
@@ -63,12 +63,25 @@ function InsuranceDocumentPrint({...props}) {
                                 const index = copiedPages.indexOf(page);
                                 pagedFields[index + 1]?.forEach((field: any) => {
                                     if (field.posXX && field.posYY) {
-                                        page.drawText(field.value?.toString() ?? "", {
-                                            x: field.posXX,
-                                            y: field.posYY,
-                                            font: helveticaFont,
-                                            size: 10
-                                        });
+                                        if (Array.isArray(field.value)) {
+                                            let posY = field.posYY;
+                                            field.value.forEach((fieldData: any) => {
+                                                page.drawText(fieldData?.toString() ?? "", {
+                                                    x: field.posXX,
+                                                    y: posY,
+                                                    font: helveticaFont,
+                                                    size: 10
+                                                });
+                                                posY = posY - 20;
+                                            })
+                                        } else {
+                                            page.drawText(field.value?.toString() ?? "", {
+                                                x: field.posXX,
+                                                y: field.posYY,
+                                                font: helveticaFont,
+                                                size: 10
+                                            });
+                                        }
                                     }
                                 });
                                 pdfDoc.addPage(page);
@@ -83,12 +96,25 @@ function InsuranceDocumentPrint({...props}) {
                         const page = pdfDoc.addPage([PageSizes.A4[1], PageSizes.A4[0]]);
                         fields[1]?.forEach((field: any) => {
                             if (field.posXX && field.posYY) {
-                                page.drawText(field.value?.toString() ?? "", {
-                                    x: field.posXX,
-                                    y: field.posYY,
-                                    font: helveticaFont,
-                                    size: 10
-                                })
+                                if (Array.isArray(field.value)) {
+                                    let posY = field.posYY;
+                                    field.value.forEach((fieldData: any) => {
+                                        page.drawText(fieldData?.toString() ?? "", {
+                                            x: field.posXX,
+                                            y: posY,
+                                            font: helveticaFont,
+                                            size: 10
+                                        });
+                                        posY = posY - 20;
+                                    })
+                                } else {
+                                    page.drawText(field.value?.toString() ?? "", {
+                                        x: field.posXX,
+                                        y: field.posYY,
+                                        font: helveticaFont,
+                                        size: 10
+                                    });
+                                }
                             }
                         });
                     });
