@@ -92,14 +92,6 @@ export const WaitingHeadCells = [
         align: "left",
         sortable: true,
     },
-    // {
-    //     id: "appointmentTime",
-    //     numeric: false,
-    //     disablePadding: true,
-    //     label: "appointment time",
-    //     align: "left",
-    //     sortable: false,
-    // },
     {
         id: "waiting_time",
         numeric: false,

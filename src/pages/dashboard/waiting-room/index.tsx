@@ -553,17 +553,7 @@ const Toolbar = () => (
                     </DesktopContainer>
                     <TabPanel padding={.1} value={tabIndex} index={1}>
                         {waitingRoomsGroup[1] ? <>
-                                <Card sx={{mr: {xs: 0, sm: 2}, mb: 2, minWidth: 235}}>
-                                    <CardHeader
-                                        avatar={columns[0].icon}
-                                        {...(columns[0].action && {action: columns[0].action})}
-                                        title={<Typography
-                                            color={"text.primary"} fontWeight={700}
-                                            fontSize={14}>
-                                            {t(`tabs.${columns[0].name}`)} {`(${waitingRoomsGroup[1].length})`}
-                                        </Typography>}
-                                    />
-                                </Card>
+                                
                                 <DesktopContainer>
                                     <Otable
                                         sx={{mt: 2}}
@@ -573,6 +563,19 @@ const Toolbar = () => (
                                             loading: loadingRequest,
                                             setLoading: setLoadingRequest
                                         }}
+                                        toolbar={
+                                        
+                                    <CardHeader
+                                        sx={{pt:0,px:0, pb:1,mr:2,borderBottom:1,borderColor:"divider",".MuiCardHeader-action":{m:0}}}
+                                        avatar={columns[0].icon}
+                                        {...(columns[0].action && {action: columns[0].action})}
+                                        title={<Typography
+                                            color={"text.primary"} fontWeight={700}
+                                            fontSize={14}>
+                                            {t(`tabs.${columns[0].name}`)} {`(${waitingRoomsGroup[1].length})`}
+                                        </Typography>}
+                                    />
+                                }
                                         headers={WaitingHeadCells}
                                         rows={waitingRoomsGroup[1]}
                                         from={"waitingRoom"}
