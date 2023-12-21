@@ -13,14 +13,14 @@ function CarouselItem({ item, isActive }:any) {
   const theme = useTheme();
   return (
 
-        <Grid component={MotionContainer} container spacing={2} open={isActive}>
+        <Grid component={MotionContainer} sx={{flexDirection:{xs:'column-reverse',sm:'row'}}} container spacing={2} open={isActive}>
             <Grid item xs={12} md={6}>
                 <motion.div variants={varFadeInUp}>
-            <Typography color='warning.main' variant="h5" gutterBottom>
+            <Typography textAlign={{xs:'center',sm:'left'}} color='warning.main' variant="h5" gutterBottom>
               {item.title}
             </Typography>
           </motion.div>
-                 <motion.div  variants={varFadeInDown}>
+                 <motion.div variants={varFadeInDown}>
                     <Typography variant="subtitle1" fontWeight={600} color="common.white">
                         {item.description}
                     </Typography>
@@ -57,13 +57,15 @@ export default function NewFeaturesCarousel({...props}) {
   };
 
   return (
-    <Card sx={{border:'none',bgcolor:'transparent',borderRadius:0,mt:6}}>
+    <Card sx={{border:'none',bgcolor:'transparent',borderRadius:0,mt:6,".slick-slide":{
+      height:'auto'
+    }}}>
       <Slider ref={carouselRef} {...settings}>
         {new_feature_data.map((item, index) => (
           <CarouselItem key={item.title} item={item} isActive={index === currentIndex} />
         ))}
       </Slider>
-      <CardActions>
+      <CardActions sx={{justifyContent:{xs:'center',sm:'stretch'}}}>
         <Stack direction='row' alignItems='center'>
             {[...Array(new_feature_data.length)].map((_, index) => (
                 <IconButton size='small' disableRipple
@@ -86,7 +88,7 @@ export default function NewFeaturesCarousel({...props}) {
                 </IconButton>
             ))}
         </Stack>
-        <Button variant='text-transparent' sx={{bgcolor:'transparent',color:theme.palette.common.white,ml:'auto'}} onClick={onClose}>
+        <Button variant='text-transparent' sx={{display:{xs:'none',sm:'inline-flex'},bgcolor:'transparent',color:theme.palette.common.white,ml:'auto'}} onClick={onClose}>
         {t("dialogs.new_features.close")}
       </Button>
       </CardActions>
