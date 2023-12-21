@@ -650,7 +650,7 @@ function TopNavBar({...props}) {
                         }}
                         open={openPaymentDialog}
                         data={{
-                            patient: selectedEvent?.extendedProps.patient,
+                            patient: (selectedEvent ? selectedEvent : event)?.extendedProps.patient,
                             setOpenPaymentDialog,
                             mutatePatient: () => mutateOnGoing()
                         }}
