@@ -60,7 +60,7 @@ function WaitingRoomRow({...props}) {
             </DialogActions>
         );
     }
-
+    console.log(row)
     return (
         <>
             <TableRow>
@@ -102,28 +102,43 @@ function WaitingRoomRow({...props}) {
                 </TableCell>
                 <TableCell align={"center"}>
                     {row ?
+                    <Stack>
                         <Stack
                             alignItems="center"
-                            justifyItems={"left"}
-                            justifyContent={"left"}
                             direction={"row"}
-                            sx={{
-                                svg: {
-                                    path: {fill: theme.palette.success.main},
-                                },
-                            }}>
-                            <Icon path="ic-time"/>
+                            >
+                            <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary}/>
                             <Typography
+                            fontWeight={600}
+                            color='text.primary'
                                 sx={{
-                                    color: theme.palette.success.main,
                                     ml: 0.6,
-                                    fontSize: 12
+                                    fontSize: 13
                                 }}>
                                 {row?.arrivalTime ? moment.utc(row.arrivalTime, "HH:mm").add(1, "hours").format("HH:mm") : "--"}
                             </Typography>
                         </Stack>
-                        : (
+                        <Stack
+                            alignItems="center"
+                            direction={"row"}
+                            >
+                            <Icon path="ic-agenda-new" width={12} height={12} color={theme.palette.text.primary}/>
+                            <Typography
+                            fontWeight={600}
+                            color='text.primary'
+                                sx={{
+                                
+                                    ml: 0.6,
+                                    fontSize: 13
+                                }}>
+                                {row.dayDate}
+                            </Typography>
+                        </Stack>
+                        </Stack>
+                        : (<>
                             <Skeleton variant="text" width={80}/>
+                            <Skeleton variant="text" width={80}/>
+                            </>
                         )}
                 </TableCell>
                 <TableCell>
@@ -134,65 +149,30 @@ function WaitingRoomRow({...props}) {
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
-                                    fontSize: 12,
+                                    fontSize: 13,
+                                    fontWeight: 600,
+                                    color: "text.primary",
                                     svg: {
-                                        width: 11,
-                                        mx: 0.5,
-                                        path: {fill: theme.palette.text.secondary},
+                                    
+                                        mr: 0.5,
+                                        
                                     },
                                 }}>
-                                <Icon path="ic-time"/>
-                                {row.startTime !== "00:00" ? moment.utc(row.startTime, "HH:mm").format("HH:mm") : "--"}
+                                <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary}/>
+                                {row.arrivalTime ? getDiffDuration(`${row.dayDate} ${row.arrivalTime}`, 1) : " -- "}
                             </Typography>
                         </Box>
                     ) : (
                         <Skeleton variant="text" width={80}/>
                     )}
                 </TableCell>
-                <TableCell align={"center"}>
-                    {row ? (
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="space-between">
-                            <Box
-                                display="flex"
-                                alignItems="center"
-                                sx={{
-                                    svg: {
-                                        path: {fill: theme.palette.text.secondary},
-                                    },
-                                }}>
-                                <Icon path="ic-time"/>
-                                <Typography color="success" fontSize={12} sx={{ml: 0.6}}>
-                                    {row.arrivalTime ? getDiffDuration(`${row.dayDate} ${row.arrivalTime}`, 1) : " -- "}
-                                </Typography>
-                            </Box>
-                        </Box>
-                    ) : (
-                        <Stack direction="row" justifyContent="space-between">
-                            <Skeleton variant="text" width={150}/>
-                            <Skeleton variant="text" width={80}/>
-                        </Stack>
-                    )}
-                </TableCell>
                 <TableCell>
                     {row ? (
                         <Stack spacing={2} direction="row" alignItems="center">
                             {row.type ? (
-                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                    <ModelDot
-                                        icon={
-                                            row.type &&
-                                            IconsTypes[row.type?.icon]
-                                        }
-                                        color={row.type?.color}
-                                        selected={false}
-                                        marginRight={0}></ModelDot>
-                                    <Typography fontSize={12} color="primary">
+                                    <Typography fontSize={13}color='text.primary' fontWeight={600}>
                                         {row.type?.name}
                                     </Typography>
-                                </Stack>
                             ) : (
                                 " -- "
                             )}
@@ -206,7 +186,11 @@ function WaitingRoomRow({...props}) {
                         <Stack direction="row" alignItems="center" spacing={1}>
                             {row.consultationReasons?.length > 0 ? (
                                 <Typography
-                                    variant="body2">
+                                    variant="body2"
+                                    fontSize={13}
+                                    color='text.primary' 
+                                    fontWeight={600}
+                                    >
                                     {row.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
                                 </Typography>
                             ) : (
@@ -220,26 +204,7 @@ function WaitingRoomRow({...props}) {
                         </Stack>
                     )}
                 </TableCell>
-                <TableCell>
-                    {row ? (
-                        <>
-                            {row.fees && (
-                                <Stack
-                                    direction="row"
-                                    alignItems="center"
-                                    justifyContent={"center"}
-                                    spacing={1}>
-                                    <PlayCircleRoundedIcon color="success"/>
-                                    <Typography variant="body2">
-                                        {row.fees} {currency}
-                                    </Typography>
-                                </Stack>
-                            )}
-                        </>
-                    ) : (
-                        <Skeleton variant="text" width={100}/>
-                    )}
-                </TableCell>
+                
                 <TableCell>
                     {!row.patient?.isArchived &&
                         <Stack direction="row" alignItems="flex-end" justifyContent={"flex-end"} spacing={1}>
