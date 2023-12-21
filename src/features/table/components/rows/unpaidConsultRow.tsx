@@ -1,5 +1,5 @@
 import TableCell from "@mui/material/TableCell";
-import {Avatar, Button, IconButton, Link, Stack, Tooltip, Typography, useTheme,} from "@mui/material";
+import {Avatar, IconButton, Link, Stack, Tooltip, Typography, useTheme} from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
