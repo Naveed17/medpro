@@ -86,6 +86,8 @@ import Icon from "@themes/urlIcon";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -167,28 +169,11 @@ const headCells: readonly HeadCell[] = [
     },
 ];
 
-const menuPopoverData = [
-    {
-        title: "view_patient_data",
-        icon: <IconUrl color={"white"} path="/ic-voir"/>,
-        action: "onPatientView",
-    },
-    {
-        title: "check_duplication_data",
-        icon: <PeopleOutlineIcon/>,
-        action: "onCheckPatientDuplication",
-    },
-    {
-        title: "delete_patient_data",
-        icon: <DeleteOutlineRoundedIcon/>,
-        action: "onDeletePatient",
-    }
-];
-
 function Patient() {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const theme = useTheme();
+    const {data: session} = useSession();
     const isMobile = useMediaQuery(`(max-width:${MobileWidth}px)`);
     const isMounted = useIsMountedRef();
     const {enqueueSnackbar} = useSnackbar();
@@ -204,6 +189,10 @@ function Patient() {
     const {lock} = useAppSelector(appLockSelector);
     const {date: moveDialogDate, time: moveDialogTime} = useAppSelector(dialogMoveSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+
+    const {data: user} = session as Session;
+    const roles = (user as UserDataResponse)?.general_information.roles;
+
     // state hook for details drawer
     const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [appointmentMoveData, setAppointmentMoveData] = useState<EventDef>();
@@ -223,7 +212,23 @@ function Patient() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [popoverActions, setPopoverActions] = useState(menuPopoverData);
+    const [popoverActions, setPopoverActions] = useState([
+        {
+            title: "view_patient_data",
+            icon: <IconUrl color={"white"} path="/ic-voir"/>,
+            action: "onPatientView",
+        },
+        {
+            title: "check_duplication_data",
+            icon: <PeopleOutlineIcon/>,
+            action: "onCheckPatientDuplication",
+        },
+        ...(!roles.includes("ROLE_SECRETARY") ? [{
+            title: "delete_patient_data",
+            icon: <DeleteOutlineRoundedIcon/>,
+            action: "onDeletePatient",
+        }] : [])
+    ]);
     const [loading] = useState<boolean>(false);
     const [rows, setRows] = useState<PatientModel[]>([]);
     const {collapse} = RightActionData.filter;

@@ -74,6 +74,7 @@ import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import { Label } from "@features/label";
+import {partition} from "lodash";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -139,6 +140,7 @@ function WaitingRoom() {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
     } : null, {
+        refetchOnWindowFocus: false,
         ...(agenda && {
             variables: {
                 query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
@@ -487,9 +489,11 @@ const Toolbar = () => (
 )
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
-            const groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) =>
-                moment(`${(a.startTime === "00:00" ? b : a).dayDate} ${(a.startTime === "00:00" ? b : a).startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${(b.startTime === "00:00" ? a : b).dayDate} ${(b.startTime === "00:00" ? a : b).startTime}`, "DD-MM-YYYY HH:mm").valueOf()
+            let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) =>
+                moment(a.startTime === "00:00" ? b.createdAt : `${a.dayDate} ${a.startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(b.startTime === "00:00" ? a.createdAt : `${b.dayDate} ${b.startTime}`, "DD-MM-YYYY HH:mm").valueOf()
             ).group((diag: any) => diag.status);
+            const onGoingAppointment = partition(groupedData[3], (event: any) => event.startTime === "00:00");
+            groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0].reverse()]
             setWaitingRoomsGroup(groupedData);
         }
     }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps

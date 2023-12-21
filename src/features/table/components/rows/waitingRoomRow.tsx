@@ -25,6 +25,7 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconUrl from "@themes/urlIcon";
+import {getDiffDuration} from "@lib/hooks";
 
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
@@ -59,17 +60,7 @@ function WaitingRoomRow({...props}) {
             </DialogActions>
         );
     }
-    const getDuration = (time: string) => {
-        const duration: any = moment.duration(
-            moment.utc().diff(moment.utc(time, "HH:mm"))
-        );
-        const hours =
-            duration._data.hours !== 0 ? `${duration._data.hours}H, ` : "";
-        const minutes =
-            duration._data.minutes !== 0 ? `${duration._data.minutes}min` : "";
-        return `${hours} ${minutes}`;
-    }
-console.log(row)
+    console.log(row)
     return (
         <>
             <TableRow>
@@ -124,9 +115,7 @@ console.log(row)
                                     ml: 0.6,
                                     fontSize: 13
                                 }}>
-                                {row.startTime !== "00:00" ? moment(row.startTime, "HH:mm")
-                                    .add(1, "hours")
-                                    .format("HH:mm") : "--"}
+                                {row?.arrivalTime ? moment.utc(row.arrivalTime, "HH:mm").add(1, "hours").format("HH:mm") : "--"}
                             </Typography>
                         </Stack>
                         <Stack
@@ -170,40 +159,13 @@ console.log(row)
                                     },
                                 }}>
                                 <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary}/>
-                                {row.duration}
+                                {row.arrivalTime ? getDiffDuration(`${row.dayDate} ${row.arrivalTime}`, 1) : " -- "}
                             </Typography>
                         </Box>
                     ) : (
                         <Skeleton variant="text" width={80}/>
                     )}
                 </TableCell>
-                {/* <TableCell align={"center"}>
-                    {row ? (
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="space-between">
-                            <Box
-                                display="flex"
-                                alignItems="center"
-                                sx={{
-                                    svg: {
-                                        path: {fill: theme.palette.text.secondary},
-                                    },
-                                }}>
-                                <Icon path="ic-time"/>
-                                <Typography color="success" fontSize={12} sx={{ml: 0.6}}>
-                                    {row.arrive_time ? getDuration(row.arrive_time) : " -- "}
-                                </Typography>
-                            </Box>
-                        </Box>
-                    ) : (
-                        <Stack direction="row" justifyContent="space-between">
-                            <Skeleton variant="text" width={150}/>
-                            <Skeleton variant="text" width={80}/>
-                        </Stack>
-                    )}
-                </TableCell> */}
                 <TableCell>
                     {row ? (
                         <Stack spacing={2} direction="row" alignItems="center">

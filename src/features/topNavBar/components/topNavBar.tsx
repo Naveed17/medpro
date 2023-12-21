@@ -216,7 +216,7 @@ function TopNavBar({...props}) {
                     dispatch(resetAppointment());
                     dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
                 });
-                console.log("selectedEvent", selectedEvent);
+
                 if (selectedEvent) {
                     handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
                 } else {
@@ -647,7 +647,7 @@ function TopNavBar({...props}) {
                         }}
                         open={openPaymentDialog}
                         data={{
-                            patient: event?.extendedProps.patient,
+                            patient: (selectedEvent ? selectedEvent : event)?.extendedProps.patient,
                             setOpenPaymentDialog,
                             mutatePatient: () => mutateOnGoing()
                         }}
