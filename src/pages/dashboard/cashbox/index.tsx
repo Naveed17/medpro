@@ -203,13 +203,14 @@ function Cashbox() {
     const dispatch = useAppDispatch();
     const theme: Theme = useTheme()
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-
     const {insurances} = useInsurances();
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {t} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
     // ******** States ********
     const [filter, setFilter] = useState<boolean>(false)
     const [txtFilter, setTxtFilter] = useState("")
@@ -220,20 +221,16 @@ function Cashbox() {
     const [apps, setApps] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
     const [unpaid, setUnpaid] = useState(0);
-    const {config: agenda} = useAppSelector(agendaSelector);
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
-
-    /*
-        const [totalCash, setTotalCash] = useState(0);
-        const [totalCheck, setTotalCheck] = useState(0);
-        const [toReceive, setToReceive] = useState(0);
-        const [collected, setCollected] = useState(0);
-        let [checksToCashout, setChecksToCashout] = useState<any[]>([]);
-        let [collectedCash, setCollectedCash] = useState(0);
-    */
     const [loading, setLoading] = useState(true);
     const [selectedCashBox, setCashbox] = useState<any>(null);
     let [selectedTab, setSelectedTab] = useState('consultations');
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
+    const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
+    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
+
     const tabsData = [
         {
             label: "consultations",
@@ -245,17 +242,11 @@ function Cashbox() {
         }
     ]
     const {data: user} = session as Session;
-
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const filterQuery: string = generateFilter({filterCB});
-    const [contextMenu, setContextMenu] = useState<{
-        mouseX: number;
-        mouseY: number;
-    } | null>(null);
-    const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
-    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
+
     const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox/post");
     const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
     const {trigger: triggerExport} = useRequestQueryMutation("/cashbox/export");
@@ -299,10 +290,6 @@ function Cashbox() {
     const getData = (httpTransResponse: any) => {
         const data = (httpTransResponse as HttpResponse)?.data;
         setTotal(data.total_amount);
-        /*setTotalCash(data.period_cash);
-        setTotalCheck(data.period_check);
-        setToReceive(data.total_insurance_amount);
-        setCollected(data.total_collected);*/
         txtGenerator()
         if (data.transactions) setRows(data.transactions);
         else setRows([]);

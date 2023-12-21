@@ -24,7 +24,7 @@ import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {DashLayout} from "@features/base";
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {addUser} from "@features/table";
 import {FormStyled} from "@features/forms";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -42,6 +42,8 @@ import {isValidPhoneNumber} from "libphonenumber-js";
 import {useContactType} from "@lib/hooks/rest";
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
+import {agendaSelector} from "@features/calendar";
+import {cashBoxSelector} from "@features/leftActionBar";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -57,10 +59,15 @@ function NewUser() {
     const {data: session} = useSession();
 
     const {t, ready} = useTranslation("settings");
+    const {agendas} = useAppSelector(agendaSelector);
+    const {cashboxes} = useAppSelector(cashBoxSelector);
 
     const [loading, setLoading] = useState(false);
     const [profiles, setProfiles] = useState<any[]>([]);
-    const [agendaRoles] = useState([]);
+    const [agendaRoles] = useState<any[]>([]);
+    const [featureRoles, setFeatureRoles] = useState<any[]>([]);
+    const [featureRolesIDs, setFeatureRolesIDs] = useState<any[]>([]);
+    const [featureProfiles, setFeatureProfiles] = useState<any[]>([]);
 
     const {data: userSession} = session as Session;
     const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -104,6 +111,12 @@ function NewUser() {
             Yup.object().shape({
                 profile: Yup.string(),
                 feature: Yup.string(),
+                featureRoles: Yup.array().of(
+                    Yup.object().shape({
+                        name: Yup.string(),
+                        uuid: Yup.string()
+                    })
+                ),
                 featureUuid: Yup.string()
             })
         )
@@ -184,6 +197,7 @@ function NewUser() {
         getFieldProps,
         setFieldValue,
     } = formik;
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -521,6 +535,11 @@ function NewUser() {
                                                     labelId="demo-simple-select-label"
                                                     id={"role"}
                                                     {...getFieldProps("profile")}
+                                                    onChange={(event) => {
+                                                        console.log("event", event)
+                                                        setFieldValue("profile", event.target.value);
+                                                        setFeatureRoles(profiles.find(profile => profile?.uuid === event.target.value)?.features ?? [])
+                                                    }}
                                                     renderValue={selected => {
                                                         if (selected.length === 0) {
                                                             return <em>{t("users.profile")}</em>;
@@ -567,6 +586,7 @@ function NewUser() {
 
                                     <Button
                                         sx={{height: 34}}
+                                        disabled={values.profile === ""}
                                         variant={"contained"}
                                         size={"small"}
                                         onClick={() => {
@@ -575,6 +595,7 @@ function NewUser() {
                                                 {
                                                     feature: "",
                                                     featureUuid: "",
+                                                    featureRoles: [],
                                                     profile: ""
                                                 }])
                                         }}
@@ -595,16 +616,31 @@ function NewUser() {
                                                         labelId="feature-select-label"
                                                         id={"feature"}
                                                         {...getFieldProps(`roles[${index}].feature`)}
+                                                        onChange={event => {
+                                                            setFieldValue(`roles[${index}].feature`, event.target.value);
+                                                            const profile = featureRoles?.find(profile => profile.uuid === event.target.value);
+                                                            switch (profile?.slug) {
+                                                                case "agenda":
+                                                                    setFieldValue(`roles[${index}].featureRoles`, agendas);
+                                                                    break;
+                                                                case "cashbox":
+                                                                    setFieldValue(`roles[${index}].featureRoles`, cashboxes);
+                                                                    break;
+                                                                default:
+                                                                    setFieldValue(`roles[${index}].featureRoles`, []);
+                                                                    break;
+                                                            }
+                                                        }}
                                                         renderValue={selected => {
                                                             if (selected.length === 0) {
                                                                 return <em>{t("users.feature")}</em>;
                                                             }
-                                                            const profile = profiles?.find(profile => profile.uuid === selected);
+                                                            const profile = featureRoles?.find(profile => profile.uuid === selected);
                                                             return <Typography>{profile?.name}</Typography>
                                                         }}
                                                         displayEmpty
                                                         sx={{color: "text.secondary"}}>
-                                                        {profiles.map(profile =>
+                                                        {featureRoles.map(profile =>
                                                             <MenuItem key={profile.uuid}
                                                                       value={profile.uuid}>{profile.name}</MenuItem>)}
                                                     </Select>
@@ -620,18 +656,18 @@ function NewUser() {
                                                             if (selected.length === 0) {
                                                                 return <em>{t("users.feature-uuid")}</em>;
                                                             }
-                                                            const profile = profiles?.find(profile => profile.uuid === selected);
+                                                            const profile = (values.roles[index] as any).featureRoles?.find((profile: any) => profile.uuid === selected);
                                                             return <Typography>{profile?.name}</Typography>
                                                         }}
                                                         displayEmpty
                                                         sx={{color: "text.secondary"}}>
-                                                        {profiles.map(profile =>
+                                                        {(values.roles[index] as any).featureRoles.map((profile: any) =>
                                                             <MenuItem key={profile.uuid}
                                                                       value={profile.uuid}>{profile.name}</MenuItem>)}
                                                     </Select>
                                                 </FormControl>
                                             </Grid>
-                                            <Grid item xs={12} lg={6}>
+                                            <Grid item xs={12} lg={4.4}>
                                                 <FormControl size="small" fullWidth>
                                                     <Select
                                                         labelId="profile-feature-select-label"
@@ -641,25 +677,26 @@ function NewUser() {
                                                             if (selected.length === 0) {
                                                                 return <em>{t("users.profile-feature")}</em>;
                                                             }
-                                                            const profile = profiles?.find(profile => profile.uuid === selected);
+                                                            const profile = featureProfiles?.find(profile => profile.uuid === selected);
                                                             return <Typography>{profile?.name}</Typography>
                                                         }}
                                                         displayEmpty
                                                         sx={{color: "text.secondary"}}>
-                                                        {profiles.map(profile =>
+                                                        {featureProfiles.map(profile =>
                                                             <MenuItem key={profile.uuid}
                                                                       value={profile.uuid}>{profile.name}</MenuItem>)}
                                                     </Select>
                                                 </FormControl>
                                             </Grid>
-                                            <Grid item xs={12} lg={2}>
+                                            <Grid item xs={12} lg={3.6}>
                                                 <Stack direction={"row"} alignItems={"center"}
+                                                       spacing={1.2}
                                                        justifyContent={"space-between"}>
                                                     <Button
                                                         sx={{height: 34}}
                                                         size={"small"}
                                                         startIcon={<AddIcon/>}>
-                                                        {t("addFeatureProfile")}
+                                                        {t("users.add-feature-profile")}
                                                     </Button>
                                                     <IconButton
                                                         onClick={() => {
@@ -681,7 +718,6 @@ function NewUser() {
                                                         <IconUrl path="setting/icdelete"/>
                                                     </IconButton>
                                                 </Stack>
-
                                             </Grid>
                                         </Grid>
                                     </Box>))}
