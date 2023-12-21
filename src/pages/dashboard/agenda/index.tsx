@@ -1181,7 +1181,7 @@ function Agenda() {
 
                 {(isMobile && view === "listWeek") && <>
                     {sortedData.current?.map((row, index) => (
-                        <Container key={index}>
+                        <Container key={index} sx={{background: theme.palette.background.default}}>
                             <Typography variant={"body1"}
                                         color="text.primary"
                                         pb={1} pt={2}
@@ -1200,11 +1200,10 @@ function Agenda() {
 
                             {row.events.map((event) => (
                                 <AppointmentListMobile
-                                    OnMenuActions={onMenuActions}
-                                    OnSelectEvent={onSelectEvent}
+                                    {...{roles, event}}
                                     key={event.id}
-                                    event={event}/>
-
+                                    OnMenuActions={onMenuActions}
+                                    OnSelectEvent={onSelectEvent}/>
                             ))}
                         </Container>
                     ))}

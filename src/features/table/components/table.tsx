@@ -49,6 +49,7 @@ function Otable({...props}) {
         select = [],
         edit,
         handleConfig,
+        toolbar = null,
         minWidth,
         pagination,
         checkedType,
@@ -138,7 +139,8 @@ function Otable({...props}) {
     }, [rowsSelected]);
 
     return (
-        <Box>
+        <Box className="table-wrapper">
+            {toolbar && toolbar}
             <TableContainer sx={{maxHeight}}>
                 <Table
                     {...{size}}

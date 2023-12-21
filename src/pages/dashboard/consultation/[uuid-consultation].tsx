@@ -1084,40 +1084,6 @@ function ConsultationInProgress() {
         });
     }
 
-    const HistoryDialog = ()=>{
-        return (<div style={{
-            position: "absolute",
-            top: 10,
-            left: 10,
-            width: "50%",
-            borderRadius: 5,
-            zIndex: 1,
-            border: `1px solid ${theme.palette.grey["200"]}`,
-            background: 'white',
-            transform: "translate(220px, 133px)"
-        }}>
-            <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} spacing={1} sx={{
-                bgcolor: theme.palette.primary.main,
-                padding: 2,
-                borderTopLeftRadius: 5,
-                borderTopRightRadius: 5
-            }}>
-                <IconUrl color={"white"} path={'history'}/>
-                <Typography fontSize={18} color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
-                <IconButton sx={{width: 30, height: 30}} onClick={() => setOpenHistoryDialog(false)}><IconUrl
-                    width={15} height={15} path={"close"}/></IconButton>
-            </Stack>
-            <div style={{
-                overflow: 'auto',
-                height: 400,
-                padding: 20
-            }}>
-                <ObservationHistoryDialog data={{patient_uuid: sheet.patient, t}}/>
-            </div>
-
-        </div>)
-    }
-
     //%%%%%% %%%%%%%
     const move = (source: any, destination: any, droppableSource: any, droppableDestination: any) => {
         const sourceClone = Array.from(source);
@@ -1279,7 +1245,37 @@ function ConsultationInProgress() {
     return (
         <>
             {sheet?.patient && openHistoryDialog && !isMobile && <Draggable bounds="body">
-                <HistoryDialog/>
+                <div style={{
+                    position: "absolute",
+                    top: 80,
+                    left: 10,
+                    width: "50%",
+                    borderRadius: 5,
+                    zIndex: 999,
+                    border: `1px solid ${theme.palette.grey["200"]}`,
+                    background: 'white',
+                    transform: "translate(220px, 133px)"
+                }}>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"} spacing={1} sx={{
+                        bgcolor: theme.palette.primary.main,
+                        padding: 2,
+                        borderTopLeftRadius: 5,
+                        borderTopRightRadius: 5
+                    }}>
+                        <IconUrl color={"white"} path={'history'}/>
+                        <Typography fontSize={18} color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
+                        <IconButton sx={{width: 30, height: 30}} onClick={() => setOpenHistoryDialog(false)}><IconUrl
+                            width={15} height={15} path={"close"}/></IconButton>
+                    </Stack>
+                    <div style={{
+                        overflow: 'auto',
+                        height: 400,
+                        padding: 20
+                    }}>
+                        <ObservationHistoryDialog data={{patient_uuid: sheet.patient, t}}/>
+                    </div>
+
+                </div>
             </Draggable>}
 
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
@@ -1656,7 +1652,7 @@ function ConsultationInProgress() {
                                             setOpenDialog(true);
 
                                         }}
-                                        startIcon={<IconUrl path="ic-imprime"/>}>
+                                        startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
                                         {t("consultationIP.print")}
                                     </Button>}
 
