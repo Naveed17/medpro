@@ -35,7 +35,7 @@ function DocumentCard({...props}) {
                             }
                         }}>
                         <CardContent>
-                            <Tooltip title={data.description ? `Note : ${data.description}` : data.title + " xx"}>
+                            <Tooltip title={data.description ? `Note : ${data.description}` : t(data.title)}>
                                 <Stack onClick={onClick} alignItems="center" direction={"row"}>
                                     <IconUrl width={40} height={80} path={iconDocument(data.documentType)}/>
                                     <DocumentContent {...{data, date, t, resize,width}}/>

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, Stack, TextField, Typography} from "@mui/material";
+import {Box, Stack, TextField, Theme, useTheme} from "@mui/material";
 import AddRequestQuoteDialogStyle from "./overrides/addRequestQuoteDialogStyle";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
@@ -7,6 +7,7 @@ import {FeesTab} from "@features/tabPanel";
 
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
+import {Label} from "@features/label";
 
 function AddRequestQuoteDialog({...props}) {
 
@@ -14,6 +15,7 @@ function AddRequestQuoteDialog({...props}) {
     const {acts, setActs, note, setNotes} = data
     const {data: session} = useSession();
     const {t} = useTranslation("consultation");
+    const theme: Theme = useTheme();
 
     const [total, setTotal] = useState(0);
 
@@ -28,6 +30,7 @@ function AddRequestQuoteDialog({...props}) {
         let _total = 0
         acts.filter((act: AppointmentActModel) => act.selected).forEach((act: AppointmentActModel) => _total += act.fees * act.qte)
         setTotal(_total);
+        console.log(acts)
     }, [acts])
 
     const editAct = (row: any, from: any) => {
@@ -49,14 +52,17 @@ function AddRequestQuoteDialog({...props}) {
     return (
         <AddRequestQuoteDialogStyle spacing={0}>
             <Stack direction={"row"} justifyContent={"end"} mb={2}>
-                <Button size='small'
-                        variant='contained'
-                        color={"success"}>
-                    {t("total")}
-                    <Typography fontWeight={700} component='strong'
-                                mx={1}>{total}</Typography>
-                    {devise}
-                </Button>
+                <Label variant='filled'
+                       sx={{color: theme.palette.success.main, background: theme.palette.success.lighter}}>
+                    <span>{t('total')}</span>
+                    <span style={{
+                        fontSize: 14,
+                        marginLeft: 5,
+                        marginRight: 5,
+                        fontWeight: "bold"
+                    }}>{total}</span>
+                    <span>{devise}</span>
+                </Label>
             </Stack>
             <FeesTab {...{
                 acts,
@@ -65,23 +71,24 @@ function AddRequestQuoteDialog({...props}) {
                 setTotal,
                 editAct,
                 devise,
+                isQuoteRequest: true,
                 t
             }}
-                     isQuoteRequest={true}
             />
 
-
+            <Box style={{height:80}}></Box>
 
             <Stack style={{
-                position:"absolute",
-                bottom:74,
-                right:0,
-                width:"100%",
-                background:"white",
-                padding:10
+                position: "absolute",
+                bottom: 74,
+                right: 0,
+                width: "100%",
+                background: "white",
+                padding: 10
             }}>
                 <TextField value={note}
                            placeholder={'notes..'}
+                           multiline={true}
                            onChange={(e) => setNotes(e.target.value)}/>
             </Stack>
         </AddRequestQuoteDialogStyle>
