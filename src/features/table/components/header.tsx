@@ -8,6 +8,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import {Checkbox} from "@mui/material";
 import {visuallyHidden} from "@mui/utils";
 import CodeIcon from "@mui/icons-material/Code";
+import {capitalize} from 'lodash'
 
 function OHead({...props}) {
     const {
@@ -76,7 +77,7 @@ function OHead({...props}) {
                                                 : "flex-start",
                                     }}
                                 >
-                                    {t(`table.${headCell.label}`)}
+                                    {capitalize(t(`table.${headCell.label}`))}
                                     {orderBy === headCell.id ? (
                                         <Box component="span" sx={visuallyHidden}>
                                             {order === "desc"

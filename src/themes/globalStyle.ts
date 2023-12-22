@@ -42,4 +42,13 @@ export const GlobleStyles = styled("div")(({ theme }) => ({
       padding: "14px 8px",
     },
   },
+  ".table-wrapper":{
+    background: theme.palette.background.paper,
+    borderRadius: "6px",
+    padding: theme.spacing(2),
+    paddingRight:0,
+    ".MuiTableContainer-root":{
+      paddingRight:theme.spacing(2)
+    }
+  }
 }));

@@ -8,6 +8,11 @@ export default function Card(theme) {
                 root: {
                     //boxShadow: theme.shadows[9],
                     borderRadius: 10,
+                    ".MuiCardContent-root": {
+                        '&:last-child': {
+                            paddingBottom: theme.spacing(2)
+                        }
+                    }
                 },
             },
         }
