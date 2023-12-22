@@ -27,10 +27,12 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/AntecedentWidget";
 import IconUrl from "@themes/urlIcon";
+import dayjs, { Dayjs } from 'dayjs';
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {DatePicker,LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import moment from "moment";
 
 function LifeStyleDialog({...props}) {
     const router = useRouter();
@@ -241,14 +243,15 @@ function LifeStyleDialog({...props}) {
                                                                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                                         <Stack spacing={1} mt={2} direction={'row'}>
 
+
                                                                             {/*Start date*/}
                                                                             {!list.hideStart &&
                                                                                 <DatePicker
                                                                                     renderInput={(props) =>
                                                                                         <TextField size={"small"} {...props} />}
                                                                                     label={t('start')}
-                                                                                    inputFormat={"dd/MM/yyyy"}
-                                                                                    value={data.start}
+                                                                                    inputFormat={"dd-MM-yyyy"}
+                                                                                    value={moment(data.start,"DD-MM-YYYY").format("YYYY-MM-DD")}
                                                                                     onChange={(newValue) => {
                                                                                         data.start = newValue;
                                                                                         setState([...state])
@@ -263,7 +266,7 @@ function LifeStyleDialog({...props}) {
                                                                                         <TextField size={"small"} {...props} />}
                                                                                     label={t('end')}
                                                                                     inputFormat={"dd-MM-yyyy"}
-                                                                                    value={data.end}
+                                                                                    value={moment(data.end,"DD-MM-YYYY").format("YYYY-MM-DD")}
                                                                                     onChange={(newValue) => {
                                                                                         data.end = newValue
                                                                                         setState([...state])
