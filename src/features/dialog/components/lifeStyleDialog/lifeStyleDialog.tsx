@@ -242,7 +242,7 @@ function LifeStyleDialog({...props}) {
                                                                         <Stack spacing={1} mt={2} direction={'row'}>
 
                                                                             {/*Start date*/}
-                                                                            {list.hideStart &&
+                                                                            {!list.hideStart &&
                                                                                 <DatePicker
                                                                                     renderInput={(props) =>
                                                                                         <TextField size={"small"} {...props} />}
@@ -257,7 +257,7 @@ function LifeStyleDialog({...props}) {
                                                                                 />
                                                                             }
                                                                             {/*End time*/}
-                                                                            {list.hideEnd &&
+                                                                            {!list.hideEnd &&
                                                                                 <DatePicker
                                                                                     renderInput={(props) =>
                                                                                         <TextField size={"small"} {...props} />}
