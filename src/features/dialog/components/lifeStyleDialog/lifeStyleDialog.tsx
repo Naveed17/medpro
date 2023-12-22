@@ -238,41 +238,40 @@ function LifeStyleDialog({...props}) {
                                                                         }
                                                                     </Stack>
 
-                                                                    {false && <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
                                                                         <Stack spacing={1} mt={2} direction={'row'}>
+
                                                                             {/*Start date*/}
-                                                                            {
+                                                                            {list.hideStart &&
                                                                                 <DatePicker
                                                                                     renderInput={(props) =>
-                                                                                        <TextField
-                                                                                            size={"small"} {...props} />}
+                                                                                        <TextField size={"small"} {...props} />}
                                                                                     label={t('start')}
                                                                                     inputFormat={"dd/MM/yyyy"}
-                                                                                    value={data.start || ""}
+                                                                                    value={data.start}
                                                                                     onChange={(newValue) => {
                                                                                         data.start = newValue;
                                                                                         setState([...state])
                                                                                     }}
+
                                                                                 />
                                                                             }
                                                                             {/*End time*/}
-                                                                            {
+                                                                            {list.hideEnd &&
                                                                                 <DatePicker
                                                                                     renderInput={(props) =>
-                                                                                        <TextField
-                                                                                            size={"small"} {...props} />}
+                                                                                        <TextField size={"small"} {...props} />}
                                                                                     label={t('end')}
-                                                                                    inputFormat={"dd/MM/yyyy"}
-                                                                                    value={data.end || ""}
+                                                                                    inputFormat={"dd-MM-yyyy"}
+                                                                                    value={data.end}
                                                                                     onChange={(newValue) => {
-                                                                                        console.log(newValue)
-                                                                                        data.end = newValue;
+                                                                                        data.end = newValue
                                                                                         setState([...state])
                                                                                     }}
                                                                                 />
                                                                             }
                                                                         </Stack>
-                                                                    </LocalizationProvider>}
+                                                                    </LocalizationProvider>
 
                                                                     {action === 'family_antecedents' &&
                                                                         <Stack spacing={1} direction={'row'}>

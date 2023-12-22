@@ -137,7 +137,10 @@ const Content = ({...props}) => {
 
             let _res: any[] = []
             state.forEach((item: any) => {
+
                 item.data.forEach((data: any) => {
+                    if(data.start) data.start = moment(data.start).format('DD/MM/YYYY')
+                    if(data.end) data.end = moment(data.end).format('DD/MM/YYYY')
                     _res.push({
                         ...data,
                         uuid: item.uuid,
