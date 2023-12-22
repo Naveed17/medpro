@@ -30,7 +30,6 @@ function AddRequestQuoteDialog({...props}) {
         let _total = 0
         acts.filter((act: AppointmentActModel) => act.selected).forEach((act: AppointmentActModel) => _total += act.fees * act.qte)
         setTotal(_total);
-        console.log(acts)
     }, [acts])
 
     const editAct = (row: any, from: any) => {
