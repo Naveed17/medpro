@@ -6,7 +6,14 @@ const PWIDTH_A5 = "148mm"
 const PHEIGHT_A5 = "210mm"
 const PWIDTH_A4 = "210mm";
 const PageStyled = styled(Box)(({theme}) => ({
-
+        '& .x':{
+            border: "1px solid",
+            display: "flex",
+            flexWrap: "wrap",
+            height: 600,
+            width: 300,
+            marginBottom: 20
+        },
         '& .page': {
             margin: "30px auto",
             marginBottom: 10,

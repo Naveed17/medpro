@@ -42,11 +42,10 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import {LoadingScreen} from "@features/loadingScreen";
-import {Page} from "@features/page";
+import {Doc, Page} from "@features/page";
 import CropLandscapeIcon from '@mui/icons-material/CropLandscape';
 import CropPortraitIcon from '@mui/icons-material/CropPortrait';
 import IconUrl from "@themes/urlIcon";
-import interact from "interactjs";
 
 function DocsConfig() {
     const router = useRouter();
@@ -86,7 +85,7 @@ function DocsConfig() {
             show: true,
             maxHeight: 600,
             maxWidth: 130,
-            content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
+            content: '<p>[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]</p>',
             x: 0,
             y: 320
         }
@@ -510,7 +509,7 @@ function DocsConfig() {
                     <Box style={{height: "81vh", overflowX: "auto"}}>
                         <Button onClick={printNow}>PRINT</Button>
                         {!loading && <Box ref={componentRef}>
-                            <Page {...{data, setData, state: undefined, eventHandler, selected, setSelected}}/>
+                            <Doc {...{data, setData, state: undefined, eventHandler, selected, setSelected}}/>
                         </Box>}
                     </Box>
                 </Grid>
@@ -531,7 +530,6 @@ function DocsConfig() {
                     </Box>}
                 </Grid>*/}
             </Grid>
-
 
             <Dialog
                 action={"remove"}
