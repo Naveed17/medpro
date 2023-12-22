@@ -27,7 +27,6 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/AntecedentWidget";
 import IconUrl from "@themes/urlIcon";
-import dayjs, { Dayjs } from 'dayjs';
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {DatePicker,LocalizationProvider} from "@mui/x-date-pickers";
@@ -245,13 +244,13 @@ function LifeStyleDialog({...props}) {
 
 
                                                                             {/*Start date*/}
-                                                                            {!list.hideStart &&
+                                                                            {list.hideStart &&
                                                                                 <DatePicker
                                                                                     renderInput={(props) =>
                                                                                         <TextField size={"small"} {...props} />}
                                                                                     label={t('start')}
                                                                                     inputFormat={"dd-MM-yyyy"}
-                                                                                    value={moment(data.start,"DD-MM-YYYY").format("YYYY-MM-DD")}
+                                                                                    value={data.start || ""}
                                                                                     onChange={(newValue) => {
                                                                                         data.start = newValue;
                                                                                         setState([...state])
@@ -260,13 +259,13 @@ function LifeStyleDialog({...props}) {
                                                                                 />
                                                                             }
                                                                             {/*End time*/}
-                                                                            {!list.hideEnd &&
+                                                                            {list.hideEnd &&
                                                                                 <DatePicker
                                                                                     renderInput={(props) =>
                                                                                         <TextField size={"small"} {...props} />}
                                                                                     label={t('end')}
                                                                                     inputFormat={"dd-MM-yyyy"}
-                                                                                    value={moment(data.end,"DD-MM-YYYY").format("YYYY-MM-DD")}
+                                                                                    value={data.end || ""}
                                                                                     onChange={(newValue) => {
                                                                                         data.end = newValue
                                                                                         setState([...state])
