@@ -14,8 +14,8 @@ export default function Pagination({...props}) {
     );
 
     const [page, setPage] = React.useState<number>(currentPage);
-    const [rowsPerPage, setRowsPerPage] = React.useState<any>(
-        router.query.rowsPerPage || "10"
+    const [limit, setLimit] = React.useState<any>(
+        router.query.limit || "10"
     );
     const {t} = useTranslation("common");
 
@@ -35,15 +35,15 @@ export default function Pagination({...props}) {
                 {total < page * pageTotal ? total : page * pageTotal} {t("of")} {total}
             </Typography>
             <Stack spacing={2} direction="row" alignItems="center">
-                <Typography variant="body2" color="#687182">
+               {/* <Typography variant="body2" color="#687182">
                     {t("rows_per-page")}
                 </Typography>
                 <Select
-                    value={rowsPerPage}
+                    value={limit}
                     onChange={(e: any) => {
-                        setRowsPerPage(e.target.value);
+                        setLimit(e.target.value);
                         router.replace({
-                            query: {page, rowsPerPage: e.target.value},
+                            query: {page, limit: e.target.value},
                         });
                     }}
                     size="small"
@@ -69,7 +69,7 @@ export default function Pagination({...props}) {
                             {item}
                         </MenuItem>
                     ))}
-                </Select>
+                </Select>*/}
                 <BasicPagination
                     onChange={(e, v) => {
                         setPage(v);
