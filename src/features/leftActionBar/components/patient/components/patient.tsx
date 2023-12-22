@@ -175,7 +175,7 @@ function Patient() {
                     gutterBottom>
                     {t(`filter.title`)}
                 </Typography>
-                <FilterOverview/>
+                {/*<FilterOverview/>*/}
                 <Accordion
                     translate={{t, ready}}
                     data={dataPatient}
