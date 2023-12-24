@@ -119,7 +119,7 @@ function WaitingRoom() {
                 gutterBottom>
                 {t(`title`)}
             </Typography>
-            <FilterOverview/>
+            {/*<FilterOverview/>*/}
             <Accordion
                 translate={{
                     t: t,

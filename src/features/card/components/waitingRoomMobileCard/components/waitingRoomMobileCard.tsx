@@ -33,6 +33,8 @@ import Icon from "@themes/urlIcon";
 import {AppointmentStatus} from "@features/calendar";
 import {motion} from 'framer-motion'
 import {sideBarSelector} from "@features/menu";
+import {Label} from "@features/label";
+import {useTranslation} from "next-i18next";
 
 const imageSize: number = 40;
 
@@ -84,6 +86,7 @@ function WaitingRoomMobileCard({...props}) {
     } = props;
     const theme = useTheme();
     const {data: session} = useSession();
+    const {t: commonTranslation} = useTranslation("common");
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
@@ -273,7 +276,11 @@ function WaitingRoomMobileCard({...props}) {
                                     <PlayCircleIcon fontSize={"small"}/>
                                 </CustomIconButton>}
                             </>}
-                            {quote.status === 5 && <>
+                            {quote.status === 5 &&
+                                <Label variant={"ghost"}
+                                       color={quote?.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.restAmount === 0 ? "paid" : "not-payed")}</Label>
+                            }
+                            {quote.status === 5 && quote?.restAmount !== 0 && <>
                                 <IconButton
                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                         action: "ON_PAY",
