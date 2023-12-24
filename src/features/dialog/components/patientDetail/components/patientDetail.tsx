@@ -187,7 +187,7 @@ function PatientDetail({...props}) {
 
     const closePatientDialog = () => {
         dispatch(openDrawer({type: "patient", open: false}));
-        dispatch(onOpenPatientDrawer({patientId: ""}));
+        dispatch(onOpenPatientDrawer({patientId: "", patientAction: ""}));
         onCloseDialog(false);
     }
     // handle tab change
