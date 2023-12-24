@@ -24,10 +24,7 @@ import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
@@ -68,20 +65,26 @@ function CalendarToolbar({...props}) {
         dispatch(setView(view));
     }
 
-    const handleTableEvent = (action: string, eventData: EventModal) => {
+    const handleTableEvent = (action: string, eventData: any) => {
+        const event: any = {
+            publicId: eventData.id,
+            extendedProps: {
+                ...eventData
+            }
+        }
         setPendingDialog(false);
         switch (action) {
-            case "showEvent":
-                OnSelectEvent(eventData);
+            case "onPatientDetail":
+                OnSelectEvent(event);
                 break;
             case "waitingRoom":
-                OnWaitingRoom(eventData);
+                OnWaitingRoom(event);
                 break;
             case "confirmEvent":
-                OnConfirmEvent(eventData);
+                OnConfirmEvent(event);
                 break;
             case "moveEvent":
-                OnMoveEvent(eventData);
+                OnMoveEvent(event);
                 break;
         }
     }
