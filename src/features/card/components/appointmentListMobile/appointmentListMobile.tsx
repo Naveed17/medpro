@@ -5,7 +5,7 @@ import IconUrl from "@themes/urlIcon";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import React, {useState} from "react";
 import {Popover} from "@features/popover";
-import {AppointmentStatus, CalendarContextMenu} from "@features/calendar";
+import {CalendarContextMenu} from "@features/calendar";
 import {prepareContextMenu} from "@lib/hooks";
 
 function AppointmentListMobile({...props}) {
@@ -22,12 +22,12 @@ function AppointmentListMobile({...props}) {
     }
 
     const handleMenuClick = (data: { title: string; icon: string; action: string }) => {
-        setOpenTooltip(false)
+        setOpenTooltip(false);
         OnMenuActions(
             data.action,
             {
                 title: `${event?.patient.firstName}  ${event?.patient.lastName}`,
-                publicId: event.uuid,
+                publicId: event.id,
                 extendedProps: {
                     ...event
                 }
