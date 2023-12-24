@@ -22,12 +22,12 @@ function AppointmentListMobile({...props}) {
     }
 
     const handleMenuClick = (data: { title: string; icon: string; action: string }) => {
-        setOpenTooltip(false)
+        setOpenTooltip(false);
         OnMenuActions(
             data.action,
             {
                 title: `${event?.patient.firstName}  ${event?.patient.lastName}`,
-                publicId: event.uuid,
+                publicId: event.id,
                 extendedProps: {
                     ...event
                 }

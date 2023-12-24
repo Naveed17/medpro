@@ -426,7 +426,7 @@ function WaitingRoom() {
             icon: <IconUrl width={20} height={20} path="ic-attendre"/>
         },
         {
-            id: '5,6,9,10',
+            id: '5',
             name: 'finished',
             url: '#',
             icon: <CheckCircleIcon
@@ -617,10 +617,7 @@ function WaitingRoom() {
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={2}>
-
-
                         {waitingRoomsGroup[3] ? <>
-
                                 <DesktopContainer>
                                     <Otable
 
@@ -674,8 +671,6 @@ function WaitingRoom() {
                                     }]
                                 }}/>
                         }
-
-
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={3}>
                         {(waitingRoomsGroup[4] || waitingRoomsGroup[8]) ?
@@ -746,11 +741,7 @@ function WaitingRoom() {
                                             setLoading: setLoadingRequest
                                         }}
                                         headers={WaitingHeadCells}
-                                        rows={[
-                                            ...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : []),
-                                            ...(waitingRoomsGroup[6] ? waitingRoomsGroup[6] : []),
-                                            ...(waitingRoomsGroup[9] ? waitingRoomsGroup[9] : []),
-                                            ...(waitingRoomsGroup[10] ? waitingRoomsGroup[10] : [])]}
+                                        rows={[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])]}
                                         from={"waitingRoom"}
                                         t={t}
                                         pagination
@@ -759,22 +750,15 @@ function WaitingRoom() {
                                 </DesktopContainer>
                                 <MobileContainer>
                                     <Stack spacing={1}>
-                                        {
-                                            [
-                                                ...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : []),
-                                                ...(waitingRoomsGroup[6] ? waitingRoomsGroup[6] : []),
-                                                ...(waitingRoomsGroup[9] ? waitingRoomsGroup[9] : []),
-                                                ...(waitingRoomsGroup[10] ? waitingRoomsGroup[10] : [])].map((item: any, i: number) => (
-                                                <React.Fragment key={item.uuid}>
-                                                    <WaitingRoomMobileCard
-                                                        quote={item}
-                                                        index={i}
-                                                        handleEvent={handleTableActions}
-                                                    />
-                                                </React.Fragment>
-                                            ))
-                                        }
-
+                                        {[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])].map((item: any, i: number) => (
+                                            <React.Fragment key={item.uuid}>
+                                                <WaitingRoomMobileCard
+                                                    quote={item}
+                                                    index={i}
+                                                    handleEvent={handleTableActions}
+                                                />
+                                            </React.Fragment>
+                                        ))}
                                     </Stack>
                                 </MobileContainer>
                             </>
