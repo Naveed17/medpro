@@ -18,7 +18,7 @@ import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, setView, TableHead} from "@features/calendar";
+import {agendaSelector, AppointmentStatus, setView, TableHead} from "@features/calendar";
 import Zoom from '@mui/material/Zoom';
 import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
@@ -68,20 +68,26 @@ function CalendarToolbar({...props}) {
         dispatch(setView(view));
     }
 
-    const handleTableEvent = (action: string, eventData: EventModal) => {
+    const handleTableEvent = (action: string, eventData: any) => {
+        const event: any = {
+            publicId: eventData.id,
+            extendedProps: {
+                ...eventData
+            }
+        }
         setPendingDialog(false);
         switch (action) {
-            case "showEvent":
-                OnSelectEvent(eventData);
+            case "onPatientDetail":
+                OnSelectEvent(event);
                 break;
             case "waitingRoom":
-                OnWaitingRoom(eventData);
+                OnWaitingRoom(event);
                 break;
             case "confirmEvent":
-                OnConfirmEvent(eventData);
+                OnConfirmEvent(event);
                 break;
             case "moveEvent":
-                OnMoveEvent(eventData);
+                OnMoveEvent(event);
                 break;
         }
     }
