@@ -18,16 +18,13 @@ import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, AppointmentStatus, setView, TableHead} from "@features/calendar";
+import {agendaSelector, setView, TableHead} from "@features/calendar";
 import Zoom from '@mui/material/Zoom';
 import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
