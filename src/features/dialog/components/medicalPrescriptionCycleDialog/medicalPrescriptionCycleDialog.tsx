@@ -76,9 +76,7 @@ import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {SetSelectedDialog} from "@features/toolbar";
 import moment from "moment/moment";
-import Icon from "@themes/urlIcon";
 import {NoDataCard} from "@features/card";
-import {GREY} from "@themes/palette";
 
 function MedicalPrescriptionCycleDialog({...props}) {
     const {data} = props;

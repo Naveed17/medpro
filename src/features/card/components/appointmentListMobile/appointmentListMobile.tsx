@@ -5,7 +5,7 @@ import IconUrl from "@themes/urlIcon";
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import React, {useState} from "react";
 import {Popover} from "@features/popover";
-import {AppointmentStatus, CalendarContextMenu} from "@features/calendar";
+import {CalendarContextMenu} from "@features/calendar";
 import {prepareContextMenu} from "@lib/hooks";
 
 function AppointmentListMobile({...props}) {
