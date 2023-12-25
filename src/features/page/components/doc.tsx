@@ -1,18 +1,21 @@
 import {Button} from "@mui/material";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import PageStyled from "@features/page/components/overrides/pageStyled";
 
 function Doc({...props}) {
     const {data, setData, state: undefined, eventHandler, selected, setSelected} = props;
+    const [pageChunks, setPageChunks] = useState<any[]>([]);
 
     const CONTENT_WIDTH = 400;
-    const CONTENT_HEIGHT = 700
+    const CONTENT_HEIGHT = 300
+    const htmlContent="<table><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>ZF</td></tr></table>"
 
-    function generateRandomContent() {
+
+    /*function generateRandomContent() {
         var alph = "abcdefghijklmnopqrstuvwxyz";
         var content = "";
         // we will generate 100 random elements displaying their index to keep track of what's happening
-        for (var i = 0; i < 100; i++) {
+        /!*for (var i = 0; i < 100; i++) {
             var type = parseInt(String(Math.random() * 2), 10);
             switch (type) {
                 case 0: // text, generates and random p block
@@ -38,7 +41,9 @@ function Doc({...props}) {
                     content = content + '<div style="width: ' + width + 'px; height: ' + height + 'px; background-color: ' + color + '">' + i + '</div>';
                     break;
             }
-        }
+        }*!/
+       // console.log(content)
+        content="<table><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>ZF</td></tr></table>"
         return content;
     }
 
@@ -89,7 +94,6 @@ function Doc({...props}) {
         var container = document.getElementsByClassName('root_container')[0];
         if (container) {
             chunks.forEach((chunk, index) => {
-                console.log(index, chunk)
                 // ex of a page header
                 var header = document.createElement('div');
                 header.innerHTML = '<h4 style="margin: 5px">Page ' + (index + 1) + '</h4>';
@@ -97,21 +101,62 @@ function Doc({...props}) {
                 var page = document.createElement('div');
                 page.className = 'x';
                 page.style.width = `${CONTENT_WIDTH}px`
-                page.style.height = `${CONTENT_HEIGHT + 200}px`
+                page.style.height = `${CONTENT_HEIGHT}px`
                 chunk.forEach(elem => page.appendChild(elem));
                 container.appendChild(page);
             });
         }
 
     }
+*/
 
+    useEffect(() => {
+        // @ts-ignore
+        const splitContent = (content, chunkSize) => {
+            console.log(content.length)
+            const chunks = [];
+            for (let i = 0; i < content.length; i += chunkSize) {
+                chunks.push(content.slice(i, i + chunkSize));
+            }
+            return chunks;
+        };
+
+        const handlePageBreak = () => {
+            const maxHeight = 300; // Set your maximum height for a page
+            const chunkSize = 200; // Set the character limit for each chunk
+
+            const chunks = splitContent(htmlContent, chunkSize);
+            const currentChunks:any[] = [];
+            let currentChunk = '';
+
+            // Iterate through chunks until the height limit is reached
+            for (const chunk of chunks) {
+                if (currentChunk.length + chunk.length > maxHeight) {
+                    currentChunks.push(currentChunk);
+                    currentChunk = chunk;
+                } else {
+                    currentChunk += chunk;
+                }
+            }
+
+            currentChunks.push(currentChunk);
+            setPageChunks(currentChunks);
+        };
+
+        handlePageBreak();
+        window.addEventListener('resize', handlePageBreak);
+
+        return () => {
+            window.removeEventListener('resize', handlePageBreak);
+        };
+    }, [htmlContent]);
 
     return (
         <PageStyled>
-            <Button onClick={() => {
-                appendChunksToPages(getNodeChunks(generateRandomContent()));
-            }}></Button>
-            <div className="root_container"></div>
+                {pageChunks.map((chunk, index) => (
+                    <div className={"page"}  key={index} dangerouslySetInnerHTML={{ __html: chunk }} />
+                ))}
+
         </PageStyled>
     )
 }
