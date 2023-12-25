@@ -13,7 +13,7 @@ import {
     IconButton, Menu,
     MenuItem,
     MenuList, Stack,
-    Toolbar,
+    Toolbar, Typography,
     useMediaQuery, useTheme
 } from "@mui/material";
 // components
@@ -619,11 +619,11 @@ function TopNavBar({...props}) {
                                         loading={loadingReq}
                                         loadingPosition="start"
                                         onClick={handlePauseStartConsultation}
-                                        variant="contained"
-                                        color={"info"}
                                         startIcon={<IconUrl height={"18"} width={"18"}
                                                             path="ic-pause-mate"></IconUrl>}>
-                                        {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
+                                        <Typography sx={{display: {xs: "none", md: "flex"}}} color={"text.primary"}>
+                                            {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
+                                        </Typography>
                                     </LoadingButton>
                                     <LoadingButton
                                         loading={loadingReq}
@@ -632,7 +632,7 @@ function TopNavBar({...props}) {
                                         variant="contained"
                                         color={"error"}
                                         startIcon={<IconUrl height={"18"} width={"18"}
-                                                            path="Property 1=play"></IconUrl>}>
+                                                            path="ic-check-circle"></IconUrl>}>
                                         {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.finish`)}
                                     </LoadingButton>
                                 </Stack>

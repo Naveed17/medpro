@@ -10,7 +10,7 @@ import {
     Stack,
     Typography,
     useTheme,
-    alpha
+    alpha, Tooltip
 } from "@mui/material";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import IconUrl from "@themes/urlIcon";
@@ -86,7 +86,7 @@ function BoardItem({...props}) {
     } = props;
     const theme = useTheme();
     const {data: session} = useSession();
-    const {t: commonTranslation} = useTranslation("common");
+    const {t: commonTranslation} = useTranslation(["common", "waitingRoom"]);
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
@@ -205,121 +205,152 @@ function BoardItem({...props}) {
                             <Stack direction={"row"} spacing={.5}>
                                 {quote.content.status === 0 &&
                                     <>
-                                        {!roles.includes('ROLE_SECRETARY') && <IconButton
-                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                                action: "CANCEL_APPOINTMENT",
-                                                row: quote.content,
-                                                event
-                                            })}
-                                            size={"small"}
-                                            sx={{
-                                                border: `1px solid ${theme.palette.divider}`,
-                                                borderRadius: 1,
-                                                width: 30,
-                                                height: 30
-                                            }}>
-                                            <CloseIcon fontSize={"small"}/>
-                                        </IconButton>}
-                                        <IconButton
-                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                                action: "CONFIRM_APPOINTMENT",
-                                                row: quote.content,
-                                                event
-                                            })}
-                                            size={"small"}
-                                            disableFocusRipple
-                                            sx={{
-                                                background: theme.palette.primary.main,
-                                                borderRadius: 1,
-                                                width: 30,
-                                                height: 30
-                                            }}>
-                                            <CheckIcon fontSize={"small"} htmlColor={"white"}/>
-                                        </IconButton>
+                                        {!roles.includes('ROLE_SECRETARY') &&
+                                            <Tooltip
+                                                title={commonTranslation("config.cancel", {ns: "waitingRoom"})}>
+                                                <IconButton
+                                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                                        action: "CANCEL_APPOINTMENT",
+                                                        row: quote.content,
+                                                        event
+                                                    })}
+                                                    size={"small"}
+                                                    sx={{
+                                                        border: `1px solid ${theme.palette.divider}`,
+                                                        borderRadius: 1,
+                                                        width: 30,
+                                                        height: 30
+                                                    }}>
+                                                    <CloseIcon fontSize={"small"}/>
+                                                </IconButton>
+                                            </Tooltip>}
+                                        <Tooltip
+                                            title={commonTranslation("config.confirm", {ns: "waitingRoom"})}>
+                                            <IconButton
+                                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                                    action: "CONFIRM_APPOINTMENT",
+                                                    row: quote.content,
+                                                    event
+                                                })}
+                                                size={"small"}
+                                                disableFocusRipple
+                                                sx={{
+                                                    background: theme.palette.primary.main,
+                                                    borderRadius: 1,
+                                                    width: 30,
+                                                    height: 30
+                                                }}>
+                                                <CheckIcon fontSize={"small"} htmlColor={"white"}/>
+                                            </IconButton>
+                                        </Tooltip>
                                     </>
                                 }
                                 {quote.content.status === 1 &&
                                     <>
-                                        {!roles.includes('ROLE_SECRETARY') && <IconButton
-                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                                action: "START_CONSULTATION",
-                                                row: quote.content,
+                                        {!roles.includes('ROLE_SECRETARY') &&
+                                            <Tooltip title={commonTranslation("config.start", {ns: "waitingRoom"})}>
+                                                <IconButton
+                                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                                        action: "START_CONSULTATION",
+                                                        row: quote.content,
+                                                        event
+                                                    })}
+                                                    size={"small"}
+                                                    sx={{
+                                                        border: `1px solid ${theme.palette.divider}`,
+                                                        borderRadius: 1
+                                                    }}>
+                                                    <PlayCircleIcon fontSize={"small"}/>
+                                                </IconButton>
+                                            </Tooltip>}
+                                        <Tooltip
+                                            title={commonTranslation("config.add_patient_to_waiting_room", {ns: "waitingRoom"})}>
+                                            <IconButton
+                                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                                    action: "ENTER_WAITING_ROOM",
+                                                    row: quote.content,
+                                                    event
+                                                })}
+                                                size={"small"}
+                                                disableFocusRipple
+                                                sx={{background: theme.palette.primary.main, borderRadius: 1}}>
+                                                <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
+                                            </IconButton>
+                                        </Tooltip>
+                                    </>
+                                }
+                                {(quote.content.status === 3) && <>
+                                    <Tooltip
+                                        title={commonTranslation("config.next", {ns: "waitingRoom"})}>
+                                        <IconButton
+                                            onClick={(event) => handleEvent({
+                                                action: "NEXT_CONSULTATION",
+                                                row: {...quote.content, is_next: !!is_next},
                                                 event
                                             })}
                                             size={"small"}
-                                            sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}>
-                                            <PlayCircleIcon fontSize={"small"}/>
-                                        </IconButton>}
+                                            disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
+                                            sx={{
+                                                border: `1px solid ${theme.palette.divider}`,
+                                                borderRadius: 1,
+                                                ...(is_next && {
+                                                    background: theme.palette.primary.main,
+                                                    border: "none"
+                                                }),
+                                            }}>
+                                            {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
+                                            {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
+                                        </IconButton>
+                                    </Tooltip>
+                                    {!roles.includes('ROLE_SECRETARY') &&
+                                        <Tooltip
+                                            title={commonTranslation("config.start", {ns: "waitingRoom"})}>
+                                            <span>
+                                                 <CustomIconButton
+                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                                         action: "START_CONSULTATION",
+                                                         row: quote.content,
+                                                         event
+                                                     })}
+                                                     variant="filled"
+                                                     color={"warning"}
+                                                     size={"small"}>
+                                                <PlayCircleIcon fontSize={"small"}/>
+                                            </CustomIconButton>
+                                            </span>
+                                        </Tooltip>}
+                                </>}
+                                {(quote.content.status === 5 && quote?.content.restAmount !== 0) && <>
+                                    <Tooltip
+                                        title={commonTranslation("config.consultation_pay", {ns: "waitingRoom"})}>
                                         <IconButton
                                             onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                                action: "ENTER_WAITING_ROOM",
+                                                action: "ON_PAY",
                                                 row: quote.content,
                                                 event
                                             })}
                                             size={"small"}
                                             disableFocusRipple
-                                            sx={{background: theme.palette.primary.main, borderRadius: 1}}>
-                                            <IconUrl color={"white"} width={20} height={20} path="ic_waiting_room"/>
+                                            sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}>
+                                            <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
                                         </IconButton>
-                                    </>
-                                }
-                                {(quote.content.status === 3) && <>
-                                    <IconButton
-                                        onClick={(event) => handleEvent({
-                                            action: "NEXT_CONSULTATION",
-                                            row: {...quote.content, is_next: !!is_next},
-                                            event
-                                        })}
-                                        size={"small"}
-                                        disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
-                                        sx={{
-                                            border: `1px solid ${theme.palette.divider}`,
-                                            borderRadius: 1,
-                                            ...(is_next && {
-                                                background: theme.palette.primary.main,
-                                                border: "none"
-                                            }),
-                                        }}>
-                                        {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
-                                        {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
-                                    </IconButton>
-                                    {!roles.includes('ROLE_SECRETARY') && <CustomIconButton
-                                        onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                            action: "START_CONSULTATION",
-                                            row: quote.content,
-                                            event
-                                        })}
-                                        variant="filled"
-                                        color={"warning"}
-                                        size={"small"}>
-                                        <PlayCircleIcon fontSize={"small"}/>
-                                    </CustomIconButton>}
-                                </>}
-                                {(quote.content.status === 5 && quote?.content.restAmount !== 0) && <>
-                                    <IconButton
-                                        onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                            action: "ON_PAY",
-                                            row: quote.content,
-                                            event
-                                        })}
-                                        size={"small"}
-                                        disableFocusRipple
-                                        sx={{background: theme.palette.primary.main, borderRadius: 1, p: .8}}>
-                                        <IconUrl color={"white"} width={16} height={16} path="ic-argent"/>
-                                    </IconButton>
+                                    </Tooltip>
                                 </>}
                                 {!quote.content.patient?.isArchived &&
-                                    <IconButton
-                                        disableRipple
-                                        onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                            action: "OPEN-POPOVER",
-                                            row: quote.content,
-                                            event
-                                        })}
-                                        sx={{display: "block", borderRadius: 1, mr: .5}}
-                                        size="small">
-                                        <Icon path="more-vert" width={16} height={16}/>
-                                    </IconButton>
+                                    <Tooltip
+                                        title={commonTranslation("plus", {ns: "waitingRoom"})}>
+                                        <IconButton
+                                            disableRipple
+                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                                action: "OPEN-POPOVER",
+                                                row: quote.content,
+                                                event
+                                            })}
+                                            sx={{display: "block", borderRadius: 1, mr: .5}}
+                                            size="small">
+                                            <Icon path="more-vert" width={16} height={16}/>
+                                        </IconButton>
+                                    </Tooltip>
                                 }
                             </Stack>
                         }

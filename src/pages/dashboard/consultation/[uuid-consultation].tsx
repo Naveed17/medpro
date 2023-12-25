@@ -578,19 +578,20 @@ function ConsultationInProgress() {
                         mr: {xs: 0, md: 1}
                     }
                 }}>
-                    <Button
+                    {/*<Button
                         variant="text-black"
                         onClick={() => setOpenSecDialog(false)}
                         startIcon={<CloseIcon/>}>
                         <Typography sx={{display: {xs: "none", md: "flex"}}}>
                             {t("cancel")}
                         </Typography>
-                    </Button>
+                    </Button>*/}
                     <Button
                         disabled={checkedNext}
                         onClick={() => setAddFinishAppointment(!addFinishAppointment)}
-                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon/> : <AddIcon/>}>
-                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
+                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon/> :
+                            <IconUrl width={20} height={20} path={"agenda/ic-agenda-+"}/>}>
+                        <Typography sx={{display: {xs: "none", md: "flex"}}} color={"text.primary"}>
                             {t(addFinishAppointment ? "back" : "add_&_finish_appointment")}
                         </Typography>
                     </Button>
@@ -605,7 +606,7 @@ function ConsultationInProgress() {
                         }}
                         startIcon={<IconUrl path="ic-check"/>}>
                         <Typography sx={{display: {xs: "none", md: "flex"}}}>
-                            {t("end_consultation")}
+                            {t("end_consultation_btn")}
                         </Typography>
                     </LoadingButton>
                 </Stack>

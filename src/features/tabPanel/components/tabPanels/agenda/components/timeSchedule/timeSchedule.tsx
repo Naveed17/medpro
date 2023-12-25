@@ -448,7 +448,7 @@ function TimeSchedule({...props}) {
                                         </>
                                     }
 
-                                    {changeTime &&
+                                    {changeTime ?
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                                             <StaticTimePicker
                                                 {...(!isMobile && {orientation: "landscape"})}
@@ -493,22 +493,23 @@ function TimeSchedule({...props}) {
                                                 }}
                                                 renderInput={(params) => <TextField {...params} />}
                                             />
-                                        </LocalizationProvider>}
-                                    {/*:
-                                    <Button
-                                        sx={{fontSize: 12, mt: 1}}
-                                        disabled={!date}
-                                        onClick={() => {
-                                            changeDateRef.current = true;
-                                            setChangeTime(true);
-                                        }}
-                                        startIcon={
-                                            <IconUrl
-                                                width={"14"}
-                                                height={"14"}
-                                                {...(!date && {color: "white"})}
-                                                path="ic-edit"/>}
-                                        variant="text">{t("stepper-1.change-time")}</Button>}*/}
+                                        </LocalizationProvider>
+                                        :
+                                        <Button
+                                            sx={{fontSize: 12, mt: 1}}
+                                            disabled={!date}
+                                            onClick={() => {
+                                                changeDateRef.current = true;
+                                                setChangeTime(true);
+                                            }}
+                                            startIcon={
+                                                <IconUrl
+                                                    width={"14"}
+                                                    height={"14"}
+                                                    {...(!date && {color: "white"})}
+                                                    path="ic-edit"/>}
+                                            variant="text">{t("stepper-1.change-time")}</Button>
+                                    }
                                 </Grid>
                             </Grid>
                         </>
