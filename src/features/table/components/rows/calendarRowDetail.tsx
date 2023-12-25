@@ -95,22 +95,8 @@ function CalendarRowDetail({...props}) {
                         }
                     }}
                     className="first-child">
-                    <Box sx={{display: "flex"}}>
+                    <Box sx={{display: "flex", minWidth: 110}}>
                         <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
-                            {data.hasErrors?.length > 0 &&
-                                <Tooltip
-                                    title={data.hasErrors.map((error: string) => t(error, {ns: "common"})).join(",")}
-                                    TransitionComponent={Zoom}>
-                                    <SmallAvatar
-                                        sx={{
-                                            p: 1.5,
-                                            mr: 1
-                                        }}>
-                                        <DangerIcon
-                                            className="error"
-                                            color={"error"}/>
-                                    </SmallAvatar>
-                                </Tooltip>}
                             {moment(data.time).format('HH:mm') !== "00:00" &&
                                 <>
                                     <TimeIcon/>
@@ -122,6 +108,22 @@ function CalendarRowDetail({...props}) {
                                     </Typography>
                                 </>
                             }
+                            {data.hasErrors?.length > 0 &&
+                                <Tooltip
+                                    title={data.hasErrors.map((error: string) => t(error, {ns: "common"})).join(",")}
+                                    TransitionComponent={Zoom}>
+                                    <SmallAvatar
+                                        sx={{
+                                            p: 1.5,
+                                            ml: 1,
+
+
+                                        }}>
+                                        <DangerIcon
+                                            className="error"
+                                            color={"error"}/>
+                                    </SmallAvatar>
+                                </Tooltip>}
                         </Stack>
                         <Box sx={{display: "flex"}}>
                             {data.new && <Label
