@@ -165,7 +165,7 @@ function Calendar({...props}) {
             }
         }
     }
-
+    
     const handleTableEvent = (action: string, eventData: EventModal, event?: any) => {
         switch (action) {
             case "OPEN-POPOVER":

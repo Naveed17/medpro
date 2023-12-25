@@ -16,6 +16,7 @@ export * from "./convertHexToRGBA";
 export * from "./getDiffDuration";
 export * from "./checkNotification";
 export * from "./flattenObject";
+export * from "./unflattenObject";
 export * from "./checkObjectChange";
 export * from "./appointmentGroupByDate";
 export * from "./appointmentPrepareEvent";
