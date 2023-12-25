@@ -130,12 +130,17 @@ function BoardItem({...props}) {
                     borderRightColor: quote.content.consultationReasons.length > 0 ? quote.content.consultationReasons[0].color : 'divider',
                     borderLeftColor: quote.content.type.color ?? theme.palette.primary.main
                 }),
-                bgcolor: [0].includes(quote.content.status) ? alpha(theme.palette.warning.lighter, .7) : theme.palette.common.white
+                bgcolor: [0].includes(quote.content.status) ? alpha(theme.palette.warning.lighter, .7) : theme.palette.common.white,
+                ".MuiCardContent-root": {
+               "&.MuiCardContent-root":{     
+                    "&:last-child":{
+                     paddingBottom: 1,
+                    }
+                } 
+           }
             }}>
                 <CardContent sx={{
-                    p: 1, "&:last-child": {
-                        paddingBottom: 1
-                    }
+                    p: 1
                 }}>
                     <Stack direction='row' alignItems='center' justifyContent='space-between'>
                         <Stack direction='row' alignItems='center' spacing={.8}>
