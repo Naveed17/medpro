@@ -10,6 +10,7 @@ import {
     Container, DialogActions,
     Drawer,
     LinearProgress, Paper, SpeedDial, SpeedDialAction,
+    Stack,
     Typography,
     useMediaQuery,
     useTheme, Zoom
@@ -1197,14 +1198,17 @@ function Agenda() {
                                     </>
                                 )}
                             </Typography>
-
-                            {row.events.map((event) => (
+                               <Stack spacing={1}>      
+                            {row.events.map((event,idx) => (
+                                
                                 <AppointmentListMobile
                                     {...{roles, event}}
                                     key={event.id}
+                                    index={idx}
                                     OnMenuActions={onMenuActions}
                                     OnSelectEvent={onSelectEvent}/>
                             ))}
+                            </Stack>   
                         </Container>
                     ))}
                     <FilterButton>
