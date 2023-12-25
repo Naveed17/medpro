@@ -1173,7 +1173,7 @@ function ConsultationInProgress() {
             if (!cardPositions)
                 localStorage.setItem(`cardPositions`, JSON.stringify({widget: false, exam: true, history: false}))
 
-            if (hasDataHistory === false) {
+            if (sheet?.hasHistory === false) {
                 setCards([[
                     {
                         id: 'item-1',
