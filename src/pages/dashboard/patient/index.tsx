@@ -194,7 +194,7 @@ function Patient() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [popoverActions, setPopoverActions] = useState([
+    const [popoverActions] = useState([
         {
             title: "view_patient_data",
             icon: <IconUrl color={"white"} path="/ic-voir"/>,
