@@ -12,7 +12,8 @@ import {
     TextField,
     Theme,
     Tooltip,
-    Typography, useMediaQuery,
+    Typography,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
@@ -43,7 +44,8 @@ function NotesComponent({...props}) {
         isStarted, setIsStarted,
         modelContent,
         fullOb, setFullOb,
-        loadChanges, setLoadChanges
+        loadChanges, setLoadChanges,
+        loading
     } = props
 
     const [showToolbar, setShowToolbar] = useState<boolean>(false);
@@ -264,7 +266,7 @@ function NotesComponent({...props}) {
                 onEditorChange={(event) => {
                     debouncedOnChange("notes", event)
                 }}
-                disabled={isStarted}
+                disabled={isStarted || loading}
                 init={{
                     branding: false,
                     statusbar: false,
@@ -283,7 +285,7 @@ function NotesComponent({...props}) {
                     onEditorChange={(event) => {
                         debouncedOnChange("notes", event)
                     }}
-                    disabled={isStarted}
+                    disabled={isStarted || loading}
                     init={{
                         branding: false,
                         statusbar: false,

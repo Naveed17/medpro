@@ -1383,7 +1383,8 @@ function ConsultationInProgress() {
                                     agenda,
                                     mutateSheetData,
                                     fullOb, setFullOb,
-                                    trigger: triggerAppointmentEdit
+                                    trigger: triggerAppointmentEdit,
+                                    loading
                                 }}
                                 handleClosePanel={(v: boolean) => setCloseExam(v)}
                             />
