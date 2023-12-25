@@ -11,15 +11,11 @@ import {dashLayoutSelector} from "@features/base";
 import {AppointmentStatus} from "@features/calendar";
 import {useCountries, useInsurances} from "@lib/hooks/rest";
 import {flattenObject, unflattenObject} from "@lib/hooks";
-import {useRequestQuery} from "@lib/axios";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import {useRouter} from "next/router";
 
 function FilterOverview() {
     const dispatch = useAppDispatch();
     const {insurances: allInsurances} = useInsurances();
     const {countries} = useCountries();
-    const router = useRouter();
 
     const {t, ready} = useTranslation("common");
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
@@ -73,6 +69,8 @@ function FilterOverview() {
                 return allInsurances?.find((insurance: any) => insurance.uuid === value)?.name;
             case "country":
                 return countries.find(country => country.uuid === value)?.name;
+            case "isOnline":
+                return t("appointment-status.ONLINE");
             case "states":
                 return "";
             default:
@@ -115,6 +113,13 @@ function FilterOverview() {
                                 parent: filterItem[0],
                                 key: type,
                                 value: appointmentTypes?.find(typeItem => typeItem.uuid === type)?.name ?? ""
+                            })));
+                            break;
+                        case "isOnline":
+                            filters.push(...(filterItem[1] as string).split(',').map(online => ({
+                                parent: filterItem[0],
+                                key: filterItem[0],
+                                value: getLabel(filterItem[0], online)
                             })));
                             break;
                         case "status":
