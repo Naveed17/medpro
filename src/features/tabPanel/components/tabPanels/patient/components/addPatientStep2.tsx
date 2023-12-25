@@ -187,7 +187,7 @@ function AddPatientStep2({...props}) {
         onSubmit: async (values) => handleChange(null, values)
     });
 
-    const {values, handleSubmit, getFieldProps, setFieldValue, touched, errors} = formik;
+    const {values, handleSubmit, getFieldProps, setFieldValue, setValues, touched, errors} = formik;
 
     const {trigger: triggerAddPatient} = useRequestQueryMutation("/patient/add");
 
@@ -299,12 +299,14 @@ function AddPatientStep2({...props}) {
 
     useEffect(() => {
         if (countries) {
-            const defaultCountry = countries.find(country =>
-                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
+            const defaultCountry = countries.find(country => country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
             setCountriesData(countries.sort((country: CountryModel) =>
                 dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
-            setFieldValue("nationality", defaultCountry);
-            setFieldValue("country", defaultCountry);
+            setValues({
+                ...values,
+                "nationality": !selectedPatient?.nationality ? defaultCountry : "",
+                "country": !(address.length > 0 && address[0]?.city) ? defaultCountry : ""
+            } as any);
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -329,8 +331,7 @@ function AddPatientStep2({...props}) {
                 component={Form}
                 autoComplete="off"
                 noValidate
-                onSubmit={handleSubmit}
-            >
+                onSubmit={handleSubmit}>
                 <div className="inner-section">
                     <Stack spacing={2}>
                         <Typography mt={1} variant="h6" color="text.primary">

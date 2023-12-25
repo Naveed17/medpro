@@ -9,9 +9,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import _ from "lodash";
 import {dashLayoutSelector} from "@features/base";
 import {AppointmentStatus} from "@features/calendar";
+import {useCountries, useInsurances} from "@lib/hooks/rest";
+import {flattenObject, unflattenObject} from "@lib/hooks";
 
 function FilterOverview() {
     const dispatch = useAppDispatch();
+    const {insurances: allInsurances} = useInsurances();
+    const {countries} = useCountries();
 
     const {t, ready} = useTranslation("common");
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
@@ -31,13 +35,25 @@ function FilterOverview() {
                     sp?.splice(sp.findIndex((searchElement: string) => searchElement === data.key), 1);
                     queryGlobal = sp?.length > 0 ? sp?.join(",") : undefined;
                     break;
+                case "patient.insurances":
+                    const spInsurances = filter?.patient?.insurances?.split(",") as string[];
+                    spInsurances?.splice(spInsurances.findIndex((searchElement: string) => searchElement === data.key), 1);
+                    queryGlobal = spInsurances?.length > 0 ? spInsurances?.join(",") : undefined;
+                    break;
                 case "status":
                     const statusSearch = filter?.status?.split(",") as string[];
                     statusSearch?.splice(statusSearch.findIndex((searchElement: string) => AppointmentStatus[searchElement].key === data.key), 1);
                     queryGlobal = data?.key !== "ONLINE" && (statusSearch?.length > 0 ? statusSearch?.join(",") : undefined);
                     break;
             }
-            dispatch(setFilter({[data.parent]: queryGlobal}));
+            if (["patient", "type", "status"].includes(data.parent)) {
+                dispatch(setFilter({[data.parent]: queryGlobal}));
+            } else {
+                dispatch(setFilter(unflattenObject({
+                    ...flattenObject(filter),
+                    [data.parent]: queryGlobal
+                })));
+            }
         }
     }
 
@@ -49,6 +65,14 @@ function FilterOverview() {
                 return t("duplication");
             case "rest":
                 return t("unpaid");
+            case "insurances":
+                return allInsurances?.find((insurance: any) => insurance.uuid === value)?.name;
+            case "country":
+                return countries.find(country => country.uuid === value)?.name;
+            case "isOnline":
+                return t("appointment-status.ONLINE");
+            case "states":
+                return "";
             default:
                 return value
         }
@@ -62,17 +86,40 @@ function FilterOverview() {
                     switch (filterItem[0]) {
                         case "patient":
                             filters.push(...Object.entries(filterItem[1]).reduce(
-                                (filtered: any[], item: any[]) => item[1] ? [...(filtered ?? []), {
-                                    parent: filterItem[0],
-                                    key: item[0],
-                                    value: getLabel(item[0], item[1])
-                                }] : (filtered ?? []), []));
+                                (filtered: any[], item: any[]) => item[1] ?
+                                    [
+                                        ...(filtered ?? []),
+                                        ...(typeof item[1] === "string" ?
+                                            item[1].split(',').map((patientData: any) => (
+                                                {
+                                                    parent: `${filterItem[0]}.${item[0]}`,
+                                                    key: patientData,
+                                                    value: getLabel(item[0], patientData)
+                                                }
+                                            ))
+                                            :
+                                            [
+                                                {
+                                                    parent: filterItem[0],
+                                                    key: item[0],
+                                                    value: getLabel(item[0], item[1])
+                                                }
+                                            ])
+                                    ]
+                                    : (filtered ?? []), []));
                             break;
                         case "type":
                             filters.push(...(filterItem[1] as string).split(',').map(type => ({
                                 parent: filterItem[0],
                                 key: type,
                                 value: appointmentTypes?.find(typeItem => typeItem.uuid === type)?.name ?? ""
+                            })));
+                            break;
+                        case "isOnline":
+                            filters.push(...(filterItem[1] as string).split(',').map(online => ({
+                                parent: filterItem[0],
+                                key: filterItem[0],
+                                value: getLabel(filterItem[0], online)
                             })));
                             break;
                         case "status":
@@ -101,14 +148,14 @@ function FilterOverview() {
                 </Typography>
             </Box>
             <Stack direction="row" flexWrap="wrap" className={"filtered-label"} spacing={1}>
-                {filterData.map((data: any, index: number) => (<Chip
+                {filterData.map((data: any, index: number) => data.value?.length > 0 && <Chip
                     size={"small"}
                     key={`filter-${index}`}
                     label={data.value}
                     color="primary"
                     deleteIcon={<CloseIcon/>}
                     onDelete={() => handleDelete(data)}
-                />))}
+                />)}
             </Stack>
         </FilterOverviewStyled>)
 }

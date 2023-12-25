@@ -113,6 +113,20 @@ function PlaceFilter({...props}) {
         }
     }, [query, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        if (filter?.patient?.hasOwnProperty('country')) {
+            setstate({
+                country: filter?.patient?.country ?? "",
+                states: []
+            });
+        } else if (filter?.patient?.hasOwnProperty('states')) {
+            setstate({
+                country: filter?.patient?.states ? state.country : "",
+                states: [...(filter?.patient?.states ? [filter.patient.states] : [])]
+            });
+        }
+    }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
+
     const statesCountry = (httpStatesResponse as HttpResponse)?.data as any[];
 
     return (

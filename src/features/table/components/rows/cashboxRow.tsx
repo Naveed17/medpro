@@ -205,7 +205,7 @@ function CashboxRow({...props}) {
                                 <Tooltip
                                     key={insurance.insurance?.uuid + "ins"}
                                     title={insurance.insurance.name}>
-                                    <Avatar variant={"circular"}>
+                                    <Avatar variant={"circular"} sx={{width: 30, height: 30}}>
                                         <ImageHandler
                                             alt={insurance.insurance?.name}
                                             src={
@@ -340,7 +340,7 @@ function CashboxRow({...props}) {
                             in={isItemSelected}
                             timeout="auto"
                             unmountOnExit
-                            sx={{mt: "-9px"}}
+                            sx={{mt: "-2px"}}
                         >
                             <Table>
                                 <TableBody>
@@ -514,6 +514,14 @@ function CashboxRow({...props}) {
                                                                         rows={transaction_data}
                                                                         headers={headCells}
                                                                         t={t}
+                                                                        tableWrapperStyle={{
+                                                                            "&.table-wrapper":{
+                                                                                p:0,
+                                                                                ".MuiTableContainer-root":{
+                                                                                    p:0
+                                                                                }
+                                                                            }
+                                                                        }}
                                                                         devise={devise}
                                                                         loading={transaction_loading}
                                                                     />
