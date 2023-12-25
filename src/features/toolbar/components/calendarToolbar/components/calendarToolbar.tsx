@@ -80,10 +80,10 @@ function CalendarToolbar({...props}) {
             case "waitingRoom":
                 OnWaitingRoom(event);
                 break;
-            case "confirmEvent":
+            case "onConfirmAppointment":
                 OnConfirmEvent(event);
                 break;
-            case "moveEvent":
+            case "onMove":
                 OnMoveEvent(event);
                 break;
         }

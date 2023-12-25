@@ -284,7 +284,7 @@ function CalendarRowDetail({...props}) {
                                                 disableRipple
                                                 color={"success"}
                                                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent(
-                                                    "confirmEvent",
+                                                    "onConfirmAppointment",
                                                     data,
                                                     event
                                                 )}
@@ -305,7 +305,7 @@ function CalendarRowDetail({...props}) {
                                         <span>
                                             <IconButton
                                                 onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent(
-                                                    "moveEvent",
+                                                    "onMove",
                                                     data,
                                                     event
                                                 )}
