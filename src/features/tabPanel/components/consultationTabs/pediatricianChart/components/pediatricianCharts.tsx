@@ -20,7 +20,7 @@ function PediatricianCharts({...props}) {
     const [weight, setWeight] = useState<boolean>(true);
     const [perimetreCranien, setPerimetreCranien] = useState<boolean>(false);
 
-    const {sheet, birthdate, t} = props;
+    const {sheet, birthdate,modelData,date, t} = props;
     useEffect(() => {
         let patientHeight: { x: number, y: number }[] = []
         let patientWeight: { x: number, y: number }[] = []
@@ -52,6 +52,31 @@ function PediatricianCharts({...props}) {
                     y: sheet.poids.data[date]
                 })
             })
+
+            const nbMonth = moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "months")
+
+            if (modelData?.poids){
+                let df = patientWeight.find(w => w.x === nbMonth)
+                if (df !== undefined)
+                    df.y= modelData.poids
+                else {
+                    patientWeight.push({
+                        x: patientWeight.find(w => w.x === nbMonth) ? nbMonth + 1 : nbMonth,
+                        y: modelData.poids
+                    })
+                }
+            }
+            if (modelData?.taille){
+                let df = patientHeight.find(w => w.x === nbMonth)
+                if (df !== undefined)
+                    df.y= modelData.taille
+                else {
+                    patientHeight.push({
+                        x: patientHeight.find(w => w.x === nbMonth) ? nbMonth + 1 : nbMonth,
+                        y: modelData.taille
+                    })
+                }
+            }
             series = [...series, ...weight36, {
                 name: t('pediatrician.weight'),
                 data: patientWeight

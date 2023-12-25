@@ -51,6 +51,8 @@
     "addsuccess": "Paiement ajouté",
     "start": "Commencer",
     "more": "Plus",
+    "confirm": "Confirmer RDV",
+    "cancel": "Annuler RDV",
     "next": "Prochain",
     "is_next": "Suivant",
     "see_patient_form": "Voir fiche Patient",

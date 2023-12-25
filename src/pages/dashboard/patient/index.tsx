@@ -91,24 +91,6 @@ import {useSession} from "next-auth/react";
 
 const humanizeDuration = require("humanize-duration");
 
-const stepperData = [
-    {
-        title: "tabs.personal-info",
-        children: AddPatientStep1,
-        disabled: false,
-    },
-    {
-        title: "tabs.additional-information",
-        children: AddPatientStep2,
-        disabled: true,
-    },
-    {
-        title: "tabs.fin",
-        children: AddPatientStep3,
-        disabled: true,
-    },
-];
-
 // table head data
 const headCells: readonly HeadCell[] = [
     {
@@ -212,7 +194,7 @@ function Patient() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [popoverActions, setPopoverActions] = useState([
+    const [popoverActions] = useState([
         {
             title: "view_patient_data",
             icon: <IconUrl color={"white"} path="/ic-voir"/>,
@@ -229,6 +211,23 @@ function Patient() {
             action: "onDeletePatient",
         }] : [])
     ]);
+    const stepperData = [
+        {
+            title: "tabs.personal-info",
+            children: AddPatientStep1,
+            disabled: false,
+        },
+        {
+            title: "tabs.additional-information",
+            children: AddPatientStep2,
+            disabled: true,
+        },
+        {
+            title: "tabs.fin",
+            children: AddPatientStep3,
+            disabled: true,
+        },
+    ];
     const [loading] = useState<boolean>(false);
     const [rows, setRows] = useState<PatientModel[]>([]);
     const {collapse} = RightActionData.filter;

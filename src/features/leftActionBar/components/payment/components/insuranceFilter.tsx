@@ -48,10 +48,16 @@ function InsuranceFilter({...props}) {
     }
 
     useEffect(() => {
-        if (filterData?.payment && filterData?.payment?.insurance) {
+        if (filterData?.payment?.insurance) {
             setQueryState({
                 insurance: insurancesData.filter(insurance => filterData?.payment?.insurance?.includes(insurance.uuid))
             });
+        } else if (filterData?.patient?.insurances) {
+            setQueryState({
+                insurance: insurancesData.filter(insurance => filterData?.patient?.insurances?.split(",")?.includes(insurance.uuid))
+            });
+        } else {
+            setQueryState({insurance: []});
         }
     }, [filterData]); // eslint-disable-line react-hooks/exhaustive-deps
 

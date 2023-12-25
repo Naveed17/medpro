@@ -17,6 +17,7 @@ import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
+import moment from "moment-timezone";
 
 function CalendarRowDetail({...props}) {
     const {
@@ -94,8 +95,19 @@ function CalendarRowDetail({...props}) {
                         }
                     }}
                     className="first-child">
-                    <Box sx={{display: "flex"}}>
+                    <Box sx={{display: "flex", minWidth: 110}}>
                         <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
+                            {moment(data.time).format('HH:mm') !== "00:00" &&
+                                <>
+                                    <TimeIcon/>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {new Date(data.time).toLocaleTimeString([], {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </Typography>
+                                </>
+                            }
                             {data.hasErrors?.length > 0 &&
                                 <Tooltip
                                     title={data.hasErrors.map((error: string) => t(error, {ns: "common"})).join(",")}
@@ -103,20 +115,15 @@ function CalendarRowDetail({...props}) {
                                     <SmallAvatar
                                         sx={{
                                             p: 1.5,
-                                            mr: 1
+                                            ml: 1,
+
+
                                         }}>
                                         <DangerIcon
                                             className="error"
                                             color={"error"}/>
                                     </SmallAvatar>
                                 </Tooltip>}
-                            <TimeIcon/>
-                            <Typography variant="body2" color="text.secondary">
-                                {new Date(data.time).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                            </Typography>
                         </Stack>
                         <Box sx={{display: "flex"}}>
                             {data.new && <Label

@@ -32,7 +32,9 @@ function HistoryTab({...props}) {
         setInfo,
         router,
         mini,
-        appuuid
+        modelData,
+        appuuid,
+        date
     } = props;
 
     let dates: string[] = [];
@@ -162,7 +164,7 @@ function HistoryTab({...props}) {
 
             {
                 patient?.birthdate && moment().diff(moment(patient?.birthdate,'DD-MM-YYYY'), "years") < 5 &&
-                <PediatricianCharts {...{sheet, birthdate: patient?.birthdate, t}}/>
+                <PediatricianCharts {...{sheet, birthdate: patient?.birthdate,modelData,date, t}}/>
             }
             {/****** Latest appointment ******/}
             {latest_appointment && latest_appointment.length > 0 &&

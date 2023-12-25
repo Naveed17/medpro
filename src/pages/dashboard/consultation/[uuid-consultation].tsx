@@ -578,19 +578,20 @@ function ConsultationInProgress() {
                         mr: {xs: 0, md: 1}
                     }
                 }}>
-                    <Button
+                    {/*<Button
                         variant="text-black"
                         onClick={() => setOpenSecDialog(false)}
                         startIcon={<CloseIcon/>}>
                         <Typography sx={{display: {xs: "none", md: "flex"}}}>
                             {t("cancel")}
                         </Typography>
-                    </Button>
+                    </Button>*/}
                     <Button
                         disabled={checkedNext}
                         onClick={() => setAddFinishAppointment(!addFinishAppointment)}
-                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon/> : <AddIcon/>}>
-                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
+                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon/> :
+                            <IconUrl width={20} height={20} path={"agenda/ic-agenda-+"}/>}>
+                        <Typography sx={{display: {xs: "none", md: "flex"}}} color={"text.primary"}>
                             {t(addFinishAppointment ? "back" : "add_&_finish_appointment")}
                         </Typography>
                     </Button>
@@ -605,7 +606,7 @@ function ConsultationInProgress() {
                         }}
                         startIcon={<IconUrl path="ic-check"/>}>
                         <Typography sx={{display: {xs: "none", md: "flex"}}}>
-                            {t("end_consultation")}
+                            {t("end_consultation_btn")}
                         </Typography>
                     </LoadingButton>
                 </Stack>
@@ -1173,7 +1174,7 @@ function ConsultationInProgress() {
             if (!cardPositions)
                 localStorage.setItem(`cardPositions`, JSON.stringify({widget: false, exam: true, history: false}))
 
-            if (hasDataHistory === false) {
+            if (sheet?.hasHistory === false) {
                 setCards([[
                     {
                         id: 'item-1',
@@ -1357,6 +1358,8 @@ function ConsultationInProgress() {
                                 setState,
                                 setInfo,
                                 router,
+                                modelData:sheetModal?.data,
+                                date:sheet?.date,
                                 setIsViewerOpen,
                                 setSelectedTab,
                                 appuuid: app_uuid,
@@ -1380,7 +1383,8 @@ function ConsultationInProgress() {
                                     agenda,
                                     mutateSheetData,
                                     fullOb, setFullOb,
-                                    trigger: triggerAppointmentEdit
+                                    trigger: triggerAppointmentEdit,
+                                    loading
                                 }}
                                 handleClosePanel={(v: boolean) => setCloseExam(v)}
                             />
