@@ -392,7 +392,7 @@ function Profil() {
                                     direction="row"
                                     alignItems="flex-start"
                                     width={1}>
-                                    <IconUrl className="left-icon" path="ic-send-mail" width={18} height={18}/>
+                                    <IconUrl className="left-icon" path="ic-send-mail" />
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography
                                             variant="subtitle2"
@@ -441,7 +441,7 @@ function Profil() {
                                     direction="row"
                                     alignItems="flex-start"
                                     width={1}>
-                                    <IconUrl className="left-icon" path="ic-argent"/>
+                                    <IconUrl className="left-icon" path="ic-earning"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography
                                             variant="subtitle2"

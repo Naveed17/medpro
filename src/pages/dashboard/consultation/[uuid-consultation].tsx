@@ -1357,6 +1357,8 @@ function ConsultationInProgress() {
                                 setState,
                                 setInfo,
                                 router,
+                                modelData:sheetModal?.data,
+                                date:sheet?.date,
                                 setIsViewerOpen,
                                 setSelectedTab,
                                 appuuid: app_uuid,
