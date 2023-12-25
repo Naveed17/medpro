@@ -57,7 +57,6 @@ function PediatricianCharts({...props}) {
 
             if (modelData?.poids){
                 let df = patientWeight.find(w => w.x === nbMonth)
-                console.log(patientWeight,nbMonth)
                 if (df !== undefined)
                     df.y= modelData.poids
                 else {
@@ -69,7 +68,6 @@ function PediatricianCharts({...props}) {
             }
             if (modelData?.taille){
                 let df = patientHeight.find(w => w.x === nbMonth)
-                console.log(df);
                 if (df !== undefined)
                     df.y= modelData.taille
                 else {
