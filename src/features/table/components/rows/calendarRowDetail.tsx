@@ -94,7 +94,7 @@ function CalendarRowDetail({...props}) {
                         }
                     }}
                     className="first-child">
-                    <Box sx={{display: "flex",minWidth:100}}>
+                    <Box sx={{display: "flex",minWidth:120}}>
                         <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
                             {data.hasErrors?.length > 0 &&
                                 <Tooltip
@@ -102,9 +102,9 @@ function CalendarRowDetail({...props}) {
                                     TransitionComponent={Zoom}>
                                     <SmallAvatar
                                         sx={{
-                                            p: 1.2,
+                                            p: 1.5,
                                         mr:1,
-                                           
+                                          
                                           
                                         }}>
                                         <DangerIcon
