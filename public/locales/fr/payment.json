@@ -72,11 +72,20 @@
   "status": "Status",
   "paid": "Payé",
   "unpaid": "Non Payé",
+  "partially": "Partiellement payé",
   "transactions": "Transactions",
   "date_time": "Date et heure",
   "payment_method": "Méthode de paiement",
+  "pay": "Payer",
   "used": "Utilisé",
   "unpaid_consultation": "Consultation non rémunérée",
+  "total_profit": "Gain total",
+  "cash_in_hand": "Espèce encaissé",
+  "cheque_cashed": "Chéque encaissé",
+  "not_paid": "Impayé",
+  "name_of_bank": "Nom de banque",
+  "cheque_date": "Date du chèque",
+  "paid_consultation": "Consultation payante",
   "dialogs": {
     "delete-dialog": {
       "title": "Supprimer transaction",
@@ -86,9 +95,9 @@
   "encaissed": "encaissés",
   "encashment": "Encaissement",
   "table": {
-    "date": "Date et heure",
+    "date": "Date",
     "time": "Heure",
-    "name": "Nom du patient",
+    "name": "Patient",
     "insurance": "Assurances",
     "type": "Type",
     "payment_type": "Paiement",
@@ -98,7 +107,7 @@
     "carrier": "Carrier",
     "add_reason": "Ajouter",
     "billing_status": "Etat de Facturation",
-    "amount": "Montant",
+    "amount": "Payé",
     "actions": "Actions",
     "consultation": "Consultation",
     "check": "Control",
@@ -121,11 +130,15 @@
     "empty": "",
     "export": "Export",
     "total": "Total",
-    "rest": "Reste à payer"
+    "rest": "Reste",
+    "status": "Status",
+    "transaction_details": "Détails de la transaction"
   },
   "no-data": {
     "title": "Aucune transaction",
-    "description": "aucune transaction pour le jour sélectionné"
+    "description": "Aucune transaction pour le jour sélectionné",
+    "title_consult": "Aucune consultation",
+    "des_consult": "Aucune consultation pour le jour sélectionné"
   },
   "filter": {
     "patient": "Patient",

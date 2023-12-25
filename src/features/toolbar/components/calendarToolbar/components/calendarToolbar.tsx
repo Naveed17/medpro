@@ -24,10 +24,7 @@ import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
@@ -59,8 +56,8 @@ function CalendarToolbar({...props}) {
     const [pendingDialog, setPendingDialog] = useState(false);
     const VIEW_OPTIONS = [
         {value: "timeGridDay", label: "Day", text: "Jour", icon: TodayIcon},
-        {value: "timeGridWeek", label: "Weeks", text: "Semaine", icon: DayIcon},
-        {value: "dayGridMonth", label: "Months", text: "Mois", icon: WeekIcon},
+        {value: "timeGridWeek", label: "Weeks", text: "Semaine", icon: WeekIcon},
+        {value: "dayGridMonth", label: "Months", text: "Mois", icon: DayIcon},
         {value: "listWeek", label: "Agenda", text: "List", icon: GridIcon}
     ];
 
@@ -68,20 +65,26 @@ function CalendarToolbar({...props}) {
         dispatch(setView(view));
     }
 
-    const handleTableEvent = (action: string, eventData: EventModal) => {
+    const handleTableEvent = (action: string, eventData: any) => {
+        const event: any = {
+            publicId: eventData.id,
+            extendedProps: {
+                ...eventData
+            }
+        }
         setPendingDialog(false);
         switch (action) {
-            case "showEvent":
-                OnSelectEvent(eventData);
+            case "onPatientDetail":
+                OnSelectEvent(event);
                 break;
             case "waitingRoom":
-                OnWaitingRoom(eventData);
+                OnWaitingRoom(event);
                 break;
-            case "confirmEvent":
-                OnConfirmEvent(eventData);
+            case "onConfirmAppointment":
+                OnConfirmEvent(event);
                 break;
-            case "moveEvent":
-                OnMoveEvent(eventData);
+            case "onMove":
+                OnMoveEvent(event);
                 break;
         }
     }
@@ -138,7 +141,7 @@ function CalendarToolbar({...props}) {
                         <Button className="Current-date" variant="text-transparent">
                             <Typography variant="body2" component={"span"} fontWeight={"bold"}>
                                 {view === 'timeGridWeek' ?
-                                    `${moment(timeRange.start, "DD/MM/YYYY").format(`DD ${timeRange.start.split('-')[1] !== timeRange.end.split('-')[1] ? 'MMM' : ''} ${timeRange.start.split('-')[2] !== timeRange.end.split('-')[2] ? 'YYYY' : ''}`)} - ${moment(timeRange.end, "DD/MM/YYYY").format("DD MMM YYYY")}` :
+                                    `${moment(timeRange.start, "DD/MM/YYYY").format(`DD ${timeRange.start.split('-')[1] !== moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("MM") ? 'MMM' : ''} ${timeRange.start.split('-')[2] !== moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("YYYY") ? 'YYYY' : ''}`)} - ${moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("DD MMM YYYY")}` :
                                     moment(currentDate.date.toLocaleDateString("fr"), "DD/MM/YYYY").format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM YYYY' : 'Do MMMM, YYYY')}
                             </Typography>
                         </Button>

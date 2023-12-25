@@ -27,10 +27,9 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {AppointmentStatsPopover, NotificationPopover, PausedConsultationPopover} from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
 import {appLockSelector} from "@features/appLock";
-import {agendaSelector, AppointmentStatus} from "@features/calendar";
+import {agendaSelector, AppointmentStatus, openDrawer} from "@features/calendar";
 import IconUrl from "@themes/urlIcon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import {onOpenPatientDrawer} from "@features/table";
 import {Dialog, PatientDetail} from "@features/dialog";
 import {useRequestQueryMutation} from "@lib/axios";
@@ -173,7 +172,10 @@ function TopNavBar({...props}) {
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId}/status/${router.locale}`
         }, {
             onSuccess: () => {
-                dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
+                batch(() => {
+                    dispatch(openDrawer({type: "view", open: false}));
+                    dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
+                });
                 if (selectedEvent) {
                     handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
                 } else {
@@ -217,7 +219,7 @@ function TopNavBar({...props}) {
                     dispatch(resetAppointment());
                     dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
                 });
-                console.log("selectedEvent", selectedEvent);
+
                 if (selectedEvent) {
                     handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
                 } else {
@@ -399,7 +401,7 @@ function TopNavBar({...props}) {
                                 color="primary"
                                 edge="start"
                                 className="btn">
-                                <Icon path="ic-scan"/>
+                                <Icon path="ic-fullscreen"/>
                             </IconButton>
                             {(import_data && import_data.length > 0) &&
                                 <Box sx={{width: '16%'}}>
@@ -415,7 +417,7 @@ function TopNavBar({...props}) {
                                         sx={{mr: 3}}
                                         className={`Custom-MuiAvatar-root ${!isActive ? 'active' : ''}`}
                                         onClick={() => requestNotificationPermission()}>
-                                        <NotificationsPausedIcon color={"black"}/>
+                                        <IconUrl path={"ic-notification-off"} width={25} height={25} color={"black"}/>
                                     </Avatar>
                                 </WarningTooltip>}
                             {next &&
@@ -648,7 +650,7 @@ function TopNavBar({...props}) {
                         }}
                         open={openPaymentDialog}
                         data={{
-                            patient: event?.extendedProps.patient,
+                            patient: (selectedEvent ? selectedEvent : event)?.extendedProps.patient,
                             setOpenPaymentDialog,
                             mutatePatient: () => mutateOnGoing()
                         }}

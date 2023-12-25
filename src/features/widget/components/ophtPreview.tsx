@@ -270,22 +270,15 @@ export default function OphtPreview({...props}) {
                 onClose={() => setOpen(false)}
                 scroll={"paper"}
                 maxWidth={"lg"}>
-                <DialogTitle style={{
-                    marginBottom: 15,
-                    borderBottom: "1px solid #eeeff1",
-                    color: "#0696D6"
-                }}
-                             id="draggable-dialog-title">
-                    {t('ophtalmologiqueExam')}
-                    <Typography fontSize={12} style={{color: "rgb(115, 119, 128)"}}>& {t('ac')}</Typography>
-                </DialogTitle>
+
                 <DialogContent>
-
-
                     <DialogTableStyled style={{width: "100%"}}
                                        onClick={() => {
                                            setOpen(true)
                                        }}>
+
+                        <Typography color={"#0696D6"} style={{marginBottom: 8, marginTop: 20}}>{t('ophtalmologiqueExam')}</Typography>
+
                         <tbody>
                         <tr>
                             <td className={"col"}></td>

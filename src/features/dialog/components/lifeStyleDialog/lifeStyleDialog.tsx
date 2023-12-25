@@ -29,6 +29,9 @@ import AntecedentWidget from "@features/dialog/components/lifeStyleDialog/Antece
 import IconUrl from "@themes/urlIcon";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {DatePicker,LocalizationProvider} from "@mui/x-date-pickers";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import moment from "moment";
 
 function LifeStyleDialog({...props}) {
     const router = useRouter();
@@ -68,9 +71,9 @@ function LifeStyleDialog({...props}) {
                 })
             })
             setState([...state])
-            setTimeout(()=>{
+            setTimeout(() => {
                 setLoading(false)
-            },1000)
+            }, 1000)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [antecedents])
@@ -150,254 +153,319 @@ function LifeStyleDialog({...props}) {
                             }}
                         />
 
-                        {state && antecedents.sort((a, b) => (state?.find(inf => inf.uuid == a.uuid) !== undefined ? -1 : 1))
-                            .filter((item: AntecedentsTypeModel) => item.name.toLowerCase().includes(value.toLowerCase())).map((list: any, idx: number) =>
-                            <Stack key={idx} spacing={0}>
-                                <ListItem>
-                                    <FormGroup className={state?.find(inf => inf.uuid == list.uuid) !== undefined ? "selected-ant" : ""} row>
-                                        <Stack style={{width: "100%"}}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={state?.find(inf => inf.uuid == list.uuid) !== undefined}
-                                                        onChange={handleChange} name={list.uuid}/>
-                                                }
-                                                label={list.name}
-                                            />
+                        {state && antecedents
+                            .filter((item: AntecedentsTypeModel) => item.name.toLowerCase().includes(value.toLowerCase())).filter(item => state.find(s => s.uuid === item.uuid)).map((list: any, idx: number) =>
+                                <Stack key={idx} spacing={0}>
+                                    <ListItem>
+                                        <FormGroup
+                                            className={state?.find(inf => inf.uuid == list.uuid) !== undefined ? "selected-ant" : ""}
+                                            row>
+                                            <Stack style={{width: "100%"}}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Checkbox
+                                                            checked={state?.find(inf => inf.uuid == list.uuid) !== undefined}
+                                                            onChange={handleChange} name={list.uuid}/>
+                                                    }
+                                                    label={list.name}
+                                                />
 
-                                            {
-                                                state.find(ant => ant.uuid === list.uuid) && state && state[state.findIndex(ant => ant.uuid === list.uuid)].data.map((data, index) => (
-                                                    <Card key={data.uuid}
-                                                          style={{width: "100%", borderStyle: "dashed", marginBottom: 10}}>
-                                                        <CardContent>
-                                                            <Stack style={{paddingRight: 20}}>
-                                                                {
-                                                                    state && state[state.findIndex(ant => ant.uuid === list.uuid)].data.length > 1 &&
-                                                                    <Stack direction={"row"}
-                                                                           justifyItems={"center"}
-                                                                           justifyContent={"space-between"}
-                                                                           style={{
-                                                                               padding: 10,
-                                                                               paddingTop: 0,
-                                                                               marginBottom: 10,
-                                                                               borderBottom: '1px dashed #DDD',
-                                                                           }}>
-                                                                        <Typography style={{
-                                                                            letterSpacing: 2,
-                                                                            color: "grey"
-                                                                        }}>{list.name} {index + 1}</Typography>
-                                                                        {index === state[state.findIndex(ant => ant.uuid === list.uuid)].data.length - 1 &&
-                                                                            <Button size={"small"}
-                                                                                    onClick={() => {
-                                                                                        let x = state.findIndex(ant => ant.uuid === list.uuid)
-
-                                                                                        state[x].data.splice(index, 1)
-                                                                                        setState([...state]);
-
-                                                                                    }}
-                                                                                    color={"error"}>
-                                                                                <IconUrl path={"setting/icdelete"}/>
-                                                                            </Button>}
-
-                                                                    </Stack>
-                                                                }
-                                                                <Stack spacing={1} direction={'row'}>
-                                                                    {/*Start time*/}
+                                                {
+                                                    state.find(ant => ant.uuid === list.uuid) && state && state[state.findIndex(ant => ant.uuid === list.uuid)].data.map((data, index) => (
+                                                        <Card key={data.uuid}
+                                                              style={{
+                                                                  width: "100%",
+                                                                  borderStyle: "dashed",
+                                                                  marginBottom: 10
+                                                              }}>
+                                                            <CardContent>
+                                                                <Stack style={{paddingRight: 20}}>
                                                                     {
-                                                                        !list.hideStartTime && <TextField
-                                                                            name={`${list.uuid}`}
-                                                                            value={data.startDate}
-                                                                            placeholder={list.hideEndTime ? t('date') : t('starting_year')}
-                                                                            sx={{width: 130}}
+                                                                        state && state[state.findIndex(ant => ant.uuid === list.uuid)].data.length > 1 &&
+                                                                        <Stack direction={"row"}
+                                                                               justifyItems={"center"}
+                                                                               justifyContent={"space-between"}
+                                                                               style={{
+                                                                                   padding: 10,
+                                                                                   paddingTop: 0,
+                                                                                   marginBottom: 10,
+                                                                                   borderBottom: '1px dashed #DDD',
+                                                                               }}>
+                                                                            <Typography style={{
+                                                                                letterSpacing: 2,
+                                                                                color: "grey"
+                                                                            }}>{list.name} {index + 1}</Typography>
+                                                                            {index === state[state.findIndex(ant => ant.uuid === list.uuid)].data.length - 1 &&
+                                                                                <Button size={"small"}
+                                                                                        onClick={() => {
+                                                                                            let x = state.findIndex(ant => ant.uuid === list.uuid)
+
+                                                                                            state[x].data.splice(index, 1)
+                                                                                            setState([...state]);
+
+                                                                                        }}
+                                                                                        color={"error"}>
+                                                                                    <IconUrl path={"setting/icdelete"}/>
+                                                                                </Button>}
+
+                                                                        </Stack>
+                                                                    }
+                                                                    <Stack spacing={1} direction={'row'}>
+                                                                        {/*Start time*/}
+                                                                        {
+                                                                            !list.hideStartTime && <TextField
+                                                                                name={`${list.uuid}`}
+                                                                                value={data.startDate}
+                                                                                placeholder={list.hideEndTime ? t('date') : t('starting_year')}
+                                                                                sx={{width: 130}}
+                                                                                onChange={(e) => {
+                                                                                    data.startDate = e.target.value;
+                                                                                    setState([...state])
+                                                                                }
+                                                                                }/>
+                                                                        }
+                                                                        {/*End time*/}
+                                                                        {
+                                                                            !list.hideEndTime && <TextField
+                                                                                name={`${list.uuid}`}
+                                                                                sx={{width: 130}}
+                                                                                value={data.endDate}
+                                                                                placeholder={t('ending_year')}
+                                                                                onChange={(e) => {
+                                                                                    data.endDate = e.target.value;
+                                                                                    setState([...state])
+                                                                                }
+                                                                                }/>
+                                                                        }
+                                                                    </Stack>
+
+                                                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                                                        <Stack spacing={1} mt={2} direction={'row'}>
+
+
+                                                                            {/*Start date*/}
+                                                                            {!list.hideStart &&
+                                                                                <DatePicker
+                                                                                    renderInput={(props) =>
+                                                                                        <TextField size={"small"} {...props} />}
+                                                                                    label={t('start')}
+                                                                                    inputFormat={"dd-MM-yyyy"}
+                                                                                    value={data.start || ""}
+                                                                                    onChange={(newValue) => {
+                                                                                        data.start = newValue;
+                                                                                        setState([...state])
+                                                                                    }}
+
+                                                                                />
+                                                                            }
+                                                                            {/*End time*/}
+                                                                            {!list.hideEnd &&
+                                                                                <DatePicker
+                                                                                    renderInput={(props) =>
+                                                                                        <TextField size={"small"} {...props} />}
+                                                                                    label={t('end')}
+                                                                                    inputFormat={"dd-MM-yyyy"}
+                                                                                    value={data.end || ""}
+                                                                                    onChange={(newValue) => {
+                                                                                        data.end = newValue
+                                                                                        setState([...state])
+                                                                                    }}
+                                                                                />
+                                                                            }
+                                                                        </Stack>
+                                                                    </LocalizationProvider>
+
+                                                                    {action === 'family_antecedents' &&
+                                                                        <Stack spacing={1} direction={'row'}>
+                                                                            <FormControlLabel
+                                                                                control={
+                                                                                    <Checkbox
+                                                                                        name={list.uuid}
+                                                                                        checked={data.ascendantOf === 'father'}
+                                                                                        onChange={() => {
+
+                                                                                            if (data.ascendantOf === 'father')
+                                                                                                data.ascendantOf = '';
+                                                                                            else
+                                                                                                data.ascendantOf = 'father';
+
+                                                                                            setState([...state])
+                                                                                        }}
+                                                                                    />
+
+                                                                                }
+                                                                                label={t('father')}
+                                                                            />
+                                                                            <FormControlLabel
+                                                                                control={
+                                                                                    <Checkbox
+                                                                                        name={list.uuid}
+                                                                                        checked={data.ascendantOf === 'mother'}
+                                                                                        onChange={() => {
+                                                                                            if (data.ascendantOf === 'mother')
+                                                                                                data.ascendantOf = '';
+                                                                                            else
+                                                                                                data.ascendantOf = 'mother';
+                                                                                            setState([...state])
+                                                                                        }}
+                                                                                    />
+                                                                                }
+                                                                                label={t('mother')}
+                                                                            />
+                                                                            <FormControlLabel
+                                                                                control={
+                                                                                    <Checkbox
+                                                                                        name={list.uuid}
+                                                                                        checked={data.ascendantOf === 'both'}
+                                                                                        onChange={() => {
+
+                                                                                            if (data.ascendantOf === 'both')
+                                                                                                data.ascendantOf = '';
+                                                                                            else
+                                                                                                data.ascendantOf = 'both';
+
+                                                                                            setState([...state])
+                                                                                        }}
+                                                                                    />
+                                                                                }
+                                                                                label={t('both')}
+                                                                            />
+                                                                        </Stack>}
+                                                                    {
+                                                                        list.value_type === 1 &&
+                                                                        <TextField
+                                                                            value={data.response}
+                                                                            placeholder={t('note')}
+                                                                            sx={{width: '100%', mt: 1, ml: 2}}
                                                                             onChange={(e) => {
-                                                                                data.startDate = e.target.value;
+                                                                                data.response = e.target.value;
                                                                                 setState([...state])
                                                                             }
                                                                             }/>
                                                                     }
-                                                                    {/*End time*/}
-                                                                    {
-                                                                        !list.hideEndTime && <TextField
-                                                                            name={`${list.uuid}`}
-                                                                            sx={{width: 130}}
-                                                                            value={data.endDate}
-                                                                            placeholder={t('ending_year')}
+                                                                    {!list.hideNote &&
+                                                                        <TextField
+                                                                            value={data.note}
+                                                                            placeholder={t('note2')}
+                                                                            sx={{width: '100%', mt: 1, ml: 2}}
                                                                             onChange={(e) => {
-                                                                                data.endDate = e.target.value;
+                                                                                data.note = e.target.value;
                                                                                 setState([...state])
                                                                             }
                                                                             }/>
+                                                                    }
+                                                                    {
+                                                                        list.value_type === 2 &&
+                                                                        <>
+                                                                            <Typography fontSize={10} mt={2}
+                                                                                        ml={1}>{t('selectPlz')} <span
+                                                                                style={{color: "red"}}> *</span></Typography>
+                                                                            <Stack direction={'row'}
+                                                                                   spacing={{xs: 0, sm: 1}}
+                                                                                   mb={1}
+                                                                                   ml={1}
+                                                                                   {...(isMobile && {
+                                                                                       sx: {
+                                                                                           display: 'grid',
+                                                                                           gridTemplateColumns: 'repeat(auto-fit, minmax(88px, 1fr))',
+                                                                                           gap: 1,
+                                                                                           width: 1,
+                                                                                           "label": {
+                                                                                               margin: 0
+                                                                                           }
+                                                                                       }
+                                                                                   })}
+                                                                            >
+                                                                                {list.values.map((val: {
+                                                                                    uuid: string;
+                                                                                    value: string
+                                                                                }) => (
+                                                                                    <FormControlLabel
+                                                                                        key={val.uuid}
+                                                                                        control={
+                                                                                            <Checkbox
+                                                                                                name={val.uuid}
+                                                                                                checked={data.response === val.uuid}
+                                                                                                onChange={() => {
+                                                                                                    if (data.response === val.uuid)
+                                                                                                        data.response = ''
+                                                                                                    else
+                                                                                                        data.response = val.uuid;
+                                                                                                    setState([...state])
+                                                                                                }}/>
+                                                                                        }
+                                                                                        label={val.value}
+                                                                                    />))}
+                                                                            </Stack>
+                                                                        </>
+                                                                    }
+                                                                    {
+                                                                        list.value_type === 7 &&
+                                                                        <Box padding={3} pb={0}>
+                                                                            <AntecedentWidget {...{
+                                                                                list,
+                                                                                data,
+                                                                                state,
+                                                                                setState
+                                                                            }}/>
+                                                                        </Box>
                                                                     }
                                                                 </Stack>
-                                                                {action === 'family_antecedents' &&
-                                                                    <Stack spacing={1} direction={'row'}>
-                                                                        <FormControlLabel
-                                                                            control={
-                                                                                <Checkbox
-                                                                                    name={list.uuid}
-                                                                                    checked={data.ascendantOf === 'father'}
-                                                                                    onChange={() => {
+                                                            </CardContent>
+                                                        </Card>
+                                                    ))
+                                                }
+                                                {
+                                                    list.multiple == true && state?.find(inf => inf.uuid == list.uuid) !== undefined &&
+                                                    <Button size={"small"}
+                                                            style={{width: "fit-content"}}
+                                                            onClick={() => {
+                                                                const x: any = state[state.findIndex(ant => ant.uuid === list.uuid)];
+                                                                x.data.map((d: any, index: number) => d.note = (index + 1).toString())
+                                                                x.data.push({
+                                                                    antecedent: {uuid: x?.uuid},
+                                                                    name: '',
+                                                                    startDate: '',
+                                                                    endDate: '',
+                                                                    response: '',
+                                                                    ascendantOf: null,
+                                                                    note: (x.data.length + 1).toString()
+                                                                })
+                                                                setState([...state])
+                                                            }}
+                                                            startIcon={<AddIcon/>}>
+                                                        <Typography
+                                                            textTransform={"lowercase"}>{t('other')} {list.name}</Typography>
+                                                    </Button>
+                                                }
+                                            </Stack>
+                                        </FormGroup>
 
-                                                                                        if (data.ascendantOf === 'father')
-                                                                                            data.ascendantOf = '';
-                                                                                        else
-                                                                                            data.ascendantOf = 'father';
+                                    </ListItem>
+                                </Stack>
+                            )}
 
-                                                                                        setState([...state])
-                                                                                    }}
-                                                                                />
-
-                                                                            }
-                                                                            label={t('father')}
-                                                                        />
-                                                                        <FormControlLabel
-                                                                            control={
-                                                                                <Checkbox
-                                                                                    name={list.uuid}
-                                                                                    checked={data.ascendantOf === 'mother'}
-                                                                                    onChange={() => {
-                                                                                        if (data.ascendantOf === 'mother')
-                                                                                            data.ascendantOf = '';
-                                                                                        else
-                                                                                            data.ascendantOf = 'mother';
-                                                                                        setState([...state])
-                                                                                    }}
-                                                                                />
-                                                                            }
-                                                                            label={t('mother')}
-                                                                        />
-                                                                        <FormControlLabel
-                                                                            control={
-                                                                                <Checkbox
-                                                                                    name={list.uuid}
-                                                                                    checked={data.ascendantOf === 'both'}
-                                                                                    onChange={() => {
-
-                                                                                        if (data.ascendantOf === 'both')
-                                                                                            data.ascendantOf = '';
-                                                                                        else
-                                                                                            data.ascendantOf = 'both';
-
-                                                                                        setState([...state])
-                                                                                    }}
-                                                                                />
-                                                                            }
-                                                                            label={t('both')}
-                                                                        />
-                                                                    </Stack>}
-                                                                {
-                                                                    list.value_type === 1 &&
-                                                                    <TextField
-                                                                        value={data.response}
-                                                                        placeholder={t('note')}
-                                                                        sx={{width: '100%', mt: 1, ml: 2}}
-                                                                        onChange={(e) => {
-                                                                            data.response = e.target.value;
-                                                                            setState([...state])
-                                                                        }
-                                                                        }/>
-                                                                }
-                                                                {!list.hideNote &&
-                                                                    <TextField
-                                                                        value={data.note}
-                                                                        placeholder={t('note2')}
-                                                                        sx={{width: '100%', mt: 1, ml: 2}}
-                                                                        onChange={(e) => {
-                                                                            data.note = e.target.value;
-                                                                            setState([...state])
-                                                                        }
-                                                                        }/>
-                                                                }
-                                                                {
-                                                                    list.value_type === 2 &&
-                                                                    <>
-                                                                        <Typography fontSize={10} mt={2}
-                                                                                    ml={1}>{t('selectPlz')} <span
-                                                                            style={{color: "red"}}> *</span></Typography>
-                                                                        <Stack direction={'row'} spacing={{xs: 0, sm: 1}}
-                                                                               mb={1}
-                                                                               ml={1}
-                                                                               {...(isMobile && {
-                                                                                   sx: {
-                                                                                       display: 'grid',
-                                                                                       gridTemplateColumns: 'repeat(auto-fit, minmax(88px, 1fr))',
-                                                                                       gap: 1,
-                                                                                       width: 1,
-                                                                                       "label": {
-                                                                                           margin: 0
-                                                                                       }
-                                                                                   }
-                                                                               })}
-                                                                        >
-                                                                            {list.values.map((val: {
-                                                                                uuid: string;
-                                                                                value: string
-                                                                            }) => (
-                                                                                <FormControlLabel
-                                                                                    key={val.uuid}
-                                                                                    control={
-                                                                                        <Checkbox
-                                                                                            name={val.uuid}
-                                                                                            checked={data.response === val.uuid}
-                                                                                            onChange={() => {
-                                                                                                if (data.response === val.uuid)
-                                                                                                    data.response = ''
-                                                                                                else
-                                                                                                    data.response = val.uuid;
-                                                                                                setState([...state])
-                                                                                            }}/>
-                                                                                    }
-                                                                                    label={val.value}
-                                                                                />))}
-                                                                        </Stack>
-                                                                    </>
-                                                                }
-                                                                {
-                                                                    list.value_type === 7 &&
-                                                                    <Box padding={3} pb={0}>
-                                                                        <AntecedentWidget {...{
-                                                                            list,
-                                                                            data,
-                                                                            state,
-                                                                            setState
-                                                                        }}/>
-                                                                    </Box>
-                                                                }
-                                                            </Stack>
-                                                        </CardContent>
-                                                    </Card>
-                                                ))
-                                            }
-                                            {
-                                                list.multiple == true && state?.find(inf => inf.uuid == list.uuid) !== undefined &&
-                                                <Button size={"small"}
-                                                        style={{width: "fit-content"}}
-                                                        onClick={() => {
-                                                            const x: any = state[state.findIndex(ant => ant.uuid === list.uuid)];
-                                                            x.data.map((d:any,index:number) => d.note=(index+1).toString())
-                                                            x.data.push({
-                                                                antecedent: {uuid: x?.uuid},
-                                                                name: '',
-                                                                startDate: '',
-                                                                endDate: '',
-                                                                response: '',
-                                                                ascendantOf: null,
-                                                                note:  (x.data.length +1).toString()
-                                                            })
-                                                            setState([...state])
-                                                        }}
-                                                        startIcon={<AddIcon/>}>
-                                                    <Typography
-                                                        textTransform={"lowercase"}>{t('other')} {list.name}</Typography>
-                                                </Button>
-                                            }
-                                        </Stack>
-                                    </FormGroup>
-
-                                </ListItem>
-
-                            </Stack>
-                        )}
+                        {state && antecedents
+                            .filter((item: AntecedentsTypeModel) => item.name.toLowerCase().includes(value.toLowerCase())).filter(item => state.find(s => s.uuid === item.uuid) == null).map((list: any, idx: number) =>
+                                <Stack key={idx} spacing={0}>
+                                    <ListItem>
+                                        <FormGroup
+                                            className={state?.find(inf => inf.uuid == list.uuid) !== undefined ? "selected-ant" : ""}
+                                            row>
+                                            <Stack style={{width: "100%"}}>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Checkbox
+                                                            checked={state?.find(inf => inf.uuid == list.uuid) !== undefined}
+                                                            onChange={handleChange} name={list.uuid}/>
+                                                    }
+                                                    label={list.name}
+                                                />
+                                            </Stack>
+                                        </FormGroup>
+                                    </ListItem>
+                                </Stack>
+                            )}
                     </List>
                 }
                 {/***Create new antecedent***/}

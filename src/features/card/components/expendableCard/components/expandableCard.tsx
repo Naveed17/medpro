@@ -5,6 +5,7 @@ import RootStyled from "./overrides/rootStyle";
 import {RecButton} from "@features/buttons";
 import SpeechRecognition from "react-speech-recognition";
 import {SetListen} from "@features/toolbar";
+import {debounce} from "lodash";
 
 function ExpandableCard({...props}) {
     const {
@@ -26,6 +27,7 @@ function ExpandableCard({...props}) {
             SpeechRecognition.stopListening();
             resetTranscript();
             setIsStarted(false);
+            editPatientInfo();
             dispatch(SetListen(""));
         } else {
             resetTranscript();
@@ -39,6 +41,9 @@ function ExpandableCard({...props}) {
             });
         }
     }
+
+    const debouncedOnChange = debounce(editPatientInfo, 1000);
+
     return (
         <RootStyled component={motion.div} layout>
             <CardContent>
@@ -47,11 +52,8 @@ function ExpandableCard({...props}) {
                     autoFocus
                     placeholder={t("writenote")}
                     onChange={(val) => {
+                        debouncedOnChange()
                         setNote(val.target.value);
-                    }}
-                    onBlur={() => {
-                        setIsNote(false);
-                        editPatientInfo();
                     }}
                     rows={7}
                     value={note}
@@ -59,28 +61,11 @@ function ExpandableCard({...props}) {
                 />
             </CardContent>
             <CardActions>
-                {/*<Button
-                    component={motion.button}
-                    layout
-                    transition={{
-                        default: "1s",
-                    }}
-                    color="error"
-                    variant="outlined"
-                    className="btn-action btn-del">
-                    <IconUrl path="setting/icdelete"/>
-                    <Typography ml={1}>{t("del")}</Typography>
-                </Button>*/}
-                <RecButton 
+                <RecButton
                 small
                 onClick={() => {
                     startStopRec();
-                    
                 }}/>
-                {/* <Button variant="outlined" className="btn-action btn-save">
-                    <SaveIcon/>
-                    <Typography ml={1}>{t("save")}</Typography>
-                </Button>*/}
             </CardActions>
         </RootStyled>
     );

@@ -137,7 +137,10 @@ const Content = ({...props}) => {
 
             let _res: any[] = []
             state.forEach((item: any) => {
+
                 item.data.forEach((data: any) => {
+                    if(data.start) data.start = moment(data.start).format('DD-MM-YYYY')
+                    if(data.end) data.end = moment(data.end).format('DD-MM-YYYY')
                     _res.push({
                         ...data,
                         uuid: item.uuid,
@@ -246,6 +249,8 @@ const Content = ({...props}) => {
     const getRes = (ants: any[]) => {
         let _res: any[] = [];
         ants.forEach(pa => {
+            if(pa.start) pa.start = moment(pa.start,"DD-MM-YYYY").format("YYYY-MM-DD")
+            if(pa.end) pa.end = moment(pa.start,"DD-MM-YYYY").format("YYYY-MM-DD")
             const index = _res.findIndex(r => r.uuid === pa.antecedent.uuid)
             index === -1 ?
                 _res.push({

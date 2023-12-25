@@ -100,11 +100,9 @@ function Agenda() {
             <CalendarPickers
                 renderDay
                 {...{notes}}
-                shouldDisableDate={(date: Date) =>
-                    disabledDay.includes(moment(date).weekday())
-                }
+                shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
             />
-            <FilterOverview/>
+            {/*<FilterOverview/>*/}
             <Accordion
                 translate={{t, ready}}
                 data={accordionData}

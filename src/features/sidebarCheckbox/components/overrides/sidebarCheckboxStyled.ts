@@ -1,46 +1,15 @@
-import { styled } from "@mui/material/styles";
-import { ListItem } from "@mui/material/";
-type Props = {
-    styleprops: string;
-    component?: string;
-    theme?: any;
-    htmlFor?: string;
-}
+import {styled} from "@mui/material/styles";
+import {ListItem} from "@mui/material";
 
-const SidebarCheckboxStyled = styled(ListItem)(({ theme }: Props) => ({
+const SidebarCheckboxStyled = styled(ListItem)(({theme}) => ({
     cursor: 'pointer',
-    padding: theme.spacing(0.5, 1),
+    border: "none",
+    width: "fit-content",
     '& .MuiCheckbox-root': {
-        padding: '0px',
-        width: '30px',
-        height: '30px',
+        width: '30px'
     },
-    '& .MuiListItemIcon-root': {
-        minWidth: '15px',
-        '& .react-svg':
-        {
-            '&.ic-video': {
-                svg: {
-                    path: {
-                        fill: theme.palette.error.main,
-                    }
-                },
-            },
-            svg: {
-                width: theme.spacing(1.5),
-                height: theme.spacing(1.5),
-            },
-        },
-        '& .MuiSvgIcon-root': {
-            width: '18px',
-            height: '18px',
-            // color: theme.palette["primary"].main,
-        }
-    },
-    '& .MuiListItemText-root': {
-        '& .MuiTypography-body1': {
-            textTransform: 'capitalize',
-        }
+    '& .MuiButtonBase-root': {
+        width: "fit-content"
     }
 }));
 export default SidebarCheckboxStyled;

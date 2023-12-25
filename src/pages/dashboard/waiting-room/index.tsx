@@ -72,6 +72,8 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
+import {Label} from "@features/label";
+import {partition} from "lodash";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -134,16 +136,16 @@ function WaitingRoom() {
         data: httpWaitingRoomsResponse,
         mutate: mutateWaitingRoom
     } = useRequestQuery(agenda ? {
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
-        } : null, {
-            ...(agenda && {
-                variables: {
-                    query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
-                }
-            })
-        }
-    );
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}`
+    } : null, {
+        refetchOnWindowFocus: false,
+        ...(agenda && {
+            variables: {
+                query: `?mode=tooltip&start_date=${moment().format("DD-MM-YYYY")}&end_date=${moment().format("DD-MM-YYYY")}&format=week${filter ? prepareSearchKeys(filter as any) : ""}`
+            }
+        })
+    });
 
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
@@ -386,7 +388,7 @@ function WaitingRoom() {
             id: '1',
             name: 'today-rdv',
             url: '#',
-            icon: <CalendarIcon sx={{width: 24, height: 24}}/>,
+            icon: <CalendarIcon/>,
             action: <CustomIconButton
                 sx={{mr: 1}}
                 onClick={() => {
@@ -424,7 +426,7 @@ function WaitingRoom() {
             icon: <IconUrl width={20} height={20} path="ic-attendre"/>
         },
         {
-            id: '5,6,9,10',
+            id: '5',
             name: 'finished',
             url: '#',
             icon: <CheckCircleIcon
@@ -434,10 +436,48 @@ function WaitingRoom() {
                     width: 20
                 }}/>
         }];
+    const Toolbar = () => (
+        <Card sx={{minWidth: 235, border: 'none', mb: 2}}>
+            <CardHeader
+                component={Stack}
+                borderBottom={1}
+                borderColor="divider"
+                direction="row"
+                sx={{
+                    ".MuiCardHeader-action": {
+                        m: 0,
+                    },
+                    p: 0,
+                    pb: 1,
+                    "& .MuiButtonBase-root": {mr: 1}
+                }}
+                avatar={columns[1].icon}
+                {...(columns[1].action && {action: columns[1].action})}
+                title={
+                    <Stack direction='row' alignItems='center' spacing={3}>
+                        <Typography
+                            color={"text.primary"} fontWeight={700}
+                            fontSize={14}>
+                            {t(`tabs.${columns[1].name}`)}
+                            <Label variant="filled" color="info"
+                                   sx={{ml: 1, height: 'auto', p: .6, minWidth: 20, fontWeight: 400}}>
+                                {waitingRoomsGroup[3]?.length ?? ""}
+                            </Label>
+                        </Typography>
+                    </Stack>
+                }
+            />
+        </Card>
+    )
 
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
-            setWaitingRoomsGroup((httpWaitingRoomsResponse as HttpResponse).data.group((diag: any) => diag.status));
+            let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) =>
+                moment(a.startTime === "00:00" ? b.createdAt : `${a.dayDate} ${a.startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(b.startTime === "00:00" ? a.createdAt : `${b.dayDate} ${b.startTime}`, "DD-MM-YYYY HH:mm").valueOf()
+            ).group((diag: any) => diag.status);
+            const onGoingAppointment = partition(groupedData[3], (event: any) => event.startTime === "00:00");
+            groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0].reverse()]
+            setWaitingRoomsGroup(groupedData);
         }
     }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -446,6 +486,14 @@ function WaitingRoom() {
             dispatch(toggleSideBar(false));
         }
     }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (!openPaymentDialog) {
+            setTimeout(() => {
+                mutateWaitingRoom();
+            }, 300);
+        }
+    }, [openPaymentDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
         dispatch(resetFilterPatient());
@@ -461,7 +509,16 @@ function WaitingRoom() {
                         display: "block"
                     }
                 }}>
-                <RoomToolbar {...{t, tabIndex, setTabIndex, columns}}/>
+                <RoomToolbar {...{
+                    t,
+                    tabIndex,
+                    setTabIndex,
+                    setPatientDetailDrawer,
+                    nextConsultation,
+                    columns,
+                    is_next,
+                    isActive
+                }}/>
             </SubHeader>
             <Box>
                 <LinearProgress sx={{
@@ -479,26 +536,42 @@ function WaitingRoom() {
                     </DesktopContainer>
                     <TabPanel padding={.1} value={tabIndex} index={1}>
                         {waitingRoomsGroup[1] ? <>
-                                <Card sx={{mr: {xs: 0, sm: 2}, mb: 2, minWidth: 235}}>
-                                    <CardHeader
-                                        avatar={columns[0].icon}
-                                        {...(columns[0].action && {action: columns[0].action})}
-                                        title={<Typography
-                                            color={"text.primary"} fontWeight={700}
-                                            fontSize={14}>
-                                            {t(`tabs.${columns[0].name}`)} {`(${waitingRoomsGroup[1].length})`}
-                                        </Typography>}
-                                    />
-                                </Card>
+
                                 <DesktopContainer>
                                     <Otable
-                                        sx={{mt: 1, pr: 2}}
+                                        sx={{mt: 2}}
                                         {...{
                                             doctor_country,
                                             roles,
                                             loading: loadingRequest,
                                             setLoading: setLoadingRequest
                                         }}
+                                        toolbar={
+
+                                            <CardHeader
+                                                sx={{
+                                                    pt: 0,
+                                                    px: 0,
+                                                    pb: 1,
+                                                    mr: 2,
+                                                    borderBottom: 1,
+                                                    borderColor: "divider",
+                                                    ".MuiCardHeader-action": {m: 0}
+                                                }}
+                                                avatar={columns[0].icon}
+                                                {...(columns[0].action && {action: columns[0].action})}
+                                                title={
+                                                    <Typography
+                                                        color={"text.primary"} fontWeight={700}
+                                                        fontSize={14}>
+                                                        {t(`tabs.${columns[0].name}`)}
+                                                        <Label variant="filled" color="info"
+                                                               sx={{ml: 1, height: 'auto', p: .6, minWidth: 20}}>
+                                                            {waitingRoomsGroup[1].length}
+                                                        </Label>
+                                                    </Typography>}
+                                            />
+                                        }
                                         headers={WaitingHeadCells}
                                         rows={waitingRoomsGroup[1]}
                                         from={"waitingRoom"}
@@ -545,29 +618,16 @@ function WaitingRoom() {
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={2}>
                         {waitingRoomsGroup[3] ? <>
-                                <Card sx={{mr: {xs: 0, sm: 2}, mb: 2, minWidth: 235}}>
-                                    <CardHeader
-                                        sx={{
-                                            "& .MuiButtonBase-root": {mr: 1}
-                                        }}
-                                        avatar={columns[1].icon}
-                                        {...(columns[1].action && {action: columns[1].action})}
-                                        title={<Typography
-                                            color={"text.primary"} fontWeight={700}
-                                            fontSize={14}>
-                                            {t(`tabs.${columns[1].name}`)} {`(${waitingRoomsGroup[3]?.length ?? ""})`}
-                                        </Typography>}
-                                    />
-                                </Card>
                                 <DesktopContainer>
                                     <Otable
-                                        sx={{mt: 1, pr: 2}}
+
                                         {...{
                                             doctor_country,
                                             roles,
                                             loading: loadingRequest,
                                             setLoading: setLoadingRequest
                                         }}
+                                        toolbar={<Toolbar/>}
                                         headers={WaitingHeadCells}
                                         rows={waitingRoomsGroup[3]}
                                         from={"waitingRoom"}
@@ -616,6 +676,7 @@ function WaitingRoom() {
                         {(waitingRoomsGroup[4] || waitingRoomsGroup[8]) ?
                             <>
                                 <DesktopContainer>
+
                                     <Otable
                                         sx={{mt: 1, pr: 2}}
                                         {...{
@@ -680,11 +741,7 @@ function WaitingRoom() {
                                             setLoading: setLoadingRequest
                                         }}
                                         headers={WaitingHeadCells}
-                                        rows={[
-                                            ...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : []),
-                                            ...(waitingRoomsGroup[6] ? waitingRoomsGroup[6] : []),
-                                            ...(waitingRoomsGroup[9] ? waitingRoomsGroup[9] : []),
-                                            ...(waitingRoomsGroup[10] ? waitingRoomsGroup[10] : [])]}
+                                        rows={[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])]}
                                         from={"waitingRoom"}
                                         t={t}
                                         pagination
@@ -693,22 +750,15 @@ function WaitingRoom() {
                                 </DesktopContainer>
                                 <MobileContainer>
                                     <Stack spacing={1}>
-                                        {
-                                            [
-                                                ...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : []),
-                                                ...(waitingRoomsGroup[6] ? waitingRoomsGroup[6] : []),
-                                                ...(waitingRoomsGroup[9] ? waitingRoomsGroup[9] : []),
-                                                ...(waitingRoomsGroup[10] ? waitingRoomsGroup[10] : [])].map((item: any, i: number) => (
-                                                <React.Fragment key={item.uuid}>
-                                                    <WaitingRoomMobileCard
-                                                        quote={item}
-                                                        index={i}
-                                                        handleEvent={handleTableActions}
-                                                    />
-                                                </React.Fragment>
-                                            ))
-                                        }
-
+                                        {[...(waitingRoomsGroup[5] ? waitingRoomsGroup[5] : [])].map((item: any, i: number) => (
+                                            <React.Fragment key={item.uuid}>
+                                                <WaitingRoomMobileCard
+                                                    quote={item}
+                                                    index={i}
+                                                    handleEvent={handleTableActions}
+                                                />
+                                            </React.Fragment>
+                                        ))}
                                     </Stack>
                                 </MobileContainer>
                             </>

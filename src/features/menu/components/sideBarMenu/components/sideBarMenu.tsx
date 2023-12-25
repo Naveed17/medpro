@@ -38,8 +38,6 @@ import {TopNavBar} from "@features/topNavBar";
 import {LeftActionBar} from "@features/leftActionBar";
 import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
-import {agendaSelector} from "@features/calendar";
-import moment from "moment-timezone";
 import dynamic from "next/dynamic";
 import {unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
@@ -59,16 +57,15 @@ function SideBarMenu({children}: LayoutProps) {
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {isWindowMax} = useAppSelector(minMaxWindowSelector);
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
-    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
-    const {waiting_room, newCashBox} = useAppSelector(dashLayoutSelector);
-    const {sortedData} = useAppSelector(agendaSelector);
     const {t, ready} = useTranslation("menu");
+    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
+    const {isWindowMax} = useAppSelector(minMaxWindowSelector);
+    const {waiting_room, newCashBox, nb_appointment} = useAppSelector(dashLayoutSelector);
 
     let container: any = useRef<HTMLDivElement>(null);
     const [menuItems, setMenuItems] = useState(
@@ -236,15 +233,12 @@ function SideBarMenu({children}: LayoutProps) {
     }, [newCashBox]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        const currentDay = sortedData.find(
-            (event) => event.date === moment().format("DD-MM-YYYY")
-        );
         setMenuItems([
-            {...menuItems[0], badge: currentDay ? currentDay.events.length : 0},
+            {...menuItems[0], badge: nb_appointment},
             {...menuItems[1], badge: waiting_room},
             ...menuItems.slice(2),
         ]);
-    }, [sortedData, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [nb_appointment, waiting_room]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
