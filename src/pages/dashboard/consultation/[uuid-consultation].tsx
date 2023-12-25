@@ -1174,7 +1174,7 @@ function ConsultationInProgress() {
             if (!cardPositions)
                 localStorage.setItem(`cardPositions`, JSON.stringify({widget: false, exam: true, history: false}))
 
-            if (hasDataHistory === false) {
+            if (sheet?.hasHistory === false) {
                 setCards([[
                     {
                         id: 'item-1',
@@ -1358,6 +1358,8 @@ function ConsultationInProgress() {
                                 setState,
                                 setInfo,
                                 router,
+                                modelData:sheetModal?.data,
+                                date:sheet?.date,
                                 setIsViewerOpen,
                                 setSelectedTab,
                                 appuuid: app_uuid,
