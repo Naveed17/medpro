@@ -621,7 +621,7 @@ function TopNavBar({...props}) {
                                         onClick={handlePauseStartConsultation}
                                         startIcon={<IconUrl height={"18"} width={"18"}
                                                             path="ic-pause-mate"></IconUrl>}>
-                                        <Typography sx={{display: {xs: "none", md: "flex"}}} color={"text.primary"}>
+                                        <Typography color={"text.primary"}>
                                             {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
                                         </Typography>
                                     </LoadingButton>
