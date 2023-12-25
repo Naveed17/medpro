@@ -70,10 +70,7 @@ function AppointmentListMobile({...props}) {
         else
             return "primary"
     }
-    console.log(new Date(event.time).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                }))
+    console.log(moment.utc(event.time).format("HH:mm"))
 
     return (
         // <RootStyled
@@ -190,18 +187,11 @@ function AppointmentListMobile({...props}) {
                         minWidth: "2rem",
                         minHeight: ".4rem",
                       }}
-                      {...(new Date(event.time).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                }) === "12:00 AM" && { color: "warning" })}
                       variant={"contained"}
                       size={"small"}
                     >
                       {" "}
-                      {new Date(event.time).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                }) === "12:00 AM" ? "SR" : "AR"}-{index + 1}
+                      {moment.utc(event.time).format("HH:mm") === "00:00" ? "SR" : "AR"}-{index + 1}
                     </Button>
                   )}
                   <Typography
@@ -213,10 +203,7 @@ function AppointmentListMobile({...props}) {
                   </Typography>
                 </Stack>
               </Stack>
-              {new Date(event.time).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                }) !== "12:00 AM" && (
+              {moment.utc(event.time).format("HH:mm") !== "00:00" && (
                 <Stack
                   direction={"row"}
                   spacing={0.5}
