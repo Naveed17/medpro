@@ -94,8 +94,16 @@ function CalendarRowDetail({...props}) {
                         }
                     }}
                     className="first-child">
-                    <Box sx={{display: "flex",minWidth:120}}>
+                    <Box sx={{display: "flex",minWidth:110}}>
                         <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
+                            
+                            <TimeIcon/>
+                            <Typography variant="body2" color="text.secondary">
+                                {new Date(data.time).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })}
+                            </Typography>
                             {data.hasErrors?.length > 0 &&
                                 <Tooltip
                                     title={data.hasErrors.map((error: string) => t(error, {ns: "common"})).join(",")}
@@ -103,7 +111,7 @@ function CalendarRowDetail({...props}) {
                                     <SmallAvatar
                                         sx={{
                                             p: 1.5,
-                                        mr:1,
+                                        ml:1,
                                           
                                           
                                         }}>
@@ -112,13 +120,6 @@ function CalendarRowDetail({...props}) {
                                             color={"error"}/>
                                     </SmallAvatar>
                                 </Tooltip>}
-                            <TimeIcon/>
-                            <Typography variant="body2" color="text.secondary">
-                                {new Date(data.time).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                            </Typography>
                         </Stack>
                         <Box sx={{display: "flex"}}>
                             {data.new && <Label
