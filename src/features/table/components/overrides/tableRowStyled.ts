@@ -217,7 +217,7 @@ const TableRowStyled = styled(TableRow)<any>(
     },
     "& .MuiAvatar-root .error": {
       marginLeft: 8,
-      width: 14,
+      width: 10,
     },
     ".collapse-wrapper": {
       marginLeft: -1,

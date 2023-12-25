@@ -102,8 +102,10 @@ function CalendarRowDetail({...props}) {
                                     TransitionComponent={Zoom}>
                                     <SmallAvatar
                                         sx={{
-                                            p: 1.5,
-                                            mr: 1
+                                            p: 1.2,
+                                            position:'absolute',
+                                            left: 4,
+                                          
                                         }}>
                                         <DangerIcon
                                             className="error"
