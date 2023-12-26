@@ -25,7 +25,7 @@ const poppins = Poppins({
     subsets: ['latin'],
     display: 'swap',
     variable: '--font-poppins',
-    weight: ['600', '700', '800', '900']
+    weight: '400'
 })
 
 type SupportedLocales = keyof typeof locales;
