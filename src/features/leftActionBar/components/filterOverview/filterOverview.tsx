@@ -26,7 +26,6 @@ function FilterOverview() {
     const [filterData, setFilterData] = useState<FilterModel[]>([]);
 
     const handleDelete = (data: FilterModel) => {
-        console.log("FilterModel", data);
         if (filter) {
             let queryGlobal = null;
             switch (data.parent) {
@@ -63,7 +62,6 @@ function FilterOverview() {
     }
 
     const getLabel = (key: string, value: any) => {
-        console.log(key, value)
         switch (key) {
             case "gender":
                 return t(value === "M" ? "Male" : "Female");
@@ -88,7 +86,6 @@ function FilterOverview() {
         if (filter) {
             let filters: any[] = [];
             Object.entries(filter).forEach((filterItem) => {
-                console.log("filterItem", filterItem)
                 if (filterItem[1]) {
                     switch (filterItem[0]) {
                         case "patient":
