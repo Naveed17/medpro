@@ -9,7 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {agendaSelector, setStepperIndex} from "@features/calendar";
+import {agendaSelector, CalendarPickers, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
@@ -418,12 +418,11 @@ function TimeSchedule({...props}) {
                             </Typography>
                             <Grid container spacing={changeTime ? 3 : 6} sx={{height: "auto"}}>
                                 {!changeTime && <Grid item md={6} xs={12}>
-                                    <StaticDatePicker
-                                        views={['day']}
-                                        onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
-                                        onChange={(newDate: Date) => onChangeDatepicker(newDate)}
-                                        value={(location) ? date : null}
-                                        loading={!location || !medical_professional}
+                                    <CalendarPickers
+                                        renderDay
+                                        defaultValue={(location) ? date : null}
+                                        onDateChange={(newDate: Date) => onChangeDatepicker(newDate)}
+                                        shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
                                     />
                                 </Grid>}
                                 <Grid item
