@@ -595,7 +595,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     <FiberManualRecordIcon sx={{fontSize: 6, ml: .8}}/>
                                                 </Stack>
                                             </Grid>
-                                            <Grid item className={"drug-input"} sm={4.3} xs={11}>
+                                            <Grid item className={"drug-input"} sm={5.5} xs={11}>
                                                 {drugsList && (
                                                     <Autocomplete
                                                         id="cmo"
@@ -712,7 +712,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
                                             <Grid item xs={1} sx={{display: {xs: 'block', sm: 'none'}}}/>
 
-                                            <Grid item sm={3.2} xs={10}>
+                                            <Grid item sm={2.2} xs={10}>
                                                 <Autocomplete
                                                     size="small"
                                                     freeSolo
@@ -762,7 +762,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     )}
                                                 />
                                             </Grid>
-                                            <Grid item sm={3.2} xs={10}>
+                                            <Grid item sm={3} xs={10}>
                                                 <Autocomplete
                                                     size="small"
                                                     freeSolo

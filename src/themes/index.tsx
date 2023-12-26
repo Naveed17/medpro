@@ -19,9 +19,16 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Localization} from "@lib/localization";
 import * as locales from "@mui/material/locale";
 import moment from "moment-timezone";
+import {Poppins} from 'next/font/google';
+
+const poppins = Poppins({
+    subsets: ['latin'],
+    display: 'swap',
+    variable: '--font-poppins',
+    weight: ['600', '700', '800', '900']
+})
 
 type SupportedLocales = keyof typeof locales;
-
 
 function ThemeConfig({children}: LayoutProps) {
     const {mode} = useAppSelector(configSelector);
@@ -75,7 +82,7 @@ function ThemeConfig({children}: LayoutProps) {
         <CacheProvider value={styleCache}>
             <ThemeProvider theme={themeWithLocale}>
                 <CssBaseline/>
-                <main dir={dir}>
+                <main dir={dir} className={`${poppins.className}`}>
                     {children}
                 </main>
             </ThemeProvider>

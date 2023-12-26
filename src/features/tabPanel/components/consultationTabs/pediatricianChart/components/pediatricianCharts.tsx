@@ -20,7 +20,7 @@ function PediatricianCharts({...props}) {
     const [weight, setWeight] = useState<boolean>(true);
     const [perimetreCranien, setPerimetreCranien] = useState<boolean>(false);
 
-    const {sheet, birthdate,modelData,date, t} = props;
+    const {sheet, birthdate, modelData, date, t} = props;
     useEffect(() => {
         let patientHeight: { x: number, y: number }[] = []
         let patientWeight: { x: number, y: number }[] = []
@@ -55,10 +55,10 @@ function PediatricianCharts({...props}) {
 
             const nbMonth = moment(date, 'DD-MM-YYYY').diff(moment(birthdate, 'DD-MM-YYYY'), "months")
 
-            if (modelData?.poids){
+            if (modelData?.poids) {
                 let df = patientWeight.find(w => w.x === nbMonth)
                 if (df !== undefined)
-                    df.y= modelData.poids
+                    df.y = modelData.poids
                 else {
                     patientWeight.push({
                         x: patientWeight.find(w => w.x === nbMonth) ? nbMonth + 1 : nbMonth,
@@ -66,10 +66,10 @@ function PediatricianCharts({...props}) {
                     })
                 }
             }
-            if (modelData?.taille){
+            if (modelData?.taille) {
                 let df = patientHeight.find(w => w.x === nbMonth)
                 if (df !== undefined)
-                    df.y= modelData.taille
+                    df.y = modelData.taille
                 else {
                     patientHeight.push({
                         x: patientHeight.find(w => w.x === nbMonth) ? nbMonth + 1 : nbMonth,
@@ -126,7 +126,7 @@ function PediatricianCharts({...props}) {
                     enabled: false
                 },
                 legend: {
-                    verticalAlign:"center",
+                    verticalAlign: "center",
                     position: 'right'
                 },
                 colors,
@@ -140,7 +140,7 @@ function PediatricianCharts({...props}) {
 
             },
         })
-    }, [sheet, birthdate, height, weight, perimetreCranien, t])
+    }, [sheet, birthdate, height, weight, perimetreCranien, t]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Grid container spacing={1} marginBottom={2}>
