@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {LocaleFnsProvider} from "@lib/localization";
@@ -16,7 +16,7 @@ import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {MobileContainer as smallScreen} from "@lib/constants";
 
 function CalendarPickers({...props}) {
-    const {disabled} = props;
+    const {disabled, onDateChange, defaultValue = null} = props;
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const router = useRouter();
@@ -38,11 +38,9 @@ function CalendarPickers({...props}) {
         ...((medicalEntityHasUser && agendaConfig) && {variables: {query: `?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`}})
     });
 
-    const handleDateChange = (date: Date | null) => {
-        if (date) {
-            dispatch(setCurrentDate({date, fallback: true}));
-        }
-    }
+    const handleDateChange = useCallback((date: Date | null) => {
+        onDateChange(date);
+    }, [onDateChange])
 
     const appointmentDayCount = (httpAppCountResponse as HttpResponse)?.data;
 
@@ -77,7 +75,7 @@ function CalendarPickers({...props}) {
                     disableOpenPicker
                     minDate={moment("01-01-2018", "DD-MM-YYYY").toDate() as any}
                     toolbarTitle={""}
-                    value={initData.date}
+                    value={defaultValue ? defaultValue : initData.date}
                     renderInput={(params) => <TextField {...params} />}
                     displayStaticWrapperAs="desktop"
                     onChange={(date) => handleDateChange(date)}
