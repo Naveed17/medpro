@@ -262,25 +262,25 @@ function Cashbox() {
     const topCard = [
         {
             icon: "ic-cash-light-green",
-            mobile_icon: "ic-earning",
+            mobile_icon: "ic-cash-light-green",
             amount: total,
             title: "total_profit",
         },
         {
             icon: "ic-unpaid-light-red",
-            mobile_icon: "ic-unpaid",
+            mobile_icon: "ic-unpaid-light-red",
             amount: unpaid,
             title: "not_paid",
         },
         {
             icon: "ic-cash-light-blue",
-            mobile_icon: "ic-argent-primary",
+            mobile_icon: "ic-cash-light-blue",
             amount: totalCash,
             title: "cash_in_hand",
         },
         {
             icon: "ic-cheque-light-blue",
-            mobile_icon: "ic-cheque-primary",
+            mobile_icon: "ic-cheque-light-blue",
             amount: totalCheck,
             title: "cheque_cashed",
         },
