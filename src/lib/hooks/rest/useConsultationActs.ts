@@ -3,12 +3,12 @@ import {useRouter} from "next/router";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 
-function useConsultationActs() {
+function useConsultationActs(enable: boolean = true) {
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {medical_professional} = useMedicalProfessionalSuffix();
 
-    const {data: httpActSpecialityResponse, isLoading} = useRequestQuery(medical_professional ? {
+    const {data: httpActSpecialityResponse, isLoading} = useRequestQuery(medical_professional && enable ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`
     } : null, ReactQueryNoValidateConfig);

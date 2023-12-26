@@ -5,13 +5,13 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
 
-function useConsultationReasons() {
+function useConsultationReasons(enable: boolean = true) {
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
-    const {data: httpConsultReasonResponse, isLoading} = useRequestQuery(medicalEntityHasUser ? {
+    const {data: httpConsultReasonResponse, isLoading} = useRequestQuery(medicalEntityHasUser && enable ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
