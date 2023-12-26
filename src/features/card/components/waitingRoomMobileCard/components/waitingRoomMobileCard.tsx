@@ -33,6 +33,8 @@ import Icon from "@themes/urlIcon";
 import {AppointmentStatus} from "@features/calendar";
 import {motion} from 'framer-motion'
 import {sideBarSelector} from "@features/menu";
+import {Label} from "@features/label";
+import {useTranslation} from "next-i18next";
 
 const imageSize: number = 40;
 
@@ -84,6 +86,7 @@ function WaitingRoomMobileCard({...props}) {
     } = props;
     const theme = useTheme();
     const {data: session} = useSession();
+    const {t: commonTranslation} = useTranslation("common");
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
@@ -117,12 +120,17 @@ function WaitingRoomMobileCard({...props}) {
                 borderLeftColor: quote.type.color ?? theme.palette.primary.main
 
             }),
-            bgcolor: [0].includes(quote.status) ? alpha(theme.palette.warning.lighter, .7) : theme.palette.common.white
-        }}>
+            bgcolor: [0].includes(quote.status) ? alpha(theme.palette.warning.lighter, .7) : theme.palette.common.white,
+           ".MuiCardContent-root": {
+            "&.MuiCardContent-root":{     
+                    "&:last-child":{
+                     paddingBottom: 1,
+                    }
+                } 
+           }
+       }}>
             <CardContent sx={{
-                p: 1, "&:last-child": {
-                    paddingBottom: 1
-                }
+                p: 1, 
             }}>
                 <Stack direction='row' alignItems='center' justifyContent='space-between'>
                     <Stack direction='row' alignItems='center' spacing={.8}>
@@ -273,7 +281,11 @@ function WaitingRoomMobileCard({...props}) {
                                     <PlayCircleIcon fontSize={"small"}/>
                                 </CustomIconButton>}
                             </>}
-                            {quote.status === 5 && <>
+                            {quote.status === 5 &&
+                                <Label variant={"ghost"}
+                                       color={quote?.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.restAmount === 0 ? "paid" : "not-payed")}</Label>
+                            }
+                            {quote.status === 5 && quote?.restAmount !== 0 && <>
                                 <IconButton
                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
                                         action: "ON_PAY",

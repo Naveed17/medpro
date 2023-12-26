@@ -17,9 +17,10 @@ function AppointmentStatusFilter() {
         setStatusData([...statusData.map((item) => ({
             ...item,
             checked:
-                query?.status?.split(",")?.find(typeObject => AppointmentStatus[typeObject].key === item.key) !== undefined ?? false
+                ((query?.isOnline && item.key === "ONLINE") ||
+                    query?.status?.split(",")?.find(typeObject => AppointmentStatus[typeObject].key === item.key) !== undefined) ?? false
         }))]);
-    }, [query?.status]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [query?.status, query?.isOnline]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (<>
         {statusData?.map((status) =>

@@ -26,7 +26,6 @@ import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
 import {useProfilePhoto} from "@lib/hooks/rest";
-import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {SmallAvatar} from "@features/avatar";
 import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
@@ -169,11 +168,11 @@ function PatientRow({...props}) {
                                         handleEvent("PATIENT_DETAILS", row);
                                     }}>
                                         <Stack direction={"row"} alignItems={"center"}>
-                                            <Typography
+                                            {row.fiche_id && <Typography
                                                 className={"ellipsis"}
                                                 maxWidth={140}
                                                 fontSize={12}
-                                                color={"primary.main"}>{`N°${row.fiche_id} - `}</Typography>
+                                                color={"primary.main"}>{`N°${row.fiche_id} - `}</Typography>}
                                             <Typography
                                                 color={"primary.main"}> {row.firstName} {row.lastName}</Typography>
 
@@ -404,11 +403,9 @@ function PatientRow({...props}) {
             <TableCell
                 align="right"
                 sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    minHeight: "58.85px",
+                    marginLeft: "auto"
                 }}>
-                <Box display="flex" alignItems="center" margin={"auto"}>
+                <Box alignItems="flex-end">
                     {loading ? (
                         <>
                             <Skeleton

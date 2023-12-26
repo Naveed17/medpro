@@ -357,7 +357,9 @@ function Consultation() {
                                 px: 1.5,
                             }}>
                             {upperFirst(t("ficheID"))}{" "}
-                            <span style={{fontWeight: "bold"}}>{patient?.fiche_id}</span>
+                            <span style={{fontWeight: "bold",maxWidth:150,whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis"}}>{patient?.fiche_id}</span>
                         </Button>
                     </Stack>
                 )}

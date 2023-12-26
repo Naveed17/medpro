@@ -1,6 +1,6 @@
 import * as React from "react";
 import {SetStateAction, useEffect, useState} from "react";
-import {Box, Table, TableBody, TableContainer} from "@mui/material";
+import {Box, SxProps, Table, TableBody, TableContainer} from "@mui/material";
 import OHead from "@features/table/components/header";
 import rowsActionsData from "@features/table/components/config";
 import {Pagination} from "@features/pagination";
@@ -49,6 +49,7 @@ function Otable({...props}) {
         select = [],
         edit,
         handleConfig,
+        toolbar = null,
         minWidth,
         pagination,
         checkedType,
@@ -60,6 +61,7 @@ function Otable({...props}) {
         totalPages,
         total,
         sx,
+        tableWrapperStyle,
         ...rest
     } = props;
 
@@ -138,7 +140,8 @@ function Otable({...props}) {
     }, [rowsSelected]);
 
     return (
-        <Box>
+        <Box className="table-wrapper" sx={tableWrapperStyle as SxProps}>
+            {toolbar && toolbar}
             <TableContainer sx={{maxHeight}}>
                 <Table
                     {...{size}}

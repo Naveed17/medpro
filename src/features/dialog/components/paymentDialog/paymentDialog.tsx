@@ -14,7 +14,7 @@ import {
     Stack,
     TextField,
     Theme,
-    Typography,
+    Typography, useMediaQuery,
     useTheme,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
@@ -65,6 +65,7 @@ function PaymentDialog({...props}) {
     const {t, ready} = useTranslation("payment");
     const {paymentTypesList} = useAppSelector(cashBoxSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
 
     const {data: user} = session as Session;
     const open = Boolean(anchorEl);
@@ -340,7 +341,7 @@ function PaymentDialog({...props}) {
                                     loading,
                                     devise
                                 }}/>
-                            </> : !loading && <Stack spacing={1} style={{
+                            </> : !loading && !isMobile && <Stack spacing={1} style={{
                                 width: "100%", height: "50vh",
                                 display: 'flex',
                                 justifyContent: "center",

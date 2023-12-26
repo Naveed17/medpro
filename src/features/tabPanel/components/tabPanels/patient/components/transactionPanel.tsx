@@ -264,9 +264,7 @@ function TransactionPanel({...props}) {
                                                             >
                                                                 <IconUrl path="ic-time"/>
                                                                 <Typography variant="body2">
-                                                                    {moment(row.date_transaction).format(
-                                                                        "HH:mm"
-                                                                    )}
+                                                                    {row.payment_time}
                                                                 </Typography>
                                                             </Stack>
                                                         </Stack>
