@@ -31,6 +31,7 @@ $very-light-gray: #f2f2f2;
     background-color: $white;
   }
 }
+
 // font base url
 $poppins-font-path: "/static/fonts/Poppins/";
 
@@ -41,26 +42,31 @@ $poppins-font-path: "/static/fonts/Poppins/";
   font-family: "Poppins";
   font-display: auto;
 }
+
 @font-face {
   src: url("#{$poppins-font-path}Poppins-Bold.ttf");
   font-family: "Poppins-Bold";
   font-display: auto;
 }
+
 @font-face {
   src: url("#{$poppins-font-path}Poppins-SemiBold.ttf");
   font-family: "Poppins-SemiBold";
   font-display: auto;
 }
+
 @font-face {
   src: url("#{$poppins-font-path}Poppins-Light.ttf");
   font-family: "Poppins-Light";
   font-display: swap;
 }
+
 @font-face {
   src: url("#{$poppins-font-path}Poppins-Medium.ttf");
   font-family: "Poppins-Medium";
   font-display: swap;
 }
+
 @font-face {
   src: url("#{$poppins-font-path}Poppins-ExtraBold.ttf");
   font-family: "Poppins-ExtraBold";
