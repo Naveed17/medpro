@@ -367,6 +367,7 @@
     "feature-uuid": "Séléctionner le fonctionnalité",
     "profile-feature": "Sélectionner un profil de la fonctionnalité",
     "add-feature-profile": "Ajouter un profil de fonctionnalité",
+    "add-feature-access": "Ajouter un accès",
     "name": "Nom de l'utilisateur",
     "tname": "tapez ici nom de l'utilisateur",
     "admin": "Administrateur (accès aux paramètres)",
@@ -395,6 +396,7 @@
     "password": "Mot de passe",
     "confirm_password": "confirmer le mot de passe",
     "profile": "Profil",
+    "add_new_feature_profile": "Ajouter un nouveau profil de fonctionnalité",
     "config": {
       "add": "Ajouter",
       "delete_success": "l'utilisateur a été supprimé avec succès",
@@ -451,6 +453,7 @@
       "is_standard": "Est le Standrad",
       "select_permissions": "Choisissez les permissions",
       "role_name": "Nom du rôle",
+      "profile_name": "Nom du profil",
       "select_all": "Sélectionner tout"
     },
     "alert": {

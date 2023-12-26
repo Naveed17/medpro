@@ -338,6 +338,14 @@ const dialogData = [
         ),
     },
     {
+        action: "add-feature-profile",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/addFeatureProfileDialog/components/addFeatureProfileDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
         action: "add-visitor",
         component: dynamic((): any =>
             import(
