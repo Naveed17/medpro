@@ -60,7 +60,7 @@ function FilterOverview() {
     const getLabel = (key: string, value: any) => {
         switch (key) {
             case "gender":
-                return value === "M" ? "Male" : "Female";
+                return t(value === "M" ? "Male" : "Female");
             case "hasDouble":
                 return t("duplication");
             case "rest":
@@ -151,7 +151,7 @@ function FilterOverview() {
                 {filterData.map((data: any, index: number) => data.value?.length > 0 && <Chip
                     size={"small"}
                     key={`filter-${index}`}
-                    label={t(data.value)}
+                    label={data.value}
                     color="primary"
                     deleteIcon={<CloseIcon/>}
                     onDelete={() => handleDelete(data)}

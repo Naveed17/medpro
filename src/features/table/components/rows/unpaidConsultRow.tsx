@@ -13,7 +13,7 @@ import {ConditionalWrapper} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {Label} from "@features/label";
-import {router} from "next/client";
+import {useRouter} from "next/router";
 
 function UnpaidConsultRow({...props}) {
 
@@ -26,21 +26,25 @@ function UnpaidConsultRow({...props}) {
 
     const {hideName} = data;
     const {insurances} = useInsurances();
-
     const theme = useTheme();
     const {data: session} = useSession();
+    const router = useRouter();
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
-    const _fees = row.fees ? row.fees : row.appointmentRestAmount
+    const _fees = row.fees ? row.fees : row.appointmentRestAmount;
+
     return (
         <TableRowStyled rest={row.appointmentRestAmount} fees={_fees} tabIndex={-1} className={`row-cashbox`}>
             <TableCell>
                 <Stack
                     direction="row"
                     alignItems="center"
-                    onClick={()=>{router.replace(`/dashboard/consultation/${row.uuid}`)}}
+                    onClick={() => {
+                        router.replace(`/dashboard/consultation/${row.uuid}`)
+                    }}
                     spacing={.5}>
                     <Icon path="ic-agenda-jour" height={14} width={14} color={theme.palette.text.primary}/>
                     <Typography variant="body2" fontSize={13}
@@ -140,7 +144,6 @@ function UnpaidConsultRow({...props}) {
                     </ConditionalWrapper>
                 </Stack>
             </TableCell>
-
         </TableRowStyled>
     );
 }
