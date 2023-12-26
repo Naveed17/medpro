@@ -189,6 +189,14 @@ const rowsActionsData = [
             )
         ),
     },
+     {
+        action: "paid-consultation",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/paidConsultRow").then(
+                (mod) => mod
+            )
+        ),
+    },
 ];
 
 export default rowsActionsData;

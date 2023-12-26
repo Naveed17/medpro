@@ -13,7 +13,7 @@ import {
     IconButton, Menu,
     MenuItem,
     MenuList, Stack,
-    Toolbar,
+    Toolbar, Typography,
     useMediaQuery, useTheme
 } from "@mui/material";
 // components
@@ -27,7 +27,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {AppointmentStatsPopover, NotificationPopover, PausedConsultationPopover} from "@features/popover";
 import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
 import {appLockSelector} from "@features/appLock";
-import {agendaSelector, AppointmentStatus} from "@features/calendar";
+import {agendaSelector, AppointmentStatus, openDrawer} from "@features/calendar";
 import IconUrl from "@themes/urlIcon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import {onOpenPatientDrawer} from "@features/table";
@@ -173,7 +173,10 @@ function TopNavBar({...props}) {
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId}/status/${router.locale}`
         }, {
             onSuccess: () => {
-                dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
+                batch(() => {
+                    dispatch(openDrawer({type: "view", open: false}));
+                    dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
+                });
                 if (selectedEvent) {
                     handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
                 } else {
@@ -619,11 +622,11 @@ function TopNavBar({...props}) {
                                         loading={loadingReq}
                                         loadingPosition="start"
                                         onClick={handlePauseStartConsultation}
-                                        variant="contained"
-                                        color={"info"}
                                         startIcon={<IconUrl height={"18"} width={"18"}
                                                             path="ic-pause-mate"></IconUrl>}>
-                                        {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
+                                        <Typography color={"text.primary"}>
+                                            {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
+                                        </Typography>
                                     </LoadingButton>
                                     <LoadingButton
                                         loading={loadingReq}
@@ -632,7 +635,7 @@ function TopNavBar({...props}) {
                                         variant="contained"
                                         color={"error"}
                                         startIcon={<IconUrl height={"18"} width={"18"}
-                                                            path="Property 1=play"></IconUrl>}>
+                                                            path="ic-check-circle"></IconUrl>}>
                                         {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.finish`)}
                                     </LoadingButton>
                                 </Stack>

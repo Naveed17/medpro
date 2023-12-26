@@ -156,6 +156,25 @@ function DocumentDetailDialog({...props}) {
             icon: "menu/ic-send-message",
         },
         {
+            title: 'settings',
+            icon: "docs/ic-note",
+            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+        },
+        {
+            title: 'download',
+            icon: "menu/ic-download-square",
+        },
+        {
+            title: 'edit',
+            icon: "ic-edit-patient",
+            disabled: (state?.type !== 'prescription' && state?.type !== 'write_certif' && state?.type !== 'requested-analysis' && state?.type !== 'requested-medical-imaging') || !state?.uuid
+        },
+        {
+            title: 'delete',
+            icon: "ic-trash",
+            disabled: !state?.uuid
+        },
+        {
             title: data.header.show ? 'hide' : 'show',
             icon: `menu/${!data.header.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
             disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
@@ -174,25 +193,6 @@ function DocumentDetailDialog({...props}) {
             title: data.patient.show ? 'hidepatient' : 'showpatient',
             icon: `menu/${data.patient.show ? 'ic-cancel-patient' : 'ic-user'}`,
             disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
-        },
-        {
-            title: 'settings',
-            icon: "docs/ic-note",
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
-        },
-        {
-            title: 'download',
-            icon: "menu/ic-download-square",
-        },
-        {
-            title: 'edit',
-            icon: "ic-edit-patient",
-            disabled: (state?.type !== 'prescription' && state?.type !== 'write_certif' && state?.type !== 'requested-analysis' && state?.type !== 'requested-medical-imaging') || !state?.uuid
-        },
-        {
-            title: 'delete',
-            icon: "ic-trash",
-            disabled: !state?.uuid
         }
     ];
 
@@ -737,16 +737,7 @@ function DocumentDetailDialog({...props}) {
                 </Grid>
                 <Grid item xs={12} md={menu ? 4 : 1} className="sidebar" color={"white"} style={{background: "white"}}>
                     {menu ? <List>
-                            <ListItem className='secound-list'>
-                                <ListItemButton onClick={() => {
-                                    setMenu(false)
-                                }}>
-                                    <ListItemIcon>
-                                        <IconUrl path="menu/ic-close-menu"/>
-                                    </ListItemIcon>
-                                    <ListItemText sx={{ml: 1}} primary={t("close")}/>
-                                </ListItemButton>
-                            </ListItem>
+
                             {actionButtons.map((button, idx) =>
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
                                     {!button.disabled && <ListItemButton
@@ -758,6 +749,16 @@ function DocumentDetailDialog({...props}) {
                                     </ListItemButton>}
                                 </ListItem>)
                             }
+                            <ListItem className='secound-list'>
+                                <ListItemButton onClick={() => {
+                                    setMenu(false)
+                                }}>
+                                    <ListItemIcon>
+                                        <IconUrl path="menu/ic-close-menu"/>
+                                    </ListItemIcon>
+                                    <ListItemText sx={{ml: 1}} primary={t("close")}/>
+                                </ListItemButton>
+                            </ListItem>
                             <ListItem className='secound-list'>
                                 <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
                                     <Typography color='text.secondary'>

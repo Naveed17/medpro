@@ -16,6 +16,8 @@ import Zoom from "@mui/material/Zoom";
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import DoneRoundedIcon from '@mui/icons-material/DoneRounded';
+import moment from "moment-timezone";
 
 function CalendarRowDetail({...props}) {
     const {
@@ -93,8 +95,19 @@ function CalendarRowDetail({...props}) {
                         }
                     }}
                     className="first-child">
-                    <Box sx={{display: "flex"}}>
+                    <Box sx={{display: "flex", minWidth: 110}}>
                         <Stack direction={"row"} alignItems={"center"} justifyContent={"center"}>
+                            {moment(data.time).format('HH:mm') !== "00:00" &&
+                                <>
+                                    <TimeIcon/>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {new Date(data.time).toLocaleTimeString([], {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </Typography>
+                                </>
+                            }
                             {data.hasErrors?.length > 0 &&
                                 <Tooltip
                                     title={data.hasErrors.map((error: string) => t(error, {ns: "common"})).join(",")}
@@ -102,20 +115,15 @@ function CalendarRowDetail({...props}) {
                                     <SmallAvatar
                                         sx={{
                                             p: 1.5,
-                                            mr: 1
+                                            ml: 1,
+
+
                                         }}>
                                         <DangerIcon
                                             className="error"
                                             color={"error"}/>
                                     </SmallAvatar>
                                 </Tooltip>}
-                            <TimeIcon/>
-                            <Typography variant="body2" color="text.secondary">
-                                {new Date(data.time).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                            </Typography>
                         </Stack>
                         <Box sx={{display: "flex"}}>
                             {data.new && <Label
@@ -136,7 +144,7 @@ function CalendarRowDetail({...props}) {
                                 sx: {cursor: "pointer"}
                             })}
                             variant={"body2"}
-                            color={!data?.patient?.isArchived ? "primary" : "info"}>{data.title}</Typography>
+                            color={!data?.patient?.isArchived ? "primary" : "info"}>{data.title} {data.patient.contact && `(${data.patient.contact[0]?.code} ${data.patient.contact[0]?.value})`}</Typography>
                     </Stack>
                 </TableCell>
                 {!pendingData && <TableCell
@@ -260,21 +268,52 @@ function CalendarRowDetail({...props}) {
                                 </IconButton>
                             </span>
                                 </Tooltip>}
-                            {(!roles.includes("ROLE_SECRETARY") && ["CONFIRMED", "WAITING_ROOM"].includes(data?.status?.key)) &&
-                                <Tooltip title={t("start")}>
-                            <span>
-                                <IconButton
-                                    disabled={loading}
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleEvent("onConsultationDetail", data, event);
-                                    }}
-                                    sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}
-                                    size="small">
-                                    <PlayCircleIcon fontSize={"small"}/>
-                                </IconButton>
-                            </span>
-                                </Tooltip>}
+                            {data?.status?.key === "PENDING" &&
+                                <>
+                                    <Tooltip title={t("confirm")}>
+                                        <span>
+                                            <IconButton
+                                                disableRipple
+                                                color={"success"}
+                                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent(
+                                                    "onConfirmAppointment",
+                                                    data,
+                                                    event
+                                                )}
+                                                size={"small"}
+                                                disableFocusRipple
+                                                sx={{
+                                                    background: theme.palette.success.main,
+                                                    borderRadius: 1,
+                                                    width: 30,
+                                                    height: 30,
+                                                    my: 1
+                                                }}>
+                                                <DoneRoundedIcon sx={{width: 18, height: 18}} htmlColor={"white"}/>
+                                            </IconButton>
+                                        </span>
+                                    </Tooltip>
+                                    <Tooltip title={t("manage")}>
+                                        <span>
+                                            <IconButton
+                                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent(
+                                                    "onMove",
+                                                    data,
+                                                    event
+                                                )}
+                                                size={"small"}
+                                                disableFocusRipple
+                                                sx={{
+                                                    border: `1px solid ${theme.palette.divider}`, borderRadius: 1,
+                                                    width: 30,
+                                                    height: 30,
+                                                    my: 1
+                                                }}>
+                                                <IconUrl width={16} height={16} path="ic-edit-patient"/>
+                                            </IconButton>
+                                        </span>
+                                    </Tooltip>
+                                </>}
                             {data?.status?.key === "CONFIRMED" && <Tooltip title={t("add_waiting_room")}>
                                 <span>
                                     <IconButton
@@ -290,7 +329,22 @@ function CalendarRowDetail({...props}) {
                                 </IconButton>
                                 </span>
                             </Tooltip>}
-                            <Tooltip title={t('more')}>
+                            {(!roles.includes("ROLE_SECRETARY") && ["CONFIRMED", "WAITING_ROOM"].includes(data?.status?.key)) &&
+                                <Tooltip title={t("start")}>
+                            <span>
+                                <IconButton
+                                    disabled={loading}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleEvent("onConsultationDetail", data, event);
+                                    }}
+                                    sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}
+                                    size="small">
+                                    <PlayCircleIcon fontSize={"small"}/>
+                                </IconButton>
+                            </span>
+                                </Tooltip>}
+                            {data?.status?.key !== "PENDING" && <Tooltip title={t('more')}>
                             <span>
                                 <IconButton
                                     disabled={loading}
@@ -302,7 +356,7 @@ function CalendarRowDetail({...props}) {
                                     <MoreVertIcon/>
                                 </IconButton>
                             </span>
-                            </Tooltip>
+                            </Tooltip>}
                         </Stack>}
                 </TableCell>
             </TableRowStyled>

@@ -47,7 +47,8 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
             agenda,
             mutateSheetData,
             fullOb, setFullOb,
-            trigger: triggerAppointmentEdit
+            trigger: triggerAppointmentEdit,
+            loading
         } = props;
         const router = useRouter();
         const theme = useTheme();
@@ -318,7 +319,8 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                 debouncedOnChange,
                                 fullOb, setFullOb,
                                 loadChanges, setLoadChanges,
-                                modelContent
+                                modelContent,
+                                loading
                             }}/>
                             {!fullOb && <Box width={1}>
                                 <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}

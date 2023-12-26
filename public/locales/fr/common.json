@@ -12,6 +12,7 @@
   "paid": "Payé",
   "cash": "Encaisse",
   "lang": "langue",
+  "rows_per-page": "Rangées par page",
   "sms-languages": {
     "fr": "Francais",
     "en": "Anglais",

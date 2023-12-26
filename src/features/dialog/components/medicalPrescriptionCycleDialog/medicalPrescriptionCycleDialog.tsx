@@ -26,7 +26,7 @@ import {
     Tab,
     Tabs,
     TextField,
-    Theme,
+    Theme, Tooltip,
     Typography,
     useMediaQuery, useTheme,
 } from "@mui/material";
@@ -58,7 +58,7 @@ import {useRouter} from "next/router";
 import MenuItem from "@mui/material/MenuItem";
 import * as Yup from "yup";
 import {
-    a11yProps,
+    a11yProps, ConditionalWrapper,
     getBirthdayFormat,
     prescriptionPreviewDosage,
     useLastPrescription,
@@ -76,7 +76,6 @@ import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {SetSelectedDialog} from "@features/toolbar";
 import moment from "moment/moment";
-import Icon from "@themes/urlIcon";
 import {NoDataCard} from "@features/card";
 
 function MedicalPrescriptionCycleDialog({...props}) {
@@ -576,6 +575,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                         <FormikProvider value={formik}>
                             <Stack
                                 ref={refContainer}
+                                {...(values.data?.length === 0 && {alignItems: 'center'})}
                                 component={Form}
                                 spacing={1}
                                 autoComplete="off"
@@ -596,7 +596,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     <FiberManualRecordIcon sx={{fontSize: 6, ml: .8}}/>
                                                 </Stack>
                                             </Grid>
-                                            <Grid item className={"drug-input"} sm={4.3} xs={11}>
+                                            <Grid item className={"drug-input"} sm={5.5} xs={11}>
                                                 {drugsList && (
                                                     <Autocomplete
                                                         id="cmo"
@@ -713,7 +713,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
                                             <Grid item xs={1} sx={{display: {xs: 'block', sm: 'none'}}}/>
 
-                                            <Grid item sm={3.2} xs={10}>
+                                            <Grid item sm={2.2} xs={10}>
                                                 <Autocomplete
                                                     size="small"
                                                     freeSolo
@@ -763,7 +763,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                     )}
                                                 />
                                             </Grid>
-                                            <Grid item sm={3.2} xs={10}>
+                                            <Grid item sm={3} xs={10}>
                                                 <Autocomplete
                                                     size="small"
                                                     freeSolo
@@ -1350,21 +1350,31 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 {t("cycle", {ns: "consultation"})}
                                             </Button>
 
-                                            <Button
-                                                onClick={() => {
-                                                    setModelNameInput(drugs[idx].cycles[drugs[idx].cycles.length - 1]?.dosage ?? "");
-                                                    setModelDosage({...drugs[idx], idx});
-                                                    setOpenAddDialogAction("dosage");
-                                                    setTimeout(() => setOpenAddDialog(true));
-                                                }}
-                                                variant={"contained"}
-                                                disabled={drugs[idx]?.cycles.some((cycle: any) => cycle.dosage.length === 0) ?? true}
-                                                {...(values.data[idx].cycles.length === 0 && {
-                                                    sx: {mt: 1},
-                                                })}
-                                                startIcon={<IconUrl path={"dosage-model"}/>}>
-                                                {t("add-dosage-model", {ns: "consultation"})}
-                                            </Button>
+                                            <ConditionalWrapper
+                                                condition={drugs[idx]?.cycles.some((cycle: any) => cycle.dosage.length > 0)}
+                                                wrapper={(children: any) => <Tooltip
+                                                    title={t("add-dosage-model", {ns: "consultation"})}>{children}</Tooltip>}>
+                                                <IconButton
+                                                    className="btn-list-action"
+                                                    onClick={() => {
+                                                        setModelNameInput(drugs[idx].cycles[drugs[idx].cycles.length - 1]?.dosage ?? "");
+                                                        setModelDosage({...drugs[idx], idx});
+                                                        setOpenAddDialogAction("dosage");
+                                                        setTimeout(() => setOpenAddDialog(true));
+                                                    }}
+                                                    disabled={drugs[idx]?.cycles.some((cycle: any) => cycle.dosage.length === 0) ?? true}
+                                                    sx={{
+                                                        "&.btn-list-action": {
+                                                            p: 1,
+                                                            background: drugs[idx]?.cycles.some((cycle: any) => cycle.dosage.length > 0) ? "white" : theme.palette.grey['300']
+                                                        },
+                                                        ...(values.data[idx].cycles.length === 0 && {mt: 1})
+                                                    }}>
+                                                    <IconUrl width={20} height={18}
+                                                             {...(drugs[idx]?.cycles.some((cycle: any) => cycle.dosage.length > 0) && {color: theme.palette.text.primary})}
+                                                             path={"dosage-model"}/>
+                                                </IconButton>
+                                            </ConditionalWrapper>
                                         </Stack>
 
                                     </Paper>

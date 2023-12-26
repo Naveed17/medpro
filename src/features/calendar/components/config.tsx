@@ -196,7 +196,7 @@ export const DayOfWeek = (day: string, start = 1) => {
 };
 
 export const AddAppointmentCardData = {
-    mainIcon: "ic-agenda-+",
+    mainIcon: "agenda/ic-agenda-+",
     title: "table.no-data.event.title",
     description: "table.no-data.event.description"
 };

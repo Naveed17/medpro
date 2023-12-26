@@ -7,54 +7,65 @@ export default function Table(theme) {
       styleOverrides: {
         root: {
           borderCollapse: "separate",
-          borderSpacing: "0px 8px",
+          borderSpacing: "0px",
           background: "transparent",
-          marginTop: "-8px",
-
-          "& .MuiTableBody-root .MuiTableRow-root": {
-            "& .MuiTableCell-root": {
-              borderRadius: 0,
-              borderTop: "1px solid transparent",
-              borderBottom: `1px solid ${theme.palette.divider}`,
-              "&:first-of-type": {
-                borderLeft: "1px solid transparent",
-              },
-              "&:last-of-type": {
-                borderRight: "1px solid transparent",
-              },
-            },
-            "& .text-row": {
-              backgroundColor: "transparent",
-              padding: 0,
-            },
-            "&:hover": {
+          "& .MuiTableBody-root": {
+            ".MuiTableRow-root": {
               "& .MuiTableCell-root": {
-                backgroundColor: theme.palette.primary.lighter,
+                borderRadius: 0,
+                borderTop: "1px solid transparent",
                 borderBottom: `1px solid ${theme.palette.divider}`,
-                "&.text-row": {
-                  backgroundColor: "transparent",
-                  borderColor: "transparent",
-                  "&:first-of-type": {
-                    borderColor: "transparent",
-                  },
-                  "&:last-of-type": {
-                    borderColor: "transparent",
-                  },
+                "&:first-of-type": {
+                  borderLeft: "1px solid transparent",
+                },
+                "&:last-of-type": {
+                  borderRight: "1px solid transparent",
                 },
               },
+              "& .text-row": {
+                backgroundColor: "transparent",
+                padding: 0,
+              },
+              "&:hover": {
+                "& > .MuiTableCell-root": {
+                  backgroundColor: theme.palette.primary.lighter,
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  "&.text-row": {
+                    backgroundColor: "transparent",
+                    borderColor: "transparent",
+                    "&:first-of-type": {
+                      borderColor: "transparent",
+                    },
+                    "&:last-of-type": {
+                      borderColor: "transparent",
+                    },
+                  },
+                },
+
+              },
+              "&:first-of-type": {
+                "&:hover": {
+                  ".MuiTableCell-root": {
+                    background: `linear-gradient(180deg, ${theme.palette.common.white} 2px, ${theme.palette.primary.lighter} 0%);`
+                  }
+                },
+                ".MuiTableCell-root": {
+                  paddingTop: 10,
+                }
+              }
             },
-          },
-          "& .action span": {
-            float: "right",
-          },
-          "& .cip-medical-proce-row": {
-            "& .MuiTableCell-root": {
-              paddingTop: 0,
-              paddingBottom: 0,
+            "& .action span": {
+              float: "right",
+            },
+            "& .cip-medical-proce-row": {
+              "& .MuiTableCell-root": {
+                paddingTop: 0,
+                paddingBottom: 0,
+              },
             },
           },
         },
-      },
+      }
     },
     MuiTableRow: {
       styleOverrides: {
@@ -95,7 +106,9 @@ export default function Table(theme) {
             overflow: "hidden",
             borderColor: "transparent",
             color: theme.palette.text.secondary,
-            textTransform: "uppercase",
+            textTransform: "normal",
+            fontWeight: 500,
+            fontSize: 13,
             fontFamily: "Poppins",
             letterSpacing: "1px",
             cursor: "pointer",
@@ -115,7 +128,7 @@ export default function Table(theme) {
           },
         },
         stickyHeader: {
-          backgroundColor: theme.palette.info.lighter,
+          backgroundColor: theme.palette.info.main,
         },
         body: {
           backgroundColor: theme.palette.background.paper,

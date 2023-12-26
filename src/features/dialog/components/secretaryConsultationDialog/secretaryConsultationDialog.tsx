@@ -67,6 +67,7 @@ function SecretaryConsultationDialog({...props}) {
     } = props;
     const router = useRouter();
     const theme = useTheme() as Theme;
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
     const isSmall = useMediaQuery(theme.breakpoints.down("sm"));
     const {data: session} = useSession();
@@ -161,7 +162,7 @@ function SecretaryConsultationDialog({...props}) {
             </Stack> : (
                 <RootStyled>
                     <Grid container spacing={3}>
-                        <Grid item md={4} sm={12} xs={12}>
+                        {!isMobile && <Grid item md={4} sm={12} xs={12}>
                             <Stack
                                 alignItems="center"
                                 spacing={1}
@@ -237,7 +238,7 @@ function SecretaryConsultationDialog({...props}) {
                                     ))}
                                 </Box>
                             </Stack>
-                        </Grid>
+                        </Grid>}
                         <Grid item md={8} sm={12} xs={12}>
                             <Stack
                                 alignItems="center"
@@ -432,7 +433,7 @@ function SecretaryConsultationDialog({...props}) {
                         {...{
                             direction,
                             sx: {
-                                minHeight: 460
+                                minHeight: 600
                             }
                         }}
                         open={openPaymentDialog}
