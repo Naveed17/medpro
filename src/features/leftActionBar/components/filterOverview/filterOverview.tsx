@@ -14,14 +14,15 @@ import {flattenObject, unflattenObject} from "@lib/hooks";
 
 function FilterOverview() {
     const dispatch = useAppDispatch();
-    const {insurances: allInsurances} = useInsurances();
-    const {reasons} = useConsultationReasons();
-    const {acts} = useConsultationActs();
-    const {countries} = useCountries();
 
     const {t, ready} = useTranslation("common");
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
+
+    const {insurances: allInsurances} = useInsurances(!!filter?.patient?.insurances);
+    const {reasons} = useConsultationReasons(!!filter?.reasons);
+    const {acts} = useConsultationActs(!!filter?.acts);
+    const {countries} = useCountries(undefined, !!filter?.patient?.country);
 
     const [filterData, setFilterData] = useState<FilterModel[]>([]);
 
