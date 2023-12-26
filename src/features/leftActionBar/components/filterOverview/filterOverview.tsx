@@ -9,12 +9,14 @@ import CloseIcon from "@mui/icons-material/Close";
 import _ from "lodash";
 import {dashLayoutSelector} from "@features/base";
 import {AppointmentStatus} from "@features/calendar";
-import {useCountries, useInsurances} from "@lib/hooks/rest";
+import {useConsultationActs, useConsultationReasons, useCountries, useInsurances} from "@lib/hooks/rest";
 import {flattenObject, unflattenObject} from "@lib/hooks";
 
 function FilterOverview() {
     const dispatch = useAppDispatch();
     const {insurances: allInsurances} = useInsurances();
+    const {reasons} = useConsultationReasons();
+    const {acts} = useConsultationActs();
     const {countries} = useCountries();
 
     const {t, ready} = useTranslation("common");
@@ -31,7 +33,9 @@ function FilterOverview() {
                     queryGlobal = _.omit((filter as any)[data.parent], [data.key]);
                     break;
                 case "type":
-                    const sp = filter?.type?.split(",") as string[];
+                case "acts":
+                case "reasons":
+                    const sp = filter[data.parent]?.split(",") as string[];
                     sp?.splice(sp.findIndex((searchElement: string) => searchElement === data.key), 1);
                     queryGlobal = sp?.length > 0 ? sp?.join(",") : undefined;
                     break;
@@ -127,6 +131,20 @@ function FilterOverview() {
                                 parent: filterItem[0],
                                 key: AppointmentStatus[status]?.key,
                                 value: AppointmentStatus[status]?.value
+                            })));
+                            break;
+                        case "reasons":
+                            filters.push(...(filterItem[1] as string).split(',').map(reason => ({
+                                parent: filterItem[0],
+                                key: reason,
+                                value: reasons?.find(typeItem => typeItem.uuid === reason)?.name ?? ""
+                            })));
+                            break;
+                        case "acts":
+                            filters.push(...(filterItem[1] as string).split(',').map(act => ({
+                                parent: filterItem[0],
+                                key: act,
+                                value: acts?.find(typeItem => typeItem.uuid === act)?.act?.name ?? ""
                             })));
                             break;
                     }

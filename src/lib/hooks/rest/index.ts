@@ -1,5 +1,7 @@
 export {default as useContactType} from "./useContactType"
 export {default as useInsurances} from "./useInsurances";
+export {default as useConsultationReasons} from "./useConsultationReasons";
+export {default as useConsultationActs} from "./useConsultationActs";
 export {default as usePermissions} from "./usePermissions";
 export {default as sendRequest} from "./sendRequest";
 export {default as useProfilePhoto} from "./useProfilePhoto";

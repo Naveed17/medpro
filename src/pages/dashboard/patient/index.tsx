@@ -50,7 +50,7 @@ import {
     dialogMoveSelector,
     PatientDetail,
 } from "@features/dialog";
-import {leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
+import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {prepareSearchKeys, useIsMountedRef, useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
 import {ActionMenu, toggleSideBar} from "@features/menu";
@@ -542,7 +542,7 @@ function Patient() {
 
     useLeavePageConfirm((path: string) => {
         if (!path.includes("/dashboard/patient")) {
-            dispatch(resetFilterPatient());
+            dispatch(resetFilter());
         }
     });
 
