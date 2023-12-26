@@ -589,7 +589,7 @@ function ConsultationInProgress() {
                     <Button
                         disabled={checkedNext}
                         onClick={() => setAddFinishAppointment(!addFinishAppointment)}
-                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon/> :
+                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon htmlColor={theme.palette.text.primary}/> :
                             <IconUrl width={20} height={20} path={"agenda/ic-agenda-+"}/>}>
                         <Typography sx={{display: {xs: "none", md: "flex"}}} color={"text.primary"}>
                             {t(addFinishAppointment ? "back" : "add_&_finish_appointment")}
@@ -1358,8 +1358,8 @@ function ConsultationInProgress() {
                                 setState,
                                 setInfo,
                                 router,
-                                modelData:sheetModal?.data,
-                                date:sheet?.date,
+                                modelData: sheetModal?.data,
+                                date: sheet?.date,
                                 setIsViewerOpen,
                                 setSelectedTab,
                                 appuuid: app_uuid,

@@ -552,7 +552,7 @@ function OnStepPatient({...props}) {
                                                 const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
                                                 setFieldValue("old", old > 120 ? "" : old);
                                             } else {
-                                                setError(true);
+                                                setError(date !== null);
                                                 setFieldValue("old", "");
                                             }
                                         }}

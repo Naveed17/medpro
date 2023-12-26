@@ -55,7 +55,7 @@ function Statistics() {
 
     const increasePercentage = (newVal: number, oldVAl: number) => {
         const percentage = ((newVal - oldVAl) / newVal) * 100;
-        return isNaN(Math.ceil(percentage)) ? 0:  Math.ceil(percentage);
+        return percentage ? Math.ceil(percentage) : "--";
     }
 
     useEffect(() => {
