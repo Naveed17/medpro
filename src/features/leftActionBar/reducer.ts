@@ -20,9 +20,10 @@ export type ActionBarState = {
             birthdate?: string;
             name?: string;
             country?: string;
+            states?: string;
             hasDouble?: boolean;
             rest?: boolean;
-            insurances?: string[];
+            insurances?: string;
         },
         payment?: {
             insurance?: string[];

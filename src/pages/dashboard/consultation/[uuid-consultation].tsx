@@ -578,19 +578,20 @@ function ConsultationInProgress() {
                         mr: {xs: 0, md: 1}
                     }
                 }}>
-                    <Button
+                    {/*<Button
                         variant="text-black"
                         onClick={() => setOpenSecDialog(false)}
                         startIcon={<CloseIcon/>}>
                         <Typography sx={{display: {xs: "none", md: "flex"}}}>
                             {t("cancel")}
                         </Typography>
-                    </Button>
+                    </Button>*/}
                     <Button
                         disabled={checkedNext}
                         onClick={() => setAddFinishAppointment(!addFinishAppointment)}
-                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon/> : <AddIcon/>}>
-                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
+                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon htmlColor={theme.palette.text.primary}/> :
+                            <IconUrl width={20} height={20} path={"agenda/ic-agenda-+"}/>}>
+                        <Typography sx={{display: {xs: "none", md: "flex"}}} color={"text.primary"}>
                             {t(addFinishAppointment ? "back" : "add_&_finish_appointment")}
                         </Typography>
                     </Button>
@@ -605,7 +606,7 @@ function ConsultationInProgress() {
                         }}
                         startIcon={<IconUrl path="ic-check"/>}>
                         <Typography sx={{display: {xs: "none", md: "flex"}}}>
-                            {t("end_consultation")}
+                            {t("end_consultation_btn")}
                         </Typography>
                     </LoadingButton>
                 </Stack>
@@ -1173,7 +1174,7 @@ function ConsultationInProgress() {
             if (!cardPositions)
                 localStorage.setItem(`cardPositions`, JSON.stringify({widget: false, exam: true, history: false}))
 
-            if (hasDataHistory === false) {
+            if (sheet?.hasHistory === false) {
                 setCards([[
                     {
                         id: 'item-1',
@@ -1208,8 +1209,7 @@ function ConsultationInProgress() {
     }, [dispatch, httpPatientPreview, sheet?.patient])
 
     useEffect(() => {
-        if (tableState.patientId)
-            setPatientDetailDrawer(true);
+        setPatientDetailDrawer(tableState.patientId !== '');
     }, [tableState.patientId]);
 
     useEffect(() => {
@@ -1263,7 +1263,8 @@ function ConsultationInProgress() {
                         borderTopRightRadius: 5
                     }}>
                         <IconUrl color={"white"} path={'history'}/>
-                        <Typography fontSize={18} color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
+                        <Typography fontSize={18}
+                                    color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
                         <IconButton sx={{width: 30, height: 30}} onClick={() => setOpenHistoryDialog(false)}><IconUrl
                             width={15} height={15} path={"close"}/></IconButton>
                     </Stack>
@@ -1336,7 +1337,8 @@ function ConsultationInProgress() {
 
 
             {<HistoryAppointementContainer {...{isHistory, loading}}>
-                <Box style={{paddingBottom:60,backgroundColor: !isHistory ? theme.palette.info.main : ""}} id={"container-tab"}
+                <Box style={{paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : ""}}
+                     id={"container-tab"}
                      className="container-scroll">
                     <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
                         <HistoryTab
@@ -1356,6 +1358,8 @@ function ConsultationInProgress() {
                                 setState,
                                 setInfo,
                                 router,
+                                modelData: sheetModal?.data,
+                                date: sheet?.date,
                                 setIsViewerOpen,
                                 setSelectedTab,
                                 appuuid: app_uuid,
@@ -1379,7 +1383,8 @@ function ConsultationInProgress() {
                                     agenda,
                                     mutateSheetData,
                                     fullOb, setFullOb,
-                                    trigger: triggerAppointmentEdit
+                                    trigger: triggerAppointmentEdit,
+                                    loading
                                 }}
                                 handleClosePanel={(v: boolean) => setCloseExam(v)}
                             />
@@ -1604,91 +1609,91 @@ function ConsultationInProgress() {
 
             </HistoryAppointementContainer>}
 
-                <SubFooter>
-                    <Stack
-                        width={1}
-                        spacing={{xs: 1, md: 0}}
-                        padding={{xs: 1, md: 0}}
-                        direction={{xs: "column", md: "row"}}
-                        alignItems="flex-end"
-                        justifyContent={
-                            selectedTab === "medical_procedures" ? "space-between" : "flex-end"
-                        }>
-                        {selectedTab === "medical_procedures" && (
-                            <Stack direction="row" alignItems={"center"}>
-                                <Typography variant="subtitle1">
-                                    <span>{t("total")} : </span>
-                                </Typography>
-                                <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                    {isNaN(total) || total < 0 ? "-" : total} {devise}
-                                </Typography>
-                                <Stack
-                                    direction="row"
-                                    alignItems="center"
-                                    spacing={2}>
-                                    <span>|</span>
-                                    {!isMobile && <Button
-                                        variant="text-black"
-                                        sx={{
-                                            border: `1px solid ${theme.palette.grey["200"]}`,
-                                            bgcolor: theme => theme.palette.grey['A500'],
-                                        }}
-                                        onClick={(event) => {
-                                            setOpenDialogSave(true);
-                                            let type = "";
-                                            if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                                                type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
-
-                                            event.stopPropagation();
-                                            setInfo("document_detail");
-                                            setState({
-                                                type: "fees",
-                                                name: "Honoraire",
-                                                info: acts.filter(act => act.selected),
-                                                createdAt: moment().format("DD/MM/YYYY"),
-                                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
-                                                patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
-                                            });
-                                            setOpenDialog(true);
-
-                                        }}
-                                        startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
-                                        {t("consultationIP.print")}
-                                    </Button>}
-
-                                    {!isMobile &&<Stack direction="row" alignItems='center' sx={{
-                                        border: `1px dashed ${theme.palette.grey["200"]}`,
-                                        borderRadius: 1,
-                                        padding: "2px 10px 2px 0",
+            <SubFooter>
+                <Stack
+                    width={1}
+                    spacing={{xs: 1, md: 0}}
+                    padding={{xs: 1, md: 0}}
+                    direction={{xs: "column", md: "row"}}
+                    alignItems="flex-end"
+                    justifyContent={
+                        selectedTab === "medical_procedures" ? "space-between" : "flex-end"
+                    }>
+                    {selectedTab === "medical_procedures" && (
+                        <Stack direction="row" alignItems={"center"}>
+                            <Typography variant="subtitle1">
+                                <span>{t("total")} : </span>
+                            </Typography>
+                            <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
+                                {isNaN(total) || total < 0 ? "-" : total} {devise}
+                            </Typography>
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={2}>
+                                <span>|</span>
+                                {!isMobile && <Button
+                                    variant="text-black"
+                                    sx={{
+                                        border: `1px solid ${theme.palette.grey["200"]}`,
                                         bgcolor: theme => theme.palette.grey['A500'],
-                                    }}>
-                                        <Checkbox onChange={(ev) => {
-                                            changeCoveredBy(ev.target.checked)
-                                        }} checked={insuranceGenerated}/>
-                                        <Typography>{t("covred")}</Typography>
-                                    </Stack>}
-                                </Stack>
-                            </Stack>
-                        )}
+                                    }}
+                                    onClick={(event) => {
+                                        setOpenDialogSave(true);
+                                        let type = "";
+                                        if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                            type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
 
-                        {sheet?.status !== 5 && <LoadingButton
-                            disabled={loading}
-                            loading={loading}
-                            loadingPosition={"start"}
-                            onClick={() => {
-                                end();
-                                setAddFinishAppointment(false);
-                                setCheckedNext(false);
-                            }}
-                            color={"error"}
-                            className="btn-action"
-                            startIcon={<IconUrl path="ic-check"/>}
-                            variant="contained"
-                            sx={{".react-svg": {mr: 1}}}>
-                            {t("end_of_consultation")}
-                        </LoadingButton>}
-                    </Stack>
-                </SubFooter>
+                                        event.stopPropagation();
+                                        setInfo("document_detail");
+                                        setState({
+                                            type: "fees",
+                                            name: "Honoraire",
+                                            info: acts.filter(act => act.selected),
+                                            createdAt: moment().format("DD/MM/YYYY"),
+                                            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                                            patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
+                                        });
+                                        setOpenDialog(true);
+
+                                    }}
+                                    startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
+                                    {t("consultationIP.print")}
+                                </Button>}
+
+                                {!isMobile && <Stack direction="row" alignItems='center' sx={{
+                                    border: `1px dashed ${theme.palette.grey["200"]}`,
+                                    borderRadius: 1,
+                                    padding: "2px 10px 2px 0",
+                                    bgcolor: theme => theme.palette.grey['A500'],
+                                }}>
+                                    <Checkbox onChange={(ev) => {
+                                        changeCoveredBy(ev.target.checked)
+                                    }} checked={insuranceGenerated}/>
+                                    <Typography>{t("covred")}</Typography>
+                                </Stack>}
+                            </Stack>
+                        </Stack>
+                    )}
+
+                    {sheet?.status !== 5 && <LoadingButton
+                        disabled={loading}
+                        loading={loading}
+                        loadingPosition={"start"}
+                        onClick={() => {
+                            end();
+                            setAddFinishAppointment(false);
+                            setCheckedNext(false);
+                        }}
+                        color={"error"}
+                        className="btn-action"
+                        startIcon={<IconUrl path="ic-check"/>}
+                        variant="contained"
+                        sx={{".react-svg": {mr: 1}}}>
+                        {t("end_of_consultation")}
+                    </LoadingButton>}
+                </Stack>
+            </SubFooter>
 
             <DialogMui
                 open={openHistoryDialog && isMobile}

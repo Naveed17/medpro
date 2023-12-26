@@ -98,42 +98,40 @@ function WaitingRoomRow({...props}) {
                 </TableCell>
                 <TableCell align={"center"}>
                     {row ?
-                    <Stack>
-                        <Stack
-                            alignItems="center"
-                            direction={"row"}
-                            >
-                            <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary}/>
-                            <Typography
-                            fontWeight={600}
-                            color='text.primary'
-                                sx={{
-                                    ml: 0.6,
-                                    fontSize: 13
-                                }}>
-                                {row?.arrivalTime ? moment.utc(row.arrivalTime, "HH:mm").add(1, "hours").format("HH:mm") : "--"}
-                            </Typography>
-                        </Stack>
-                        <Stack
-                            alignItems="center"
-                            direction={"row"}
-                            >
-                            <Icon path="ic-agenda-new" width={12} height={12} color={theme.palette.text.primary}/>
-                            <Typography
-                            fontWeight={600}
-                            color='text.primary'
-                                sx={{
+                        <Stack>
+                            <Stack
+                                alignItems="center"
+                                direction={"row"}>
+                                <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary}/>
+                                <Typography
+                                    fontWeight={600}
+                                    color='text.primary'
+                                    sx={{
+                                        ml: 0.6,
+                                        fontSize: 13
+                                    }}>
+                                    {row?.startTime && row?.startTime !== "00:00" ? row.startTime : "--"}
+                                </Typography>
+                            </Stack>
+                            <Stack
+                                alignItems="center"
+                                direction={"row"}>
+                                <Icon path="ic-agenda-new" width={12} height={12} color={theme.palette.text.primary}/>
+                                <Typography
+                                    fontWeight={600}
+                                    color='text.primary'
+                                    sx={{
 
-                                    ml: 0.6,
-                                    fontSize: 13
-                                }}>
-                                {row.dayDate}
-                            </Typography>
-                        </Stack>
+                                        ml: 0.6,
+                                        fontSize: 13
+                                    }}>
+                                    {row.dayDate}
+                                </Typography>
+                            </Stack>
                         </Stack>
                         : (<>
-                            <Skeleton variant="text" width={80}/>
-                            <Skeleton variant="text" width={80}/>
+                                <Skeleton variant="text" width={80}/>
+                                <Skeleton variant="text" width={80}/>
                             </>
                         )}
                 </TableCell>
@@ -166,9 +164,9 @@ function WaitingRoomRow({...props}) {
                     {row ? (
                         <Stack spacing={2} direction="row" alignItems="center">
                             {row.type ? (
-                                    <Typography fontSize={13} color='text.primary' fontWeight={600}>
-                                        {row.type?.name}
-                                    </Typography>
+                                <Typography fontSize={13} color='text.primary' fontWeight={600}>
+                                    {row.type?.name}
+                                </Typography>
                             ) : (
                                 " -- "
                             )}
@@ -186,7 +184,7 @@ function WaitingRoomRow({...props}) {
                                     fontSize={13}
                                     color='text.primary'
                                     fontWeight={600}
-                                    >
+                                >
                                     {row.consultationReasons.map((reason: ConsultationReasonModel) => reason.name).join(", ")}
                                 </Typography>
                             ) : (

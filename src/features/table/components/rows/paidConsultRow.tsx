@@ -26,11 +26,11 @@ function PaidConsultRow({ ...props }) {
             color={theme.palette.text.primary}
           />
           <Typography variant="body2" fontWeight={600}>
-            {row?.payment_date}
+            {row?.appointment.dayDate}
           </Typography>
           <IconUrl path="ic-time" width={14} height={14} />
           <Typography variant="body2" fontWeight={600}>
-            {row?.payment_time}
+            {row?.appointment.startTime}
           </Typography>
         </Stack>
       </TableCell>

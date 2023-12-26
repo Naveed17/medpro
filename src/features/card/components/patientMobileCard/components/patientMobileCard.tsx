@@ -50,7 +50,7 @@ const CardSection = ({...props}) => {
                                     <Badge
                                         overlap="circular"
                                         anchorOrigin={{vertical: "bottom", horizontal: "right"}}
-                                        {...(data.nationality && {
+                                        {...(data.nationality?.code && {
                                             badgeContent: (
                                                 <Tooltip title={data.nationality.nationality}>
                                                     <SmallAvatar
