@@ -2,17 +2,14 @@ import Slider from 'react-slick';
 import {motion} from 'framer-motion';
 import {useState, useRef} from 'react';
 // material
-import {alpha, useTheme, styled} from '@mui/material/styles';
+import {useTheme} from '@mui/material/styles';
 import {new_feature_data, varFadeInLeft, varFadeInDown, varFadeInUp} from './config'
-import {Box, Card, Paper, Button, Typography, CardActions, Stack, IconButton, Grid} from '@mui/material';
+import {Box, Card, Button, Typography, CardActions, Stack, IconButton, Grid} from '@mui/material';
 import MotionContainer from './motionContainer';
 import IconUrl from '@themes/urlIcon';
 
-
 function CarouselItem({item, isActive}: any) {
-    const theme = useTheme();
     return (
-
         <Grid component={MotionContainer} sx={{flexDirection: {xs: 'column-reverse', sm: 'row'}}} container spacing={2}
               open={isActive}>
             <Grid item xs={12} md={6}>
