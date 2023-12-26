@@ -168,11 +168,11 @@ function PatientRow({...props}) {
                                         handleEvent("PATIENT_DETAILS", row);
                                     }}>
                                         <Stack direction={"row"} alignItems={"center"}>
-                                            <Typography
+                                            {row.fiche_id && <Typography
                                                 className={"ellipsis"}
                                                 maxWidth={140}
                                                 fontSize={12}
-                                                color={"primary.main"}>{`N°${row.fiche_id} - `}</Typography>
+                                                color={"primary.main"}>{`N°${row.fiche_id} - `}</Typography>}
                                             <Typography
                                                 color={"primary.main"}> {row.firstName} {row.lastName}</Typography>
 

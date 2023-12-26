@@ -13,6 +13,7 @@ import {ConditionalWrapper} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {Label} from "@features/label";
+import {router} from "next/client";
 
 function UnpaidConsultRow({...props}) {
 
@@ -39,14 +40,19 @@ function UnpaidConsultRow({...props}) {
                 <Stack
                     direction="row"
                     alignItems="center"
+                    onClick={()=>{router.replace(`/dashboard/consultation/${row.uuid}`)}}
                     spacing={.5}>
                     <Icon path="ic-agenda-jour" height={14} width={14} color={theme.palette.text.primary}/>
                     <Typography variant="body2" fontSize={13}
+                                sx={{cursor: "pointer"}}
+                                color={"primary"}
                                 fontWeight={600}>{moment(row.dayDate, 'DD-MM-YYYY').format('DD-MM-YYYY')}</Typography>
                     <Icon path="ic-time" height={14} width={14} color={theme.palette.text.primary}/>
                     <Typography
                         fontSize={13}
                         fontWeight={600}
+                        color={"primary"}
+                        sx={{cursor: "pointer"}}
                         variant="body2">{row.startTime}</Typography>
                 </Stack>
             </TableCell>
@@ -101,6 +107,7 @@ function UnpaidConsultRow({...props}) {
             {/***** Amount *****/}
             <TableCell align={"center"}>
                 <Typography color={"secondary"} fontWeight={700} textAlign={"center"}>
+                    {row.appointmentRestAmount}
                     {_fees - row.appointmentRestAmount} {" "}
                     <span>{devise}</span>
                 </Typography>

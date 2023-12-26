@@ -151,7 +151,7 @@ function FilterOverview() {
                 {filterData.map((data: any, index: number) => data.value?.length > 0 && <Chip
                     size={"small"}
                     key={`filter-${index}`}
-                    label={data.value}
+                    label={t(data.value)}
                     color="primary"
                     deleteIcon={<CloseIcon/>}
                     onDelete={() => handleDelete(data)}

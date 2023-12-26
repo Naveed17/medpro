@@ -427,7 +427,7 @@ function HistoryContainer({...props}) {
                                                                 <Grid item xs={3}></Grid>
                                                                 <Grid item xs={3}>
                                                                     <Typography textAlign={"right"}
-                                                                                className={"feesContent"}>{app?.appointment.consultation_fees
+                                                                                className={"feesContent"}>{app?.appointment.consultation_fees && app?.appointment.consultation_fees !== "null"
                                                                         ? app?.appointment.consultation_fees
                                                                         : "--"} {devise}</Typography>
                                                                 </Grid>
