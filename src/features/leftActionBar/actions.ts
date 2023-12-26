@@ -5,3 +5,4 @@ export const setFilterPayment = createAction<any>("leftActionBar/setFilterPaymen
 export const resetFilterPatient = createAction("leftActionBar/resetFilterPatient");
 export const resetFilterPayment = createAction("leftActionBar/resetFilterPayment");
 export const resetFilterDocument = createAction("leftActionBar/resetFilterDocument");
+export const resetFilter = createAction("leftActionBar/resetFilter");

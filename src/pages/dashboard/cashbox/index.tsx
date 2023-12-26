@@ -47,6 +47,7 @@ import moment from "moment-timezone";
 import {agendaSelector} from "@features/calendar";
 import {saveAs} from "file-saver";
 import {ImageHandler} from "@features/image";
+import {LoadingScreen} from "@features/loadingScreen";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -220,7 +221,7 @@ function Cashbox() {
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {t} = useTranslation(["payment", "common"]);
+    const {t, ready} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
     // ******** States ********
     const [filter, setFilter] = useState<boolean>(false);
@@ -262,25 +263,25 @@ function Cashbox() {
     const topCard = [
         {
             icon: "ic-cash-light-green",
-            mobile_icon: "ic-earning",
+            mobile_icon: "ic-cash-light-green",
             amount: total,
             title: "total_profit",
         },
         {
             icon: "ic-unpaid-light-red",
-            mobile_icon: "ic-unpaid",
+            mobile_icon: "ic-unpaid-light-red",
             amount: unpaid,
             title: "not_paid",
         },
         {
             icon: "ic-cash-light-blue",
-            mobile_icon: "ic-argent-primary",
+            mobile_icon: "ic-cash-light-blue",
             amount: totalCash,
             title: "cash_in_hand",
         },
         {
             icon: "ic-cheque-light-blue",
-            mobile_icon: "ic-cheque-primary",
+            mobile_icon: "ic-cheque-light-blue",
             amount: totalCheck,
             title: "cheque_cashed",
         },
@@ -487,13 +488,15 @@ function Cashbox() {
             },
             {
                 onSuccess: (result) => {
-                    const buffer = Buffer.from(result.data, "base64"); //Buffer is only available when using nodejs
+                    const buffer = Buffer.from(result.data, "base64");
                     saveAs(new Blob([buffer]), "transaction.xlsx");
                 },
             }
         );
     };
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <>
@@ -806,7 +809,7 @@ function Cashbox() {
                             setTimeout(() => {
                                 getConsultation(filterCB.start_date, filterCB.end_date);
                                 mutateTransactions();
-                            },2000)
+                            }, 2000)
                         },
                     }}
                     size={"lg"}

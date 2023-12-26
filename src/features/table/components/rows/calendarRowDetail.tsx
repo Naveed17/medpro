@@ -268,21 +268,6 @@ function CalendarRowDetail({...props}) {
                                 </IconButton>
                             </span>
                                 </Tooltip>}
-                            {(!roles.includes("ROLE_SECRETARY") && ["CONFIRMED", "WAITING_ROOM"].includes(data?.status?.key)) &&
-                                <Tooltip title={t("start")}>
-                            <span>
-                                <IconButton
-                                    disabled={loading}
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleEvent("onConsultationDetail", data, event);
-                                    }}
-                                    sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}
-                                    size="small">
-                                    <PlayCircleIcon fontSize={"small"}/>
-                                </IconButton>
-                            </span>
-                                </Tooltip>}
                             {data?.status?.key === "PENDING" &&
                                 <>
                                     <Tooltip title={t("confirm")}>
@@ -344,6 +329,21 @@ function CalendarRowDetail({...props}) {
                                 </IconButton>
                                 </span>
                             </Tooltip>}
+                            {(!roles.includes("ROLE_SECRETARY") && ["CONFIRMED", "WAITING_ROOM"].includes(data?.status?.key)) &&
+                                <Tooltip title={t("start")}>
+                            <span>
+                                <IconButton
+                                    disabled={loading}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleEvent("onConsultationDetail", data, event);
+                                    }}
+                                    sx={{border: `1px solid ${theme.palette.divider}`, borderRadius: 1}}
+                                    size="small">
+                                    <PlayCircleIcon fontSize={"small"}/>
+                                </IconButton>
+                            </span>
+                                </Tooltip>}
                             {data?.status?.key !== "PENDING" && <Tooltip title={t('more')}>
                             <span>
                                 <IconButton

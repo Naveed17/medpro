@@ -9,17 +9,20 @@ import CloseIcon from "@mui/icons-material/Close";
 import _ from "lodash";
 import {dashLayoutSelector} from "@features/base";
 import {AppointmentStatus} from "@features/calendar";
-import {useCountries, useInsurances} from "@lib/hooks/rest";
+import {useConsultationActs, useConsultationReasons, useCountries, useInsurances} from "@lib/hooks/rest";
 import {flattenObject, unflattenObject} from "@lib/hooks";
 
 function FilterOverview() {
     const dispatch = useAppDispatch();
-    const {insurances: allInsurances} = useInsurances();
-    const {countries} = useCountries();
 
     const {t, ready} = useTranslation("common");
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
+
+    const {insurances: allInsurances} = useInsurances(!!filter?.patient?.insurances);
+    const {reasons} = useConsultationReasons(!!filter?.reasons);
+    const {acts} = useConsultationActs(!!filter?.acts);
+    const {countries} = useCountries(undefined, !!filter?.patient?.country);
 
     const [filterData, setFilterData] = useState<FilterModel[]>([]);
 
@@ -31,7 +34,9 @@ function FilterOverview() {
                     queryGlobal = _.omit((filter as any)[data.parent], [data.key]);
                     break;
                 case "type":
-                    const sp = filter?.type?.split(",") as string[];
+                case "acts":
+                case "reasons":
+                    const sp = filter[data.parent]?.split(",") as string[];
                     sp?.splice(sp.findIndex((searchElement: string) => searchElement === data.key), 1);
                     queryGlobal = sp?.length > 0 ? sp?.join(",") : undefined;
                     break;
@@ -60,7 +65,7 @@ function FilterOverview() {
     const getLabel = (key: string, value: any) => {
         switch (key) {
             case "gender":
-                return value === "M" ? "Male" : "Female";
+                return t(value === "M" ? "Male" : "Female");
             case "hasDouble":
                 return t("duplication");
             case "rest":
@@ -127,6 +132,20 @@ function FilterOverview() {
                                 parent: filterItem[0],
                                 key: AppointmentStatus[status]?.key,
                                 value: AppointmentStatus[status]?.value
+                            })));
+                            break;
+                        case "reasons":
+                            filters.push(...(filterItem[1] as string).split(',').map(reason => ({
+                                parent: filterItem[0],
+                                key: reason,
+                                value: reasons?.find(typeItem => typeItem.uuid === reason)?.name ?? ""
+                            })));
+                            break;
+                        case "acts":
+                            filters.push(...(filterItem[1] as string).split(',').map(act => ({
+                                parent: filterItem[0],
+                                key: act,
+                                value: acts?.find(typeItem => typeItem.uuid === act)?.act?.name ?? ""
                             })));
                             break;
                     }
