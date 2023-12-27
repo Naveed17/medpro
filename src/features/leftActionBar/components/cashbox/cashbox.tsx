@@ -34,7 +34,7 @@ function Cashbox() {
         filterCB, selectedTab
     } = useAppSelector(cashBoxSelector);
     const {currentDate} = useAppSelector(agendaSelector);
-    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [filterDate, setFilterDate] = useState(true);
@@ -113,7 +113,6 @@ function Cashbox() {
                         dispatch(setCurrentDate({date, fallback: true}));
                     }
                 }}
-                {...{notes, disabled: !filterDate || byPeriod}}
                 shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}/>
 
             <Accordion
