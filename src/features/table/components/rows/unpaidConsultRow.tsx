@@ -111,7 +111,6 @@ function UnpaidConsultRow({...props}) {
             {/***** Amount *****/}
             <TableCell align={"center"}>
                 <Typography color={"secondary"} fontWeight={700} textAlign={"center"}>
-                    {row.appointmentRestAmount}
                     {_fees - row.appointmentRestAmount} {" "}
                     <span>{devise}</span>
                 </Typography>
