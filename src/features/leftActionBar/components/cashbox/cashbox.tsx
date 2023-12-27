@@ -9,7 +9,7 @@ import {
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, DayOfWeek} from "@features/calendar";
+import {agendaSelector, DayOfWeek, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {Accordion} from "@features/accordion";
 import {Box, Typography} from "@mui/material";
@@ -31,10 +31,10 @@ function Cashbox() {
         insurances,
         paymentTypes,
         paymentTypesList,
-        filterCB,selectedTab
+        filterCB, selectedTab
     } = useAppSelector(cashBoxSelector);
     const {currentDate} = useAppSelector(agendaSelector);
-    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [filterDate, setFilterDate] = useState(true);
@@ -47,7 +47,7 @@ function Cashbox() {
     const hours = agendaConfig?.openingHours[0];
 
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
-    const insurancesList = medicalProfessionalData ? medicalProfessionalData?.insurances:[];
+    const insurancesList = medicalProfessionalData ? medicalProfessionalData?.insurances : [];
 
     useEffect(() => {
         let boxes = '';
@@ -108,7 +108,11 @@ function Cashbox() {
         <BoxStyled className="container-filter">
             <CalendarPickers
                 renderDay
-                {...{notes, disabled: !filterDate || byPeriod}}
+                onDateChange={(date: Date | null) => {
+                    if (date) {
+                        dispatch(setCurrentDate({date, fallback: true}));
+                    }
+                }}
                 shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}/>
 
             <Accordion
@@ -142,7 +146,7 @@ function Cashbox() {
                         ),
                     },
 
-                    ...(selectedTab === "transactions" ?[{
+                    ...(selectedTab === "transactions" ? [{
                         heading: {
                             id: "paymentType",
                             icon: "ic-argent",
@@ -173,7 +177,7 @@ function Cashbox() {
                                                                               color={"gray"}>{t('nopaymentMeans')}</Typography>}
                             </Box>
                         ),
-                    }]:[]),
+                    }] : []),
                     ...(selectedTab === "transactions" ? [{
                         heading: {
                             id: "boxes",

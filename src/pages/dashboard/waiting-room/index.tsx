@@ -67,7 +67,7 @@ import {
     TabPanel
 } from "@features/tabPanel";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
+import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
 import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
@@ -496,7 +496,7 @@ function WaitingRoom() {
     }, [openPaymentDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
-        dispatch(resetFilterPatient());
+        dispatch(resetFilter());
     });
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);

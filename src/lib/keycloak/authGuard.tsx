@@ -1,10 +1,7 @@
 import {signIn, useSession} from "next-auth/react";
 import {useRouter} from "next/router";
 import React, {useEffect} from "react";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import LockIcon from "@themes/overrides/icons/lockIcon";
 import {setLock} from "@features/appLock";
 import {toggleSideBar} from "@features/menu";
