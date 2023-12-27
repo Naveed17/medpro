@@ -5,6 +5,7 @@ import {
     Stack,
     useMediaQuery,
     useTheme,
+    IconButton,
 } from "@mui/material";
 import {useCallback} from "react";
 import AddIcon from "@mui/icons-material/Add";
@@ -69,14 +70,13 @@ function PatientToolbar({...props}) {
                             startIcon={<ArchiveRoundedIcon/>}>
                             {t("sub-header.merge-patient")}
                         </Button>}
-                        <Button
+                        <IconButton
                             onClick={onPatientDrawer}
-                            variant="contained"
-                            color="success"
-                            sx={{ml: "auto"}}
-                            startIcon={<AddIcon/>}>
-                            {t("sub-header.add-patient")}
-                        </Button>
+                            color="primary"
+                            sx={{ml: "auto","&.MuiIconButton-root":{bgcolor:theme.palette.primary.main,"&.MuiIconButton-colorPrimary:hover":{bgcolor:theme.palette.primary.main}}}}
+                            >
+                            <AddIcon sx={{color:'common.white'}}/>
+                        </IconButton>
                     </Stack>
 
                 )}

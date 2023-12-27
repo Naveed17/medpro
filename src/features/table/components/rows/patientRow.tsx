@@ -157,7 +157,7 @@ console.log(row)
                                         </ConditionalWrapper>
                                     </Badge>
 
-                                    <Stack marginLeft={2} spacing={.4} style={{cursor: 'pointer'}} onClick={(e) => {
+                                    <Stack marginLeft={2} spacing={0.4} style={{cursor: 'pointer'}} onClick={(e) => {
                                         e.stopPropagation();
                                         dispatch(
                                             onOpenPatientDrawer({
@@ -201,7 +201,7 @@ console.log(row)
                                             display='flex'
                                             alignItems='flex-start'
                                             color="text.secondary"
-                                            className="text-time">
+                                            >
                                             {loading ? (
                                                 <Skeleton variant="text" width={100}/>
                                             ) : (
@@ -218,7 +218,28 @@ console.log(row)
                     </Box>
                 </Box>
             </TableCell>
+           
             <TableCell>
+                <Box display="flex" component="span" alignItems="center">
+                    {loading ? (
+                        <Skeleton variant="text" width={100}/>
+                    ) : (
+                        <>
+                            {(row?.contact?.length > 0 ? <Stack direction={"row"}>
+                                <IconUrl path="ic-phone" width={16} height={16} color={theme.palette.text.primary}/>
+                                {row.contact[0].code &&
+                                    <Typography fontWeight={600} variant={"body2"}
+                                    fontSize={13}
+                                                sx={{ml: 0.6}}>{row.contact[0].code}</Typography>
+                                }
+                                <Typography fontWeight={600} fontSize={13} variant={"body2"} 
+                                            sx={{ml: 0.6}}>{row.contact[0].value}</Typography>
+                            </Stack> : "-")}
+                        </>
+                    )}
+                </Box>
+            </TableCell>
+             <TableCell>
                 {loading ? <Skeleton variant="text"/> : (
                     <Stack direction={"row"} alignItems={"center"}>
                         {row?.insurances?.length > 0 ?
@@ -244,25 +265,70 @@ console.log(row)
                     </Stack>
                 ) || "-"}
             </TableCell>
-            <TableCell>
-                <Box display="flex" component="span" alignItems="center">
+            
+            <TableCell align={"center"}>
+                <Box display="flex" alignItems="center" margin={"auto"}>
                     {loading ? (
-                        <Skeleton variant="text" width={100}/>
-                    ) : (
+                        <Skeleton variant="text" width={140}/>
+                    ) : row.previousAppointments?.dayDate ? (
                         <>
-                            {(row?.contact?.length > 0 ? <Stack direction={"row"}>
-                                {row.contact[0].code &&
-                                    <Typography variant={"body2"} color={"primary"}
-                                                sx={{ml: 0.6}}>({row.contact[0].code})</Typography>
-                                }
-                                <Typography variant={"body2"} color={"primary"}
-                                            sx={{ml: 0.6}}>{row.contact[0].value}</Typography>
-                            </Stack> : "-")}
+                            <Box ml={1}>
+                                <Typography
+                                    component="span"
+                                    className="next-appointment"
+                                    variant="body2"
+                                    color="text.primary"
+                                    fontWeight={600}
+                                    fontSize={13}
+                                >
+                                    {loading ? (
+                                        <Skeleton variant="text" width={100}/>
+                                    ) : (
+                                        <>
+                                            <IconUrl path="ic-agenda-jour" width={16} height={16}/>
+                                            {row.previousAppointments?.dayDate || "-"}
+                                        </>
+                                    )}
+                                </Typography>
+                                <Typography
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        "& svg": {
+                                            mr: 0.6
+                                        },
+                                    }}
+                                    component="span"
+                                    variant="body2"
+                                    color="text.primary"
+                                    fontWeight={600}
+                                    fontSize={13}
+                                >
+                                    {loading ? (
+                                        <Skeleton variant="text" width={100}/>
+                                    ) : (
+                                        <>
+                                            <IconUrl path="ic-time" width={16} height={16}/>{" "}
+                                            {row.previousAppointments?.startTime || "-"}
+                                        </>
+                                    )}
+                                </Typography>
+                            </Box>
                         </>
+                    ) : (
+                        <Typography
+                            component="span"
+                            className="next-appointment"
+                            variant="body2"
+                            align={"center"}
+                            margin={"auto"}
+                            color="text.primary">
+                            --
+                        </Typography>
                     )}
                 </Box>
             </TableCell>
-            <TableCell align={"center"}>
+              <TableCell align={"center"}>
                 <Box display="flex" alignItems="center" sx={{float: "left"}}>
                     {loading ? (
                         <Skeleton variant="text" width={140}/>
@@ -299,7 +365,7 @@ console.log(row)
                                     handleEvent("APPOINTMENT_MOVE", appointment);
                                 }}
                                 size="small">
-                                <IconUrl path="ic-historique"/>
+                                <IconUrl path="ic-historique" width={17} height={17} color={theme.palette.text.secondary}/>
                             </IconButton>
 
                             <Box ml={1}>
@@ -308,9 +374,11 @@ console.log(row)
                                     className="next-appointment"
                                     variant="body2"
                                     color="text.primary"
+                                    fontWeight={600}
+                                    fontSize={13}
                                 >
                                     <>
-                                        <IconUrl path="ic-agenda"/>
+                                        <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         {row.nextAppointment?.dayDate}
                                     </>
                                 </Typography>
@@ -319,16 +387,18 @@ console.log(row)
                                         display: "flex",
                                         alignItems: "center",
                                         "& svg": {
-                                            width: 11,
+                                           
                                             mr: 0.6,
                                         },
                                     }}
                                     component="span"
                                     variant="body2"
                                     color="text.primary"
+                                    fontWeight={600}
+                                    fontSize={13}
                                 >
                                     <>
-                                        <IconUrl path="ic-time"/>
+                                        <IconUrl path="ic-time" width={16} height={16}/>
                                         {row.nextAppointment?.startTime}
                                     </>
                                 </Typography>
@@ -345,79 +415,16 @@ console.log(row)
                             color="primary"
                             style={{margin: "auto"}}
                             startIcon={<IconUrl path="ic-agenda-+"/>}
-                            sx={{position: "relative"}}
+                            sx={{position: "relative",fontWeight:600}}
                         >
                             {t("table.add-appointment")}
                         </Button>
                     )}
                 </Box>
             </TableCell>
-            <TableCell align={"center"}>
-                <Box display="flex" alignItems="center" margin={"auto"}>
-                    {loading ? (
-                        <Skeleton variant="text" width={140}/>
-                    ) : row.previousAppointments?.dayDate ? (
-                        <>
-                            <Box ml={1}>
-                                <Typography
-                                    component="span"
-                                    className="next-appointment"
-                                    variant="body2"
-                                    color="text.primary"
-                                >
-                                    {loading ? (
-                                        <Skeleton variant="text" width={100}/>
-                                    ) : (
-                                        <>
-                                            <IconUrl path="ic-agenda"/>
-                                            {row.previousAppointments?.dayDate || "-"}
-                                        </>
-                                    )}
-                                </Typography>
-                                <Typography
-                                    sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        "& svg": {
-                                            width: 11,
-                                            mr: 0.6
-                                        },
-                                    }}
-                                    component="span"
-                                    variant="body2"
-                                    color="text.primary"
-                                >
-                                    {loading ? (
-                                        <Skeleton variant="text" width={100}/>
-                                    ) : (
-                                        <>
-                                            <IconUrl path="ic-time"/>{" "}
-                                            {row.previousAppointments?.startTime || "-"}
-                                        </>
-                                    )}
-                                </Typography>
-                            </Box>
-                        </>
-                    ) : (
-                        <Typography
-                            component="span"
-                            className="next-appointment"
-                            variant="body2"
-                            align={"center"}
-                            margin={"auto"}
-                            color="text.primary">
-                            --
-                        </Typography>
-                    )}
-                </Box>
-            </TableCell>
-
             <TableCell
-                align="right"
-                sx={{
-                    marginLeft: "auto"
-                }}>
-                <Box alignItems="flex-end">
+                align="right">
+                <Stack direction='row'  alignItems="center" justifyContent='flex-end'>
                     {loading ? (
                         <>
                             <Skeleton
@@ -430,19 +437,34 @@ console.log(row)
                             <Skeleton variant="text" width={60}/>
                         </>
                     ) : (
-                        <Tooltip title={t('more')}>
+                        <>
+                        <Tooltip title={t('popover-action.delete_patient_data')}>
                             <IconButton
                                 disabled={loading}
                                 onClick={event => {
                                     event.stopPropagation();
-                                    handleEvent("OPEN-POPOVER", row, event);
+                                    handleEvent("DELETE", row, event);
                                 }}
                                 size="small">
-                                <MoreVertIcon/>
+                                <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>
                             </IconButton>
                         </Tooltip>
+                         <Tooltip title={t('popover-action.view_patient_data')}>
+                            <IconButton
+                                disabled={loading}
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleEvent("EDIT", row, event);
+                                }}
+                                size="small"
+                                sx={{mt:.2}}
+                                >
+                                <IconUrl path="ic-edit-pen" width={20} height={20} color={theme.palette.text.secondary}/>
+                            </IconButton>
+                        </Tooltip>
+                        </>
                     )}
-                </Box>
+                </Stack>
             </TableCell>
         </TableRowStyled>
     );
