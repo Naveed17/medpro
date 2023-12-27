@@ -55,7 +55,7 @@ function PatientRow({...props}) {
             dispatch(setSelectedRows(rowsSelected.filter((item: any) => item.uuid !== row.uuid)))
         }
     }
-
+console.log(row)
     return (
         <TableRowStyled
             hover
@@ -157,7 +157,7 @@ function PatientRow({...props}) {
                                         </ConditionalWrapper>
                                     </Badge>
 
-                                    <Stack marginLeft={2} style={{cursor: 'pointer'}} onClick={(e) => {
+                                    <Stack marginLeft={2} spacing={.4} style={{cursor: 'pointer'}} onClick={(e) => {
                                         e.stopPropagation();
                                         dispatch(
                                             onOpenPatientDrawer({
@@ -167,15 +167,25 @@ function PatientRow({...props}) {
                                         );
                                         handleEvent("PATIENT_DETAILS", row);
                                     }}>
-                                        <Stack direction={"row"} alignItems={"center"}>
-                                            {row.fiche_id && <Typography
-                                                className={"ellipsis"}
-                                                maxWidth={140}
-                                                fontSize={12}
-                                                color={"primary.main"}>{`N°${row.fiche_id} - `}</Typography>}
+                                        
+                                             <Typography
+                                                color={"primary.main"} fontWeight={600}> {row.firstName} {row.lastName}</Typography>
+                                            {row.fiche_id && 
+                                            <Stack direction='row' alignItems='center'>
+                                                <IconUrl path="ic-folder" width={16} height={16} color={theme.palette.text.secondary}/>
+                                            <Tooltip 
+                                            title={row.fiche_id}
+                                            >
                                             <Typography
-                                                color={"primary.main"}> {row.firstName} {row.lastName}</Typography>
-
+                                                variant="body2"
+                                                className={"ellipsis"}
+                                                color='text.secondary'
+                                                maxWidth={140}>
+                                                {`N°${row.fiche_id}`}
+                                            </Typography>
+                                            </Tooltip>
+                                           </Stack>
+                                             }
                                             {row.hasInfo &&
                                                 <Chip
                                                     sx={{marginLeft: 1, height: 26}}
@@ -183,18 +193,20 @@ function PatientRow({...props}) {
                                                     icon={<InfoRoundedIcon fontSize={"small"} color="action"/>}
                                                     label={t("error.info-title")}/>
                                             }
-                                        </Stack>
+                                       
 
                                         <Typography
                                             variant="body2"
-                                            component="span"
+                                            fontWeight={500}
+                                            display='flex'
+                                            alignItems='flex-start'
                                             color="text.secondary"
                                             className="text-time">
                                             {loading ? (
                                                 <Skeleton variant="text" width={100}/>
                                             ) : (
                                                 <>
-                                                    <IconUrl path="ic-anniverssaire"/> {row.birthdate} - {" "}
+                                                    <IconUrl path="ic-anniverssaire-2"/> {row.birthdate} - {" "}
                                                     {row.birthdate && moment().diff(moment(row.birthdate, "DD-MM-YYYY"), "years") + " ans"}
                                                 </>
                                             )}
