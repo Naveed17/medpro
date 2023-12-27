@@ -5,6 +5,8 @@ import Document, {
     Main,
     NextScript
 } from "next/document";
+import {Partytown} from "@builder.io/partytown/react";
+import Script from 'next/script';
 
 class MyDocument extends Document {
     render() {
@@ -15,6 +17,7 @@ class MyDocument extends Document {
                     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
                     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
                     <link rel="manifest" href="/manifest.json"/>
+                    <Partytown debug={true} forward={['dataLayer.push']}/>
                     {/* Inject MUI styles first to match with to prepend: true configuration. */}
                     {(this.props as any).emotionStyleTags}
                     <link
@@ -22,6 +25,10 @@ class MyDocument extends Document {
                         href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
                         integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
                         crossOrigin=""
+                    />
+                    <Script
+                        src="/static/files/usetifulWorker.js"
+                        strategy="lazyOnload"
                     />
                 </Head>
                 <body>
