@@ -21,7 +21,7 @@ function Payment() {
     const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
-    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const accordionData = [
@@ -79,7 +79,6 @@ function Payment() {
                         dispatch(setCurrentDate({date, fallback: true}));
                     }
                 }}
-                {...{notes, disabled: false}}
                 shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}/>
 
             <Accordion
