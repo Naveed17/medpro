@@ -4,7 +4,7 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {LocaleFnsProvider} from "@lib/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
 import {Stack, TextField, Typography, useMediaQuery, useTheme} from "@mui/material";
-import {agendaSelector, setCurrentDate} from "@features/calendar";
+import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
