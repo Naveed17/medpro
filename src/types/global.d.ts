@@ -13,6 +13,12 @@ declare global {
         sx?: any;
     }
 
+    interface Window {
+        usetifulInit(window: Window, document: Document, src: string)
+
+        usetifulTags: Object
+    }
+
     interface Array<T> {
         group(fn: Function): Array<T>;
     }
