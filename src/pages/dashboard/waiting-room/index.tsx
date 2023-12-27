@@ -437,23 +437,24 @@ function WaitingRoom() {
                 }}/>
         }];
     const Toolbar = () => (
-        <Card sx={{minWidth: 235, border: 'none', mb: 2,overflow:'visible'}}>
+        <Card sx={{minWidth: 235, border: 'none', mb: 2, overflow: 'visible'}}>
             <CardHeader
                 component={Stack}
                 borderBottom={1}
                 borderColor="divider"
                 direction="row"
-                 sx={{
-                    m:0,
-                                                    pt: 0,
-                                                    px: 0,
-                                                    pb: 1,
-                                                
-                                                    borderBottom: 1,
-                                                    borderColor: "divider",
-                                                    ".MuiCardHeader-action": {m: 0,
-                                                    }
-                                                }}
+                sx={{
+                    m: 0,
+                    pt: 0,
+                    px: 0,
+                    pb: 1,
+
+                    borderBottom: 1,
+                    borderColor: "divider",
+                    ".MuiCardHeader-action": {
+                        m: 0,
+                    }
+                }}
                 avatar={columns[1].icon}
                 {...(columns[1].action && {action: columns[1].action})}
                 title={
@@ -501,7 +502,7 @@ function WaitingRoom() {
     useLeavePageConfirm(() => {
         dispatch(resetFilter());
     });
-console.log(waitingRoomsGroup)
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -556,10 +557,11 @@ console.log(waitingRoomsGroup)
                                                     pt: 0,
                                                     px: 0,
                                                     pb: 1,
-                                                    m:0,
+                                                    m: 0,
                                                     borderBottom: 1,
                                                     borderColor: "divider",
-                                                    ".MuiCardHeader-action": {m: 0,
+                                                    ".MuiCardHeader-action": {
+                                                        m: 0,
                                                     }
                                                 }}
                                                 avatar={columns[0].icon}
