@@ -5,7 +5,6 @@ import Document, {
     Main,
     NextScript
 } from "next/document";
-import {Partytown} from "@builder.io/partytown/react";
 import Script from 'next/script';
 
 class MyDocument extends Document {
@@ -17,7 +16,6 @@ class MyDocument extends Document {
                     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
                     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
                     <link rel="manifest" href="/manifest.json"/>
-                    <Partytown debug={true} forward={['dataLayer.push']}/>
                     {/* Inject MUI styles first to match with to prepend: true configuration. */}
                     {(this.props as any).emotionStyleTags}
                     <link
