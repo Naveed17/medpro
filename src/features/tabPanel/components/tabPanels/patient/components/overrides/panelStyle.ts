@@ -19,6 +19,7 @@ const PanelStyled = styled(Card)(({theme}) => ({
         tbody:{
             tr:{
              "&.payment-table-row":{   
+                cursor:'pointer',
             position:'relative',
             "&:before":{
                 content: 'url(/static/icons/bill-list.svg)',
@@ -28,6 +29,7 @@ const PanelStyled = styled(Card)(({theme}) => ({
                 paddingTop:5,
                 width: 40,
                 height: 40,
+                transform:'scale(.7)',
                 borderRadius: '50%',
                 backgroundColor: theme.palette.divider,
                 position:'absolute',
@@ -74,10 +76,10 @@ const PanelStyled = styled(Card)(({theme}) => ({
             "&:before":{
                 content:'""',
                 position:'absolute',
-                height:'calc(100% - 28px)',
+                height:'calc(100% - 18px)',
                 border:`1px dashed ${theme.palette.divider}`,
                 left:-34,
-                top:-6,
+                top:-9,
             },
         ".means-wrapper":{
             padding:theme.spacing(2),
@@ -103,7 +105,7 @@ const PanelStyled = styled(Card)(({theme}) => ({
             },
             ".MuiCardContent-root":{
                 "&:last-child":{
-                    padding:theme.spacing(2)
+                    padding:theme.spacing(1)
                 }
             }
         }
