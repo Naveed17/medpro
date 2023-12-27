@@ -23,7 +23,7 @@ const nextConfig = {
     output: 'standalone',
     i18n,
     experimental: {
-        nextScriptWorkers: true
+        nextScriptWorkers: false
     },
     images: {
         dangerouslyAllowSVG: true,
