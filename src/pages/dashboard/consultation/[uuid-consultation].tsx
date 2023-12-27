@@ -589,7 +589,8 @@ function ConsultationInProgress() {
                     <Button
                         disabled={checkedNext}
                         onClick={() => setAddFinishAppointment(!addFinishAppointment)}
-                        startIcon={addFinishAppointment ? <KeyboardBackspaceIcon htmlColor={theme.palette.text.primary}/> :
+                        startIcon={addFinishAppointment ?
+                            <KeyboardBackspaceIcon htmlColor={theme.palette.text.primary}/> :
                             <IconUrl width={20} height={20} path={"agenda/ic-agenda-+"}/>}>
                         <Typography sx={{display: {xs: "none", md: "flex"}}} color={"text.primary"}>
                             {t(addFinishAppointment ? "back" : "add_&_finish_appointment")}
@@ -1860,7 +1861,7 @@ function ConsultationInProgress() {
                                             variant="contained"
                                             onClick={() => handleSaveDialog()}
                                             disabled={info.includes("medical_prescription") && state?.length === 0}
-                                            startIcon={<IconUrl path={"ic-imprime"}/>}>
+                                            startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"}/>}>
                                             {t("consultationIP.save_print")}
                                         </Button>}
                                     </>}

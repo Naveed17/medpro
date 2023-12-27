@@ -111,6 +111,7 @@ declare module "@mui/material" {
 
     interface Palette {
         back: PaletteColor
+        white: PaletteColor
         expire: PaletteColor
     }
 

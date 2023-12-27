@@ -549,7 +549,7 @@ function Profil() {
                                     direction="row"
                                     alignItems="flex-start"
                                     width={1}>
-                                    <IconUrl className="left-icon" path="ic-generaliste"/>
+                                    <IconUrl className="left-icon" path="ic-acte"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography
                                             variant="subtitle2"
