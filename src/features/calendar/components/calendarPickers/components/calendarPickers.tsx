@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from "react";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {LocaleFnsProvider} from "@lib/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
@@ -17,7 +17,6 @@ import {MobileContainer as smallScreen} from "@lib/constants";
 
 function CalendarPickers({...props}) {
     const {disabled, onDateChange, defaultValue = null} = props;
-    const dispatch = useAppDispatch();
     const theme = useTheme();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
