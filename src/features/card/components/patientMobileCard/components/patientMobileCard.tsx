@@ -146,7 +146,7 @@ const CardSection = ({...props}) => {
                         <Box
                             className="border-left-sec"
                            >
-                            <Stack>
+                            <Stack alignItems='flex-start'>
                                 {loading ? (
                                     <Skeleton variant="text" width={140}/>
                                 ) : data.nextAppointment?.dayDate ? (

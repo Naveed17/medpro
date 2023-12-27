@@ -1,4 +1,4 @@
-import {Box, Card, Collapse, IconButton, Stack, TextField, Typography} from "@mui/material";
+import {Box, Card, Collapse, IconButton, Stack, TextField, Typography, useTheme} from "@mui/material";
 import {ExpandMore} from "@features/buttons";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Icon from "@themes/urlIcon";
@@ -6,6 +6,8 @@ import React from "react";
 
 function NoteCardCollapse({...props}) {
     const {item, t, onExpandHandler, onDeleteItem, onNoteChange} = props;
+    const theme = useTheme();
+
     return (
         <Card>
             <Stack p={2} pt={1} pb={1} direction='row' alignItems="center"
@@ -19,7 +21,7 @@ function NoteCardCollapse({...props}) {
                     <ExpandMoreIcon/>
                 </ExpandMore>
                 <IconButton size="small" onClick={onDeleteItem}>
-                    <Icon path="setting/icdelete"/>
+                    <Icon color={theme.palette.error.main} path="ic-trash"/>
                 </IconButton>
             </Stack>
             <Collapse in={item.expanded} timeout="auto" unmountOnExit>

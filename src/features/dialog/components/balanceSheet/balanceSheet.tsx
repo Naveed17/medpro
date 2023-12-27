@@ -14,7 +14,7 @@ import {
     Theme,
     Tooltip,
     Typography,
-    useMediaQuery
+    useMediaQuery, useTheme
 } from '@mui/material'
 import {Form, FormikProvider, useFormik} from "formik";
 import BalanceSheetDialogStyled from './overrides/balanceSheetDialogStyle';
@@ -42,6 +42,7 @@ import {TabPanel} from "@features/tabPanel";
 import RemoveCircleRoundedIcon from "@mui/icons-material/RemoveCircleRounded";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import IconUrl from "@themes/urlIcon";
 
 function BalanceSheetDialog({...props}) {
     const {data} = props;
@@ -50,6 +51,7 @@ function BalanceSheetDialog({...props}) {
     const router = useRouter();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const {enqueueSnackbar} = useSnackbar();
+    const theme = useTheme();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -444,14 +446,16 @@ function BalanceSheetDialog({...props}) {
                                         <IconButton
                                             size="small"
                                             color={"primary"}
-                                            onClick={editModel}><SaveRoundedIcon/>
+                                            onClick={editModel}>
+                                            <IconUrl color={theme.palette.text.primary} path="ic-check"/>
                                         </IconButton>
                                     </Tooltip>
                                     <Tooltip title={t('delete_template')}>
                                         <IconButton
                                             size="small"
                                             color={"error"}
-                                            onClick={() => deleteModel(selectedModel.uuid)}><DeleteOutlineRoundedIcon/>
+                                            onClick={() => deleteModel(selectedModel.uuid)}>
+                                            <Icon color={theme.palette.error.main} path="ic-trash"/>
                                         </IconButton>
                                     </Tooltip>
                                     <Tooltip title={t('close_template')}>
@@ -533,17 +537,19 @@ function BalanceSheetDialog({...props}) {
                                         sx={{pl: 4}}
                                         alignItems="flex-start"
                                         onClick={() => onSetModelData(item)}>
-                                        <ListItemIcon sx={{minWidth: 26}}>
-                                            <Icon width={"16"} height={"16"} path="ic-soura"/>
+                                        <ListItemIcon sx={{minWidth: 26, mt: 0.5}}>
+                                            <Icon width={"18"} height={"18"} path="docs/ic-analyse"/>
                                         </ListItemIcon>
-                                        <ListItemText color={"primary"} primary={<Typography
-                                            color={"primary"}>{item.name}</Typography>}/>
+                                        <ListItemText primary={
+                                            <Typography fontSize={12} fontWeight={600}
+                                                        color={"primary"}>{item.name}</Typography>}/>
 
-                                        <IconButton size="small" onClick={(event) => {
-                                            event.stopPropagation();
-                                            deleteModel(item.uuid);
-                                        }}>
-                                            <Icon path="setting/icdelete"/>
+                                        <IconButton size="small"
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        deleteModel(item.uuid);
+                                                    }}>
+                                            <Icon color={theme.palette.error.main} path="ic-trash"/>
                                         </IconButton>
                                     </ListItemButton>
                                 )}
