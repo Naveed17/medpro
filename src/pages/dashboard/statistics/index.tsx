@@ -102,7 +102,7 @@ function Statistics() {
                             }}>
                             <CardContent sx={{pb: 0}}>
                                 <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
-                                    <IconUrl path={"ic-user3"}/>
+                                    <IconUrl path={"ic-user3"} width={36} height={36}/>
                                     <Stack>
                                         <Typography fontWeight={600} fontSize={24} variant="caption">
                                             {patientPerPeriod.reduce((total: number, val: number) => total + val, 0)}
@@ -124,7 +124,7 @@ function Statistics() {
                             }}>
                             <CardContent sx={{pb: 0}}>
                                 <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
-                                    <IconUrl path={"ic-user4"}/>
+                                    <IconUrl path={"ic-user4"} width={40} height={40}/>
                                     <Stack>
                                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                             <Typography fontWeight={600} fontSize={24} variant="caption">
@@ -155,7 +155,7 @@ function Statistics() {
                             }}>
                             <CardContent sx={{pb: 0}}>
                                 <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
-                                    <IconUrl width={40} height={40} path={"ic-agenda-add"}/>
+                                    <IconUrl width={36} height={36} path={"ic-agenda-add"}/>
                                     <Stack>
                                         <Typography fontWeight={600} fontSize={24} variant="caption">
                                             {appointmentPerPeriod.reduce((total: number, val: number) => total + val, 0)}
@@ -177,11 +177,10 @@ function Statistics() {
                             }}>
                             <CardContent sx={{pb: 0}}>
                                 <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
-                                    <IconButton
-                                        className="btn-list-action">
+                                   
                                         <IconUrl path="ic-agenda" color={theme.palette.warning.main}
-                                                 width={20} height={20}/>
-                                    </IconButton>
+                                                 width={36} height={36}/>
+                                    
                                     <Stack>
                                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                             <Typography fontWeight={600} fontSize={24} variant="caption">

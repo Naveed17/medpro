@@ -437,20 +437,23 @@ function WaitingRoom() {
                 }}/>
         }];
     const Toolbar = () => (
-        <Card sx={{minWidth: 235, border: 'none', mb: 2}}>
+        <Card sx={{minWidth: 235, border: 'none', mb: 2,overflow:'visible'}}>
             <CardHeader
                 component={Stack}
                 borderBottom={1}
                 borderColor="divider"
                 direction="row"
-                sx={{
-                    ".MuiCardHeader-action": {
-                        m: 0,
-                    },
-                    p: 0,
-                    pb: 1,
-                    "& .MuiButtonBase-root": {mr: 1}
-                }}
+                 sx={{
+                    m:0,
+                                                    pt: 0,
+                                                    px: 0,
+                                                    pb: 1,
+                                                
+                                                    borderBottom: 1,
+                                                    borderColor: "divider",
+                                                    ".MuiCardHeader-action": {m: 0,
+                                                    }
+                                                }}
                 avatar={columns[1].icon}
                 {...(columns[1].action && {action: columns[1].action})}
                 title={
@@ -498,7 +501,7 @@ function WaitingRoom() {
     useLeavePageConfirm(() => {
         dispatch(resetFilterPatient());
     });
-
+console.log(waitingRoomsGroup)
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -535,7 +538,7 @@ function WaitingRoom() {
                         </TabPanel>
                     </DesktopContainer>
                     <TabPanel padding={.1} value={tabIndex} index={1}>
-                        {waitingRoomsGroup[1] ? <>
+                        {!!waitingRoomsGroup[1]?.length ? <>
 
                                 <DesktopContainer>
                                     <Otable
@@ -553,10 +556,11 @@ function WaitingRoom() {
                                                     pt: 0,
                                                     px: 0,
                                                     pb: 1,
-                                                    mr: 2,
+                                                    m:0,
                                                     borderBottom: 1,
                                                     borderColor: "divider",
-                                                    ".MuiCardHeader-action": {m: 0}
+                                                    ".MuiCardHeader-action": {m: 0,
+                                                    }
                                                 }}
                                                 avatar={columns[0].icon}
                                                 {...(columns[0].action && {action: columns[0].action})}
@@ -617,7 +621,7 @@ function WaitingRoom() {
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={2}>
-                        {waitingRoomsGroup[3] ? <>
+                        {!!waitingRoomsGroup[3]?.length ? <>
                                 <DesktopContainer>
                                     <Otable
 
@@ -673,7 +677,7 @@ function WaitingRoom() {
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={3}>
-                        {(waitingRoomsGroup[4] || waitingRoomsGroup[8]) ?
+                        {(!!waitingRoomsGroup[4]?.length || !!waitingRoomsGroup[8]?.length) ?
                             <>
                                 <DesktopContainer>
 

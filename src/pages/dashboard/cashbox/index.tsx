@@ -578,9 +578,19 @@ function Cashbox() {
                     ))}
                 </Stack>
                 <TabPanel padding={1} value={selectedTab} index={"consultations"}>
-                    <Card sx={{border: "none"}}>
-                        <CardContent>
-                            <Stack
+                    
+                            <DesktopContainer>
+                                {apps.length > 0 ? <Otable
+                                    {...{
+                                        rows: apps,
+                                        t,
+                                        insurances,
+                                        pmList,
+                                        mutateTransactions,
+                                        filterCB,
+                                    }}
+                                    toolbar={ 
+                                <Stack
                                 direction="row"
                                 alignItems={{xs: "flex-start", md: "center"}}
                                 justifyContent="space-between"
@@ -595,16 +605,7 @@ function Cashbox() {
                                 </Stack>
 
                             </Stack>
-                            <DesktopContainer>
-                                {apps.length > 0 ? <Otable
-                                    {...{
-                                        rows: apps,
-                                        t,
-                                        insurances,
-                                        pmList,
-                                        mutateTransactions,
-                                        filterCB,
-                                    }}
+                            }
                                     headers={consultationCells}
                                     from={"unpaidconsult"}
                                     handleEvent={handleTableActions}
@@ -627,15 +628,24 @@ function Cashbox() {
                                     ))}
                                 </Stack>
                             </MobileContainer>
-                        </CardContent>
-                    </Card>
                 </TabPanel>
 
                 <TabPanel padding={1} value={selectedTab} index={"transactions"}>
                     <Stack spacing={2}>
-                        <Card sx={{border: "none"}}>
-                            <CardContent>
-                                <Stack
+                                
+                                <DesktopContainer>
+                                    {!loading && (
+                                        rows.length > 0 ? <Otable
+                                            {...{
+                                                rows,
+                                                t,
+                                                insurances,
+                                                pmList,
+                                                mutateTransactions,
+                                                filterCB,
+                                            }}
+                                            toolbar={
+                                                <Stack
                                     direction="row"
                                     alignItems={{xs: "center", md: "center"}}
                                     justifyContent="space-between"
@@ -659,17 +669,7 @@ function Cashbox() {
                                         {t("export")}
                                     </Button>}
                                 </Stack>
-                                <DesktopContainer>
-                                    {!loading && (
-                                        rows.length > 0 ? <Otable
-                                            {...{
-                                                rows,
-                                                t,
-                                                insurances,
-                                                pmList,
-                                                mutateTransactions,
-                                                filterCB,
-                                            }}
+                                            }
                                             headers={headCells}
                                             from={"cashbox"}
                                             handleEvent={handleTableActions}
@@ -695,8 +695,7 @@ function Cashbox() {
                                             ))}
                                     </Stack>
                                 </MobileContainer>
-                            </CardContent>
-                        </Card>
+                           
                     </Stack>
                 </TabPanel>
             </Box>

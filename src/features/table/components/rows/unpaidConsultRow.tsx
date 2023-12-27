@@ -68,13 +68,13 @@ function UnpaidConsultRow({...props}) {
             </TableCell>}
             {/***** Insurances *****/}
             <TableCell>
-                <Stack direction={"row"} justifyContent={"center"}>
+                <Stack direction={"row"} justifyContent={"center"} spacing={-1}>
                     {
                         !!row.patient.insurances.length ? row.patient.insurances.map((insurance: any) => (
                             <Tooltip
                                 key={insurance.uuid + "ins"}
                                 title={insurance.name}>
-                                <Avatar variant={"circular"} sx={{width: 30, height: 30}}>
+                                <Avatar variant={"circular"} sx={{width: 30, height: 30,border:1.5,borderColor:'common.white'}}>
                                     <ImageHandler
                                         alt={insurance?.name}
                                         src={insurances.find(ins => ins.uuid === insurance?.uuid)?.logoUrl.url}
