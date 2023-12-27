@@ -1,12 +1,19 @@
 // components
-import {ActionBarState, BoxStyled, DateRangeFilterCashbox, InsuranceFilterCashbox, setFilterPayment} from "@features/leftActionBar";
+import {
+    ActionBarState,
+    BoxStyled,
+    DateRangeFilterCashbox,
+    InsuranceFilterCashbox,
+    setFilterPayment
+} from "@features/leftActionBar";
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, DayOfWeek} from "@features/calendar";
+import {agendaSelector, DayOfWeek, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {Accordion} from "@features/accordion";
 import {useTranslation} from "next-i18next";
+
 const CalendarPickers = dynamic(() =>
     import("@features/calendar/components/calendarPickers/components/calendarPickers"));
 
@@ -17,7 +24,7 @@ function Payment() {
     const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
 
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
-    const accordionData= [
+    const accordionData = [
         {
             heading: {
                 id: "insurance",
@@ -67,6 +74,11 @@ function Payment() {
         <BoxStyled className="container-filter">
             <CalendarPickers
                 renderDay
+                onDateChange={(date: Date | null) => {
+                    if (date) {
+                        dispatch(setCurrentDate({date, fallback: true}));
+                    }
+                }}
                 {...{notes, disabled: false}}
                 shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}/>
 

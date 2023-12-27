@@ -1,10 +1,10 @@
 import React, {useCallback, useState} from "react";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {LocaleFnsProvider} from "@lib/localization";
 import CalendarPickerStyled from "./overrides/calendarPickerStyled";
 import {Stack, TextField, Typography, useMediaQuery, useTheme} from "@mui/material";
-import {agendaSelector, setCurrentDate} from "@features/calendar";
+import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
 import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
 import {LocalizationProvider, PickersDay, StaticDatePicker} from "@mui/x-date-pickers";
@@ -17,7 +17,6 @@ import {MobileContainer as smallScreen} from "@lib/constants";
 
 function CalendarPickers({...props}) {
     const {disabled, onDateChange, defaultValue = null} = props;
-    const dispatch = useAppDispatch();
     const theme = useTheme();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
