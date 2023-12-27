@@ -35,7 +35,7 @@ yarn-error.log*
 .vercel
 
 #partytown
-./public/~partytown
+/public/~partytown
 
 # typescript
 *.tsbuildinfo
