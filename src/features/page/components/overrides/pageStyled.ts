@@ -6,6 +6,16 @@ const PWIDTH_A5 = "148mm"
 const PHEIGHT_A5 = "210mm"
 const PWIDTH_A4 = "210mm";
 const PageStyled = styled(Box)(({theme}) => ({
+
+"& .item": {
+    boxSizing: "border-box",
+    border: "1px solid #ccc",
+    padding: 10,
+    margin: 5,
+    width: 200,
+    height: 100,
+    overflow: "auto"
+},
         '& .x':{
             border: "1px solid",
             display: "flex",

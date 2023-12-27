@@ -109,54 +109,41 @@ function Doc({...props}) {
 
     }
 */
+    const s = () =>{
+        var container = document.getElementById('container');
+        var items = container.children;
+        var divWidth = 200; // Largeur fixe de chaque div
+        var divHeight = 100; // Hauteur fixe de chaque div
 
-    useEffect(() => {
-        // @ts-ignore
-        const splitContent = (content, chunkSize) => {
-            console.log(content.length)
-            const chunks = [];
-            for (let i = 0; i < content.length; i += chunkSize) {
-                chunks.push(content.slice(i, i + chunkSize));
-            }
-            return chunks;
-        };
+        // Calculez le nombre de divs nécessaires en fonction de la largeur et de la hauteur spécifiées
+        var numCols = Math.floor(container.offsetWidth / divWidth);
+        var numRows = Math.ceil(items.length / numCols);
 
-        const handlePageBreak = () => {
-            const maxHeight = 300; // Set your maximum height for a page
-            const chunkSize = 200; // Set the character limit for each chunk
-
-            const chunks = splitContent(htmlContent, chunkSize);
-            const currentChunks:any[] = [];
-            let currentChunk = '';
-
-            // Iterate through chunks until the height limit is reached
-            for (const chunk of chunks) {
-                if (currentChunk.length + chunk.length > maxHeight) {
-                    currentChunks.push(currentChunk);
-                    currentChunk = chunk;
-                } else {
-                    currentChunk += chunk;
+        // Créez et ajoutez les divs
+        for (var i = 0; i < numRows; i++) {
+            for (var j = 0; j < numCols; j++) {
+                var index = i * numCols + j;
+                if (index < items.length) {
+                    var newDiv = document.createElement('div');
+                    newDiv.className = 'item';
+                    newDiv.innerHTML = items[index].outerHTML;
+                    container.appendChild(newDiv);
                 }
             }
-
-            currentChunks.push(currentChunk);
-            setPageChunks(currentChunks);
-        };
-
-        handlePageBreak();
-        window.addEventListener('resize', handlePageBreak);
-
-        return () => {
-            window.removeEventListener('resize', handlePageBreak);
-        };
-    }, [htmlContent]);
+        }
+    }
 
     return (
         <PageStyled>
-                {pageChunks.map((chunk, index) => (
-                    <div className={"page"}  key={index} dangerouslySetInnerHTML={{ __html: chunk }} />
-                ))}
-
+            <div onClick={s} className="container" id="container">
+                <p>Your paragraph here...</p>
+                <table>
+                    <tr>
+                        <td>Table content</td>
+                        <td>More content</td>
+                    </tr>
+                </table>
+            </div>
         </PageStyled>
     )
 }
