@@ -18,7 +18,7 @@ import {
     FormControlLabel,
     Checkbox,
     MenuItem,
-    FormControl, IconButton,
+    FormControl, IconButton, useTheme,
 } from "@mui/material";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
@@ -58,6 +58,7 @@ function NewUser() {
     const {enqueueSnackbar} = useSnackbar();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
+    const theme = useTheme();
 
     const {t, ready} = useTranslation("settings");
     const {agendas} = useAppSelector(agendaSelector);
@@ -722,7 +723,8 @@ function NewUser() {
                                                                 }}
                                                                 size="small"
                                                                 disableRipple>
-                                                                <IconUrl path="setting/icdelete"/>
+                                                                <IconUrl color={theme.palette.error.main}
+                                                                         path="ic-trash"/>
                                                             </IconButton>
                                                         </Stack>
                                                     </Grid>
