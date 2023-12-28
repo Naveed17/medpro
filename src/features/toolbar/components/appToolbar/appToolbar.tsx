@@ -31,6 +31,7 @@ import {openDrawer} from "@features/calendar";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {CustomIconButton} from "@features/buttons";
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 
 function AppToolbar({...props}) {
 
@@ -342,8 +343,7 @@ function AppToolbar({...props}) {
                             variant="filled"
                             color={"warning"}
                             size={"small"}>
-                            <AddIcon sx={{width: '1.4em', height: '1.4em', p: .4}} fontSize={"small"}
-                                     htmlColor={theme.palette.text.primary}/>
+                            <AgendaAddViewIcon color={theme.palette.text.primary}/>
                         </CustomIconButton>
 
                         {selectedTab === 'consultation_form' &&

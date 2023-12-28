@@ -14,7 +14,7 @@ declare global {
     }
 
     interface Window {
-        usetifulInit(window: Window, document: Document, src: string)
+        usetifulInit(window: Window, document: Document, src: string, apiKey: string)
 
         usetifulTags: Object
     }

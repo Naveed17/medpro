@@ -55,7 +55,7 @@ function PatientRow({...props}) {
             dispatch(setSelectedRows(rowsSelected.filter((item: any) => item.uuid !== row.uuid)))
         }
     }
-console.log(row)
+
     return (
         <TableRowStyled
             hover
@@ -167,33 +167,35 @@ console.log(row)
                                         );
                                         handleEvent("PATIENT_DETAILS", row);
                                     }}>
-                                        
-                                             <Typography
-                                                color={"primary.main"} fontWeight={600}> {row.firstName} {row.lastName}</Typography>
-                                            {row.fiche_id && 
+
+                                        <Typography
+                                            color={"primary.main"}
+                                            fontWeight={600}> {row.firstName} {row.lastName}</Typography>
+                                        {row.fiche_id &&
                                             <Stack direction='row' alignItems='center'>
-                                                <IconUrl path="ic-folder" width={16} height={16} color={theme.palette.text.secondary}/>
-                                            <Tooltip 
-                                            title={row.fiche_id}
-                                            >
-                                            <Typography
-                                                variant="body2"
-                                                className={"ellipsis"}
-                                                color='text.secondary'
-                                                maxWidth={140}>
-                                                {`N°${row.fiche_id}`}
-                                            </Typography>
-                                            </Tooltip>
-                                           </Stack>
-                                             }
-                                            {row.hasInfo &&
-                                                <Chip
-                                                    sx={{marginLeft: 1, height: 26}}
-                                                    color={"info"}
-                                                    icon={<InfoRoundedIcon fontSize={"small"} color="action"/>}
-                                                    label={t("error.info-title")}/>
-                                            }
-                                       
+                                                <IconUrl path="ic-folder" width={16} height={16}
+                                                         color={theme.palette.text.secondary}/>
+                                                <Tooltip
+                                                    title={row.fiche_id}
+                                                >
+                                                    <Typography
+                                                        variant="body2"
+                                                        className={"ellipsis"}
+                                                        color='text.secondary'
+                                                        maxWidth={140}>
+                                                        {`N°${row.fiche_id}`}
+                                                    </Typography>
+                                                </Tooltip>
+                                            </Stack>
+                                        }
+                                        {row.hasInfo &&
+                                            <Chip
+                                                sx={{marginLeft: 1, height: 26}}
+                                                color={"info"}
+                                                icon={<InfoRoundedIcon fontSize={"small"} color="action"/>}
+                                                label={t("error.info-title")}/>
+                                        }
+
 
                                         <Typography
                                             variant="body2"
@@ -201,7 +203,7 @@ console.log(row)
                                             display='flex'
                                             alignItems='flex-start'
                                             color="text.secondary"
-                                            >
+                                        >
                                             {loading ? (
                                                 <Skeleton variant="text" width={100}/>
                                             ) : (
@@ -218,7 +220,7 @@ console.log(row)
                     </Box>
                 </Box>
             </TableCell>
-           
+
             <TableCell>
                 <Box display="flex" component="span" alignItems="center">
                     {loading ? (
@@ -229,17 +231,17 @@ console.log(row)
                                 <IconUrl path="ic-phone" width={16} height={16} color={theme.palette.text.primary}/>
                                 {row.contact[0].code &&
                                     <Typography fontWeight={600} variant={"body2"}
-                                    fontSize={13}
+                                                fontSize={13}
                                                 sx={{ml: 0.6}}>{row.contact[0].code}</Typography>
                                 }
-                                <Typography fontWeight={600} fontSize={13} variant={"body2"} 
+                                <Typography fontWeight={600} fontSize={13} variant={"body2"}
                                             sx={{ml: 0.6}}>{row.contact[0].value}</Typography>
                             </Stack> : "-")}
                         </>
                     )}
                 </Box>
             </TableCell>
-             <TableCell>
+            <TableCell>
                 {loading ? <Skeleton variant="text"/> : (
                     <Stack direction={"row"} alignItems={"center"}>
                         {row?.insurances?.length > 0 ?
@@ -265,7 +267,7 @@ console.log(row)
                     </Stack>
                 ) || "-"}
             </TableCell>
-            
+
             <TableCell align={"center"}>
                 <Box display="flex" alignItems="center" margin={"auto"}>
                     {loading ? (
@@ -290,7 +292,7 @@ console.log(row)
                                         </>
                                     )}
                                 </Typography>
-                                <Typography
+                                {row.previousAppointments?.startTime !== "00:00" && <Typography
                                     sx={{
                                         display: "flex",
                                         alignItems: "center",
@@ -312,7 +314,7 @@ console.log(row)
                                             {row.previousAppointments?.startTime || "-"}
                                         </>
                                     )}
-                                </Typography>
+                                </Typography>}
                             </Box>
                         </>
                     ) : (
@@ -328,7 +330,7 @@ console.log(row)
                     )}
                 </Box>
             </TableCell>
-              <TableCell align={"center"}>
+            <TableCell align={"center"}>
                 <Box display="flex" alignItems="center" sx={{float: "left"}}>
                     {loading ? (
                         <Skeleton variant="text" width={140}/>
@@ -348,10 +350,8 @@ console.log(row)
                                         extendedProps: {
                                             time: moment(`${row.nextAppointment.dayDate} ${row.nextAppointment.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
                                             patient: row,
-                                            motif: row.nextAppointment.consultationReasons,
                                             description: "",
-                                            dur: row.nextAppointment.duration,
-                                            status: AppointmentStatus[row.nextAppointment.status]
+                                            dur: row.nextAppointment.duration
                                         }
                                     }
                                     dispatch(setSelectedEvent(appointment as any));
@@ -365,7 +365,8 @@ console.log(row)
                                     handleEvent("APPOINTMENT_MOVE", appointment);
                                 }}
                                 size="small">
-                                <IconUrl path="ic-historique" width={17} height={17} color={theme.palette.text.secondary}/>
+                                <IconUrl path="ic-historique" width={17} height={17}
+                                         color={theme.palette.primary.main}/>
                             </IconButton>
 
                             <Box ml={1}>
@@ -387,7 +388,7 @@ console.log(row)
                                         display: "flex",
                                         alignItems: "center",
                                         "& svg": {
-                                           
+
                                             mr: 0.6,
                                         },
                                     }}
@@ -415,7 +416,7 @@ console.log(row)
                             color="primary"
                             style={{margin: "auto"}}
                             startIcon={<IconUrl path="ic-agenda-+"/>}
-                            sx={{position: "relative",fontWeight:600}}
+                            sx={{position: "relative", fontWeight: 600}}
                         >
                             {t("table.add-appointment")}
                         </Button>
@@ -424,7 +425,7 @@ console.log(row)
             </TableCell>
             <TableCell
                 align="right">
-                <Stack direction='row'  alignItems="center" justifyContent='flex-end'>
+                <Stack direction='row' alignItems="center" justifyContent='flex-end'>
                     {loading ? (
                         <>
                             <Skeleton
@@ -438,30 +439,31 @@ console.log(row)
                         </>
                     ) : (
                         <>
-                        <Tooltip title={t('popover-action.delete_patient_data')}>
-                            <IconButton
-                                disabled={loading}
-                                onClick={event => {
-                                    event.stopPropagation();
-                                    handleEvent("DELETE", row, event);
-                                }}
-                                size="small">
-                                <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>
-                            </IconButton>
-                        </Tooltip>
-                         <Tooltip title={t('popover-action.view_patient_data')}>
-                            <IconButton
-                                disabled={loading}
-                                onClick={event => {
-                                    event.stopPropagation();
-                                    handleEvent("EDIT", row, event);
-                                }}
-                                size="small"
-                                sx={{mt:.2}}
+                            <Tooltip title={t('popover-action.delete_patient_data')}>
+                                <IconButton
+                                    disabled={loading}
+                                    onClick={event => {
+                                        event.stopPropagation();
+                                        handleEvent("DELETE", row, event);
+                                    }}
+                                    size="small">
+                                    <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={t('popover-action.view_patient_data')}>
+                                <IconButton
+                                    disabled={loading}
+                                    onClick={event => {
+                                        event.stopPropagation();
+                                        handleEvent("EDIT", row, event);
+                                    }}
+                                    size="small"
+                                    sx={{mt: .2}}
                                 >
-                                <IconUrl path="ic-edit-pen" width={20} height={20} color={theme.palette.text.secondary}/>
-                            </IconButton>
-                        </Tooltip>
+                                    <IconUrl path="ic-edit-pen" width={20} height={20}
+                                             color={theme.palette.text.secondary}/>
+                                </IconButton>
+                            </Tooltip>
                         </>
                     )}
                 </Stack>
