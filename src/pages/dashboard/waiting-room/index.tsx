@@ -74,6 +74,7 @@ import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
 import {partition} from "lodash";
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -390,7 +391,7 @@ function WaitingRoom() {
             url: '#',
             icon: <CalendarIcon/>,
             action: <CustomIconButton
-                sx={{mr: 1}}
+                sx={{mr: 1, p: .8}}
                 onClick={() => {
                     setWithoutDateTime(false);
                     setQuickAddAppointment(true);
@@ -399,7 +400,7 @@ function WaitingRoom() {
                 variant="filled"
                 color={"primary"}
                 size={"small"}>
-                <AddIcon fontSize={"small"} htmlColor={"white"}/>
+                <AgendaAddViewIcon/>
             </CustomIconButton>
         },
         {
@@ -408,6 +409,7 @@ function WaitingRoom() {
             url: '#',
             icon: <IconUrl width={24} height={24} path="ic_waiting_room"/>,
             action: <CustomIconButton
+                sx={{p: .8}}
                 onClick={() => {
                     setWithoutDateTime(true);
                     setQuickAddAppointment(true);
@@ -416,7 +418,7 @@ function WaitingRoom() {
                 variant="filled"
                 color={"primary"}
                 size={"small"}>
-                <AddIcon fontSize={"small"} htmlColor={"white"}/>
+                <AgendaAddViewIcon/>
             </CustomIconButton>
         },
         {
