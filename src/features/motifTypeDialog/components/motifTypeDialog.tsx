@@ -265,7 +265,9 @@ function EditMotifDialog({...props}) {
                                         *
                                     </Typography>
                                 </Typography>
-                                <Stack direction="row" alignItems="center" spacing={1}>
+                                <Stack direction="row" alignItems="center" spacing={{xs:.5,sm:1}} 
+                                
+                                >
                                     {colors.map((color) => (
                                         <ModelDot
                                             key={color}
