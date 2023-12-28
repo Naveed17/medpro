@@ -5,11 +5,8 @@ import {
     Stack,
     useMediaQuery,
     useTheme,
-    IconButton,
 } from "@mui/material";
 import React, {useCallback} from "react";
-import AddIcon from "@mui/icons-material/Add";
-
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {tableActionSelector} from "@features/table";
 import ArchiveRoundedIcon from '@mui/icons-material/ArchiveRounded';
