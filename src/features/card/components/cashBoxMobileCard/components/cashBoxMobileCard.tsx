@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import CardStyled from "./overrides/cardStyle";
 import {
     alpha,
@@ -18,7 +18,6 @@ import {
 import {ImageHandler} from "@features/image";
 import {useRouter} from "next/router";
 import moment from "moment-timezone";
-import {addBilling} from "@features/table";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 // redux
@@ -50,7 +49,6 @@ function CashBoxMobileCard({...props}) {
     const theme = useTheme<Theme>();
     const router = useRouter();
     const {data: session} = useSession();
-    const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: triggerTransactionEdit} = useTransactionEdit();
     const {trigger: invalidateQueries} = useInvalidateQueries();
