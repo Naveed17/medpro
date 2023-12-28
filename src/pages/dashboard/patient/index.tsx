@@ -110,6 +110,14 @@ const headCells: readonly HeadCell[] = [
         align: "left",
     },
     {
+        id: "telephone",
+        numeric: true,
+        disablePadding: false,
+        label: "telephone",
+        sortable: true,
+        align: "left",
+    },
+     {
         id: "insurance",
         numeric: false,
         disablePadding: true,
@@ -118,26 +126,18 @@ const headCells: readonly HeadCell[] = [
         align: "left",
     },
     {
-        id: "telephone",
-        numeric: true,
-        disablePadding: false,
-        label: "telephone",
-        sortable: true,
-        align: "left",
-    },
-    {
-        id: "nextAppointment",
-        numeric: false,
-        disablePadding: false,
-        label: "nextAppointment",
-        sortable: false,
-        align: "left",
-    },
-    {
         id: "lastAppointment",
         numeric: false,
         disablePadding: false,
         label: "lastAppointment",
+        sortable: false,
+        align: "left",
+    },
+     {
+        id: "nextAppointment",
+        numeric: false,
+        disablePadding: false,
+        label: "nextAppointment",
         sortable: false,
         align: "left",
     },
@@ -464,7 +464,6 @@ function Patient() {
             case "OPEN-POPOVER":
                 setSelectedPatient(event);
                 mouseEvent.preventDefault();
-
                 setContextMenu(
                     contextMenu === null
                         ? {
@@ -473,6 +472,20 @@ function Patient() {
                         } : null,
                 );
                 break;
+                case "DELETE":
+                    setSelectedPatient(event);
+                    setDeleteDialog(true);
+                    break;
+                case "EDIT":
+                  dispatch(
+                    onOpenPatientDrawer({
+                        patientId: event?.uuid,
+                        patientAction: "PATIENT_DETAILS",
+                    })
+                );
+                setAddAppointment(false);
+                setPatientDetailDrawer(true);
+                break;  
             case "DUPLICATION_CHECK":
                 checkDuplications(event, setLoadingRequest);
                 break;
