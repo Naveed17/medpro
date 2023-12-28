@@ -132,7 +132,7 @@ function HistoryPanel({...props}) {
     return (
         (apps && apps.length > 0) ?
             <PanelStyled>
-                <Box className="files-panel">
+                <Box className="files-panel" p={2}>
                     <Typography fontWeight={600} p={1}>
                         {t("history")}
                     </Typography>

@@ -1,13 +1,14 @@
-import AddEventIcon from "@themes/overrides/icons/addEventIcon";
 import React from "react";
 import StyledMenu from "./overrides/styledMenu";
-import {Box, Button, MenuItem, Typography} from "@mui/material";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import {Box, MenuItem, useTheme} from "@mui/material";
 import FastForwardOutlinedIcon from '@mui/icons-material/FastForwardOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import {CustomIconButton} from "@features/buttons";
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 
 function CalendarAddButton({...props}) {
-    const {onClickEvent, t, ...rest} = props;
+    const {onClickEvent, t} = props;
+
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -36,21 +37,14 @@ function CalendarAddButton({...props}) {
                     fontSize: 19
                 }
             }}>
-            <Button
-                {...rest}
-                color={"warning"}
-                id="demo-customized-button"
-                aria-controls={open ? 'demo-customized-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? 'true' : undefined}
-                variant="contained"
-                disableElevation
+            <CustomIconButton
                 onClick={handleClick}
-                startIcon={<AddEventIcon/>}
-                endIcon={<KeyboardArrowDownIcon/>}
-            >
-                {t && <Typography>{t("add")}</Typography>}
-            </Button>
+                variant="filled"
+                sx={{ p: .8}}
+                color={"primary"}
+                size={"small"}>
+                <AgendaAddViewIcon />
+            </CustomIconButton>
             <StyledMenu
                 {...{open, anchorEl}}
                 id="demo-customized-menu"
@@ -75,7 +69,7 @@ function CalendarAddButton({...props}) {
                                 display: 'block',
                                 position: 'absolute',
                                 top: 0,
-                                right: 14,
+                                right: 20,
                                 width: 10,
                                 height: 10,
                                 bgcolor: 'background.paper',

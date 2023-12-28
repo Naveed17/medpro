@@ -1,11 +1,11 @@
 import FullCalendar from "@fullcalendar/react"; // => request placed at the top
 import {
     Backdrop,
-    Box, Chip,
+    Box,
     ClickAwayListener,
     IconButton,
     Menu,
-    MenuItem, Popover,
+    MenuItem,
     Theme,
     useMediaQuery,
     useTheme
@@ -26,15 +26,14 @@ import {
     DayOfWeek,
     Event,
     Header,
-    setCurrentDate,
-    setView,
+    setCurrentDate, setView,
     SlotFormat,
     TableHead
 } from "@features/calendar";
 import dynamic from "next/dynamic";
-import {AppointmentPopoverCard, NoDataCard} from "@features/card";
+import {NoDataCard} from "@features/card";
 import {uniqueId} from "lodash";
-import {BusinessHoursInput} from "@fullcalendar/core";
+import {BusinessHoursInput, DatesSetArg} from "@fullcalendar/core";
 import {useSwipeable} from "react-swipeable";
 import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
@@ -42,6 +41,9 @@ import {StyledMenu} from "@features/buttons";
 import {alpha} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
+import {useTranslation} from "next-i18next";
+import {batch} from "react-redux";
+import {prepareContextMenu} from "@lib/hooks";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -57,15 +59,13 @@ function Calendar({...props}) {
         t: translation,
         sortedData,
         doctor_country,
-        OnLeaveWaitingRoom,
-        OnConfirmEvent,
-        OnMoveEvent,
-        OnWaitingRoom,
         OnViewChange = null,
         OnAddAppointment,
         OnSelectEvent,
         OnSelectDate,
-        OnOpenPatient,
+        OnRangeDateSelect,
+        OnAddAbsence,
+        OnDeleteAbsence,
         OnEventChange,
         OnMenuActions,
         mutate: mutateAgenda
@@ -73,14 +73,20 @@ function Calendar({...props}) {
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
+    const {t} = useTranslation('common');
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+    const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
 
-    const {view, currentDate, config: agendaConfig} = useAppSelector(agendaSelector);
+    const {
+        view,
+        currentDate,
+        config: agendaConfig,
+        sortedData: groupSortedData,
+        absences
+    } = useAppSelector(agendaSelector);
 
     const prevView = useRef(view);
 
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
-    const [appointmentData, setAppointmentData] = React.useState<AppointmentModel | null>(null);
     const [events, setEvents] = useState<EventModal[]>(appointments);
     const [eventGroupByDay, setEventGroupByDay] = useState<GroupEventsModel[]>(sortedData);
     const [eventMenu, setEventMenu] = useState<string>();
@@ -93,19 +99,33 @@ function Calendar({...props}) {
         mouseX: number;
         mouseY: number;
     } | null>(null);
+    const [contextMenuHeader, setContextMenuHeader] = React.useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isEventDragging, setIsEventDragging] = useState(false);
+    const [hiddenDays, setHiddenDays] = useState([]);
 
     const isGridWeek = Boolean(view === "timeGridWeek");
     const isRTL = theme.direction === "rtl";
-    const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
     const openingHours = agendaConfig?.openingHours[0];
-    const calendarHeight = !isMobile ? "80vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
-    const open = Boolean(anchorEl);
+    const calendarHeight = !isMobile ? "83vh" : window.innerHeight - (window.innerHeight / (Math.trunc(window.innerHeight / 122)));
 
     const handleOnSelectEvent = useCallback((value: any) => {
         OnSelectEvent(value);
     }, [OnSelectEvent]);
+
+    const handleAddAbsence = useCallback((currentDate: Date) => {
+        OnAddAbsence(currentDate);
+    }, [OnAddAbsence]);
+
+    const handleDeleteAbsence = useCallback((currentDate: Date) => {
+        OnDeleteAbsence(currentDate);
+    }, [OnDeleteAbsence]);
+
+    const handleRangeChange = useCallback((event: DatesSetArg) => {
+        OnRangeChange(event);
+    }, [OnRangeChange]);
 
     const getSlotsFormat = (slot: number) => {
         const duration = moment.duration(slot, "hours") as any;
@@ -130,38 +150,39 @@ function Calendar({...props}) {
         }
     };
 
-    const handleNavLinkDayClick = (date: Date) => {
+    const handleNavLinkDayClick = (date: Date, jsEvent: UIEvent) => {
         const calendarEl = calendarRef.current;
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
-            calendarApi.gotoDate(date);
-            dispatch(setView("timeGridDay"));
-            dispatch(setCurrentDate({date, fallback: false}));
+            if (!['path', 'svg'].includes((jsEvent.target as any)?.nodeName)) {
+                calendarApi.gotoDate(date);
+                batch(() => {
+                    dispatch(setView("timeGridDay"));
+                    dispatch(setCurrentDate({date, fallback: false}));
+                });
+            } else {
+                dispatch(setCurrentDate({date, fallback: false}));
+            }
         }
     }
-
-    const handleTableEvent = (action: string, eventData: EventModal) => {
+    
+    const handleTableEvent = (action: string, eventData: EventModal, event?: any) => {
         switch (action) {
-            case "showEvent":
-                handleOnSelectEvent(eventData);
+            case "OPEN-POPOVER":
+                setEventMenu(eventData.id);
+                handleContextMenu(event);
                 break;
-            case "showPatient":
-                OnOpenPatient(eventData);
-                break;
-            case "waitingRoom":
-                OnWaitingRoom(eventData);
-                break;
-            case "leaveWaitingRoom":
-                OnLeaveWaitingRoom(eventData);
-                break;
-            case "confirmEvent":
-                OnConfirmEvent(eventData);
-                break;
-            case "moveEvent":
-                OnMoveEvent(eventData);
+            default:
+                const eventUpdated = {
+                    publicId: eventData.id,
+                    extendedProps: {
+                        ...eventData
+                    }
+                }
+                OnMenuActions(action, eventUpdated);
                 break;
         }
-    };
+    }
 
     const handleContextMenu = (event: MouseEvent) => {
         event.preventDefault();
@@ -182,35 +203,6 @@ function Calendar({...props}) {
         setContextMenu(null);
     };
 
-    const MenuContextlog = (action: string, eventMenu: EventModal) => {
-        return eventMenu && (
-            action === "onWaitingRoom" &&
-            (moment().format("DD-MM-YYYY") !== moment(eventMenu.time).format("DD-MM-YYYY") ||
-                ["PENDING", "WAITING_ROOM", "ON_GOING", "FINISHED"].includes(eventMenu.status.key)) ||
-            action === "onConsultationView" &&
-            (!["FINISHED", "ON_GOING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
-            action === "onConsultationDetail" &&
-            (["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) || roles.includes('ROLE_SECRETARY')) ||
-            action === "onPreConsultation" &&
-            ["FINISHED", "ON_GOING", "PENDING"].includes(eventMenu.status.key) ||
-            action === "onLeaveWaitingRoom" &&
-            eventMenu.status.key !== "WAITING_ROOM" ||
-            action === "onCancel" &&
-            ["CANCELED", "PATIENT_CANCELED", "FINISHED", "ON_GOING"].includes(eventMenu.status.key) ||
-            action === "onDelete" &&
-            ["FINISHED", "ON_GOING"].includes(eventMenu.status.key) ||
-            action === "onMove" &&
-            (moment().isAfter(eventMenu.time) || ["FINISHED", "ON_GOING"].includes(eventMenu.status.key)) ||
-            action === "onPatientNoShow" &&
-            ((moment().isBefore(eventMenu.time) || eventMenu.status.key === "ON_GOING") ||
-                eventMenu.status.key === "FINISHED") ||
-            action === "onConfirmAppointment" &&
-            eventMenu.status.key !== "PENDING" ||
-            action === "onReschedule" &&
-            (moment().isBefore(eventMenu.time) && eventMenu.status.key !== "FINISHED")
-        )
-    }
-
     const handlers = useSwipeable({
         onSwipedLeft: () => {
             handleClickDateNext();
@@ -221,19 +213,14 @@ function Calendar({...props}) {
         preventScrollOnSwipe: true
     });
 
-    const isHorizontal = () => {
-        if (view === "timeGridDay")
-            return 'left';
-        else if (moment(appointmentData?.dayDate, "DD-MM-YYYY").weekday() > 4)
-            return -305;
-        else return 'right';
-    }
-
     useEffect(() => {
         let days: BusinessHoursInput[] = [];
         if (openingHours) {
             Object.entries(openingHours).forEach((openingHours: any) => {
-                openingHours[1].forEach((openingHour: { start_time: string, end_time: string }) => {
+                openingHours[1].forEach((openingHour: {
+                    start_time: string,
+                    end_time: string
+                }) => {
                     const min = moment.duration(openingHour?.start_time).asHours();
                     const max = moment.duration(openingHour?.end_time).asHours();
                     if (min < slotMinTime) {
@@ -261,7 +248,9 @@ function Calendar({...props}) {
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             if (currentDate.fallback) {
-                calendarApi.gotoDate(currentDate.date);
+                queueMicrotask(() => {
+                    calendarApi.gotoDate(currentDate.date);
+                });
             }
         }
     }, [currentDate]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -271,7 +260,9 @@ function Calendar({...props}) {
         if (calendarEl && prevView.current !== "listWeek") {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             if (calendarApi.view.type !== view) {
-                calendarApi.changeView(view as string);
+                queueMicrotask(() => {
+                    calendarApi.changeView(view as string);
+                })
             }
         } else {
             OnViewChange(view as string);
@@ -290,7 +281,7 @@ function Calendar({...props}) {
     }, [sortedData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <Box bgcolor="#F0FAFF">
+        <Box bgcolor="common.white">
             {isMobile && <ClickAwayListener onClickAway={() => {
                 if (slotInfoPopover) {
                     setSlotInfoPopover(false);
@@ -309,8 +300,8 @@ function Calendar({...props}) {
                                 maxHeight={`calc(100vh - 180px)`}
                                 headers={TableHead}
                                 rows={eventGroupByDay}
-                                handleEvent={(action: string, eventData: EventModal) =>
-                                    handleTableEvent(action, eventData)
+                                handleEvent={(action: string, eventData: EventModal, event: any) =>
+                                    handleTableEvent(action, eventData, event)
                                 }
                                 from={"calendar"}
                                 t={translation}
@@ -322,6 +313,7 @@ function Calendar({...props}) {
                     ) : (!loading && view !== "listWeek") && (
                         <Box position="relative" {...handlers} style={{touchAction: 'pan-y'}}>
                             <FullCalendar
+                                {...{hiddenDays}}
                                 weekends
                                 editable
                                 direction={isRTL ? "rtl" : "ltr"}
@@ -333,7 +325,7 @@ function Calendar({...props}) {
                                 slotEventOverlap={true}
                                 events={events}
                                 ref={calendarRef}
-                                datesSet={OnRangeChange}
+                                datesSet={handleRangeChange}
                                 defaultTimedEventDuration="00:15"
                                 allDayMaintainDuration={false}
                                 navLinkDayClick={handleNavLinkDayClick}
@@ -353,10 +345,11 @@ function Calendar({...props}) {
                                             {...{
                                                 isBeta,
                                                 open,
-                                                isEventDragging,
-                                                setAppointmentData,
-                                                event, openingHours,
-                                                view, isMobile, anchorEl, setAnchorEl
+                                                event,
+                                                openingHours,
+                                                OnMenuActions,
+                                                roles,
+                                                view
                                             }}
                                             t={translation}/>
                                     </motion.div>
@@ -368,8 +361,6 @@ function Calendar({...props}) {
                                         return ['normal']
                                     }
                                 }}
-                                eventDragStart={() => setIsEventDragging(true)}
-                                eventDragStop={() => setIsEventDragging(false)}
                                 eventDidMount={mountArg => {
                                     mountArg.el.addEventListener('contextmenu', (ev) => {
                                         setEventMenu(mountArg.event._def.publicId);
@@ -389,25 +380,38 @@ function Calendar({...props}) {
                                         }, 0);
                                     }
                                 }}
-                                dayHeaderContent={(event) =>
-                                    Header({
+                                dayHeaderContent={(event) => {
+                                    const datEvents = groupSortedData.find(events => events.date === moment(event.date).format("DD-MM-YYYY"))?.events?.length ?? 0;
+                                    return Header({
+                                        t,
                                         isGridWeek,
                                         event,
-                                        isMobile
+                                        dispatch,
+                                        datEvents,
+                                        absences,
+                                        isMobile,
+                                        currentDate,
+                                        contextMenuHeader,
+                                        setContextMenuHeader,
+                                        hiddenDays,
+                                        setHiddenDays,
+                                        OnAddAbsence: () => handleAddAbsence(currentDate.date),
+                                        OnDeleteAbsence: () => {
+                                            const day: any = absences.filter((absence: any) => moment(absence.start).isSame(currentDate.date) && moment(absence.end).format('HH:mm') === '23:59')
+                                            handleDeleteAbsence(day[0].uuid);
+                                        }
                                     })
-                                }
-                                eventClick={(eventArg) => handleOnSelectEvent(eventArg.event._def)}
+                                }}
+                                eventClick={(eventArg) => (eventArg.event._def.ui.display !== "background" && !eventArg.event._def.extendedProps.patient?.isArchived) && handleOnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 dateClick={(info) => {
                                     setSlotInfo(info as DateClickTouchArg);
                                     OnAddAppointment("add-quick");
                                     OnSelectDate(info);
-                                    /*setTimeout(() => {
-                                        setSlotInfoPopover(true);
-                                    }, isMobile ? 100 : 0);*/
                                 }}
+                                select={(eventArg) => OnRangeDateSelect(eventArg)}
                                 showNonCurrentDates={true}
-                                //rerenderDelay={6}
+                                selectMinDistance={10}
                                 height={calendarHeight}
                                 initialDate={currentDate.date}
                                 slotMinTime={getSlotsFormat(slotMinTime)}
@@ -492,99 +496,67 @@ function Calendar({...props}) {
                                     {translation('add-complete')}
                                 </MenuItem>
                             </StyledMenu>}
-
-                            <Menu
-                                open={contextMenu !== null}
-                                onClose={handleClose}
-                                anchorReference="anchorPosition"
-                                slotProps={{
-                                    paper: {
-                                        elevation: 0,
-                                        sx: {
-                                            backgroundColor: theme.palette.text.primary,
-                                            "& .popover-item": {
-                                                padding: theme.spacing(2),
-                                                display: "flex",
-                                                alignItems: "center",
-                                                svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
-                                                cursor: "pointer",
-                                            }
-                                        }
-                                    }
-                                }}
-                                anchorPosition={
-                                    contextMenu !== null
-                                        ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
-                                        : undefined
-                                }
-                                anchorOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'left',
-                                }}
-                                transformOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'left',
-                                }}>
-                                {CalendarContextMenu.filter(data => !MenuContextlog(data.action, events.find(event => event.id === eventMenu) as EventModal)).map((v: any) => (
-                                        <IconButton
-                                            key={uniqueId()}
-                                            onClick={() => {
-                                                const appointment = events.find(event => event.id === eventMenu) as EventModal;
-                                                const event = {
-                                                    publicId: appointment.id,
-                                                    extendedProps: {
-                                                        ...appointment
-                                                    }
-                                                }
-                                                OnMenuActions(v.action, event);
-                                                handleClose();
-                                            }}
-                                            className="popover-item">
-                                            {v.icon}
-                                            <Typography fontSize={15} sx={{color: "#fff"}}>
-                                                {translation(`${v.title}`, {ns: 'common'})}
-                                            </Typography>
-                                        </IconButton>
-                                    )
-                                )}
-                            </Menu>
-
-                            <Popover
-                                id="mouse-over-popover"
-                                sx={{
-                                    pointerEvents: 'none',
-                                    zIndex: 900
-                                }}
-                                open={open}
-                                anchorEl={anchorEl}
-                                anchorOrigin={{
-                                    vertical: view === "timeGridDay" ? 'bottom' : 'top',
-                                    horizontal: isHorizontal()
-                                }}
-                                onClose={() => setAnchorEl(null)}
-                                disableRestoreFocus>
-                                <motion.div
-                                    initial={{opacity: 0}}
-                                    animate={{opacity: 1}}
-                                    transition={{ease: "linear", duration: .2}}>
-                                    {appointmentData?.new &&
-                                        <Chip label={translation("event.new", {ns: 'common'})}
-                                              sx={{
-                                                  position: "absolute",
-                                                  right: 4,
-                                                  top: 4,
-                                                  fontSize: 10
-                                              }}
-                                              size="small"
-                                              color={"primary"}/>}
-                                    <AppointmentPopoverCard
-                                        {...{isBeta, t: translation}}
-                                        style={{width: "300px", border: "none"}}
-                                        data={appointmentData}/>
-                                </motion.div>
-                            </Popover>
                         </Box>
                     )}
+                    <Menu
+                        open={contextMenu !== null}
+                        onClose={handleClose}
+                        anchorReference="anchorPosition"
+                        slotProps={{
+                            paper: {
+                                elevation: 0,
+                                sx: {
+                                    backgroundColor: theme.palette.text.primary,
+                                    "& .popover-item": {
+                                        padding: theme.spacing(2),
+                                        display: "flex",
+                                        alignItems: "center",
+                                        svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
+                                        cursor: "pointer",
+                                    }
+                                }
+                            }
+                        }}
+                        anchorPosition={
+                            contextMenu !== null
+                                ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
+                                : undefined
+                        }
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}>
+                        {CalendarContextMenu.filter(data =>
+                            !prepareContextMenu(data.action,
+                                (view === "listWeek" ? eventGroupByDay.reduce((eventsData: EventCalendarModel[], data) =>
+                                    [...(eventsData ?? []), ...data?.events], []) : events).find(event =>
+                                    event.id === eventMenu) as EventModal, roles)).map((v: any) => (
+                                <IconButton
+                                    key={uniqueId()}
+                                    onClick={() => {
+                                        const appointment = events.find(event => event.id === eventMenu) as EventModal;
+                                        const event = {
+                                            publicId: appointment.id,
+                                            extendedProps: {
+                                                ...appointment
+                                            }
+                                        }
+                                        OnMenuActions(v.action, event);
+                                        handleClose();
+                                    }}
+                                    className="popover-item">
+                                    {v.icon}
+                                    <Typography fontSize={15} sx={{color: "#fff"}}>
+                                        {translation(`${v.title}`, {ns: 'common'})}
+                                    </Typography>
+                                </IconButton>
+                            )
+                        )}
+                    </Menu>
                 </CalendarStyled>
             </RootStyled>
         </Box>

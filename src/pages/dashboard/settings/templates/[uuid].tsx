@@ -3,7 +3,6 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
-import {pdfjs} from "react-pdf";
 import {useFormik} from "formik";
 import {
     Box,
@@ -33,9 +32,6 @@ import {
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useSnackbar} from "notistack";
-import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 import {useReactToPrint} from "react-to-print";
 import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
@@ -63,7 +59,7 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+import {LoadingScreen} from "@features/loadingScreen";
 
 function DocsConfig() {
     const router = useRouter();
@@ -94,6 +90,8 @@ function DocsConfig() {
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
         date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
+        cin: {show: false, prefix: 'CIN : ', content: '', x: 40, y: 274},
+        age: {show: true, prefix: 'AGE:', content: '', x: 40, y: 316},
         size: 'portraitA4',
         content: {
             show: true,
@@ -101,7 +99,7 @@ function DocsConfig() {
             maxWidth: 130,
             content: '[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]',
             x: 0,
-            y: 300
+            y: 320
         }
     })
     const [queryState, setQueryState] = useState<any>({type: []});
@@ -256,12 +254,12 @@ function DocsConfig() {
     }
 
     useEffect(() => {
-        if (uuid === 'new') {
-            setTimeout(() => {
-                setLoading(false)
-            }, 1000);
-        } else if (httpDocumentHeader)
+        if (httpDocumentHeader)
             setDocHeader((httpDocumentHeader as HttpResponse).data.find((res: { uuid: string }) => res.uuid === uuid))
+
+        setTimeout(() => {
+            setLoading(false)
+        }, 2000);
     }, [httpDocumentHeader, uuid])
 
     useEffect(() => {
@@ -767,6 +765,45 @@ function DocsConfig() {
                                         : {data.patient.x} , y : {data.patient.y}</Typography>
                                 </fieldset>
                             </Collapse>
+
+                            {/*CIN*/}
+                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                                <Checkbox
+                                    checked={data.cin && data.cin.show}
+                                    onChange={(ev) => {
+                                        if (data.cin) {
+                                            data.cin.show = ev.target.checked;
+                                            setData({...data})
+                                        } else setData({
+                                            ...data,
+                                            cin: {show: true, prefix: 'CIN : ', content: '', x: 40, y: 274}
+                                        })
+                                    }}
+                                />
+                                <ListItemText primary={t("cin")}/>
+                            </ListItem>
+
+                            {/*AGE*/}
+                            <ListItem style={{padding: 0, marginTop: 10, marginBottom: 5}}>
+                                <Checkbox
+                                    checked={data.age && data.age.show}
+                                    onChange={(ev) => {
+                                        let _data = {...data}
+                                        if (_data.age)
+                                            _data.age.show = ev.target.checked;
+                                        else {
+                                            _data = {
+                                                ..._data,
+                                                age: {show: true, prefix: 'AGE:', content: '', x: 40, y: 316}
+                                            }
+                                        }
+
+                                        setData({..._data})
+                                    }}
+                                />
+                                <ListItemText primary={t("age")}/>
+                            </ListItem>
+
                         </List>
                     </Box>
                 </Grid>
@@ -775,7 +812,7 @@ function DocsConfig() {
                     {<Box padding={2}>
                         <Box style={{margin: 'auto', paddingTop: 20}}>
                             <Box ref={componentRef}>
-                                <PreviewA4  {...{eventHandler, data, values, loading}} />
+                                {!loading && <PreviewA4  {...{eventHandler, data, values, loading}} />}
                                 {loading &&
                                     <div className={data.size ? data.size : "portraitA5"} style={{padding: 20}}>
                                         {Array.from(Array(30)).map((item, key) => (

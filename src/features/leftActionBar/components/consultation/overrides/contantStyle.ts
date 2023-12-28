@@ -6,7 +6,7 @@ const ContentStyled = styled(Card)(({ theme }) => ({
     padding: theme.spacing(1),
     ".MuiList-root": {
       padding: 0,
-      paddingLeft: theme.spacing(2),
+     // paddingLeft: theme.spacing(2),
       width: "100%",
       ".MuiListItem-root": {
         paddingLeft: 0,
@@ -32,6 +32,11 @@ const ContentStyled = styled(Card)(({ theme }) => ({
       "&::first-letter": {
         textTransform: "capitalize"
       }
+    },
+    ".ant-item":{
+      border:`1px dashed ${theme.palette.grey["200"]}`,
+      borderRadius:5,
+      marginTop:5,
     }
   },
 }));

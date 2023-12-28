@@ -21,8 +21,7 @@ export default function NoDataCard({...props}) {
                 color="text.primary"
                 my={isMobile ? 1 : 3}
                 {...(isMobile && {fontSize: 16})}
-                fontWeight={600}
-            >
+                fontWeight={600}>
                 {t(title, {ns})}
             </Typography>
             <Typography variant="body2" color="#00234B" mb={3}>
@@ -37,8 +36,7 @@ export default function NoDataCard({...props}) {
                     {...(button.icon && {
                         startIcon: (typeof button.icon === "string" ?
                             <Icon color={button.color} path={button.icon}/> : button.icon)
-                    })}
-                >
+                    })}>
                     {t(button.text, {ns})}
                 </Button>
             ))}

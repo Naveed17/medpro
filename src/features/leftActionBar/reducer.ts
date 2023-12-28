@@ -3,7 +3,7 @@ import {
     setFilter,
     resetFilterPatient,
     resetFilterPayment,
-    setFilterPayment
+    setFilterPayment, resetFilterDocument, resetFilter
 } from "./actions";
 import _ from "lodash";
 
@@ -20,8 +20,10 @@ export type ActionBarState = {
             birthdate?: string;
             name?: string;
             country?: string;
+            states?: string;
             hasDouble?: boolean;
-            insurances?: string[];
+            rest?: boolean;
+            insurances?: string;
         },
         payment?: {
             insurance?: string[];
@@ -34,7 +36,11 @@ export type ActionBarState = {
             stock?: any[];
             isHidden?: boolean;
             isForAppointment?: boolean;
-        };
+        },
+        document?: {
+            name?: string;
+            status?: string;
+        }
     } | undefined;
 };
 
@@ -58,5 +64,9 @@ export const leftActionBarReducer = createReducer(initialState, (builder) => {
         return {...state, query: {...queryState, patient: undefined}};
     }).addCase(resetFilterPayment, (state) => {
         return {...state, query: {...state.query, payment: undefined}};
+    }).addCase(resetFilterDocument, (state) => {
+        return {...state, query: {...state.query, document: undefined}};
+    }).addCase(resetFilter, (state) => {
+        return {...state, ...initialState};
     });
 });

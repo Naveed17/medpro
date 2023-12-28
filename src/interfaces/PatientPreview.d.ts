@@ -17,4 +17,5 @@ interface PatientPreview {
   birthdate:string
   gender:string
   idCard:string
+  wallet:number
 }

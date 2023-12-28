@@ -7,19 +7,19 @@ import {
     PatientFilter,
     setFilter,
     AppointmentStatusFilter,
-    AppointmentTypesFilter,
+    AppointmentTypesFilter, FilterOverview,
 } from "@features/leftActionBar";
 import React, {useEffect, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector} from "@features/calendar";
 import moment from "moment-timezone";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {dashLayoutSelector} from "@features/base";
 import useHorsWorkDays from "@lib/hooks/useHorsWorkDays";
+import {setCurrentDate} from "@features/calendar";
 
 const CalendarPickers = dynamic(
     () => import("@features/calendar/components/calendarPickers/components/calendarPickers"));
@@ -29,7 +29,6 @@ function Agenda() {
     const {current: disabledDay} = useHorsWorkDays();
 
     const {t, ready} = useTranslation("agenda", {keyPrefix: "filter"});
-    const {sortedData: notes} = useAppSelector(agendaSelector);
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
 
     const [accordionData, setAccordionData] = useState<any[]>([]);
@@ -47,6 +46,7 @@ function Agenda() {
                     children: (
                         <FilterRootStyled>
                             <PatientFilter
+                                {...{t}}
                                 OnSearch={(data: { query: ActionBarState }) => {
                                     dispatch(setFilter({patient: data.query}));
                                 }}
@@ -66,7 +66,6 @@ function Agenda() {
                                         ],
                                     },
                                 }}
-                                t={t}
                             />
                         </FilterRootStyled>
                     ),
@@ -78,7 +77,7 @@ function Agenda() {
                         title: "meetingType",
                     },
                     expanded: false,
-                    children: (<AppointmentTypesFilter {...{t, ready}} />)
+                    children: (<AppointmentTypesFilter/>)
                 },
                 {
                     heading: {
@@ -99,11 +98,14 @@ function Agenda() {
         <BoxStyled className="container-filter">
             <CalendarPickers
                 renderDay
-                {...{notes}}
-                shouldDisableDate={(date: Date) =>
-                    disabledDay.includes(moment(date).weekday())
-                }
+                onDateChange={(date: Date | null) => {
+                    if (date) {
+                        dispatch(setCurrentDate({date, fallback: true}));
+                    }
+                }}
+                shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
             />
+            <FilterOverview/>
             <Accordion
                 translate={{t, ready}}
                 data={accordionData}

@@ -128,7 +128,7 @@ function LoadingScreen({...props}) {
                         color="text.primary">
                         {t(text !== "loading" ? `${text}.description` : text)}
                     </Typography>
-                    {button && (
+                    {(button && text !== "loading") && (
                         <Button
                             onClick={() => {
                                 if (process.env.NODE_ENV !== "development") {

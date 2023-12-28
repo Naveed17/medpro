@@ -163,9 +163,6 @@ function Inventory() {
         setSelected("");
     }
 
-    useEffect(() => {
-        console.log("filter", filterData);
-    }, [filterData]);
 
     return (
         <>

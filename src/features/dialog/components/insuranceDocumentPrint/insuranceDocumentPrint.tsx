@@ -1,48 +1,55 @@
 import {useInsurances} from "@lib/hooks/rest";
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import LocalPrintshopOutlinedIcon from '@mui/icons-material/LocalPrintshopOutlined';
-import LocalPrintshopRoundedIcon from '@mui/icons-material/LocalPrintshopRounded';
-import {Avatar, Checkbox, FormControlLabel, ListSubheader, Stack, Typography} from "@mui/material";
-import {ImageHandler} from "@features/image";
 import React, {useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useAppSelector} from "@lib/redux/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {PDFDocument} from 'pdf-lib';
-import {LoadingButton} from "@mui/lab";
+import {PageSizes, PDFDocument, StandardFonts} from 'pdf-lib';
+import {agendaSelector} from "@features/calendar";
+import {onOpenPatientDrawer, Otable} from "@features/table";
+import {NoDataCard} from "@features/card";
+import IconUrl from "@themes/urlIcon";
 
 function InsuranceDocumentPrint({...props}) {
-    const {data: {appuuid, state: patient, t}} = props;
+    const {data: {appuuid, state: patient, t, setOpenDialog}} = props;
     const router = useRouter();
     const {insurances} = useInsurances();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const dispatch = useAppDispatch();
 
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
 
     const [file, setFile] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const [backgroundDoc, setBackgroundDoc] = useState(true);
     const {trigger: triggerInsuranceDocs} = useRequestQueryMutation("consultation/insurances/document");
 
     const {trigger: triggerDocInsurance} = useRequestQueryMutation("insurance/document");
 
-    const docInsurances = insurances?.filter(insurance => (insurance?.documents ?? []).length > 0) ?? [];
+    const docInsurances = patient.insurances?.reduce((docs: any[], doc: any) => [
+        ...(docs ?? []),
+        ...(doc?.insurance?.documents.length > 0 ? [{
+            ...doc?.insurance,
+            logoUrl: insurances.find(insurance => insurance.uuid === doc?.insurance?.uuid)?.logoUrl ?? ""
+        }] : [])], []) ?? [];
 
-    const generateInsuranceDoc = (insuranceDocument: string) => {
+    const generateInsuranceDoc = (insuranceDocument: string, backgroundDoc: boolean) => {
         medicalEntityHasUser && triggerInsuranceDocs({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/${appuuid}/insurance-document/${insuranceDocument}/${router.locale}`,
         }, {
             onSuccess: async (result: any) => {
-                const document = result?.data as any;
+                const document = (result?.data as HttpResponse)?.data;
+                const pdfDoc = await PDFDocument.create();
+                const helveticaFont = await pdfDoc.embedFont(StandardFonts.Courier);
+                const fields: any[] = document.insurance.map((field: any) => ({
+                    ...field,
+                    value: document.data[field.key]
+                }));
+                const pagedFields = fields.group((field: any) => field.page);
                 if (backgroundDoc) {
-                    const pdfDoc = await PDFDocument.create();
-                    const docUpdated = await fetch(`data:application/pdf;base64,${document}`).then((res) => res.arrayBuffer());
                     triggerDocInsurance({
                         method: "GET",
                         url: `/api/public/insurances/documents/${insuranceDocument}/${router.locale}`
@@ -50,64 +57,128 @@ function InsuranceDocumentPrint({...props}) {
                         onSuccess: async (result: any) => {
                             const data = (result?.data as HttpResponse)?.data;
                             const docFile = await fetch(data.url).then((res) => res.arrayBuffer());
-                            const firstDonorPdfDoc = await PDFDocument.load(docFile);
-                            const [CNAMDocP1] = await pdfDoc.copyPages(firstDonorPdfDoc, [0]);
-                            const [CNAMDocP2] = await pdfDoc.copyPages(firstDonorPdfDoc, [1]);
-                            const [cnamPatientInfoP1] = await pdfDoc.embedPdf(docUpdated, [0]);
-                            const [cnamPatientInfoP2] = await pdfDoc.embedPdf(docUpdated, [1]);
-                            const page1 = pdfDoc.addPage(CNAMDocP1);
-                            page1.drawPage(cnamPatientInfoP1, {x: 0, y: 0});
-                            const page2 = pdfDoc.addPage(CNAMDocP2);
-                            page2.drawPage(cnamPatientInfoP2, {x: 0, y: 28});
+                            const insurancePdfDoc = await PDFDocument.load(docFile);
+                            const copiedPages = await pdfDoc.copyPages(insurancePdfDoc, insurancePdfDoc.getPageIndices());
+                            for (const page of copiedPages) {
+                                const index = copiedPages.indexOf(page);
+                                pagedFields[index + 1]?.forEach((field: any) => {
+                                    if (field.posXX && field.posYY) {
+                                        if (Array.isArray(field.value)) {
+                                            let posY = field.posYY;
+                                            field.value.forEach((fieldData: any) => {
+                                                page.drawText(fieldData?.toString() ?? "", {
+                                                    x: field.posXX,
+                                                    y: posY,
+                                                    font: helveticaFont,
+                                                    size: 10
+                                                });
+                                                posY = posY - 20;
+                                            })
+                                        } else {
+                                            page.drawText(field.value?.toString() ?? "", {
+                                                x: field.posXX,
+                                                y: field.posYY,
+                                                font: helveticaFont,
+                                                size: 10
+                                            });
+                                        }
+                                    }
+                                });
+                                pdfDoc.addPage(page);
+                            }
+
                             const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
                             setFile(mergedPdf);
                         }
                     })
                 } else {
-                    setFile(`data:application/pdf;base64,${document}`)
+                    Object.entries(pagedFields).forEach((fields: any) => {
+                        const page = pdfDoc.addPage([PageSizes.A4[1], PageSizes.A4[0]]);
+                        fields[1]?.forEach((field: any) => {
+                            if (field.posXX && field.posYY) {
+                                if (Array.isArray(field.value)) {
+                                    let posY = field.posYY;
+                                    field.value.forEach((fieldData: any) => {
+                                        page.drawText(fieldData?.toString() ?? "", {
+                                            x: field.posXX,
+                                            y: posY,
+                                            font: helveticaFont,
+                                            size: 10
+                                        });
+                                        posY = posY - 20;
+                                    })
+                                } else {
+                                    page.drawText(field.value?.toString() ?? "", {
+                                        x: field.posXX,
+                                        y: field.posYY,
+                                        font: helveticaFont,
+                                        size: 10
+                                    });
+                                }
+                            }
+                        });
+                    });
+                    const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
+                    setFile(mergedPdf);
                 }
             },
-            onSettled: () => setLoading(false)
+            onSettled: () => {
+                setLoading(false);
+                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appuuid}/documents/${router.locale}`])
+            }
         });
+    }
+
+    const handleTableEvent = (action: string, data: any, backgroundDoc: boolean) => {
+        switch (action) {
+            case "onGenerateInsuranceDoc":
+                generateInsuranceDoc(data?.uuid, backgroundDoc);
+                break;
+        }
     }
 
     return (
         <>
-            <List
-                sx={{width: '100%', bgcolor: 'background.paper'}}
-                subheader={<ListSubheader>Demande de Prise en charge</ListSubheader>}>
-                {docInsurances.map(insurance => <ListItem sx={{p: 2}} key={insurance.uuid} disablePadding>
-                    <ListItemIcon>
-                        <Avatar variant={"circular"}>
-                            <ImageHandler
-                                alt={insurance.name}
-                                src={insurance.logoUrl.url}
-                            />
-                        </Avatar>
-                    </ListItemIcon>
-                    <ListItemText
-                        primary={<Typography fontWeight={700} component='strong'>{insurance.name}</Typography>}/>
-                    <Stack direction={"row"} spacing={1.2}>
-                        <FormControlLabel
-                            control={<Checkbox
-                                checked={backgroundDoc}
-                                onChange={e => setBackgroundDoc(e.target.checked)}/>}
-                            label={t("print_document_background")}/>
-                        <LoadingButton
-                            {...{loading}}
-                            loadingPosition={"start"}
-                            variant={"contained"}
-                            startIcon={backgroundDoc ? <LocalPrintshopRoundedIcon/> : <LocalPrintshopOutlinedIcon/>}
-                            onClick={e => {
-                                e.stopPropagation();
-                                setLoading(true);
-                                insurance.documents && generateInsuranceDoc(insurance.documents[0]?.uuid);
-                            }} size="small">
-                            <Typography>{t("print_document_result")}</Typography>
-                        </LoadingButton>
-                    </Stack>
-                </ListItem>)}
-            </List>
+            {docInsurances.length > 0 ? <Otable
+                    size="small"
+                    {...{t, loadingReq: loading}}
+                    headers={[
+                        {
+                            id: "insurance",
+                            numeric: false,
+                            disablePadding: true,
+                            label: "insurance",
+                            sortable: true,
+                            align: "left",
+                        }, {
+                            id: "action",
+                            label: "action",
+                            align: "center",
+                            sortable: false,
+                        }]}
+                    handleEvent={handleTableEvent}
+                    rows={docInsurances}
+                    from={"insurance"}
+                />
+                :
+                <NoDataCard
+                    sx={{mt: 16}}
+                    {...{t}}
+                    onHandleClick={() => {
+                        dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                        setOpenDialog(false);
+                    }}
+                    data={{
+                        mainIcon: <IconUrl width={100} height={100} path={"fileadd"}/>,
+                        title: t("consultationIP.empty-insurance-docs"),
+                        description: t("consultationIP.empty-insurance-docs-description"),
+                        buttons: [{
+                            text: t("consultationIP.patient-fiche"),
+                            variant: "primary",
+                            color: "white"
+                        }]
+                    }}/>
+            }
 
             {file && <embed
                 src={file}

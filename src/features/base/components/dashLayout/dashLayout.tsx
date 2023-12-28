@@ -7,8 +7,19 @@ import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setPendingAppointments, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {configSelector, dashLayoutState, setOngoing, PageTransition} from "@features/base";
-import {AppLock} from "@features/appLock";
-import {Box, Button, DialogActions, Stack, Typography, useMediaQuery, useTheme} from "@mui/material";
+import {
+    Box,
+    Button,
+    DialogActions,
+    DialogContent,
+    Dialog as MuiDialog,
+    DialogTitle,
+    Stack,
+    Typography,
+    useMediaQuery,
+    useTheme,
+    IconButton
+} from "@mui/material";
 import Icon from "@themes/urlIcon";
 import {Dialog} from "@features/dialog";
 import {NoDataCard} from "@features/card";
@@ -25,10 +36,14 @@ import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {setCashBoxes, setPaymentTypesList, setSelectedBoxes} from "@features/leftActionBar/components/cashbox";
 import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {pdfjs} from "react-pdf";
+import {NewFeaturesCarousel} from "@features/carousels";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
 type PageTransitionRef = React.ForwardedRef<HTMLDivElement>
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const router = useRouter();
@@ -38,7 +53,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const {closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
+    const [newFeaturesDialogOpen, setNewFeaturesDialogOpen] = useState(false)
     const {t} = useTranslation('common');
     const {
         duplications,
@@ -66,17 +81,17 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         url: `${urlMedicalEntitySuffix}/professional/user/${router.locale}`
     }, ReactQueryNoValidateConfig);
 
-    const {data: httpAgendasResponse, mutate: mutateAgenda} = useRequestQuery(medicalEntityHasUser ? {
+    const {data: httpAgendasResponse} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpPendingAppointmentResponse, mutate: mutatePendingAppointment} = useRequestQuery(agenda ? {
+    const {data: httpPendingAppointmentResponse} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/get/pending/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpOngoingResponse, mutate} = useRequestQuery(agenda ? {
+    const {data: httpOngoingResponse} = useRequestQuery(agenda ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/ongoing/appointments/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -216,6 +231,10 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             }
         })
     }
+    const handleNewFeaturesClose = () => {
+        setNewFeaturesDialogOpen(false);
+        localStorage.setItem('new-features', "true");
+    }
 
     useEffect(() => {
         if (httpAgendasResponse) {
@@ -255,16 +274,18 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             }
 
             let demo = user.medical_entity.hasDemo;
-            if (localStorage.getItem('newCashbox'))
+            if (localStorage.getItem('newCashbox')) {
                 demo = localStorage.getItem('newCashbox') === "1";
+            }
 
             dispatch(setOngoing({
                 waiting_room: calendarData.waiting_room,
                 import_data: calendarData.import_data,
                 newCashBox: demo,
                 next: calendarData?.next ?? null,
+                nb_appointment: calendarData.nb_appointment ?? 0,
                 last_fiche_id: increaseNumberInString(calendarData.last_fiche_id ? calendarData.last_fiche_id : '0'),
-                ongoing: calendarData?.ongoing ?? null
+                ongoing: calendarData?.ongoing ?? []
             }));
         }
     }, [httpOngoingResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -273,7 +294,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         if (permission) {
             dispatch(setOngoing({allowNotification: !["denied", "default"].includes(permission)}));
         }
-    }, [dispatch, permission])
+    }, [dispatch, permission]);
 
     useEffect(() => {
         if (general_information && general_information?.agendaDefaultFormat) {
@@ -287,13 +308,16 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
             dispatch(setOngoing({appointmentTypes}));
         }
-    }, [dispatch, httpAppointmentTypesResponse])
+    }, [dispatch, httpAppointmentTypesResponse]);
 
     useEffect(() => {
         if (httpProfessionalsResponse) {
-            const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalDataModel[];
+            const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalPermissionModel;
             dispatch(setPaymentTypesList(medicalProfessionalData[0].payments));
-            dispatch(setOngoing({medicalProfessionalData}));
+            dispatch(setOngoing({
+                medicalProfessionalData: medicalProfessionalData[0],
+                secretaryAccess: medicalProfessionalData?.secretary_access ?? false
+            }));
         }
     }, [httpProfessionalsResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -307,9 +331,17 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         }
     }, [dispatch, httpBoxesResponse]);
 
+    useEffect(() => {
+        if (!localStorage.getItem("new-features")) {
+            setTimeout(() => {
+                setNewFeaturesDialogOpen(true)
+            }, 3000);
+        }
+    }, []);
+
     return (
         <SideBarMenu>
-            <AppLock/>
+            {/*<AppLock/>*/}
             <PageTransition ref={ref}>
                 {children}
             </PageTransition>
@@ -424,6 +456,30 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                 open={duplicateDetectedDialog}
                 title={t(`dialogs.duplication-dialog.title`)}
             />
+            <MuiDialog
+                open={newFeaturesDialogOpen}
+                maxWidth={"lg"}
+                PaperProps={{
+                    sx: {
+                        width: '100%',
+                        background: 'radial-gradient(459.65% 113.63% at 85.2% 70.92%, #34BBFF 0%, #0696D6 76.56%)',
+                        boxShadow: "0px 8px 8px -4px rgba(16, 24, 40, 0.04), 0px 20px 24px -4px rgba(16, 24, 40, 0.10)",
+                     m: {xs:1,sm:3},
+                    }
+                }}
+                onClose={handleNewFeaturesClose}>
+                <DialogTitle component={Stack}
+                             direction={"row"}
+                             justifyContent={"space-between"}>
+                    <Typography variant="h6" fontWeight={600}>{t("dialogs.new_features.title")}</Typography>
+                    <IconButton disableRipple size="small" onClick={handleNewFeaturesClose}>
+                        <CloseIcon sx={{color: 'common.white'}} fontSize="small"/>
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent>
+                    <NewFeaturesCarousel {...{t, onClose: handleNewFeaturesClose}}/>
+                </DialogContent>
+            </MuiDialog>
         </SideBarMenu>
     );
 }

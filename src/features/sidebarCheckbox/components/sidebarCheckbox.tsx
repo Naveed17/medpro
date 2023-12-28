@@ -1,52 +1,40 @@
 import React from 'react'
-import {Checkbox, ListItemIcon, ListItemText} from '@mui/material'
-import SidebarCheckboxStyled from './overrides/sidebarCheckboxStyled';
+import {Typography} from '@mui/material'
+import Button from "@mui/material/Button";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
-import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 export default function SidebarCheckbox({...props}) {
-    const {data, label = "text", onChange, translate, checkState = false} = props
-    const {t, ready} = translate;
-    const [checked, setChecked] = React.useState(checkState);
+    const {data, label = "text", onChange, t = null, prefix = null, checkState = false} = props
 
-    const handleChange = (event: any) => {
-        setChecked(event.target.checked);
-        onChange(event.target.checked)
-    };
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    const handleChange = (checked: any) => {
+        onChange(checked)
+    }
 
     return (
-        <SidebarCheckboxStyled styleprops={data?.color ? data.color : 'primary'}
-                               component='label' htmlFor={data.uuid}>
-            <Checkbox
-                size="small"
-                checked={checked}
-                onChange={handleChange}
-                id={data.uuid}
-                name={data.uuid}
-            />
-            {(data.color || data.icon) &&
-                <ListItemIcon
+        <Button
+            disableRipple
+            onClick={() => handleChange(!data?.checked)}
+            size={"medium"}
+            color={data?.checked ? "primary" : "white"}
+            sx={{
+                width: "fit-content",
+                p: 1,
+                mx: 1,
+                my: .5,
+                ...(!data?.checked && {color: theme => theme.palette.text.primary})
+            }}
+            variant={data?.checked ? "contained" : "outlined"}
+            aria-haspopup="true">
+            {(data.color && typeof data.icon === "string" && !data?.checked) &&
+                <FiberManualRecordIcon
                     sx={{
-                        "& svg": {
-                            border: .1,
-                            borderColor: 'divider',
-                            borderRadius: '50%',
-                            p: 0.05,
-                            m: "0 .5rem"
-                        },
-                    }}>
-                    {data.color && <FiberManualRecordIcon
-                        sx={{
-                            color: data.color
-                        }}
-                    />}
-                    {/*{data.icon && <Icon {...(data.icon === 'ic-video') && {className: 'ic-video'}} path={data.icon}/>}*/}
-                </ListItemIcon>
+                        color: data.color,
+                        height: 20
+                    }}
+                />
             }
-            <ListItemText primary={label === "text" ? t(data[label]) : data[label]}/>
-        </SidebarCheckboxStyled>
+            <Typography fontSize={12}
+                        fontWeight={600}> {t ? t(`${prefix + '.' ?? ""}${data[label]}`) : data[label]}</Typography>
+        </Button>
     )
 }

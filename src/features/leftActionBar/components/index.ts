@@ -9,4 +9,6 @@ export * from "./consultation";
 export * from "./questions";
 export * from "./payment";
 export * from "./cashbox";
+export * from "./filterOverview";
 export * from "./inventory";
+export * from "./document";

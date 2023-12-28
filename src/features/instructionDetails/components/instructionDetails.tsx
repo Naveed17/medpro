@@ -1,16 +1,14 @@
 import * as Yup from "yup";
-import { useFormik, Form, FormikProvider } from "formik";
-import { Typography, Stack, TextField, Grid, Button } from '@mui/material'
-import { styled } from '@mui/material/styles';
+import {useFormik, Form, FormikProvider} from "formik";
+import {Typography, Stack, TextField, Button} from '@mui/material'
+import {styled} from '@mui/material/styles';
 import React from "react";
-import { useTranslation } from "next-i18next";
-import { width } from "@mui/system";
-import dynamic from "next/dynamic";
+import {useTranslation} from "next-i18next";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 
-const PaperStyled = styled(Form)(({ theme }) => ({
+const PaperStyled = styled(Form)(({theme}) => ({
 
     borderRadius: 0,
     height: '100%',
@@ -40,9 +38,9 @@ const PaperStyled = styled(Form)(({ theme }) => ({
     }
 }));
 
-function InstructionDetails({ ...props }) {
+function InstructionDetails({...props}) {
 
-    const { t, ready } = useTranslation('settings');
+    const {t, ready} = useTranslation('settings');
 
     const validationSchema = Yup.object().shape({
         instruction: Yup.string()
@@ -58,39 +56,39 @@ function InstructionDetails({ ...props }) {
             instruction: ''
         },
         validationSchema,
-        onSubmit: async (values, { setErrors, setSubmitting }) => {
+        onSubmit: async (values, {setErrors, setSubmitting}) => {
             alert(JSON.stringify(values, null, 2));
         },
     });
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
-    const { values, errors, touched, handleSubmit, getFieldProps, setFieldValue } = formik;
+    const {values, errors, touched, handleSubmit, getFieldProps, setFieldValue} = formik;
 
     return (
         <FormikProvider value={formik}>
             <PaperStyled autoComplete="off"
-                noValidate
-                className='root'
-                onSubmit={handleSubmit}>
+                         noValidate
+                         className='root'
+                         onSubmit={handleSubmit}>
 
                 <Typography variant="h6" gutterBottom>
                     {props.data ? t('instructions.update') : t('instructions.add')}
                 </Typography>
 
-                <Typography variant="body2" sx={{ margin: '20px 0 10px' }} gutterBottom>
+                <Typography variant="body2" sx={{margin: '20px 0 10px'}} gutterBottom>
                     {t('instructions.insctruction')}{" "}
                     <Typography component="span" color="error">
                         *
                     </Typography>
                 </Typography>
                 <TextField variant="outlined"
-                    placeholder={t('instructions.tinsctruction')}
-                    multiline
-                    sx={{ width: { lg: 568 } }}
-                    rows={4}
-                    fullWidth
-                    required
-                    {...getFieldProps("instruction")} />
+                           placeholder={t('instructions.tinsctruction')}
+                           multiline
+                           sx={{width: {lg: 568}}}
+                           rows={4}
+                           fullWidth
+                           required
+                           {...getFieldProps("instruction")} />
 
                 <Stack className='bottom-section' justifyContent='flex-end' spacing={2} direction={'row'}>
                     <Button onClick={props.closeDraw}>

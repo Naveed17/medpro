@@ -2,11 +2,17 @@
   "welcome": "Bienvenue au projet Med",
   "start": "Commencez par modifier",
   "powered_by": "Tous droits réservés",
-  "default-view": "Affichage par défaut",
+  "default-view": "Affichage du calendrier par défaut",
+  "auto-confirm": "Activer la confirmation automatique des rendez-vous",
   "trash": "Corbeille",
   "payment_dialog_title": "Paiement",
   "empty-trash": "Vider la corbeille",
+  "add-payment": "Ajouter un paiement",
+  "not-payed": "Impayé",
+  "paid": "Payé",
+  "cash": "Encaisse",
   "lang": "langue",
+  "rows_per-page": "Rangées par page",
   "sms-languages": {
     "fr": "Francais",
     "en": "Anglais",
@@ -15,14 +21,17 @@
   "light": "Mode lumière",
   "dark": "Mode sombre",
   "dashboard": "Page d'accueil",
+  "deleted-patient": "Patient supprimé",
   "search": "Vous cherchez ?",
   "stats": " Statistiques",
   "wallet": "Portefeuille",
-  "credit": "Reste à payer",
+  "credit": "Crédit",
   "settings": "Paramètres",
   "duplication": "Détection des doublons",
+  "unpaid": "Non Payé",
   "loading": "Veuillez patienter un instant le temps de chargement",
   "noOption": "Aucun résultat trouvé",
+  "doc_detail_title": "Document",
   "loading-error": {
     "title": "Actualiser la page !",
     "description": "Une erreur s'est produite pendant la phase d'initialisation. cliquez sur le button pour réessayer",
@@ -95,7 +104,7 @@
       "name-error": "Le nom doit contenir au moins 3 caractères, sans caractères spéciaux.",
       "first-name": "Prénom",
       "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
-      "special-text-error": "Seuement les alphabets sont autorisés pour ce champ.",
+      "special-text-error": "Seulement les alphabets sont autorisés pour ce champ.",
       "first-name-placeholder": "Tapez le prénom du patient",
       "last-name": "Nom",
       "last-name-error": "Le nom de famille doit contenir au moins 3 caractères, sans caractères spéciaux.",
@@ -170,7 +179,7 @@
   "reschedule_appointment": "Replanifier RDV",
   "on_hold": "En attente",
   "all": "Tous",
-  "pending": "En attende",
+  "pending": "En attente",
   "online": "RDV en ligne",
   "request-appointment": "a demandé un nouveau rendez-vous en ligne pour le",
   "next-appointment-control": "Contrôle médical apres",
@@ -184,6 +193,7 @@
   "pre_consultation_data": "Remplir les données de suivi",
   "pre_consultation_dialog_title": "Remplir les données de suivi de la consultation",
   "view_the_consultation": "Ouvrir la consultation",
+  "consultation_pay": "Payer",
   "patient_no_show": "le patient ne s'est pas présenté",
   "add_patient_to_waiting_room": "Ajouter patient à la salle d'attente",
   "leave_waiting_room": "Quitter la salle d'attente",
@@ -204,7 +214,18 @@
   "analyse": "Analyse",
   "rapport": "Rapport",
   "today": "Aujourd’hui",
-  "permission": "Vous n'avez pas la permission d'accéder à cette ressource",
+  "calendar_view": "Vues du calendrier",
+  "display_workdays": "Masquer ce jour",
+  "program": "Programme",
+  "add_blocked_day": "Ajouter un jour bloqué",
+  "delete_blocked_day": "Supprimer le jour bloqué",
+  "add_leave": "Ajouter un congé",
+  "to": "Du",
+  "permission": {
+    "title": "Permission d'accéder",
+    "description": "Vous n'avez pas la permission d'accéder à cette ressource",
+    "button": "Retourner"
+  },
   "back": "Retour",
   "notif_alert": "Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications.",
   "install_app": "Installer l'app",
@@ -339,6 +360,22 @@
       "cancel": "Annuler",
       "confirm": "Confirmer"
     },
+    "switch-consultation-dialog": {
+      "title": "Confirmation de Nouvelle Consultation",
+      "sub-title": "Êtes-vous sûr(e) de vouloir démarrer une nouvelle consultation ?",
+      "description": "Pour commencer une nouvelle consultation, vous devez mettre fin ou mettre en pause la consultation actuelle.",
+      "cancel": "Annuler",
+      "finish": "Terminer & Démarrer Nouvelle",
+      "pause": "Mettre en Pause & Démarrer Nouvelle"
+    },
+    "manage-consultation-dialog": {
+      "title": "Consultation",
+      "sub-title": "Êtes-vous sûr de vouloir terminer ou mettre en pause la consultation en cours ?",
+      "description": "Vous devez mettre fin, ou mettre en pause la consultation actuelle.",
+      "cancel": "Annuler",
+      "finish": "Terminer",
+      "pause": "Mettre en Pause"
+    },
     "alert": {
       "cancel-appointment": "le rendez-vous a été annulé avec succès",
       "delete-appointment": "le rendez-vous a été supprimé avec succès",
@@ -347,6 +384,15 @@
       "patient-no-show": "le rendez-vous a été modifié avec succès",
       "confirm-appointment": "le rendez-vous a été confirmé avec succès",
       "consultation-finish": "Consultation terminée pour le patient"
+    },
+    "new_features": {
+      "title": "Quoi de neuf ?",
+      "close": "Fermer"
+    }
+  },
+  "alerts": {
+    "speech-text": {
+      "title": "Le traitement audio est terminé avec succès"
     }
   },
   "filter": {
@@ -354,6 +400,7 @@
     "patient": "Patient",
     "date-of-birth": "Date de naissance",
     "gender": "Genre",
+    "applied-filters": "Filtres appliqués",
     "male": "Homme",
     "female": "Femme",
     "name": "Nom & prénom",
@@ -390,6 +437,10 @@
     "desc": "Lorsque vous recevrez des notification, elles apparaîtront ici",
     "button": "Actualiser"
   },
+  "paused-consultation-notification": {
+    "empty": "Aucune consultation en pause pour le moment",
+    "desc": "Lorsque vous mettez les consultations en pause, elles apparaissent ici"
+  },
   "popover-info": {
     "title": "Statut du rendez-vous",
     "picker-status-more": "> 1, > 3, > 5, > 10 rendez-vous",
@@ -410,15 +461,15 @@
     "cancel": "Annuler"
   },
   "appointment-status": {
-    "PENDING": "En attende",
+    "PENDING": "En attente",
     "CONFIRMED": "Confirmé",
     "REFUSED": "Refusé",
-    "WAITING_ROOM": "Salle d'attende",
+    "WAITING_ROOM": "Salle d'attente",
     "ON_GOING": "En consultation",
     "FINISHED": "Effectué",
     "CANCELED": "Annulé",
     "EXPIRED": "Expiré",
-    "PAUSED": "Pausé",
+    "PAUSED": "En pause",
     "NOSHOW": "Patient ne s'est pas présenté",
     "ONLINE": "Rendez-vous depuis le site",
     "PATIENT_CANCELED": "Annulé par le patient"
@@ -428,8 +479,8 @@
     "himself": "Lui-même",
     "partner": "Le conjoint",
     "ascendant": "L'ascendant",
-    "father": "Le Pére",
-    "mother": "Le Mére",
+    "father": "Père",
+    "mother": "Mère",
     "child": "L'enfant",
     "1_child": "1er Enfant",
     "2_child": "2ème Enfant",
@@ -437,5 +488,9 @@
     "other_child": "Autre"
   },
   "satisfied": "Satisfait",
-  "notsatisfied": "Je ne suis pas satisfait"
+  "notsatisfied": "Je ne suis pas satisfait",
+  "big": "Fichier trop gros max 40 mo",
+  "long": "Nom de fichier trop long",
+  "Male": "Homme",
+  "Female": "Femme"
 }

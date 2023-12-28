@@ -11,17 +11,19 @@
     "horaire": "Horaire",
     "conges": "Congés et absences",
     "remplaçants": "Remplaçants",
-    "utilisateurs": "Utilisateurs",
+    "users": "Utilisateurs",
     "reseau": "Réseau d'adressage",
     "instructions": "Instructions",
     "type": "Types de consultation",
     "actfees": "Honoraires",
     "configdoc": "Documents",
-    "import-data": "Importation de données",
+    "import-data": "Importation",
     "app_lock": "Verrouillage"
   },
   "profil": {
     "specialities": "Spécialités",
+    "sms-rappel": "SMS de rappel",
+    "sms-rappel-send": "Activer le rappel par SMS",
     "qualification": "Qualification professionnelle",
     "assurence": "Assurance maladie",
     "regMode": "Modes de règlement",
@@ -194,6 +196,11 @@
       "writeAdress": "Tapez ici l'adresse de l’établissement",
       "writePostal": "Tapez ici code postal",
       "horaire": "Horaire d'ouverture",
+      "date-range": "Périodes",
+      "startDate": "Date début",
+      "date-error": "la date de fin doit être ultérieure à la date de début",
+      "endDate": "Date fin",
+      "add-horaire": "Ajouter un nouvel horaire d'ouverture",
       "permissions": "Droit d'accés",
       "user": "Utilisateur",
       "userPermission": "permission accordée",
@@ -202,7 +209,9 @@
       "adreq": "Adresse est obligatoire",
       "emsc": "em seance",
       "firstsc": "1er seance",
-      "timeshedule": "horaire d'ouverture",
+      "hours-schedule-name": "Nom de l'horaire d'ouverture",
+      "hours-schedule-slots": "Tapez ici le nom de l'horaire d'ouverture",
+      "add-timeshedule": "Ajouter des heures d'ouverture",
       "applyforWeek": "Appliquer pour toute la semaine"
     }
   },
@@ -286,18 +295,6 @@
     "start": "Date debut",
     "end": "Date fin",
     "praticien": "praticien",
-    "dialog": {
-      "add": "Ajouter congé ou absence",
-      "selectOne": "Choisissez le praticien qui affecte cette consultation",
-      "title": "Titre",
-      "writeTitle": "Tapez le titre",
-      "at": "à",
-      "list": "Liste des congés et absences proches",
-      "ttc": "Titre est trop court",
-      "ttl": "Titre est trop long",
-      "titlereq": "Titre est obligatoire",
-      "datereq": "date est obligatoire"
-    },
     "config": {
       "path": "Paramètres > Congé et Absences",
       "add": "Ajouter",
@@ -307,7 +304,33 @@
         "name": "Nom",
         "praticien": "praticien",
         "action": "action",
-        "add": "Ajouter"
+        "add": "Ajouter",
+        "no-data": {
+          "vacation": {
+            "title": "Ajouter votre première absence",
+            "sub-title": "Pas de absences",
+            "description": "",
+            "button-text": "Ajouter un absence"
+          }
+        }
+      },
+      "dialogs": {
+        "absence-dialog": {
+          "title": "Ajouter congé ou absence",
+          "sub-title": "Liste des congés et absences proches",
+          "description": "Titre de congé",
+          "type-placeholder": "Saisir le titre du congé",
+          "startDate": "Date début",
+          "endDate": "Date fin",
+          "vacation": {
+            "yearly": "Congé annuel",
+            "sick": "Congé de maladie",
+            "conference": "Conférence",
+            "absence": "Autre motif d'absence"
+          },
+          "save": "Enregistrer",
+          "cancel": "Annuler"
+        }
       }
     }
   },
@@ -410,6 +433,7 @@
         "role_professional": "Rôle professionnel",
         "secretary": "Secretaire",
         "active": "Actif",
+        "docPermission": "Accès aux documents de rendez-vous",
         "inactive": "Inactif"
       }
     },
@@ -460,12 +484,14 @@
     "add_act": "Nouveau act",
     "placeholder_act": "Ex: le nom de l'acte",
     "name": "Nom",
-    "betav":"Utiliser la nouvelle version de la caisse (bêta)",
+    "betav": "Utiliser la nouvelle version de la caisse (bêta)",
     "price": "Prix",
     "cancel": "Annuler",
     "table": {
       "actions": "Actions",
       "acts": "Actes",
+      "code": "Code",
+      "contribution": "Cotation",
       "amount": "prix"
     },
     "dialog": {
@@ -642,6 +668,7 @@
       "path": "Paramètres > Documents ",
       "header": "En-tête",
       "footer": "Bas de page",
+      "age": "Age",
       "case1": "Première case",
       "case2": "Deuxième case",
       "layout": "Mise en page",
@@ -659,6 +686,7 @@
       "patient": "Nom patient",
       "firstName": "Nom & prénom",
       "configPatient": "Configurer nom du patient",
+      "cin": "CIN",
       "prefix": "Prefix",
       "configDate": "Configurer date",
       "nom": "Nom",
@@ -674,14 +702,17 @@
       "A5": "A5",
       "A4": "A4",
       "add": "Ajouter document",
+      "btnAdd": "Ajouter",
+      "search": "Recherche",
       "titleModel": "Titre du modèle",
       "cancel": "Annuler",
       "askRemove": "Supprimer un modèle",
       "subtitleRemove": "Si vous supprimez ce modèle, vous ne pourrez plus l'utiliser à nouveau.",
       "remove": "Supprimer",
       "titleholder": "Ordonnance...",
-      "selectTypes": "Appliquer ce modèle sur ( sélectionnez documents )",
-      "asDefault": "Sélectionnez-le comme modèle par défaut",
+      "selectTypes": "Appliquer ce modèle sur",
+      "docSize": "Taille document",
+      "asDefault": "Modèle par défaut",
       "modifier": "Modifier",
       "close": "Terminer",
       "analyses": "Analyses",
@@ -690,7 +721,9 @@
       "month": "mois",
       "years": "Ans",
       "months": "Mois",
-      "days": "Jours"
+      "days": "Jours",
+      "blankDoc": "document blanc",
+      "modelProprities": "Propriétés du modèle"
     }
   }
 }

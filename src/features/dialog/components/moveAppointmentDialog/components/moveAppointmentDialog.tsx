@@ -90,7 +90,8 @@ function MoveAppointmentDialog() {
                     {t(`dialogs.${action}-dialog.time-message`, {ns: 'common'})}
                 </Typography>
                 <TimeSlot
-                    loading={loading}
+                    {...{t, loading}}
+                    prefixTranslation={"steppers."}
                     data={timeSlots}
                     limit={initLimit}
                     sx={{width: "60%", margin: "auto"}}

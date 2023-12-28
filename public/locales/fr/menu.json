@@ -1,5 +1,6 @@
 {
   "patientSpace": "Espace patient",
+  "lang": "Langue",
   "main-menu": {
     "agenda": "Agenda",
     "room": "Salle d'attente",
@@ -7,6 +8,7 @@
     "message": "Message",
     "articles": "Articles",
     "questions": "Questions",
+    "docs": "Document",
     "shop": "Shop",
     "wallet": "My Wallet",
     "stats": "Statistiques",

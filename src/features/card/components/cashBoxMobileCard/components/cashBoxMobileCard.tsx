@@ -246,7 +246,7 @@ function CashBoxMobileCard({...props}) {
                                         {data.transaction_data[0].data.label || "-"}
                                     </Link>
                                 )}
-                                {data.transaction_data.filter((td: any) => td.insurance)
+                                {data.transaction_data?.filter((td: any) => td.insurance)
                                     .length > 0 ? (
                                     data.transaction_data
                                         .filter((td: any) => td.insurance)

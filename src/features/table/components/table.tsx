@@ -1,6 +1,6 @@
 import * as React from "react";
 import {SetStateAction, useEffect, useState} from "react";
-import {Box, Table, TableBody, TableContainer} from "@mui/material";
+import {Box, SxProps, Table, TableBody, TableContainer} from "@mui/material";
 import OHead from "@features/table/components/header";
 import rowsActionsData from "@features/table/components/config";
 import {Pagination} from "@features/pagination";
@@ -49,16 +49,19 @@ function Otable({...props}) {
         select = [],
         edit,
         handleConfig,
+        toolbar = null,
         minWidth,
         pagination,
         checkedType,
         handleEvent,
         hideHeaderOnMobile,
         loading,
+        size = "medium",
         maxHeight = `calc(100vh - 220px)`,
         totalPages,
         total,
         sx,
+        tableWrapperStyle,
         ...rest
     } = props;
 
@@ -107,7 +110,7 @@ function Otable({...props}) {
         }
         setSelected(newSelected);
     }
-    
+
     const selectted = rowsActionsData.find((item) => from === item.action);
 
     const Component: any = selectted?.component;
@@ -137,14 +140,15 @@ function Otable({...props}) {
     }, [rowsSelected]);
 
     return (
-        <Box>
+        <Box className="table-wrapper" sx={tableWrapperStyle as SxProps}>
+            {toolbar && toolbar}
             <TableContainer sx={{maxHeight}}>
                 <Table
+                    {...{size}}
                     ref={tableRef}
                     stickyHeader
                     sx={{minWidth: minWidth, ...sx}}
-                    aria-labelledby="tableTitle"
-                    size={"medium"}>
+                    aria-labelledby="tableTitle">
                     <OHead
                         {...{
                             order,
@@ -202,7 +206,6 @@ function Otable({...props}) {
                     </TableBody>
                 </Table>
             </TableContainer>
-            <Box py={1}/>
             {!loading && pagination && parseInt(totalPages) > 1 && (
                 <Pagination total={total} count={totalPages}/>
             )}

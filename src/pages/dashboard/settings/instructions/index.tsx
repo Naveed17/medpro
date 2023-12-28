@@ -11,16 +11,12 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {InsctructionDetails} from "@features/instructionDetails";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 function Instructions() {
-
-    const {data: session} = useSession();
-    const {data: user} = session as Session;
-    console.log(user);
 
     const [edit, setEdit] = useState(false);
     const [rows, setRows] = useState([

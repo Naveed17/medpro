@@ -29,9 +29,9 @@ import {useTranslation} from "next-i18next";
 import {useRequestQuery} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 
 interface MyFormProps {

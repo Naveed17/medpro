@@ -6,6 +6,18 @@ const DocumentDetailDialogStyled = styled(Stack)(({theme}) => ({
     backgroundColor: theme.palette.background.default,
     paddingTop: theme.spacing(2),
     width: "100%",
+    "& .loading-card": {
+        position: "absolute",
+        zIndex: 3,
+        left: 10,
+        width: 240,
+        "& .MuiCardContent-root": {
+            padding: 12
+        }
+    },
+    "& .textLayer :is(span, br)": {
+        color: "black"
+    },
     ".zoombar": {
         background: "white",
         marginBottom: 10
@@ -96,5 +108,9 @@ const DocumentDetailDialogStyled = styled(Stack)(({theme}) => ({
     "@media (max-width: 1230px)": {
         maxWidth: "100%"
     },
+    "& .sidebar .MuiList-root .MuiListItem-root .MuiListItemButton-root .MuiListItemIcon-root svg": {
+        width: 24,
+        height: 24
+    }
 }));
 export default DocumentDetailDialogStyled;

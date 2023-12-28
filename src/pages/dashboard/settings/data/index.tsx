@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useTranslation} from "next-i18next";
 import {useRouter} from "next/router";

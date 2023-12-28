@@ -33,9 +33,9 @@ import {Dialog} from "@features/dialog";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import {useSnackbar} from "notistack";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {Theme} from "@mui/material/styles";
 import RedoIcon from '@mui/icons-material/Redo';
@@ -483,39 +483,38 @@ function MedicalPrescriptionDialog({...props}) {
                         }
                     </Stack>
                     <Box className="list-container">
-                        {
-                            drugs.length > 0 ?
-                                drugs.map((item, index) => (
-                                    <React.Fragment key={index}>
-                                        <DrugListCard data={item}
-                                                      remove={remove}
-                                                      disabled={update > -1}
-                                                      edit={edit}
-                                                      t={t}/>
-                                    </React.Fragment>
-                                )) :
-                                <Card className='loading-card'>
-                                    <Stack spacing={2}>
-                                        <Typography alignSelf="center">
-                                            {t("list_empty")}
-                                        </Typography>
-                                        <List>
-                                            {
-                                                Array.from({length: 3}).map((_, idx) =>
-                                                    idx === 0 ? <ListItem key={idx} sx={{py: .5}}>
-                                                            <Skeleton width={300} height={8} variant="rectangular"/>
-                                                        </ListItem> :
-                                                        <ListItem key={idx} sx={{py: .5}}>
-                                                            <Skeleton width={10} height={8} variant="rectangular"/>
-                                                            <Skeleton sx={{ml: 1}} width={130} height={8}
-                                                                      variant="rectangular"/>
-                                                        </ListItem>
-                                                )
-                                            }
+                        {drugs.length > 0 ?
+                            drugs.map((item, index) => (
+                                <React.Fragment key={index}>
+                                    <DrugListCard data={item}
+                                                  remove={remove}
+                                                  disabled={update > -1}
+                                                  edit={edit}
+                                                  t={t}/>
+                                </React.Fragment>
+                            )) :
+                            <Card className='loading-card'>
+                                <Stack spacing={2}>
+                                    <Typography alignSelf="center">
+                                        {t("list_empty")}
+                                    </Typography>
+                                    <List>
+                                        {
+                                            Array.from({length: 3}).map((_, idx) =>
+                                                idx === 0 ? <ListItem key={idx} sx={{py: .5}}>
+                                                        <Skeleton width={300} height={8} variant="rectangular"/>
+                                                    </ListItem> :
+                                                    <ListItem key={idx} sx={{py: .5}}>
+                                                        <Skeleton width={10} height={8} variant="rectangular"/>
+                                                        <Skeleton sx={{ml: 1}} width={130} height={8}
+                                                                  variant="rectangular"/>
+                                                    </ListItem>
+                                            )
+                                        }
 
-                                        </List>
-                                    </Stack>
-                                </Card>
+                                    </List>
+                                </Stack>
+                            </Card>
                         }
                     </Box>
                 </Grid>

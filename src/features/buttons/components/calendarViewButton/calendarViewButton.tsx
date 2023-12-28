@@ -8,7 +8,7 @@ import Fade from '@mui/material/Fade';
 import RootStyled from './overrides/rootStyled';
 import CodeIcon from "@mui/icons-material/Code";
 import {MouseEvent, useEffect, useRef, useState} from "react";
-import {SvgIcon, useTheme} from "@mui/material";
+import {SvgIcon, Typography, useTheme} from "@mui/material";
 
 function CalendarViewButton({...props}) {
     const {views, onSelect = null, view, t, ...rest} = props;
@@ -34,6 +34,12 @@ function CalendarViewButton({...props}) {
     }
 
     useEffect(() => {
+        if (view) {
+            setSelected(views.find((mode: any) => mode.value === view))
+        }
+    }, [view]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (ref.current) {
             const element = ref.current.getBoundingClientRect();
             setWidth(element.width);
@@ -51,6 +57,7 @@ function CalendarViewButton({...props}) {
                 endIcon={
                     <CodeIcon
                         sx={{
+                            ml: 1,
                             transform: "rotate(90deg)",
                         }}
                     />
@@ -58,9 +65,9 @@ function CalendarViewButton({...props}) {
                 variant="outlined"
                 aria-owns={anchorEl ? "simple-menu" : undefined}
                 aria-haspopup="true"
-                onClick={handleClick}
-                onMouseOver={handleClick}>
-                {t(`agenda-view.${selected.value}`)}
+                onClick={handleClick}>
+                <Typography fontSize={12} fontWeight={600}> {t(`agenda-view.${selected.value}`)}</Typography>
+
             </Button>
             <Menu
                 id="simple-menu"

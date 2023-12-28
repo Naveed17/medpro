@@ -26,9 +26,9 @@ import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
 import {useProfilePhoto} from "@lib/hooks/rest";
-import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {SmallAvatar} from "@features/avatar";
+import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
 
 function PatientRow({...props}) {
     const {row, isItemSelected, t, loading, handleEvent, data, handleClick, selected} = props;
@@ -105,16 +105,25 @@ function PatientRow({...props}) {
                             ) : (
                                 <>
                                     <Badge
+                                        onClick={(event: any) => event.stopPropagation()}
                                         overlap="circular"
                                         anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                                        {...(row.nationality && {
+                                        {...((row.nationality || row.hasDouble) && {
                                             badgeContent:
                                                 <AvatarGroup>
+                                                    {row.nationality?.code && <SmallAvatar
+                                                        {...(row.hasPhoto && {
+                                                            sx: {
+                                                                marginRight: -1.6
+                                                            }
+                                                        })}
+                                                        alt={"flag"}
+                                                        src={`https://flagcdn.com/${row.nationality.code}.svg`}/>}
                                                     {row.hasDouble && <SmallAvatar
                                                         sx={{
                                                             background: theme.palette.warning.main
                                                         }}>
-                                                        <WarningRoundedIcon
+                                                        <GroupRoundedIcon
                                                             color={"black"}
                                                             sx={{
                                                                 width: 16,
@@ -123,15 +132,6 @@ function PatientRow({...props}) {
                                                                 marginTop: -0.2
                                                             }}/>
                                                     </SmallAvatar>}
-
-                                                    <SmallAvatar
-                                                        {...(row.hasPhoto && {
-                                                            sx: {
-                                                                marginRight: -1.6
-                                                            }
-                                                        })}
-                                                        alt={"flag"}
-                                                        src={`https://flagcdn.com/${row.nationality.code}.svg`}/>
                                                 </AvatarGroup>
                                         })}>
                                         <ConditionalWrapper
@@ -168,8 +168,13 @@ function PatientRow({...props}) {
                                         handleEvent("PATIENT_DETAILS", row);
                                     }}>
                                         <Stack direction={"row"} alignItems={"center"}>
+                                            {row.fiche_id && <Typography
+                                                className={"ellipsis"}
+                                                maxWidth={140}
+                                                fontSize={12}
+                                                color={"primary.main"}>{`N°${row.fiche_id} - `}</Typography>}
                                             <Typography
-                                                color={"primary.main"}>{row.firstName} {row.lastName}</Typography>
+                                                color={"primary.main"}> {row.firstName} {row.lastName}</Typography>
 
                                             {row.hasInfo &&
                                                 <Chip
@@ -398,11 +403,9 @@ function PatientRow({...props}) {
             <TableCell
                 align="right"
                 sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    minHeight: "58.85px",
+                    marginLeft: "auto"
                 }}>
-                <Box display="flex" alignItems="center" margin={"auto"}>
+                <Box alignItems="flex-end">
                     {loading ? (
                         <>
                             <Skeleton

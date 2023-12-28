@@ -53,7 +53,6 @@ function CheckList({...props}) {
         }
     }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    console.log("state", state);
     return (
         <>
             {props.search !== "" && (

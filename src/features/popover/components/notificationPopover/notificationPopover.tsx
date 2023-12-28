@@ -4,7 +4,6 @@ import {useTranslation} from "next-i18next";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import {Box, Button, Typography, useMediaQuery, useTheme} from "@mui/material";
-import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import EventIcon from '@mui/icons-material/Event';
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, AppointmentStatus, openDrawer, setSelectedEvent, setStepperIndex} from "@features/calendar";
@@ -13,9 +12,9 @@ import {setAppointmentPatient, setAppointmentType, TabPanel} from "@features/tab
 import {EventDef} from "@fullcalendar/core/internal";
 import moment from "moment-timezone";
 import {useRouter} from "next/router";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {Dialog, dialogMoveSelector, setMoveDateTime} from "@features/dialog";
 import {Theme} from "@mui/material/styles";
@@ -25,17 +24,15 @@ import Icon from "@themes/urlIcon";
 import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {useSnackbar} from "notistack";
 import {getDiffDuration, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {useSession} from "next-auth/react";
 import {useRequestQueryMutation} from "@lib/axios";
+import IconUrl from "@themes/urlIcon";
 
 const humanizeDuration = require("humanize-duration");
 
 const popoverNotificationData = {
-    mainIcon: <NotificationsOffIcon/>,
+    mainIcon: <IconUrl path={"ic-notification-off"} width={60} height={60} color={"black"}/>,
     title: "notification.empty",
-    description: "notification.desc",
-    buttonText: "notification.button",
-    buttonVariant: "primary"
+    description: "notification.desc"
 };
 
 function a11yProps(index: number) {
@@ -46,14 +43,13 @@ function a11yProps(index: number) {
 }
 
 function NotificationPopover({...props}) {
-    const {onClose} = props;
+    const {onClose, setOpenPaymentDialog} = props;
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {data: session} = useSession();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("common");
@@ -95,16 +91,16 @@ function NotificationPopover({...props}) {
     const [notifications] = useState<any[]>([
         ...pendingAppointments
         , ...(localNotifications ? localNotifications.map(data => ({
-            ...data,
+            ...(data?.appointment ?? data),
             avatar: `${data.appointment?.patient.firstName.charAt(0).toUpperCase()}${data.appointment?.patient.lastName.charAt(0).toUpperCase()}`,
             title: `${t("dialogs.alert.consultation-finish")} ${data.appointment?.patient.firstName} ${data.appointment?.patient.lastName}`,
             icon: <EventIcon/>,
             buttons: [
-                /*{
+                {
                     text: t("dialogs.finish-dialog.pay"),
                     color: "primary",
                     action: "onPay"
-                },*/
+                },
                 {
                     text: t("dialogs.finish-dialog.reschedule"),
                     color: "primary",
@@ -184,7 +180,7 @@ function NotificationPopover({...props}) {
 
     const handleNotificationAction = (action: string, event: any) => {
         const eventUpdated = {
-            publicId: event?.uuid,
+            publicId: event?.uuid ?? event?.appUuid,
             title: `${event?.patient?.firstName} ${event?.patient?.lastName}`,
             extendedProps: {
                 patient: event?.patient,
@@ -211,11 +207,15 @@ function NotificationPopover({...props}) {
             case "onConfirm":
                 onConfirmAppointment(eventUpdated);
                 break;
+            case "onPay":
+                dispatch(setSelectedEvent(eventUpdated));
+                setTimeout(() => setOpenPaymentDialog(true));
+                break;
             case "onReschedule":
                 const localStorageNotifications = localStorage.getItem("notifications");
                 if (localStorageNotifications) {
                     const notifications = JSON.parse(localStorageNotifications).map((notification: any) => {
-                        if (notification.appointment.appUuid === event.appointment.appUuid) return {
+                        if (notification.appointment.appUuid === event.appUuid) return {
                             ...notification,
                             appointment: {...notification.appointment, edited: true}
                         }
@@ -227,7 +227,7 @@ function NotificationPopover({...props}) {
                 onClose();
                 router.push("/dashboard/agenda").then(() => {
                     dispatch(setStepperIndex(1));
-                    dispatch(setAppointmentPatient(event?.appointment.patient));
+                    dispatch(setAppointmentPatient(event?.patient));
                     appointmentTypes && dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
                     dispatch(openDrawer({type: "add", open: true}));
                 });

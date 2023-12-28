@@ -6,7 +6,6 @@ import {Form, FormikProvider, useFormik} from "formik";
 import {
     AppBar, Autocomplete, Avatar,
     Box,
-    Button,
     Grid, InputAdornment,
     InputBase,
     MenuItem,
@@ -30,14 +29,13 @@ import {DatePicker, LocalizationProvider} from '@mui/x-date-pickers';
 import moment from "moment-timezone";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
-import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {dashLayoutSelector} from "@features/base";
 import {checkObjectChange, flattenObject, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 export const MyTextInput: any = memo(({...props}) => {
     return (
@@ -200,15 +198,6 @@ function PersonalInfo({...props}) {
                                 </Box>
                                 {editable ?
                                     <Stack direction={"row"} spacing={2} mt={1} justifyContent='flex-end'>
-                                        <Button
-                                            onClick={() => setEditable({...defaultEditStatus, personalInfoCard: false})}
-                                            color={"error"}
-                                            className='btn-cancel'
-                                            sx={{margin: 'auto'}}
-                                            size='small'
-                                            startIcon={<CloseIcon/>}>
-                                            {t('cancel')}
-                                        </Button>
                                         <LoadingButton
                                             onClick={() => setEditable({...defaultEditStatus, personalInfoCard: false})}
                                             disabled={Object.keys(errors).length > 0}
@@ -487,6 +476,7 @@ function PersonalInfo({...props}) {
                                             <InputBase
                                                 placeholder={t("email-placeholder")}
                                                 readOnly={!editable}
+                                                type={"email"}
                                                 error={Boolean(touched.email && errors.email)}
                                                 {...getFieldProps("email")}
                                             />

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {CircularProgress, Grid, Stack, Theme, Typography, useTheme} from "@mui/material";
+import {CircularProgress, Dialog, DialogContent, Grid, Stack, Theme, Typography, useTheme} from "@mui/material";
 import AddDocumentDialogStyled from "./overrides/addDocumentDialogStyle";
 import {DocumentButton} from "@features/buttons";
 import {useTranslation} from "next-i18next";
@@ -8,16 +8,17 @@ import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import IconUrl from "@themes/urlIcon";
 import Resizer from "react-image-file-resizer";
-import dynamic from "next/dynamic";
+
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AddDocumentDialog({...props}) {
     const [files, setFiles] = useState<any[]>([]);
     const [type, setType] = useState("");
     const [loading, setLoading] = useState(true);
     const [load, setLoad] = useState(false);
+    const [error, setError] = useState('');
     const {data} = props;
     const router = useRouter();
     const theme = useTheme() as Theme;
@@ -51,51 +52,57 @@ function AddDocumentDialog({...props}) {
         const filesAccepted = e.target.files;
         let docs: any = [];
         Array.from(filesAccepted).forEach((file) => {
-            if (file.type.includes('image')) {
-                Resizer.imageFileResizer(file,
-                    850,
-                    850,
-                    file.type.split('/')[1],
-                    80,
-                    0,
-                    (uri) => {
-                        docs.push({type: type, file: uri, progress: 100})
+            if (file.size > 40000000) {
+                setError(`big`);
+                setLoad(false);
+                return null;
+            } else if (file.name.length > 80) {
+                setError(`long`);
+                setLoad(false);
+                return null;
+            } else {
+                if (file.type.includes('image')) {
+                    Resizer.imageFileResizer(file,
+                        850,
+                        850,
+                        file.type.split('/')[1],
+                        80,
+                        0,
+                        (uri) => {
+                            docs.push({type: type, file: uri, progress: 100})
+                            setFiles([...files, ...docs]);
+                            setLoad(false);
+                        },
+                        "file")
+                } else {
+                    docs.push({type: type, file, progress: 100})
+                    setTimeout(() => {
                         setFiles([...files, ...docs]);
                         setLoad(false);
-                    },
-                    "file")
-            } else {
-                docs.push({type: type, file, progress: 100})
-                setTimeout(() => {
-                    setFiles([...files, ...docs]);
-                    setLoad(false);
-                }, 1000);
+                    }, 1000);
+                }
             }
-
         })
-
-
         setTimeout(() => {
             const el = document.getElementById("label")
             if (el)
                 el.scrollIntoView(true);
+            setError('')
         }, 1500);
-
     }
-
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <AddDocumentDialogStyled>
             <Grid container spacing={1}>
-                <Grid item xs={12} md={3}>
+                <Grid item xs={12} md={12}>
                     <Typography fontWeight={600} mb={2} variant="subtitle2">
                         {t("type_of_document")}
                     </Typography>
-                    <Grid container spacing={1} mt={6} margin={"auto"}>
+                    <Grid container spacing={1} mt={2} margin={"auto"}>
                         {loading
                             ? Array.from(new Array(6)).map((val, idx) => (
-                                <Grid key={"loading-card-" + idx} item xs={6} md={6}>
+                                <Grid key={"loading-card-" + idx} item xs={6} sm={4} md={2}>
                                     <DocumentButton
                                         selected={""}
                                         height={100}
@@ -107,7 +114,7 @@ function AddDocumentDialog({...props}) {
                             ))
                             : ((httpTypeResponse as HttpResponse)?.data ?? []).map(
                                 (item: any, index: number) => (
-                                    <Grid key={index} item xs={6} sm={4} md={6}>
+                                    <Grid key={index} item xs={6} sm={4} md={2}>
                                         <DocumentButton
                                             icon={item.logo.url}
                                             active={data.state.type}
@@ -130,23 +137,25 @@ function AddDocumentDialog({...props}) {
                             )}
                     </Grid>
                 </Grid>
-                <Grid item xs={12} md={9}>
+                <Grid item xs={12} md={12}>
                     {files.length === 0 && <Stack width={{xs: "100%", md: "80%"}}
                                                   margin={"auto"}
                                                   mt={6}
-                                                  spacing={2}
+                                                  spacing={1}
                                                   padding={2}
-                                                  border={`1px dashed ${theme.palette.primary.main}`}
+                                                  border={`1px dashed ${theme.palette.grey["200"]}`}
                                                   borderRadius={2}>
                         <div style={{width: "fit-content", margin: "auto"}}>
-                            <IconUrl path={"ic-upload"} width={"100"} height={"100"}/>
+                            <IconUrl path="fileadd" width={80} height={80}/>
                         </div>
-                        {load && <div style={{width: "fit-content", margin: "auto"}}>
-                            <CircularProgress style={{margin: "auto"}}/>
-                        </div>}
-                        <Typography color={"gray"} textAlign={"center"}>{t("type_of_document")}</Typography>
-                        <Typography color={"gray"} textAlign={"center"}
-                                    style={{opacity: 0.5}}>{t("to_upload")}</Typography>
+                        {
+                            load && <div style={{width: "fit-content", margin: "auto"}}>
+                                <CircularProgress style={{margin: "auto"}}/>
+                            </div>
+                        }
+                        <Typography variant="subtitle1"
+                                    color="text.primary" textAlign={"center"}>{t("type_of_document")}</Typography>
+                        <Typography textAlign={"center"} fontSize={12}>{t("to_upload")}</Typography>
 
                     </Stack>}
                     <Stack spacing={2} maxWidth="90%" width={1} mx="auto" mt={3}>
@@ -177,6 +186,17 @@ function AddDocumentDialog({...props}) {
                     </Stack>
                 </Grid>
             </Grid>
+
+            <Dialog
+                open={error !== ''}
+                aria-labelledby="draggable-dialog-title">
+                <DialogContent>
+                    <Stack spacing={1} alignItems={"center"}>
+                        <IconUrl path={"fileError"} width={30} height={30}/>
+                        <Typography>{t(error)}</Typography>
+                    </Stack>
+                </DialogContent>
+            </Dialog>
         </AddDocumentDialogStyled>
     );
 }

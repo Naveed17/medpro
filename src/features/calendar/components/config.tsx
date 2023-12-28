@@ -18,11 +18,12 @@ import OnGogingCircleIcon from "@themes/overrides/icons/onGogingCircleIcon";
 import NoShowCircleIcon from "@themes/overrides/icons/noShowCircleIcon";
 import WaitingCircleIcon from "@themes/overrides/icons/waitingCircleIcon";
 import PlayCircleFilledWhiteOutlinedIcon from '@mui/icons-material/PlayCircleFilledWhiteOutlined';
-import CoPresentOutlinedIcon from '@mui/icons-material/CoPresentOutlined';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
-import PersonOffIcon from '@mui/icons-material/PersonOff';
+import PersonOffIcon from '@mui/icons-material/PersonOffRounded';
 import {Avatar} from "@mui/material";
-import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import PauseIcon from "@themes/overrides/icons/pauseIcon";
+import CancelAppointmentPatientIcon from "@themes/overrides/icons/cancelAppointmentPatientIcon";
+import IconUrl from "@themes/urlIcon";
 
 export const IconsTypes: any = {
     "ic-consultation": <EventOutlinedIcon/>,
@@ -39,7 +40,7 @@ export const IconsTypes: any = {
 export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
     0: {
         key: "PENDING",
-        value: "En attende",
+        value: "En attente",
         color: "#FFD400",
         classColor: "warning",
         icon: <DefaultCircleIcon/>,
@@ -87,7 +88,13 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
         classColor: "expire",
         icon: <ExpiredCircleIcon/>,
     },
-    8: {key: "PAUSED", value: "Pausé", color: "#ff6660", classColor: "warning"},
+    8: {
+        key: "PAUSED",
+        value: "En pause",
+        color: "#ff6660",
+        classColor: "warning",
+        icon: <PauseIcon/>
+    },
     9: {
         key: "DELETED",
         value: "Supprimé",
@@ -118,9 +125,9 @@ export const AppointmentStatus: { [key: string]: AppointmentStatusModel } = {
     15: {
         key: "PATIENT_CANCELED",
         value: "Annulé",
-        color: "#c92a2a",
+        color: "#CC1D91",
         classColor: "error",
-        icon: <CancelCircleIcon/>,
+        icon: <CancelAppointmentPatientIcon/>,
     }
 };
 
@@ -129,6 +136,12 @@ export const TableHead = [
         id: "heure",
         label: "header.heure",
         align: "left",
+        sortable: true,
+    },
+    {
+        id: "patient",
+        label: "header.patient",
+        align: "center",
         sortable: true,
     },
     {
@@ -149,18 +162,12 @@ export const TableHead = [
         align: "center",
         sortable: true,
     },
-    {
-        id: "patient",
-        label: "header.patient",
-        align: "center",
-        sortable: true,
-    },
-/*    {
-        id: "agenda",
-        label: "header.agenda",
-        align: "center",
-        sortable: true,
-    },*/
+    /*    {
+            id: "agenda",
+            label: "header.agenda",
+            align: "center",
+            sortable: true,
+        },*/
     {
         id: "fees",
         label: "header.fees",
@@ -189,7 +196,7 @@ export const DayOfWeek = (day: string, start = 1) => {
 };
 
 export const AddAppointmentCardData = {
-    mainIcon: "ic-agenda-+",
+    mainIcon: "agenda/ic-agenda-+",
     title: "table.no-data.event.title",
     description: "table.no-data.event.description"
 };
@@ -208,13 +215,18 @@ export const CalendarContextMenu = [
         action: "onConsultationDetail",
     },
     {
+        title: "consultation_pay",
+        icon: <IconUrl width={20} height={20} color={"white"} path="ic-fees"/>,
+        action: "onPay",
+    },
+    {
         title: "pre_consultation_data",
-        icon: <CoPresentOutlinedIcon/>,
+        icon: <Icon color={"white"} width={20} height={20} path="docs/ic-note"/>,
         action: "onPreConsultation",
     },
     {
         title: "import_document",
-        icon: <UploadFileOutlinedIcon/>,
+        icon: <Icon color={"white"} width={20} height={20} path="fileadd"/>,
         action: "onAddConsultationDocuments",
     },
     {
@@ -229,7 +241,7 @@ export const CalendarContextMenu = [
     },
     {
         title: "add_patient_to_waiting_room",
-        icon: <Icon color={"white"} path="ic-salle"/>,
+        icon: <Icon color={"white"} width={20} height={20} path="ic_waiting_room"/>,
         action: "onWaitingRoom",
     },
     {
@@ -239,19 +251,17 @@ export const CalendarContextMenu = [
     },
     {
         title: "leave_waiting_room",
-        icon: <Icon color={"white"} path="ic-salle"/>,
+        icon: <Icon color={"white"} width={20} height={20} path="ic_waiting_room"/>,
         action: "onLeaveWaitingRoom",
     },
     {
         title: "see_patient_form",
-        icon: (
-            <Icon color={"white"} width={"18"} height={"18"} path="ic-edit-file"/>
-        ),
+        icon: <Icon color={"white"} width={"20"} height={"20"} path="docs/antecedent"/>,
         action: "onPatientDetail",
     },
     {
         title: "reschedule_appointment",
-        icon: <Icon color={"white"} width={"16"} height={"16"} path="ic-agenda"/>,
+        icon: <Icon color={"white"} width={"20"} height={"20"} path="agenda/ic-agenda-jour"/>,
         action: "onReschedule",
     },
     {
@@ -266,7 +276,7 @@ export const CalendarContextMenu = [
     },
     {
         title: "delete_appointment",
-        icon: <Icon color={"white"} width={"18"} height={"18"} path="icdelete"/>,
+        icon: <Icon color={"white"} width={"20"} height={"20"} path="ic-delete"/>,
         action: "onDelete",
     }
 ];

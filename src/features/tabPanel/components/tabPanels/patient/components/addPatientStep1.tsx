@@ -24,9 +24,9 @@ import {
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import Icon from "@themes/urlIcon";
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
@@ -75,6 +75,7 @@ function AddPatientStep1({...props}) {
 
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
     const [duplicatedFiche, setDuplicatedFiche] = useState(false);
+    const [error, setError] = useState<boolean>(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -86,12 +87,12 @@ function AddPatientStep1({...props}) {
         first_name: Yup.string()
             .min(3, t("first-name-error"))
             .max(50, t("first-name-error"))
-            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
+            .matches(/^[aA-zZء-ي\s]+$/, t("special-text-error"))
             .required(t("first-name-error")),
         last_name: Yup.string()
             .min(3, t("last-name-error"))
             .max(50, t("last-name-error"))
-            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
+            .matches(/^[aA-zZء-ي\s]+$/, t("special-text-error"))
             .required(t("last-name-error")),
         phones: Yup.array().of(
             Yup.object().shape({
@@ -138,7 +139,7 @@ function AddPatientStep1({...props}) {
                 day: selectedPatient.birthdate.split("-")[0] as string,
                 month: selectedPatient.birthdate.split("-")[1] as string,
                 year: selectedPatient.birthdate.split("-")[2] as string,
-            } : stepsData.step1.birthdate.day !== "" ? {
+            } : stepsData.step1.birthdate?.day && stepsData.step1.birthdate.day !== "" ? {
                 day: stepsData.step1.birthdate.day,
                 month: stepsData.step1.birthdate.month,
                 year: stepsData.step1.birthdate.year
@@ -429,34 +430,6 @@ function AddPatientStep1({...props}) {
                             },
                         }}>
                         <Grid container spacing={{xs: 1, md: 2}}>
-                            <Grid item xs={6} md={4}>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    gutterBottom
-                                    component="span">
-                                    {t("old")}
-                                </Typography>
-                                <TextField
-                                    variant="outlined"
-                                    placeholder={t("old-placeholder")}
-                                    size="small"
-                                    fullWidth
-                                    {...getFieldProps("old")}
-                                    onChange={event => {
-                                        const old = parseInt(event.target.value);
-                                        setFieldValue("old", old ? old : "");
-                                        if (old) {
-                                            const dateInput = (values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old);
-                                            setFieldValue("birthdate", {
-                                                day: dateInput.format("DD"),
-                                                month: dateInput.format("MM"),
-                                                year: dateInput.format("YYYY"),
-                                            });
-                                        }
-                                    }}
-                                />
-                            </Grid>
                             <Grid item xs={6} md={8}>
                                 <Typography
                                     variant="body2"
@@ -478,15 +451,52 @@ function AddPatientStep1({...props}) {
                                                 year: dateInput.format("YYYY"),
                                             } : null);
                                             if (dateInput.isValid()) {
+                                                setError(false);
                                                 const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
                                                 setFieldValue("old", old > 120 ? "" : old);
                                             } else {
+                                                setError(date !== null);
                                                 setFieldValue("old", "");
                                             }
                                         }}
-                                        renderInput={(params) => <TextField {...params} fullWidth/>}
+                                        renderInput={(params) => <TextField
+                                            {...params}
+                                            {...((values.birthdate !== null || error) && {
+                                                error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
+                                                ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText: t('invalidDate')})
+                                            })}
+                                            fullWidth/>}
                                     />
                                 </LocalizationProvider>
+                            </Grid>
+                            <Grid item xs={6} md={4}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                    component="span">
+                                    {t("old")}
+                                </Typography>
+                                <TextField
+                                    variant="outlined"
+                                    placeholder={t("old-placeholder")}
+                                    size="small"
+                                    fullWidth
+                                    {...getFieldProps("old")}
+                                    onChange={event => {
+                                        const old = parseInt(event.target.value);
+                                        setFieldValue("old", old ? old : "");
+                                        if (old) {
+                                            setError(false);
+                                            const dateInput = (values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old);
+                                            setFieldValue("birthdate", {
+                                                day: dateInput.format("DD"),
+                                                month: dateInput.format("MM"),
+                                                year: dateInput.format("YYYY"),
+                                            });
+                                        }
+                                    }}
+                                />
                             </Grid>
                         </Grid>
                     </Box>
@@ -591,7 +601,11 @@ function AddPatientStep1({...props}) {
                             color="primary">
                             {t("cancel")}
                         </Button>
-                        <Button variant="contained" type="submit" color="primary">
+                        <Button
+                            disabled={error}
+                            variant="contained"
+                            type="submit"
+                            color="primary">
                             {t("next")}
                         </Button>
                     </Stack>

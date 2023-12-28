@@ -6,7 +6,6 @@ import {
     Hidden,
     IconButton,
     Stack,
-    SvgIcon,
     Tooltip, Typography,
     useTheme
 } from "@mui/material";
@@ -17,7 +16,6 @@ import TodayIcon from "@themes/overrides/icons/todayIcon";
 import DayIcon from "@themes/overrides/icons/dayIcon";
 import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
-import ToggleButtonStyled from "./overrides/toggleButtonStyled";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setView, TableHead} from "@features/calendar";
@@ -26,10 +24,7 @@ import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
+import {LoadingScreen} from "@features/loadingScreen";
 import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector} from "@features/base";
@@ -46,7 +41,8 @@ function CalendarToolbar({...props}) {
         OnSelectEvent,
         OnMoveEvent,
         OnWaitingRoom,
-        OnConfirmEvent
+        OnConfirmEvent,
+        timeRange
     } = props;
     const theme = useTheme();
     const dispatch = useAppDispatch();
@@ -60,8 +56,8 @@ function CalendarToolbar({...props}) {
     const [pendingDialog, setPendingDialog] = useState(false);
     const VIEW_OPTIONS = [
         {value: "timeGridDay", label: "Day", text: "Jour", icon: TodayIcon},
-        {value: "timeGridWeek", label: "Weeks", text: "Semaine", icon: DayIcon},
-        {value: "dayGridMonth", label: "Months", text: "Mois", icon: WeekIcon},
+        {value: "timeGridWeek", label: "Weeks", text: "Semaine", icon: WeekIcon},
+        {value: "dayGridMonth", label: "Months", text: "Mois", icon: DayIcon},
         {value: "listWeek", label: "Agenda", text: "List", icon: GridIcon}
     ];
 
@@ -69,20 +65,26 @@ function CalendarToolbar({...props}) {
         dispatch(setView(view));
     }
 
-    const handleTableEvent = (action: string, eventData: EventModal) => {
+    const handleTableEvent = (action: string, eventData: any) => {
+        const event: any = {
+            publicId: eventData.id,
+            extendedProps: {
+                ...eventData
+            }
+        }
         setPendingDialog(false);
         switch (action) {
-            case "showEvent":
-                OnSelectEvent(eventData);
+            case "onPatientDetail":
+                OnSelectEvent(event);
                 break;
             case "waitingRoom":
-                OnWaitingRoom(eventData);
+                OnWaitingRoom(event);
                 break;
-            case "confirmEvent":
-                OnConfirmEvent(eventData);
+            case "onConfirmAppointment":
+                OnConfirmEvent(event);
                 break;
-            case "moveEvent":
-                OnMoveEvent(eventData);
+            case "onMove":
+                OnMoveEvent(event);
                 break;
         }
     }
@@ -123,11 +125,13 @@ function CalendarToolbar({...props}) {
                                 },
                             }}>
                             <IconButton
+                                color={"primary"}
                                 onClick={OnClickDatePrev}
                                 aria-label="back">
                                 <ArrowBackIosNewIcon fontSize="small"/>
                             </IconButton>
                             <IconButton
+                                color={"primary"}
                                 onClick={OnClickDateNext}
                                 aria-label="next">
                                 <ArrowForwardIosIcon fontSize="small"/>
@@ -135,8 +139,10 @@ function CalendarToolbar({...props}) {
                         </Box>
 
                         <Button className="Current-date" variant="text-transparent">
-                            <Typography variant="body2" component={"span"}>
-                                {moment(currentDate.date.toLocaleDateString("fr"), "DD/MM/YYYY").format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM, YYYY' : 'Do MMMM, YYYY')}
+                            <Typography variant="body2" component={"span"} fontWeight={"bold"}>
+                                {view === 'timeGridWeek' ?
+                                    `${moment(timeRange.start, "DD/MM/YYYY").format(`DD ${timeRange.start.split('-')[1] !== moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("MM") ? 'MMM' : ''} ${timeRange.start.split('-')[2] !== moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("YYYY") ? 'YYYY' : ''}`)} - ${moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("DD MMM YYYY")}` :
+                                    moment(currentDate.date.toLocaleDateString("fr"), "DD/MM/YYYY").format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM YYYY' : 'Do MMMM, YYYY')}
                             </Typography>
                         </Button>
 
@@ -212,23 +218,19 @@ function CalendarToolbar({...props}) {
             </Hidden>
             <Hidden smDown>
                 <Stack direction="row" spacing={1.5}>
-                    <DefaultViewMenu/>
-                    {VIEW_OPTIONS.map((viewOption) => (
-                        <Tooltip key={viewOption.value}
-                                 TransitionComponent={Zoom}
-                                 onClick={() => handleViewChange(viewOption.value)}
-                                 title={t(`times.${viewOption.label.toLowerCase()}`, {ns: "common"})}>
-                            <ToggleButtonStyled
-                                value="dayGridMonth"
-                                sx={{
-                                    width: 37, height: 37, padding: 0, marginTop: '2px!important',
-                                    ...(viewOption.value === view && {background: theme.palette.primary.main})
-                                }}>
-                                <SvgIcon component={viewOption.icon} width={20} height={20}
-                                         htmlColor={viewOption.value === view ? theme.palette.background.paper : theme.palette.text.primary}/>
-                            </ToggleButtonStyled>
-                        </Tooltip>
-                    ))}
+                    <CalendarViewButton
+                        {...{view, t}}
+                        sx={{
+                            "& .MuiButton-startIcon>*:nth-of-type(1)": {
+                                fontSize: 20
+                            }
+                        }}
+                        views={VIEW_OPTIONS}
+                        onSelect={(viewOption: string) => handleViewChange(viewOption)}
+                    />
+
+                    <DefaultViewMenu {...{view}} onViewChange={handleViewChange}/>
+
                     <CalendarAddButton
                         {...{t}}
                         onClickEvent={OnAddAppointment}

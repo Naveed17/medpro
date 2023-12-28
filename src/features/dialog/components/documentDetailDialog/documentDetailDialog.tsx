@@ -2,6 +2,7 @@ import {
     Box,
     Button,
     Card,
+    CardContent,
     Checkbox,
     DialogActions,
     DialogContent,
@@ -18,7 +19,7 @@ import {
     ToggleButtonGroup,
     Typography
 } from '@mui/material'
-import {Document, Page, pdfjs} from "react-pdf";
+import {Document, Page} from "react-pdf";
 
 import DocumentDetailDialogStyled from './overrides/documentDetailDialogstyle';
 import {useTranslation} from 'next-i18next'
@@ -32,7 +33,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
-import dynamic from "next/dynamic";
+
 import {useReactToPrint} from "react-to-print";
 import moment from "moment";
 import ReactPlayer from "react-player";
@@ -42,19 +43,17 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
-import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import PreviewA4 from "@features/files/components/previewA4";
-import {useMedicalEntitySuffix, useMedicalProfessionalSuffix, generatePdfFromHtml} from "@lib/hooks";
+import {generatePdfFromHtml, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 import {useSnackbar} from "notistack";
+import {FacebookCircularProgress} from "@features/progressUI";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+import {LoadingScreen} from "@features/loadingScreen";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function DocumentDetailDialog({...props}) {
     const {
@@ -89,17 +88,21 @@ function DocumentDetailDialog({...props}) {
     const [menu, setMenu] = useState(true);
     const [isImg, setIsImg] = useState(false);
     const componentRef = useRef<any[]>([])
+    const previewDocRef = useRef<any>(null)
     const [header, setHeader] = useState(null);
     const [docs, setDocs] = useState([]);
     const [selectedTemplate, setSelectedTemplate] = useState("");
     const [error, setError] = useState(false);
+    const [docPageOffset] = useState(1);
     const [data, setData] = useState<any>({
         background: {show: false, content: ''},
-        header: {show: true, x: 0, y: 0},
+        header: {show: true, page: docPageOffset, x: 0, y: 0},
         footer: {show: false, x: 0, y: 234, content: ''},
         title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 8},
         date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 155, textAlign: "right"},
         patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 55},
+        cin: {show: false, prefix: 'CIN : ', content: '', x: 40, y: 274},
+        age: {show: true, content: '', x: 40, y: 316},
         size: 'portraitA4',
         content: {
             show: true,
@@ -112,10 +115,11 @@ function DocumentDetailDialog({...props}) {
     })
     const [sendEmailDrawer, setSendEmailDrawer] = useState(false);
     const [previewDoc, setPreviewDoc] = useState<any>(null);
+    const [isPrinting, setIsPrinting] = useState(false);
 
     const {direction} = useAppSelector(configSelector);
 
-    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote', 'glasses']
+    const generatedDocs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'write_certif', 'fees', 'quote', 'glasses', 'lens']
     const slugs = ['prescription', 'requested-analysis', 'requested-medical-imaging', 'medical-certificate', 'invoice']
     const multimedias = ['video', 'audio', 'photo'];
     const list = [
@@ -144,47 +148,51 @@ function DocumentDetailDialog({...props}) {
     const actionButtons = [
         {
             title: 'print',
-            icon: "ic-imprime",
+            icon: "menu/ic-print",
             disabled: multimedias.some(media => media === state?.type)
         },
-        ...(generatedDocs.some(doc => doc == state?.type) ? [{
+        {
             title: 'email',
-            icon: "ic-send-mail",
-            disabled: multimedias.some(media => media === state?.type)
-        }] : []),
-        {
-            title: data.header.show ? 'hide' : 'show',
-            icon: "ic-menu2",
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
-        },
-        {
-            title: data.title.show ? 'hidetitle' : 'showtitle',
-            icon: "ft14-text",
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
-        },
-        {
-            title: data.patient.show ? 'hidepatient' : 'showpatient',
-            icon: "text-strikethrough",
-            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+            icon: "menu/ic-send-message",
         },
         {
             title: 'settings',
-            icon: "template",
+            icon: "docs/ic-note",
             disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         },
         {
             title: 'download',
-            icon: "ic-dowlaodfile",
+            icon: "menu/ic-download-square",
         },
         {
             title: 'edit',
-            icon: "ic-edit-gray",
+            icon: "ic-edit-patient",
             disabled: (state?.type !== 'prescription' && state?.type !== 'write_certif' && state?.type !== 'requested-analysis' && state?.type !== 'requested-medical-imaging') || !state?.uuid
         },
         {
             title: 'delete',
-            icon: "icdelete",
+            icon: "ic-trash",
             disabled: !state?.uuid
+        },
+        {
+            title: data.header.show ? 'hide' : 'show',
+            icon: `menu/${!data.header.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
+            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+        },
+        {
+            title: data.header.page === 0 ? 'hide-header-page.hide' : 'hide-header-page.show',
+            icon: `menu/${!data.header.page ? 'ic-open-eye' : 'ic-eye-closed'}`,
+            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+        },
+        {
+            title: data.title.show ? 'hidetitle' : 'showtitle',
+            icon: `menu/${!data.title.show ? 'ic-open-eye' : 'ic-eye-closed'}`,
+            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
+        },
+        {
+            title: data.patient.show ? 'hidepatient' : 'showpatient',
+            icon: `menu/${data.patient.show ? 'ic-cancel-patient' : 'ic-user'}`,
+            disabled: multimedias.some(media => media === state?.type) || !generatedDocs.some(media => media === state?.type)
         }
     ];
 
@@ -199,7 +207,7 @@ function DocumentDetailDialog({...props}) {
     const {data: httpDocumentHeader} = useRequestQuery(urlMedicalProfessionalSuffix ? {
         method: "GET",
         url: `${urlMedicalProfessionalSuffix}/header/${router.locale}`
-    } : null);
+    } : null, ReactQueryNoValidateConfig);
 
     function onDocumentLoadSuccess({numPages}: any) {
         setNumPages(numPages);
@@ -226,16 +234,20 @@ function DocumentDetailDialog({...props}) {
     }
 
     const handlePrint = () => {
-        printNow()
+        printNow();
     }
 
     const printNow = useReactToPrint({
-        content: () => componentRef.current[0],
-        documentTitle: `${t(state?.type)} ${state?.patient}`
+        content: () => previewDocRef.current,
+        documentTitle: `${t(state?.type)} ${state?.patient}`,
+        onAfterPrint: () => {
+            // Reset the Promise resolve so we can print again
+            setIsPrinting(false);
+        }
     })
 
     const downloadF = () => {
-        fetch(file).then(response => {
+        fetch(file.url).then(response => {
             response.blob().then(blob => {
                 const fileURL = window.URL.createObjectURL(blob);
                 let alink = document.createElement('a');
@@ -253,8 +265,19 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "email":
                 setSendEmailDrawer(true);
-                const file = await generatePdfFromHtml(componentRef, "blob");
-                setPreviewDoc(file);
+                if (generatedDocs.some(doc => doc == state?.type)) {
+                    const file = await generatePdfFromHtml(componentRef, "blob");
+                    setPreviewDoc(file);
+                } else {
+                    const fileType = ["png", "jpeg", "jpg"].includes(file.url.split('.').pop().split(/\#|\?/)[0]) ? 'image/png' : 'application/pdf';
+                    fetch(file.url).then(response => {
+                        response.blob().then(blob => {
+                            const file = new File([new Blob([blob])], `report${new Date().toISOString()}`
+                                , {type: fileType})
+                            setPreviewDoc(file);
+                        })
+                    })
+                }
                 break;
             case "delete":
                 setOpenRemove(true)
@@ -313,13 +336,28 @@ function DocumentDetailDialog({...props}) {
                 break;
             case "hide":
             case "show":
-                data.header.show = !data.header.show
-                setData({...data})
+                setData({
+                    ...data,
+                    header: {
+                        ...data.header,
+                        show: !data.header.show
+                    }
+                });
                 break;
             case "hidetitle":
             case "showtitle":
                 data.title.show = !data.title.show
                 setData({...data})
+                break;
+            case "hide-header-page.hide":
+            case "hide-header-page.show":
+                setData({
+                    ...data,
+                    header: {
+                        ...data.header,
+                        page: (data.header.page === 0 ? 1 : 0)
+                    }
+                });
                 break;
             case "hidepatient":
             case "showpatient":
@@ -332,7 +370,9 @@ function DocumentDetailDialog({...props}) {
                     const fileURL = window.URL.createObjectURL((file as Blob));
                     let alink = document.createElement('a');
                     alink.href = fileURL;
-                    alink.download = `${state?.type} ${state?.patient}`
+                    alink.download =
+                        `${state?.type} ${state?.patient}`
+
                     alink.click();
                 } else {
                     downloadF();
@@ -352,7 +392,8 @@ function DocumentDetailDialog({...props}) {
         form.append('value', value);
         triggerDocumentUpdate({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/documents/${state?.uuid}/${router.locale}`,
+            url:
+                `${urlMedicalEntitySuffix}/documents/${state?.uuid}/${router.locale}`,
             data: form
         }, {
             onSuccess: () => {
@@ -377,18 +418,21 @@ function DocumentDetailDialog({...props}) {
         setLoadingRequest && setLoadingRequest(true);
         if (state?.type === "quote") {
             medicalEntityHasUser && triggerDocumentDelete({
-                method: "DELETE",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${state?.uuid}/${router.locale}`
-            }, {
-                onSuccess: () => {
-                    state?.mutate && state?.mutate();
-                    setOpenRemove(false);
-                    setLoading(false);
-                    setLoadingRequest && setLoadingRequest(false);
-                    setOpenDialog && setOpenDialog(false);
+                    method: "DELETE",
+                    url: `${urlMedicalEntitySuffix} / mehu /${medicalEntityHasUser[0].uuid}/quotes/${state?.uuid}
+    /${router.locale}`
+                },
+                {
+                    onSuccess: () => {
+                        state?.mutate && state?.mutate();
+                        setOpenRemove(false);
+                        setLoading(false);
+                        setLoadingRequest && setLoadingRequest(false);
+                        setOpenDialog && setOpenDialog(false);
+                    }
                 }
-            });
-
+            )
+            ;
         } else {
             medicalEntityHasUser && triggerDocumentDelete({
                 method: "DELETE",
@@ -409,9 +453,9 @@ function DocumentDetailDialog({...props}) {
         }
     }
 
-    const doc = <Document
-        ref={(element) => (componentRef.current as any)[0] = element}
-        file={file}
+    const doc = ((file instanceof File) || file?.url) && <Document
+        {...(componentRef?.current && {ref: (element) => (componentRef.current as any)[0] = element})}
+        file={file.url}
         loading={t('wait')}
         onLoadSuccess={onDocumentLoadSuccess}
         onLoadError={() => {
@@ -430,7 +474,7 @@ function DocumentDetailDialog({...props}) {
         form.append('subject', data.subject);
         form.append('content', data.content);
         if (data.withFile) {
-            form.append('files[]', await generatePdfFromHtml(componentRef, "blob") as any);
+            form.append('files[]', previewDoc);
         }
 
         triggerEmilSend({
@@ -452,6 +496,13 @@ function DocumentDetailDialog({...props}) {
     }, [state])
 
     useEffect(() => {
+        if (state?.print && previewDocRef.current) {
+            setIsPrinting(true);
+            setTimeout(() => handlePrint());
+        }
+    }, [state?.print, previewDocRef.current]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
         if (httpDocumentHeader) {
             const docInfo = (httpDocumentHeader as HttpResponse).data
             setDocs(docInfo);
@@ -459,7 +510,6 @@ function DocumentDetailDialog({...props}) {
                 setLoading(false)
             } else {
                 setOpenAlert(false);
-
 
                 if (state.documentHeader) {
                     setSelectedTemplate(state.documentHeader)
@@ -469,6 +519,10 @@ function DocumentDetailDialog({...props}) {
                     if (_template) {
                         setData({
                             ..._template.header.data,
+                            header: {
+                                ..._template.header.data.header,
+                                page: docPageOffset
+                            },
                             background: {
                                 show: _template.header.data.background.show,
                                 content: _template.file ? _template.file : ''
@@ -486,9 +540,13 @@ function DocumentDetailDialog({...props}) {
                             templates.push(di)
                     })
                     if (templates.length > 0) {
-                        setSelectedTemplate(templates[0].uuid)
+                        setSelectedTemplate(templates[0].uuid);
                         setData({
                             ...templates[0].header.data,
+                            header: {
+                                ...templates[0].header.data.header,
+                                page: docPageOffset
+                            },
                             background: {
                                 show: templates[0].header.data.background.show,
                                 content: templates[0].file ? templates[0].file : ''
@@ -503,6 +561,10 @@ function DocumentDetailDialog({...props}) {
                             setSelectedTemplate(defaultdoc.uuid)
                             setData({
                                 ...defaultdoc.header.data,
+                                header: {
+                                    ...defaultdoc.header.data.header,
+                                    page: docPageOffset
+                                },
                                 background: {
                                     show: defaultdoc.header.data.background.show,
                                     content: defaultdoc.file ? defaultdoc.file : ''
@@ -513,6 +575,10 @@ function DocumentDetailDialog({...props}) {
                             setSelectedTemplate(docInfo[0].uuid)
                             setData({
                                 ...docInfo[0].header.data,
+                                header: {
+                                    ...docInfo[0].header.data.header,
+                                    page: docPageOffset
+                                },
                                 background: {
                                     show: docInfo.header?.data.background.show,
                                     content: docInfo.file ? docInfo.file : ''
@@ -531,6 +597,7 @@ function DocumentDetailDialog({...props}) {
         <div>
             {!loading && <PreviewA4
                 {...{
+                    previewDocRef,
                     componentRef,
                     eventHandler,
                     data,
@@ -557,6 +624,14 @@ function DocumentDetailDialog({...props}) {
 
     return (
         <DocumentDetailDialogStyled>
+            {isPrinting && <Card className={'loading-card'}>
+                <CardContent>
+                    <Stack direction={"row"} alignItems={"center"} justifyContent={"center"} spacing={1.2}>
+                        <FacebookCircularProgress size={20}/>
+                        <Typography fontSize={16} fontWeight={600}>{t('printing')}</Typography>
+                    </Stack>
+                </CardContent>
+            </Card>}
             <Grid container>
                 <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
@@ -574,12 +649,18 @@ function DocumentDetailDialog({...props}) {
                                             }
                                         }}>
                                             {!isImg && !error && doc}
-                                            {!isImg && error && <Card style={{padding: 10}} onClick={downloadF}>
+                                            {!isImg && error && <Card style={{padding: 10}}>
                                                 <Stack alignItems={"center"} spacing={1} justifyContent={"center"}>
-                                                    <IconUrl width={100} height={100} path={"ic-download"}/>
+                                                    <IconUrl width={100} height={100} path={"ic-corrupted"}/>
                                                     <Typography>{t('ureadbleFile')}</Typography>
                                                     <Typography fontSize={12}
                                                                 style={{opacity: 0.5}}>{t('downloadnow')}</Typography>
+                                                    <Button onClick={downloadF} color={"info"}
+                                                            variant="outlined"
+                                                            startIcon={<IconUrl path="menu/ic-download-square" width={20}
+                                                                                height={20}/>}>
+                                                        {t('download')}
+                                                    </Button>
                                                 </Stack>
                                             </Card>}
 
@@ -656,16 +737,7 @@ function DocumentDetailDialog({...props}) {
                 </Grid>
                 <Grid item xs={12} md={menu ? 4 : 1} className="sidebar" color={"white"} style={{background: "white"}}>
                     {menu ? <List>
-                            <ListItem className='secound-list'>
-                                <ListItemButton onClick={() => {
-                                    setMenu(false)
-                                }}>
-                                    <ListItemIcon>
-                                        <CloseFullscreenIcon/>
-                                    </ListItemIcon>
-                                    <ListItemText primary={t("close")}/>
-                                </ListItemButton>
-                            </ListItem>
+
                             {actionButtons.map((button, idx) =>
                                 <ListItem key={idx} onClick={() => handleActions(button.title)}>
                                     {!button.disabled && <ListItemButton
@@ -673,10 +745,20 @@ function DocumentDetailDialog({...props}) {
                                         <ListItemIcon>
                                             <IconUrl path={button.icon}/>
                                         </ListItemIcon>
-                                        {menu && <ListItemText primary={t(button.title)}/>}
+                                        {menu && <ListItemText sx={{ml: 1}} primary={t(button.title)}/>}
                                     </ListItemButton>}
                                 </ListItem>)
                             }
+                            <ListItem className='secound-list'>
+                                <ListItemButton onClick={() => {
+                                    setMenu(false)
+                                }}>
+                                    <ListItemIcon>
+                                        <IconUrl path="menu/ic-close-menu"/>
+                                    </ListItemIcon>
+                                    <ListItemText sx={{ml: 1}} primary={t("close")}/>
+                                </ListItemButton>
+                            </ListItem>
                             <ListItem className='secound-list'>
                                 <ListItemButton disableRipple sx={{flexDirection: "column", alignItems: 'flex-start'}}>
                                     <Typography color='text.secondary'>
@@ -764,7 +846,7 @@ function DocumentDetailDialog({...props}) {
                                             margin: 'auto',
                                             justifyContent: 'center',
                                         }}>
-                                        <OpenInFullIcon/>
+                                        <IconUrl width={24} height={24} path={'menu/ic-open-menu'}/>
                                     </ListItemIcon>
                                 </ListItemButton>
                             </ListItem>

@@ -85,26 +85,18 @@ export const WaitingHeadCells = [
         sortable: true,
     },
     {
-        id: "arrivaltime",
+        id: "appointment",
         numeric: false,
         disablePadding: true,
-        label: "arrival time",
+        label: "appointment",
         align: "left",
         sortable: true,
     },
     {
-        id: "appointmentTime",
+        id: "waiting_time",
         numeric: false,
         disablePadding: true,
-        label: "appointment time",
-        align: "left",
-        sortable: false,
-    },
-    {
-        id: "waiting",
-        numeric: false,
-        disablePadding: true,
-        label: "waiting",
+        label: "waiting_time",
         align: "left",
         sortable: true,
     },
@@ -125,18 +117,10 @@ export const WaitingHeadCells = [
         sortable: false,
     },
     {
-        id: "fees",
+        id: "empty",
         numeric: false,
         disablePadding: true,
         label: "empty",
-        align: "right",
-        sortable: false,
-    },
-    {
-        id: "action",
-        numeric: false,
-        disablePadding: true,
-        label: "action",
         align: "right",
         sortable: false,
     }
@@ -201,7 +185,38 @@ export const TransactionStatus = [
     },
 ];
 
+export const iconDocument = (data:string) => {
+    return data === "prescription" && "docs/ic-prescription" ||
+        data == "requested-analysis" && "docs/ic-analyse" ||
+        data == "analyse" && "docs/ic-analyse" ||
+        data == "medical-imaging" && "docs/ic-soura" ||
+        data == "requested-medical-imaging" && "docs/ic-soura" ||
+        data === "photo" && "docs/ic-ic-gallery" ||
+        data === "audio" && "docs/ic-audio" ||
+        data === "Rapport" && "docs/ic-ordonnance" ||
+        data === "medical-certificate" && "docs/ic-ordonnance" ||
+        data === "video" && "ic-video-outline" ||
+        data !== "prescription" && "ic-quote" || ""
+}
+
 export const tinymcePlugins = "advlist anchor autolink autosave charmap codesample directionality  emoticons help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount table"
 export const tinymceToolbar = "blocks fontfamily fontsize | bold italic underline forecolor backcolor | align lineheight checklist bullist numlist | table tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol "
+export const tinymceToolbarNotes = " bold italic underline forecolor backcolor | align lineheight checklist bullist numlist | blocks fontfamily fontsize"
 
 export const MobileContainer: number = 820
+
+export const humanizerConfig = {
+    language: "shortEn",
+    languages: {
+        shortEn: {
+            y: () => "y",
+            mo: () => "mo",
+            w: () => "w",
+            d: () => "d",
+            h: () => "h",
+            m: () => "min",
+            s: () => "s",
+            ms: () => "ms",
+        },
+    },
+}

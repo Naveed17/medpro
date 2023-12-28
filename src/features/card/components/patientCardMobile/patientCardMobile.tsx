@@ -27,12 +27,12 @@ const menuList = [
 ];
 
 export default function MobileTable({...props}) {
-    const {item, size, contextMenuList = null, button = null, onAction} = props;
+    const {item, size, contextMenuList = null, button = null, onAction, onDeleteItem = null} = props;
     const theme = useTheme();
     const [openTooltip, setOpenTooltip] = useState(false);
 
     return (
-        <SettingTableStyled>
+        <SettingTableStyled {...(onDeleteItem && {onClick: () => onDeleteItem()})}>
             <List className="patient-config-list">
                 <ListItem
                     disablePadding
@@ -40,8 +40,7 @@ export default function MobileTable({...props}) {
                     sx={{
                         borderRadius:
                             !size && size !== "small" ? "0px 10px 10px 0px" : "6px",
-                    }}
-                >
+                    }}>
                     <Box sx={{mr: "4px"}}>
                         <Typography variant="body1" color="text.primary">
                             {item.name}
@@ -60,8 +59,7 @@ export default function MobileTable({...props}) {
                                 }}
                                 variant="body2"
                                 color="primary.main"
-                                component="span"
-                            >
+                                component="span">
                                 <Icon path="ic-video"/>
                             </Typography>
                         )}
@@ -71,7 +69,7 @@ export default function MobileTable({...props}) {
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
-                                    color: "text.secondary",
+                                    color: "text.primary",
                                     mr: 1,
                                     "& svg": {
                                         width: 12,
@@ -82,8 +80,7 @@ export default function MobileTable({...props}) {
                                 }}
                                 variant="body2"
                                 color="primary.main"
-                                component="span"
-                            >
+                                component="span">
                                 <Icon path="ic-agenda"/>
                                 {item.date}
                             </Typography>
@@ -91,7 +88,7 @@ export default function MobileTable({...props}) {
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
-                                    color: "text.secondary",
+                                    color: "text.primary",
                                     "& svg": {
                                         width: 12,
                                         height: 12,
@@ -101,8 +98,7 @@ export default function MobileTable({...props}) {
                                 }}
                                 variant="body2"
                                 color="primary.main"
-                                component="span"
-                            >
+                                component="span">
                                 <Icon path="ic-time"/>
                                 {item.time}
                             </Typography>

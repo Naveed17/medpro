@@ -42,7 +42,6 @@ function CalendarRow({...props}) {
                     </td>
                 )}
             </Typography>
-
             {row.events.map((data: AppointmentModel, index: number) => (<CalendarRowDetail
                 key={index}
                 {...{

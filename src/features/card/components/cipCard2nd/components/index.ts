@@ -1,0 +1,1 @@
+export { default as CipCard2nd } from './cipCard2nd'

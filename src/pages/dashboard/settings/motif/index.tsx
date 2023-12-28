@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import CloseIcon from '@mui/icons-material/Close';
-import {EditMotifDialog} from "@features/editMotifDialog";
+import {EditMotifDialog} from "@features/dialog";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
@@ -28,10 +28,7 @@ import {useRouter} from "next/router";
 import {useDateConverture, useMedicalEntitySuffix} from "@lib/hooks";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
-
+import {LoadingScreen} from "@features/loadingScreen";
 import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";

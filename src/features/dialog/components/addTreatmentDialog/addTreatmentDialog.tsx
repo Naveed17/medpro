@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import {useTranslation} from 'next-i18next'
 import React, {createRef, useCallback, useRef, useState} from 'react';
-import dynamic from "next/dynamic";
+
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {arrayUniqueByKey} from "@lib/hooks";
@@ -19,7 +19,7 @@ import Icon from "@themes/urlIcon";
 import {debounce} from "lodash";
 import SearchIcon from "@mui/icons-material/Search";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function AddTreatmentDialog({...props}) {
     const {data} = props;
@@ -136,7 +136,7 @@ function AddTreatmentDialog({...props}) {
                                 <SearchIcon/>
                             </InputAdornment>,
                         }}
-                        placeholder={t('placeholder_medical_imagery')}
+                        placeholder={t('search')}
                         fullWidth/>}
             </Box>
 

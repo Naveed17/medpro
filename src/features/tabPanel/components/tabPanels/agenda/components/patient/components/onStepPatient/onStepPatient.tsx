@@ -1,6 +1,7 @@
 import {FieldArray, Form, FormikProvider, useFormik} from "formik";
 import {
-    Autocomplete, Avatar,
+    Autocomplete,
+    Avatar,
     Box,
     Button,
     Card,
@@ -33,9 +34,6 @@ import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import dynamic from "next/dynamic";
-
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
 
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {isValidPhoneNumber} from "libphonenumber-js";
@@ -45,14 +43,17 @@ import {dashLayoutSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
-import {LocalizationProvider, DatePicker} from "@mui/x-date-pickers";
+import {DatePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import PhoneInput from 'react-phone-number-input/input';
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {LoadingButton} from "@mui/lab";
 import {CountrySelect} from "@features/countrySelect";
-import {arrayUniqueByKey} from "@lib/hooks";
+import {arrayUniqueByKey, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+
+import {LoadingScreen} from "@features/loadingScreen";
+import {agendaSelector} from "@features/calendar";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -110,10 +111,7 @@ function OnStepPatient({...props}) {
     const {insurances} = useInsurances();
     const {contacts} = useContactType();
     const {countries} = useCountries("nationality=true");
-
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation(translationKey, {keyPrefix: translationPrefix});
     const {t: commonTranslation} = useTranslation("common");
@@ -121,17 +119,23 @@ function OnStepPatient({...props}) {
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
     const {last_fiche_id} = useAppSelector(dashLayoutSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const locations = agendaConfig?.locations;
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
             .min(3, t("first-name-error"))
             .max(50, t("first-name-error"))
-            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
+            .matches(/^[aA-zZء-ي\s]+$/, t("special-text-error"))
             .required(t("first-name-error")),
         lastName: Yup.string()
             .min(3, t("last-name-error"))
             .max(50, t("last-name-error"))
-            .matches(/^[aA-zZ\s]+$/, t("special-text-error"))
+            .matches(/^[aA-zZء-ي\s]+$/, t("special-text-error"))
             .required(t("last-name-error")),
         phones: Yup.array().of(
             Yup.object().shape({
@@ -151,7 +155,7 @@ function OnStepPatient({...props}) {
                     .required(t("telephone-error"))
             })),
         gender: Yup.string().required(t("gender-error")),
-        birthdate: Yup.object().shape({
+        birthdate: Yup.object().nullable().shape({
             day: Yup.string(),
             month: Yup.string(),
             year: Yup.string()
@@ -188,6 +192,7 @@ function OnStepPatient({...props}) {
                             message: t("last-name-error"),
                             test: (value, ctx: any) => ctx.from[1].value.insurance_type === "0" || ctx.from[0].value.lastName
                         }),
+                    old: Yup.string(),
                     birthday: Yup.string().nullable(),
                     phone: Yup.object().shape({
                         code: Yup.string(),
@@ -223,12 +228,13 @@ function OnStepPatient({...props}) {
             lastName: selectedPatient
                 ? selectedPatient.lastName
                 : patient.step1.last_name,
+            old: patient.step1.old,
             birthdate: selectedPatient?.birthdate
-                && {
+                ? {
                     day: selectedPatient.birthdate.split("-")[0] as string,
                     month: selectedPatient.birthdate.split("-")[1] as string,
                     year: selectedPatient.birthdate.split("-")[2] as string,
-                },
+                } : null,
             phones: (selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone") &&
                 selectedPatient?.contact?.filter((contact: ContactModel) => contact.type === "phone").length > 0) ?
                 selectedPatient?.contact.filter((contact: ContactModel) => contact.type === "phone").map((contact: ContactModel) => ({
@@ -284,9 +290,10 @@ function OnStepPatient({...props}) {
             }
         },
     });
-    const {values, handleSubmit, touched, errors, setFieldValue, getFieldProps} = formik;
+    const {values, handleSubmit, touched, errors, setFieldValue, getFieldProps, setValues} = formik;
 
     const [expanded, setExpanded] = React.useState(!!selectedPatient);
+
     const [selectedCountry] = React.useState<any>(doctor_country);
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
     const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({
@@ -295,17 +302,25 @@ function OnStepPatient({...props}) {
         label: commonTranslation(`social_insured.${Insured.label}`)
     })));
     const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<boolean>(false);
 
-    const {data: httpStatesResponse} = useRequestQuery(values.country ? {
+    const {data: httpStatesResponse} = useRequestQuery(expanded && values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
+    const {data: httpProfessionalLocationResponse} = useRequestQuery((expanded && locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
+
     const states = (httpStatesResponse as HttpResponse)?.data as any[] ?? [];
+    const professionalState = (httpProfessionalLocationResponse as HttpResponse)?.data?.address?.state ?? null;
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
-    };
+        handleDefaultAddress();
+    }
 
     const handleAddPhone = () => {
         const phones = [...values.phones, {
@@ -355,6 +370,21 @@ function OnStepPatient({...props}) {
         formik.setFieldValue("insurance", insurance);
     }
 
+    const handleDefaultAddress = () => {
+        if (countries && !expanded) {
+            const defaultCountry = countries.find(country =>
+                country.code.toLowerCase() === doctor_country?.code.toLowerCase())?.uuid as string;
+            const uniqueCountries = arrayUniqueByKey("nationality", countries);
+            setCountriesData(uniqueCountries.sort((country: CountryModel) =>
+                dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
+            setValues({
+                ...values,
+                "nationality": !selectedPatient?.nationality ? defaultCountry : "",
+                "country": !(address.length > 0 && address[0]?.city) ? defaultCountry : ""
+            } as any);
+        }
+    }
+
     useEffect(() => {
         if (errors.hasOwnProperty("firstName") ||
             errors.hasOwnProperty("lastName") ||
@@ -364,14 +394,11 @@ function OnStepPatient({...props}) {
         }
     }, [errors, touched]);
 
-
     useEffect(() => {
-        if (countries) {
-            const uniqueCountries = arrayUniqueByKey("nationality", countries);
-            setCountriesData(uniqueCountries.sort((country: CountryModel) =>
-                dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
+        if (professionalState) {
+            setFieldValue("region", professionalState.uuid);
         }
-    }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [professionalState]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -488,6 +515,89 @@ function OnStepPatient({...props}) {
                             </Grid>
                         </Grid>
                     </Box>
+
+                    <Box
+                        className={"inner-box"}
+                        sx={{
+                            "& .MuiOutlinedInput-root button": {
+                                padding: "5px",
+                                minHeight: "auto",
+                                height: "auto",
+                                minWidth: "auto",
+                            },
+                        }}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={6} md={8}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                    component="span">
+                                    {t("date-of-birth")}
+                                </Typography>
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                    <DatePicker
+                                        value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY") : null}
+                                        inputFormat="dd/MM/yyyy"
+                                        mask="__/__/____"
+                                        onChange={(date) => {
+                                            const dateInput = moment(date);
+                                            setFieldValue("birthdate", dateInput.isValid() ? {
+                                                day: dateInput.format("DD"),
+                                                month: dateInput.format("MM"),
+                                                year: dateInput.format("YYYY"),
+                                            } : null);
+                                            if (dateInput.isValid()) {
+                                                setError(false);
+                                                const old = getBirthday(dateInput.format("DD-MM-YYYY")).years;
+                                                setFieldValue("old", old > 120 ? "" : old);
+                                            } else {
+                                                setError(date !== null);
+                                                setFieldValue("old", "");
+                                            }
+                                        }}
+                                        renderInput={(params) => <TextField
+                                            {...params}
+                                            {...((values.birthdate !== null || error) && {
+                                                error: !moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() ?? false,
+                                                ...(!moment(`${values.birthdate?.day}/${values.birthdate?.month}/${values.birthdate?.year}`, "DD/MM/YYYY").isValid() && {helperText: t('invalidDate')})
+                                            })}
+                                            fullWidth/>}
+                                    />
+                                </LocalizationProvider>
+                            </Grid>
+                            <Grid item xs={6} md={4}>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    gutterBottom
+                                    component="span">
+                                    {t("old")}
+                                </Typography>
+                                <TextField
+                                    variant="outlined"
+                                    placeholder={t("old-placeholder")}
+                                    size="small"
+                                    fullWidth
+                                    {...getFieldProps("old")}
+                                    onChange={event => {
+                                        const old = parseInt(event.target.value);
+                                        setFieldValue("old", old ? old : "");
+                                        if (old) {
+                                            setError(false);
+                                            const dateInput = (values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD-MM-YYYY") : moment()).set("year", moment().get("year") - old);
+                                            setFieldValue("birthdate", {
+                                                day: dateInput.format("DD"),
+                                                month: dateInput.format("MM"),
+                                                year: dateInput.format("YYYY"),
+                                            });
+                                        }
+                                    }}
+                                />
+                            </Grid>
+                        </Grid>
+                    </Box>
+
                     <Box className={"inner-box"}>
                         {values.phones.map((phoneObject, index: number) =>
                             <Box key={index} mb={2}>
@@ -518,9 +628,9 @@ function OnStepPatient({...props}) {
                                             withCountryCallingCode
                                             {...(getFieldProps(`phones[${index}].phone`) &&
                                                 {
-                                                    helperText: `${commonTranslation("phone_format")}: ${getFieldProps(`phones[${index}].phone`)?.value ?
-                                                        getFieldProps(`phones[${index}].phone`).value : ""}`
-                                                })}
+                                                    helperText: getFieldProps(`phones[${index}].phone`)?.value ? `${commonTranslation("phone_format")} : ${getFieldProps(`phones[${index}].phone`).value}` : ""
+                                                }
+                                            )}
                                             error={Boolean(errors.phones && (errors.phones as any)[index])}
                                             country={phoneObject.dial?.code.toUpperCase() as any}
                                             value={getFieldProps(`phones[${index}].phone`) ?
@@ -571,6 +681,7 @@ function OnStepPatient({...props}) {
                             </Box>
                         )}
                     </Box>
+
                     <Box>
                         <ExpandMore
                             disableFocusRipple
@@ -596,44 +707,6 @@ function OnStepPatient({...props}) {
                             <Typography
                                 variant="body2"
                                 color="text.secondary"
-                                gutterBottom
-                                component="span">
-                                {t("date-of-birth")}
-                            </Typography>
-                            <Stack spacing={3} direction={{xs: "column", lg: "row"}}>
-                                <FormControl
-                                    sx={{
-                                        "& .MuiOutlinedInput-root button": {
-                                            padding: "5px",
-                                            minHeight: "auto",
-                                            height: "auto",
-                                            minWidth: "auto"
-                                        }
-                                    }}
-                                    size="small" fullWidth>
-                                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                        <DatePicker
-                                            value={values.birthdate ? moment(`${values.birthdate.day}/${values.birthdate.month}/${values.birthdate.year}`, "DD/MM/YYYY").toDate() : null}
-                                            inputFormat="dd/MM/yyyy"
-                                            onChange={(date) => {
-                                                if (moment(date).isValid()) {
-                                                    setFieldValue("birthdate", {
-                                                        day: moment(date).format("DD"),
-                                                        month: moment(date).format("MM"),
-                                                        year: moment(date).format("YYYY"),
-                                                    });
-                                                }
-                                            }}
-                                            renderInput={(params) => <TextField {...params} fullWidth/>}
-                                        />
-                                    </LocalizationProvider>
-                                </FormControl>
-                            </Stack>
-                        </Box>
-                        <Box>
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
                                 gutterBottom>
                                 {t("nationality")}
                             </Typography>
@@ -645,14 +718,12 @@ function OnStepPatient({...props}) {
                                     disableClearable
                                     size="small"
                                     value={(countriesData.find(country => country.uuid === values.nationality) ?? null) as any}
-                                    onChange={(e, v: any) => {
-                                        setFieldValue("nationality", v.uuid);
-                                    }}
+                                    onChange={(e, v: any) => setFieldValue("nationality", v.uuid)}
                                     sx={{color: "text.secondary"}}
                                     options={countriesData}
                                     loading={countriesData.length === 0}
-                                    getOptionLabel={(option: any) => option?.nationality ?? ""}
-                                    isOptionEqualToValue={(option: any, value) => option.nationality === value?.nationality}
+                                    getOptionLabel={(option: any) => option?.name ?? ""}
+                                    isOptionEqualToValue={(option: any, value) => option.name === value?.name}
                                     renderOption={(props, option) => (
                                         <MenuItem {...props}>
                                             {option?.code && <Avatar
@@ -664,7 +735,7 @@ function OnStepPatient({...props}) {
                                                 alt={"flags"}
                                                 src={`https://flagcdn.com/${option.code.toLowerCase()}.svg`}
                                             />}
-                                            <Typography sx={{ml: 1}}>{option.nationality}</Typography>
+                                            <Typography sx={{ml: 1}}>{option.name}</Typography>
                                         </MenuItem>
                                     )}
                                     renderInput={params => {
@@ -1214,6 +1285,7 @@ function OnStepPatient({...props}) {
                     </Button>
                     <LoadingButton
                         {...{loading}}
+                        disabled={error}
                         variant="contained" type="submit" color="primary">
                         {t("next")}
                     </LoadingButton>

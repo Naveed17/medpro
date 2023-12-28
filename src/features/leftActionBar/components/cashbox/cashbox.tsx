@@ -9,7 +9,7 @@ import {
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, DayOfWeek} from "@features/calendar";
+import {agendaSelector, DayOfWeek, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {Accordion} from "@features/accordion";
 import {Box, Typography} from "@mui/material";
@@ -24,17 +24,17 @@ const CalendarPickers = dynamic(() =>
 
 function Cashbox() {
     const dispatch = useAppDispatch();
-    
+
     const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
     const {
         selectedBoxes,
         insurances,
         paymentTypes,
         paymentTypesList,
-        filterCB
+        filterCB, selectedTab
     } = useAppSelector(cashBoxSelector);
     const {currentDate} = useAppSelector(agendaSelector);
-    const {config: agendaConfig, sortedData: notes} = useAppSelector(agendaSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [disabledDay, setDisabledDay] = useState<number[]>([]);
     const [filterDate, setFilterDate] = useState(true);
@@ -47,7 +47,7 @@ function Cashbox() {
     const hours = agendaConfig?.openingHours[0];
 
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
-    const insurancesList = medicalProfessionalData ? medicalProfessionalData[0].insurances:[];
+    const insurancesList = medicalProfessionalData ? medicalProfessionalData?.insurances : [];
 
     useEffect(() => {
         let boxes = '';
@@ -108,8 +108,12 @@ function Cashbox() {
         <BoxStyled className="container-filter">
             <CalendarPickers
                 renderDay
-                {...{notes, disabled: !filterDate || byPeriod}}
-                shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday())}/>
+                onDateChange={(date: Date | null) => {
+                    if (date) {
+                        dispatch(setCurrentDate({date, fallback: true}));
+                    }
+                }}
+                shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}/>
 
             <Accordion
                 translate={{
@@ -141,59 +145,8 @@ function Cashbox() {
                             }}/>
                         ),
                     },
-                    {
-                        heading: {
-                            id: "boxes",
-                            icon: "ic-invoice",
-                            title: "boxes",
-                        },
-                        expanded: true,
-                        children: (
-                            <BoxesFilter/>
-                        ),
-                    },
-                    /*{
-                        heading: {
-                            id: "facturation",
-                            icon: "ic-invoice",
-                            title: "facturationState",
-                        },
-                        expanded: true,
-                        children: (
-                            <Stack direction={"row"}>
-                                <FormControlLabel
-                                    label={t('yes')}
-                                    control={
-                                        <Checkbox
-                                            checked={filterCB.status_transaction === '1'}
-                                            onChange={(ev) => {
-                                                dispatch(setFilterCB({
-                                                    ...filterCB,
-                                                    status_transaction: ev.target.checked ? '1' : ''
-                                                }));
-                                            }}
-                                        />
-                                    }
-                                />
-                                <FormControlLabel
-                                    label={t('no')}
-                                    control={
-                                        <Checkbox
-                                            checked={filterCB.status_transaction === '2'}
-                                            onChange={(ev) => {
-                                                dispatch(setFilterCB({
-                                                    ...filterCB,
-                                                    status_transaction: ev.target.checked ? '2' : ''
-                                                }));
-                                            }
-                                            }
-                                        />
-                                    }
-                                />
-                            </Stack>
-                        ),
-                    },*/
-                    {
+
+                    ...(selectedTab === "transactions" ? [{
                         heading: {
                             id: "paymentType",
                             icon: "ic-argent",
@@ -224,8 +177,19 @@ function Cashbox() {
                                                                               color={"gray"}>{t('nopaymentMeans')}</Typography>}
                             </Box>
                         ),
-                    },
-                    {
+                    }] : []),
+                    ...(selectedTab === "transactions" ? [{
+                        heading: {
+                            id: "boxes",
+                            icon: "ic-invoice",
+                            title: "boxes",
+                        },
+                        expanded: true,
+                        children: (
+                            <BoxesFilter/>
+                        ),
+                    }] : []),
+                    ...(selectedTab === "transactions" ? [{
                         heading: {
                             id: "insurance",
                             icon: "ic-assurance",
@@ -256,41 +220,7 @@ function Cashbox() {
                                                                             color={"gray"}>{t('noInsurance')}</Typography>}
                             </Box>
                         ),
-                    },
-                    /*{
-                        heading: {
-                            id: "patient",
-                            icon: "ic-patient",
-                            title: "patient",
-                        },
-                        expanded: true,
-                        children: (
-                            <FilterRootStyled>
-                                <PatientFilter
-                                    OnSearch={(data: { query: ActionBarState }) => {
-                                        dispatch(setFilterCB({
-                                            ...filterCB, ...data.query
-                                        }));
-                                    }}
-                                    item={{
-                                        heading: {
-                                            icon: "ic-patient",
-                                            title: "patient",
-                                        },
-                                        gender: {
-                                            heading: "gender",
-                                            genders: ["male", "female"],
-                                        },
-                                        textField: {
-                                            labels: [
-                                                {label: "name", placeholder: "search"},
-                                                {label: "birthdate", placeholder: "--/--/----"}
-                                            ],
-                                        },
-                                    }} t={t}/>
-                            </FilterRootStyled>
-                        ),
-                    }*/
+                    }] : [])
                 ]}
                 setData={() => {
 

@@ -16,7 +16,7 @@ function useMedicalProfessionalSuffix() {
 
     useEffect(() => {
         if (!medical_professional) {
-            medicalProfessionalData && setMedicalProfessional(medicalProfessionalData[0]?.medical_professional as MedicalProfessionalModel);
+            medicalProfessionalData && setMedicalProfessional(medicalProfessionalData?.medical_professional as MedicalProfessionalModel);
         } else {
             setMedicalProfessional(medical_professional);
         }

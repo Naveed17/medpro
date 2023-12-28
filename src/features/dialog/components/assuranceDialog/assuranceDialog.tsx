@@ -1,9 +1,9 @@
 import {useTranslation} from "next-i18next";
 import React, {useEffect, useState} from "react";
 import {CheckList} from "@features/checkList";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {useInsurances} from "@lib/hooks/rest";
 

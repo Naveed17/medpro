@@ -17,7 +17,7 @@ function BasicList({...props}) {
     const {data: session} = useSession();
     const theme = useTheme();
 
-    const [dataItems] = useState(data.reverse());
+    const [dataItems] = useState([...data].reverse());
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -52,7 +52,7 @@ function BasicList({...props}) {
                                                                              padding: 0
                                                                          }}
                                                                          color={item.appointment.payed ? "success" : "warning"}
-                                                                         label={`${item.appointment?.restAmount !== 0 ? (item.appointment.fees - item.appointment.restAmount) + '/' : ''}${item.appointment?.fees} ${devise}`}/>}
+                                                                         label={`${item.appointment?.fees} ${devise}`}/>}
                                 </>}/>
                                 {item.appointment?.instruction?.length > 0 && <Stack direction={"row"}>
                                     <NotesIcon sx={{fontSize: 20}}/>
@@ -67,8 +67,7 @@ function BasicList({...props}) {
                                             sx={{display: 'inline'}}
                                             component="span"
                                             variant="body2"
-                                            color="text.primary"
-                                        >
+                                            color="text.primary">
                                             {item.duration} <span className="dot"></span>
                                         </Typography>
                                         <Typography variant={"body2"}> {t("online")}</Typography>

@@ -4,7 +4,7 @@ import {DialogActions, DialogContent, DialogContentText, IconButton, Stack, useM
 import CloseIcon from "@mui/icons-material/Close";
 import {Theme} from "@mui/material/styles";
 import Dialog, {DialogProps} from "@mui/material/Dialog";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import HourglassEmptyRoundedIcon from '@mui/icons-material/HourglassEmptyRounded';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 
@@ -22,17 +22,24 @@ function Dialogs({...props}) {
         headerDialog = null,
         onClose,
         icon,
+        margin = 1,
         size = "md",
         enableFullScreen = false,
+        fullScreenDialog = false,
         sx,
         ...rest
     } = props;
     const selected = DialogData.find((item) => item.action === action);
     const [fullWidth] = useState(true);
-    const [fullScreen, setFullScreen] = useState(false);
-    const [maxWidth] = useState<DialogProps["maxWidth"]>(size);
+    const [fullScreen, setFullScreen] = useState(fullScreenDialog);
+    const [maxWidth, setMaxWidth] = useState<DialogProps["maxWidth"]>(size);
     const Component: any = selected ? selected.component : action;
     const smScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
+
+    useEffect(() => {
+        size && setMaxWidth(size);
+    }, [size]);
+
     return (
         <>
             <Dialog
@@ -44,17 +51,15 @@ function Dialogs({...props}) {
                 dir={direction}
                 aria-labelledby="scroll-dialog-title"
                 aria-describedby="scroll-dialog-description"
-                {
-                    ...(smScreen && {
-                        PaperProps: {
-                            sx: {
-                                width: '100%',
-                                m: 1,
-                            }
-
+                {...(smScreen && {
+                    PaperProps: {
+                        sx: {
+                            width: '100%',
+                            m: margin
                         }
-                    })
-                }>
+
+                    }
+                })}>
                 {!headerDialog ? <DialogTitle
                     sx={{
                         backgroundColor: color
@@ -96,9 +101,8 @@ function Dialogs({...props}) {
                     ) : null}
                 </DialogTitle> : headerDialog}
                 <DialogContent
+                    {...{sx}}
                     dividers={true}
-                    sx={{...sx}}
-                    {...(fullScreen && {sx: {minHeight: 600}})}
                     style={{overflow: action === 'write_certif' ? 'hidden' : ''}}>
                     <DialogContentText id="scroll-dialog-description" tabIndex={-1}/>
                     <Component {...(data && {data, fullScreen})}/>

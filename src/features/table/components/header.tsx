@@ -8,6 +8,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import {Checkbox} from "@mui/material";
 import {visuallyHidden} from "@mui/utils";
 import CodeIcon from "@mui/icons-material/Code";
+import {capitalize} from 'lodash'
 
 function OHead({...props}) {
     const {
@@ -61,8 +62,7 @@ function OHead({...props}) {
                                 key={headCell.id}
                                 align={headCell.align}
                                 padding={headCell.disablePadding ? "none" : "normal"}
-                                sortDirection={orderBy === headCell.id ? order : false}
-                            >
+                                sortDirection={orderBy === headCell.id ? order : false}>
                                 <TableSortLabel
                                     active={orderBy === headCell.id}
                                     direction={orderBy === headCell.id ? order : "asc"}
@@ -77,7 +77,7 @@ function OHead({...props}) {
                                                 : "flex-start",
                                     }}
                                 >
-                                    {t(`table.${headCell.label}`)}
+                                    {capitalize(t(`table.${headCell.label}`))}
                                     {orderBy === headCell.id ? (
                                         <Box component="span" sx={visuallyHidden}>
                                             {order === "desc"

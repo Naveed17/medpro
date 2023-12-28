@@ -17,6 +17,7 @@ import {
     Stack,
     Tooltip,
     Typography,
+    useTheme,
 } from "@mui/material";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
@@ -27,12 +28,11 @@ import {consultationSelector} from "@features/toolbar";
 import {toggleSideBar} from "@features/menu";
 import {appLockSelector} from "@features/appLock";
 import {onOpenPatientDrawer} from "@features/table";
-import dynamic from "next/dynamic";
+
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import Zoom from "react-medium-image-zoom";
 import {useSpeechRecognition} from "react-speech-recognition";
-import FolderRoundedIcon from "@mui/icons-material/FolderRounded";
 import {capitalizeFirst, getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import ContentStyled from "./overrides/contantStyle";
 import {ExpandAbleCard} from "@features/card";
@@ -43,13 +43,14 @@ import Content from "@features/leftActionBar/components/consultation/content";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-import {Label} from "@features/label";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
+import {Label} from "@features/label";
 
 function Consultation() {
     const dispatch = useAppDispatch();
     const router = useRouter();
+    const theme = useTheme()
     const {data: session} = useSession();
     const {data: user} = session as Session;
 
@@ -59,12 +60,10 @@ function Consultation() {
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
-    const {t: commonTranslation} = useTranslation("common");
-    const {patient} = useAppSelector(consultationSelector);
+    const {patient,loading:loadingG} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
 
     const [loading, setLoading] = useState<boolean>(true);
     const [note, setNote] = useState("");
@@ -137,7 +136,7 @@ function Consultation() {
                 {
                     id: 1,
                     title: "treatment_in_progress",
-                    icon: "ic-medicament",
+                    icon: "docs/ic-prescription",
                     badge: patient?.treatments
                 },
                 {
@@ -155,25 +154,25 @@ function Consultation() {
                 {
                     id: 4,
                     title: "antecedent",
-                    icon: "ic-doc",
+                    icon: "docs/antecedent",
                     badge: nb
                 },
                 {
                     id: 9,
                     title: "balance_sheet",
-                    icon: "ic-analyse",
+                    icon: "docs/ic-analyse",
                     badge: patient?.requestedAnalyses
                 },
                 {
                     id: 5,
                     title: "medical_imaging_pending",
-                    icon: "ic-soura",
+                    icon: "docs/ic-soura",
                     badge: patient?.requestedImaging
                 },
                 {
                     id: 8,
                     title: "documents",
-                    icon: "ic-download",
+                    icon: "ic-quote",
                     badge: patient?.documents
                 },
             ]);
@@ -244,18 +243,18 @@ function Consultation() {
                                 <Typography
                                     variant="body1"
                                     color="primary.main"
+                                    onClick={() => {
+                                        dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                                    }}
                                     sx={{
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
+                                        fontWeight: 500,
                                         width: 150
                                     }}>
                                     {patient?.firstName ? capitalizeFirst(patient.firstName) : ""} {patient?.lastName}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
-                                </Typography>
-
                                 {patient?.contact && patient?.contact.length > 0 &&
                                     <Typography
                                         component="div"
@@ -266,10 +265,22 @@ function Consultation() {
                                             mb: 0.3,
                                         }}
                                         variant="body2"
-                                        color="text.secondary">
+                                        color="primary.main">
                                         <Icon path="ic-phone"/>{patient?.contact[0]}
                                     </Typography>
                                 }
+                                {patient?.birthdate && <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                    <Icon path="ic-anniverssaire"/>
+                                    <Typography variant="body2" sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        "& .react-svg": {mr: 0.8},
+                                        mb: 0.3,
+                                    }} color="text.secondary">
+                                        {patient?.birthdate} {patient?.birthdate && <>({" "}{getBirthdayFormat(patient, t)}{" "})</>}
+                                    </Typography>
+
+                                </Stack>}
 
                                 {patient?.email && (
                                     <Typography
@@ -285,21 +296,6 @@ function Consultation() {
                                         {patient?.email}
                                     </Typography>
                                 )}
-
-                                {(isBeta && patient && (patient?.rest_amount ?? 0) !== 0) && <Label
-                                    variant='filled'
-                                    sx={{
-                                        "& .MuiSvgIcon-root": {
-                                            width: 16,
-                                            height: 16,
-                                            pl: 0
-                                        }
-                                    }}
-                                    color={patient.rest_amount > 0 ? "expire" : "success"}>
-                                    <Typography
-                                        sx={{fontSize: 12}}>
-                                        {commonTranslation(patient.rest_amount > 0 ? "credit" : "wallet")} {`${patient.rest_amount > 0 ? '-' : '+'} ${Math.abs(patient.rest_amount)}`} {devise}</Typography>
-                                </Label>}
                             </Box>
                         )}
 
@@ -312,25 +308,58 @@ function Consultation() {
                         <IconButton
                             size={"small"}
                             sx={{position: "absolute", top: 20, right: 10}}>
-                            <Icon path={"ic-duotone"}/>
+                            <Icon path={"ic-edit-patient"}/>
                         </IconButton>
                     </Box>
                 </Stack>
+                {isBeta  && patient  &&
+                    <Stack direction={"row"} p={1} spacing={1} onClick={() => {
+                        dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
+                    }}>
+                        {patient.wallet > 0 && <Label variant='filled'
+                                sx={{color: theme.palette.success.main, background: theme.palette.success.lighter}}>
+                            <span>{t('wallet')}</span>
+                            <span style={{
+                                fontSize: 14,
+                                marginLeft: 5,
+                                marginRight: 5,
+                                fontWeight: "bold"
+                            }}>{!loadingG ?patient.wallet:"-"}</span>
+                            <span>{devise}</span>
+                        </Label>}
+
+                        {  patient.rest_amount !== 0 && <Label variant='filled'
+                                sx={{color: theme.palette.error.main, background: theme.palette.error.lighter}}>
+                            <span style={{fontSize: 11}}>{t('credit')}</span>
+                            <span style={{
+                                fontSize: 14,
+                                marginLeft: 5,
+                                marginRight: 5,
+                                fontWeight: "bold"
+                            }}>{!loadingG ? Math.abs(patient.rest_amount) : "-"}</span>
+                            <span>{devise}</span>
+                        </Label>}
+                    </Stack>
+                }
+
+
                 {patient?.fiche_id && (
-                    <Stack spacing={1} mb={-2} mt={2} ml={3}>
+                    <Stack spacing={1} mb={-2} mt={1} ml={3}>
                         <Button
                             onClick={() => {
                                 dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
                             }}
                             variant="consultationIP"
-                            startIcon={<FolderRoundedIcon/>}
+                            startIcon={<IconUrl path={"ic-folder"} width={20} height={20}/>}
                             sx={{
                                 borderTopRightRadius: 0,
                                 borderBottomRightRadius: 0,
                                 px: 1.5,
                             }}>
                             {upperFirst(t("ficheID"))}{" "}
-                            <span style={{fontWeight: "bold"}}>{patient?.fiche_id}</span>
+                            <span style={{fontWeight: "bold",maxWidth:150,whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis"}}>{patient?.fiche_id}</span>
                         </Button>
                     </Stack>
                 )}
@@ -343,7 +372,7 @@ function Consultation() {
                             setIsNote(!isNote);
                         }}>
                         <ListItemIcon>
-                            <Icon path={"ic-text"}/>
+                            <Icon width={50} height={50} path={"docs/ic-note"}/>
                         </ListItemIcon>
                         <Typography fontWeight={700}>{upperFirst(t("note"))}</Typography>
                         <IconButton size="small" sx={{ml: "auto"}}>
@@ -434,12 +463,9 @@ function Consultation() {
                                 <Stack sx={{ml: "auto"}} spacing={2} direction={"row"}>
                                     <Badge
                                         badgeContent={col.badge}
-                                        sx={{marginTop: 1.5}}
+                                        sx={{marginRight: 1.5}}
                                         color="warning"
                                     />
-                                    <IconButton size="small">
-                                        <Icon path={collapse === col.id ? "arrow-up-table" : "ic-expand-more"}/>
-                                    </IconButton>
                                 </Stack>
                             </ListItem>
                             <ListItem sx={{p: 0}}>

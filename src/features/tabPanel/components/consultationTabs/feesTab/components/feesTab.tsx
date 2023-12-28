@@ -1,23 +1,30 @@
 import React, {useEffect, useState} from "react";
-import {Box, InputAdornment, Stack, TextField} from "@mui/material";
+import {
+    Box,
+    Card,
+    CardContent,
+    Collapse,
+    InputAdornment,
+    LinearProgress,
+    Stack,
+    TextField,
+    Typography
+} from "@mui/material";
 import {Otable} from "@features/table";
-import SearchIcon from "@mui/icons-material/Search";
+import {CipMedicProCard} from '@features/card'
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
+import {useMutateOnGoing} from "@lib/hooks";
+import IconUrl from "@themes/urlIcon";
 
 function FeesTab({...props}) {
+    const router = useRouter();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const [search, setSearch] = useState<string>("");
-
-    interface HeadCell {
-        disablePadding: boolean;
-        id: string;
-        label: string;
-        numeric: boolean;
-        sortable: boolean;
-        align: "left" | "right" | "center";
-    }
+    const [loading, setLoading] = useState(true);
 
     const headCells: readonly HeadCell[] = [
         {
@@ -33,6 +40,22 @@ function FeesTab({...props}) {
             numeric: false,
             disablePadding: true,
             label: "title",
+            sortable: true,
+            align: "left",
+        },
+        {
+            id: "code",
+            numeric: false,
+            disablePadding: true,
+            label: "code",
+            sortable: true,
+            align: "left",
+        },
+        {
+            id: "contribution",
+            numeric: false,
+            disablePadding: true,
+            label: "contribution",
             sortable: true,
             align: "left",
         },
@@ -74,20 +97,22 @@ function FeesTab({...props}) {
         devise,
         editAct = null,
         t,
+        mutatePatient,
         isQuoteRequest
     } = props;
 
-    const router = useRouter();
 
     const {trigger: triggerFeesEdit} = useRequestQueryMutation("appointment/fees/edit");
     const {data: httpAppointmentFees, mutate} = useRequestQuery(app_uuid ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/acts/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
+    } : null);
 
     const res = (httpAppointmentFees as HttpResponse)?.data;
 
     useEffect(() => {
+        if (isQuoteRequest)
+            setLoading(false)
         if (res) {
             let _acts = [{
                 act: {name: res.type.name},
@@ -98,9 +123,9 @@ function FeesTab({...props}) {
                 uuid: "consultation_type"
             }, ...mpActs]
 
-            res.acts && res.acts.map((act: { act_uuid: string,qte:number,price:number }) => {
+            res.acts && res.acts.map((act: { act_uuid: string, qte: number, price: number }) => {
                 const index = _acts.findIndex(mpact => mpact.uuid === act.act_uuid)
-                if(index > -1) {
+                if (index > -1) {
                     _acts[index].selected = true
                     _acts[index].qte = act.qte;
                     _acts[index].fees = act.price;
@@ -115,6 +140,7 @@ function FeesTab({...props}) {
             setTotal(_total);
 
             setActs(_acts)
+            setLoading(false)
         }
     }, [res]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -157,14 +183,18 @@ function FeesTab({...props}) {
         const form = new FormData();
         form.append("acts", JSON.stringify(_acts));
         form.append("fees", _total.toString());
-        form.append("consultation_fees", consultationFees ? consultationFees.toString():"null");
+        form.append("consultation_fees", consultationFees ? consultationFees.toString() : "null");
 
         app_uuid && triggerFeesEdit({
             method: "PUT",
             url: `${urlMedicalEntitySuffix}/agendas/${agenda}/appointments/${app_uuid}/data/${router.locale}`,
             data: form
         }, {
-            onSuccess: () => mutate()
+            onSuccess: () => {
+                mutateOnGoing();
+                mutatePatient();
+                mutate();
+            }
         });
     }
 
@@ -176,52 +206,88 @@ function FeesTab({...props}) {
         if (from === 'change')
             acts[act_index] = row
 
-        saveChanges([...acts]);
-
+        setActs([...acts])
     }
 
     return (
         <>
             <Box>
-                {!isQuoteRequest && <Stack alignItems={"flex-end"} mb={2}>
-                    <TextField
-                        placeholder={t("exempleFees")}
-                        value={search}
-                        onChange={(ev) => {
-                            setSearch(ev.target.value);
-                        }}
-                        sx={{width: '15rem'}}
-                        inputProps={{style: {background: "white"}}}
-                        InputProps={{
-                            endAdornment: <InputAdornment position="end">
-                                <SearchIcon/>
-                            </InputAdornment>,
-                        }}
-                    />
-                </Stack>}
 
-                <Otable
-                    headers={headCells}
-                    rows={acts?.filter((act: any) => {
-                        return act.act.name?.toLowerCase().includes(search.toLowerCase())
-                    })}
-                    from={"CIP-medical-procedures"}
-                    t={t}
-                    edit={editAct ? editAct : editActConsult}
-                    devise={devise}
-                    handleChange={setTotal}/>
+                <DesktopContainer>
 
-                {/* {!isQuoteRequest&&<Button
-                    onClick={() => {
-                        router.push("/dashboard/settings/actfees")
-                    }}
-                    size="small"
-                    startIcon={<TuneRoundedIcon/>}>
-                    {t('consultationIP.config')}
-                </Button>}*/}
+                    <Card>
+                        <CardContent>
+                            <Stack direction='row' alignItems={{xs: 'flex-start', md: 'center'}}
+                                   justifyContent="space-between" mb={2} pb={1} borderBottom={1}
+                                   borderColor='divider'>
+                                <Typography fontWeight={700} mt={1} mb={1}>
+                                    {t("consultationIP.medical_procedures")}
+                                </Typography>
+                                <Stack direction={'row'} alignItems="center" spacing={1}>
+                                    {!isQuoteRequest && <Stack alignItems={"flex-end"}>
+                                        <TextField
+                                            placeholder={t("exempleFees")}
+                                            value={search}
+                                            onChange={(ev) => {
+                                                setSearch(ev.target.value);
+                                            }}
+                                            sx={{width: '15rem'}}
+                                            InputProps={{
+                                                endAdornment: <InputAdornment position="end">
+                                                    <IconUrl path={"search"}/>
+                                                </InputAdornment>,
+                                            }}/>
+                                    </Stack>}
+                                </Stack>
+                            </Stack>
+                            {loading && <LinearProgress/>}
+                            <Collapse in={!loading}>
+                                <Otable
+                                    headers={headCells}
+                                    rows={acts?.filter((act: any) => {
+                                        return act.act.name?.toLowerCase().includes(search.toLowerCase())
+                                    })}
+                                    from={"CIP-medical-procedures"}
+                                    t={t}
+                                    edit={editAct ? editAct : editActConsult}
+                                    handleEvent={() => {
+                                        saveChanges([...acts])
+                                    }}
+                                    devise={devise}
+                                    handleChange={setTotal}/>
+                            </Collapse>
+
+                        </CardContent></Card>
+
+                </DesktopContainer>
+                <MobileContainer>
+                    {
+                        <Stack spacing={1}>
+                            {
+                                acts?.filter((act: any) => {
+                                    return act.act.name?.toLowerCase().includes(search.toLowerCase())
+                                }).map((act: any) => (
+                                    <CipMedicProCard key={act.uuid}
+                                                     row={act}
+                                                     devise={devise}
+                                                     edit={editAct ? editAct : editActConsult}
+                                                     handleChange={setTotal}
+                                                     t={t}
+                                                     handleEvent={() => {
+                                                         saveChanges([...acts])
+                                                     }}/>
+                                ))
+                            }
+
+                        </Stack>
+                    }
+
+                </MobileContainer>
+
+
             </Box>
 
-            <Box pt={8}/>
+            <Box pt={4}/>
         </>
     );
 }

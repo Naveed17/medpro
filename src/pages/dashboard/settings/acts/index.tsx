@@ -14,9 +14,9 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import {getDifference, useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -87,12 +87,12 @@ function Acts() {
     useEffect(() => {
         if (medicalProfessionalData !== undefined) {
             const professionalSpecialities = {};
-            medicalProfessionalData[0]?.medical_professional.specialities.map((speciality: any, index: number) => {
+            medicalProfessionalData?.medical_professional.specialities.map((speciality: any, index: number) => {
                 Object.assign(professionalSpecialities, {['specialities[' + index + ']']: speciality.speciality.uuid});
             });
             setSpecialities(professionalSpecialities);
             setIsProfile(true);
-            const acts = medicalProfessionalData[0]?.acts;
+            const acts = medicalProfessionalData?.acts;
             let main: ActModel[] = [];
             let secondary: ActModel[] = [];
             acts?.map((act: MedicalProfessionalActModel) => {

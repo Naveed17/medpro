@@ -17,7 +17,6 @@ import React, {useCallback, useState} from "react";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 import {useRouter} from "next/router";
-import dynamic from "next/dynamic";
 import {useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {Editor} from '@tinymce/tinymce-react';
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -28,7 +27,7 @@ import PaperStyled from "@features/CertifModelDrawer/components/overrides/paperS
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 function CertifModelDrawer({...props}) {
     const {data, editDoc = false, action, isDefault, certificateFolderModel, onSubmit, closeDraw} = props;
@@ -189,7 +188,14 @@ function CertifModelDrawer({...props}) {
                                                     sizedot={12}
                                                     padding={3} marginRight={5}
                                                     selected={false}/>
-                                                <Typography variant="body2" style={{cursor: "pointer"}}>
+                                                <Typography variant="body2" style={{
+                                                    cursor: "pointer",
+                                                    whiteSpace: "nowrap",
+                                                    fontSize: 13,
+                                                    textOverflow: "ellipsis",
+                                                    overflow: "hidden",
+                                                    width: "4rem"
+                                                }}>
                                                     {sug.title}
                                                 </Typography>
                                             </Stack>

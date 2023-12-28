@@ -23,10 +23,11 @@ import {
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
+import {Dialog as CustomDialog} from "@features/dialog";
 import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
-import {resetTimer, setTimer} from "@features/card";
-import {dashLayoutSelector, setOngoing} from "@features/base";
+import {resetTimer} from "@features/card";
+import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import {DefaultCountry, EnvPattern} from "@lib/constants";
 import {setMoveDateTime} from "@features/dialog";
@@ -58,12 +59,14 @@ function FcmLayout({...props}) {
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
     const [notificationData, setNotificationData] = useState<any>(null);
     const [noConnection, setNoConnection] = useState<SnackbarKey | undefined>(undefined);
     const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
+    const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -143,24 +146,10 @@ function FcmLayout({...props}) {
                             dispatch(setLastUpdate(data));
                             // refresh on going api
                             mutateOnGoing();
-                            const event = {
-                                publicId: data.body.appointment?.uuid,
-                                title: `${data.body.appointment.patient.firstName} ${data.body.appointment.patient.lastName}`,
-                                extendedProps: {
-                                    patient: data.body.appointment.patient,
-                                    type: data.body.type,
-                                    status: AppointmentStatus[data.body.appointment?.status],
-                                    time: moment(`${data.body.appointment.dayDate} ${data.body.appointment.startTime}`, "DD-MM-YYYY HH:mm").toDate()
-                                }
-                            } as any;
-                            // start consultation timer
-                            dispatch(setTimer({
-                                    isActive: true,
-                                    isPaused: false,
-                                    event,
-                                    startTime: moment().utc().format("HH:mm")
-                                }
-                            ));
+                            break;
+                        case "documents":
+                            enqueueSnackbar(translationCommon.alerts["speech-text"].title, {variant: "success"});
+                            invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
                             break;
                         default:
                             data.body.mutate && invalidateQueries([data.body.mutate]);
@@ -295,6 +284,26 @@ function FcmLayout({...props}) {
     return (
         <>
             {props.children}
+
+            <CustomDialog
+                action={"payment_dialog"}
+                {...{
+                    direction,
+                    sx: {
+                        minHeight: 460
+                    }
+                }}
+                open={openPaymentDialog}
+                data={{
+                    patient: notificationData?.patient,
+                    setOpenPaymentDialog,
+                    mutatePatient: () => mutateOnGoing()
+                }}
+                size={"lg"}
+                fullWidth
+                title={translationCommon.payment_dialog_title}
+                dialogClose={() => setOpenPaymentDialog(false)}
+            />
             <Dialog
                 open={openDialog}
                 onClose={handleClose}
@@ -331,14 +340,12 @@ function FcmLayout({...props}) {
                                     devise,
                                     nextAppointment: notificationData?.nextApp,
                                     control: notificationData?.control,
-                                    restAmount: notificationData?.restAmount,
-                                    payed: notificationData?.payed
+                                    restAmount: notificationData?.patient.restAmount,
+                                    payed: notificationData?.patient.restAmount === 0
                                 }}
                                 OnPay={() => {
                                     handleClose();
-                                    router.push("/dashboard/agenda").then(() => {
-                                        dispatch(openDrawer({type: "pay", open: true}));
-                                    });
+                                    setOpenPaymentDialog(true);
                                 }}
                                 OnSchedule={() => {
                                     handleClose();

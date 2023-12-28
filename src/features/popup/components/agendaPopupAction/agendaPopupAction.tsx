@@ -6,7 +6,6 @@ import {
     ListItem,
     Typography,
     Stack,
-    Avatar,
     Box,
     Link,
     Button
@@ -16,9 +15,9 @@ import CheckIcon from '@mui/icons-material/Check';
 import {useTranslation} from "next-i18next";
 import React from "react";
 import {pxToRem} from "@themes/formatFontSize";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import CallIcon from "@mui/icons-material/Call";
 
@@ -27,7 +26,7 @@ function AgendaPopupAction({...props}) {
 
     const {t, ready} = useTranslation("common");
 
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <AgendaPopupActionStyled>

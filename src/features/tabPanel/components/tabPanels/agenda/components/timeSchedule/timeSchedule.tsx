@@ -9,15 +9,15 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
-import {agendaSelector, setStepperIndex} from "@features/calendar";
+import {agendaSelector, CalendarPickers, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+
+import {LoadingScreen} from "@features/loadingScreen";
 
 import moment from "moment-timezone";
 import {
@@ -66,7 +66,7 @@ function TimeSchedule({...props}) {
     const {medical_professional} = useMedicalProfessionalSuffix();
     const {current: disabledDay} = useHorsWorkDays();
 
-    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers",});
+    const {t, ready} = useTranslation("agenda", {keyPrefix: "steppers"});
     const {config: agendaConfig, currentStepper} = useAppSelector(agendaSelector);
     const {
         motif,
@@ -352,9 +352,9 @@ function TimeSchedule({...props}) {
                                     }}
                                     filterOptions={(options, params) => {
                                         const {inputValue} = params;
-                                        const filtered = options.filter(option => [option.name.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
+                                        const filtered = options.filter(option => [option.name?.toLowerCase()].some(option => option?.includes(inputValue.toLowerCase())));
                                         // Suggest the creation of a new value
-                                        const isExisting = options.some((option) => inputValue.toLowerCase() === option.name.toLowerCase());
+                                        const isExisting = options.some((option) => inputValue.toLowerCase() === option.name?.toLowerCase());
                                         if (inputValue !== '' && !isExisting) {
                                             filtered.push({
                                                 inputValue,
@@ -418,12 +418,11 @@ function TimeSchedule({...props}) {
                             </Typography>
                             <Grid container spacing={changeTime ? 3 : 6} sx={{height: "auto"}}>
                                 {!changeTime && <Grid item md={6} xs={12}>
-                                    <StaticDatePicker
-                                        views={['day']}
-                                        onDateDisabled={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
-                                        onChange={(newDate: Date) => onChangeDatepicker(newDate)}
-                                        value={(location) ? date : null}
-                                        loading={!location || !medical_professional}
+                                    <CalendarPickers
+                                        renderDay
+                                        defaultValue={(location) ? date : null}
+                                        onDateChange={(newDate: Date) => onChangeDatepicker(newDate)}
+                                        shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
                                     />
                                 </Grid>}
                                 <Grid item
@@ -434,6 +433,7 @@ function TimeSchedule({...props}) {
                                                 {t("stepper-1.time-message")}
                                             </Typography>
                                             <TimeSlot
+                                                {...{t}}
                                                 sx={{width: 248, margin: "auto"}}
                                                 loading={!date || loading}
                                                 data={timeSlots}
@@ -507,7 +507,8 @@ function TimeSchedule({...props}) {
                                                     height={"14"}
                                                     {...(!date && {color: "white"})}
                                                     path="ic-edit"/>}
-                                            variant="text">{t("stepper-1.change-time")}</Button>}
+                                            variant="text">{t("stepper-1.change-time")}</Button>
+                                    }
                                 </Grid>
                             </Grid>
                         </>
@@ -518,20 +519,19 @@ function TimeSchedule({...props}) {
                             <motion.div
                                 initial={{opacity: 0}}
                                 animate={{opacity: 1}}
-                                transition={{ease: "easeIn", duration: .2}}
-                            >
+                                transition={{ease: "easeIn", duration: .2}}>
                                 <Typography variant="body1" color="text.primary" mb={1}
                                             {...(recurringDates.length > 0 && {mt: 2})}>
                                     {t("stepper-1.selected-appointment")}
                                 </Typography>
                                 {recurringDates.map((recurringDate, index) => (
                                     <PatientCardMobile
+                                        onDeleteItem={() => {
+                                            onMenuActions(recurringDate, "onRemove", index)
+                                        }}
                                         onAction={(action: string) => onMenuActions(recurringDate, action, index)}
                                         button={
                                             <IconButton
-                                                onClick={() => {
-                                                    onMenuActions(recurringDate, "onRemove", index)
-                                                }}
                                                 sx={{
                                                     p: 0, "& svg": {
                                                         p: "2px"

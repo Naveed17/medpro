@@ -14,7 +14,6 @@ import {
     Paper,
     Skeleton,
     Stack,
-    styled,
     Tooltip,
     Typography,
 } from "@mui/material";
@@ -25,14 +24,14 @@ import moment from "moment-timezone";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {useProfilePhoto} from "@lib/hooks/rest";
-import dynamic from "next/dynamic";
+
 import {SelectCheckboxCard} from "@features/selectCheckboxCard";
 import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ImageHandler} from "@features/image";
 import {SmallAvatar} from "@features/avatar";
 
-const LoadingScreen = dynamic(() => import('@features/loadingScreen/components/loadingScreen'));
+import {LoadingScreen} from "@features/loadingScreen";
 
 const CardSection = ({...props}) => {
     const {data, theme, onOpenPatientDetails, loading, handleEvent, t, dispatch, insurances} = props;
@@ -51,7 +50,7 @@ const CardSection = ({...props}) => {
                                     <Badge
                                         overlap="circular"
                                         anchorOrigin={{vertical: "bottom", horizontal: "right"}}
-                                        {...(data.nationality && {
+                                        {...(data.nationality?.code && {
                                             badgeContent: (
                                                 <Tooltip title={data.nationality.nationality}>
                                                     <SmallAvatar

@@ -48,7 +48,10 @@
     "to": "à",
     "day": "Jour",
     "added": "RDV ajouté",
-    "description": ""
+    "description": "",
+    "stepper-1": {
+      "slots-unavailable": "Journée bloquée ou pas de plage horaire disponible"
+    }
   },
   "config": {
     "reason_for_consultation": "Motif",
@@ -59,6 +62,7 @@
     "more": "Plus",
     "merge-patient": "Fusionner les patients",
     "duplication": "Détection des doublons",
+    "unPayed": "Non payé",
     "patient": "Patient",
     "place": "Lieu",
     "doc_detail_title": "Document",
@@ -84,7 +88,7 @@
       "documents": "Documents",
       "transactions": "Paiements",
       "add-appo": "Ajouter RDV",
-      "import": "Importer un document",
+      "import": "Télécharger document patient",
       "time-slot": "Créneau horaire",
       "advice": "Instruction / Conseil",
       "end": "Fin",
@@ -110,8 +114,9 @@
       "documents": {
         "title": "Ajouter le premier document",
         "description": "Vous n'avez pas de document médical Ajoutez les documents en cliquant sur 'Ajouter un document'",
-        "quote-description": "Aucun devis, Cliquez sur 'Ajouter un devis'",
-        "add_quote": "Ajouter devis",
+        "quote-add": "Ajouter le premier devis",
+        "quote-description": "Vous n'avez pas aucun devis. Ajoutez un devis en cliquant sur \"Ajouter un devis\"",
+        "add_quote": "Ajouter un devis",
         "button-text": "Ajouter un document"
       },
       "consultation": {
@@ -125,7 +130,7 @@
       }
     },
     "table": {
-      "name": "Nom du patient",
+      "name": "Patient",
       "telephone": "Téléphone",
       "insurance": "Assurances",
       "city": "ville",
@@ -162,6 +167,7 @@
       "additional-information": "Informations supplémentaires",
       "fin": "Fin",
       "group": "Groupe",
+      "invalidDate": "La date est invalide",
       "duplicatedFileID": "File number already used",
       "last-assure-placeholder": "Tapez le nom de famille de l'assuré",
       "first-assure-placeholder": "Tapez le prénom de l'assuré",
@@ -184,7 +190,7 @@
       "name-error": "Le nom doit contenir au moins 3 caractères, sans caractères spéciaux.",
       "first-name": "Prénom",
       "first-name-error": "Le prénom doit contenir au moins 3 caractères, sans caractères spéciaux.",
-      "special-text-error": "Seuement les alphabets sont autorisés pour ce champ.",
+      "special-text-error": "Seulement les alphabets sont autorisés pour ce champ.",
       "first-name-placeholder": "Tapez le prénom du patient",
       "last-name": "Nom",
       "last-name-error": "Le nom de famille doit contenir au moins 3 caractères, sans caractères spéciaux.",
@@ -336,6 +342,8 @@
       "search": "Nom & prénom/Tél/N° fiche",
       "appointment": "Rendez-vous",
       "type": "Type",
+      "payment": "Statut du paiement",
+      "duplicate": "Voir les patients en double",
       "next-appointment": "Prochain rendez-vous",
       "last-appointment": "Dernier rendez-vous",
       "reasons": "Motif",
