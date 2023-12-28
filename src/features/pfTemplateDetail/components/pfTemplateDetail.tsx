@@ -349,7 +349,12 @@ function PfTemplateDetail({...props}) {
                                             {t("selectColor")}
                                         </Typography>
 
-                                        <Stack spacing={1} direction={"row"}>
+                                        <Stack spacing={1} direction={"row"} overflow="auto" sx={{
+                                            "@media (max-width: 380px)": {
+                                    p:1,
+                                    
+                                }
+                                        }}>
                                             {colors.map((color) => (
                                                 <ModelDot
                                                     key={color}
@@ -364,8 +369,6 @@ function PfTemplateDetail({...props}) {
                                 </Stack>
                             </CardContent>
                         </Card>
-
-
                         <Typography
                             variant="body1"
                             fontWeight={400}
@@ -373,9 +376,15 @@ function PfTemplateDetail({...props}) {
                             gutterBottom>
                             {t("info")}
                         </Typography>
-
+                        <Box sx={{
+                            "& > div":{
+                                "@media (max-width: 500px)": {
+                                    mx:0,
+                                }
+                            }
+                        }}>
                         <SearchInput onChange={handleSearchInput}/>
-
+                        </Box>
 
                         <Card>
                             <CardContent>

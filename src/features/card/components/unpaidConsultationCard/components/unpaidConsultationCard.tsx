@@ -102,7 +102,7 @@ function UnpaidConsultationCard({ ...props }) {
               </ListItemIcon>
               <ListItemText
                 primary={
-                  <Typography variant="body2" fontWeight={500}>
+                  <Typography variant="body2" className="ellipsis" fontWeight={500}>
                     {row.fees ? row.fees : row.appointmentRestAmount} {devise}
                   </Typography>
                 }
@@ -116,7 +116,7 @@ function UnpaidConsultationCard({ ...props }) {
               </ListItemIcon>
               <ListItemText
                 primary={
-                  <Typography variant="body2" fontWeight={500}>
+                  <Typography variant="body2" className="ellipsis" fontWeight={500}>
                     {row.fees ? row.fees - row.appointmentRestAmount : 0}{" "}
                     {devise}
                   </Typography>
@@ -131,7 +131,7 @@ function UnpaidConsultationCard({ ...props }) {
               </ListItemIcon>
               <ListItemText
                 primary={
-                  <Typography variant="body2" fontWeight={500}>
+                  <Typography variant="body2" className="ellipsis" fontWeight={500}>
                     {row.appointmentRestAmount} {devise}
                   </Typography>
                 }
