@@ -26,7 +26,7 @@ export default function Pagination({...props}) {
     return (
         <Box
             display="flex"
-            m={1}
+            my={1}
             justifyContent="space-between"
             alignItems="center"
             {...rest}>

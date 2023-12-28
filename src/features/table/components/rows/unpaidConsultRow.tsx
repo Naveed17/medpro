@@ -13,6 +13,7 @@ import {ConditionalWrapper} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 import {Label} from "@features/label";
+import {useRouter} from "next/router";
 
 function UnpaidConsultRow({...props}) {
 
@@ -25,28 +26,37 @@ function UnpaidConsultRow({...props}) {
 
     const {hideName} = data;
     const {insurances} = useInsurances();
-
     const theme = useTheme();
     const {data: session} = useSession();
+    const router = useRouter();
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
-    const _fees = row.fees ? row.fees : row.appointmentRestAmount
+    const _fees = row.fees ? row.fees : row.appointmentRestAmount;
+
     return (
         <TableRowStyled rest={row.appointmentRestAmount} fees={_fees} tabIndex={-1} className={`row-cashbox`}>
             <TableCell>
                 <Stack
                     direction="row"
                     alignItems="center"
+                    onClick={() => {
+                        router.replace(`/dashboard/consultation/${row.uuid}`)
+                    }}
                     spacing={.5}>
                     <Icon path="ic-agenda-jour" height={14} width={14} color={theme.palette.text.primary}/>
                     <Typography variant="body2" fontSize={13}
+                                sx={{cursor: "pointer"}}
+                                color={"primary"}
                                 fontWeight={600}>{moment(row.dayDate, 'DD-MM-YYYY').format('DD-MM-YYYY')}</Typography>
                     <Icon path="ic-time" height={14} width={14} color={theme.palette.text.primary}/>
                     <Typography
                         fontSize={13}
                         fontWeight={600}
+                        color={"primary"}
+                        sx={{cursor: "pointer"}}
                         variant="body2">{row.startTime}</Typography>
                 </Stack>
             </TableCell>
@@ -68,13 +78,13 @@ function UnpaidConsultRow({...props}) {
             </TableCell>}
             {/***** Insurances *****/}
             <TableCell>
-                <Stack direction={"row"} justifyContent={"center"}>
+                <Stack direction={"row"} justifyContent={"center"} spacing={-1}>
                     {
                         !!row.patient.insurances.length ? row.patient.insurances.map((insurance: any) => (
                             <Tooltip
                                 key={insurance.uuid + "ins"}
                                 title={insurance.name}>
-                                <Avatar variant={"circular"} sx={{width: 30, height: 30}}>
+                                <Avatar variant={"circular"} sx={{width: 30, height: 30,border:1.5,borderColor:'common.white'}}>
                                     <ImageHandler
                                         alt={insurance?.name}
                                         src={insurances.find(ins => ins.uuid === insurance?.uuid)?.logoUrl.url}
@@ -133,7 +143,6 @@ function UnpaidConsultRow({...props}) {
                     </ConditionalWrapper>
                 </Stack>
             </TableCell>
-
         </TableRowStyled>
     );
 }

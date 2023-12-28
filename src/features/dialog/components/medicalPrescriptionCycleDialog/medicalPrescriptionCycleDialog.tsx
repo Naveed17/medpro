@@ -1645,7 +1645,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                             </Button>
                             <LoadingButton
                                 disabled={modelName.length === 0}
-                                startIcon={<IconUrl path="ic-dowlaodfile"/>}
+                                startIcon={<IconUrl path="iconfinder_save"/>}
                                 variant="contained"
                                 onClick={handleSaveDialog}>
                                 {t("save", {ns: "consultation"})}
@@ -1705,7 +1705,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                             {...{loading}}
                             disabled={modelNameInput.length === 0}
                             onClick={openAddDialogAction === "parent" ? handleAddParentModel : handleAddDosageModel}
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}
+                            startIcon={<IconUrl path="iconfinder_save"/>}
                             variant="contained">
                             {t("save", {ns: "consultation"})}
                         </LoadingButton>

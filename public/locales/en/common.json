@@ -433,6 +433,7 @@
   "satisfied": "Satisfied",
   "notsatisfied": "Not satisfied",
   "big": "File too big max 40 mb",
-  "long": "File name too long"
-
+  "long": "File name too long",
+  "Male": "Male",
+  "Female": "Famale"
 }

@@ -22,6 +22,9 @@ plugins.push(withBundleAnalyzer);
 const nextConfig = {
     output: 'standalone',
     i18n,
+    experimental: {
+        nextScriptWorkers: false
+    },
     images: {
         dangerouslyAllowSVG: true,
         remotePatterns: [

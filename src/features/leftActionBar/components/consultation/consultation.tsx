@@ -60,7 +60,7 @@ function Consultation() {
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t, ready} = useTranslation("consultation", {keyPrefix: "filter"});
-    const {patient,loading:loadingG} = useAppSelector(consultationSelector);
+    const {patient, loading: loadingG} = useAppSelector(consultationSelector);
     const {lock} = useAppSelector(appLockSelector);
     const {listen} = useAppSelector(consultationSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -312,24 +312,30 @@ function Consultation() {
                         </IconButton>
                     </Box>
                 </Stack>
-                {isBeta  && patient  &&
+                {isBeta && patient &&
                     <Stack direction={"row"} p={1} spacing={1} onClick={() => {
                         dispatch(onOpenPatientDrawer({patientId: patient?.uuid}));
                     }}>
                         {patient.wallet > 0 && <Label variant='filled'
-                                sx={{color: theme.palette.success.main, background: theme.palette.success.lighter}}>
+                                                      sx={{
+                                                          color: theme.palette.success.main,
+                                                          background: theme.palette.success.lighter
+                                                      }}>
                             <span>{t('wallet')}</span>
                             <span style={{
                                 fontSize: 14,
                                 marginLeft: 5,
                                 marginRight: 5,
                                 fontWeight: "bold"
-                            }}>{!loadingG ?patient.wallet:"-"}</span>
+                            }}>{!loadingG ? patient.wallet : "-"}</span>
                             <span>{devise}</span>
                         </Label>}
 
-                        {  patient.rest_amount !== 0 && <Label variant='filled'
-                                sx={{color: theme.palette.error.main, background: theme.palette.error.lighter}}>
+                        {patient.rest_amount !== 0 && <Label variant='filled'
+                                                             sx={{
+                                                                 color: theme.palette.error.main,
+                                                                 background: theme.palette.error.lighter
+                                                             }}>
                             <span style={{fontSize: 11}}>{t('credit')}</span>
                             <span style={{
                                 fontSize: 14,
@@ -357,9 +363,11 @@ function Consultation() {
                                 px: 1.5,
                             }}>
                             {upperFirst(t("ficheID"))}{" "}
-                            <span style={{fontWeight: "bold",maxWidth:150,whiteSpace: "nowrap",
+                            <span style={{
+                                fontWeight: "bold", maxWidth: 150, whiteSpace: "nowrap",
                                 overflow: "hidden",
-                                textOverflow: "ellipsis"}}>{patient?.fiche_id}</span>
+                                textOverflow: "ellipsis"
+                            }}>{patient?.fiche_id}</span>
                         </Button>
                     </Stack>
                 )}
@@ -372,7 +380,7 @@ function Consultation() {
                             setIsNote(!isNote);
                         }}>
                         <ListItemIcon>
-                            <Icon width={50} height={50} path={"docs/ic-note"}/>
+                            <Icon path={"docs/ic-note"}/>
                         </ListItemIcon>
                         <Typography fontWeight={700}>{upperFirst(t("note"))}</Typography>
                         <IconButton size="small" sx={{ml: "auto"}}>

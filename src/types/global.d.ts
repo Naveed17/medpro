@@ -13,6 +13,12 @@ declare global {
         sx?: any;
     }
 
+    interface Window {
+        usetifulInit(window: Window, document: Document, src: string, apiKey: string)
+
+        usetifulTags: Object
+    }
+
     interface Array<T> {
         group(fn: Function): Array<T>;
     }
@@ -111,6 +117,7 @@ declare module "@mui/material" {
 
     interface Palette {
         back: PaletteColor
+        white: PaletteColor
         expire: PaletteColor
     }
 

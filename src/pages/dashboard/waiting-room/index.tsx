@@ -58,7 +58,6 @@ import {
 import {Board} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton} from "@features/buttons";
-import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
 import {
@@ -67,13 +66,14 @@ import {
     TabPanel
 } from "@features/tabPanel";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
-import {leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
+import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
 import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
 import {partition} from "lodash";
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -399,7 +399,7 @@ function WaitingRoom() {
                 variant="filled"
                 color={"primary"}
                 size={"small"}>
-                <AddIcon fontSize={"small"} htmlColor={"white"}/>
+                <AgendaAddViewIcon/>
             </CustomIconButton>
         },
         {
@@ -416,7 +416,7 @@ function WaitingRoom() {
                 variant="filled"
                 color={"primary"}
                 size={"small"}>
-                <AddIcon fontSize={"small"} htmlColor={"white"}/>
+                <AgendaAddViewIcon/>
             </CustomIconButton>
         },
         {
@@ -437,19 +437,23 @@ function WaitingRoom() {
                 }}/>
         }];
     const Toolbar = () => (
-        <Card sx={{minWidth: 235, border: 'none', mb: 2}}>
+        <Card sx={{minWidth: 235, border: 'none', mb: 2, overflow: 'visible'}}>
             <CardHeader
                 component={Stack}
                 borderBottom={1}
                 borderColor="divider"
                 direction="row"
                 sx={{
+                    m: 0,
+                    pt: 0,
+                    px: 0,
+                    pb: 1,
+
+                    borderBottom: 1,
+                    borderColor: "divider",
                     ".MuiCardHeader-action": {
                         m: 0,
-                    },
-                    p: 0,
-                    pb: 1,
-                    "& .MuiButtonBase-root": {mr: 1}
+                    }
                 }}
                 avatar={columns[1].icon}
                 {...(columns[1].action && {action: columns[1].action})}
@@ -496,7 +500,7 @@ function WaitingRoom() {
     }, [openPaymentDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
-        dispatch(resetFilterPatient());
+        dispatch(resetFilter());
     });
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -535,7 +539,7 @@ function WaitingRoom() {
                         </TabPanel>
                     </DesktopContainer>
                     <TabPanel padding={.1} value={tabIndex} index={1}>
-                        {waitingRoomsGroup[1] ? <>
+                        {!!waitingRoomsGroup[1]?.length ? <>
 
                                 <DesktopContainer>
                                     <Otable
@@ -553,10 +557,12 @@ function WaitingRoom() {
                                                     pt: 0,
                                                     px: 0,
                                                     pb: 1,
-                                                    mr: 2,
+                                                    m: 0,
                                                     borderBottom: 1,
                                                     borderColor: "divider",
-                                                    ".MuiCardHeader-action": {m: 0}
+                                                    ".MuiCardHeader-action": {
+                                                        m: 0,
+                                                    }
                                                 }}
                                                 avatar={columns[0].icon}
                                                 {...(columns[0].action && {action: columns[0].action})}
@@ -617,7 +623,7 @@ function WaitingRoom() {
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={2}>
-                        {waitingRoomsGroup[3] ? <>
+                        {!!waitingRoomsGroup[3]?.length ? <>
                                 <DesktopContainer>
                                     <Otable
 
@@ -673,7 +679,7 @@ function WaitingRoom() {
                         }
                     </TabPanel>
                     <TabPanel padding={.1} value={tabIndex} index={3}>
-                        {(waitingRoomsGroup[4] || waitingRoomsGroup[8]) ?
+                        {(!!waitingRoomsGroup[4]?.length || !!waitingRoomsGroup[8]?.length) ?
                             <>
                                 <DesktopContainer>
 

@@ -242,9 +242,21 @@ function FcmLayout({...props}) {
                         });
                     }
                 });
+
             }
         }
     }, [general_information]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (typeof window !== "undefined" && window?.usetifulInit && general_information && process.env.NODE_ENV !== 'development') {
+            window.usetifulTags = {
+                userId: general_information.uuid,
+                role: roles[0],
+                name: `${general_information.firstName} ${general_information.lastName}`
+            };
+            window.usetifulInit(window, document, "/static/files/usetiful.js", process.env.NEXT_PUBLIC_USETIFUL_TOKEN ?? "");
+        }
+    }, [window?.usetifulInit, general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         // Update notifications popup

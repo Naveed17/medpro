@@ -7,6 +7,8 @@ import {new_feature_data, varFadeInLeft, varFadeInDown, varFadeInUp} from './con
 import {Box, Card, Button, Typography, CardActions, Stack, IconButton, Grid} from '@mui/material';
 import MotionContainer from './motionContainer';
 import IconUrl from '@themes/urlIcon';
+import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
+import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
 
 function CarouselItem({item, isActive}: any) {
     return (
@@ -22,8 +24,6 @@ function CarouselItem({item, isActive}: any) {
                     <Typography variant="subtitle1" fontWeight={600} color="common.white">
                         {item.description}
                     </Typography>
-
-
                 </motion.div>
             </Grid>
             <Grid item xs={12} md={6}>
@@ -31,7 +31,6 @@ function CarouselItem({item, isActive}: any) {
                     <Box maxWidth={1} component='img' src={`/static/icons/${item.img}.svg`}/>
                 </motion.div>
             </Grid>
-
         </Grid>
     );
 }
@@ -43,7 +42,7 @@ export default function NewFeaturesCarousel({...props}) {
     const [currentIndex, setCurrentIndex] = useState(theme.direction === 'rtl' ? new_feature_data.length - 1 : 0);
 
     const settings = {
-        speed: 800,
+        speed: 1600,
         dots: false,
         fade: true,
         arrows: false,
@@ -66,39 +65,58 @@ export default function NewFeaturesCarousel({...props}) {
                 ))}
             </Slider>
             <CardActions sx={{justifyContent: {xs: 'center', sm: 'stretch'}}}>
-                <Stack sx={{width: "100%"}} direction='row' alignItems='center' justifyContent={"space-between"}>
-                    <Stack direction='row' alignItems='center'>
-                        {[...Array(new_feature_data.length)].map((_, index) => (
-                            <IconButton size='small' disableRipple
-                                        {...(index === currentIndex && {
-                                            sx: {
-                                                svg: {
-                                                    rect: {
-                                                        fill: theme.palette.warning.main
-                                                    }
+                <Stack direction='row' alignItems='center'>
+                    <IconButton
+                        size='small'
+                        disableRipple
+                        {...(currentIndex > 0 && {
+                            onClick: () => {
+                                carouselRef.current.slickGoTo(currentIndex - 1);
+                            }
+                        })}>
+                        <ArrowBackIosNewRoundedIcon
+                            fontSize={"small"}
+                            htmlColor={currentIndex === 0 ? theme.palette.white.dark : theme.palette.info.main}/>
+                    </IconButton>
+                    {[...Array(new_feature_data.length)].map((_, index) => (
+                        <IconButton size='small' disableRipple
+                                    {...(index === currentIndex && {
+                                        sx: {
+                                            svg: {
+                                                rect: {
+                                                    fill: theme.palette.warning.main
                                                 }
                                             }
-                                        })}
-                                        key={index}
-                                        onClick={() => {
-                                            carouselRef.current.slickGoTo(index);
-                                        }}
-
-                            >
-                                <IconUrl path="dot-indicator"/>
-                            </IconButton>
-                        ))}
-                    </Stack>
-                    <Button variant='text-transparent'
-                            sx={{
-                                display: {xs: 'none', sm: 'inline-flex'},
-                                bgcolor: 'transparent',
-                                color: theme.palette.common.white,
-                                ml: 'auto'
-                            }} onClick={onClose}>
-                        {t("dialogs.new_features.close")}
-                    </Button>
+                                        }
+                                    })}
+                                    key={index}
+                                    onClick={() => {
+                                        carouselRef.current.slickGoTo(index);
+                                    }}>
+                            <IconUrl path="dot-indicator"/>
+                        </IconButton>
+                    ))}
+                    <IconButton
+                        size='small'
+                        disableRipple
+                        {...(currentIndex < (new_feature_data.length - 1) && {
+                            onClick: () => {
+                                carouselRef.current.slickGoTo(currentIndex + 1);
+                            }
+                        })}>
+                        <ArrowForwardIosRoundedIcon
+                            fontSize={"small"}
+                            htmlColor={currentIndex === (new_feature_data.length - 1) ? theme.palette.white.dark : theme.palette.info.main}/>
+                    </IconButton>
                 </Stack>
+                <Button variant='text-transparent' sx={{
+                    display: {xs: 'none', sm: 'inline-flex'},
+                    bgcolor: 'transparent',
+                    color: theme.palette.common.white,
+                    ml: 'auto'
+                }} onClick={onClose}>
+                    {t("dialogs.new_features.close")}
+                </Button>
             </CardActions>
 
         </Card>

@@ -9,6 +9,7 @@ const RootStyled = styled(Box)(({ theme }) => ({
     display: "flex",
     lineHeight: "21px",
     alignItems: "center",
+    color:theme.palette.primary.main,
     svg: {
       marginRight: theme.spacing(0.5),
     },

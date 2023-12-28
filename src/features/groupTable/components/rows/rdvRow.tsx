@@ -99,15 +99,15 @@ function RDVRow({...props}) {
     return (nextAppointmentsData?.length > 0 || previousAppointmentsData?.length > 0 ? (
             <React.Fragment>
                 {nextAppointmentsData.length > 0 && <>
-                    <TableRow>
-                        <TableCell colSpan={3} className="text-row">
+                    <tr>
+                        <TableCell style={{background:'transparent'}} colSpan={3} className="text-row">
                             <Typography variant="body1" color="text.primary">
                                 {t("next-appo")}{" "}
                                 {nextAppointmentsData.length > 1 &&
                                     `(${nextAppointmentsData.length})`}
                             </Typography>
                         </TableCell>
-                    </TableRow>
+                    </tr>
                     {nextAppointmentsData.map((data: PatientDetailsRDV, index: number) => (
                             <React.Fragment key={"nextAppointmentsData" + index.toString()}>
                                 {matches ? (
@@ -125,24 +125,24 @@ function RDVRow({...props}) {
                 </>}
 
                 {previousAppointmentsData.length > 0 && <>
-                    <TableRow>
-                        <TableCell colSpan={3} className="text-row">
+                    <tr>
+                        <TableCell style={{background:'transparent'}} colSpan={3} className="text-row">
                             <Typography variant="body1" color="text.primary">
                                 {t("old-appo")}{" "}
                                 {previousAppointmentsData.length > 1 &&
                                     `(${previousAppointmentsData.length})`}
                             </Typography>
                         </TableCell>
-                    </TableRow>
+                    </tr>
                     {previousAppointments.map((data: any, index: number) => (
                         <React.Fragment key={"previousAppointments" + index.toString()}>
-                            <TableRow>
-                                <TableCell className="text-row">
+                            <tr>
+                                <TableCell style={{background:'transparent'}} className="text-row">
                                     <Typography variant="body1" color="text.primary">
                                         {data.year}
                                     </Typography>
                                 </TableCell>
-                            </TableRow>
+                            </tr>
                             {data?.data.map((inner: any, index: number) => (
                                     <React.Fragment key={"previousAppointments" + index.toString()}>
                                         {matches ? (
