@@ -22,11 +22,10 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import React, {Fragment} from "react";
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import Zoom from 'react-medium-image-zoom'
-import {AppointmentStatus, setSelectedEvent} from "@features/calendar";
+import {setSelectedEvent} from "@features/calendar";
 import {setMoveDateTime} from "@features/dialog";
 import {ConditionalWrapper} from "@lib/hooks";
 import {useProfilePhoto} from "@lib/hooks/rest";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {SmallAvatar} from "@features/avatar";
 import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
 
