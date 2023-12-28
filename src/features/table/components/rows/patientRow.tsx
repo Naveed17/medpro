@@ -206,10 +206,10 @@ function PatientRow({...props}) {
                                             {loading ? (
                                                 <Skeleton variant="text" width={100}/>
                                             ) : (
-                                                <>
+                                                <span>
                                                     <IconUrl path="ic-anniverssaire-2"/> {row.birthdate} - {" "}
                                                     {row.birthdate && moment().diff(moment(row.birthdate, "DD-MM-YYYY"), "years") + " ans"}
-                                                </>
+                                                </span>
                                             )}
                                         </Typography>
                                     </Stack>
