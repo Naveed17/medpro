@@ -184,7 +184,12 @@ function Event({...props}) {
                                     </Stack>
                                 )
                                 :
-                                <span style={{width: '100%'}}>{event.event._def.title}</span>
+                                <span
+                                    style={{
+                                        width: '100%',
+                                        paddingBottom: 4,
+                                        paddingTop: 4
+                                    }}>{event.event._def.title}</span>
                             }
                         </Typography>
                         {appointment?.isOnline && <Avatar
@@ -192,7 +197,7 @@ function Event({...props}) {
                             alt="Online appointment"
                             src="/static/icons/Med-logo_.svg"
                         />}
-                        {(event.event._def.ui.display !== "background" && !["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(appointment?.status?.key) && !roles.includes('ROLE_SECRETARY') && !appointment?.patient?.isArchived && !isMobile)  &&
+                        {(event.event._def.ui.display !== "background" && !["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(appointment?.status?.key) && !roles.includes('ROLE_SECRETARY') && !appointment?.patient?.isArchived && !isMobile) &&
                             <IconButton
                                 onClick={ev => {
                                     ev.stopPropagation();

@@ -54,7 +54,7 @@ import {
 } from "@features/dialog";
 import {AppointmentListMobile, timerSelector} from "@features/card";
 import {FilterButton} from "@features/buttons";
-import {AgendaFilter, leftActionBarSelector, resetFilterPatient} from "@features/leftActionBar";
+import {AgendaFilter, leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {AnimatePresence, motion} from "framer-motion";
 import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
@@ -1065,7 +1065,7 @@ function Agenda() {
     }
 
     useLeavePageConfirm(() => {
-        dispatch(resetFilterPatient());
+        dispatch(resetFilter());
     });
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -1198,17 +1198,17 @@ function Agenda() {
                                     </>
                                 )}
                             </Typography>
-                               <Stack spacing={1}>      
-                            {row.events.map((event,idx) => (
-                                
-                                <AppointmentListMobile
-                                    {...{roles, event}}
-                                    key={event.id}
-                                    index={idx}
-                                    OnMenuActions={onMenuActions}
-                                    OnSelectEvent={onSelectEvent}/>
-                            ))}
-                            </Stack>   
+                            <Stack spacing={1}>
+                                {row.events.map((event, idx) => (
+
+                                    <AppointmentListMobile
+                                        {...{roles, event}}
+                                        key={event.id}
+                                        index={idx}
+                                        OnMenuActions={onMenuActions}
+                                        OnSelectEvent={onSelectEvent}/>
+                                ))}
+                            </Stack>
                         </Container>
                     ))}
                     <FilterButton>

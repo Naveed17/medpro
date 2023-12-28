@@ -1,39 +1,35 @@
-import {useRequestQuery} from "@lib/axios";
 import {useAppSelector} from "@lib/redux/hooks";
-import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useRouter} from "next/router";
 import {Autocomplete, Divider, Stack, TextField} from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import {leftActionBarSelector} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import FormControl from "@mui/material/FormControl";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useConsultationReasons} from "@lib/hooks/rest";
 
 function AppointmentReasonsFilter({...props}) {
     const {OnSearch} = props;
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const router = useRouter();
+    const {reasons, isLoading} = useConsultationReasons();
 
     const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
 
     const {t} = useTranslation('common');
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
-
-    const {data: httpConsultReasonResponse, isLoading} = useRequestQuery(medicalEntityHasUser ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
 
     const handleOnSearch = useCallback((value: any) => {
         OnSearch(value);
     }, [OnSearch]);
 
-    const reasons = (httpConsultReasonResponse as HttpResponse)?.data as ConsultationReasonModel[];
+    useEffect(() => {
+        if (filter?.reasons) {
+            setSelectedReasons(filter?.reasons?.split(','));
+        } else {
+            setSelectedReasons([]);
+        }
+    }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
     return (
         <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>

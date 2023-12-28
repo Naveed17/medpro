@@ -93,69 +93,11 @@ function Statistics() {
                             sx={{
                                 borderRadius: "12px",
                                 border: "none",
-                                boxShadow: theme.shadows[5],
-                                '.btn-list-action': {
-                                    backgroundColor: convertHexToRGBA(theme.palette.warning.main, 0.15),
-                                    borderRadius: "8px",
-                                    padding: "10px",
-                                }
-                            }}>
-                            <CardContent sx={{pb: 0}}>
-                                <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
-                                    <IconUrl path={"ic-user3"}/>
-                                    <Stack>
-                                        <Typography fontWeight={600} fontSize={24} variant="caption">
-                                            {patientPerPeriod.reduce((total: number, val: number) => total + val, 0)}
-                                        </Typography>
-                                        <Typography fontSize={12} fontWeight={500} variant="body2">
-                                            {t("patients")}
-                                        </Typography>
-                                    </Stack>
-                                </Stack>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <Card
-                            sx={{
-                                borderRadius: "12px",
-                                border: "none",
                                 boxShadow: theme.shadows[5]
                             }}>
                             <CardContent sx={{pb: 0}}>
                                 <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
-                                    <IconUrl path={"ic-user4"}/>
-                                    <Stack>
-                                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                            <Typography fontWeight={600} fontSize={24} variant="caption">
-                                                {patientPerPeriod[patientPerPeriod.length - 1]}
-                                            </Typography>
-
-                                            <Stack direction={"row"}>
-                                                <IconUrl path={"ic-up-right"}/>
-                                                <Typography fontWeight={700} fontSize={14}
-                                                            color="success.main"
-                                                            variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
-                                            </Stack>
-                                        </Stack>
-                                        <Typography fontSize={12} fontWeight={500} variant="body2">
-                                            {t("new-patients")}
-                                        </Typography>
-                                    </Stack>
-                                </Stack>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <Card
-                            sx={{
-                                borderRadius: "12px",
-                                border: "none",
-                                boxShadow: theme.shadows[5]
-                            }}>
-                            <CardContent sx={{pb: 0}}>
-                                <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
-                                    <IconUrl width={40} height={40} path={"ic-agenda-add"}/>
+                                    <IconUrl path={"stats/ic-calendar-card"}/>
                                     <Stack>
                                         <Typography fontWeight={600} fontSize={24} variant="caption">
                                             {appointmentPerPeriod.reduce((total: number, val: number) => total + val, 0)}
@@ -177,11 +119,7 @@ function Statistics() {
                             }}>
                             <CardContent sx={{pb: 0}}>
                                 <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
-                                    <IconButton
-                                        className="btn-list-action">
-                                        <IconUrl path="ic-agenda" color={theme.palette.warning.main}
-                                                 width={20} height={20}/>
-                                    </IconButton>
+                                    <IconUrl path={"stats/ic-agenda-card"}/>
                                     <Stack>
                                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                             <Typography fontWeight={600} fontSize={24} variant="caption">
@@ -197,6 +135,64 @@ function Statistics() {
                                         </Stack>
                                         <Typography fontSize={12} fontWeight={500} variant="body2">
                                             {t("new-appointments")}
+                                        </Typography>
+                                    </Stack>
+                                </Stack>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                        <Card
+                            sx={{
+                                borderRadius: "12px",
+                                border: "none",
+                                boxShadow: theme.shadows[5],
+                                '.btn-list-action': {
+                                    backgroundColor: convertHexToRGBA(theme.palette.warning.main, 0.15),
+                                    borderRadius: "8px",
+                                    padding: "10px",
+                                }
+                            }}>
+                            <CardContent sx={{pb: 0}}>
+                                <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
+                                    <IconUrl path={"stats/ic-user-card"}/>
+                                    <Stack>
+                                        <Typography fontWeight={600} fontSize={24} variant="caption">
+                                            {patientPerPeriod.reduce((total: number, val: number) => total + val, 0)}
+                                        </Typography>
+                                        <Typography fontSize={12} fontWeight={500} variant="body2">
+                                            {t("patients")}
+                                        </Typography>
+                                    </Stack>
+                                </Stack>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                        <Card
+                            sx={{
+                                borderRadius: "12px",
+                                border: "none",
+                                boxShadow: theme.shadows[5]
+                            }}>
+                            <CardContent sx={{pb: 0}}>
+                                <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
+                                    <IconUrl path={"stats/ic-new-patients-card"}/>
+                                    <Stack>
+                                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                            <Typography fontWeight={600} fontSize={24} variant="caption">
+                                                {patientPerPeriod[patientPerPeriod.length - 1]}
+                                            </Typography>
+
+                                            <Stack direction={"row"}>
+                                                <IconUrl path={"ic-up-right"}/>
+                                                <Typography fontWeight={700} fontSize={14}
+                                                            color="success.main"
+                                                            variant="body2">{increasePercentage(patientPerPeriod[appointmentPerPeriod.length - 1], patientPerPeriod[appointmentPerPeriod.length - 2])} % </Typography>
+                                            </Stack>
+                                        </Stack>
+                                        <Typography fontSize={12} fontWeight={500} variant="body2">
+                                            {t("new-patients")}
                                         </Typography>
                                     </Stack>
                                 </Stack>
