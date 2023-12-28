@@ -1376,6 +1376,7 @@ function Agenda() {
                     dir={direction}
                     onClose={() => {
                         setQuickAddAppointment(false);
+                        setQuickAddPatient(false);
                     }}>
                     <QuickAddAppointment
                         {...{t}}
