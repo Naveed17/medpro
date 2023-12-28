@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from "react";
+import React, {useMemo} from "react";
 import Switch from "@mui/material/Switch";
 import TableCell from "@mui/material/TableCell";
 import {
@@ -63,7 +63,7 @@ function MotifRow({...props}) {
                 {row ? (
                     <Switch
                         name="active"
-                        onChange={(e) => handleChange(row, "active", "")}
+                        onChange={() => handleChange(row, "active", "")}
                         checked={row.isEnabled}
                     />
                 ) : (

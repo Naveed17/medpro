@@ -3,7 +3,6 @@ import TableCell from '@mui/material/TableCell';
 import {Typography, Skeleton, IconButton, Stack, useTheme} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import {uniqueId} from 'lodash'
-import {Theme} from "@mui/material/styles";
 import React from "react";
 
 function HolidayRow({...props}) {
