@@ -382,7 +382,7 @@ function Profil() {
                                         size="small"
                                         color="primary"
                                         onClick={() => dialogOpen("assurance")}>
-                                        <IconUrl path="ic-edit"/>
+                                        <IconUrl path="setting/edit"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
@@ -485,7 +485,7 @@ function Profil() {
                                         size="small"
                                         color="primary"
                                         onClick={() => dialogOpen("mode")}>
-                                        <IconUrl path="ic-edit"/>
+                                        <IconUrl path="setting/edit"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
@@ -539,7 +539,7 @@ function Profil() {
                                         size="small"
                                         color="primary"
                                         onClick={() => dialogOpen("langues")}>
-                                        <IconUrl path="ic-edit"/>
+                                        <IconUrl path="setting/edit"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
@@ -607,7 +607,7 @@ function Profil() {
                                         size="small"
                                         color="primary"
                                         onClick={() => router.push("/dashboard/settings/actfees")}>
-                                        <IconUrl path="ic-edit"/>
+                                        <IconUrl path="setting/edit"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>

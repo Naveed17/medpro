@@ -716,8 +716,8 @@ function NewUser() {
                                                                     ml: 1,
                                                                     "& .react-svg": {
                                                                         " & svg": {
-                                                                            height: 24,
-                                                                            width: 24
+                                                                            height: 20,
+                                                                            width: 20
                                                                         },
                                                                     }
                                                                 }}

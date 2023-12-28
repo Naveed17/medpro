@@ -116,7 +116,13 @@ function UserRow({...props}) {
                             color="error"
                             startIcon={<IconUrl path="setting/icdelete"/>}
                             onClick={() => editMotif(row)}
-                            sx={{mr: 1}}>
+                            sx={{
+                                mr: {md: 1},
+                                '& .react-svg svg': {
+                                    width: 20,
+                                    height: 20
+                                }
+                            }}>
                             {t("table.remove")}
                         </Button>}
                     </Box>

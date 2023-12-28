@@ -163,7 +163,13 @@ function ActFeesRow({...props}) {
                                 data.handleSelected(row);
                             }}
                             size="small"
-                            sx={{mr: {md: 1}}}>
+                            sx={{
+                                mr: {md: 1},
+                                '& .react-svg svg': {
+                                    width: 20,
+                                    height: 20
+                                }
+                            }}>
                             <IconUrl path="setting/icdelete"/>
                         </IconButton>}
                     </Box>

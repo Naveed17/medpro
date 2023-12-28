@@ -63,9 +63,15 @@ function MotifRow({...props}) {
                             onClick={() => editMotif(row, "edit")}>
                             <IconUrl path="setting/edit"/>
                         </IconButton>
-                        {!row.hasData &&<IconButton
+                        {!row.hasData && <IconButton
                             size="small"
-                            sx={{mr: {md: 1}}}
+                            sx={{
+                                mr: {md: 1},
+                                '& .react-svg svg': {
+                                    width: 20,
+                                    height: 20
+                                }
+                            }}
                             onClick={() => editMotif(row, "delete")}>
                             <IconUrl path="setting/icdelete"/>
                         </IconButton>}

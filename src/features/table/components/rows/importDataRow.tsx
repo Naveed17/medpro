@@ -32,6 +32,7 @@ import {useRouter} from "next/router";
 import {OverridableStringUnion} from "@mui/types";
 import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {Label} from "@features/label";
 
 type ChipColors = OverridableStringUnion<'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
     ChipPropsColorOverrides>;
@@ -142,9 +143,9 @@ function ImportDataRow({...props}) {
                 </TableCell>
                 <TableCell align={"center"}>
                     {row ? (
-                        <Chip
-                            color={colors[row.status]}
-                            label={`${t('tabs.' + status[row.status])}`}/>
+                        <Label variant={"ghost"} color={colors[row.status]}>
+                            {t('tabs.' + status[row.status])}
+                        </Label>
                     ) : (
                         <Stack>
                             <Skeleton variant="text" width={100}/>

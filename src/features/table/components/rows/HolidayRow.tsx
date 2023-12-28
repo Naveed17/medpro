@@ -1,6 +1,6 @@
 import {TableRowStyled} from "@features/table"
 import TableCell from '@mui/material/TableCell';
-import {Typography, Skeleton, IconButton, Stack,useTheme} from '@mui/material';
+import {Typography, Skeleton, IconButton, Stack, useTheme} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import {uniqueId} from 'lodash'
 import {Theme} from "@mui/material/styles";
@@ -69,7 +69,13 @@ function HolidayRow({...props}) {
                         </IconButton>
                         {!row.hasData && <IconButton
                             size="small"
-                            sx={{mr: {md: 1}}}
+                            sx={{
+                                mr: {md: 1},
+                                '& .react-svg svg': {
+                                    width: 20,
+                                    height: 20
+                                }
+                            }}
                             onClick={() => handleEvent("onDeleteAbsence", row)}>
                             <IconUrl path="setting/icdelete"/>
                         </IconButton>}
