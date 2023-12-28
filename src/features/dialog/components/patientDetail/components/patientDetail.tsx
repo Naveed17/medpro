@@ -436,6 +436,7 @@ function PatientDetail({...props}) {
                             mutateAgenda,
                             walletMutate,
                             roles,
+                            closePatientDialog,
                             setEditableSection: setEditable,
                             rest, devise
                         }}

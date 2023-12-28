@@ -54,6 +54,7 @@ function PatientDetailsCard({...props}) {
         loading = false,
         setEditableSection,
         walletMutate,
+        closePatientDialog,
         rest,
         devise,
         roles
@@ -129,10 +130,12 @@ function PatientDetailsCard({...props}) {
                     router.push({
                         pathname: slugConsultation,
                         query: {inProgress: true}
-                    }, slugConsultation, {locale: router.locale});
+                    }, slugConsultation, {locale: router.locale}).then(() => {
+                        closePatientDialog && closePatientDialog()
+                        setRequestLoading(false);
+                    });
                 }
-            },
-            onSettled: () => setRequestLoading(false)
+            }
         });
     }
 
