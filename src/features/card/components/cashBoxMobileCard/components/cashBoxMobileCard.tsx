@@ -155,7 +155,7 @@ function CashBoxMobileCard({...props}) {
             if (td.insurance) pay["insurance"] = td.insurance.uuid;
             if (td.payment_means)
                 pay["payment_means"] = paymentTypesList.find(
-                    (pt: { slug: string }) => pt.slug === td.payment_means.slug
+                    (pt: { slug: string }) => pt?.slug === td.payment_means?.slug
                 );
             payments.push(pay);
         });
@@ -333,12 +333,9 @@ function CashBoxMobileCard({...props}) {
                                                     <ImageHandler
                                                         style={{width: 15}}
                                                         key={td.uuid}
-                                                        src={
-                                                            pmList.find(
-                                                                (pm: { slug: string }) =>
-                                                                    pm.slug == td.payment_means.slug
-                                                            ).logoUrl.url
-                                                        }
+                                                        src={pmList.find((pm: {
+                                                            slug: string
+                                                        }) => pm?.slug == td.payment_means?.slug).logoUrl.url}
                                                         alt={"payment means icon"}/>)
                                         )}
                                 </Stack>
