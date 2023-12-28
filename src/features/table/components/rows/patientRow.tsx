@@ -196,22 +196,22 @@ function PatientRow({...props}) {
                                         }
 
 
-                                        <Typography
-                                            variant="body2"
-                                            fontWeight={500}
-                                            display='flex'
-                                            alignItems='flex-start'
-                                            color="text.secondary"
-                                        >
-                                            {loading ? (
-                                                <Skeleton variant="text" width={100}/>
-                                            ) : (
-                                                <span>
-                                                    <IconUrl path="ic-anniverssaire-2"/> {row.birthdate} - {" "}
+                                        {loading ? (
+                                            <Skeleton variant="text" width={100}/>
+                                        ) : (
+                                            <Stack direction={"row"}>
+                                                <IconUrl path="ic-anniverssaire-2"/>
+                                                <Typography
+                                                    variant="body2"
+                                                    fontWeight={500}
+                                                    display='flex'
+                                                    alignItems='flex-start'
+                                                    color="text.secondary">
+                                                    {row.birthdate} - {" "}
                                                     {row.birthdate && moment().diff(moment(row.birthdate, "DD-MM-YYYY"), "years") + " ans"}
-                                                </span>
-                                            )}
-                                        </Typography>
+                                                </Typography>
+                                            </Stack>
+                                        )}
                                     </Stack>
                                 </>
                             )}
