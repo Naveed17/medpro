@@ -315,7 +315,8 @@ function Documents() {
                                     <Grid item xs={12} md={4}>
                                         <Card sx={{
                                             backgroundColor: theme.palette.background.default,
-                                            border: `1px dashed ${theme.palette.primary.main}`
+                                            border: `1px dashed ${theme.palette.primary.main}`,
+                                            height:1
                                         }}>
                                             <CardContent>
                                                 <label htmlFor="contained-button-file">
@@ -360,7 +361,7 @@ function Documents() {
                                                 <CardContent sx={{cursor: "pointer"}}>
                                                     <Stack direction={"row"} alignItems={"center"} spacing={2}>
                                                         <IconUrl path={'ic-doc-upload'}/>
-                                                        <Stack alignItems={"start"} spacing={0} sx={{width: '75%'}}>
+                                                        <Stack alignItems={"start"} spacing={.4} sx={{width: '75%'}}>
                                                             <Typography
                                                                 className={'ellipsis'}
                                                                 width={220}

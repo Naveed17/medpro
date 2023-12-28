@@ -4,7 +4,7 @@ import React, {ReactElement, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {useTranslation} from "next-i18next";
-import {Box, Button, Drawer, Paper} from "@mui/material";
+import {Box, Button, Drawer, Paper, Stack} from "@mui/material";
 import {configSelector, DashLayout} from "@features/base";
 import {Otable} from "@features/table";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -16,8 +16,10 @@ import {agendaSelector, openDrawer} from "@features/calendar";
 import {batch} from "react-redux";
 import {AbsenceDrawer, absenceDrawerSelector, resetAbsenceData, setAbsenceData} from "@features/drawer";
 import {LoadingButton} from "@mui/lab";
-import {NoDataCard} from "@features/card";
+import {HolidaysMobileCard, NoDataCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
 
 function Holidays() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -165,6 +167,8 @@ function Holidays() {
 
         <Box className="container">
             {(absences.length > 0 || isAbsencesLoading) ?
+                <>
+                    <DesktopContainer>
                 <Otable
                     {...{t}}
                     headers={headCells}
@@ -175,6 +179,20 @@ function Holidays() {
                     totalPages={totalPages}
                     pagination
                 />
+                </DesktopContainer>
+                    <MobileContainer>
+                        <Stack spacing={1}>
+                            {
+                                absences.map((absence, index) =>(
+                                    <React.Fragment key={absence.uuid}>
+                                    <HolidaysMobileCard {...{data:absence,t,handleEvent:handleTableActions}}/>
+                                    </React.Fragment>
+                                ))
+                            }
+                        </Stack>
+                    </MobileContainer>
+                    
+                </>
                 :
                 <NoDataCard
                     sx={{mt: 16}}
