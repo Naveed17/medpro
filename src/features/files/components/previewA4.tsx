@@ -469,7 +469,7 @@ function PreviewDialog({...props}) {
     }, [data])
 
     return (
-        <div ref={previewDocRef}>
+        <div ref={previewDocRef} style={{ margin: "0", padding: "0" }}>
             {pages.slice(0, nbPage ? 1 : pages.length).map((el, idx) => (
                 <div key={idx}>
                     <div className="page-break"/>

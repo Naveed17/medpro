@@ -10,7 +10,7 @@ import React, {useEffect, useState} from "react";
 import {Redirect} from "@features/redirect";
 
 function SignIn() {
-    const {status} = useSession();
+    const {data: session, status} = useSession();
     const loading = status === 'loading'
     const router = useRouter();
 
@@ -27,7 +27,7 @@ function SignIn() {
     });
 
     if (loading) return (<LoadingScreen button text={"loading-error"}/>);
-
+    console.log('SignIn session', session)
     return (
         status === "unauthenticated" ?
             <LoadingScreen
