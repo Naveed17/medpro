@@ -64,7 +64,7 @@ function HolidayRow({...props}) {
                             size="small"
                             sx={{mr: {md: 1}}}
                             onClick={() => handleEvent("onEditAbsence", row)}>
-                            <IconUrl path="setting/edit"/>
+                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                         </IconButton>
                         {!row.hasData && <IconButton
                             size="small"
@@ -76,7 +76,7 @@ function HolidayRow({...props}) {
                                 }
                             }}
                             onClick={() => handleEvent("onDeleteAbsence", row)}>
-                            <IconUrl path="setting/icdelete"/>
+                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                         </IconButton>}
                     </Stack>
                     : <Skeleton variant="text" width={10} height={30} sx={{m: 'auto'}}/>}

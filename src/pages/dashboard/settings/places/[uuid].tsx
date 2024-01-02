@@ -23,7 +23,7 @@ import {
     Stack,
     Switch, Tab, Tabs,
     TextField,
-    Typography,
+    Typography, useTheme,
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -131,6 +131,7 @@ function PlacesDetail() {
     const {contacts: contactTypes} = useContactType();
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const dispatch = useAppDispatch();
+    const theme = useTheme();
 
     const {t} = useTranslation(["settings", "common"]);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -778,7 +779,8 @@ function PlacesDetail() {
                                                             onClick={() => handleRemovePhone(index)}
                                                             sx={{position: "absolute", right: -40, top: 6}}
                                                             size="small">
-                                                            <IconUrl path="setting/icdelete"/>
+                                                            <IconUrl width={20} height={20}
+                                                                     color={theme.palette.error.main} path="ic-trash"/>
                                                         </IconButton>
                                                     </Stack>
                                                 </Grid>

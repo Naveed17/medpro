@@ -1,6 +1,6 @@
 import React from "react";
 import TableCell from "@mui/material/TableCell";
-import {IconButton, Typography, Skeleton, Box, Stack} from "@mui/material";
+import {IconButton, Typography, Skeleton, Box, Stack, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import {uniqueId} from "lodash";
@@ -9,6 +9,7 @@ import {IconsTypes} from "@features/calendar";
 
 function MotifRow({...props}) {
     const {row, editMotif} = props;
+    const theme = useTheme();
 
     return (
         <TableRowStyled key={uniqueId}>
@@ -61,7 +62,7 @@ function MotifRow({...props}) {
                             size="small"
                             sx={{mr: {md: 1}}}
                             onClick={() => editMotif(row, "edit")}>
-                            <IconUrl path="setting/edit"/>
+                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                         </IconButton>
                         {!row.hasData && <IconButton
                             size="small"
@@ -73,7 +74,7 @@ function MotifRow({...props}) {
                                 }
                             }}
                             onClick={() => editMotif(row, "delete")}>
-                            <IconUrl path="setting/icdelete"/>
+                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                         </IconButton>}
                     </Stack>
                 ) : (

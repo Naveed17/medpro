@@ -1,5 +1,5 @@
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Stack, Skeleton, Select} from "@mui/material";
+import {Typography, Box, Stack, Skeleton, Select, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useRouter} from "next/router";
 import Button from "@mui/material/Button";
@@ -12,6 +12,7 @@ import MenuItem from "@mui/material/MenuItem";
 
 function UserRow({...props}) {
     const dispatch = useAppDispatch();
+    const theme = useTheme();
     const router = useRouter();
     const {row, handleChange, t, editMotif, data} = props;
     const {currentUser, profiles} = data;
@@ -102,7 +103,7 @@ function UserRow({...props}) {
                             variant="text"
                             size="small"
                             color="primary"
-                            startIcon={<IconUrl path="setting/edit"/>}
+                            startIcon={<IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>}
                             onClick={() => {
                                 dispatch(editUser(row));
                                 router.push(`${router.pathname}/${row.ssoId}`, `${router.pathname}/${row.ssoId}`, {locale: router.locale});
@@ -114,7 +115,7 @@ function UserRow({...props}) {
                             variant="text"
                             size="small"
                             color="error"
-                            startIcon={<IconUrl path="setting/icdelete"/>}
+                            startIcon={<IconUrl color={theme.palette.error.main} path="ic-trash"/>}
                             onClick={() => editMotif(row)}
                             sx={{
                                 mr: {md: 1},

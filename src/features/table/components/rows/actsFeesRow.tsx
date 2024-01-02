@@ -8,7 +8,7 @@ import {
     TextField,
     Typography,
     useMediaQuery,
-    Theme,
+    Theme, useTheme,
 } from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import React, {useEffect, useState} from "react";
@@ -22,6 +22,8 @@ function ActFeesRow({...props}) {
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
     );
+    const theme = useTheme();
+
     const [fees, setFees] = useState("");
     const [contribution, setContribution] = useState("");
     const [code, setCode] = useState("");
@@ -142,7 +144,7 @@ function ActFeesRow({...props}) {
                                         setEdit("");
                                     }, 1000);
                                 }}>
-                                {!isMobile && <IconUrl path="setting/edit"/>}
+                                {!isMobile && <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>}
 
                                 <Typography fontSize={11} ml={1}>
                                     {t("save")}
@@ -155,7 +157,7 @@ function ActFeesRow({...props}) {
                                 onClick={() => {
                                     setEdit(row.uuid);
                                 }}>
-                                <IconUrl path="setting/edit"/>
+                                <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                             </IconButton>
                         )}
                         {!row.hasData && <IconButton
@@ -170,7 +172,7 @@ function ActFeesRow({...props}) {
                                     height: 20
                                 }
                             }}>
-                            <IconUrl path="setting/icdelete"/>
+                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                         </IconButton>}
                     </Box>
                 ) : (

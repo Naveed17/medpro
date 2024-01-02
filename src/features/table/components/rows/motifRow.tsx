@@ -12,10 +12,12 @@ import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
+import {useTheme} from "@mui/material/styles";
 
 function MotifRow({...props}) {
     const {row, handleChange, editMotif} = props;
     const {t} = useTranslation("common");
+    const theme = useTheme();
     const duration = useMemo(() => {
             if (row.duration < 60) {
                 return row.duration + " " + t("times.minutes");
@@ -77,7 +79,7 @@ function MotifRow({...props}) {
                             size="small"
 
                             onClick={() => editMotif(row, "edit")}>
-                            <IconUrl path="setting/edit"/>
+                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                         </IconButton>
                         <IconButton
                             size="small"
@@ -88,7 +90,7 @@ function MotifRow({...props}) {
                                 }
                             }}
                             onClick={() => editMotif(row, "delete")}>
-                            <IconUrl path="setting/icdelete"/>
+                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                         </IconButton>
                     </Stack>
                 ) : (
