@@ -6,15 +6,15 @@ import {
     useMediaQuery,
     useTheme,
 } from "@mui/material";
-import {useCallback} from "react";
-import AddIcon from "@mui/icons-material/Add";
-
+import React, {useCallback} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {tableActionSelector} from "@features/table";
 import ArchiveRoundedIcon from '@mui/icons-material/ArchiveRounded';
 import {setDuplicated} from "@features/duplicateDetected";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
+import {CustomIconButton} from "@features/buttons";
 
 
 function PatientToolbar({...props}) {
@@ -69,14 +69,14 @@ function PatientToolbar({...props}) {
                             startIcon={<ArchiveRoundedIcon/>}>
                             {t("sub-header.merge-patient")}
                         </Button>}
-                        <Button
+                        <CustomIconButton
                             onClick={onPatientDrawer}
-                            variant="contained"
-                            color="success"
-                            sx={{ml: "auto"}}
-                            startIcon={<AddIcon/>}>
-                            {t("sub-header.add-patient")}
-                        </Button>
+                            variant="filled"
+                            sx={{p: .8}}
+                            color={"primary"}
+                            size={"small"}>
+                            <AgendaAddViewIcon/>
+                        </CustomIconButton>
                     </Stack>
 
                 )}

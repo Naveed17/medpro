@@ -378,8 +378,7 @@ function Cashbox() {
         const query = `?mode=rest&start_date=${moment(start, "DD-MM-YYYY").format(
             "DD-MM-YYYY"
         )}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week`;
-        agenda &&
-        triggerAppointmentDetails(
+        agenda && triggerAppointmentDetails(
             {
                 method: "GET",
                 url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}${query}`,
@@ -581,76 +580,21 @@ function Cashbox() {
                     ))}
                 </Stack>
                 <TabPanel padding={1} value={selectedTab} index={"consultations"}>
-                    
-                            <DesktopContainer>
-                                {apps.length > 0 ? <Otable
-                                    {...{
-                                        rows: apps,
-                                        t,
-                                        insurances,
-                                        pmList,
-                                        mutateTransactions,
-                                        filterCB,
-                                    }}
-                                    toolbar={ 
+
+                    <DesktopContainer>
+                        {apps.length > 0 ? <Otable
+                            {...{
+                                rows: apps,
+                                t,
+                                insurances,
+                                pmList,
+                                mutateTransactions,
+                                filterCB,
+                            }}
+                            toolbar={
                                 <Stack
-                                direction="row"
-                                alignItems={{xs: "flex-start", md: "center"}}
-                                justifyContent="space-between"
-                                mb={2}
-                                pb={1}
-                                borderBottom={1}
-                                borderColor="divider"
-                            >
-                                <Stack>
-                                    <Typography fontWeight={700}>{t("consultations")}</Typography>
-                                    <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
-                                </Stack>
-
-                            </Stack>
-                            }
-                                    headers={consultationCells}
-                                    from={"unpaidconsult"}
-                                    handleEvent={handleTableActions}
-                                /> : !loading && <NoDataCard t={t} ns={"payment"} data={noAppData}/>}
-                            </DesktopContainer>
-                            <MobileContainer>
-                                <Stack spacing={1}>
-                                    {apps.map((row) => (
-                                        <React.Fragment key={row.uuid}>
-                                            <UnpaidConsultationCard
-                                                {...{
-                                                    row,
-                                                    devise,
-                                                    t,
-                                                    insurances,
-                                                    handleEvent: handleTableActions,
-                                                }}
-                                            />
-                                        </React.Fragment>
-                                    ))}
-                                </Stack>
-                            </MobileContainer>
-                </TabPanel>
-
-                <TabPanel padding={1} value={selectedTab} index={"transactions"}>
-                    <Stack spacing={2}>
-                                
-                                <DesktopContainer>
-                                    {!loading && (
-                                        rows.length > 0 ? <Otable
-                                            {...{
-                                                rows,
-                                                t,
-                                                insurances,
-                                                pmList,
-                                                mutateTransactions,
-                                                filterCB,
-                                            }}
-                                            toolbar={
-                                                <Stack
                                     direction="row"
-                                    alignItems={{xs: "center", md: "center"}}
+                                    alignItems={{xs: "flex-start", md: "center"}}
                                     justifyContent="space-between"
                                     mb={2}
                                     pb={1}
@@ -658,47 +602,102 @@ function Cashbox() {
                                     borderColor="divider"
                                 >
                                     <Stack>
-                                        <Typography fontWeight={700}>
-                                            {t("transactions")}
-                                        </Typography>
+                                        <Typography fontWeight={700}>{t("consultations")}</Typography>
                                         <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                     </Stack>
-                                    {rows.length > 0 && <Button
-                                        onClick={exportDoc}
-                                        variant="outlined"
-                                        color="info"
-                                        startIcon={<IconUrl path="ic-export-new"/>}
-                                    >
-                                        {t("export")}
-                                    </Button>}
+
                                 </Stack>
-                                            }
-                                            headers={headCells}
-                                            from={"cashbox"}
-                                            handleEvent={handleTableActions}
-                                        /> : <NoDataCard t={t} ns={"payment"} data={noCardData}/>
-                                    )}
-                                </DesktopContainer>
-                                <MobileContainer>
-                                    <Stack spacing={2}>
-                                        {!loading &&
-                                            rows.map((row) => (
-                                                <React.Fragment key={row.uuid}>
-                                                    <NewCashboxMobileCard
-                                                        {...{
-                                                            row,
-                                                            t,
-                                                            pmList,
-                                                            devise,
-                                                            handleEvent: handleTableActions,
-                                                            mutateTransactions,
-                                                        }}
-                                                    />
-                                                </React.Fragment>
-                                            ))}
-                                    </Stack>
-                                </MobileContainer>
-                           
+                            }
+                            headers={consultationCells}
+                            from={"unpaidconsult"}
+                            handleEvent={handleTableActions}
+                        /> : !loading && <NoDataCard t={t} ns={"payment"} data={noAppData}/>}
+                    </DesktopContainer>
+                    <MobileContainer>
+                        <Stack spacing={1}>
+                            {apps.map((row) => (
+                                <React.Fragment key={row.uuid}>
+                                    <UnpaidConsultationCard
+                                        {...{
+                                            row,
+                                            devise,
+                                            t,
+                                            insurances,
+                                            handleEvent: handleTableActions,
+                                        }}
+                                    />
+                                </React.Fragment>
+                            ))}
+                        </Stack>
+                    </MobileContainer>
+                </TabPanel>
+
+                <TabPanel padding={1} value={selectedTab} index={"transactions"}>
+                    <Stack spacing={2}>
+
+                        <DesktopContainer>
+                            {!loading && (
+                                rows.length > 0 ? <Otable
+                                    {...{
+                                        rows,
+                                        t,
+                                        insurances,
+                                        pmList,
+                                        mutateTransactions,
+                                        filterCB,
+                                    }}
+                                    toolbar={
+                                        <Stack
+                                            direction="row"
+                                            alignItems={{xs: "center", md: "center"}}
+                                            justifyContent="space-between"
+                                            mb={2}
+                                            pb={1}
+                                            borderBottom={1}
+                                            borderColor="divider"
+                                        >
+                                            <Stack>
+                                                <Typography fontWeight={700}>
+                                                    {t("transactions")}
+                                                </Typography>
+                                                <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
+                                            </Stack>
+                                            {rows.length > 0 && <Button
+                                                onClick={exportDoc}
+                                                variant="outlined"
+                                                color="info"
+                                                startIcon={<IconUrl path="ic-export-new"/>}
+                                            >
+                                                {t("export")}
+                                            </Button>}
+                                        </Stack>
+                                    }
+                                    headers={headCells}
+                                    from={"cashbox"}
+                                    handleEvent={handleTableActions}
+                                /> : <NoDataCard t={t} ns={"payment"} data={noCardData}/>
+                            )}
+                        </DesktopContainer>
+                        <MobileContainer>
+                            <Stack spacing={2}>
+                                {!loading &&
+                                    rows.map((row) => (
+                                        <React.Fragment key={row.uuid}>
+                                            <NewCashboxMobileCard
+                                                {...{
+                                                    row,
+                                                    t,
+                                                    pmList,
+                                                    devise,
+                                                    handleEvent: handleTableActions,
+                                                    mutateTransactions,
+                                                }}
+                                            />
+                                        </React.Fragment>
+                                    ))}
+                            </Stack>
+                        </MobileContainer>
+
                     </Stack>
                 </TabPanel>
             </Box>

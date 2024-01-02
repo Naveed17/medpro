@@ -248,7 +248,7 @@ function FcmLayout({...props}) {
                 role: roles[0],
                 name: `${general_information.firstName} ${general_information.lastName}`
             };
-            window.usetifulInit(window, document, "/static/files/usetiful.js");
+            window.usetifulInit(window, document, "/static/files/usetiful.js", process.env.NEXT_PUBLIC_USETIFUL_TOKEN ?? "");
         }
     }, [window?.usetifulInit, general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
