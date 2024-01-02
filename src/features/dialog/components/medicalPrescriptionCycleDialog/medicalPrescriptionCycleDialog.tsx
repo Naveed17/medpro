@@ -563,7 +563,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             }
         }
     }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
-
+    console.log("drugsList", drugsList);
     return (
         <MedicalPrescriptionCycleStyled>
             <Container fixed>
@@ -698,7 +698,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     if (ev.target.value.length >= 2) {
                                                                         triggerDrugList({
                                                                             method: "GET",
-                                                                            url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
+                                                                            url: `/api/private/drugs/${router.locale}?name=${ev.target.value}`,
                                                                         }, {
                                                                             onSuccess: (cnx) => setDrugsList((cnx?.data as HttpResponse)?.data ?? [])
                                                                         });

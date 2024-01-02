@@ -657,7 +657,8 @@ function DocumentDetailDialog({...props}) {
                                                                 style={{opacity: 0.5}}>{t('downloadnow')}</Typography>
                                                     <Button onClick={downloadF} color={"info"}
                                                             variant="outlined"
-                                                            startIcon={<IconUrl path="menu/ic-download-square" width={20}
+                                                            startIcon={<IconUrl path="menu/ic-download-square"
+                                                                                width={20}
                                                                                 height={20}/>}>
                                                         {t('download')}
                                                     </Button>

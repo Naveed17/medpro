@@ -197,7 +197,7 @@ function PreviewDialog({...props}) {
                         case "write_certif":
                             const certifLine = document.createElement('div');
                             certifLine.style.width = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
-                            
+
                             let txt = el.name?.replaceAll('{patient}', state.patient)
                             txt = txt?.replaceAll('{aujourd\'hui}', moment().format('DD/MM/YYYY'))
                             txt = txt?.replaceAll('[date]', moment().format('DD/MM/YYYY'))

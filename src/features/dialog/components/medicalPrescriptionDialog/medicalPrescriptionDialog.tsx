@@ -335,7 +335,7 @@ function MedicalPrescriptionDialog({...props}) {
                                                                             if (ev.target.value.length >= 2) {
                                                                                 triggerDrugsGet({
                                                                                     method: "GET",
-                                                                                    url: "/api/drugs/" + router.locale + '?name=' + ev.target.value
+                                                                                    url: "/api/private/drugs/" + router.locale + '?name=' + ev.target.value
                                                                                 }, {
                                                                                     onSuccess: (cnx) => cnx?.data && setDrugsList((cnx?.data as HttpResponse)?.data ?? [])
                                                                                 })
