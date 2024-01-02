@@ -30,7 +30,7 @@ import {
     ListItemTextStyled,
     logout,
     MainMenuStyled,
-    MobileDrawerStyled,
+    MobileDrawerStyled, openNewFeaturesDialog,
     sideBarSelector,
     toggleMobileBar,
 } from "@features/menu";
@@ -47,6 +47,7 @@ import {motion} from "framer-motion";
 import StatsIcon from "@themes/overrides/icons/statsIcon";
 import Can from "@features/casl/can";
 import {minMaxWindowSelector} from "@features/buttons";
+import NewFeatureIcon from "@themes/overrides/icons/newFeatureIcon";
 
 const {sidebarItems} = siteHeader;
 
@@ -215,6 +216,21 @@ function SideBarMenu({children}: LayoutProps) {
                             </Hidden>
                         </ListItem>
                     </Can>
+                    <Badge
+                        className={"custom-Badge"}
+                        color={"error"} badgeContent={"N"}>
+                        <ListItem
+                            onClick={() => dispatch(openNewFeaturesDialog(true))}
+                            disableRipple
+                            button>
+                            <ListItemIcon>
+                                <NewFeatureIcon/>
+                            </ListItemIcon>
+                            <Hidden smUp>
+                                <ListItemText primary={t("main-menu." + "settings")}/>
+                            </Hidden>
+                        </ListItem>
+                    </Badge>
                     <Hidden smUp>
                         <ListItem onClick={() => handleLogout()}>
                             <ListItemIcon>

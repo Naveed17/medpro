@@ -1,4 +1,4 @@
-import {DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, Theme} from "@mui/material";
+import {DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, Theme, useTheme} from "@mui/material";
 import {
     Toolbar,
     Stack,
@@ -30,6 +30,7 @@ const CardData = {
 function AccessMenage({...props}) {
     const {t} = props;
     const {data: session} = useSession();
+    const theme = useTheme();
 
     const {direction} = useAppSelector(configSelector);
 
@@ -123,7 +124,7 @@ function AccessMenage({...props}) {
                                             }}
                                             size="small"
                                             disableRipple>
-                                            <IconUrl path="setting/edit"/>
+                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                                         </IconButton>
                                     )}
 
@@ -134,7 +135,7 @@ function AccessMenage({...props}) {
                                                 onClick={() => onDelete(item)}
                                                 size="small"
                                                 disableRipple>
-                                                <IconUrl path="setting/icdelete"/>
+                                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                                             </IconButton>
                                         )
                                 }
@@ -194,7 +195,7 @@ function AccessMenage({...props}) {
                             loading={loading}
                             color="error"
                             onClick={() => deleteProfile()}
-                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}>
+                            startIcon={<IconUrl path="ic-trash"/>}>
                             {t("dialog.delete")}
                         </LoadingButton>
                     </Stack>

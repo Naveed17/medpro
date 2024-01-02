@@ -777,7 +777,7 @@ function PlacesDetail() {
                                                         />
                                                         <IconButton
                                                             onClick={() => handleRemovePhone(index)}
-                                                            sx={{position: "absolute", right: -40, top: 6}}
+                                                            sx={{position: "absolute", right: -40, top: 3}}
                                                             size="small">
                                                             <IconUrl width={20} height={20}
                                                                      color={theme.palette.error.main} path="ic-trash"/>

@@ -65,62 +65,63 @@ export default function NewFeaturesCarousel({...props}) {
                 ))}
             </Slider>
             <CardActions sx={{justifyContent: {xs: 'center', sm: 'stretch'}}}>
-                <Stack direction='row' alignItems='center'>
-                    <IconButton
-                        size='small'
-                        disableRipple
-                        {...(currentIndex > 0 && {
-                            onClick: () => {
-                                carouselRef.current.slickGoTo(currentIndex - 1);
-                            }
-                        })}>
-                        <ArrowBackIosNewRoundedIcon
-                            fontSize={"small"}
-                            htmlColor={currentIndex === 0 ? theme.palette.white.dark : theme.palette.info.main}/>
-                    </IconButton>
-                    {[...Array(new_feature_data.length)].map((_, index) => (
-                        <IconButton size='small' disableRipple
-                                    {...(index === currentIndex && {
-                                        sx: {
-                                            svg: {
-                                                rect: {
-                                                    fill: theme.palette.warning.main
+                <Stack sx={{width: "100%"}} direction='row' alignItems='center' justifyContent={"space-between"}>
+                    <Stack direction='row' alignItems='center'>
+                        <IconButton
+                            size='small'
+                            disableRipple
+                            {...(currentIndex > 0 && {
+                                onClick: () => {
+                                    carouselRef.current.slickGoTo(currentIndex - 1);
+                                }
+                            })}>
+                            <ArrowBackIosNewRoundedIcon
+                                fontSize={"small"}
+                                htmlColor={currentIndex === 0 ? theme.palette.white.dark : theme.palette.info.main}/>
+                        </IconButton>
+                        {[...Array(new_feature_data.length)].map((_, index) => (
+                            <IconButton size='small' disableRipple
+                                        {...(index === currentIndex && {
+                                            sx: {
+                                                svg: {
+                                                    rect: {
+                                                        fill: theme.palette.warning.main
+                                                    }
                                                 }
                                             }
-                                        }
-                                    })}
-                                    key={index}
-                                    onClick={() => {
-                                        carouselRef.current.slickGoTo(index);
-                                    }}>
-                            <IconUrl path="dot-indicator"/>
+                                        })}
+                                        key={index}
+                                        onClick={() => {
+                                            carouselRef.current.slickGoTo(index);
+                                        }}>
+                                <IconUrl path="dot-indicator"/>
+                            </IconButton>
+                        ))}
+                        <IconButton
+                            size='small'
+                            disableRipple
+                            {...(currentIndex < (new_feature_data.length - 1) && {
+                                onClick: () => {
+                                    carouselRef.current.slickGoTo(currentIndex + 1);
+                                }
+                            })}>
+                            <ArrowForwardIosRoundedIcon
+                                fontSize={"small"}
+                                htmlColor={currentIndex === (new_feature_data.length - 1) ? theme.palette.white.dark : theme.palette.info.main}/>
                         </IconButton>
-                    ))}
-                    <IconButton
-                        size='small'
-                        disableRipple
-                        {...(currentIndex < (new_feature_data.length - 1) && {
-                            onClick: () => {
-                                carouselRef.current.slickGoTo(currentIndex + 1);
-                            }
-                        })}>
-                        <ArrowForwardIosRoundedIcon
-                            fontSize={"small"}
-                            htmlColor={currentIndex === (new_feature_data.length - 1) ? theme.palette.white.dark : theme.palette.info.main}/>
-                    </IconButton>
+                    </Stack>
+                    <Button
+                        variant='text-transparent'
+                        sx={{
+                            display: {xs: 'none', sm: 'inline-flex'},
+                            bgcolor: 'transparent',
+                            color: theme.palette.common.white,
+                            ml: 'auto'
+                        }} onClick={onClose}>
+                        {t("dialogs.new_features.close")}
+                    </Button>
                 </Stack>
-                <Button variant='text-transparent' sx={{
-                    display: {xs: 'none', sm: 'inline-flex'},
-                    bgcolor: 'transparent',
-                    color: theme.palette.common.white,
-                    ml: 'auto'
-                }} onClick={onClose}>
-                    {t("dialogs.new_features.close")}
-                </Button>
             </CardActions>
-
         </Card>
-
-
     );
 }

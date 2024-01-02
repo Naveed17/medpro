@@ -17,7 +17,7 @@ import {
     Skeleton,
     DialogActions,
     useMediaQuery,
-    Theme, Tooltip, FormControlLabel, Switch,
+    Theme, Tooltip, FormControlLabel, Switch, useTheme,
 } from "@mui/material";
 import CardStyled from "@themes/overrides/cardStyled";
 import IconUrl from "@themes/urlIcon";
@@ -45,6 +45,7 @@ function Profil() {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {trigger: invalidateQueries} = useInvalidateQueries();
@@ -382,7 +383,7 @@ function Profil() {
                                         size="small"
                                         color="primary"
                                         onClick={() => dialogOpen("assurance")}>
-                                        <IconUrl path="setting/edit"/>
+                                        <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
@@ -392,7 +393,7 @@ function Profil() {
                                     direction="row"
                                     alignItems="flex-start"
                                     width={1}>
-                                    <IconUrl className="left-icon" path="ic-send-mail" />
+                                    <IconUrl className="left-icon" path="ic-send-mail"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography
                                             variant="subtitle2"
@@ -485,7 +486,7 @@ function Profil() {
                                         size="small"
                                         color="primary"
                                         onClick={() => dialogOpen("mode")}>
-                                        <IconUrl path="setting/edit"/>
+                                        <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
@@ -539,7 +540,7 @@ function Profil() {
                                         size="small"
                                         color="primary"
                                         onClick={() => dialogOpen("langues")}>
-                                        <IconUrl path="setting/edit"/>
+                                        <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
@@ -607,7 +608,7 @@ function Profil() {
                                         size="small"
                                         color="primary"
                                         onClick={() => router.push("/dashboard/settings/actfees")}>
-                                        <IconUrl path="setting/edit"/>
+                                        <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                                     </IconButton>
                                 </Stack>
                             </ListItem>
