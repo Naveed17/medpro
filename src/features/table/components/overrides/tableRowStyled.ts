@@ -61,7 +61,6 @@ const TableRowStyled = styled(TableRow)<any>(
       display: "flex",
       alignItems: "center",
       svg: {
-        width: 11,
         marginRight: theme.spacing(0.6),
         "& path": { fill: theme.palette.text.primary },
       },

@@ -231,24 +231,23 @@ function CalendarRowDetail({...props}) {
                     }
                 </TableCell>
                 <TableCell align="right">
-                    {isBeta && (data?.restAmount > 0 || data?.restAmount < 0) && data?.status?.key !== "PENDING" ? <Box>
-                        <Label
-                            variant='filled'
+                    {(isBeta && (data?.restAmount > 0 || data?.restAmount < 0)) && <Label
+                        variant='filled'
+                        sx={{
+                            "& .MuiSvgIcon-root": {
+                                width: 16,
+                                height: 16,
+                                pl: 0
+                            },
+                            color: theme.palette.error.main,
+                            background: theme.palette.error.lighter
+                        }}>
+                        <Typography
                             sx={{
-                                "& .MuiSvgIcon-root": {
-                                    width: 16,
-                                    height: 16,
-                                    pl: 0
-                                }
-                            }}
-                            color={data.restAmount > 0 ? "expire" : "success"}>
-                            <Typography
-                                sx={{
-                                    fontSize: 10,
-                                }}>
-                                {t(data.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${data.restAmount > 0 ? '-' : '+'} ${Math.abs(data.restAmount)}`} {devise}</Typography>
-                        </Label>
-                    </Box> : "--"}
+                                fontSize: 10,
+                            }}>
+                            {t(data?.restAmount > 0 ? "credit" : "wallet", {ns: "common"})} {`${Math.abs(data?.restAmount)}`} {devise}</Typography>
+                    </Label>}
                 </TableCell>
                 <TableCell align="right" sx={{p: "0px 12px!important"}}>
                     {!data.patient?.isArchived &&

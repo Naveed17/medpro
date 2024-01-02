@@ -28,6 +28,7 @@ function CalendarRow({...props}) {
                 }}
                 onClick={() => handleMobileGroupClick(moment(row.date, "DD-MM-YYYY").toDate())}
                 component="tr"
+                fontWeight={600}
                 color="text.primary"
                 pt={2}>
                 {moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY")) ? (
@@ -35,7 +36,7 @@ function CalendarRow({...props}) {
                 ) : moment(row.date, "DD-MM-YYYY").isSame(moment(new Date(), "DD-MM-YYYY").add(1, 'days')) ? (
                     "Tomorrow"
                 ) : (
-                    <td style={{textTransform: "capitalize", position: "relative"}}>
+                    <td style={{textTransform: "capitalize", position: "relative", top: 4}}>
                         {refHeader}
                         {moment(row.date, "DD-MM-YYYY").format("MMMM")}{" "}
                         {moment(row.date, "DD-MM-YYYY").format("DD")}

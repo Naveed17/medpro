@@ -58,7 +58,6 @@ import {
 import {Board} from "@features/board";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {CustomIconButton} from "@features/buttons";
-import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {DropResult} from "react-beautiful-dnd";
 import {
@@ -74,6 +73,7 @@ import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
 import {partition} from "lodash";
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
@@ -399,7 +399,7 @@ function WaitingRoom() {
                 variant="filled"
                 color={"primary"}
                 size={"small"}>
-                <AddIcon fontSize={"small"} htmlColor={"white"}/>
+                <AgendaAddViewIcon/>
             </CustomIconButton>
         },
         {
@@ -416,7 +416,7 @@ function WaitingRoom() {
                 variant="filled"
                 color={"primary"}
                 size={"small"}>
-                <AddIcon fontSize={"small"} htmlColor={"white"}/>
+                <AgendaAddViewIcon/>
             </CustomIconButton>
         },
         {
