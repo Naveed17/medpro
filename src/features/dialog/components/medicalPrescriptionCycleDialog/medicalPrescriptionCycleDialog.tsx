@@ -563,7 +563,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
             }
         }
     }, [values]); // eslint-disable-line react-hooks/exhaustive-deps
-    console.log("drugsList", drugsList);
+
     return (
         <MedicalPrescriptionCycleStyled>
             <Container fixed>
