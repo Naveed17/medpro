@@ -311,7 +311,7 @@
       "title": "Rendez-vous en attente"
     },
     "absence-dialog": {
-      "title": "Ajouter congé ou absence",
+      "title": "Ajouter un congé ou une absence",
       "sub-title": "Liste des congés et absences proches",
       "description": "Titre de congé",
       "type-placeholder": "Saisir le titre du congé",
