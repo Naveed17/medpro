@@ -197,6 +197,14 @@ const rowsActionsData = [
             )
         ),
     },
+     {
+        action: "analysis",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/analysisRow").then(
+                (mod) => mod
+            )
+        ),
+    },
 ];
 
 export default rowsActionsData;

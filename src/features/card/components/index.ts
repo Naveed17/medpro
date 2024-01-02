@@ -57,3 +57,4 @@ export * from './transactionMobileCard'
 export * from './unpaidConsultationCard';
 export * from './newCashboxMobileCard'
 export * from './holidaysMobileCard'
+export * from './analysisMobileCard'
