@@ -3,7 +3,19 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useRouter} from "next/router";
 import {signIn, useSession} from "next-auth/react";
 import React, {useEffect, useState} from "react";
-import {Box, Button, Card, CardContent, CardHeader, Checkbox, FormControlLabel, Grid, Stack, TextField,Typography} from "@mui/material";
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Checkbox,
+    FormControlLabel,
+    Grid,
+    Stack,
+    TextField,
+    Typography
+} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import Link from "next/link";
 import {useTheme} from "@mui/material/styles";
@@ -118,59 +130,62 @@ function Home() {
                     {session?.user && (
                         <>
                             <Card sx={{
-                                maxWidth:514,width:'100%',
-                                border:0,
-                                boxShadow:"0px 0px 20px 0px rgba(0, 0, 0, 0.10)"
-                             
-                        }}>
-                            <CardHeader 
-                            component="div"
-                            sx={{pb:0}}
-                             title={
-                                <Stack pb={2} direction='row' alignItems="center" justifyContent='space-between' borderBottom={1} borderColor="divider">
-                                <Stack>
-                                    <Typography variant="subtitle1" fontWeight={600}>
-                                        {t('login.sign_in')}
-                                    </Typography>
-                                     <Typography variant="body2" fontWeight={500}>{session.user.email || session.user.name}</Typography>
-                                </Stack>
-                                 <Button
-                                variant="google"
-                                startIcon={
-                                    <IconUrl path="ic-deconnexion"/>
-                                }
-                                onClick={logOutSession}
-                                className={styles.button}>
-                                {t('main-menu.logout', {ns: 'menu'})}
-                            </Button>
-                                </Stack>
-                               
-                             }
-                            
-                            />
+                                maxWidth: 514,
+                                width: '100%',
+                                borderRadius: 2,
+                                border: 0,
+                                boxShadow: "0px 0px 20px 0px rgba(0, 0, 0, 0.10)",
+                                padding: 2
+                            }}>
+                                <CardHeader
+                                    component="div"
+                                    sx={{pb: 0}}
+                                    title={
+                                        <Stack pb={2} direction='row' alignItems="center" justifyContent='space-between'
+                                               borderBottom={1} borderColor="divider">
+                                            <Stack>
+                                                <Typography variant="subtitle1" fontWeight={600}>
+                                                    {t('login.sign_in')}
+                                                </Typography>
+                                                <Typography variant="body2"
+                                                            fontWeight={500}>{session.user.email || session.user.name}</Typography>
+                                            </Stack>
+                                            <Button
+                                                variant="info"
+                                                startIcon={
+                                                    <IconUrl path="ic-deconnexion"/>
+                                                }
+                                                onClick={logOutSession}
+                                                className={styles.button}>
+                                                {t('main-menu.logout', {ns: 'menu'})}
+                                            </Button>
+                                        </Stack>
+                                    }
+                                />
                                 <CardContent>
-                                <Stack spacing={2}>
-                                {medical_entities?.map(medical_entity_data =>
-                                    <a
-                                        
-                                        key={medical_entity_data.uuid}
-                                        onClick={() => update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
-                                        className={styles.card}>
-                                        <Box component="img" width={60} height={60} src="/static/icons/Med-logo_.svg"/>
-                                        <p style={{fontSize: 16, fontWeight: 600,color:"#3F4254"}}>{medical_entity_data?.name}</p>
-                                        <ChevronRightIcon sx={{ml:'auto' ,color:"text.secondary"}} />
-                                    </a>)}
-                                    <Typography variant="body2" textAlign='center'>
-                                        {t("login.sign_in_desc_1")}
-                                        <br/>
-                                        {t("login.sign_in_desc_2")}
-                                    </Typography>
+                                    <Stack spacing={2}>
+                                        {medical_entities?.map(medical_entity_data =>
+                                            <a key={medical_entity_data.uuid}
+                                               onClick={() => update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
+                                               className={styles.card}>
+                                                <Box component="img" width={50} height={50}
+                                                     src="/static/icons/Med-logo_.svg"/>
+                                                <p
+                                                    style={{
+                                                        fontSize: 16,
+                                                        fontWeight: 600,
+                                                        color: "#3F4254"
+                                                    }}>{medical_entity_data?.name}</p>
+                                                <ChevronRightIcon sx={{ml: 'auto', color: "text.secondary"}}/>
+                                            </a>)}
+                                        <Typography variant="body2" textAlign='center'>
+                                            {t("login.sign_in_desc_1")}
+                                            <br/>
+                                            {t("login.sign_in_desc_2")}
+                                        </Typography>
                                     </Stack>
-                                    </CardContent>
-
+                                </CardContent>
                             </Card>
-
-                           
                         </>
                     )}
                 </main>

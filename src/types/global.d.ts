@@ -52,6 +52,7 @@ declare module "@mui/material/Button" {
         white: true;
         "text-transparent": true;
         "text-black": true;
+        info: true;
         "contained-white": true
         filter: true;
         "text-primary": true;
