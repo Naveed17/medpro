@@ -90,7 +90,7 @@ jobs:
         SKAFFOLD_KUBE_CONTEXT=${{ secrets.SKAFFOLD_KUBE_CONTEXT }}
         SKAFFOLD_NAMESPACE=${{ secrets.SKAFFOLD_NAMESPACE }}
         SKAFFOLD_CACHE_ARTIFACTS=false
-        WORKSPACE=${{ matrix.envs.name }}
+        WORKSPACE=${{ matrix.envs.ws }}
 
   sonar:
     if: ${{ github.ref == 'refs/heads/develop' }}
