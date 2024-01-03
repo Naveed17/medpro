@@ -71,7 +71,7 @@ function Settings() {
                                     disabled={v.disable}
                                     disableRipple>
                                     <ListItemIcon>
-                                        <IconUrl path={v.icon}/>
+                                        <IconUrl width={20} height={20} path={v.icon}/>
                                     </ListItemIcon>
                                     <ListItemText primary={t('menu.' + v.name)}/>
                                 </ListItemButton>

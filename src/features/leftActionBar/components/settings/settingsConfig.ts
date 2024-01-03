@@ -56,7 +56,12 @@ const settingsData = {
             href: "/dashboard/settings/consultation-type",
             disable: false
         },
-
+{
+            name: "analysis",
+            icon: "setting/ic-analyse",
+            href: "/dashboard/settings/analysis",
+            disable: false
+        },
         {
             name: "agenda",
             icon: "setting/ic-agenda",

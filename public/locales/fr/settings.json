@@ -18,7 +18,8 @@
     "actfees": "Honoraires",
     "configdoc": "Documents",
     "import-data": "Importation",
-    "app_lock": "Verrouillage"
+    "app_lock": "Verrouillage",
+    "analysis": "Analyse"
   },
   "profil": {
     "specialities": "Spécialités",
@@ -155,6 +156,48 @@
       "add": "Ajouter motif de consultation",
       "edit": "Modifier motif de consultation",
       "cannot-delete-resource": "Impossible de supprimer la ressource"
+    }
+  },
+  "analysis": {
+    "config": {
+      "add": "Ajouter",
+      "path": "Paramètres > Analyse",
+      "table": {
+        "name": "Nom",
+        "action": "Action",
+        "abbreviation": "abréviation",
+        "empty": ""
+      },
+      "alert": {
+        "add": "L'analyse a été ajoutée",
+        "edit": "L'analyse a été modifiée",
+        "delete": "L'analyse a été supprimée"
+      },
+      "dialog": {
+        "delete": {
+          "title": "Suppression d'une analyse",
+          "desc": "Êtes-vous sûr de vouloir supprimer cette analyse ?",
+          "delete": "Supprimer"
+        },
+        "cancel": "Annuler"
+      },
+      "drawer": {
+        "nom": "Ajouter un nom d'analyse",
+        "abbreviation": "Abréviation",
+        "info": "Information du analyse",
+        "type_analysis_name": "Tapez le nom de l'analyse",
+        "type_analysis_abbreviation": "Tapez l'abréviation de l'analyse",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "add": "Ajouter l'analyse",
+        "edit": "Modifier l'analyse",
+        "required": {
+          "name": "le nom de l'analyse est requis",
+          "abbreviation": "l'abréviation de l'analyse est requise",
+          "ntc": "Nom est trop court",
+          "ntl": "Nom est trop long"
+        }
+      }
     }
   },
   "lieux": {
