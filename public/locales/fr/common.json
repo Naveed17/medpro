@@ -230,7 +230,7 @@
   "notif_alert": "Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications.",
   "install_app": "Installer l'app",
   "login": {
-    "sign_in": "Connecté en tant que",
+    "sign_in": "Choisir un espace de travail",
     "sign_title": "Avez-vous déjà utilisé med.tn ?",
     "sign_sub_title_1": "Connectez-vous en un seul clic",
     "sign_sub_title_2": "avec votre réseau social préféré",
@@ -240,7 +240,9 @@
     "sign_pass_placeholder": "Mot de passe",
     "sign_reset_pass": "Mot de passe oublié ?",
     "sign_forget_pass": "Rester connecté",
-    "sign_connect_btn": "Connexion"
+    "sign_connect_btn": "Connexion",
+    "sign_in_desc_1": "Vous avez été ajouté aux espaces de travail.",
+    "sign_in_desc_2": "Vous pouvez passer d'un espace de travail à l'autre à tout moment."
   },
   "schedule": {
     "add": "Ajouter",
