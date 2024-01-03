@@ -56,7 +56,12 @@ const settingsData = {
             href: "/dashboard/settings/consultation-type",
             disable: false
         },
-
+        {
+            name: "medical_imaging",
+            icon: "docs/ic-soura",
+            href: "/dashboard/settings/medical-imaging",
+            disable: false
+        },
         {
             name: "agenda",
             icon: "setting/ic-agenda",
