@@ -14,7 +14,7 @@ function SignIn() {
     const loading = status === 'loading'
     const router = useRouter();
 
-    const [error, setError] = useState(router.asPath.includes("&error="));
+    const [error] = useState(router.asPath.includes("&error="));
     const {token} = router.query;
 
     useEffect(() => {

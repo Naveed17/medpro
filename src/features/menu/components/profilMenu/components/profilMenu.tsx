@@ -26,7 +26,6 @@ import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import axios from "axios";
 import {Theme} from "@mui/material/styles";
-import {agendaSelector} from "@features/calendar";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
