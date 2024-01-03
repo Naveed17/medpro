@@ -38,6 +38,7 @@ import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {pdfjs} from "react-pdf";
 import {NewFeaturesCarousel} from "@features/carousels";
+import {openNewFeaturesDialog, sideBarSelector} from "@features/menu";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
@@ -53,7 +54,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const {closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const [newFeaturesDialogOpen, setNewFeaturesDialogOpen] = useState(false)
+
     const {t} = useTranslation('common');
     const {
         duplications,
@@ -62,6 +63,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         mutate: mutateDuplicationSource
     } = useAppSelector(duplicatedSelector);
     const {direction} = useAppSelector(configSelector);
+    const {newFeaturesDialogOpen} = useAppSelector(sideBarSelector);
 
     const [importDataDialog, setImportDataDialog] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
@@ -231,8 +233,9 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             }
         })
     }
+
     const handleNewFeaturesClose = () => {
-        setNewFeaturesDialogOpen(false);
+        dispatch(openNewFeaturesDialog(false));
         localStorage.setItem('new-features', "true");
     }
 
@@ -334,10 +337,11 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     useEffect(() => {
         if (!localStorage.getItem("new-features")) {
             setTimeout(() => {
-                setNewFeaturesDialogOpen(true)
+                dispatch(openNewFeaturesDialog(true));
+
             }, 3000);
         }
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SideBarMenu>
@@ -464,7 +468,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                         width: '100%',
                         background: 'radial-gradient(459.65% 113.63% at 85.2% 70.92%, #34BBFF 0%, #0696D6 76.56%)',
                         boxShadow: "0px 8px 8px -4px rgba(16, 24, 40, 0.04), 0px 20px 24px -4px rgba(16, 24, 40, 0.10)",
-                     m: {xs:1,sm:3},
+                        m: {xs: 1, sm: 3},
                     }
                 }}
                 onClose={handleNewFeaturesClose}>

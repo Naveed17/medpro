@@ -148,8 +148,8 @@
       "color": "couleur",
       "save": "Enregistrer",
       "type": "Type du motif",
-      "payed": "Payé",
-      "un_payed": "Non payé"
+      "payed": "Payant",
+      "un_payed": "Non payant"
     },
     "alert": {
       "add": "Ajouter motif de consultation",
@@ -316,9 +316,9 @@
       },
       "dialogs": {
         "absence-dialog": {
-          "title": "Ajouter congé ou absence",
+          "title": "Ajouter un congé ou une absence",
           "sub-title": "Liste des congés et absences proches",
-          "description": "Titre de congé",
+          "description": "Titre du congé",
           "type-placeholder": "Saisir le titre du congé",
           "startDate": "Date début",
           "endDate": "Date fin",
