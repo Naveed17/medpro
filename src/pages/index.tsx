@@ -49,12 +49,10 @@ function Home() {
     }, [router, status]);
 
     if (!ready || loading) return (<LoadingScreen/>);
-    console.log("session", session)
 
     const medical_entities = (session?.data?.medical_entities?.reduce((entites: MedicalEntityModel[], data: any) => [...(entites ?? []), data?.medical_entity], []) ?? []) as MedicalEntityModel[];
     const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
 
-    console.log("medical_entities", medical_entities)
     return (!hasMultiMedicalEntities ?
             <Redirect to='/dashboard/agenda'/>
             :
@@ -137,7 +135,6 @@ function Home() {
                                         <p style={{fontSize: 14, fontWeight: 600}}>{medical_entity_data?.name}</p>
                                     </a>)}
                             </Stack>
-
 
                             <Button
                                 variant="google"
