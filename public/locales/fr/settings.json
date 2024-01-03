@@ -19,7 +19,8 @@
     "configdoc": "Documents",
     "import-data": "Importation",
     "app_lock": "Verrouillage",
-    "analysis": "Analyse"
+    "analysis": "Analyse",
+    "medical_imaging": "Imagerie médicale"
   },
   "profil": {
     "specialities": "Spécialités",
@@ -194,6 +195,47 @@
         "required": {
           "name": "le nom de l'analyse est requis",
           "abbreviation": "l'abréviation de l'analyse est requise",
+          "ntc": "Nom est trop court",
+          "ntl": "Nom est trop long"
+        }
+      }
+    }
+  },
+  "medicalImaging": {
+    "config": {
+      "add": "Ajouter",
+      "path": "Paramètres > Imagerie médicale",
+      "table": {
+        "name": "Nom",
+        "action": "Action",
+        "empty": ""
+      },
+      "alert": {
+        "add": "L'imagerie médicale a été ajoutée",
+        "edit": "L'imagerie médicale a été modifiée",
+        "delete": "L'imagerie médicale a été supprimée"
+      },
+      "dialog": {
+        "delete": {
+          "title": "Suppression d'une imagerie médicale",
+          "desc": "Êtes-vous sûr de vouloir supprimer cette imagerie médicale ?",
+          "delete": "Supprimer"
+        },
+        "cancel": "Annuler"
+      },
+      "drawer": {
+        "nom": "Ajouter un nom d'imagerie médicale",
+        "abbreviation": "Abréviation",
+        "info": "Information du imagerie médicale",
+        "type_analysis_name": "Tapez le nom de l'imagerie médicale",
+        "type_analysis_abbreviation": "Tapez l'abréviation de l'imagerie médicale",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "add": "Ajouter l'imagerie médicale",
+        "edit": "Modifier l'imagerie médicale",
+        "required": {
+          "name": "le nom de l'imagerie médicale est requis",
+          "abbreviation": "l'abréviation de l'imagerie médicale est requise",
           "ntc": "Nom est trop court",
           "ntl": "Nom est trop long"
         }

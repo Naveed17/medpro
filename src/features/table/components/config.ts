@@ -205,6 +205,14 @@ const rowsActionsData = [
             )
         ),
     },
+    {
+        action: "medical-imaging",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/medicalImagingRow").then(
+                (mod) => mod
+            )
+        ),
+    },
 ];
 
 export default rowsActionsData;

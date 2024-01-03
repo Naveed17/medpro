@@ -63,6 +63,12 @@ const settingsData = {
             disable: false
         },
         {
+            name: "medical_imaging",
+            icon: "docs/ic-soura",
+            href: "/dashboard/settings/medical-imaging",
+            disable: false
+        },
+        {
             name: "agenda",
             icon: "setting/ic-agenda",
             href: "/dashboard/settings/agenda",
