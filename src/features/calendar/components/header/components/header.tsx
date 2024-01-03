@@ -94,7 +94,6 @@ function Header({...props}) {
                                     </Typography>
                                 </Stack>
                             </BadgeStyled>
-
                         ) : (
                             <Typography variant="subtitle1" color="text.primary" fontSize={14}>
                                 <div>
@@ -156,7 +155,8 @@ function Header({...props}) {
                             {
                                 icon: 'ic-banned',
                                 title: hasBlockedCurrentDay ? "delete_blocked_day" : "add_blocked_day",
-                                action: hasBlockedCurrentDay ? "onDeleteBlockedDay" : "onAddBlockedDay"
+                                action: hasBlockedCurrentDay ? "onDeleteBlockedDay" : "onAddBlockedDay",
+                                ...(hasBlockedCurrentDay && {note: `${moment(currentDate.date).format("DD")} ${moment(currentDate.date).format("MMMM")}`})
                             },
                             {
                                 icon: 'ic-leave',
@@ -176,7 +176,7 @@ function Header({...props}) {
                                 <MenuItem key={i} onClick={() => OnMenuActions(v.action)}>
                                     <IconUrl path={v.icon}/>
                                     <Typography ml={.5} color="common.white">
-                                        {t(v.title)}
+                                        {t(v.title)} {v?.note}
                                     </Typography>
                                 </MenuItem>
                             ))}

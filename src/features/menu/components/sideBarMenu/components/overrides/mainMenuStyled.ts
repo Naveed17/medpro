@@ -1,13 +1,8 @@
 import {styled} from "@mui/material/styles";
-import {Box, BoxProps} from "@mui/material";
+import {Box} from "@mui/material";
 import {MobileContainer} from "@lib/constants";
-import {highlightedDays} from "@lib/hooks";
 
-interface Prpops extends BoxProps {
-
-}
-
-const MainMenuStyled = styled(Box)<Prpops>(({theme}) => ({
+const MainMenuStyled = styled(Box)<any>(({theme}) => ({
     display: "flex",
     [`@media (max-width: ${MobileContainer}px)`]: {
         flexDirection: "column",

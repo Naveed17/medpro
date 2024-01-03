@@ -18,13 +18,13 @@ export const prepareContextMenu = (action: string, eventMenu: EventModal, roles:
         action === "onDelete" &&
         ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) ||
         action === "onMove" &&
-        (moment().isAfter(eventMenu?.time) || ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
+        ((eventMenu?.status.key !== "CONFIRMED" && moment().isAfter(eventMenu?.time)) || ["FINISHED", "ON_GOING"].includes(eventMenu?.status.key) || eventMenu?.patient?.isArchived) ||
         action === "onPatientNoShow" &&
         ((moment().endOf('day').isBefore(eventMenu?.time) || ["ON_GOING", "FINISHED", "NOSHOW"].includes(eventMenu?.status.key)) || eventMenu?.patient?.isArchived) ||
         action === "onConfirmAppointment" &&
         eventMenu?.status.key !== "PENDING" ||
         action === "onReschedule" &&
-        ((moment().isBefore(eventMenu?.time) && eventMenu?.status.key !== "FINISHED") || eventMenu?.patient?.isArchived) ||
+        (((moment().isBefore(eventMenu?.time) && eventMenu?.status.key !== "FINISHED") || eventMenu?.status.key === "CONFIRMED") || eventMenu?.patient?.isArchived) ||
         ["onPatientDetail", "onAddConsultationDocuments"].includes(action) &&
         eventMenu?.patient?.isArchived ||
         action === "onPay" &&
