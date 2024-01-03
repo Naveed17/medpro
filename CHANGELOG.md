@@ -1,3 +1,12 @@
+## [4.21.1](https://github.com/SmartMedSA/med-pro/compare/v4.21.0...v4.21.1) (2024-01-03)
+
+
+### Bug Fixes
+
+* new feature dialog update ([12d570b](https://github.com/SmartMedSA/med-pro/commit/12d570be2ae6d34c7b0bf828a530d9b9d93749c1))
+* Statistics page icons ([6864896](https://github.com/SmartMedSA/med-pro/commit/6864896b227c4b9e553cfe722edc662f5d96d48d))
+* translation issues ([8402f5b](https://github.com/SmartMedSA/med-pro/commit/8402f5b88f9276ca28978eb70b6107c19aa13f3d))
+
 # [4.21.0](https://github.com/SmartMedSA/med-pro/compare/v4.20.7...v4.21.0) (2023-12-30)
 
 
