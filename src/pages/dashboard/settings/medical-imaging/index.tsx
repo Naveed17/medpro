@@ -32,8 +32,8 @@ import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import { MedicalImagingMobileCard } from "@features/card";
-import { MedicalImagingDrawer } from "@features/drawer";
+import {MedicalImagingMobileCard} from "@features/card";
+import {MedicalImagingDrawer} from "@features/drawer";
 
 function MedicalImaging() {
     const theme: Theme = useTheme();
@@ -44,7 +44,6 @@ function MedicalImaging() {
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "medicalImaging.config"});
     const {direction} = useAppSelector(configSelector);
     const [loading, setLoading] = useState(false);
-    const [rows, setRows] = useState<ConsultationReasonModel[]>([]);
     const [displayedItems, setDisplayedItems] = useState(10);
     const [edit, setEdit] = useState(false);
     const [selected, setSelected] = useState<any>();
@@ -142,12 +141,6 @@ function MedicalImaging() {
     }
 
     useEffect(() => {
-        if (medicalImagingResponse !== undefined) {
-                setRows((medicalImagingResponse as HttpResponse).data);
-        }
-    }, [medicalImagingResponse]);// eslint-disable-line react-hooks/exhaustive-deps
-console.log(rows)
-    useEffect(() => {
         // Add scroll listener
         if (isMobile) {
             let promise = new Promise((resolve) => {
@@ -164,6 +157,9 @@ console.log(rows)
             return () => window.removeEventListener("scroll", handleScroll);
         }
     }, [medicalImagingResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const medicalImaging = ((medicalImagingResponse as HttpResponse)?.data ?? []) as any[];
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -192,7 +188,7 @@ console.log(rows)
                     }}>
                     <Otable
                         headers={headCells}
-                        rows={rows}
+                        rows={medicalImaging}
                         from={"medical-imaging"}
                         pagination
                         t={t}
@@ -205,17 +201,17 @@ console.log(rows)
             <MobileContainer>
                 <Container>
                     <Stack spacing={1} py={3.7}>
-                        {rows?.slice(0, displayedItems).map((row, idx) => (
+                        {medicalImaging?.slice(0, displayedItems).map((row, idx) => (
                             <React.Fragment key={idx}>
-                              <MedicalImagingMobileCard data={row} edit={configMedicalImaging}/>
+                                <MedicalImagingMobileCard data={row} edit={configMedicalImaging}/>
                             </React.Fragment>
                         ))}
                     </Stack>
                 </Container>
             </MobileContainer>
             <Drawer anchor={"right"} open={edit} dir={direction} onClose={closeDraw}>
-                <MedicalImagingDrawer 
-                   data={selected}
+                <MedicalImagingDrawer
+                    data={selected}
                     mutateEvent={mutateMedicalImaging}
                     closeDraw={closeDraw}
                     t={t}
@@ -225,7 +221,7 @@ console.log(rows)
                 PaperProps={{
                     sx: {
                         width: "100%",
-                        m:1
+                        m: 1
                     }
                 }} maxWidth="sm" open={open}>
                 <DialogTitle sx={{
