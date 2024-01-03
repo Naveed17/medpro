@@ -1,12 +1,14 @@
 import React from "react";
 import TableCell from "@mui/material/TableCell";
-import {IconButton, Typography, Skeleton, Stack} from "@mui/material";
+import {IconButton, Typography, Skeleton, Stack, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import {uniqueId} from "lodash";
 
 function MedicalImagingRow({...props}) {
     const {row, editMotif} = props;
+    const theme = useTheme();
+
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell colSpan={3}>
@@ -32,7 +34,7 @@ function MedicalImagingRow({...props}) {
                             size="small"
                             sx={{mr: {md: 1}}}
                             onClick={() => editMotif(row, "edit")}>
-                            <IconUrl path="setting/edit"/>
+                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                         </IconButton>
                         <IconButton
                             size="small"
@@ -44,7 +46,7 @@ function MedicalImagingRow({...props}) {
                                 }
                             }}
                             onClick={() => editMotif(row, "delete")}>
-                            <IconUrl path="setting/icdelete"/>
+                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                         </IconButton>
                     </Stack>
                 ) : (

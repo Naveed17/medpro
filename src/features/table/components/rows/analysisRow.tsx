@@ -7,7 +7,7 @@ import {uniqueId} from "lodash";
 
 function Analysis({...props}) {
     const {row, editMotif} = props;
-    const theme = useTheme()
+    const theme = useTheme();
 
     return (
         <TableRowStyled key={uniqueId}>
