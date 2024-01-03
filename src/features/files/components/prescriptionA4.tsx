@@ -146,7 +146,7 @@ const Prescription = ({...props}) => {
                         width: "fit-content",
                         position: "absolute",
                         zIndex: lastSelected === "patient" ? 999 : 1,
-                        fontWeight:"bold",
+                        fontWeight: "bold",
                         opacity: selected === "" || selected === "patient" ? 1 : 0.5,
                         border: state === undefined ? selected === 'patient' ? '2px solid #0096d6' : '1px dashed #0096d6' : '0',
                     }}>
@@ -225,24 +225,26 @@ const Prescription = ({...props}) => {
                     setLastSelected("content");
                 }}
                 bounds={{left: 0, top: 0, right: 0, bottom: 1000}}>
-                <div style={{
-                    width: "100%",
-                    padding: '0 10mm',
-                    border: "0 solid",
-                    overflowWrap: 'break-word',
-                    position: "absolute",
-                    zIndex: lastSelected === "content" ? 999 : 1,
-                    opacity: selected === "" || selected === "content" ? 1 : 0.5,
-                    height: `100%`,
-                    overflow: "hidden"
-                }}>
-                    {state === undefined && <div id={'content' + id} className="box"
-                                                 style={{
-                                                     height: `${data.content.maxHeight}px`,
-                                                     border: selected === 'content' ? '1px solid #0096d6' : '1px dashed #0096d6',
-                                                 }}>
-                        {data.content.content}</div>}
-                    {<div id={id} ref={content}></div>}
+                <div
+                    style={{
+                        width: "100%",
+                        padding: '0 10mm',
+                        border: "0 solid",
+                        overflowWrap: 'break-word',
+                        position: "absolute",
+                        zIndex: lastSelected === "content" ? 999 : 1,
+                        opacity: selected === "" || selected === "content" ? 1 : 0.5,
+                        height: `${data.content.maxHeight}px`
+                    }}>
+                    {state === undefined &&
+                        <div id={'content' + id} className="box"
+                             style={{
+                                 height: `${data.content.maxHeight}px`,
+                                 border: selected === 'content' ? '1px solid #0096d6' : '1px dashed #0096d6',
+                             }}>
+                            {data.content.content}
+                        </div>}
+                    <div id={id} ref={content}></div>
                 </div>
             </Draggable>
 
