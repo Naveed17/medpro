@@ -58,7 +58,7 @@ const settingsData = {
         },
 {
             name: "analysis",
-            icon: "setting/ic-analyse",
+            icon: "docs/ic-analyse",
             href: "/dashboard/settings/analysis",
             disable: false
         },

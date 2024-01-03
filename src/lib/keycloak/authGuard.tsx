@@ -16,8 +16,7 @@ function AuthGuard({children}: LayoutProps) {
     const features = medical_entity?.features;
     const isOwner = medical_entity?.is_owner;
     const hasPermission = features?.map((feature: FeatureModel) => feature.slug).includes(router.pathname.split('/')[2]) ?? true;
-    const hasMultiMedicalEntities = session?.data?.medical_entities?.length > 1 ?? false;
-    console.log('AuthGuard session', hasMultiMedicalEntities);
+
     useEffect(() => {
         if (localStorage.getItem('lock-on') === 'true') {
             dispatch(setLock(true));

@@ -33,8 +33,8 @@ import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-import { AnalysisDrawer } from "@features/drawer";
-import { AnalysisMobileCard } from "@features/card";
+import {AnalysisDrawer} from "@features/drawer";
+import {AnalysisMobileCard} from "@features/card";
 
 function Analysis() {
     const theme: Theme = useTheme();
@@ -152,12 +152,6 @@ function Analysis() {
     }
 
     useEffect(() => {
-        if (analysisResponse !== undefined) {
-                setRows((analysisResponse as HttpResponse).data);
-        }
-    }, [analysisResponse]);// eslint-disable-line react-hooks/exhaustive-deps
-console.log(rows)
-    useEffect(() => {
         // Add scroll listener
         if (isMobile) {
             let promise = new Promise((resolve) => {
@@ -174,6 +168,9 @@ console.log(rows)
             return () => window.removeEventListener("scroll", handleScroll);
         }
     }, [analysisResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const analysis = ((analysisResponse as HttpResponse)?.data ?? []) as AnalysisModel[];
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -202,7 +199,7 @@ console.log(rows)
                     }}>
                     <Otable
                         headers={headCells}
-                        rows={rows}
+                        rows={analysis}
                         from={"analysis"}
                         pagination
                         t={t}
@@ -215,9 +212,9 @@ console.log(rows)
             <MobileContainer>
                 <Container>
                     <Stack spacing={1} py={3.7}>
-                        {rows?.slice(0, displayedItems).map((row, idx) => (
+                        {analysis?.slice(0, displayedItems).map((row, idx) => (
                             <React.Fragment key={idx}>
-                               <AnalysisMobileCard data={row} edit={configAnalysis} t={t}/>
+                                <AnalysisMobileCard data={row} edit={configAnalysis} t={t}/>
                             </React.Fragment>
                         ))}
                     </Stack>
@@ -235,7 +232,7 @@ console.log(rows)
                 PaperProps={{
                     sx: {
                         width: "100%",
-                        m:1
+                        m: 1
                     }
                 }} maxWidth="sm" open={open}>
                 <DialogTitle sx={{

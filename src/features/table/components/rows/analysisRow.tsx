@@ -1,41 +1,40 @@
 import React from "react";
 import TableCell from "@mui/material/TableCell";
-import {IconButton, Typography, Skeleton, Box, Stack} from "@mui/material";
+import {IconButton, Typography, Skeleton, Box, Stack, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import {uniqueId} from "lodash";
-import {ModelDot} from "@features/modelDot";
-import {IconsTypes} from "@features/calendar";
 
 function Analysis({...props}) {
     const {row, editMotif} = props;
+    const theme = useTheme()
 
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell colSpan={3}>
                 {row ? (
-                    row.name ? 
-                    (
+                    row.name ?
+                        (
                             <Typography variant="body1" color="text.primary">
                                 {row.name}
                             </Typography>
-                    )
-                    :(
-                        <Typography>--</Typography>
-                      )
-                
-                ): (
+                        )
+                        : (
+                            <Typography>--</Typography>
+                        )
+
+                ) : (
                     <Skeleton variant="text" width={100}/>
                 )}
             </TableCell>
             <TableCell align="center">
                 {row ? (
-                    !row.abbreviation  ? (
+                    !row.abbreviation ? (
                         <Typography>--</Typography>
                     ) : (
-                        
-                            <Typography>{row.abbreviation}</Typography>
-                       
+
+                        <Typography>{row.abbreviation}</Typography>
+
                     )
                 ) : (
                     <Skeleton width={30} height={40} sx={{mx: "auto"}}/>
@@ -48,13 +47,19 @@ function Analysis({...props}) {
                             size="small"
                             sx={{mr: {md: 1}}}
                             onClick={() => editMotif(row, "edit")}>
-                            <IconUrl path="setting/edit"/>
+                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                         </IconButton>
                         <IconButton
                             size="small"
-                            sx={{mr: {md: 1}}}
+                            sx={{
+                                mr: {md: 1},
+                                '& .react-svg svg': {
+                                    width: 20,
+                                    height: 20
+                                }
+                            }}
                             onClick={() => editMotif(row, "delete")}>
-                            <IconUrl path="setting/icdelete"/>
+                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                         </IconButton>
                     </Stack>
                 ) : (
