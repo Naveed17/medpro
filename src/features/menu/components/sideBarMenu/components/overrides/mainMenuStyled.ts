@@ -1,11 +1,8 @@
 import {styled} from "@mui/material/styles";
-import {Box,BoxProps} from "@mui/material";
+import {Box} from "@mui/material";
 import {MobileContainer} from "@lib/constants";
-interface Prpops extends BoxProps {
 
-}
-
-const MainMenuStyled = styled(Box)<Prpops>(({theme}) => ({
+const MainMenuStyled = styled(Box)<any>(({theme}) => ({
     display: "flex",
     [`@media (max-width: ${MobileContainer}px)`]: {
         flexDirection: "column",
@@ -13,9 +10,9 @@ const MainMenuStyled = styled(Box)<Prpops>(({theme}) => ({
     "& .body-main": {
         flexGrow: 1,
         overflow: "hidden",
-         transition: theme.transitions.create('all', {
-        duration: theme.transitions.duration.shortest,
-    }),
+        transition: theme.transitions.create('all', {
+            duration: theme.transitions.duration.shortest,
+        }),
     },
     "& .sidenav-main": {
         width: 84,
@@ -178,6 +175,16 @@ const MainMenuStyled = styled(Box)<Prpops>(({theme}) => ({
             borderCollapse: "collapse",
             border: `1px solid ${theme.palette.grey["A100"]}`
         },
+    },
+    "& .custom-Badge .MuiBadge-badge": {
+        padding: 2,
+        fontSize: 10,
+        width: 14,
+        height: 14,
+        minWidth: 14,
+        right: 5,
+        top: 5,
+        zIndex: 10
     }
 }));
 
