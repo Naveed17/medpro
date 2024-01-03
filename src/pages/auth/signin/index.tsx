@@ -21,7 +21,7 @@ function SignIn() {
         if (status === "unauthenticated" && !error) {
             signIn(router.asPath.includes("?token=") ? 'credentials' : 'keycloak', {
                 ...(router.asPath.includes("?token=") && {token}),
-                callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')
+                callbackUrl: (router.locale === 'ar' ? '/ar' : '/')
             });
         }
     });

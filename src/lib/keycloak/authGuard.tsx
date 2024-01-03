@@ -26,7 +26,7 @@ function AuthGuard({children}: LayoutProps) {
 
     useEffect(() => {
         if (status === "unauthenticated" && router.asPath !== "/auth/signIn") {
-            signIn('keycloak', {callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')});
+            signIn('keycloak', {callbackUrl: (router.locale === 'ar' ? '/ar' : '/')});
         }
     }, [status, router]);
 
@@ -34,7 +34,7 @@ function AuthGuard({children}: LayoutProps) {
         // check if the error has occurred
         if (session?.error === "RefreshAccessTokenError") {
             signIn('keycloak', {
-                callbackUrl: `${router.locale}/dashboard/agenda`,
+                callbackUrl: `/${router.locale}`,
             }); // Force sign in to hopefully resolve error
         }
     }, [session?.error, router]);

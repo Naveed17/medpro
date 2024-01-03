@@ -53,7 +53,8 @@ function ProfilMenu() {
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>
     const general_information = (user as UserDataResponse).general_information;
-
+    const medical_entities = ((user as UserDataResponse).medical_entities?.reduce((entites: MedicalEntityModel[], data: any) => [...(entites ?? []), data?.medical_entity], []) ?? []) as MedicalEntityModel[];
+    const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
     const {trigger: triggerSettingsUpdate} = useRequestQueryMutation("/settings/update");
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -87,8 +88,11 @@ function ProfilMenu() {
                 });
                 dispatch(logout({redirect: true, path}));
                 break;
+            case 'switch-medical-entity':
+                await router.push('/');
+                break;
             case 'profile':
-                router.push(isMobile ? "/dashboard/settings" : `/dashboard/settings/${roles.includes('ROLE_SECRETARY') ? "motif" : "profil"}`)
+                await router.push(isMobile ? "/dashboard/settings" : `/dashboard/settings/${roles.includes('ROLE_SECRETARY') ? "motif" : "profil"}`)
                 dispatch(toggleMobileBar(true));
                 break;
             case 'rooting':
@@ -160,7 +164,7 @@ function ProfilMenu() {
                                     <MenuItem
                                         className={`item-list`}
                                         disableRipple>
-                                        <IconUrl path={"ic-world-language"} width={30} height={30}/>
+                                        <IconUrl path={"ic-world-language"}/>
                                         <Typography variant="body1" mr={1} ml={1.6} color={"text.secondary"}>
                                             {t("lang")}
                                         </Typography>
@@ -190,8 +194,7 @@ function ProfilMenu() {
                                             ))}
                                         </ToggleButtonGroup>
                                     </MenuItem>
-
-                                    {ProfileMenuConfig.map((item: any, index) => (
+                                    {ProfileMenuConfig.map((item: any, index) => ((item.action === 'switch-medical-entity' && hasMultiMedicalEntities) || item.action !== 'switch-medical-entity') && (
                                         <MenuItem
                                             key={`menu-${index}`}
                                             onClick={() => handleMenuItem(item.action)}

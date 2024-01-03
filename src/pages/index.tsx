@@ -17,7 +17,7 @@ import {Redirect} from "@features/redirect";
 
 function Home() {
     const router = useRouter();
-    const {data: session, status} = useSession();
+    const {data: session, status, update} = useSession();
     const theme = useTheme();
     const dispatch = useAppDispatch();
 
@@ -40,10 +40,8 @@ function Home() {
 
     useEffect(() => {
         if (status === "unauthenticated") {
-            signIn('keycloak', {callbackUrl: (router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda')});
-
+            signIn('keycloak', {callbackUrl: (router.locale === 'ar' ? '/ar' : '/')});
         } else if (status === "authenticated") {
-            // void router.push(router.locale === 'ar' ? '/ar/dashboard/agenda' : '/dashboard/agenda');
             setLoading(false);
         }
     }, [router, status]);
@@ -118,18 +116,18 @@ function Home() {
                     </Grid>)}
                     {session?.user && (
                         <>
-                        <span className={styles.signedInText}>
-                <small>{t('login.sign_in')}</small>
-                <br/>
-                <strong>{session.user.email || session.user.name}</strong>
-              </span>
+                            <span className={styles.signedInText}>
+                                <small>{t('login.sign_in')}</small>
+                                <br/>
+                                <strong>{session.user.email || session.user.name}</strong>
+                            </span>
 
                             <Stack direction={"row"} sx={{cursor: "pointer"}}>
                                 {medical_entities?.map(medical_entity_data =>
                                     <a
                                         style={{width: 180}}
                                         key={medical_entity_data.uuid}
-                                        onClick={() => router.push('/dashboard')}
+                                        onClick={() => update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
                                         className={styles.card}>
                                         <Box component="img" width={60} height={60} src="/static/icons/Med-logo_.svg"/>
                                         <p style={{fontSize: 14, fontWeight: 600}}>{medical_entity_data?.name}</p>

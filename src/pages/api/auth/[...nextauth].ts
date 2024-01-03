@@ -167,14 +167,14 @@ export const authOptions: NextAuthOptions = {
         async jwt({token, user, account, trigger, session}) {
             // Persist the OAuth access_token to the token right after signin
             if (trigger === "update") {
+                // Note, that `session` can be any arbitrary object, remember to validate it!
+                const updatedToken = {...token} as any;
                 if (session?.agenda_default_view) {
-                    // Note, that `session` can be any arbitrary object, remember to validate it!
-                    const updatedToken = {...token} as any;
                     token = {
                         ...updatedToken,
                         data: {
                             ...updatedToken.data,
-                            "general_information": {
+                            general_information: {
                                 ...updatedToken.data.general_information,
                                 agendaDefaultFormat: session?.agenda_default_view
                             }
@@ -182,8 +182,6 @@ export const authOptions: NextAuthOptions = {
                     };
                     return token;
                 } else if (session?.features && Array.isArray(session?.features)) {
-                    // Note, that `session` can be any arbitrary object, remember to validate it!
-                    const updatedToken = {...token} as any;
                     const medical_entity_index = updatedToken.data?.medical_entities.findIndex((data: any) => data.medical_entity.uuid === updatedToken.data?.medical_entity.uuid);
                     token = {
                         ...updatedToken,
@@ -197,6 +195,18 @@ export const authOptions: NextAuthOptions = {
                                 },
                                 ...updatedToken.data?.medical_entities.slice(medical_entity_index + 1)
                             ]
+                        }
+                    };
+                    return token;
+                } else if (session?.default_medical_entity) {
+                    token = {
+                        ...updatedToken,
+                        data: {
+                            ...updatedToken.data,
+                            medical_entities: updatedToken.data?.medical_entities?.map((medical_entity_data: any) => ({
+                                ...medical_entity_data,
+                                is_default: medical_entity_data?.medical_entity?.uuid === session?.default_medical_entity
+                            }))
                         }
                     };
                     return token;
