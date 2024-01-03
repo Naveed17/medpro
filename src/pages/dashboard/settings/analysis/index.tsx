@@ -18,7 +18,6 @@ import {
     useTheme
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
-import {MotifTypeDialog} from "@features/motifTypeDialog";
 import {SubHeader} from "@features/subHeader";
 import {useAppSelector} from "@lib/redux/hooks";
 import {Otable} from "@features/table";
@@ -45,7 +44,6 @@ function Analysis() {
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "analysis.config"});
     const {direction} = useAppSelector(configSelector);
     const [loading, setLoading] = useState(false);
-    const [rows, setRows] = useState<ConsultationReasonModel[]>([]);
     const [displayedItems, setDisplayedItems] = useState(10);
     const [edit, setEdit] = useState(false);
     const [selected, setSelected] = useState<any>();

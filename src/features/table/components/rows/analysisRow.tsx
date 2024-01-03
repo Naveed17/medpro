@@ -1,6 +1,6 @@
 import React from "react";
 import TableCell from "@mui/material/TableCell";
-import {IconButton, Typography, Skeleton, Box, Stack, useTheme} from "@mui/material";
+import {IconButton, Typography, Skeleton, Stack, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import {uniqueId} from "lodash";
