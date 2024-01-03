@@ -42,7 +42,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import {LoadingScreen} from "@features/loadingScreen";
-import {Doc, Page} from "@features/page";
+import {Doc} from "@features/page";
 import CropLandscapeIcon from '@mui/icons-material/CropLandscape';
 import CropPortraitIcon from '@mui/icons-material/CropPortrait';
 import IconUrl from "@themes/urlIcon";
@@ -204,9 +204,9 @@ function DocsConfig() {
         }, {
             onSuccess: () => {
                 enqueueSnackbar(t("updated"), {variant: 'success'})
-                mutate().then(() => {
+                /*mutate().then(() => {
                     router.back();
-                });
+                });*/
             }
         })
     }
@@ -247,7 +247,7 @@ function DocsConfig() {
 
         setTimeout(() => {
             setLoading(false)
-        }, 2000);
+        }, 3000);
     }, [httpDocumentHeader, uuid])
 
     useEffect(() => {
@@ -469,36 +469,33 @@ function DocsConfig() {
                             </Button>
                             <Typography mt={2} mb={2}>{t('section')}</Typography>
 
+
                             <Grid
                                 container
                                 spacing={1}
                                 alignItems="center">
-                                <Grid item xs={6}>
-                                    <div id="yes-drop" className="drag-drop">
-                                        <Stack direction={"row"} spacing={1} alignItems={"center"}
-                                               style={{
-                                                   backgroundColor: "#F0FAFF",
-                                                   height: 40,
-                                                   padding: 10,
-                                                   borderRadius: 6
-                                               }}>
-                                            <IconUrl path={"ic-drag"}/>
-                                            <Typography textAlign={"center"} width={"100%"}>name</Typography>
-                                        </Stack>
-                                    </div>
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <Stack direction={"row"} spacing={1} alignItems={"center"}
-                                           style={{
-                                               backgroundColor: "#F0FAFF",
-                                               height: 40,
-                                               padding: 10,
-                                               borderRadius: 6
-                                           }}>
-                                        <IconUrl path={"ic-drag"}/>
-                                        <Typography textAlign={"center"} width={"100%"}>name</Typography>
-                                    </Stack>
-                                </Grid>
+                                {data && Object.keys(data).filter(key => !["content","size","background"].includes(key)).map(key => (
+                                    <Grid key={key} item xs={6} >
+                                        <div id="yes-drop" style={{opacity:data[key].show === true ? 0.5 : 1}}>
+                                            <Stack draggable="true"
+                                                   direction={"row"}
+                                                   spacing={1}
+                                                   alignItems={"center"}
+                                                   onClick={()=>{
+                                                       data[key].show = true
+                                                       setData({...data})
+                                                   }}
+                                                   style={{
+                                                       backgroundColor: "#F0FAFF",
+                                                       height: 40,
+                                                       padding: 10,
+                                                       borderRadius: 6
+                                                   }}>
+                                                <IconUrl path={"ic-drag"}/>
+                                                <Typography textAlign={"center"} width={"100%"}>{t(key)}</Typography>
+                                            </Stack>
+                                        </div>
+                                    </Grid>))}
                             </Grid>
                         </Collapse>
 
@@ -509,7 +506,7 @@ function DocsConfig() {
                     <Box style={{height: "81vh", overflowX: "auto"}}>
                         <Button onClick={printNow}>PRINT</Button>
                         {!loading && <Box ref={componentRef}>
-                            <Doc {...{data, setData, state: undefined, eventHandler, selected, setSelected}}/>
+                            <Doc {...{data, setData, state: undefined}}/>
                         </Box>}
                     </Box>
                 </Grid>

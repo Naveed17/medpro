@@ -43,7 +43,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import PreviewA4 from "@features/files/components/previewA4";
 import {generatePdfFromHtml, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
@@ -54,6 +53,7 @@ import {FacebookCircularProgress} from "@features/progressUI";
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {Doc} from "@features/page";
 
 function DocumentDetailDialog({...props}) {
     const {
@@ -595,7 +595,25 @@ function DocumentDetailDialog({...props}) {
 
     const generatedDocsNode = generatedDocs.some(doc => doc === state?.type) &&
         <div>
-            {!loading && <PreviewA4
+
+            {loading ? <div className={data.size ? data.size : "portraitA5"}></div> :
+                <Box ref={previewDocRef}><Doc {...{
+                    data,
+                    setData,
+                    date,
+                    state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
+                        ...state,
+                        info: [{
+                            fees: state?.consultationFees,
+                            hiddenData: true,
+                            act: {
+                                name: "Consultation",
+                            },
+                            qte: 1
+                        }]
+                    } : state
+                }}/></Box>}
+            {/* {!loading && <PreviewA4
                 {...{
                     previewDocRef,
                     componentRef,
@@ -616,8 +634,7 @@ function DocumentDetailDialog({...props}) {
                     date,
                     loading,
                     t
-                }} />}
-            {loading && <div className={data.size ? data.size : "portraitA5"}></div>}
+                }} />}*/}
         </div>
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -657,7 +674,8 @@ function DocumentDetailDialog({...props}) {
                                                                 style={{opacity: 0.5}}>{t('downloadnow')}</Typography>
                                                     <Button onClick={downloadF} color={"info"}
                                                             variant="outlined"
-                                                            startIcon={<IconUrl path="menu/ic-download-square" width={20}
+                                                            startIcon={<IconUrl path="menu/ic-download-square"
+                                                                                width={20}
                                                                                 height={20}/>}>
                                                         {t('download')}
                                                     </Button>

@@ -1,150 +1,191 @@
-import {Button} from "@mui/material";
 import React, {useEffect, useState} from "react";
-import PageStyled from "@features/page/components/overrides/pageStyled";
+import {Page} from "@features/page";
+import html2canvas from "html2canvas";
+import {prescriptionPreviewDosage} from "@lib/hooks";
+import {DefaultCountry} from "@lib/constants";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 function Doc({...props}) {
-    const {data, setData, state: undefined, eventHandler, selected, setSelected} = props;
-    const [pageChunks, setPageChunks] = useState<any[]>([]);
 
-    const CONTENT_WIDTH = 400;
-    const CONTENT_HEIGHT = 300
-    const htmlContent="<table><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>ZF</td></tr></table>"
+    const [pages, setPages] = useState<string[]>([])
+    const [onReSize, setOnResize] = useState(true)
+    const [title, setTitle] = useState("Titre");
+
+    const {data, setData, state, date} = props
+
+    const {data: session} = useSession();
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
+    const devise = doctor_country.currency?.name;
 
 
-    /*function generateRandomContent() {
-        var alph = "abcdefghijklmnopqrstuvwxyz";
-        var content = "";
-        // we will generate 100 random elements displaying their index to keep track of what's happening
-        /!*for (var i = 0; i < 100; i++) {
-            var type = parseInt(String(Math.random() * 2), 10);
-            switch (type) {
-                case 0: // text, generates and random p block
-                    content = content + "<p>" + i + " ";
-                    var numWords = 10 + parseInt(String(Math.random() * 50), 10);
-                    for (var j = 0; j < numWords; j++) {
-                        var numLetters = 2 + parseInt(String(Math.random() * 15), 10);
-                        if (j > 0) {
-                            content = content + " ";
-                        }
-                        for (var k = 0; k < numLetters; k++) {
-                            // @ts-ignore
-                            content = content + alph[parseInt(Math.random() * 26, 10)];
-                        }
+    const createPageContent = () => {
+        if (state) {
+            let elx = "";
 
-                    }
-                    content = content + "</p>";
+            switch (state.type) {
+                case "prescription":
+                    state.info.map((el: any, index: number) => {
+                        console.log(el)
+                        const child = document.createElement('p');
+                        child.append()
+                        elx += `<p>${index + 1} • ${el.standard_drug.commercial_name}</p>`
+                        el.cycles.map((cycle: any, index: number) => {
+                            let val = cycle.dosage ? `- ${prescriptionPreviewDosage(cycle.dosage)}` : ''
+                            if (cycle.duration)
+                                val += ` pendant ${cycle.duration} ${(cycle.durationType)}`
+                            if (cycle.note)
+                                val += ` (${cycle.note})`;
+                            const child = document.createElement('p');
+                            child.append(val);
+                            elx += `<p>${val}</p>`
+
+                        })
+                    })
+
+                    setTitle("ORDONNANCE MEDICALE");
                     break;
-                case 1: // colored div, generates a div of random size and color
-                    var width = 30 + parseInt(Math.random() * 20, 10) * 10;
-                    var height = 30 + parseInt(Math.random() * 20, 10) * 10;
-                    var color = "rgb(" + parseInt(Math.random() * 255, 10) + ", " + parseInt(Math.random() * 255, 10) + ", " + parseInt(Math.random() * 255, 10) + ")";
-                    content = content + '<div style="width: ' + width + 'px; height: ' + height + 'px; background-color: ' + color + '">' + i + '</div>';
+                case "requested-analysis":
+                    const value = `<p>Prière de faire les explorations biologiques suivantes à ${state.patient} :</p>`
+                    elx += value
+                    state.info.map((el: any, index: number) => {
+                        elx += `<p>• ${el.analysis.name}</p>`
+                        if (el.note) elx += `<p>• ${el.note}</p>`
+                    })
+
+                    setTitle("Bilan Biologique");
+                    break;
+                case "requested-medical-imaging":
+                    const val = `<p>Prière de faire les explorations radiologiques suivantes à ${state.patient} :</p>`
+                    elx += val
+                    state.info.map((el: any, index: number) => {
+                        elx += `<p>• ${el['medical-imaging']?.name}</p>`
+                        if (el.note) elx += `<p>• ${el.note}</p>`
+                    })
+
+                    setTitle("Imagerie médicale");
+                    break;
+                case "fees":
+                case "quote":
+                    let total = 0;
+                    elx = "<table>"
+                    elx += `<tr>
+                                    <td>NOM</td>
+                                    <td>PRIX</td>
+                                    <td>QTE</td>
+                                    <td>TOTAL</td>
+                                </tr>`
+                    state.info.map((el: any, index: number) => {
+                        total += el.qte * el.fees;
+                        elx += `<tr>
+                                        <td> ${el.act.name}</td>
+                                        <td>${el.fees} ${devise}</td>
+                                        <td>${el.qte}</td>
+                                        <td>${el.qte * el.fees} ${devise}</td>
+                                    </tr>`
+                    });
+
+                    elx += `<tr>
+                                        <td> Total</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>${total} ${devise}</td>
+                                    </tr>`
+                    elx += "</table>"
+
+                    setTitle(state.type == "fees" ? "Note d'honoraires" : "Devis");
+
                     break;
             }
-        }*!/
-       // console.log(content)
-        content="<table><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>Z</td></tr><tr><td>X</td><td>Y</td><td>ZF</td></tr></table>"
-        return content;
-    }
 
-    function getNodeChunks(htmlDocument) {
-        var offscreenDiv = document.createElement('div');
-        offscreenDiv.className = 'x';
-        offscreenDiv.style.width = `${CONTENT_WIDTH}px`
-        offscreenDiv.style.height = `${CONTENT_HEIGHT}px`
-        offscreenDiv.style.position = 'absolute';
-        offscreenDiv.style.top = '-3000px';
-        offscreenDiv.innerHTML = htmlDocument;
-        offscreenDiv.display = 'flex';
-        offscreenDiv.flexWrap = 'wrap';
-        document.body.appendChild(offscreenDiv);
-        let offscreenRect = offscreenDiv.getBoundingClientRect();
-        // console.log('offscreenRect:', offscreenRect);
-        var chunks = [];
-        var currentChunk = []
-        for (var i = 0; i < offscreenDiv.children.length; i++) {
-            var current = offscreenDiv.children[i];
-            var currentRect = current.getBoundingClientRect();
-            currentChunk.push(current);
-            if (currentRect.bottom > (offscreenRect.bottom)) {
-                // current element is overflowing offscreenDiv, remove it from current chunk
-                currentChunk.pop();
-                // remove all elements in currentChunk from offscreenDiv
-                currentChunk.forEach(elem => elem.remove());
-                // since children were removed from offscreenDiv, adjust i to start back at current eleme on next iteration
-                i -= currentChunk.length;
-                // push current completed chunk to the resulting chunklist
-                chunks.push(currentChunk);
-                // initialise new current chunk
-                currentChunk = [current];
-                offscreenRect = offscreenDiv.getBoundingClientRect();
-            }
-        }
-        // currentChunk may not be empty but we need the last elements
-        if (currentChunk.length > 0) {
-            currentChunk.forEach(elem => elem.remove());
-            chunks.push(currentChunk);
-        }
-        // offscreenDiv is not needed anymore
-        offscreenDiv.remove();
-        return chunks;
-    }
-
-    function appendChunksToPages(chunks) {
-        var container = document.getElementsByClassName('root_container')[0];
-        if (container) {
-            chunks.forEach((chunk, index) => {
-                // ex of a page header
-                var header = document.createElement('div');
-                header.innerHTML = '<h4 style="margin: 5px">Page ' + (index + 1) + '</h4>';
-                container.appendChild(header);
-                var page = document.createElement('div');
-                page.className = 'x';
-                page.style.width = `${CONTENT_WIDTH}px`
-                page.style.height = `${CONTENT_HEIGHT}px`
-                chunk.forEach(elem => page.appendChild(elem));
-                container.appendChild(page);
-            });
+            data.content.content = elx
+            setData({...data})
         }
 
+        console.log(state.info)
+
     }
-*/
-    const s = () =>{
-        var container = document.getElementById('container');
-        var items = container.children;
-        var divWidth = 200; // Largeur fixe de chaque div
-        var divHeight = 100; // Hauteur fixe de chaque div
 
-        // Calculez le nombre de divs nécessaires en fonction de la largeur et de la hauteur spécifiées
-        var numCols = Math.floor(container.offsetWidth / divWidth);
-        var numRows = Math.ceil(items.length / numCols);
 
-        // Créez et ajoutez les divs
-        for (var i = 0; i < numRows; i++) {
-            for (var j = 0; j < numCols; j++) {
-                var index = i * numCols + j;
-                if (index < items.length) {
-                    var newDiv = document.createElement('div');
-                    newDiv.className = 'item';
-                    newDiv.innerHTML = items[index].outerHTML;
-                    container.appendChild(newDiv);
+    useEffect(() => {
+        if (state)
+            if (state.info)
+                createPageContent()
+    }, [state])
+
+    useEffect(() => {
+        if (onReSize) {
+            splitContent(state && state.content ? state.content : data.content.content)
+            setOnResize(false)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [onReSize])
+
+    useEffect(() => {
+        if (pages.length > 0) {
+            const resizable = document.getElementsByClassName('resizable');
+            const contentDiv = document.getElementById("contentDiv")
+
+            if (contentDiv) {
+                let canvasWidth = contentDiv.offsetWidth * 2; // Adjust this value as needed
+                let canvasHeight = data.content.maxHeight * 2; // Adjust this value as needed
+
+                var paragraphs = contentDiv.getElementsByTagName('p');
+                for (let i = 0; i < paragraphs.length; i++) {
+                    paragraphs[i].style.margin = '15px'; // Ajustez cette valeur au besoin
                 }
+
+                contentDiv.style.visibility = "visible"
+                pages.map((_, index) => {
+                    let canvas = document.getElementById(`content${index}`) as HTMLCanvasElement;
+                    let ctx = canvas.getContext('2d', {willReadFrequently: true});
+                    canvas.width = canvasWidth;
+                    canvas.height = canvasHeight;
+                    console.log(ctx)
+                    if (ctx)
+                        html2canvas(contentDiv).then(function (canvas) {
+                            ctx?.drawImage(canvas, 0, index * -1 * data.content.maxHeight * 2);
+                        });
+                    if (data.content.width) {
+                        const el = resizable[index] as HTMLElement;
+                        el.style.width = `${data.content.width}px`;
+                        el.style.height = `${data.content.maxHeight}px`;
+                    }
+                })
+                contentDiv.style.visibility = "hidden";
+                contentDiv.style.position = "absolute";
+                contentDiv.style.top = "0";
+
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pages])
+
+
+    const splitContent = (content: string) => {
+        const contentDiv = document.getElementById("contentDiv")
+        if (contentDiv) {
+            const _width = data.content.width ? `${data.content.width}px` : document.getElementById(`content0`)?.clientWidth + "px";
+            contentDiv.innerHTML = content;
+            contentDiv.style.width = _width;
+            const nbPage = Math.ceil(contentDiv.clientHeight / data.content.maxHeight);
+            setPages(new Array(nbPage).fill(''))
+        }
     }
+
 
     return (
-        <PageStyled>
-            <div onClick={s} className="container" id="container">
-                <p>Your paragraph here...</p>
-                <table>
-                    <tr>
-                        <td>Table content</td>
-                        <td>More content</td>
-                    </tr>
-                </table>
-            </div>
-        </PageStyled>
+        <>
+
+            {
+                pages.map((page, index) => (
+                    <Page key={index} {...{data, setData, state, id: index, onReSize, setOnResize, date, title}}/>
+                ))
+            }
+            <div id={"contentDiv"} style={{visibility: "hidden"}}/>
+        </>
     )
 }
 
