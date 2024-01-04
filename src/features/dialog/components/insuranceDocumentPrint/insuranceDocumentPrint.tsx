@@ -36,6 +36,7 @@ function InsuranceDocumentPrint({...props}) {
         }] : [])], []) ?? [];
 
     const generateInsuranceDoc = (insuranceDocument: string, backgroundDoc: boolean) => {
+        setLoading(true);
         medicalEntityHasUser && triggerInsuranceDocs({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/${appuuid}/insurance-document/${insuranceDocument}/${router.locale}`,
@@ -89,6 +90,7 @@ function InsuranceDocumentPrint({...props}) {
 
                             const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
                             setFile(mergedPdf);
+                            setTimeout(() => setLoading(false));
                         }
                     })
                 } else {
@@ -120,10 +122,10 @@ function InsuranceDocumentPrint({...props}) {
                     });
                     const mergedPdf = await pdfDoc.saveAsBase64({dataUri: true});
                     setFile(mergedPdf);
+                    setTimeout(() => setLoading(false));
                 }
             },
             onSettled: () => {
-                setLoading(false);
                 invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${appuuid}/documents/${router.locale}`])
             }
         });
