@@ -1,3 +1,10 @@
+# [4.22.0](https://github.com/SmartMedSA/med-pro/compare/v4.21.1...v4.22.0) (2024-01-04)
+
+
+### Features
+
+* ca ([17f3f75](https://github.com/SmartMedSA/med-pro/commit/17f3f75a805a15a8d8910a23b9f63ab58a08ea93))
+
 ## [4.21.1](https://github.com/SmartMedSA/med-pro/compare/v4.21.0...v4.21.1) (2024-01-03)
 
 
