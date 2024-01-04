@@ -339,6 +339,10 @@ function WaitingRoom() {
             case "START_CONSULTATION":
                 startConsultation(data.row);
                 break;
+            case "OPEN_CONSULTATION":
+                const slugConsultation = `/dashboard/consultation/${data.row?.uuid}`;
+                router.push(slugConsultation, slugConsultation, {locale: router.locale});
+                break;
             case "CANCEL_APPOINTMENT":
                 handleAppointmentStatus(data.row?.uuid as string, '6');
                 break;

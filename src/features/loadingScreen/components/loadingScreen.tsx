@@ -112,6 +112,7 @@ function LoadingScreen({...props}) {
                     )}
                     <Typography
                         variant="body2"
+                        className={'loading-text'}
                         sx={{
                             fontWeight: 300,
                             fontSize: 16,

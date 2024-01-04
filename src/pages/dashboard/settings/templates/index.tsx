@@ -402,15 +402,13 @@ function TemplatesConfig() {
                                             direction={"row"}
                                             onMouseOver={() => {
                                                 handleMouseOver(res.uuid);
-                                            }}
-                                        >
+                                            }}>
                                             <IconButton
                                                 size="small"
                                                 onClick={() => {
                                                     edit(res.uuid);
-                                                }}
-                                            >
-                                                <IconUrl path="setting/edit"/>
+                                                }}>
+                                                <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                                             </IconButton>
                                         </Stack>
                                     )}
@@ -491,7 +489,11 @@ function TemplatesConfig() {
                                         ),
                                     }}
                                 />*/}
-                                <AddButton {...{t, onClickEvent: onClickEventCertificate, list: [{name: "unfolded"}, ...certificateFolderModel]}} />
+                                <AddButton {...{
+                                    t,
+                                    onClickEvent: onClickEventCertificate,
+                                    list: [{name: "unfolded"}, ...certificateFolderModel]
+                                }} />
                             </Stack>
                         </Stack>
                     </Box>
@@ -572,21 +574,29 @@ function TemplatesConfig() {
                                                             setAction("showDoc");
                                                             setTimeout(() => setOpen(true));
                                                         }}>
-                                                        <IconUrl path="setting/ic-voir"/>
+                                                        <IconUrl width={20} height={20}
+                                                                 color={theme.palette.primary.main} path="ic-open-eye"/>
                                                     </IconButton>
                                                     <IconButton
                                                         size="small"
                                                         onClick={() => {
                                                             handleEditDoc(res);
                                                         }}>
-                                                        <IconUrl path="setting/edit"/>
+                                                        <IconUrl color={theme.palette.primary.main}
+                                                                 path="ic-edit-patient"/>
                                                     </IconButton>
                                                     <IconButton
                                                         size="small"
+                                                        sx={{
+                                                            '& .react-svg svg': {
+                                                                width: 18,
+                                                                height: 18
+                                                            }
+                                                        }}
                                                         onClick={() => {
                                                             removeDoc(res);
                                                         }}>
-                                                        <IconUrl path="setting/icdelete"/>
+                                                        <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                                                     </IconButton>
                                                 </Stack>
                                             )}
@@ -686,7 +696,8 @@ function TemplatesConfig() {
                                                                 setAction("showDoc");
                                                                 setTimeout(() => setOpen(true));
                                                             }}>
-                                                            <IconUrl path="setting/ic-voir"/>
+                                                            <IconUrl width={20} height={20}
+                                                                     color={theme.palette.primary.main} path="ic-open-eye"/>
                                                         </IconButton>
                                                         <IconButton
                                                             size="small"
@@ -696,14 +707,21 @@ function TemplatesConfig() {
                                                                     folder: certificate.uuid,
                                                                 });
                                                             }}>
-                                                            <IconUrl path="setting/edit"/>
+                                                            <IconUrl color={theme.palette.primary.main}
+                                                                     path="ic-edit-patient"/>
                                                         </IconButton>
                                                         <IconButton
                                                             size="small"
+                                                            sx={{
+                                                                '& .react-svg svg': {
+                                                                    width: 18,
+                                                                    height: 18
+                                                                }
+                                                            }}
                                                             onClick={() => {
                                                                 removeDoc(res);
                                                             }}>
-                                                            <IconUrl path="setting/icdelete"/>
+                                                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                                                         </IconButton>
                                                     </Stack>
                                                 )}
@@ -865,7 +883,8 @@ function TemplatesConfig() {
                                                                 setAction("showPrescription");
                                                                 setTimeout(() => setOpen(true));
                                                             }}>
-                                                            <IconUrl path="setting/ic-voir"/>
+                                                            <IconUrl width={20} height={20}
+                                                                     color={theme.palette.primary.main} path="ic-open-eye"/>
                                                         </IconButton>
 
                                                         <IconButton
@@ -893,15 +912,22 @@ function TemplatesConfig() {
                                                                 setInfo(getPrescriptionUI());
                                                                 setOpenDialog(true);
                                                             }}>
-                                                            <IconUrl path="setting/edit"/>
+                                                            <IconUrl color={theme.palette.primary.main}
+                                                                     path="ic-edit-patient"/>
                                                         </IconButton>
 
                                                         <IconButton
                                                             size="small"
+                                                            sx={{
+                                                                '& .react-svg svg': {
+                                                                    width: 18,
+                                                                    height: 18
+                                                                }
+                                                            }}
                                                             onClick={() => {
                                                                 removePrescription(card.uuid);
                                                             }}>
-                                                            <IconUrl path="setting/icdelete"/>
+                                                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                                                         </IconButton>
                                                     </Stack>
                                                 )}
@@ -1026,7 +1052,8 @@ function TemplatesConfig() {
                                                         setData(card);
                                                         setAction("showAnalyses");
                                                     }}>
-                                                    <IconUrl path="setting/ic-voir"/>
+                                                    <IconUrl width={20} height={20}
+                                                             color={theme.palette.primary.main} path="ic-open-eye"/>
                                                 </IconButton>
                                                 <IconButton
                                                     size="small"
@@ -1041,17 +1068,21 @@ function TemplatesConfig() {
                                                         setModel(card);
                                                         setInfo("balance_sheet_request");
                                                         setOpenDialog(true);
-                                                    }}
-                                                >
-                                                    <IconUrl path="setting/edit"/>
+                                                    }}>
+                                                    <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
                                                 </IconButton>
                                                 <IconButton
                                                     size="small"
+                                                    sx={{
+                                                        '& .react-svg svg': {
+                                                            width: 18,
+                                                            height: 18
+                                                        }
+                                                    }}
                                                     onClick={() => {
                                                         removeAnalyses(card.uuid);
-                                                    }}
-                                                >
-                                                    <IconUrl path="setting/icdelete"/>
+                                                    }}>
+                                                    <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                                                 </IconButton>
                                             </Stack>
                                         )}

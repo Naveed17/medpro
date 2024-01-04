@@ -27,7 +27,7 @@ function SignIn() {
     });
 
     if (loading) return (<LoadingScreen button text={"loading-error"}/>);
-    console.log('SignIn session', session)
+
     return (
         status === "unauthenticated" ?
             <LoadingScreen
