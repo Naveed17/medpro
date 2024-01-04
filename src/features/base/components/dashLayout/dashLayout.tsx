@@ -334,15 +334,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         }
     }, [dispatch, httpBoxesResponse]);
 
-    useEffect(() => {
-        if (!localStorage.getItem("new-features")) {
-            setTimeout(() => {
-                dispatch(openNewFeaturesDialog(true));
-
-            }, 3000);
-        }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
     return (
         <SideBarMenu>
             {/*<AppLock/>*/}
