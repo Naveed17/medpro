@@ -234,6 +234,7 @@ function Cashbox() {
     const [apps, setApps] = useState<any[]>([]);
     const [total, setTotal] = useState(0);
     const [unpaid, setUnpaid] = useState(0);
+    const [ca, setCA] = useState(0);
     const [totalCash, setTotalCash] = useState(0);
     const [totalCheck, setTotalCheck] = useState(0);
     const {config: agenda} = useAppSelector(agendaSelector);
@@ -388,17 +389,8 @@ function Cashbox() {
                 onSuccess: (result) => {
                     const res = result.data.data;
                     setApps(res);
-                    setUnpaid(
-                        res.reduce(
-                            (
-                                total: number,
-                                val: {
-                                    appointmentRestAmount: number;
-                                }
-                            ) => total + val.appointmentRestAmount,
-                            0
-                        )
-                    );
+                    setUnpaid(res.reduce((total: number, val: { appointmentRestAmount: number; }) => total + val.appointmentRestAmount, 0));
+                    setCA(res.reduce((total: number, val: { fees: string; }) => total + parseInt(val.fees), 0));
                 },
             }
         );
@@ -596,7 +588,7 @@ function Cashbox() {
                                     <Typography fontWeight={700}>{t("consultations")}</Typography>
                                     <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                 </Stack>
-
+                                <Typography>{t("total")} <span style={{fontSize:20,fontWeight:"bold"}}>{ca}</span> {devise}</Typography>
                             </Stack>
                             <DesktopContainer>
                                 {apps.length > 0 ? <Otable
