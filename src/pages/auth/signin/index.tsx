@@ -10,7 +10,7 @@ import React, {useEffect, useState} from "react";
 import {Redirect} from "@features/redirect";
 
 function SignIn() {
-    const {data: session, status} = useSession();
+    const {status} = useSession();
     const loading = status === 'loading'
     const router = useRouter();
 
