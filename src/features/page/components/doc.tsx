@@ -12,7 +12,7 @@ function Doc({...props}) {
     const [onReSize, setOnResize] = useState(true)
     const [title, setTitle] = useState("Titre");
 
-    const {data, setData, state, date} = props
+    const {data, setData, state, date,header,setHeader} = props
 
     const {data: session} = useSession();
     const {data: user} = session as Session;
@@ -28,7 +28,7 @@ function Doc({...props}) {
             switch (state.type) {
                 case "prescription":
                     state.info.map((el: any, index: number) => {
-                        console.log(el)
+
                         const child = document.createElement('p');
                         child.append()
                         elx += `<p>${index + 1} • ${el.standard_drug.commercial_name}</p>`
@@ -103,9 +103,6 @@ function Doc({...props}) {
             data.content.content = elx
             setData({...data})
         }
-
-        console.log(state.info)
-
     }
 
 
@@ -139,11 +136,12 @@ function Doc({...props}) {
 
                 contentDiv.style.visibility = "visible"
                 pages.map((_, index) => {
+
                     let canvas = document.getElementById(`content${index}`) as HTMLCanvasElement;
                     let ctx = canvas.getContext('2d', {willReadFrequently: true});
                     canvas.width = canvasWidth;
                     canvas.height = canvasHeight;
-                    console.log(ctx)
+
                     if (ctx)
                         html2canvas(contentDiv).then(function (canvas) {
                             ctx?.drawImage(canvas, 0, index * -1 * data.content.maxHeight * 2);
@@ -181,7 +179,7 @@ function Doc({...props}) {
 
             {
                 pages.map((page, index) => (
-                    <Page key={index} {...{data, setData, state, id: index, onReSize, setOnResize, date, title}}/>
+                    <Page key={index} {...{data, setData, state, id: index, onReSize, setOnResize, date, title,header,setHeader}}/>
                 ))
             }
             <div id={"contentDiv"} style={{visibility: "hidden"}}/>

@@ -600,6 +600,7 @@ function DocumentDetailDialog({...props}) {
                 <Box ref={previewDocRef}><Doc {...{
                     data,
                     setData,
+                    header,setHeader,
                     date,
                     state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                         ...state,

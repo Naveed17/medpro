@@ -59,7 +59,6 @@ function DocsConfig() {
 
     const componentRef = useRef<HTMLDivElement>(null);
 
-    const [files, setFiles] = useState<any[]>([]);
     const [file, setFile] = useState<File | null>(null);
     const [types, setTypes] = useState([]);
     const [removeModelDialog, setRemoveModelDialog] = useState(false);
@@ -69,6 +68,7 @@ function DocsConfig() {
     const [propsModel, setPropsModel] = useState(false);
     const [elDoc, setElDoc] = useState(true);
     const [loading, setLoading] = useState(true);
+    const [header, setHeader] = useState(null);
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
     const [data, setData] = useState<any>({
@@ -84,6 +84,7 @@ function DocsConfig() {
         content: {
             show: true,
             maxHeight: 600,
+            heightPages:[],
             maxWidth: 130,
             content: '<p>[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]</p>',
             x: 0,
@@ -108,44 +109,6 @@ function DocsConfig() {
         url: `/api/private/document/types/${router.locale}`
     }, {variables: {query: "?is_active=0"}});
 
-    const formik = useFormik({
-        children: undefined,
-        component: undefined,
-        initialErrors: undefined,
-        initialTouched: undefined,
-        innerRef: undefined,
-        isInitialValid: undefined,
-
-        onSubmit: async (values) => {
-            return values;
-        },
-
-        enableReinitialize: true,
-        initialValues: {
-            left1: "",
-            left2: "",
-            left3: "",
-            right1: "",
-            right2: "",
-            right3: ""
-        }
-    })
-    let {values, getFieldProps, setFieldValue} = formik;
-
-    const handleDrop = React.useCallback((acceptedFiles: File[]) => {
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                data.background.content.url = (ev.target?.result as string)
-                data.background.show = true;
-                setData({...data})
-            }
-            reader.readAsDataURL(acceptedFiles[0]);
-            setFile(acceptedFiles[0]);
-            setFiles([...files, ...acceptedFiles]);
-        },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [files]
-    );
 
     const handleInsuranceChange = (gTypes: any[]) => {
         setQueryState({
@@ -157,26 +120,8 @@ function DocsConfig() {
         content: () => componentRef.current,
     })
 
-    const handleAlignment = (event: React.MouseEvent<HTMLElement>, newAlignment: string | null,) => {
-        data.date.textAlign = newAlignment;
-        setData({...data});
-    };
-
     const printNow = () => {
         handlePrint()
-    }
-
-    const handleRemove = (file: any) => {
-        setFiles(files.filter((_file: any) => _file !== file));
-        data.background.content = ''
-        setFile(null)
-        setData({...data})
-    };
-
-    const eventHandler = (ev: any, location: { x: any; y: any; }, from: string) => {
-        data[from].x = location.x
-        data[from].y = location.y
-        setData({...data})
     }
 
     const save = () => {
@@ -188,7 +133,7 @@ function DocsConfig() {
 
         const form = new FormData();
         data.background.content = "";
-        form.append('document_header', JSON.stringify({header: values, data}));
+        form.append('document_header', JSON.stringify({header: header, data}));
         form.append('title', title);
         form.append('isDefault', JSON.stringify(isDefault));
         if (file)
@@ -259,15 +204,8 @@ function DocsConfig() {
             setQueryState({
                 type: (dh.types)
             });
-            const header = dh.header.header
-            if (header) {
-                setFieldValue("left1", header.left1)
-                setFieldValue("left2", header.left2)
-                setFieldValue("left3", header.left3)
-                setFieldValue("right1", header.right1)
-                setFieldValue("right2", header.right2)
-                setFieldValue("right3", header.right3)
-            }
+            const _header = dh.header.header
+            setHeader(_header)
 
             const data = dh.header.data
             if (data) {
@@ -506,10 +444,37 @@ function DocsConfig() {
                     <Box style={{height: "81vh", overflowX: "auto"}}>
                         <Button onClick={printNow}>PRINT</Button>
                         {!loading && <Box ref={componentRef}>
-                            <Doc {...{data, setData, state: undefined}}/>
+                            <Doc {...{data, setData, state: undefined,header,setHeader}}/>
                         </Box>}
                     </Box>
                 </Grid>
+
+{/*
+                <Grid item xs={12} md={2} padding={2} style={{background:"white"}}>
+                    <Stack spacing={1}>
+                        <Typography fontSize={16} fontWeight={"bold"}>Pages</Typography>
+                        <Box style={{            backgroundColor: theme.palette.background.default,
+                            padding: theme.spacing(2),
+                            borderRadius: 6,
+                        }}>
+                            <Box style={{zoom:"20%"}} className={"container"}>
+                                <Page   {...{data, setData, state:null, id: 0, title,header,setHeader}}/>
+                            </Box>
+                            <Typography fontSize={12} textAlign={"center"}>Page1</Typography>
+                        </Box>
+                        <Box style={{            backgroundColor: theme.palette.background.default,
+                            padding: theme.spacing(2),
+                            borderRadius: 6,
+                        }}>
+                            <Box style={{zoom:"20%"}} className={"container"}>
+                                <Page   {...{data, setData, state:null, id: 0, title,header,setHeader}}/>
+                            </Box>
+                            <Typography fontSize={12} textAlign={"center"}>Page2</Typography>
+                        </Box>
+                    </Stack>
+
+                </Grid>
+*/}
 
                 {/* <Grid item xs={12} md={7}>
                     {<Box padding={2}>

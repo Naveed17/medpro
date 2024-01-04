@@ -4,13 +4,14 @@ import PageStyled from "@features/page/components/overrides/pageStyled";
 import {Resizable} from "re-resizable";
 import Icon from "@themes/urlIcon";
 import {useTheme} from "@mui/material";
+import {DocHeader} from "@features/files";
+import {DocHeaderEditor} from "@features/files/components/docHeaderEditor";
 
 function Page({...props}) {
 
-    const {data, setData, state, id = 0, onReSize, setOnResize,date,title} = props
+    const {data, setData, state, id = 0, onReSize, setOnResize, date, title, header, setHeader} = props
 
     const theme = useTheme();
-
 
     const [selectedElement, setSelectedElement] = useState("")
     const [blockDrag, setBlockDrag] = useState(false)
@@ -72,72 +73,130 @@ function Page({...props}) {
                 event.target.classList.remove('drop-target')
             }
         })
-       /* interact('.drag-drop')
-            .draggable({
-                inertia: true,
-                modifiers: [
-                    interact.modifiers.restrictRect({
-                        restriction: 'parent',
-                        endOnly: true
-                    })
-                ],
-                autoScroll: true,
-                // dragMoveListener from the dragging demo above
-                listeners: { move: dragMoveListener }
-            })*/
+        /* interact('.drag-drop')
+             .draggable({
+                 inertia: true,
+                 modifiers: [
+                     interact.modifiers.restrictRect({
+                         restriction: 'parent',
+                         endOnly: true
+                     })
+                 ],
+                 autoScroll: true,
+                 // dragMoveListener from the dragging demo above
+                 listeners: { move: dragMoveListener }
+             })*/
     }, [data, blockDrag, selectedElement]) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <PageStyled>
             <div className={"dropzone"} id="inner-dropzone">
-                <div className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
-                    {/*Title*/}
+                <div
+                    className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
+                    {/*Header*/}
                     {
-                        data.title.show && <Resizable
-                            className={`${selectedElement === "title" ? "selected" : "notSelected"} title`}
+                        data.header.show && <Resizable
+                            defaultSize={{
+                                width: `${data.header.width ? data.header.width + "px" : 300}`,
+                                height: "fit-content",
+                            }}
+                            className={`${selectedElement === "header" ? "selected" : "notSelected"} header`}
                             style={{
-                                transform: `translate(${data.title.x}px, ${data.title.y}px)`,
-                                width: `${data.title.width ? data.title.width + "px" : "fit-content"}`,
+                                transform: `translate(${data.header.x}px, ${data.header.y}px)`,
+                                width: `${data.header.width ? data.header.width + "px" : "fit-content"}`,
                                 height: `fit-content`
                             }}
                             bounds={"parent"}
                             enable={{
-                                right: selectedElement === "title"
+                                right: selectedElement === "header"
                             }}
                             onResizeStart={() => {
                                 setBlockDrag(true)
                             }}
                             onResizeStop={(e, direction, ref, d) => {
-                                data.title.width += d.width
-                                data.title.maxHeight += d.height
+                                data.header.width += d.width
+                                data.header.maxHeight += d.height
                                 setData({...data})
                                 setBlockDrag(false)
                             }}>
                             <div style={{textAlign: "center"}} onClick={(ev) => {
                                 ev.stopPropagation()
-                                setSelectedElement("title")
-                            }}>{state ? title : data.title.content}</div>
+                                setSelectedElement("header")
+                            }}>
+                                {selectedElement === "header" ? <DocHeaderEditor {...{header, setHeader}}/> :
+                                    <DocHeader data={header}/>}
+                            </div>
 
                             <div className={"menuTop"}>
 
                                 <div className={"btnMenu"} onClick={() => {
-                                    data.title.show = false;
+                                    data.header.show = false;
                                     setData({...data})
                                 }}>
                                     <Icon path={"ic-delete"}/>
                                 </div>
 
                                 <div className={"btnMenu"}
-                                     style={{backgroundColor: selectedElement === "title" ? theme.palette.success.main : theme.palette.info.main}}
+                                     style={{backgroundColor: selectedElement === "header" ? theme.palette.success.main : theme.palette.info.main}}
                                      onClick={() => {
-                                         setSelectedElement(selectedElement !== "title" ? "title" : "")
+                                         setSelectedElement(selectedElement !== "header" ? "header" : "")
                                      }}>
-                                    <Icon path={selectedElement !== "title" ? "ic-edit-patient" : "ic-check"}/>
+                                    <Icon path={selectedElement !== "header" ? "ic-edit-patient" : "ic-check"}/>
                                 </div>
 
 
                             </div>
                         </Resizable>}
+
+                    {/*Title*/}
+                    {data.title.show && <Resizable
+                        defaultSize={{
+                            width: `${data.title.width ? data.title.width + "px" : 300}`,
+                            height: "fit-content",
+                        }}
+                        className={`${selectedElement === "title" ? "selected" : "notSelected"} title`}
+                        style={{
+                            transform: `translate(${data.title.x}px, ${data.title.y}px)`,
+                            width: `${data.title.width ? data.title.width + "px" : "fit-content"}`,
+                            height: `fit-content`
+                        }}
+                        bounds={"parent"}
+                        enable={{
+                            right: selectedElement === "title",
+                        }}
+                        onResizeStart={() => {
+                            setBlockDrag(true)
+                        }}
+                        onResizeStop={(e, direction, ref, d) => {
+                            data.title.width = document.getElementById(`title${id}`)?.clientWidth
+                            data.title.maxHeight += d.height
+                            setData({...data})
+                            setBlockDrag(false)
+                        }}>
+
+                        <div id={`title${id}`} style={{textAlign: "center"}} onClick={(ev) => {
+                            ev.stopPropagation()
+                            setSelectedElement("title")
+                        }}>
+                            {title ? title : data.title.content}
+                        </div>
+                        <div className={"menuTop"}>
+                            <div className={"btnMenu"}
+                                 onClick={() => {
+                                     data.title.show = false;
+                                     setData({...data})
+                                 }}>
+                                <Icon path={"ic-delete"}/>
+                            </div>
+                            <div className={"btnMenu"}
+                                 style={{backgroundColor: selectedElement === "title" ? theme.palette.success.main : theme.palette.info.main}}
+                                 onClick={() => {
+                                     setSelectedElement(selectedElement !== "title" ? "title" : "")
+                                 }}>
+                                <Icon path={selectedElement !== "title" ? "ic-edit-patient" : "ic-check"}/>
+                            </div>
+                        </div>
+                    </Resizable>}
                     {/*Date*/}
                     {data.date.show && <Resizable
                         defaultSize={{
@@ -158,7 +217,7 @@ function Page({...props}) {
                             setBlockDrag(true)
                         }}
                         onResizeStop={(e, direction, ref, d) => {
-                            data.date.width =document.getElementById(`date${id}`)?.clientWidth
+                            data.date.width = document.getElementById(`date${id}`)?.clientWidth
                             data.date.maxHeight += d.height
                             setData({...data})
                             setBlockDrag(false)
@@ -207,7 +266,7 @@ function Page({...props}) {
                             setBlockDrag(true)
                         }}
                         onResizeStop={(e, direction, ref, d) => {
-                            data.patient.width =document.getElementById(`patient${id}`)?.clientWidth
+                            data.patient.width = document.getElementById(`patient${id}`)?.clientWidth
                             data.patient.maxHeight += d.height
                             setData({...data})
                             setBlockDrag(false)
@@ -256,7 +315,7 @@ function Page({...props}) {
                             setBlockDrag(true)
                         }}
                         onResizeStop={(e, direction, ref, d) => {
-                            data.cin.width =document.getElementById(`cin${id}`)?.clientWidth
+                            data.cin.width = document.getElementById(`cin${id}`)?.clientWidth
 
                             data.cin.maxHeight += d.height
                             setData({...data})
@@ -280,8 +339,8 @@ function Page({...props}) {
                             <div className={"btnMenu"}
                                  style={{backgroundColor: selectedElement === "cin" ? theme.palette.success.main : theme.palette.info.main}}
                                  onClick={() => {
-                                setSelectedElement(selectedElement !== "cin" ? "cin" : "")
-                            }}>
+                                     setSelectedElement(selectedElement !== "cin" ? "cin" : "")
+                                 }}>
                                 <Icon path={selectedElement !== "cin" ? "ic-edit-patient" : "ic-check"}/>
                             </div>
                         </div>
@@ -310,21 +369,31 @@ function Page({...props}) {
                         }}
                         onResizeStop={(e, direction, ref, d) => {
                             data.content.width = document.getElementById(`content${id}`)?.clientWidth
-                            if (isNaN(data.content.maxHeight) ||data.content.maxHeight < 0)
-                                data.content.maxHeight = 40
-                            else data.content.maxHeight += d.height
+                            data.content.maxHeight = document.getElementById(`content${id}`)?.clientHeight
+                           /* const _height = document.getElementById(`content${id}`)?.clientHeight
+                            if (id === 0)
+                                data.content.maxHeight = _height
+                            else {
+                                if (data.content.heightPages) {
+                                    let _page = data.content.heightPages.find(hp => hp.page === id)
+                                    if (_page)
+                                        _page.height = _height
+                                    else
+                                        data.content.heightPages.push({page: id, height: _height})
+                                } else data.content.heightPages = [{page: id, height: _height}]
+                            }*/
                             setData({...data})
                             setBlockDrag(false)
                             setOnResize(true);
                         }}>
 
                         {blockDrag && <div style={{paddingLeft: 15, paddingRight: 15}}
-                                           dangerouslySetInnerHTML={{__html: state && state.content ? state.content:data.content.content}}></div>}
+                                           dangerouslySetInnerHTML={{__html: state && state.content ? state.content : data.content.content}}></div>}
 
                         <canvas id={`content${id}`} style={{
                             width: "100%",
                             height: "100%",
-                           visibility: blockDrag ? "hidden" : "visible"
+                            visibility: blockDrag ? "hidden" : "visible"
                         }}></canvas>
 
 
