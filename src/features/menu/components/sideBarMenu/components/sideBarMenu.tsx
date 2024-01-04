@@ -30,7 +30,7 @@ import {
     ListItemTextStyled,
     logout,
     MainMenuStyled,
-    MobileDrawerStyled, openNewFeaturesDialog,
+    MobileDrawerStyled,
     sideBarSelector,
     toggleMobileBar,
 } from "@features/menu";
