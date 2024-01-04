@@ -199,10 +199,12 @@ export const authOptions: NextAuthOptions = {
                     };
                     return token;
                 } else if (session?.default_medical_entity) {
+                    const medical_entity_index = updatedToken.data?.medical_entities.findIndex((data: any) => data.medical_entity.uuid === session?.default_medical_entity);
                     token = {
                         ...updatedToken,
                         data: {
                             ...updatedToken.data,
+                            medical_entity: updatedToken.data?.medical_entities[medical_entity_index].medical_entity,
                             medical_entities: updatedToken.data?.medical_entities?.map((medical_entity_data: any) => ({
                                 ...medical_entity_data,
                                 is_default: medical_entity_data?.medical_entity?.uuid === session?.default_medical_entity
