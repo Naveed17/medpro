@@ -376,7 +376,7 @@ function Consultation() {
                         </ListItemIcon>
                         <Typography fontWeight={700}>{upperFirst(t("note"))}</Typography>
                         <IconButton size="small" sx={{ml: "auto"}}>
-                            <Icon path={isNote ? "arrow-up-table" : "ic-expand-more"}/>
+                            <Icon path={isNote ? "iconfinder_save" : "ic-expand-more"}/>
                         </IconButton>
                     </ListItem>
 
