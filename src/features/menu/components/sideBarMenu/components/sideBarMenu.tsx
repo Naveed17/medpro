@@ -213,7 +213,7 @@ function SideBarMenu({children}: LayoutProps) {
                     className={"custom-Badge"}
                     color={"error"} badgeContent={"N"}>
                     <ListItem
-                        onClick={() => dispatch(openNewFeaturesDialog(true))}
+                        //onClick={() => dispatch(openNewFeaturesDialog(true))}
                         disableRipple
                         button>
                         <ListItemIcon>
