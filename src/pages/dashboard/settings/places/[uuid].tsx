@@ -298,18 +298,17 @@ function PlacesDetail() {
         });
     }
 
-    const initialCites = useCallback(
-        (adr: any) => {
-            triggerPlaceUpdate({
-                method: "GET",
-                url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`
-            }, {
-                onSuccess: (r: any) => {
-                    setCities(r.data.data);
-                    setFieldValue("city", adr.address.city.uuid);
-                }
-            });
-        }, [router, setFieldValue, triggerPlaceUpdate]);
+    const initialCites = (adr: any) => {
+        triggerPlaceUpdate({
+            method: "GET",
+            url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`
+        }, {
+            onSuccess: (r: any) => {
+                setCities(r.data.data);
+                setFieldValue("city", adr.address.city.uuid);
+            }
+        });
+    }
 
     const getCountryByCode = (code: string) => {
         return dialCountries.find(country => country.phone === code)
@@ -482,7 +481,7 @@ function PlacesDetail() {
             setHoraires([...hours]);
             setCheck(false);
         }
-    }, [check, initialCites, row]);
+    }, [check, row]);
 
     return (
         <>

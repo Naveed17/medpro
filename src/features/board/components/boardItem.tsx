@@ -212,8 +212,8 @@ function BoardItem({...props}) {
                                         </>
                                     }
                                     {quote.content.status === 5 &&
-                                        <Label variant={"ghost"}
-                                               color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
+                                        <Label
+                                            color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
                                     }
                                 </Stack>
                             </Stack>
