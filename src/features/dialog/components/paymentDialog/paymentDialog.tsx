@@ -75,10 +75,10 @@ function PaymentDialog({...props}) {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
 
-    const {data: httpPatientTransactions, mutate} = useRequestQuery({
+    const {data: httpPatientTransactions, mutate} = useRequestQuery(cashboxes.length > 0 ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/transactions/${router.locale}`
-    });
+    } : null);
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
