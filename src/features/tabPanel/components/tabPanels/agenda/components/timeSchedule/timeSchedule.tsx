@@ -25,7 +25,6 @@ import {
     setAppointmentDuration, setAppointmentMotif, setAppointmentRecurringDates
 } from "@features/tabPanel";
 import {TimeSlot} from "@features/timeSlot";
-import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
 import {
     Autocomplete, Badge, Collapse,

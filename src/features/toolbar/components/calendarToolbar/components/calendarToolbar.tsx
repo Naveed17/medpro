@@ -10,7 +10,7 @@ import {
     useTheme
 } from "@mui/material";
 
-import React, {MutableRefObject, useEffect, useRef, useState} from "react";
+import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import TodayIcon from "@themes/overrides/icons/todayIcon";
 import DayIcon from "@themes/overrides/icons/dayIcon";
@@ -18,7 +18,7 @@ import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, setView, TableHead} from "@features/calendar";
+import {agendaSelector, setView} from "@features/calendar";
 import Zoom from '@mui/material/Zoom';
 import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
@@ -28,8 +28,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import {Otable} from "@features/table";
-import {appointmentGroupByDate, appointmentPrepareEvent} from "@lib/hooks";
 import {DefaultViewMenu} from "@features/menu";
 
 function CalendarToolbar({...props}) {
@@ -224,7 +222,7 @@ function CalendarToolbar({...props}) {
                         onSelect={(viewOption: string) => handleViewChange(viewOption)}
                     />
 
-                    <DefaultViewMenu {...{view}} onViewChange={handleViewChange}/>
+                    <DefaultViewMenu/>
 
                     <CalendarAddButton
                         {...{t}}
