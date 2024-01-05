@@ -17,6 +17,7 @@ import {useTranslation} from "next-i18next";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
 import {BoxesFilter, DateFilter} from "@features/leftActionBar/components/cashbox/overrides";
 import {dashLayoutSelector} from "@features/base";
+import {useInsurances} from "@lib/hooks/rest";
 
 
 const CalendarPickers = dynamic(() =>
@@ -47,7 +48,7 @@ function Cashbox() {
     const hours = agendaConfig?.openingHours[0];
 
     const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
-    const insurancesList = medicalProfessionalData ? medicalProfessionalData?.insurances : [];
+    const {insurances:insurancesList} =useInsurances();
 
     useEffect(() => {
         let boxes = '';
