@@ -54,6 +54,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const {closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
     const {t} = useTranslation('common');
     const {
         duplications,
