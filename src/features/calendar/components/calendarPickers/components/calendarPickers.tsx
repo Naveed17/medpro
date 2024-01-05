@@ -31,7 +31,7 @@ function CalendarPickers({...props}) {
 
     const {data: httpAppCountResponse} = useRequestQuery(medicalEntityHasUser && agendaConfig ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...((medicalEntityHasUser && agendaConfig) && {variables: {query: `?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`}})

@@ -127,7 +127,7 @@ function Documents() {
         isLoading: isOcrDocumentsLoading
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/ocr/documents/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medicalEntityHasUser && {variables: {query: `?page=${page}&limit=12${prepareSearchKeys(filter as any)}`}})
@@ -146,7 +146,7 @@ function Documents() {
         });
         medicalEntityHasUser && triggerOcrDocUpload({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/ocr/documents/${router.locale}`,
             data: form
         }, {
             onSuccess: () => {

@@ -48,7 +48,7 @@ function RDVRow({...props}) {
         isLoading
     } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/list/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/list/${router.locale}`
     } : null, {refetchOnWindowFocus: false});
 
     const [openPreConsultationDialog, setOpenPreConsultationDialog] = useState<boolean>(false);
@@ -89,7 +89,7 @@ function RDVRow({...props}) {
                 setLoadingReq(false);
                 localStorage.removeItem(`Modeldata${appointmentData?.uuid}`);
                 setOpenPreConsultationDialog(false);
-                medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${appointmentData?.uuid}/consultation-sheet/${router.locale}`]);
+                medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/appointments/${appointmentData?.uuid}/consultation-sheet/${router.locale}`]);
             }
         });
     }

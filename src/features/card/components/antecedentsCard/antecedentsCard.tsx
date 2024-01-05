@@ -72,7 +72,7 @@ function AntecedentsCard({...props}) {
         form.append("patient_uuid", patient.uuid);
         medicalEntityHasUser && triggerAntecedentUpdate({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
                 slug: any;
             }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
             data: form

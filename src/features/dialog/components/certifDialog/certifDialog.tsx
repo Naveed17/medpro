@@ -296,7 +296,7 @@ function CertifDialog({...props}) {
     const showTrakingData = () => {
         medicalEntityHasUser && !expanded && traking.length === 0 && triggerGetData({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${data.appuuid}/consultation-data/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/appointments/${data.appuuid}/consultation-data/${router.locale}`
         }, {
             onSuccess: (result) => {
                 const data = result.data.data
@@ -318,7 +318,7 @@ function CertifDialog({...props}) {
     const showAntecedentData = () => {
         medicalEntityHasUser && !expandedAntecedent && antecedents.length === 0 && triggerGetData({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.patient.uuid}/antecedents/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${data.patient.uuid}/antecedents/${router.locale}`
         }, {
             onSuccess: (result) => {
                 const res = result.data.data

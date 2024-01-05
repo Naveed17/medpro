@@ -50,7 +50,7 @@ function Statistics() {
 
     const {data: statsPatientHttp} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patient-per-period/${router.locale}?format=month`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patient-per-period/${router.locale}?format=month`
     } : null, ReactQueryNoValidateConfig);
 
     const increasePercentage = (newVal: number, oldVAl: number) => {

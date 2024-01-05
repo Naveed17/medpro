@@ -218,10 +218,10 @@ function DefaultViewMenu({...props}) {
                                         form.append("value", e.target.checked.toString());
                                         medicalEntityHasUser && triggerAutoConfirmEdit({
                                             method: "PATCH",
-                                            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/config/${router.locale}`,
+                                            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/config/${router.locale}`,
                                             data: form
                                         }, {
-                                            onSuccess: () => invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`]),
+                                            onSuccess: () => invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${router.locale}`]),
                                         });
                                     }}/>}
                                 label={t("auto-confirm")}/>

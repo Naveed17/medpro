@@ -960,7 +960,7 @@ function Agenda() {
                 setLoadingRequest(false);
                 localStorage.removeItem(`Modeldata${event?.publicId}`);
                 setTimeout(() => setOpenPreConsultationDialog(false));
-                medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`]);
+                medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`]);
             }
         });
     }

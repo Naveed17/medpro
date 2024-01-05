@@ -65,7 +65,7 @@ function ProfilMenu() {
     const switchAgenda = (agenda: AgendaConfigurationModel) => {
         medicalEntityHasUser && triggerSettingsUpdate({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda.uuid}/switch/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda.uuid}/switch/${router.locale}`
         }, {
             onSuccess: () => {
                 setLoading(true);

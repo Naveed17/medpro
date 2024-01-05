@@ -101,7 +101,7 @@ function TimeSchedule({...props}) {
         mutate: mutateReasonsData
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}?sort=true`
     } : null, ReactQueryNoValidateConfig);
 
     const {trigger: triggerSlots} = useRequestQueryMutation("/agenda/slots");
@@ -121,7 +121,7 @@ function TimeSchedule({...props}) {
         setLoading(true);
         (medicalEntityHasUser && medical_professional) && triggerSlots({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0]}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0]}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`
         }, {
             onSuccess: (result) => {
                 const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
@@ -235,7 +235,7 @@ function TimeSchedule({...props}) {
 
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`,
             data: params
         }, {
             onSuccess: () => mutateReasonsData().then((result: any) => {

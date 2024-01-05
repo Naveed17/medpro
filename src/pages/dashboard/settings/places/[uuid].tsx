@@ -269,7 +269,7 @@ function PlacesDetail() {
                 onSuccess: (r: any) => {
                     if (r.status === 200 || r.status === 201) {
                         mutate();
-                        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`])
+                        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${router.locale}`])
                         router.back();
                         setLoading(false);
                     }

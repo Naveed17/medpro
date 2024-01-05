@@ -32,7 +32,7 @@ function NotesPanel({...props}) {
 
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`,
                 data: params,
             }, {
                 onSuccess: () => {

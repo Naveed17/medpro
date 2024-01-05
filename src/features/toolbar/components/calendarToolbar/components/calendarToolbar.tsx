@@ -27,7 +27,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import {LoadingScreen} from "@features/loadingScreen";
 import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
-import {configSelector} from "@features/base";
+import {configSelector, dashLayoutSelector} from "@features/base";
 import {Otable} from "@features/table";
 import {appointmentGroupByDate, appointmentPrepareEvent} from "@lib/hooks";
 import {DefaultViewMenu} from "@features/menu";
@@ -46,12 +46,12 @@ function CalendarToolbar({...props}) {
     } = props;
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    let pendingEvents: MutableRefObject<EventModal[]> = useRef([]);
     const isRTL = theme.direction === "rtl";
 
     const {t, ready} = useTranslation('agenda');
     const {direction} = useAppSelector(configSelector);
-    const {view, currentDate, pendingAppointments} = useAppSelector(agendaSelector);
+    const {view, currentDate} = useAppSelector(agendaSelector);
+    const {pending: nbPendingAppointment} = useAppSelector(dashLayoutSelector);
 
     const [pendingDialog, setPendingDialog] = useState(false);
     const VIEW_OPTIONS = [
@@ -88,11 +88,6 @@ function CalendarToolbar({...props}) {
                 break;
         }
     }
-
-    useEffect(() => {
-        pendingEvents.current = [];
-        pendingAppointments?.map(event => pendingEvents.current.push(appointmentPrepareEvent(event, false, [])))
-    }, [pendingAppointments]);
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -146,13 +141,13 @@ function CalendarToolbar({...props}) {
                             </Typography>
                         </Button>
 
-                        {pendingAppointments.length > 0 &&
+                        {(nbPendingAppointment ?? 0) > 0 &&
                             <Button sx={{ml: 2, p: "6px 12px"}}
                                     onClick={() => setPendingDialog(true)}
                                     startIcon={<PendingTimerIcon/>}
                                     endIcon={<Badge
                                         sx={{m: 1}}
-                                        badgeContent={pendingAppointments.length}
+                                        badgeContent={nbPendingAppointment}
                                         color="warning"
                                     />}
                                     variant={"contained"}>
@@ -247,19 +242,11 @@ function CalendarToolbar({...props}) {
                         }
                     }
                 }}
+                data={{t, handleTableEvent}}
                 color={theme.palette.primary.main}
                 contrastText={theme.palette.primary.contrastText}
-                dialogClose={() => {
-                    setPendingDialog(false);
-                }}
-                action={() => <Otable
-                    {...{t, pendingData: true}}
-                    maxHeight={`calc(100vh - 180px)`}
-                    headers={TableHead.filter((head: any) => head.id !== "motif")}
-                    handleEvent={handleTableEvent}
-                    rows={appointmentGroupByDate(pendingEvents.current)}
-                    from={"calendar"}
-                />}
+                dialogClose={() => setPendingDialog(false)}
+                action={"pending_Appointment"}
                 dir={direction}
                 open={pendingDialog}
                 title={t(`dialogs.pending-dialog.title`)}

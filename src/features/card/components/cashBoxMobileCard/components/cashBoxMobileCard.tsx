@@ -82,7 +82,7 @@ function CashBoxMobileCard({...props}) {
 
     const mutatePatientWallet = () => {
         medicalEntityHasUser && invalidateQueries(
-            [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.appointment.patient?.uuid}/wallet/${router.locale}`]);
+            [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${data.appointment.patient?.uuid}/wallet/${router.locale}`]);
     }
 
     const handleSubmit = () => {

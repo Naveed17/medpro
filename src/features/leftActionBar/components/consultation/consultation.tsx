@@ -87,7 +87,7 @@ function Consultation() {
     const editPatientInfo = () => {
         const params = new FormData();
         if (patient && medicalEntityHasUser) {
-            const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`;
+            const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`;
 
             params.append('attribute', 'note');
             params.append('value', note);
@@ -481,7 +481,7 @@ function Consultation() {
                                     <Box px={1.5}>
                                         {collapse === col.id && <Content  {...{
                                             id: col.id,
-                                            url: medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/preview/${router.locale}`,
+                                            url: medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`,
                                             patient
                                         }}/>}
                                     </Box>

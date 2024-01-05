@@ -286,6 +286,14 @@ const dialogData = [
         ),
     },
     {
+        action: "pending_Appointment",
+        component: dynamic((): any =>
+            import("@features/dialog/components/pendingAppointmentDialog/pendingAppointmentDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "write_certif",
         component: dynamic((): any =>
             import("@features/dialog/components/certifDialog/certifDialog").then(

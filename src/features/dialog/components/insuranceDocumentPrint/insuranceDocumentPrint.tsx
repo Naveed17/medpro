@@ -39,7 +39,7 @@ function InsuranceDocumentPrint({...props}) {
         setLoading(true);
         medicalEntityHasUser && triggerInsuranceDocs({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/${appuuid}/insurance-document/${insuranceDocument}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/appointments/${appuuid}/insurance-document/${insuranceDocument}/${router.locale}`,
         }, {
             onSuccess: async (result: any) => {
                 const document = (result?.data as HttpResponse)?.data;

@@ -41,7 +41,7 @@ function MoveAppointmentDialog() {
         setLoading(true);
         (medicalEntityHasUser && agendaConfig) && triggerSlots({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0]}/professionals/${medical_professional?.uuid}?day=${moveDialogDate?.format('DD-MM-YYYY')}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0]}/professionals/${medical_professional?.uuid}?day=${moveDialogDate?.format('DD-MM-YYYY')}`
         }, {
             onSuccess: (result) => {
                 const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];

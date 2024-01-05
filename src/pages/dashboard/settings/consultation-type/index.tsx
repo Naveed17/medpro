@@ -108,7 +108,7 @@ function ConsultationType() {
         mutate: mutateAppointmentTypes
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/appointments/types/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medicalEntityHasUser && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}})
@@ -118,7 +118,7 @@ function ConsultationType() {
         setLoading(true)
         medicalEntityHasUser && triggerTypeDelete({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/appointments/types/${uuid}/${router.locale}`
         }, {
             onSuccess: () => {
                 enqueueSnackbar(t("alert.delete-reasonType"), {variant: "success"});

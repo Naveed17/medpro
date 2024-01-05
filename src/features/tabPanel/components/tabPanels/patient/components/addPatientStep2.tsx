@@ -242,7 +242,7 @@ function AddPatientStep2({...props}) {
 
         medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
             data: form
         }, {
             onSuccess: (res: any) => {

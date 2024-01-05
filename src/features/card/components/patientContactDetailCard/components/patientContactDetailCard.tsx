@@ -99,7 +99,7 @@ function PatientContactDetailCard({...props}) {
         mutate: mutatePatientContact
     } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/contact/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/contact/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const contactData = (httpPatientContactResponse as HttpResponse)?.data as PatientContactModel;
@@ -173,7 +173,7 @@ function PatientContactDetailCard({...props}) {
 
         medicalEntityHasUser && triggerPatientUpdate({
             method: "PUT",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/contact/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/contact/${router.locale}`,
             data: params
         }, {
             onSuccess: () => {

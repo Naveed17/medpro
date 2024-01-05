@@ -83,7 +83,7 @@ function AppointmentCard({...props}) {
         mutate: mutateConsultReason
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
@@ -110,7 +110,7 @@ function AppointmentCard({...props}) {
                 if (handleOnDataUpdated) {
                     handleOnDataUpdated();
                 } else {
-                    medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/${router.locale}`]);
+                    medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/${router.locale}`]);
                 }
             }
         });
@@ -133,7 +133,7 @@ function AppointmentCard({...props}) {
 
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`,
             data: params
         }, {
             onSuccess: () => mutateConsultReason().then((result: any) => {

@@ -148,14 +148,14 @@ function PatientDetailsCard({...props}) {
 
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`,
                 data: params
             }, {
                 onSuccess: () => {
                     setRequestLoading(false);
                     mutatePatientList && mutatePatientList();
                     mutateAgenda && mutateAgenda();
-                    invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`]);
+                    invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/infos/${router.locale}`]);
                     if (appointment) {
                         const event = {
                             ...appointment,
@@ -189,7 +189,7 @@ function PatientDetailsCard({...props}) {
 
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`,
                 data: params
             }, {
                 onSuccess: () => {
@@ -197,8 +197,8 @@ function PatientDetailsCard({...props}) {
                     mutatePatientList && mutatePatientList();
                     mutateAgenda && mutateAgenda();
                     invalidateQueries([
-                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`]);
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/infos/${router.locale}`]);
                     if (appointment) {
                         const event = {
                             ...appointment,

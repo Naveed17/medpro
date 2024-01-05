@@ -68,7 +68,7 @@ function Motif() {
 
     const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medicalEntityHasUser && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}})
@@ -158,7 +158,7 @@ function Motif() {
 
         medicalEntityHasUser && triggerMotifUpdate({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${props.uuid}/${router.locale}`,
             data: form
         }, {
             onSuccess: () => {
@@ -195,7 +195,7 @@ function Motif() {
         setLoading(true);
         medicalEntityHasUser && triggerMotifDelete({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${uuid}/${router.locale}`
         }, {
             onSuccess: () => {
                 enqueueSnackbar(t("alert.delete-reason"), {variant: "success"});

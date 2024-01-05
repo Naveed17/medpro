@@ -318,7 +318,7 @@ function Patient() {
         isLoading
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medicalEntityHasUser && {variables: {query: `?page=${page}&limit=10&withPagination=true${router.query.params ?? localFilter}`}})
@@ -328,7 +328,7 @@ function Patient() {
         setLoadingRequest(true);
         medicalEntityHasUser && triggerCheckDuplication({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/duplications/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/duplications/${router.locale}`
         }, {
             onSuccess: (results) => {
                 setLoadingRequest(false);
@@ -485,7 +485,7 @@ function Patient() {
                 );
                 setAddAppointment(false);
                 setPatientDetailDrawer(true);
-                break;  
+                break;
             case "DUPLICATION_CHECK":
                 checkDuplications(event, setLoadingRequest);
                 break;
@@ -508,7 +508,7 @@ function Patient() {
         setLoadingRequest(true);
         medicalEntityHasUser && triggerDeletePatient({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient?.uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selectedPatient?.uuid}/${router.locale}`
         }, {
             onSuccess: () => {
                 setLoadingRequest(false);

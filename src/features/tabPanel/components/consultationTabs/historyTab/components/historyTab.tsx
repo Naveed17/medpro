@@ -48,7 +48,7 @@ function HistoryTab({...props}) {
 
     const {data: httpPatientHistory, mutate} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history-list/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/history-list/${router.locale}`
     } : null);
 
     const histories = (httpPatientHistory as HttpResponse)?.data

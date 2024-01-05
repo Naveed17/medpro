@@ -47,7 +47,7 @@ function AutoCompleteButton({...props}) {
     const onEditPatient = () => {
         medicalEntityHasUser && PatientDetailsTrigger({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`
         }, {
             onSuccess: (result: any) => {
                 const {status} = result?.data;

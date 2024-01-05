@@ -148,14 +148,14 @@ function PatientDetail({...props}) {
         mutate: mutatePatientDetails
     } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/infos/${router.locale}`
     } : null);
 
     const patient = ((httpPatientDetailsResponse as HttpResponse)?.data as PatientModel) ?? null;
 
     const {data: httpPatientWallet, mutate: walletMutate} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
     const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
@@ -165,7 +165,7 @@ function PatientDetail({...props}) {
         mutate: mutateAntecedents
     } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/antecedents/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/antecedents/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const handleOpenFab = () => setOpenFabAdd(true);
@@ -226,11 +226,11 @@ function PatientDetail({...props}) {
         });
         medicalEntityHasUser && triggerUploadDocuments({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/documents/${router.locale}`,
             data: params
         }, {
             onSuccess: () => {
-                const mutateUrl = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`;
+                const mutateUrl = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/documents/${router.locale}`;
                 invalidateQueries([mutateUrl]);
                 triggerNotificationPush({
                     action: "push",
@@ -262,8 +262,8 @@ function PatientDetail({...props}) {
                 }, {
                     onSuccess: (result: any) => {
                         medicalEntityHasUser && invalidateQueries([
-                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`,
-                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`]);
+                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/appointments/history/${router.locale}`,
+                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/documents/${router.locale}`]);
                         setOpenDialog(false);
                         setInfo("document_detail");
                         const res = result.data.data;

@@ -200,7 +200,7 @@ function AddPatientStep1({...props}) {
     const checkFicheID = () => {
         medicalEntityHasUser && triggerDetectFiche({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/duplicated-field/${router.locale}?attribute=fiche_id&value=${values.fiche_id}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/duplicated-field/${router.locale}?attribute=fiche_id&value=${values.fiche_id}`
         }, {
             onSuccess: (res: any) => {
                 setDuplicatedFiche(res.data.data.length > 0);

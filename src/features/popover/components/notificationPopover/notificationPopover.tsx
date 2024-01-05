@@ -26,6 +26,7 @@ import {useSnackbar} from "notistack";
 import {getDiffDuration, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRequestQueryMutation} from "@lib/axios";
 import IconUrl from "@themes/urlIcon";
+import usePendingAppointment from "@lib/hooks/rest/usePendingAppointment";
 
 const humanizeDuration = require("humanize-duration");
 
@@ -51,9 +52,9 @@ function NotificationPopover({...props}) {
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
-
+    const {pendingAppointments: localPendingAppointments} = usePendingAppointment()
     const {t, ready} = useTranslation("common");
-    const {config, pendingAppointments: localPendingAppointments, selectedEvent} = useAppSelector(agendaSelector);
+    const {config, selectedEvent} = useAppSelector(agendaSelector);
     const {direction} = useAppSelector(configSelector);
     const {notifications: localNotifications, appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {

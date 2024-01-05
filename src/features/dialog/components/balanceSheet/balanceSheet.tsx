@@ -94,7 +94,7 @@ function BalanceSheetDialog({...props}) {
         mutate: mutateAnalysisFavorites
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/analyses/${router.locale}`
     } : null);
 
     const modals = ((httpModelResponse as HttpResponse)?.data ?? []) as any[];
@@ -227,7 +227,7 @@ function BalanceSheetDialog({...props}) {
         medicalImagery?.uuid && form.append('analyse', medicalImagery.uuid);
         medicalEntityHasUser && triggerFavoriteAdd({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/analyses/${router.locale}`,
             data: form,
         }, {
             onSuccess: () => mutateAnalysisFavorites()
@@ -368,7 +368,7 @@ function BalanceSheetDialog({...props}) {
                                             onDelete={() => {
                                                 medicalEntityHasUser && triggerFavoriteDelete({
                                                     method: "DELETE",
-                                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${analysisItem.uuid}/${router.locale}`,
+                                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/analyses/${analysisItem.uuid}/${router.locale}`,
                                                 }, {
                                                     onSuccess: () => {
                                                         enqueueSnackbar(t(`alerts.favorite.delete`), {variant: "success"});

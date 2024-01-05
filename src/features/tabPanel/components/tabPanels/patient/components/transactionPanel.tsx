@@ -63,7 +63,7 @@ function TransactionPanel({...props}) {
         medicalEntityHasUser &&
         selected.appointment &&
         invalidateQueries([
-            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selected.appointment.patient?.uuid}/wallet/${router.locale}`,
+            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selected.appointment.patient?.uuid}/wallet/${router.locale}`,
         ]);
     };
 
@@ -394,7 +394,7 @@ function TransactionPanel({...props}) {
                                                                                             variant="body2"
                                                                                             width={1}
                                                                                             className="ellipsis"
-                                                                                            
+
                                                                                         >
                                                                                             {item?.data?.carrier}
                                                                                         </Typography>

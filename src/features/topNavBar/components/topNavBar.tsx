@@ -67,13 +67,12 @@ function TopNavBar({...props}) {
     const {lock} = useAppSelector(appLockSelector);
     const {
         config: agendaConfig,
-        pendingAppointments,
         selectedEvent
     } = useAppSelector(agendaSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {
         ongoing, next, notifications,
-        import_data, allowNotification
+        import_data, allowNotification, pending: nbPendingAppointment
     } = useAppSelector(dashLayoutSelector);
     const {direction} = useAppSelector(configSelector);
     const {progress} = useAppSelector(progressUISelector);
@@ -298,8 +297,8 @@ function TopNavBar({...props}) {
     }, [dispatch, ongoing]);
 
     useEffect(() => {
-        setNotificationsCount((notifications ?? []).length + (pendingAppointments ?? []).length);
-    }, [notifications, pendingAppointments]);
+        setNotificationsCount((notifications ?? []).length + (nbPendingAppointment ?? 0));
+    }, [notifications, nbPendingAppointment]);
 
     useEffect(() => {
         const appInstall = localStorage.getItem('Medlink-install');
