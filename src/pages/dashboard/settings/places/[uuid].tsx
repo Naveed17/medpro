@@ -481,7 +481,7 @@ function PlacesDetail() {
             setHoraires([...hours]);
             setCheck(false);
         }
-    }, [check, row]);
+    }, [check, row]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>

@@ -70,9 +70,7 @@ function SideBarMenu({children}: LayoutProps) {
     const {waiting_room, newCashBox, nb_appointment} = useAppSelector(dashLayoutSelector);
 
     let container: any = useRef<HTMLDivElement>(null);
-    const [menuItems, setMenuItems] = useState(
-        sidebarItems.filter((item) => item.enabled)
-    );
+    const [menuItems, setMenuItems] = useState(sidebarItems);
 
     const handleRouting = (path: string) => {
         // Always do navigations after the first render
