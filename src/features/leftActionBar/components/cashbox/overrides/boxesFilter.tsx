@@ -10,15 +10,17 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {cashBoxSelector, setSelectedBoxes} from "@features/leftActionBar/components/cashbox";
+import {useCashBox} from "@lib/hooks/rest";
 
 function BoxsesFilter() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const dispatch = useAppDispatch();
     const router = useRouter();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const {cashboxes} = useCashBox();
 
     const {t} = useTranslation('payment', {keyPrefix: 'filter'});
-    const {cashboxes, selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {selectedBoxes} = useAppSelector(cashBoxSelector);
 
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [cashName, setCashName] = useState("");

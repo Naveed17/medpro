@@ -34,7 +34,7 @@ import {useRouter} from "next/router";
 import {Dialog, PatientDetail} from "@features/dialog";
 import {DefaultCountry} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useInsurances} from "@lib/hooks/rest";
+import {useCashBox, useInsurances} from "@lib/hooks/rest";
 import {CashboxFilter, cashBoxSelector, SetSelectedTab,} from "@features/leftActionBar/components/cashbox";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import CloseIcon from "@mui/icons-material/Close";
@@ -216,8 +216,8 @@ function Cashbox() {
     const dispatch = useAppDispatch();
     const theme: Theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-
     const {insurances} = useInsurances();
+    const {cashboxes} = useCashBox();
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
@@ -289,49 +289,30 @@ function Cashbox() {
     ];
     const {data: user} = session as Session;
 
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const filterQuery: string = generateFilter({filterCB});
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [loadingDeleteTransaction, setLoadingDeleteTransaction] =
-        useState(false);
-    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] =
-        useState(false);
-    const {trigger: triggerPostTransaction} = useRequestQueryMutation(
-        "/payment/cashbox/post"
-    );
-    const {trigger: triggerAppointmentDetails} = useRequestQueryMutation(
-        "/agenda/appointment/details"
-    );
+    const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
+    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
+
+    const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox/post");
+    const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
     const {trigger: triggerExport} = useRequestQueryMutation("/cashbox/export");
 
-    const {data: paymentMeansHttp} = useRequestQuery(
-        {
-            method: "GET",
-            url: `/api/public/payment-means/${router.locale}`,
-        },
-        ReactQueryNoValidateConfig
-    );
+    const {data: paymentMeansHttp} = useRequestQuery({
+        method: "GET",
+        url: `/api/public/payment-means/${router.locale}`,
+    }, ReactQueryNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransactions} =
-        useRequestQuery(
-            filterQuery
-                ? {
-                    method: "GET",
-                    url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                }
-                : null,
-            {
-                ...(filterQuery && {variables: {query: filterQuery}}),
-            }
-        );
+    const {data: httpTransactionsResponse, mutate: mutateTransactions} = useRequestQuery(filterQuery ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+    } : null, {...(filterQuery && {variables: {query: filterQuery}})});
 
     useEffect(() => {
         if (httpTransactionsResponse) {
@@ -370,9 +351,12 @@ function Cashbox() {
             setToReceive(data.total_insurance_amount);
             setCollected(data.total_collected);*/
         txtGenerator();
-        if (data.transactions) setRows(data.transactions);
-        else setRows([]);
-        if (filterQuery.includes("cashboxes")) setLoading(false);
+        if (data.transactions) {
+            setRows(data.transactions);
+        } else {
+            setRows([]);
+        }
+        //if (filterQuery.includes("cashboxes")) setLoading(false);
     };
 
     const getConsultation = (start: string, end: string) => {
@@ -388,7 +372,9 @@ function Cashbox() {
                 onSuccess: (result) => {
                     const res = result.data.data;
                     setApps(res);
-                    setUnpaid(res.reduce((total: number, val: { appointmentRestAmount: number; }) => total + val.appointmentRestAmount, 0));
+                    setUnpaid(res.reduce((total: number, val: {
+                        appointmentRestAmount: number;
+                    }) => total + val.appointmentRestAmount, 0));
                     setCA(res.reduce((total: number, val: { fees: string; }) => total + parseInt(val.fees), 0));
                 },
             }
@@ -487,6 +473,12 @@ function Cashbox() {
     };
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
 
+    useEffect(() => {
+        if (cashboxes.length > 0) {
+            setLoading(false);
+        }
+
+    }, [cashboxes])
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -498,8 +490,7 @@ function Cashbox() {
                     alignItems="center"
                     paddingTop={1}
                     justifyContent={"space-between"}
-                    width={"100%"}
-                >
+                    width={"100%"}>
                     <Tabs
                         value={selectedTab}
                         onChange={handleChangeTab}
@@ -512,8 +503,7 @@ function Cashbox() {
                         }}
                         scrollButtons={true}
                         textColor="primary"
-                        indicatorColor="primary"
-                    >
+                        indicatorColor="primary">
                         {tabsData.map((tab: { label: string }) => (
                             <Tab
                                 className="custom-tab"
@@ -537,16 +527,14 @@ function Cashbox() {
                     mb={0.6}
                     display="grid"
                     sx={{gap: 1.2, px: 1}}
-                    gridTemplateColumns={`repeat(${isMobile ? "2" : "4"},minmax(0,1fr))`}
-                >
+                    gridTemplateColumns={`repeat(${isMobile ? "2" : "4"},minmax(0,1fr))`}>
                     {topCard.map((card, idx) => (
                         <Card sx={{border: "none"}} key={idx}>
                             <CardContent sx={{px: isMobile ? 1.75 : 2}}>
                                 <Stack
                                     direction="row"
                                     alignItems="center"
-                                    spacing={{xs: 1, md: 2}}
-                                >
+                                    spacing={{xs: 1, md: 2}}>
                                     <ImageHandler
                                         src={`/static/icons/${
                                             isMobile ? card.mobile_icon : card.icon
@@ -558,9 +546,7 @@ function Cashbox() {
                                     <Stack direction={isMobile ? "column-reverse" : "column"}>
                                         <Typography variant="h6" fontWeight={700}>
                                             {card.amount}
-                                            <span style={{fontSize: 14, marginLeft: 4}}>
-                        {devise}
-                      </span>
+                                            <span style={{fontSize: 14, marginLeft: 4}}>{devise}</span>
                                         </Typography>
                                         <Typography variant="body2" textTransform="capitalize">
                                             {t(card.title)}
@@ -581,13 +567,13 @@ function Cashbox() {
                                 mb={2}
                                 pb={1}
                                 borderBottom={1}
-                                borderColor="divider"
-                            >
+                                borderColor="divider">
                                 <Stack>
                                     <Typography fontWeight={700}>{t("consultations")}</Typography>
                                     <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                 </Stack>
-                                <Typography>{t("total")} <span style={{fontSize:20,fontWeight:"bold"}}>{ca}</span> {devise}</Typography>
+                                <Typography>{t("total")} <span
+                                    style={{fontSize: 20, fontWeight: "bold"}}>{ca}</span> {devise}</Typography>
                             </Stack>
                             <DesktopContainer>
                                 {apps.length > 0 ? <Otable
@@ -636,8 +622,7 @@ function Cashbox() {
                                     mb={2}
                                     pb={1}
                                     borderBottom={1}
-                                    borderColor="divider"
-                                >
+                                    borderColor="divider">
                                     <Stack>
                                         <Typography fontWeight={700}>
                                             {t("transactions")}
@@ -648,8 +633,7 @@ function Cashbox() {
                                         onClick={exportDoc}
                                         variant="outlined"
                                         color="info"
-                                        startIcon={<IconUrl path="ic-export-new"/>}
-                                    >
+                                        startIcon={<IconUrl path="ic-export-new"/>}>
                                         {t("export")}
                                     </Button>}
                                 </Stack>
@@ -702,8 +686,7 @@ function Cashbox() {
                     setPatientDetailDrawer(false);
                 }}
                 open={patientDetailDrawer}
-                dir={direction}
-            >
+                dir={direction}>
                 <PatientDetail
                     {...{isAddAppointment, patientId: tableState.patientId}}
                     onCloseDialog={() => {
@@ -724,16 +707,14 @@ function Cashbox() {
                         transform: "translateX(-50%)",
                         left: "50%",
                         zIndex: 999,
-                    }}
-                >
+                    }}>
                     {t("filter.title", {ns: "common"})} (0)
                 </Button>
             </MobileContainer>
             <DrawerBottom
                 handleClose={() => setFilter(false)}
                 open={filter}
-                title={t("filter.title", {ns: "common"})}
-            >
+                title={t("filter.title", {ns: "common"})}>
                 <CashboxFilter/>
             </DrawerBottom>
             <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
@@ -743,8 +724,7 @@ function Cashbox() {
                         className="popover-item"
                         onClick={() => {
                             OnMenuActions(v.action);
-                        }}
-                    >
+                        }}>
                         {v.icon}
                         <Typography fontSize={15} sx={{color: "#fff"}}>
                             {t(v.title, {ns: "common"})}
@@ -766,8 +746,7 @@ function Cashbox() {
                                 setLoadingDeleteTransaction(false);
                                 setOpenDeleteTransactionDialog(false);
                             }}
-                            startIcon={<CloseIcon/>}
-                        >
+                            startIcon={<CloseIcon/>}>
                             {t("cancel")}
                         </Button>
                         <LoadingButton
@@ -775,8 +754,7 @@ function Cashbox() {
                             loading={loadingDeleteTransaction}
                             color="error"
                             onClick={deleteTransaction}
-                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}
-                        >
+                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}>
                             {t("delete")}
                         </LoadingButton>
                     </Stack>

@@ -37,6 +37,7 @@ import Icon from "@themes/urlIcon";
 import moment from "moment/moment";
 import {Box} from "@mui/system";
 import {LottiePlayer} from "@features/card/components/successCard/successCard";
+import {useCashBox} from "@lib/hooks/rest";
 
 const LoadingScreen = dynamic(
     () => import("@features/loadingScreen/components/loadingScreen")
@@ -50,6 +51,7 @@ function PaymentDialog({...props}) {
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
+    const {cashboxes} = useCashBox();
     const apps = useRef<any[]>([])
 
     const [payments, setPayments] = useState<any>([]);

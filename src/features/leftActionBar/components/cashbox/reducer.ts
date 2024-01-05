@@ -5,7 +5,7 @@ import {
     setInsurancesList, setMutate,
     setPaymentTypesList,
     setSelectedBoxes, SetSelectedTab
-} from "@features/leftActionBar/components/cashbox/actions";
+} from "./actions";
 
 const initialState: any = {
     insurances: [],
@@ -15,7 +15,7 @@ const initialState: any = {
     selectedBoxes: [],
     cashboxes: [],
     mutate: null,
-    selectedTab:'consultations',
+    selectedTab: 'consultations',
     filterCB: {
         type_transaction: '',
         status_transaction: '',

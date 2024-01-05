@@ -33,7 +33,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {setSelectedRows} from "@features/table";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
-import {setCashBoxes, setPaymentTypesList, setSelectedBoxes} from "@features/leftActionBar/components/cashbox";
+import {setPaymentTypesList} from "@features/leftActionBar/components/cashbox";
 import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {pdfjs} from "react-pdf";
@@ -105,11 +105,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const {data: httpAppointmentTypesResponse} = useRequestQuery(medicalEntityHasUser && medicalEntityHasUser.length > 0 ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
-
-    const {data: httpBoxesResponse} = useRequestQuery(httpOngoingResponse ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const agendasData = ((httpAgendasResponse as HttpResponse)?.data ?? []) as AgendaConfigurationModel[];
@@ -322,16 +317,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             }));
         }
     }, [httpProfessionalsResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (httpBoxesResponse) {
-            const cashboxes = (httpBoxesResponse as HttpResponse).data;
-            if (cashboxes.length > 0) {
-                dispatch(setCashBoxes(cashboxes));
-                dispatch(setSelectedBoxes([cashboxes[0]]));
-            }
-        }
-    }, [dispatch, httpBoxesResponse]);
 
     useEffect(() => {
         if (!localStorage.getItem("new-features")) {

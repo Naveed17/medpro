@@ -39,11 +39,10 @@ import {DefaultCountry} from "@lib/constants";
 import PhoneInput from "react-phone-number-input/input";
 import {CustomInput} from "@features/tabPanel";
 import {isValidPhoneNumber} from "libphonenumber-js";
-import {useContactType} from "@lib/hooks/rest";
+import {useCashBox, useContactType} from "@lib/hooks/rest";
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
 import {agendaSelector} from "@features/calendar";
-import {cashBoxSelector} from "@features/leftActionBar";
 import {Dialog as CustomDialog} from "@features/dialog";
 
 const PhoneCountry: any = memo(({...props}) => {
@@ -58,18 +57,17 @@ function NewUser() {
     const {enqueueSnackbar} = useSnackbar();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
+    const {cashboxes} = useCashBox();
     const theme = useTheme();
 
     const {t, ready} = useTranslation("settings");
     const {agendas} = useAppSelector(agendaSelector);
-    const {cashboxes} = useAppSelector(cashBoxSelector);
     const {direction} = useAppSelector(configSelector);
 
     const [loading, setLoading] = useState(false);
     const [profiles, setProfiles] = useState<any[]>([]);
     const [agendaRoles] = useState<any[]>([]);
     const [featureRoles, setFeatureRoles] = useState<any[]>([]);
-    const [featureRolesIDs, setFeatureRolesIDs] = useState<any[]>([]);
     const [featureProfiles, setFeatureProfiles] = useState<any[]>([]);
     const [openFeatureProfileDialog, setOpenFeatureProfileDialog] = useState(false);
 
