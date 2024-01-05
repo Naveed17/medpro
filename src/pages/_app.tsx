@@ -36,7 +36,6 @@ import {useRouter} from "next/router";
 import {firebaseCloudSdk} from "@lib/firebase";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import ReactQueryProvider from "@lib/reactQuery/reactQueryProvider";
-import {useSession} from "next-auth/react";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
