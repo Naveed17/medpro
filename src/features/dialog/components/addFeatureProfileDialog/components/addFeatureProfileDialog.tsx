@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Form, FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
 import RootStyled from "./overrides/rootStyle";
@@ -16,26 +16,64 @@ import {
 } from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {useRequestQueryMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
 import {TreeCheckbox} from "@features/treeViewCheckbox";
 import {useSnackbar} from "notistack";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useRouter} from "next/router";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function AddFeatureProfileDialog({...props}) {
-    const {data: {selected, handleMutate, handleClose, initData = []}} = props;
+    const {feature, selected, handleClose} = props.data;
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const router = useRouter();
 
     const {t} = useTranslation(["settings", "common"]);
 
     const [loading, setLoading] = useState(false);
-    const [permissions, setPermissions] = useState<any>(initData);
+    const [permissions, setPermissions] = useState<any>([]);
+
+    const {data: featurePermissionsResponse} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/permissions/${router.locale}`
+    }, {
+        ...ReactQueryNoValidateConfig,
+        variables: {query: `?feature=${feature.slug}`}
+    });
 
     const {trigger: triggerProfileCreate} = useRequestQueryMutation("/profile/create");
     const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
 
+    const featurePermissions = ((featurePermissionsResponse as HttpResponse)?.data ?? []) as any[];
+
+    useEffect(() => {
+        if (featurePermissions) {
+            const permissions = featurePermissions.map((item: any) => {
+                return {
+                    ...item,
+                    value: false,
+                    children: []
+                };
+            });
+            const updatePermissions = handleUpdatedPermissions(permissions);
+            setPermissions(updatePermissions);
+        }
+    }, [featurePermissions]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const handleUpdatedPermissions = (permissions: any) => {
+        if (selected) {
+            const permissionsArray = [...permissions];
+            return permissionsArray.map(permission => ({
+                ...permission,
+                value: selected.permissions.map((item: any) => item.uuid).includes(permission.uuid)
+            }))
+        } else {
+            return permissions
+        }
+    };
     const RoleSchema = Yup.object().shape({
         role_name: Yup.string().required(),
     });
@@ -46,7 +84,7 @@ function AddFeatureProfileDialog({...props}) {
             role_name: selected ? selected?.name : "",
             description: selected ? selected?.description : "",
             is_standard: selected ? selected?.is_standard ?? true : true,
-            permissions,
+            permissions
         },
         onSubmit: async (values) => {
             setLoading(true);
@@ -63,42 +101,25 @@ function AddFeatureProfileDialog({...props}) {
                         }
                     }
                 }
-
             }
+
             const form = new FormData();
             form.append("name", values.role_name);
             form.append("description", values.description);
-            form.append("is_standard ", values.is_standard.toString());
-            form.append("features", JSON.stringify(checkedPermissions.join(",")));
-            if (selected) {
-                triggerProfileUpdate({
-                    method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/profile/${selected.uuid}`,
-                    data: form
-                }, {
-                    onSuccess: () => {
-                        enqueueSnackbar(t("users.alert.updated-role"), {variant: "success"})
-                        handleMutate();
-                        handleClose();
-                        setLoading(false)
-                    },
-                    onError: () => setLoading(false)
-                });
-            } else {
-                triggerProfileCreate({
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/profile`,
-                    data: form
-                }, {
-                    onSuccess: () => {
-                        enqueueSnackbar(t("users.alert.added-role"), {variant: "success"})
-                        handleMutate();
-                        handleClose();
-                        setLoading(false)
-                    },
-                    onError: () => setLoading(false)
-                });
-            }
+            form.append("standard ", values.is_standard.toString());
+            form.append("permissions", JSON.stringify(Object.assign({}, checkedPermissions)));
+            triggerProfileUpdate({
+                method: selected ? "PUT" : "POST",
+                url: `${urlMedicalEntitySuffix}/cash-box/profiles/${selected ? `${selected.uuid}/` : ""}${router.locale}`,
+                data: form
+            }, {
+                onSuccess: () => {
+                    enqueueSnackbar(t("users.alert.updated-role"), {variant: "success"})
+                    handleClose();
+                    setLoading(false);
+                },
+                onError: () => setLoading(false)
+            });
         },
         validationSchema: RoleSchema,
     });
@@ -255,7 +276,7 @@ function AddFeatureProfileDialog({...props}) {
                             loadingPosition={"start"}
                             type="submit"
                             variant="contained"
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
                             {t("users.dialog.save")}
                         </LoadingButton>
                     </Stack>

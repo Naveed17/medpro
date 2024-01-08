@@ -18,7 +18,15 @@ import {
     FormControlLabel,
     Checkbox,
     MenuItem,
-    FormControl, IconButton, useTheme,
+    FormControl,
+    IconButton,
+    useTheme,
+    Avatar,
+    InputAdornment,
+    Autocomplete,
+    ListItem,
+    ListItemText,
+    ListItemSecondaryAction,
 } from "@mui/material";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
@@ -44,6 +52,9 @@ import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
 import {agendaSelector} from "@features/calendar";
 import {Dialog as CustomDialog} from "@features/dialog";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -59,16 +70,17 @@ function NewUser() {
     const {data: session} = useSession();
     const {cashboxes} = useCashBox();
     const theme = useTheme();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {t, ready} = useTranslation("settings");
     const {agendas} = useAppSelector(agendaSelector);
     const {direction} = useAppSelector(configSelector);
 
     const [loading, setLoading] = useState(false);
-    const [profiles, setProfiles] = useState<any[]>([]);
+    const [selectedFeature, setSelectedFeature] = useState<any>(null);
+    const [selectedProfile, setSelectedProfile] = useState<any>(null);
     const [agendaRoles] = useState<any[]>([]);
     const [featureRoles, setFeatureRoles] = useState<any[]>([]);
-    const [featureProfiles, setFeatureProfiles] = useState<any[]>([]);
     const [openFeatureProfileDialog, setOpenFeatureProfileDialog] = useState(false);
 
     const {data: userSession} = session as Session;
@@ -77,9 +89,11 @@ function NewUser() {
 
     const {data: httpProfilesResponse} = useRequestQuery({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/profile`
-    });
+        url: `${urlMedicalEntitySuffix}/profile`
+    }, ReactQueryNoValidateConfig);
 
+    const {trigger: profilePermissionsTrigger} = useRequestQueryMutation("/settings/profile/permissions/get");
+    const {trigger: deleteProfileTrigger} = useRequestQueryMutation("/settings/profile/delete");
     const {trigger: triggerUserAdd} = useRequestQueryMutation("/users/add");
 
     const validationSchema = Yup.object().shape({
@@ -111,15 +125,21 @@ function NewUser() {
         profile: Yup.string().required(),
         roles: Yup.array().of(
             Yup.object().shape({
-                profile: Yup.string(),
                 feature: Yup.string(),
+                featureUuid: Yup.string(),
                 featureRoles: Yup.array().of(
                     Yup.object().shape({
                         name: Yup.string(),
                         uuid: Yup.string()
                     })
                 ),
-                featureUuid: Yup.string()
+                featureProfiles: Yup.array().of(
+                    Yup.object().shape({
+                        name: Yup.string(),
+                        uuid: Yup.string()
+                    })
+                ),
+                profileUuid: Yup.string()
             })
         )
     });
@@ -185,23 +205,54 @@ function NewUser() {
         },
     });
 
-    useEffect(() => {
-        if (httpProfilesResponse) {
-            setProfiles((httpProfilesResponse as HttpResponse)?.data)
-        }
-    }, [httpProfilesResponse])
-
+    const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as ProfileModel[];
     const {
         values,
         errors,
         touched,
         handleSubmit,
         getFieldProps,
-        setFieldValue,
+        setFieldValue
     } = formik;
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    const handleProfilePermissions = (index: number, hasProfileSet?: boolean) => {
+        const feature = featureRoles?.find((profile: ProfileModel) => profile.uuid === (values.roles[index] as any)?.feature);
+        if (feature?.slug === "cashbox") {
+            profilePermissionsTrigger({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/cash-box/profiles/${router.locale}`
+            }, {
+                onSuccess: (result) => {
+                    const profiles = (result?.data as HttpResponse)?.data;
+                    setFieldValue(`roles[${index}].featureProfiles`, profiles);
+                    if (hasProfileSet) {
+                        setFieldValue(`roles[${index}].profileUuid`, profiles[profiles?.length - 1].uuid);
+                    }
+                    setLoading(false);
+                },
+                onError: () => setLoading(false)
+            });
+        } else {
+            setFieldValue(`roles[${index}].featureProfiles`, []);
+        }
+    }
 
+    const handleDeleteProfile = (uuid: string, index: number) => {
+        setLoading(true);
+        deleteProfileTrigger({
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/cash-box/profiles/${uuid}/${router.locale}`
+        }, {
+            onSuccess: () => {
+                handleProfilePermissions(index);
+                setLoading(false);
+            },
+            onError: () => setLoading(false)
+        });
+    }
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    console.log("values", values)
     return (
         <>
             <SubHeader>
@@ -600,7 +651,8 @@ function NewUser() {
                                                             feature: "",
                                                             featureUuid: "",
                                                             featureRoles: [],
-                                                            profile: ""
+                                                            featureProfiles: [],
+                                                            profileUuid: ""
                                                         }])
                                                 }}
                                                 startIcon={<AddIcon/>}>
@@ -633,6 +685,7 @@ function NewUser() {
                                                                             setFieldValue(`roles[${index}].featureRoles`, []);
                                                                             break;
                                                                     }
+                                                                    setFieldValue(`roles[${index}].featureProfiles`, []);
                                                                 }}
                                                                 renderValue={selected => {
                                                                     if (selected.length === 0) {
@@ -663,6 +716,10 @@ function NewUser() {
                                                                         const profile = (values.roles[index] as any).featureRoles?.find((profile: any) => profile.uuid === selected);
                                                                         return <Typography>{profile?.name}</Typography>
                                                                     }}
+                                                                    onChange={event => {
+                                                                        setFieldValue(`roles[${index}].featureUuid`, event.target.value);
+                                                                        handleProfilePermissions(index);
+                                                                    }}
                                                                     displayEmpty
                                                                     sx={{color: "text.secondary"}}>
                                                                     {(values.roles[index] as any).featureRoles.map((profile: any) =>
@@ -673,32 +730,79 @@ function NewUser() {
                                                         </Grid>}
                                                     <Grid item xs={12}
                                                           lg={(values.roles[index] as any).featureRoles?.length > 0 ? 4.4 : 6.4}>
-                                                        <FormControl size="small" fullWidth>
-                                                            <Select
-                                                                labelId="profile-feature-select-label"
-                                                                id={"profile-feature"}
-                                                                {...getFieldProps(`roles[${index}].profile`)}
-                                                                renderValue={selected => {
-                                                                    if (selected.length === 0) {
-                                                                        return <em>{t("users.profile-feature")}</em>;
-                                                                    }
-                                                                    const profile = featureProfiles?.find(profile => profile.uuid === selected);
-                                                                    return <Typography>{profile?.name}</Typography>
-                                                                }}
-                                                                displayEmpty
-                                                                sx={{color: "text.secondary"}}>
-                                                                {featureProfiles.map(profile =>
-                                                                    <MenuItem key={profile.uuid}
-                                                                              value={profile.uuid}>{profile.name}</MenuItem>)}
-                                                            </Select>
-                                                        </FormControl>
+                                                        <Autocomplete
+                                                            id={"feature-profile"}
+                                                            autoHighlight
+                                                            size="small"
+                                                            value={(values.roles[index] as any).featureProfiles.find((profile: ProfileModel) => profile.uuid === (values.roles[index] as any)?.profileUuid) ?? null}
+                                                            onChange={(e, profile) => {
+                                                                e.stopPropagation();
+                                                                console.log("profile", profile)
+                                                                setFieldValue(`roles[${index}].profileUuid`, profile?.uuid);
+                                                            }}
+                                                            options={(values.roles[index] as any).featureProfiles}
+                                                            getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                                            isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                                                            renderOption={(props, option) => (
+                                                                <ListItem {...props}>
+                                                                    <ListItemText primary={option?.name}/>
+                                                                    <ListItemSecondaryAction>
+                                                                        <IconButton
+                                                                            onClick={() => {
+                                                                                setSelectedProfile(option);
+                                                                                setSelectedFeature(index);
+                                                                                setTimeout(() => setOpenFeatureProfileDialog(true));
+                                                                            }}
+                                                                            sx={{
+                                                                                ml: 1
+                                                                            }}
+                                                                            edge={"end"}
+                                                                            size="small">
+                                                                            <IconUrl
+                                                                                color={theme.palette.primary.main}
+                                                                                path="ic-edit-patient"/>
+                                                                        </IconButton>
+                                                                        <IconButton
+                                                                            onClick={() => handleDeleteProfile(option.uuid, index)}
+                                                                            sx={{
+                                                                                ml: 1,
+                                                                                "& .react-svg": {
+                                                                                    " & svg": {
+                                                                                        height: 20,
+                                                                                        width: 20
+                                                                                    },
+                                                                                }
+                                                                            }}
+                                                                            edge={"end"}
+                                                                            size="small">
+                                                                            <IconUrl
+                                                                                color={theme.palette.error.main}
+                                                                                path="ic-trash"/>
+                                                                        </IconButton>
+                                                                    </ListItemSecondaryAction>
+                                                                </ListItem>
+                                                            )}
+                                                            renderInput={params =>
+                                                                <TextField
+                                                                    {...params}
+                                                                    color={"info"}
+                                                                    sx={{paddingLeft: 0}}
+                                                                    placeholder={t("users.profile-feature")}
+                                                                    variant="outlined"
+                                                                    fullWidth/>}
+                                                        />
                                                     </Grid>
                                                     <Grid item xs={12} lg={3.6}>
                                                         <Stack direction={"row"} alignItems={"center"}
                                                                spacing={1.2}
                                                                justifyContent={"space-between"}>
                                                             <Button
-                                                                onClick={() => setOpenFeatureProfileDialog(true)}
+                                                                disabled={(values.roles[index] as any).feature?.length === 0}
+                                                                onClick={() => {
+                                                                    setSelectedProfile(null);
+                                                                    setSelectedFeature(index);
+                                                                    setTimeout(() => setOpenFeatureProfileDialog(true));
+                                                                }}
                                                                 sx={{height: 34}}
                                                                 size={"small"}
                                                                 startIcon={<AddIcon/>}>
@@ -753,13 +857,16 @@ function NewUser() {
             </Box>
 
             <CustomDialog
+                {...{direction}}
                 action={"add-feature-profile"}
                 open={openFeatureProfileDialog}
-                direction={direction}
                 data={{
                     t,
+                    selected: selectedProfile,
+                    feature: featureRoles?.find((profile: ProfileModel) => profile.uuid === (values.roles[selectedFeature] as any)?.feature),
                     handleClose: () => {
-                        setOpenFeatureProfileDialog(false)
+                        setOpenFeatureProfileDialog(false);
+                        handleProfilePermissions(selectedFeature, true);
                     }
                 }}
                 title={t("users.add_new_feature_profile")}

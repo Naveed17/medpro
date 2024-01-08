@@ -6,13 +6,11 @@ import {
     CardContent,
     Stack,
     TextField,
-    Button,
-
+    Button
 } from "@mui/material";
 import React, {useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-
 import {useSnackbar} from "notistack";
 import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {LoadingButton} from "@mui/lab";
@@ -22,10 +20,13 @@ function Analysis({...props}) {
     const {mutateEvent, data, t} = props;
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+
     const [loading, setLoading] = useState(false);
+
     const {trigger: triggerAnalysisAdd} = useRequestQueryMutation("/settings/analysis/add");
     const {trigger: triggerAnalysisUpdate} = useRequestQueryMutation("/settings/analysis/update");
-    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
+
     const validationSchema = Yup.object().shape({
         name: Yup.string()
             .min(3, t("drawer.required.ntc"))
