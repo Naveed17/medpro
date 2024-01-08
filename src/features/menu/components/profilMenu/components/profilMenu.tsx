@@ -35,7 +35,7 @@ import Langs from "@features/topNavBar/components/langButton/config";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
 function ProfilMenu() {
-    const {data: session} = useSession();
+    const {data: session, update} = useSession();
     const router = useRouter();
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const dispatch = useAppDispatch();
@@ -52,6 +52,7 @@ function ProfilMenu() {
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>
     const general_information = (user as UserDataResponse).general_information;
+    const medical_entity = (user as UserDataResponse).medical_entity;
     const medical_entities = ((user as UserDataResponse).medical_entities?.reduce((entites: MedicalEntityModel[], data: any) => [...(entites ?? []), data?.medical_entity], []) ?? []) as MedicalEntityModel[];
     const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
     const {trigger: triggerSettingsUpdate} = useRequestQueryMutation("/settings/update");
@@ -88,7 +89,10 @@ function ProfilMenu() {
                 dispatch(logout({redirect: true, path}));
                 break;
             case 'switch-medical-entity':
-                await router.push('/');
+                await update({
+                    default_medical_entity: medical_entity?.uuid,
+                    reset: true
+                }).then(() => router.push('/'))
                 break;
             case 'profile':
                 await router.push(isMobile ? "/dashboard/settings" : `/dashboard/settings/${roles.includes('ROLE_SECRETARY') ? "motif" : "profil"}`)

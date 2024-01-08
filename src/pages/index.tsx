@@ -27,6 +27,7 @@ import {useAppDispatch} from "@lib/redux/hooks";
 import {Redirect} from "@features/redirect";
 import IconUrl from "@themes/urlIcon";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import {Session} from "next-auth";
 
 function Home() {
     const router = useRouter();
@@ -63,8 +64,9 @@ function Home() {
 
     const medical_entities = (session?.data?.medical_entities?.reduce((entites: MedicalEntityModel[], data: any) => [...(entites ?? []), data?.medical_entity], []) ?? []) as MedicalEntityModel[];
     const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
+    const hasSelectedEntity = session?.data?.medical_entity?.has_selected_entity ?? false;
 
-    return (!hasMultiMedicalEntities ?
+    return ((!hasMultiMedicalEntities || hasSelectedEntity) ?
             <Redirect to='/dashboard/agenda'/>
             :
             <Box className={styles.container} dir={dir}>
