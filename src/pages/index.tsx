@@ -27,7 +27,6 @@ import {useAppDispatch} from "@lib/redux/hooks";
 import {Redirect} from "@features/redirect";
 import IconUrl from "@themes/urlIcon";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import {Session} from "next-auth";
 
 function Home() {
     const router = useRouter();
