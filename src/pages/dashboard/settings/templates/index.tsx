@@ -37,7 +37,7 @@ import {
 } from "@lib/hooks";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {CertifModelDrawer} from "@features/CertifModelDrawer";
+import {CertifModelDrawer} from "src/features/drawer/components/CertifModelDrawer";
 import IconUrl from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
 import {Dialog, handleDrawerAction} from "@features/dialog";

@@ -205,6 +205,14 @@ const rowsActionsData = [
             )
         ),
     },
+     {
+        action: "drugs",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/drugsRow").then(
+                (mod) => mod
+            )
+        ),
+    },
     {
         action: "medical-imaging",
         component: dynamic((): any =>

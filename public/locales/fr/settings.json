@@ -19,6 +19,7 @@
     "configdoc": "Documents",
     "import-data": "Importation",
     "app_lock": "Verrouillage",
+    "drugs": "Médicaments",
     "analysis": "Analyse",
     "medical_imaging": "Imagerie médicale"
   },
@@ -157,6 +158,51 @@
       "add": "Ajouter motif de consultation",
       "edit": "Modifier motif de consultation",
       "cannot-delete-resource": "Impossible de supprimer la ressource"
+    }
+  },
+  "drugs": {
+    "config": {
+      "add": "Ajouter",
+      "path": "Paramètres > Médicaments",
+      "table": {
+        "name": "Nom",
+        "action": "Action",
+        "dci": "DCI",
+        "form": "Forme",
+        "laboratory": "Laboratoire",
+        "empty": ""
+      },
+      "alert": {
+        "add": "Le médicament a été ajouté avec succès",
+        "edit": "Le médicament a été modifiée avec succès",
+        "delete": "Le médicament  a été supprimée avec succès"
+      },
+      "dialog": {
+        "delete": {
+          "title": "Suppression d'un médicament",
+          "desc": "Êtes-vous sûr de vouloir supprimer ce médicament ?",
+          "delete": "Supprimer"
+        },
+        "cancel": "Annuler"
+      },
+      "drawer": {
+        "nom": "Ajouter un nom de médicament",
+        "abbreviation": "Abréviation",
+        "info": "Informations sur le médicament",
+        "type_drug_name": "Tapez le nom du médicament",
+        "type_drug_dci": "Tapez DCI du médicament",
+        "type_drug_form": "Tapez la forme du médicament",
+        "type_drug_laboratory": "Tapez le laboratoire du médicament",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "add": "Ajouter un médicament",
+        "edit": "Modifier un médicament",
+        "required": {
+          "name": "le nom du médicament est requis",
+          "ntc": "Nom est trop court",
+          "ntl": "Nom est trop long"
+        }
+      }
     }
   },
   "analysis": {

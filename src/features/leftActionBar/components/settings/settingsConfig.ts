@@ -56,7 +56,13 @@ const settingsData = {
             href: "/dashboard/settings/consultation-type",
             disable: false
         },
-{
+        {
+            name: "drugs",
+            icon: "docs/ic-prescription",
+            href: "/dashboard/settings/drugs",
+            disable: false
+        },
+        {
             name: "analysis",
             icon: "docs/ic-analyse",
             href: "/dashboard/settings/analysis",
