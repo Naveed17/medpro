@@ -10,10 +10,9 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useRequestQuery} from "@lib/axios";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useRouter} from "next/router";
-import {onOpenPatientDrawer, Otable} from "@features/table";
+import {Otable} from "@features/table";
 import {DrugsDrawer} from "@features/drawer";
 import {useAppSelector} from "@lib/redux/hooks";
-
 
 function Drugs() {
     const theme: Theme = useTheme();

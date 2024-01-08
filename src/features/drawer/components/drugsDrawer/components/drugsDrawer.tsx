@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import {useFormik, Form, FormikProvider} from "formik";
+import {useFormik, FormikProvider} from "formik";
 import {
     Typography,
     Card,
@@ -14,7 +14,7 @@ import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 
 import {useSnackbar} from "notistack";
-import {useInvalidateQueries, useMedicalProfessionalSuffix} from "@lib/hooks";
+import {useInvalidateQueries} from "@lib/hooks";
 import {LoadingButton} from "@mui/lab";
 import PaperStyled from "./overrides/paperStyled";
 
@@ -27,7 +27,6 @@ function DrugsDrawer({...props}) {
     const [loading, setLoading] = useState(false);
 
     const {trigger: triggerDrugsAdd} = useRequestQueryMutation("/settings/drugs/add");
-    const {trigger: triggerDrugsUpdate} = useRequestQueryMutation("/settings/drugs/update");
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
