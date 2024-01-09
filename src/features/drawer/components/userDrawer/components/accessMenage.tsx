@@ -1,4 +1,4 @@
-import {DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, Theme, useTheme} from "@mui/material";
+import {Box, DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, Theme, useTheme} from "@mui/material";
 import {
     Toolbar,
     Stack,
@@ -20,6 +20,10 @@ import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import CloseIcon from '@mui/icons-material/Close';
 import {NoDataCard} from "@features/card";
+import {Otable} from "@features/table";
+import {TableHead} from "@features/calendar";
+import {appointmentGroupByDate} from "@lib/hooks";
+import {DesktopContainer} from "@themes/desktopConainter";
 
 const CardData = {
     mainIcon: "ic-user",
@@ -30,7 +34,6 @@ const CardData = {
 function AccessMenage({...props}) {
     const {t} = props;
     const {data: session} = useSession();
-    const theme = useTheme();
 
     const {direction} = useAppSelector(configSelector);
 
@@ -44,6 +47,20 @@ function AccessMenage({...props}) {
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const TableHead = [
+        {
+            id: "name",
+            label: "name",
+            align: "left",
+            sortable: true,
+        },
+        {
+            id: "action",
+            label: "action",
+            align: "right",
+            sortable: false,
+        },
+    ];
 
     const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
     const {data: httpProfilesResponse, mutate,} = useRequestQuery({
@@ -81,6 +98,10 @@ function AccessMenage({...props}) {
         })
     }
 
+    const handleTableEvent = (action: string, data: any, backgroundDoc: boolean) => {
+
+    }
+
     return (
         <AccessMenageStyled spacing={2} height={1}>
             <Toolbar>
@@ -102,47 +123,58 @@ function AccessMenage({...props}) {
                     </Button>
                 </Stack>
             </Toolbar>
-            {profiles?.length === 0 && !mainLoading ?
-                <Stack height={1} alignItems="center" justifyContent="center">
-                    <NoDataCard t={t} ns={"settings"} data={CardData}/>
-                </Stack>
-                :
-                <List>
-                    {(mainLoading ? Array.from({length: 5}) : profiles)?.map((item: any, i: number) => (
-                        <ListItem key={item ? item.uuid : i}>
-                            {
-                                !item ? <Skeleton width={100}/> : <Typography>{item.name}</Typography>
-                            }
-                            <Stack spacing={0.5} ml="auto" direction="row" alignItems="center">
-                                {
-                                    !item ? <Skeleton width={25} height={40}/> : (
-                                        <IconButton
-                                            onClick={() => {
-                                                setSelected(item);
-                                                setInfo("add-new-role");
-                                                setOpen(true);
-                                            }}
-                                            size="small"
-                                            disableRipple>
-                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
-                                        </IconButton>
-                                    )}
+            <Box className="container">
+                <DesktopContainer>
+                    {profiles?.length === 0 && !mainLoading ?
+                        <Stack height={1} alignItems="center" justifyContent="center">
+                            <NoDataCard t={t} ns={"settings"} data={CardData}/>
+                        </Stack>
+                        :
+                        <Otable
+                            {...{t}}
+                            headers={TableHead}
+                            handleEvent={handleTableEvent}
+                            rows={profiles}
+                            from={"profile"}
+                        />}
+                </DesktopContainer>
+            </Box>
+            {/*<List>
+            {(mainLoading ? Array.from({length: 5}) : profiles)?.map((item: any, i: number) => (
+                <ListItem key={item ? item.uuid : i}>
+                    {
+                        !item ? <Skeleton width={100}/> : <Typography>{item.name}</Typography>
+                    }
+                    <Stack spacing={0.5} ml="auto" direction="row" alignItems="center">
+                        {
+                            !item ? <Skeleton width={25} height={40}/> : (
+                                <IconButton
+                                    onClick={() => {
+                                        setSelected(item);
+                                        setInfo("add-new-role");
+                                        setOpen(true);
+                                    }}
+                                    size="small"
+                                    disableRipple>
+                                    <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                </IconButton>
+                            )}
 
-                                {
-                                    !item ? <Skeleton width={25} height={40}/> :
-                                        (<IconButton
-                                                className={"delete-icon"}
-                                                onClick={() => onDelete(item)}
-                                                size="small"
-                                                disableRipple>
-                                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
-                                            </IconButton>
-                                        )
-                                }
-                            </Stack>
-                        </ListItem>
-                    ))}
-                </List>
+                        {
+                            !item ? <Skeleton width={25} height={40}/> :
+                                (<IconButton
+                                        className={"delete-icon"}
+                                        onClick={() => onDelete(item)}
+                                        size="small"
+                                        disableRipple>
+                                        <IconUrl color={theme.palette.error.main} path="ic-trash"/>
+                                    </IconButton>
+                                )
+                        }
+                    </Stack>
+                </ListItem>
+            ))}
+        </List>*/
             }
             <CustomDialog
                 action={info}
@@ -157,7 +189,7 @@ function AccessMenage({...props}) {
                 }}
                 {...(info === "add-new-role" && {
                     title: t("add_a_new_role"),
-                    size: "md",
+                    size: "lg",
                     sx: {py: 0},
                     dialogClose: () => setOpen(false),
                 })}

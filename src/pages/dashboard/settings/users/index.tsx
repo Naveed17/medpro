@@ -282,7 +282,7 @@ function Users() {
                 open={open}
                 dir={direction}
                 onClose={closeDraw}>
-                <AccessMenage t={t}/>
+                <AccessMenage {...{t}}/>
             </Drawer>
             <Dialog PaperProps={{
                 sx: {

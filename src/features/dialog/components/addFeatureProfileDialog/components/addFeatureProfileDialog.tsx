@@ -226,7 +226,7 @@ function AddFeatureProfileDialog({...props}) {
                                 {...getFieldProps("description")}
                                 placeholder={t("users.dialog.description_placeholder")}
                                 multiline
-                                rows={4}
+                                rows={1}
                             />
                             <FormControlLabel
                                 control={<Switch {...getFieldProps("is_standard")} checked={values.is_standard}/>}

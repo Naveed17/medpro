@@ -23,17 +23,24 @@ import {TreeCheckbox} from "@features/treeViewCheckbox";
 import {useSnackbar} from "notistack";
 import {usePermissions} from "@lib/hooks/rest";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {FeaturePermissionsCard} from "@features/card";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 function AddNewRoleDialog({...props}) {
     const {data: {selected, handleMutate, handleClose}} = props;
     const {enqueueSnackbar} = useSnackbar();
     const {permissions: allPermissions} = usePermissions();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {data: session} = useSession();
 
     const {t} = useTranslation(["settings", "common"]);
 
     const [loading, setLoading] = useState(false);
     const [permissions, setPermissions] = useState<any>([]);
+
+    const {data: user} = session as Session;
+    const features = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
     const {trigger: triggerProfileCreate} = useRequestQueryMutation("/profile/create");
     const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
@@ -75,6 +82,7 @@ function AddNewRoleDialog({...props}) {
             description: selected ? selected?.description : "",
             is_standard: selected ? selected?.is_standard ?? true : true,
             permissions,
+            roles: []
         },
         onSubmit: async (values) => {
             setLoading(true);
@@ -241,31 +249,14 @@ function AddNewRoleDialog({...props}) {
                                 {...getFieldProps("description")}
                                 placeholder={t("users.dialog.description_placeholder")}
                                 multiline
-                                rows={4}
+                                rows={2}
                             />
                             <FormControlLabel
                                 control={<Switch {...getFieldProps("is_standard")} checked={values.is_standard}/>}
                                 label={t("users.dialog.is_standard")}/>
                         </Stack>
                         <Box className="permissions-wrapper">
-                            <Typography gutterBottom>{t("users.dialog.select_permissions")}</Typography>
-                            <Card>
-                                <Box py={1} px={2}>
-                                    {allPermissions ?
-                                        <FormControlLabel
-                                            className="bold-label"
-                                            control={<Checkbox onChange={handleToggleAllSelect}/>}
-                                            label={t("users.dialog.select_all")}
-                                            checked={allValuesTrue}
-                                        />
-                                        : <Stack direction="row" spacing={2} alignItems="center">
-                                            <Skeleton width={22} height={35}/>
-                                            <Skeleton width={120}/>
-                                        </Stack>
-                                    }
-                                </Box>
-                                <TreeCheckbox data={values.permissions} onNodeCheck={handleNodeCheck} t={t}/>
-                            </Card>
+                            <FeaturePermissionsCard {...{t, features, values, getFieldProps, setFieldValue}}/>
                         </Box>
                     </RootStyled>
 
@@ -291,7 +282,7 @@ function AddNewRoleDialog({...props}) {
                             loadingPosition={"start"}
                             type="submit"
                             variant="contained"
-                            startIcon={<IconUrl path="ic-dowlaodfile"/>}>
+                            startIcon={<IconUrl path="iconfinder_save"/>}>
                             {t("users.dialog.save")}
                         </LoadingButton>
                     </Stack>

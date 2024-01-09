@@ -21,8 +21,8 @@ const instanceAxios = (() => {
 
 instanceAxios.interceptors.response.use((response) => response, (error) => {
     // whatever you want to do with the error
-    switch (error.response?.data?.code) {
-        case 4000:
+    switch (error.response?.status) {
+        case 401:
             console.log("fin session");
             break;
     }

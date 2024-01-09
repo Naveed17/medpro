@@ -189,7 +189,7 @@ const rowsActionsData = [
             )
         ),
     },
-     {
+    {
         action: "paid-consultation",
         component: dynamic((): any =>
             import("@features/table/components/rows/paidConsultRow").then(
@@ -197,7 +197,7 @@ const rowsActionsData = [
             )
         ),
     },
-     {
+    {
         action: "analysis",
         component: dynamic((): any =>
             import("@features/table/components/rows/analysisRow").then(
@@ -205,10 +205,18 @@ const rowsActionsData = [
             )
         ),
     },
-     {
+    {
         action: "drugs",
         component: dynamic((): any =>
             import("@features/table/components/rows/drugsRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "profile",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/profileRow").then(
                 (mod) => mod
             )
         ),
