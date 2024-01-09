@@ -27,7 +27,8 @@ const PageStyled = styled(Box)(({theme}) => ({
         '& .page': {
             boxShadow: "0 0 6px #ccc",
             background: "white",
-            marginBottom: 10
+            marginBottom: 10,
+            border:"1px solid white"
         },
         '& .a4': {
             width: PWIDTH_A4,
@@ -67,11 +68,11 @@ const PageStyled = styled(Box)(({theme}) => ({
             borderRadius: 5
         },
         "@media print": {
-            "& .dropzone":{margin: 0},
+            "& .dropzone": {margin: 0},
             "& .a5": {
                 margin: 0,
                 boxShadow: "none",
-                border:0,
+                border: 0,
             },
             "& .a4": {
                 margin: 0,
@@ -89,13 +90,13 @@ const PageStyled = styled(Box)(({theme}) => ({
                 zoom: 1
             },
             "& .notSelected": {
-                border:0
+                border: 0
             },
             "& .menuTop": {
-                visibility:"hidden"
+                visibility: "hidden"
             },
             "& .menu": {
-                visibility:"hidden"
+                visibility: "hidden"
             }
         },
         "& .menu": {
@@ -104,7 +105,7 @@ const PageStyled = styled(Box)(({theme}) => ({
             right: 5,
             background: theme.palette.info.main,
             padding: 10,
-            borderRadius:5,
+            borderRadius: 5,
         },
         "& .menuTop": {
             position: "absolute",
@@ -123,35 +124,24 @@ const PageStyled = styled(Box)(({theme}) => ({
             display: "flex",
             alignItems: "center"
         },
-
-        "& .dropzone":{
-            width:"fit-content",
+        "& .dropzone": {
+            width: "fit-content",
             margin: "auto",
         },
+
         "& .drop-active": {
             borderColor: "#aaa"
         },
 
-        "& .drop-target": {
+        "& .dropTarget": {
             backgroundColor: "#29e",
             borderColor: "#fff",
             borderStyle: "solid"
         },
 
         "& .drag-drop": {
-            display: "inline-block",
-            minWidth: 40,
-            padding: "2em 0.5em",
-            margin: " 1rem 0 0 1rem",
-
-            color: "#fff",
-            backgroundColor: "#29e",
-            border: "solid 2px #fff",
-
-            touchAction: "none",
-            transform: "translate(0px, 0px)",
-
-            transition: "background-color 0.3s"
+            height:10,
+            widget:10,
         },
 
         "& .can-drop": {

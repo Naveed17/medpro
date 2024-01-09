@@ -116,6 +116,7 @@ function DocumentDetailDialog({...props}) {
     const [sendEmailDrawer, setSendEmailDrawer] = useState(false);
     const [previewDoc, setPreviewDoc] = useState<any>(null);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [onReSize, setOnResize] = useState(true)
 
     const {direction} = useAppSelector(configSelector);
 
@@ -225,6 +226,7 @@ function DocumentDetailDialog({...props}) {
                 ...selected.header.data,
                 background: {show: selected.header.data.background.show, content: selected.file ? selected.file : ''}
             })
+            setOnResize(true)
             setHeader(selected.header.header)
             setOpenAlert(false);
             setTimeout(() => {
@@ -596,24 +598,28 @@ function DocumentDetailDialog({...props}) {
     const generatedDocsNode = generatedDocs.some(doc => doc === state?.type) &&
         <div>
 
+
             {loading ? <div className={data.size ? data.size : "portraitA5"}></div> :
-                <Box ref={previewDocRef}><Doc {...{
-                    data,
-                    setData,
-                    header,setHeader,
-                    date,
-                    state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
-                        ...state,
-                        info: [{
-                            fees: state?.consultationFees,
-                            hiddenData: true,
-                            act: {
-                                name: "Consultation",
-                            },
-                            qte: 1
-                        }]
-                    } : state
-                }}/></Box>}
+                <Box ref={previewDocRef}>
+                    <Doc {...{
+                        data,
+                        setData,
+                        header,setHeader,
+                        date,
+                        onReSize,setOnResize,
+                        state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
+                            ...state,
+                            info: [{
+                                fees: state?.consultationFees,
+                                hiddenData: true,
+                                act: {
+                                    name: "Consultation",
+                                },
+                                qte: 1
+                            }]
+                        } : state
+                    }}/>
+                </Box>}
             {/* {!loading && <PreviewA4
                 {...{
                     previewDocRef,

@@ -6,15 +6,19 @@ import Icon from "@themes/urlIcon";
 import {useTheme} from "@mui/material";
 import {DocHeader} from "@features/files";
 import {DocHeaderEditor} from "@features/files/components/docHeaderEditor";
+import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
+import {Editor} from "@tinymce/tinymce-react";
 
 function Page({...props}) {
 
-    const {data, setData, state, id = 0, onReSize, setOnResize, date, title, header, setHeader} = props
+    const {data, setData, state, id = 0, setOnResize, date, title, header, setHeader} = props
 
     const theme = useTheme();
 
     const [selectedElement, setSelectedElement] = useState("")
     const [blockDrag, setBlockDrag] = useState(false)
+    const [resizeContent, setResizeContent] = useState(false)
+    const [backgroundImg, setBackgroundImg] = useState<string | null>(null);
 
     useEffect(() => {
         if (selectedElement !== "") {
@@ -37,67 +41,42 @@ function Page({...props}) {
                 })
         }
 
-        interact('.dropzone').dropzone({
-            // only accept elements matching this CSS selector
-            accept: '#yes-drop',
-            // Require a 75% element overlap for a drop to be possible
-            overlap: 0.75,
-
-            // listen for drop related events:
-
-            ondropactivate: function (event) {
-                // add active dropzone feedback
-                event.target.classList.add('drop-active')
-            },
-            ondragenter: function (event) {
-                var draggableElement = event.relatedTarget
-                var dropzoneElement = event.target
-
-                // feedback the possibility of a drop
-                dropzoneElement.classList.add('drop-target')
-                draggableElement.classList.add('can-drop')
-                draggableElement.textContent = 'Dragged in'
-            },
-            ondragleave: function (event) {
-                // remove the drop feedback style
-                event.target.classList.remove('drop-target')
-                event.relatedTarget.classList.remove('can-drop')
-                event.relatedTarget.textContent = 'Dragged out'
-            },
-            ondrop: function (event) {
-                event.relatedTarget.textContent = 'Dropped'
-            },
-            ondropdeactivate: function (event) {
-                // remove active dropzone feedback
-                event.target.classList.remove('drop-active')
-                event.target.classList.remove('drop-target')
-            }
-        })
-        /* interact('.drag-drop')
-             .draggable({
-                 inertia: true,
-                 modifiers: [
-                     interact.modifiers.restrictRect({
-                         restriction: 'parent',
-                         endOnly: true
-                     })
-                 ],
-                 autoScroll: true,
-                 // dragMoveListener from the dragging demo above
-                 listeners: { move: dragMoveListener }
-             })*/
+        const footer = document.getElementById('footer')
+        if (footer && data.footer) {
+            footer.innerHTML = data.footer.content;
+        }
     }, [data, blockDrag, selectedElement]) // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (data.background.show && data.background.content !== '') {
+            if (data.background.content.thumbnails)
+                setBackgroundImg(data.background.content.url)
+            else
+                fetch(data.background.content.url).then(response => {
+                    response.blob().then(blob => {
+                        setBackgroundImg(URL.createObjectURL(blob));
+                    })
+                })
+        }
+    }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <PageStyled>
             <div className={"dropzone"} id="inner-dropzone">
                 <div
+                    style={{
+                        ...(data.background.show && data.background.content !== '' && id === 0 && backgroundImg && {
+                            backgroundImage: `url(${backgroundImg})`,
+                            backgroundRepeat: "no-repeat",
+                            backgroundSize: "100% 100%"
+                        })
+                    }}
                     className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
                     {/*Header*/}
                     {
                         data.header.show && <Resizable
                             defaultSize={{
-                                width: `${data.header.width ? data.header.width + "px" : 300}`,
+                                width: `${data.header.width ? data.header.width + "px" : "100%"}`,
                                 height: "fit-content",
                             }}
                             className={`${selectedElement === "header" ? "selected" : "notSelected"} header`}
@@ -151,7 +130,7 @@ function Page({...props}) {
                     {/*Title*/}
                     {data.title.show && <Resizable
                         defaultSize={{
-                            width: `${data.title.width ? data.title.width + "px" : 300}`,
+                            width: `${data.title.width ? data.title.width + "px" : "100%"}`,
                             height: "fit-content",
                         }}
                         className={`${selectedElement === "title" ? "selected" : "notSelected"} title`}
@@ -350,6 +329,7 @@ function Page({...props}) {
                     <Resizable
                         className={`${selectedElement === "content" ? "selected" : "notSelected"} content resizable`}
                         style={{
+                            paddingLeft: 15, paddingRight: 15,
                             transform: `translate(${data.content.x}px, ${data.content.y}px)`,
                             width: `${data.content.width ? data.content.width + "px" : "90%"}`,
                             height: `${data.content.maxHeight}px`
@@ -366,34 +346,40 @@ function Page({...props}) {
                         }}
                         onResizeStart={() => {
                             setBlockDrag(true)
+                            console.log("start")
+                            setResizeContent(true)
                         }}
                         onResizeStop={(e, direction, ref, d) => {
                             data.content.width = document.getElementById(`content${id}`)?.clientWidth
-                            data.content.maxHeight = document.getElementById(`content${id}`)?.clientHeight
-                           /* const _height = document.getElementById(`content${id}`)?.clientHeight
-                            if (id === 0)
-                                data.content.maxHeight = _height
-                            else {
-                                if (data.content.heightPages) {
-                                    let _page = data.content.heightPages.find(hp => hp.page === id)
-                                    if (_page)
-                                        _page.height = _height
-                                    else
-                                        data.content.heightPages.push({page: id, height: _height})
-                                } else data.content.heightPages = [{page: id, height: _height}]
-                            }*/
-                            setData({...data})
+                            const _height = document.getElementById(`content${id}`)?.clientHeight;
+
+                            if (data.content.pages) {
+                                const page = data.content.pages.find(page => page.id == id)
+                                if (page) {
+                                    page.x = data.content.x
+                                    page.y = data.content.y
+                                    page.height = _height
+                                } else data.content.pages.push({id,x:data.content.x,y:data.content.y,height:_height})
+                            } else {
+                                data.content.pages = [{id,x:data.content.x,y:data.content.y,height:_height}]
+                            }
+
+                            data.content.maxHeight = _height;
+                            console.log(data.content)
                             setBlockDrag(false)
                             setOnResize(true);
+                            setTimeout(() => {
+                                setResizeContent(false)
+                            }, 1000)
                         }}>
 
-                        {blockDrag && <div style={{paddingLeft: 15, paddingRight: 15}}
-                                           dangerouslySetInnerHTML={{__html: state && state.content ? state.content : data.content.content}}></div>}
+                        {resizeContent && <div style={{marginTop: -14 - id * data.content.maxHeight}}
+                                               dangerouslySetInnerHTML={{__html: state && state.content ? state.content : data.content.content}}></div>}
 
                         <canvas id={`content${id}`} style={{
                             width: "100%",
                             height: "100%",
-                            visibility: blockDrag ? "hidden" : "visible"
+                            visibility: resizeContent ? "hidden" : "visible"
                         }}></canvas>
 
 
@@ -406,6 +392,72 @@ function Page({...props}) {
                             </div>
                         </div>
                     </Resizable>
+
+                    {/*footer*/}
+                    {data.footer.show && <Resizable
+                        defaultSize={{
+                            width: `${data.footer.width ? data.footer.width + "px" : 300}`,
+                            height: "fit-content",
+                        }}
+                        className={`${selectedElement === "footer" ? "selected" : "notSelected"} footer`}
+                        style={{
+                            transform: `translate(${data.footer.x}px, ${data.footer.y}px)`,
+                            width: `${data.footer.width ? data.footer.width + "px" : "fit-content"}`,
+                            height: `fit-content`
+                        }}
+                        bounds={"parent"}
+                        enable={{
+                            right: selectedElement === "footer",
+                        }}
+                        onResizeStart={() => {
+                            setBlockDrag(true)
+                        }}
+                        onResizeStop={(e, direction, ref, d) => {
+                            data.footer.width = document.getElementById(`footer${id}`)?.clientWidth
+                            data.footer.maxHeight += d.height
+                            setData({...data})
+                            setBlockDrag(false)
+                        }}>
+
+                        <div id={`patient${id}`} onClick={(ev) => {
+                            ev.stopPropagation()
+                            setSelectedElement("footer")
+                        }}>
+                            {selectedElement === "footer" ? <Editor
+                                value={data.footer.content}
+                                apiKey={process.env.EDITOR_KEY}
+                                onEditorChange={(res) => {
+                                    data.footer.content = res;
+                                    setData({...data});
+                                }}
+                                init={{
+                                    branding: false,
+                                    statusbar: false,
+                                    menubar: false,
+                                    plugins: tinymcePlugins,
+                                    toolbar: tinymceToolbar,
+                                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+
+                                }}
+                            /> : <div id={"footer"} className={"footer-st"}/>}
+                        </div>
+                        <div className={"menuTop"}>
+                            <div className={"btnMenu"}
+                                 onClick={() => {
+                                     data.footer.show = false;
+                                     setData({...data})
+                                 }}>
+                                <Icon path={"ic-delete"}/>
+                            </div>
+                            <div className={"btnMenu"}
+                                 style={{backgroundColor: selectedElement === "footer" ? theme.palette.success.main : theme.palette.info.main}}
+                                 onClick={() => {
+                                     setSelectedElement(selectedElement !== "footer" ? "footer" : "")
+                                 }}>
+                                <Icon path={selectedElement !== "footer" ? "ic-edit-patient" : "ic-check"}/>
+                            </div>
+                        </div>
+                    </Resizable>}
                 </div>
             </div>
         </PageStyled>

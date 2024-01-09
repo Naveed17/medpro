@@ -3,7 +3,6 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
 import {configSelector, DashLayout} from "@features/base";
 import {useTranslation} from "next-i18next";
-import {useFormik} from "formik";
 import {
     Box,
     Button,
@@ -14,6 +13,7 @@ import {
     FormControl,
     Grid,
     IconButton,
+    LinearProgress,
     MenuItem,
     Stack,
     TextField,
@@ -43,9 +43,10 @@ import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownR
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import {LoadingScreen} from "@features/loadingScreen";
 import {Doc} from "@features/page";
-import CropLandscapeIcon from '@mui/icons-material/CropLandscape';
-import CropPortraitIcon from '@mui/icons-material/CropPortrait';
 import IconUrl from "@themes/urlIcon";
+import Icon from "@themes/urlIcon";
+import PageStyled from "@features/page/components/overrides/pageStyled";
+import {UploadFile} from "@features/uploadFile";
 
 function DocsConfig() {
     const router = useRouter();
@@ -68,30 +69,33 @@ function DocsConfig() {
     const [propsModel, setPropsModel] = useState(false);
     const [elDoc, setElDoc] = useState(true);
     const [loading, setLoading] = useState(true);
-    const [header, setHeader] = useState(null);
+    const [header, setHeader] = useState<any>(null);
     const [selected, setSelected] = useState<any>();
     const [docHeader, setDocHeader] = useState<DocTemplateModel | null>(null);
     const [data, setData] = useState<any>({
         background: {show: false, content: {url: ''}},
-        header: {show: true, x: 0, y: 0},
-        footer: {show: false, x: 0, y: 900, content: ''},
-        title: {show: true, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
-        date: {show: true, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right"},
-        patient: {show: true, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
+        header: {show: false, x: 0, y: 0},
+        footer: {show: false, x: 0, y: 400, content: 'change me ...'},
+        title: {show: false, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
+        date: {show: false, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right"},
+        patient: {show: false, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
         cin: {show: false, prefix: 'CIN : ', content: '', x: 40, y: 274},
-        age: {show: true, prefix: 'AGE:', content: '', x: 40, y: 316},
+        age: {show: false, prefix: 'AGE:', content: '', x: 40, y: 316},
         size: 'portraitA4',
         content: {
             show: true,
-            maxHeight: 600,
-            heightPages:[],
+            maxHeight: 100,
+            heightPages: [],
             maxWidth: 130,
-            content: '<p>[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]</p>',
+            content: '<p>[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]</p><p>A</p><p>B</p>',
             x: 0,
             y: 320
         }
     })
     const [queryState, setQueryState] = useState<any>({type: []});
+    const [files, setFiles] = useState<any[]>([]);
+    const [onReSize, setOnResize] = useState(true)
+
     const uuid = router.query.uuid;
 
     const selectedAll = queryState.type.length === types?.length;
@@ -108,7 +112,6 @@ function DocsConfig() {
         method: "GET",
         url: `/api/private/document/types/${router.locale}`
     }, {variables: {query: "?is_active=0"}});
-
 
     const handleInsuranceChange = (gTypes: any[]) => {
         setQueryState({
@@ -186,13 +189,26 @@ function DocsConfig() {
         handleInsuranceChange(insurances.type);
     }
 
-    useEffect(() => {
-        if (httpDocumentHeader)
-            setDocHeader((httpDocumentHeader as HttpResponse).data.find((res: { uuid: string }) => res.uuid === uuid))
+    const handleDrop = React.useCallback((acceptedFiles: File[]) => {
+            let reader = new FileReader();
+            reader.onload = (ev) => {
+                data.background.content.url = (ev.target?.result as string)
+                data.background.show = true;
+                setData({...data})
+            }
+            reader.readAsDataURL(acceptedFiles[0]);
+            setFile(acceptedFiles[0]);
+            setFiles([...files, ...acceptedFiles]);
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [files]
+    );
 
-        setTimeout(() => {
-            setLoading(false)
-        }, 3000);
+
+    useEffect(() => {
+        if (httpDocumentHeader) {
+            setDocHeader((httpDocumentHeader as HttpResponse).data.find((res: { uuid: string }) => res.uuid === uuid))
+        }
     }, [httpDocumentHeader, uuid])
 
     useEffect(() => {
@@ -205,6 +221,7 @@ function DocsConfig() {
                 type: (dh.types)
             });
             const _header = dh.header.header
+            console.log("header", _header)
             setHeader(_header)
 
             const data = dh.header.data
@@ -223,16 +240,16 @@ function DocsConfig() {
             }
 
             setTimeout(() => {
-                setLoading(false)
-            }, 1000)
-
-            setTimeout(() => {
                 const footer = document.getElementById('footer');
                 if (footer && data.footer) footer.innerHTML = data.footer.content
             }, 1200)
 
-        }
+        } else
+            setHeader({left1: "", left2: "", left3: "", right1: "", right2: "", right3: ""})
         // eslint-disable-next-line react-hooks/exhaustive-deps
+
+        setLoading(false)
+
     }, [docHeader])
 
     useEffect(() => {
@@ -243,7 +260,8 @@ function DocsConfig() {
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
-        <>
+        <PageStyled>
+
             <SubHeader>
                 <RootStyled>
                     <p style={{margin: 0}}>{`${t("path")} > ${uuid === 'new' ? 'Créer document' : 'Modifier document'}`}</p>
@@ -267,7 +285,8 @@ function DocsConfig() {
 
             <Grid container>
                 <Grid item xs={12} md={3}>
-                    <Box padding={2} style={{background: "white", height: "81vh", overflowX: "auto"}}>
+                    <Box id={"slide"} padding={2} style={{background: "white", height: "81vh", overflowX: "auto"}}>
+
                         <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}
                                onClick={() => setPropsModel(!propsModel)}>
                             <Typography fontSize={16} style={{cursor: "default"}}
@@ -339,36 +358,42 @@ function DocsConfig() {
                                     <Button onClick={() => {
                                         data.size = "portraitA4";
                                         data.content.width = "90%"
+                                        setOnResize(true)
                                         setData({...data})
                                     }}>
-                                        <Typography
-                                            color={data.size === "portraitA4" ? "primary" : "inherit"}>A4</Typography>
+                                        <Typography fontSize={12} fontWeight={"bold"}
+                                                    color={data.size === "portraitA4" ? "primary" : theme.palette.grey["400"]}>A4</Typography>
                                     </Button>
                                     <Button onClick={() => {
                                         data.size = "portraitA5";
                                         data.content.width = "90%"
+                                        setOnResize(true)
                                         setData({...data})
                                     }}>
-                                        <Typography
-                                            color={data.size === "portraitA5" ? "primary" : "inherit"}>A5</Typography>
+                                        <Typography fontSize={12} fontWeight={"bold"}
+                                                    color={data.size === "portraitA5" ? "primary" : theme.palette.grey["400"]}>A5</Typography>
                                     </Button>
                                 </ButtonGroup>
                                 <ButtonGroup color={"info"} variant="outlined" aria-label="outlined button group">
                                     <Button onClick={() => {
                                         data.layout = "";
                                         data.content.width = "90%"
+                                        setOnResize(true)
                                         setData({...data})
                                     }}>
-                                        <CropPortraitIcon
-                                            color={data.layout === undefined || data.layout === "" ? "primary" : "inherit"}/>
+                                        <IconUrl path={"Portrait"}
+                                                 color={data.layout === undefined || data.layout === "" ? theme.palette.primary.main : theme.palette.grey["400"]}/>
                                     </Button>
                                     <Button onClick={() => {
                                         data.layout = "landscape";
                                         data.content.width = "90%"
+                                        setOnResize(true)
                                         setData({...data})
                                     }}>
-                                        <CropLandscapeIcon color={data.layout === "landscape" ? "primary" : "inherit"}/>
+                                        <IconUrl path={"Landscape"}
+                                                 color={data.layout === "landscape" ? theme.palette.primary.main : theme.palette.grey["400"]}/>
                                     </Button>
+
                                 </ButtonGroup>
                             </Stack>
 
@@ -398,39 +423,52 @@ function DocsConfig() {
 
                         <Collapse in={elDoc} style={{paddingTop: 10}}>
                             <Typography mb={2}>{t('bg')}</Typography>
-                            <Button onClick={() => {
-                            }}
-                                    variant="outlined"
-                                    color="info"
-                                    startIcon={<IconUrl path="ic-gallery" width={20} height={20}/>}>
-                                {t("upload_document")}
-                            </Button>
-                            <Typography mt={2} mb={2}>{t('section')}</Typography>
 
+                            <UploadFile
+                                files={files}
+                                accept={{'image/jpeg': ['.png', '.jpeg', '.jpg']}}
+                                onDrop={handleDrop}
+                                singleFile={true}/>
+
+                            {data.background.show &&
+                                <div className={"btnMenu"} style={{margin: "10px 0 -40px auto"}} onClick={() => {
+                                    data.background.show = false;
+                                    setData({...data})
+                                }}>
+                                    <Icon path={"ic-delete"}/>
+                                </div>}
+                            {data.background.show &&
+                                <div style={{width: "fit-content", margin: "20px auto", boxShadow: "0 0 6px #ccc"}}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img style={{width: 120}} src={data.background.content.url} alt={""}/>
+                                </div>}
+
+                            <Typography mt={2} mb={2}>{t('section')}</Typography>
 
                             <Grid
                                 container
                                 spacing={1}
                                 alignItems="center">
-                                {data && Object.keys(data).filter(key => !["content","size","background"].includes(key)).map(key => (
-                                    <Grid key={key} item xs={6} >
-                                        <div id="yes-drop" style={{opacity:data[key].show === true ? 0.5 : 1}}>
-                                            <Stack draggable="true"
-                                                   direction={"row"}
-                                                   spacing={1}
-                                                   alignItems={"center"}
-                                                   onClick={()=>{
-                                                       data[key].show = true
-                                                       setData({...data})
-                                                   }}
-                                                   style={{
-                                                       backgroundColor: "#F0FAFF",
-                                                       height: 40,
-                                                       padding: 10,
-                                                       borderRadius: 6
-                                                   }}>
-                                                <IconUrl path={"ic-drag"}/>
+                                {data && Object.keys(data).filter(key => !["content", "size", "background"].includes(key)).map(key => (
+                                    <Grid key={key} item xs={6}>
+                                        <div style={{opacity: data[key].show === true ? 0.5 : 1}}>
+                                            <Stack
+                                                direction={"row"}
+                                                spacing={1}
+                                                alignItems={"center"}
+                                                onClick={() => {
+                                                    data[key].show = true
+                                                    setData({...data})
+                                                }}
+                                                style={{
+                                                    backgroundColor: "#F0FAFF",
+                                                    height: 40,
+                                                    padding: 10,
+                                                    borderRadius: 6
+                                                }}>
                                                 <Typography textAlign={"center"} width={"100%"}>{t(key)}</Typography>
+                                                <IconUrl path={"ic-plus"} width={20} height={20}/>
+
                                             </Stack>
                                         </div>
                                     </Grid>))}
@@ -441,15 +479,18 @@ function DocsConfig() {
                 </Grid>
 
                 <Grid item xs={12} md={9}>
+                    {loading && <LinearProgress/>}
+
                     <Box style={{height: "81vh", overflowX: "auto"}}>
                         <Button onClick={printNow}>PRINT</Button>
-                        {!loading && <Box ref={componentRef}>
-                            <Doc {...{data, setData, state: undefined,header,setHeader}}/>
-                        </Box>}
+                        <Box ref={componentRef}>
+                            {!loading &&
+                                <Doc {...{data, setData, state: undefined, header, setHeader, onReSize, setOnResize}}/>}
+                        </Box>
                     </Box>
                 </Grid>
 
-{/*
+                {/*
                 <Grid item xs={12} md={2} padding={2} style={{background:"white"}}>
                     <Stack spacing={1}>
                         <Typography fontSize={16} fontWeight={"bold"}>Pages</Typography>
@@ -514,7 +555,7 @@ function DocsConfig() {
                     </DialogActions>
                 }
             />
-        </>
+        </PageStyled>
     );
 }
 

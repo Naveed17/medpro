@@ -3,7 +3,7 @@ import {TextField} from "@mui/material";
 
 function DocHeaderEditor({...props}) {
     const {header, setHeader} = props;
-    console.log(header)
+
     return (
         <>
             {header && <div style={{display: "grid", gridTemplateColumns: 'repeat(2, 1fr)', padding: 10}}>

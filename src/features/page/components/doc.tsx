@@ -5,15 +5,16 @@ import {prescriptionPreviewDosage} from "@lib/hooks";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import PageStyled from "@features/page/components/overrides/pageStyled";
+import {Box} from "@mui/material";
 
 function Doc({...props}) {
 
     const [pages, setPages] = useState<string[]>([])
-    const [onReSize, setOnResize] = useState(true)
     const [title, setTitle] = useState("Titre");
+    const [loading, setLoading] = useState(true);
 
-    const {data, setData, state, date,header,setHeader} = props
-
+    const {data, setData, state, date,header,setHeader,onReSize,setOnResize} = props
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -124,17 +125,19 @@ function Doc({...props}) {
         if (pages.length > 0) {
             const resizable = document.getElementsByClassName('resizable');
             const contentDiv = document.getElementById("contentDiv")
+            const container = document.getElementById("containerx")
 
-            if (contentDiv) {
+            if (contentDiv && container) {
                 let canvasWidth = contentDiv.offsetWidth * 2; // Adjust this value as needed
                 let canvasHeight = data.content.maxHeight * 2; // Adjust this value as needed
 
-                var paragraphs = contentDiv.getElementsByTagName('p');
+                var paragraphs = container.getElementsByTagName('p');
                 for (let i = 0; i < paragraphs.length; i++) {
-                    paragraphs[i].style.margin = '15px'; // Ajustez cette valeur au besoin
+                    paragraphs[i].style.marginTop = paragraphs[i].style.fontSize ? paragraphs[i].style.fontSize + "px" :'14px'; // Ajustez cette valeur au besoin
+                    paragraphs[i].style.marginBottom = paragraphs[i].style.fontSize ? paragraphs[i].style.fontSize + "px" :'14px'; // Ajustez cette valeur au besoin
                 }
 
-                contentDiv.style.visibility = "visible"
+                container.style.visibility = "visible"
                 pages.map((_, index) => {
 
                     let canvas = document.getElementById(`content${index}`) as HTMLCanvasElement;
@@ -149,12 +152,13 @@ function Doc({...props}) {
                     if (data.content.width) {
                         const el = resizable[index] as HTMLElement;
                         el.style.width = `${data.content.width}px`;
-                        el.style.height = `${data.content.maxHeight}px`;
+                        el.style.height = `${data.content.maxHeight}px`; // ?
                     }
                 })
-                contentDiv.style.visibility = "hidden";
-                contentDiv.style.position = "absolute";
-                contentDiv.style.top = "0";
+                container.style.visibility = "hidden";
+                container.style.position = "absolute";
+                container.style.top = "0";
+                setLoading(false)
 
             }
         }
@@ -165,7 +169,7 @@ function Doc({...props}) {
     const splitContent = (content: string) => {
         const contentDiv = document.getElementById("contentDiv")
         if (contentDiv) {
-            const _width = data.content.width ? `${data.content.width}px` : document.getElementById(`content0`)?.clientWidth + "px";
+            const _width = data.content.width ? `${data.content.width}px` :  "90%";
             contentDiv.innerHTML = content;
             contentDiv.style.width = _width;
             const nbPage = Math.ceil(contentDiv.clientHeight / data.content.maxHeight);
@@ -173,17 +177,20 @@ function Doc({...props}) {
         }
     }
 
-
     return (
-        <>
+        <Box style={{visibility:loading ? "hidden":"visible"}}>
 
             {
                 pages.map((page, index) => (
                     <Page key={index} {...{data, setData, state, id: index, onReSize, setOnResize, date, title,header,setHeader}}/>
                 ))
             }
-            <div id={"contentDiv"} style={{visibility: "hidden"}}/>
-        </>
+            <PageStyled id={"containerx"} style={{visibility:"hidden"}} >
+                <div className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
+                    <div id={"contentDiv"}/>
+                </div>
+            </PageStyled>
+        </Box>
     )
 }
 

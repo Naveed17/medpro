@@ -364,7 +364,7 @@ function Consultation() {
                             }}>
                             {upperFirst(t("ficheID"))}{" "}
                             <span style={{
-                                fontWeight: "bold", maxWidth: 150, whiteSpace: "nowrap",
+                                fontWeight: "bold", maxWidth: 130, whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis"
                             }}>{patient?.fiche_id}</span>
