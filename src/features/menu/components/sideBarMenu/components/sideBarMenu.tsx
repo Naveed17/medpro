@@ -30,7 +30,7 @@ import {
     ListItemTextStyled,
     logout,
     MainMenuStyled,
-    MobileDrawerStyled, openNewFeaturesDialog,
+    MobileDrawerStyled,
     sideBarSelector,
     toggleMobileBar,
 } from "@features/menu";
@@ -213,7 +213,7 @@ function SideBarMenu({children}: LayoutProps) {
                     className={"custom-Badge"}
                     color={"error"} badgeContent={"N"}>
                     <ListItem
-                        onClick={() => dispatch(openNewFeaturesDialog(true))}
+                        //onClick={() => dispatch(openNewFeaturesDialog(true))}
                         disableRipple
                         button>
                         <ListItemIcon>
