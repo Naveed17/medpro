@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState, useEffect, memo, useRef} from "react";
+import React, {ReactElement, useState, memo, useRef} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
@@ -19,8 +19,7 @@ import {
     Checkbox,
     MenuItem,
     FormControl,
-    IconButton,
-    useTheme
+    IconButton
 } from "@mui/material";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
@@ -76,8 +75,6 @@ function NewUser() {
         url: `${urlMedicalEntitySuffix}/profile`
     }, ReactQueryNoValidateConfig);
 
-    const {trigger: profilePermissionsTrigger} = useRequestQueryMutation("/settings/profile/permissions/get");
-    const {trigger: deleteProfileTrigger} = useRequestQueryMutation("/settings/profile/delete");
     const {trigger: triggerUserAdd} = useRequestQueryMutation("/users/add");
 
     const validationSchema = Yup.object().shape({

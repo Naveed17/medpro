@@ -5,13 +5,10 @@ import RootStyled from "./overrides/rootStyle";
 import {
     Box,
     Button,
-    Card,
     Stack,
     TextField,
     FormControlLabel,
-    Checkbox,
     Switch,
-    Skeleton,
     Typography
 } from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
@@ -19,7 +16,6 @@ import IconUrl from "@themes/urlIcon";
 import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
-import {TreeCheckbox} from "@features/treeViewCheckbox";
 import {useSnackbar} from "notistack";
 import {usePermissions} from "@lib/hooks/rest";
 import {useMedicalEntitySuffix} from "@lib/hooks";
