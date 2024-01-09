@@ -349,7 +349,7 @@ function Page({...props}) {
                             console.log("start")
                             setResizeContent(true)
                         }}
-                        onResizeStop={(e, direction, ref, d) => {
+                        onResizeStop={() => {
                             data.content.width = document.getElementById(`content${id}`)?.clientWidth
                             const _height = document.getElementById(`content${id}`)?.clientHeight;
 

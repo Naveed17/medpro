@@ -33,7 +33,7 @@ function Doc({...props}) {
                         const child = document.createElement('p');
                         child.append()
                         elx += `<p>${index + 1} • ${el.standard_drug.commercial_name}</p>`
-                        el.cycles.map((cycle: any, index: number) => {
+                        el.cycles.map((cycle: any) => {
                             let val = cycle.dosage ? `- ${prescriptionPreviewDosage(cycle.dosage)}` : ''
                             if (cycle.duration)
                                 val += ` pendant ${cycle.duration} ${(cycle.durationType)}`
@@ -51,7 +51,7 @@ function Doc({...props}) {
                 case "requested-analysis":
                     const value = `<p>Prière de faire les explorations biologiques suivantes à ${state.patient} :</p>`
                     elx += value
-                    state.info.map((el: any, index: number) => {
+                    state.info.map((el: any) => {
                         elx += `<p>• ${el.analysis.name}</p>`
                         if (el.note) elx += `<p>• ${el.note}</p>`
                     })
@@ -61,7 +61,7 @@ function Doc({...props}) {
                 case "requested-medical-imaging":
                     const val = `<p>Prière de faire les explorations radiologiques suivantes à ${state.patient} :</p>`
                     elx += val
-                    state.info.map((el: any, index: number) => {
+                    state.info.map((el: any) => {
                         elx += `<p>• ${el['medical-imaging']?.name}</p>`
                         if (el.note) elx += `<p>• ${el.note}</p>`
                     })
@@ -78,7 +78,7 @@ function Doc({...props}) {
                                     <td>QTE</td>
                                     <td>TOTAL</td>
                                 </tr>`
-                    state.info.map((el: any, index: number) => {
+                    state.info.map((el: any) => {
                         total += el.qte * el.fees;
                         elx += `<tr>
                                         <td> ${el.act.name}</td>
@@ -111,6 +111,7 @@ function Doc({...props}) {
         if (state)
             if (state.info)
                 createPageContent()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state])
 
     useEffect(() => {
