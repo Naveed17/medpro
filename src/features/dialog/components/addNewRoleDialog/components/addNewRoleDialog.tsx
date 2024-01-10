@@ -63,11 +63,12 @@ function AddNewRoleDialog({...props}) {
             form.append("description", values.description);
             form.append("standard", values.is_standard.toString());
 
-            const features = values.roles.map(role => ({
-                [role?.feature]: {object: role?.featureUuid, featureProfile: role?.profileUuid}
-            }));
-            console.log(Object.assign({}, features))
-            form.append("features", JSON.stringify(Object.assign({}, features)));
+            const features: any = {};
+            values.roles.map(role => {
+                features[role?.feature] = {object: role?.featureUuid, featureProfile: role?.profileUuid}
+            });
+
+            form.append("features", JSON.stringify(features));
 
             triggerProfileUpdate({
                 method: selected ? "PUT" : "POST",
