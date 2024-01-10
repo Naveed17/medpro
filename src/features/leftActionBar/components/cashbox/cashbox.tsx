@@ -16,7 +16,6 @@ import {Box, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
 import {BoxesFilter, DateFilter} from "@features/leftActionBar/components/cashbox/overrides";
-import {dashLayoutSelector} from "@features/base";
 import {useInsurances} from "@lib/hooks/rest";
 
 
@@ -45,10 +44,9 @@ function Cashbox() {
     const [loadingInscurances, setLoadingInscurances] = useState(true);
     const [loadingPM, setLoadingPM] = useState(true);
 
-    const hours = agendaConfig?.openingHours[0];
+    const hours = agendaConfig?.openingHours && agendaConfig?.openingHours.length > 0 ? agendaConfig?.openingHours[0] : null;
 
-    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
-    const {insurances:insurancesList} =useInsurances();
+    const {insurances: insurancesList} = useInsurances();
 
     useEffect(() => {
         let boxes = '';

@@ -557,6 +557,11 @@
           "title": "Ajouter votre premier utilisateur",
           "description": "Gérer votre accès et créer votre première secrétaire",
           "button-text": "Ajouter un utilisateur"
+        },
+        "role": {
+          "title": "Ajouter votre premier profil",
+          "description": "Gérez votre accès et créez votre premier profil",
+          "button-text": "Ajouter un profil"
         }
       },
       "table": {

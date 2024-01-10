@@ -53,7 +53,7 @@ function UserRow({...props}) {
                 )}
             </TableCell>
             <TableCell align="center">
-                {row?.profile && <Select
+                <Select
                     size={"small"}
                     displayEmpty
                     value={row?.profile?.uuid ?? null}
@@ -82,7 +82,7 @@ function UserRow({...props}) {
                             {subItem.name}
                         </MenuItem>
                     ))}
-                </Select>}
+                </Select>
             </TableCell>
             <TableCell align="center">
                 {row ? !row?.isProfessional && <Switch
