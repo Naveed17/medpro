@@ -87,7 +87,7 @@ function CertifDialog({...props}) {
     const [deleteModelDialog, setDeleteModelDialog] = useState<boolean>(false);
     const [dialogAction, setDialogAction] = useState<string>("");
     const [openCertificateModelDialog, setOpenCertificateModelDialog] = useState(false);
-    const [height, setHeight] = React.useState(440);
+    const [height, setHeight] = React.useState(340);
     const [expanded, setExpanded] = useState(false);
     const [expandedAntecedent, setExpandedAntecedent] = useState(false);
     const [expandedMotif, setExpandedMotif] = useState(false);
@@ -418,7 +418,8 @@ function CertifDialog({...props}) {
     }, [httpDocumentHeader])
 
     useEffect(() => {
-        setHeight(fullScreen ? (window.innerHeight > 800 ? 680 : 440) : 340);
+        console.log(height)
+        setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 280) : 280);
     }, [fullScreen, window.innerHeight])  // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
