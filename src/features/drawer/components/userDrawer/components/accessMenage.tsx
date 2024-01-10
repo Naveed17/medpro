@@ -6,7 +6,7 @@ import {
     Button,
     Dialog
 } from "@mui/material";
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import IconUrl from "@themes/urlIcon";
 import AccessMenageStyled from "./overrides/accessMenageStyle";
 import {useAppSelector} from "@lib/redux/hooks";
@@ -21,12 +21,6 @@ import {NoDataCard} from "@features/card";
 import {Otable} from "@features/table";
 import {DesktopContainer} from "@themes/desktopConainter";
 
-const CardData = {
-    mainIcon: "ic-user",
-    title: "no-data.role.title",
-    description: "no-data.role.description",
-};
-
 function AccessMenage({...props}) {
     const {t} = props;
     const {data: session} = useSession();
@@ -34,7 +28,6 @@ function AccessMenage({...props}) {
     const {direction} = useAppSelector(configSelector);
 
     const [info, setInfo] = useState("");
-    const [profiles, setProfiles] = useState<any>([]);
     const [loading, setLoading] = useState(false);
     const [mainLoading, setMainLoading] = useState(false);
     const [open, setOpen] = useState(false);
@@ -58,22 +51,11 @@ function AccessMenage({...props}) {
         },
     ];
 
-    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
-    const {data: httpProfilesResponse, mutate,} = useRequestQuery({
+    const {data: httpProfilesResponse, mutate: mutateProfiles, isLoading: isProfilesLoading} = useRequestQuery({
         method: "GET",
         url: `/api/medical-entity/${medical_entity.uuid}/profile`
     });
-
-    useEffect(() => {
-        setMainLoading(true)
-        new Promise((resolve) => {
-            if (httpProfilesResponse) {
-                resolve(
-                    setProfiles((httpProfilesResponse as HttpResponse)?.data)
-                )
-            }
-        }).finally(() => setMainLoading(false))
-    }, [httpProfilesResponse])
+    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
 
     const onDelete = (props: any) => {
         setSelected(props);
@@ -89,7 +71,7 @@ function AccessMenage({...props}) {
             onSuccess: () => {
                 setLoading(false);
                 setDeleteDialog(false);
-                mutate();
+                mutateProfiles();
             }
         })
     }
@@ -97,6 +79,8 @@ function AccessMenage({...props}) {
     const handleTableEvent = (action: string, data: any, backgroundDoc: boolean) => {
 
     }
+
+    const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as ProfileModel[];
 
     return (
         <AccessMenageStyled spacing={2} height={1}>
@@ -123,7 +107,14 @@ function AccessMenage({...props}) {
                 <DesktopContainer>
                     {profiles?.length === 0 && !mainLoading ?
                         <Stack height={1} alignItems="center" justifyContent="center">
-                            <NoDataCard t={t} ns={"settings"} data={CardData}/>
+                            <NoDataCard
+                                {...{t}}
+                                ns={"settings"}
+                                data={{
+                                    mainIcon: "ic-user",
+                                    title: "no-data.role.title",
+                                    description: "no-data.role.description",
+                                }}/>
                         </Stack>
                         :
                         <Otable
@@ -141,7 +132,7 @@ function AccessMenage({...props}) {
                 open={open}
                 direction={direction}
                 data={{
-                    t, selected, handleMutate: mutate,
+                    t, selected, handleMutate: mutateProfiles,
                     handleClose: () => {
                         setOpen(false);
                         setSelected(null)
