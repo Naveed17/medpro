@@ -10,7 +10,8 @@ import {
     Tabs,
     tabsClasses,
     Tooltip,
-    Typography, useTheme,
+    Typography,
+    useTheme,
     Zoom,
 } from "@mui/material";
 import AppToolbarStyled from "./overrides/appToolbarStyle";
@@ -253,7 +254,7 @@ function AppToolbar({...props}) {
                         sx={{width: {xs: "30%", md: "30%"}}}>
                         <Button
                             sx={{minWidth: 35}}
-                            size={isMobile ? "small" : "medium"}
+                            size={"medium"}
                             onClick={handleClick}
                             variant="contained"
                             color="warning">
@@ -317,13 +318,13 @@ function AppToolbar({...props}) {
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">
-                        {tabsData.map((tab: { label: string; }) => (
+                        {tabsData.map((tab: { label: string; label_mobile: string }) => (
                             <Tab
                                 className="custom-tab"
                                 key={tab.label}
                                 value={tab.label}
                                 disabled={loading}
-                                label={t(tab.label)}
+                                label={t(isMobile ? tab.label_mobile : tab.label)}
                             />
                         ))}
                     </Tabs>
