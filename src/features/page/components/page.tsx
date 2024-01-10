@@ -362,6 +362,8 @@ function Page({...props}) {
                             data.content.width = document.getElementById(`content${id}`)?.clientWidth
                             const _height = document.getElementById(`content${id}`)?.clientHeight;
 
+                            if (id === 0)
+                                data.content.maxHeight = _height;
                             if (data.content.pages) {
                                 const page = data.content.pages.find((page: { id: number }) => page.id == id)
                                 if (page) {
