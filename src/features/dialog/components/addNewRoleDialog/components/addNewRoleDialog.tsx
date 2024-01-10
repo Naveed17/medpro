@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {Form, FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
 import RootStyled from "./overrides/rootStyle";
@@ -34,8 +34,6 @@ function AddNewRoleDialog({...props}) {
 
     const [loading, setLoading] = useState(false);
 
-
-    const {trigger: triggerProfileCreate} = useRequestQueryMutation("/profile/create");
     const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
 
     const RoleSchema = Yup.object().shape({

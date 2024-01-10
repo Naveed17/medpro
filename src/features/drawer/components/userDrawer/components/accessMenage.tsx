@@ -39,8 +39,6 @@ function AccessMenage({...props}) {
     const [openDeleteDialog, setDeleteDialog] = useState(false);
     const [selected, setSelected] = useState<any>(null);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const TableHead = [
         {
             id: "name",

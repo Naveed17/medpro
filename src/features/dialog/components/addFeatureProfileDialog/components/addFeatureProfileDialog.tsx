@@ -44,7 +44,6 @@ function AddFeatureProfileDialog({...props}) {
         variables: {query: `?feature=${featureSlug}`}
     });
 
-    const {trigger: triggerProfileCreate} = useRequestQueryMutation("/profile/create");
     const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
 
     const featurePermissions = ((featurePermissionsResponse as HttpResponse)?.data ?? []) as any[];
