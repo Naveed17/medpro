@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {Page} from "@features/page";
-import html2canvas from "html2canvas";
 import {prescriptionPreviewDosage} from "@lib/hooks";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
@@ -14,13 +13,12 @@ function Doc({...props}) {
     const [title, setTitle] = useState("Titre");
     const [loading, setLoading] = useState(true);
 
-    const {data, setData, state, date,header,setHeader,onReSize,setOnResize} = props
+    const {data, setData, state, date, header, setHeader, onReSize, setOnResize} = props
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
-
 
     const createPageContent = () => {
         if (state) {
@@ -106,7 +104,6 @@ function Doc({...props}) {
         }
     }
 
-
     useEffect(() => {
         if (state)
             if (state.info)
@@ -129,65 +126,72 @@ function Doc({...props}) {
             const container = document.getElementById("containerx")
 
             if (contentDiv && container) {
-                let canvasWidth = contentDiv.offsetWidth * 2; // Adjust this value as needed
-                let canvasHeight = data.content.maxHeight * 2; // Adjust this value as needed
-
                 var paragraphs = container.getElementsByTagName('p');
                 for (let i = 0; i < paragraphs.length; i++) {
-                    paragraphs[i].style.marginTop = paragraphs[i].style.fontSize ? paragraphs[i].style.fontSize + "px" :'14px'; // Ajustez cette valeur au besoin
-                    paragraphs[i].style.marginBottom = paragraphs[i].style.fontSize ? paragraphs[i].style.fontSize + "px" :'14px'; // Ajustez cette valeur au besoin
+                    paragraphs[i].style.marginTop = paragraphs[i].style.fontSize ? paragraphs[i].style.fontSize + "px" : '14px'; // Ajustez cette valeur au besoin
+                    paragraphs[i].style.marginBottom = paragraphs[i].style.fontSize ? paragraphs[i].style.fontSize + "px" : '14px'; // Ajustez cette valeur au besoin
                 }
 
                 container.style.visibility = "visible"
                 pages.map((_, index) => {
-
-                    let canvas = document.getElementById(`content${index}`) as HTMLCanvasElement;
-                    let ctx = canvas.getContext('2d', {willReadFrequently: true});
-                    canvas.width = canvasWidth;
-                    canvas.height = canvasHeight;
-
-                    if (ctx)
-                        html2canvas(contentDiv).then(function (canvas) {
-                            ctx?.drawImage(canvas, 0, index * -1 * data.content.maxHeight * 2);
-                        });
                     if (data.content.width) {
                         const el = resizable[index] as HTMLElement;
                         el.style.width = `${data.content.width}px`;
-                        el.style.height = `${data.content.maxHeight}px`; // ?
                     }
                 })
                 container.style.visibility = "hidden";
                 container.style.position = "absolute";
                 container.style.top = "0";
                 setLoading(false)
-
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pages])
 
-
     const splitContent = (content: string) => {
         const contentDiv = document.getElementById("contentDiv")
         if (contentDiv) {
-            const _width = data.content.width ? `${data.content.width}px` :  "90%";
+            const _width = data.content.width ? `${data.content.width}px` : "90%";
             contentDiv.innerHTML = content;
             contentDiv.style.width = _width;
-            const nbPage = Math.ceil(contentDiv.clientHeight / data.content.maxHeight);
-            setPages(new Array(nbPage).fill(''))
+
+            if (data.content.pages) {
+                let _rest = contentDiv.clientHeight
+                let nbPage = 0
+                while (_rest > 0) {
+                    const _h = data.content.pages.find((page: { id: number }) => page.id === nbPage)
+                    _rest -= _h ? _h.height : data.content.maxHeight
+                    nbPage++
+                }
+                setPages(new Array(nbPage).fill(''))
+            } else {
+                const nbPage = Math.ceil(contentDiv.clientHeight / data.content.maxHeight);
+                setPages(new Array(nbPage).fill(''))
+            }
         }
     }
 
     return (
-        <Box style={{visibility:loading ? "hidden":"visible"}}>
-
+        <Box style={{visibility: loading ? "hidden" : "visible"}}>
             {
                 pages.map((page, index) => (
-                    <Page key={index} {...{data, setData, state, id: index, onReSize, setOnResize, date, title,header,setHeader}}/>
+                    <Page key={index} {...{
+                        data,
+                        setData,
+                        state,
+                        id: index,
+                        onReSize,
+                        setOnResize,
+                        date,
+                        title,
+                        header,
+                        setHeader
+                    }}/>
                 ))
             }
-            <PageStyled id={"containerx"} style={{visibility:"hidden"}} >
-                <div className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
+            <PageStyled id={"containerx"} style={{visibility: "hidden"}}>
+                <div
+                    className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
                     <div id={"contentDiv"}/>
                 </div>
             </PageStyled>

@@ -1798,7 +1798,8 @@ function ConsultationInProgress() {
                         ),
                         sx: {
                             p: 1.5,
-                            overflowX: 'hidden'
+                            overflowX: 'hidden',
+                            overflowY: 'hidden'
                         }
 
                     })}

@@ -597,8 +597,6 @@ function DocumentDetailDialog({...props}) {
 
     const generatedDocsNode = generatedDocs.some(doc => doc === state?.type) &&
         <div>
-
-
             {loading ? <div className={data.size ? data.size : "portraitA5"}></div> :
                 <Box ref={previewDocRef}>
                     <Doc {...{

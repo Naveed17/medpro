@@ -17,8 +17,18 @@ function Page({...props}) {
 
     const [selectedElement, setSelectedElement] = useState("")
     const [blockDrag, setBlockDrag] = useState(false)
-    const [resizeContent, setResizeContent] = useState(false)
     const [backgroundImg, setBackgroundImg] = useState<string | null>(null);
+
+    const getMarginTop = () => {
+        let _margin = 0;
+        let _prev = id - 1;
+        while (_prev >= 0) {
+            const el = document.getElementById(`content${_prev}`);
+            if (el) _margin += el.clientHeight
+            _prev -= 1;
+        }
+        return -1 * _margin
+    }
 
     useEffect(() => {
         if (selectedElement !== "") {
@@ -325,6 +335,7 @@ function Page({...props}) {
                         </div>
                     </Resizable>}
 
+
                     {/*Content*/}
                     <Resizable
                         className={`${selectedElement === "content" ? "selected" : "notSelected"} content resizable`}
@@ -346,43 +357,32 @@ function Page({...props}) {
                         }}
                         onResizeStart={() => {
                             setBlockDrag(true)
-                            console.log("start")
-                            setResizeContent(true)
                         }}
                         onResizeStop={() => {
                             data.content.width = document.getElementById(`content${id}`)?.clientWidth
                             const _height = document.getElementById(`content${id}`)?.clientHeight;
 
                             if (data.content.pages) {
-                                const page = data.content.pages.find(page => page.id == id)
+                                const page = data.content.pages.find((page: { id: number }) => page.id == id)
                                 if (page) {
                                     page.x = data.content.x
                                     page.y = data.content.y
                                     page.height = _height
-                                } else data.content.pages.push({id,x:data.content.x,y:data.content.y,height:_height})
+                                } else data.content.pages.push({
+                                    id,
+                                    x: data.content.x,
+                                    y: data.content.y,
+                                    height: _height
+                                })
                             } else {
-                                data.content.pages = [{id,x:data.content.x,y:data.content.y,height:_height}]
+                                data.content.pages = [{id, x: data.content.x, y: data.content.y, height: _height}]
                             }
-
-                            data.content.maxHeight = _height;
-                            console.log(data.content)
                             setBlockDrag(false)
                             setOnResize(true);
-                            setTimeout(() => {
-                                setResizeContent(false)
-                            }, 1000)
                         }}>
 
-                        {resizeContent && <div style={{marginTop: -14 - id * data.content.maxHeight}}
-                                               dangerouslySetInnerHTML={{__html: state && state.content ? state.content : data.content.content}}></div>}
-
-                        <canvas id={`content${id}`} style={{
-                            width: "100%",
-                            height: "100%",
-                            visibility: resizeContent ? "hidden" : "visible"
-                        }}></canvas>
-
-
+                        <div  id={`content${id}`} style={{marginTop: getMarginTop(),width:"100%",height:"100%"}}
+                             dangerouslySetInnerHTML={{__html: state && state.content ? state.content : data.content.content}}></div>
                         <div className={"menu"}
                              style={{background: selectedElement === "content" ? theme.palette.success.main : theme.palette.info.main}}>
                             <div onClick={() => {
