@@ -221,7 +221,6 @@ function DocsConfig() {
                 type: (dh.types)
             });
             const _header = dh.header.header
-            console.log("header", _header)
             setHeader(_header)
 
             const data = dh.header.data
