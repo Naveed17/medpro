@@ -603,7 +603,7 @@ function CertifDialog({...props}) {
                             <div style={{height, paddingBottom: "1rem"}}>
                                 <Editor
                                     value={value}
-                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                     onEditorChange={(res) => {
                                         data.state.content = res;
                                         data.setState(data.state)

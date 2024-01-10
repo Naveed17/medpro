@@ -262,7 +262,7 @@ function NotesComponent({...props}) {
 
             {showToolbar && <Editor
                 initialValue={values.notes}
-                apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                 onEditorChange={(event) => {
                     debouncedOnChange("notes", event)
                 }}
@@ -281,7 +281,7 @@ function NotesComponent({...props}) {
             {
                 !showToolbar && <Editor
                     initialValue={values.notes}
-                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                    tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                     onEditorChange={(event) => {
                         debouncedOnChange("notes", event)
                     }}

@@ -342,7 +342,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                 {
                                     !editDiagnosic && <Editor
                                         initialValue={values.diagnosis}
-                                        apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                        tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                         onEditorChange={(event) => {
                                             debouncedOnChange("diagnosis", event)
                                         }}
@@ -358,7 +358,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                 {
                                     editDiagnosic && <Editor
                                         initialValue={values.diagnosis}
-                                        apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                        tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                         onEditorChange={(event) => {
                                             debouncedOnChange("diagnosis", event)
                                         }}
