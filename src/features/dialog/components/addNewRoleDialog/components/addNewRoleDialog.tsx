@@ -65,7 +65,7 @@ function AddNewRoleDialog({...props}) {
 
             const features: any = {};
             values.roles.map(role => {
-                features[role?.feature] = {object: role?.featureUuid, featureProfile: role?.profileUuid}
+                features[role?.feature] = [{object: role?.featureUuid, featureProfile: role?.profileUuid}]
             });
 
             form.append("features", JSON.stringify(features));
