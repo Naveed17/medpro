@@ -78,7 +78,13 @@ function AddNewRoleDialog({...props}) {
             description: selected ? selected?.description : "",
             is_standard: selected ? selected?.is_standard ?? true : true,
             permissions,
-            roles: []
+            roles: [{
+                feature: "",
+                featureUuid: "",
+                featureRoles: [],
+                featureProfiles: [],
+                profileUuid: ""
+            }]
         },
         onSubmit: async (values) => {
             setLoading(true);

@@ -1,4 +1,4 @@
-import {Box, DialogActions, DialogContent, DialogTitle,Theme} from "@mui/material";
+import {Box, DialogActions, DialogContent, DialogTitle, Theme} from "@mui/material";
 import {
     Toolbar,
     Stack,
@@ -135,43 +135,7 @@ function AccessMenage({...props}) {
                         />}
                 </DesktopContainer>
             </Box>
-            {/*<List>
-            {(mainLoading ? Array.from({length: 5}) : profiles)?.map((item: any, i: number) => (
-                <ListItem key={item ? item.uuid : i}>
-                    {
-                        !item ? <Skeleton width={100}/> : <Typography>{item.name}</Typography>
-                    }
-                    <Stack spacing={0.5} ml="auto" direction="row" alignItems="center">
-                        {
-                            !item ? <Skeleton width={25} height={40}/> : (
-                                <IconButton
-                                    onClick={() => {
-                                        setSelected(item);
-                                        setInfo("add-new-role");
-                                        setOpen(true);
-                                    }}
-                                    size="small"
-                                    disableRipple>
-                                    <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
-                                </IconButton>
-                            )}
 
-                        {
-                            !item ? <Skeleton width={25} height={40}/> :
-                                (<IconButton
-                                        className={"delete-icon"}
-                                        onClick={() => onDelete(item)}
-                                        size="small"
-                                        disableRipple>
-                                        <IconUrl color={theme.palette.error.main} path="ic-trash"/>
-                                    </IconButton>
-                                )
-                        }
-                    </Stack>
-                </ListItem>
-            ))}
-        </List>*/
-            }
             <CustomDialog
                 action={info}
                 open={open}
@@ -188,19 +152,18 @@ function AccessMenage({...props}) {
                     size: "lg",
                     sx: {py: 0},
                     dialogClose: () => setOpen(false),
-                })}
+                })}/>
 
-            />
-            <Dialog PaperProps={{
-                sx: {
-                    width: "100%"
-                }
-            }} maxWidth="sm" open={openDeleteDialog}>
+            <Dialog
+                PaperProps={{
+                    sx: {
+                        width: "100%"
+                    }
+                }} maxWidth="sm" open={openDeleteDialog}>
                 <DialogTitle sx={{
                     bgcolor: (theme: Theme) => theme.palette.error.main,
                     px: 1,
-                    py: 2,
-
+                    py: 2
                 }}>
                     {t("dialog.delete-profile-title")}
                 </DialogTitle>

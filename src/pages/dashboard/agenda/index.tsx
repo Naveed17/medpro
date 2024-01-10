@@ -1200,7 +1200,6 @@ function Agenda() {
                             </Typography>
                             <Stack spacing={1}>
                                 {row.events.map((event, idx) => (
-
                                     <AppointmentListMobile
                                         {...{roles, event}}
                                         key={event.id}
