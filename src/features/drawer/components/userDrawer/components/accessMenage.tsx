@@ -20,10 +20,15 @@ import CloseIcon from '@mui/icons-material/Close';
 import {NoDataCard} from "@features/card";
 import {Otable} from "@features/table";
 import {DesktopContainer} from "@themes/desktopConainter";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useRouter} from "next/router";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function AccessMenage({...props}) {
     const {t} = props;
     const {data: session} = useSession();
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {direction} = useAppSelector(configSelector);
 
@@ -53,8 +58,9 @@ function AccessMenage({...props}) {
 
     const {data: httpProfilesResponse, mutate: mutateProfiles, isLoading: isProfilesLoading} = useRequestQuery({
         method: "GET",
-        url: `/api/medical-entity/${medical_entity.uuid}/profile`
-    });
+        url: `${urlMedicalEntitySuffix}/profile/${router.locale}`
+    }, ReactQueryNoValidateConfig);
+
     const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
 
     const onDelete = (props: any) => {
@@ -66,7 +72,7 @@ function AccessMenage({...props}) {
         setLoading(true);
         triggerProfileUpdate({
             method: "DELETE",
-            url: `/api/medical-entity/${medical_entity.uuid}/profile/${selected.uuid}`
+            url: `${urlMedicalEntitySuffix}/profile/${selected}/${router.locale}`
         }, {
             onSuccess: () => {
                 setLoading(false);
@@ -76,8 +82,12 @@ function AccessMenage({...props}) {
         })
     }
 
-    const handleTableEvent = (action: string, data: any, backgroundDoc: boolean) => {
-
+    const handleTableEvent = (props: any) => {
+        switch (props?.action) {
+            case "DELETE_PROFILE":
+                onDelete(props?.row.uuid);
+                break;
+        }
     }
 
     const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as ProfileModel[];
@@ -166,6 +176,7 @@ function AccessMenage({...props}) {
                 <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
                     <Stack direction="row" spacing={1}>
                         <Button
+                            variant="text-black"
                             onClick={() => {
                                 setDeleteDialog(false);
                             }}

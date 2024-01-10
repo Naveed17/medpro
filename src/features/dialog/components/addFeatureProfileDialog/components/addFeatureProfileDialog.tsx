@@ -26,7 +26,7 @@ import {useRouter} from "next/router";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function AddFeatureProfileDialog({...props}) {
-    const {feature, selected, handleClose} = props.data;
+    const {featureSlug, selected, handleClose} = props.data;
     const {enqueueSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
@@ -41,7 +41,7 @@ function AddFeatureProfileDialog({...props}) {
         url: `${urlMedicalEntitySuffix}/permissions/${router.locale}`
     }, {
         ...ReactQueryNoValidateConfig,
-        variables: {query: `?feature=${feature.slug}`}
+        variables: {query: `?feature=${featureSlug}`}
     });
 
     const {trigger: triggerProfileCreate} = useRequestQueryMutation("/profile/create");
@@ -110,12 +110,12 @@ function AddFeatureProfileDialog({...props}) {
             form.append("permissions", JSON.stringify(Object.assign({}, checkedPermissions)));
             triggerProfileUpdate({
                 method: selected ? "PUT" : "POST",
-                url: `${urlMedicalEntitySuffix}/cash-box/profiles/${selected ? `${selected.uuid}/` : ""}${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/features/${featureSlug}/profiles/${selected ? `${selected.uuid}/` : ""}${router.locale}`,
                 data: form
             }, {
                 onSuccess: () => {
                     enqueueSnackbar(t("users.alert.updated-role"), {variant: "success"})
-                    handleClose();
+                    handleClose({refresh: true});
                     setLoading(false);
                 },
                 onError: () => setLoading(false)

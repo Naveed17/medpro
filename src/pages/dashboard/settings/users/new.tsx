@@ -72,7 +72,7 @@ function NewUser() {
 
     const {data: httpProfilesResponse} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/profile`
+        url: `${urlMedicalEntitySuffix}/profile/${router.locale}`
     }, ReactQueryNoValidateConfig);
 
     const {trigger: triggerUserAdd} = useRequestQueryMutation("/users/add");
@@ -108,7 +108,14 @@ function NewUser() {
             Yup.object().shape({
                 feature: Yup.string(),
                 featureUuid: Yup.string(),
+                hasMultipleInstance: Yup.boolean(),
                 featureProfiles: Yup.array().of(
+                    Yup.object().shape({
+                        name: Yup.string(),
+                        uuid: Yup.string()
+                    })
+                ),
+                featureRoles: Yup.array().of(
                     Yup.object().shape({
                         name: Yup.string(),
                         uuid: Yup.string()
@@ -166,7 +173,7 @@ function NewUser() {
 
             triggerUserAdd({
                 method: "POST",
-                url: `/api/medical-entity/${medical_entity.uuid}/users/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/users/${router.locale}`,
                 data: form
             }, {
                 onSuccess: () => {
@@ -191,8 +198,7 @@ function NewUser() {
     } = formik;
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
-    console.log("values", values)
-    console.log("features", features)
+
     return (
         <>
             <SubHeader>
