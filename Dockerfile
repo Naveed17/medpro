@@ -31,5 +31,5 @@ ENV NEXT_TELEMETRY_DISABLED 1
 COPY --from=builder --chown=node:node ${APP_ROOT}/public ./public
 COPY --from=builder --chown=node:node ${APP_ROOT}/.next/standalone ./
 COPY --from=builder --chown=node:node ${APP_ROOT}/.next/static ./.next/static
-
+COPY --chown=node:node ./postinstall.js  ${APP_ROOT}
 CMD ["node", "server.js"]

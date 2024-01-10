@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 echo "INIT -- npm.sh -- start"
 cd "$APP_ROOT" || exit 1
-
+npm run postinstall
 # Run npm ci if package-lock.json exists.
 if [[ -f "./package-lock.json" ]]; then
   echo "Running npm ci.."

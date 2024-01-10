@@ -10,7 +10,8 @@
     "dev:up": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build",
     "prod:up": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build --remove-orphans",
     "prod:run": "next build && next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "node ./postinstall.js"
   },
   "dependencies": {
     "@emotion/cache": "^11.7.1",
