@@ -39,14 +39,17 @@ export const documentButtonList = [
 export const tabs = [
     {
         label: "consultation_form",
+        label_mobile: "cfiche",
         value: "consultation form"
     },
     {
         label: "documents",
+        label_mobile: "docs",
         value: "documents"
     },
     {
         label: "medical_procedures",
+        label_mobile: "fees",
         value: "medical procedures"
     }
 ]
