@@ -13,8 +13,6 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
 import {LoadingButton} from "@mui/lab";
 import CloseIcon from '@mui/icons-material/Close';
 import {NoDataCard} from "@features/card";
@@ -26,7 +24,6 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function AccessMenage({...props}) {
     const {t} = props;
-    const {data: session} = useSession();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
