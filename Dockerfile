@@ -17,10 +17,11 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 COPY --chown=node:node --from=dev "${APP_ROOT}/node_modules" "${APP_ROOT}/node_modules"
 COPY --chown=node:node . "${APP_ROOT}/"
-
 RUN set -xe; \
   npm run build -- --no-lint
 
+COPY --chown=node:node postinstall.js  $"{APP_ROOT}"/postinstall.js
+RUN npm run tinymce
 FROM wodby/node:20 AS runner
 
 ENV NODE_ENV production
@@ -31,5 +32,5 @@ ENV NEXT_TELEMETRY_DISABLED 1
 COPY --from=builder --chown=node:node ${APP_ROOT}/public ./public
 COPY --from=builder --chown=node:node ${APP_ROOT}/.next/standalone ./
 COPY --from=builder --chown=node:node ${APP_ROOT}/.next/static ./.next/static
-COPY --chown=node:node ./postinstall.js  ${APP_ROOT}
+
 CMD ["node", "server.js"]
