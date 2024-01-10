@@ -270,7 +270,7 @@ function PatientDetailsCard({...props}) {
                                             justifyContent="space-between">
                                             <InputBase
                                                 readOnly
-                                                {...(patient?.nationality && {
+                                                {...(patient?.nationality?.code && {
                                                     startAdornment: <Tooltip title={patient.nationality.nationality}>
                                                         <Avatar
                                                             sx={{
