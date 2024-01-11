@@ -128,7 +128,7 @@ function NotesComponent({...props}) {
 
     useEffect(() => {
         if (isStarted) {
-            const notes = `${(oldNote ? oldNote : "")}  ${transcript}`;
+            const notes = `${(oldNote.current ? oldNote.current : "")}  ${transcript}`;
             setFieldValue("notes", notes);
             dispatch(
                 SetExam({

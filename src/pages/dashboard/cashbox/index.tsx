@@ -263,16 +263,23 @@ function Cashbox() {
     ];
     const topCard = [
         {
-            icon: "ic-cash-light-green",
-            mobile_icon: "ic-cash-light-green",
-            amount: total,
-            title: "total_profit",
+            icon: "ic-acte",
+            mobile_icon: "ic-acte",
+            amount: ca,
+            title: "total_appointment",
         },
+
         {
             icon: "ic-unpaid-light-red",
             mobile_icon: "ic-unpaid-light-red",
             amount: unpaid,
             title: "not_paid",
+        },
+        {
+            icon: "ic-cash-light-green",
+            mobile_icon: "ic-cash-light-green",
+            amount: total,
+            title: "total_profit",
         },
         {
             icon: "ic-cash-light-blue",
@@ -538,7 +545,7 @@ function Cashbox() {
                     mb={0.6}
                     display="grid"
                     sx={{gap: 1.2, px: 1}}
-                    gridTemplateColumns={`repeat(${isMobile ? "2" : "4"},minmax(0,1fr))`}
+                    gridTemplateColumns={`repeat(${isMobile ? "2" : "5"},minmax(0,1fr))`}
                 >
                     {topCard.map((card, idx) => (
                         <Card sx={{border: "none"}} key={idx}>
@@ -563,7 +570,7 @@ function Cashbox() {
                         {devise}
                       </span>
                                         </Typography>
-                                        <Typography variant="body2" textTransform="capitalize">
+                                        <Typography variant="body2" fontSize={11} textTransform="capitalize">
                                             {t(card.title)}
                                         </Typography>
                                     </Stack>
@@ -588,7 +595,6 @@ function Cashbox() {
                                     <Typography fontWeight={700}>{t("consultations")}</Typography>
                                     <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                 </Stack>
-                                <Typography>{t("total")} <span style={{fontSize:20,fontWeight:"bold"}}>{ca}</span> {devise}</Typography>
                             </Stack>
                             <DesktopContainer>
                                 {apps.length > 0 ? <Otable
