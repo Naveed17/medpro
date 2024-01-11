@@ -120,7 +120,7 @@ function AddNewRoleDialog({...props}) {
                                 label={t("users.dialog.is_standard")}/>
                         </Stack>
                         <Box className="permissions-wrapper">
-                            <FeaturePermissionsCard {...{t, features, values, getFieldProps, setFieldValue}}/>
+                            <FeaturePermissionsCard {...{t, features, values, setFieldValue}}/>
                         </Box>
                     </RootStyled>
 

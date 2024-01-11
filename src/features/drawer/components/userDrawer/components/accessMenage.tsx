@@ -50,7 +50,7 @@ function AccessMenage({...props}) {
         },
     ];
 
-    const {data: httpProfilesResponse, mutate: mutateProfiles, isLoading: isProfilesLoading} = useRequestQuery({
+    const {data: httpProfilesResponse, mutate: mutateProfiles} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/profile/${router.locale}`
     }, ReactQueryNoValidateConfig);

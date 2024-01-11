@@ -13,11 +13,9 @@ import {
     Box,
     TextField,
     Grid,
-    Select,
     Button,
     FormControlLabel,
     Checkbox,
-    MenuItem,
     FormControl,
     IconButton, Autocomplete, ListItem, ListItemText
 } from "@mui/material";
@@ -598,7 +596,7 @@ function NewUser() {
                                 </Box>
 
                                 {!values.admin &&
-                                    <FeaturePermissionsCard {...{t, features, values, getFieldProps, setFieldValue}}/>
+                                    <FeaturePermissionsCard {...{t, features, values, setFieldValue}}/>
                                 }
                             </CardContent>
                         </Card>

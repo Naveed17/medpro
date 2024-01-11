@@ -5,8 +5,6 @@ import {
     FormControl, FormHelperText,
     Grid, IconButton,
     ListItem, ListItemSecondaryAction, ListItemText,
-    MenuItem,
-    Select,
     Stack, TextField,
     Typography, useTheme
 } from "@mui/material";
@@ -17,13 +15,13 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useCashBox} from "@lib/hooks/rest";
 import {useRequestQueryMutation} from "@lib/axios";
-import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector} from "@features/base";
 
 function FeaturePermissionsCard({...props}) {
-    const {t, features, values, getFieldProps, setFieldValue} = props;
+    const {t, features, values, setFieldValue} = props;
     const {cashboxes} = useCashBox();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
@@ -291,7 +289,8 @@ function FeaturePermissionsCard({...props}) {
                                             ...params.InputProps,
                                             endAdornment: (
                                                 <React.Fragment>
-                                                    {loadingReq && openAutoComplete.index === index ? <CircularProgress color="inherit" size={20}/> : null}
+                                                    {loadingReq && openAutoComplete.index === index ?
+                                                        <CircularProgress color="inherit" size={20}/> : null}
                                                     {params.InputProps.endAdornment}
                                                 </React.Fragment>
                                             ),
