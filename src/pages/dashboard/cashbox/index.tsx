@@ -48,6 +48,7 @@ import {agendaSelector} from "@features/calendar";
 import {saveAs} from "file-saver";
 import {ImageHandler} from "@features/image";
 import {LoadingScreen} from "@features/loadingScreen";
+import Can from "@features/casl/can";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -192,23 +193,6 @@ const noAppData = {
     mainIcon: "ic-agenda",
     title: "no-data.title_consult",
 };
-const MenuActions = [
-    {
-        title: "add-payment",
-        icon: <IconUrl path="ic-wallet-money" color="white"/>,
-        action: "onCash",
-    },
-    {
-        title: "delete",
-        icon: <IconUrl path="ic-delete" color="white"/>,
-        action: "onDelete",
-    },
-    {
-        title: "see_patient_file",
-        icon: <IconUrl path="ic-file" color="white"/>,
-        action: "onSeePatientFile",
-    },
-];
 
 function Cashbox() {
     const {data: session} = useSession();
@@ -259,6 +243,24 @@ function Cashbox() {
         {
             label: "transactions",
             value: "transactions",
+        },
+    ];
+    const MenuActions = [
+        {
+            title: "add-payment",
+            permission: "create",
+            icon: <IconUrl path="ic-wallet-money" color="white"/>,
+            action: "onCash",
+        },
+        {
+            title: "delete",
+            icon: <IconUrl path="ic-delete" color="white"/>,
+            action: "onDelete",
+        },
+        {
+            title: "see_patient_file",
+            icon: <IconUrl path="ic-file" color="white"/>,
+            action: "onSeePatientFile",
         },
     ];
     const topCard = [
@@ -626,13 +628,15 @@ function Cashbox() {
                                         </Typography>
                                         <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                     </Stack>
-                                    {rows.length > 0 && <Button
+                                    {rows.length > 0 &&  <Can I={"manage"} a={"cashbox"} field={"cash_box_transaction_export"}>
+                                        <Button
                                         onClick={exportDoc}
                                         variant="outlined"
                                         color="info"
                                         startIcon={<IconUrl path="ic-export-new"/>}>
                                         {t("export")}
-                                    </Button>}
+                                    </Button>
+                                    </Can>}
                                 </Stack>
                                 <DesktopContainer>
                                     {!loading && (

@@ -215,6 +215,31 @@ export const authOptions: NextAuthOptions = {
                         }
                     };
                     return token;
+                } else if (session?.permissions) {
+                    const medical_entity_index = updatedToken.data?.medical_entities.findIndex((data: any) => data.medical_entity.uuid === updatedToken.data?.medical_entity.uuid);
+                    const feature_index = updatedToken.data?.medical_entities[medical_entity_index].features.findIndex((feature: FeatureModel) => feature.slug === session?.slug);
+                    token = {
+                        ...updatedToken,
+                        data: {
+                            ...updatedToken.data,
+                            medical_entities: [
+                                ...updatedToken.data?.medical_entities.slice(0, medical_entity_index),
+                                {
+                                    ...updatedToken.data?.medical_entities[medical_entity_index],
+                                    features: [
+                                        ...updatedToken.data?.medical_entities[medical_entity_index].features.slice(0, feature_index),
+                                        {
+                                            ...updatedToken.data?.medical_entities[medical_entity_index].features[feature_index],
+                                            permissions: session?.permissions
+                                        },
+                                        ...updatedToken.data?.medical_entities[medical_entity_index].features.slice(feature_index + 1),
+                                    ]
+                                },
+                                ...updatedToken.data?.medical_entities.slice(medical_entity_index + 1)
+                            ]
+                        }
+                    };
+                    return token;
                 }
             }
 

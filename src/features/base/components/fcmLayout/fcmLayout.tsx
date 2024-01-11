@@ -266,7 +266,7 @@ function FcmLayout({...props}) {
                 (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day"));
             dispatch(setOngoing({notifications}))
         }
-    }, [dispatch])
+    }, [dispatch]);
 
     useEffect(() => {
         if (agendaConfig) {

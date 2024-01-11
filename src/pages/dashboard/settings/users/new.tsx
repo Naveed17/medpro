@@ -603,7 +603,7 @@ function NewUser() {
                             </CardContent>
                         </Card>
 
-                        <div style={{paddingBottom: "50px"}}></div>
+                        <div style={{paddingBottom: "50px"}}/>
                         <Stack
                             className="bottom-section"
                             justifyContent="flex-end"
