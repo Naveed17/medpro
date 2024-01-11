@@ -29,12 +29,11 @@ function AccessMenage({...props}) {
 
     const {direction} = useAppSelector(configSelector);
 
-    const [info, setInfo] = useState("");
     const [loading, setLoading] = useState(false);
     const [mainLoading, setMainLoading] = useState(false);
-    const [open, setOpen] = useState(false);
+    const [openProfileDialog, setOpenProfileDialog] = useState(false);
     const [openDeleteDialog, setDeleteDialog] = useState(false);
-    const [selected, setSelected] = useState<any>(null);
+    const [selectedProfile, setSelectedProfile] = useState<any>(null);
 
     const TableHead = [
         {
@@ -59,7 +58,7 @@ function AccessMenage({...props}) {
     const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
 
     const onDelete = (props: any) => {
-        setSelected(props);
+        setSelectedProfile(props);
         setDeleteDialog(true);
     }
 
@@ -67,7 +66,7 @@ function AccessMenage({...props}) {
         setLoading(true);
         triggerProfileUpdate({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/profile/${selected}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/profile/${selectedProfile}/${router.locale}`
         }, {
             onSuccess: () => {
                 setLoading(false);
@@ -81,6 +80,10 @@ function AccessMenage({...props}) {
         switch (props?.action) {
             case "DELETE_PROFILE":
                 onDelete(props?.row.uuid);
+                break;
+            case "EDIT_PROFILE":
+                setSelectedProfile(props?.row);
+                setTimeout(() => setOpenProfileDialog(true));
                 break;
         }
     }
@@ -98,9 +101,8 @@ function AccessMenage({...props}) {
                     <Typography variant="h6">{t("access_management")}</Typography>
                     <Button
                         onClick={() => {
-                            setInfo("add-new-role");
-                            setOpen(true);
-                            setSelected(null);
+                            setOpenProfileDialog(true);
+                            setSelectedProfile(null);
                         }}
                         variant="contained"
                         color="success">
@@ -133,22 +135,22 @@ function AccessMenage({...props}) {
             </Box>
 
             <CustomDialog
-                action={info}
-                open={open}
-                direction={direction}
+                {...{direction}}
+                action={"add-new-role"}
+                open={openProfileDialog}
                 data={{
-                    t, selected, handleMutate: mutateProfiles,
+                    t,
+                    selected: selectedProfile,
+                    handleMutate: mutateProfiles,
                     handleClose: () => {
-                        setOpen(false);
-                        setSelected(null)
+                        setOpenProfileDialog(false);
+                        setSelectedProfile(null)
                     }
                 }}
-                {...(info === "add-new-role" && {
-                    title: t("add_a_new_role"),
-                    size: "lg",
-                    sx: {py: 0},
-                    dialogClose: () => setOpen(false),
-                })}/>
+                title={t("add_a_new_role")}
+                size={"lg"}
+                sx={{py: 0}}
+                dialogClose={() => setOpenProfileDialog(false)}/>
 
             <Dialog
                 PaperProps={{

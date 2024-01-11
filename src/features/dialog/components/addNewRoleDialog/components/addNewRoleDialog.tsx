@@ -2,26 +2,20 @@ import React, {useState} from "react";
 import {Form, FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
 import RootStyled from "./overrides/rootStyle";
-import {
-    Box,
-    Button,
-    Stack,
-    TextField,
-    FormControlLabel,
-    Switch,
-    Typography
-} from "@mui/material";
+import {Box, Button, FormControlLabel, Stack, Switch, TextField, Typography} from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
 import {useRequestQueryMutation} from "@lib/axios";
 import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
-import {usePermissions} from "@lib/hooks/rest";
+import {useCashBox, usePermissions} from "@lib/hooks/rest";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {FeaturePermissionsCard} from "@features/card";
 
 import {useRouter} from "next/router";
+import {useAppSelector} from "@lib/redux/hooks";
+import {agendaSelector} from "@features/calendar";
 
 function AddNewRoleDialog({...props}) {
     const {data: {selected, handleMutate, handleClose}} = props;
@@ -29,8 +23,10 @@ function AddNewRoleDialog({...props}) {
     const {permissions: features} = usePermissions();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
+    const {cashboxes} = useCashBox();
 
     const {t} = useTranslation(["settings", "common"]);
+    const {agendas} = useAppSelector(agendaSelector);
 
     const [loading, setLoading] = useState(false);
 
@@ -43,10 +39,17 @@ function AddNewRoleDialog({...props}) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            role_name: selected ? selected?.name : "",
-            description: selected ? selected?.description : "",
-            is_standard: selected ? selected?.is_standard ?? true : true,
-            roles: [{
+            role_name: selected?.name ?? "",
+            description: selected?.description ?? "",
+            is_standard: selected?.is_standard ?? true,
+            roles: selected?.features?.map((data: any) => ({
+                feature: data?.feature?.slug ?? "",
+                featureUuid: data[data?.feature?.slug] ?? "",
+                hasMultipleInstance: data?.feature?.hasProfile ?? false,
+                featureRoles: data?.feature?.hasProfile ? (data?.feature?.slug === "cashbox" ? cashboxes : agendas) : [],
+                featureProfiles: [],
+                profileUuid: data?.profile ?? ""
+            })) ?? [{
                 feature: "",
                 featureUuid: "",
                 hasMultipleInstance: false,
@@ -64,7 +67,7 @@ function AddNewRoleDialog({...props}) {
             form.append("standard", values.is_standard.toString());
 
             const features: any = {};
-            values.roles.map(role => {
+            values.roles.map((role: any) => {
                 features[role?.feature] = [{object: role?.featureUuid, featureProfile: role?.profileUuid}]
             });
 

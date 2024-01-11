@@ -19,13 +19,13 @@ import {
     Checkbox,
     MenuItem,
     FormControl,
-    IconButton
+    IconButton, Autocomplete, ListItem, ListItemText
 } from "@mui/material";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
 import {DashLayout} from "@features/base";
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {addUser} from "@features/table";
 import {FormStyled} from "@features/forms";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -40,12 +40,13 @@ import {DefaultCountry} from "@lib/constants";
 import PhoneInput from "react-phone-number-input/input";
 import {CustomInput} from "@features/tabPanel";
 import {isValidPhoneNumber} from "libphonenumber-js";
-import {useContactType} from "@lib/hooks/rest";
+import {useCashBox, useContactType} from "@lib/hooks/rest";
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {FeaturePermissionsCard} from "@features/card";
+import {agendaSelector} from "@features/calendar";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -60,8 +61,10 @@ function NewUser() {
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {cashboxes} = useCashBox();
 
     const {t, ready} = useTranslation("settings");
+    const {agendas} = useAppSelector(agendaSelector);
 
     const [loading, setLoading] = useState(false);
 
@@ -194,7 +197,8 @@ function NewUser() {
         touched,
         handleSubmit,
         getFieldProps,
-        setFieldValue
+        setFieldValue,
+        setValues
     } = formik;
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -530,27 +534,43 @@ function NewUser() {
                                         <Grid item xs={12} lg={10}>
                                             <FormControl size="small" fullWidth
                                                          error={Boolean(touched.profile && errors.profile)}>
-                                                <Select
-                                                    labelId="demo-simple-select-label"
+                                                <Autocomplete
                                                     id={"role"}
-                                                    {...getFieldProps("profile")}
-                                                    onChange={(event) => {
-                                                        console.log("event", event)
-                                                        setFieldValue("profile", event.target.value);
+                                                    autoHighlight
+                                                    size="small"
+                                                    options={profiles}
+                                                    value={profiles.find((feature: any) => feature.uuid === values.profile) ?? null}
+                                                    onChange={(e, profile: any) => {
+                                                        setValues({
+                                                            ...values,
+                                                            profile: profile.uuid,
+                                                            roles: profile?.features?.map((data: any) => ({
+                                                                feature: data?.feature?.slug ?? "",
+                                                                featureUuid: data[data?.feature?.slug] ?? "",
+                                                                hasMultipleInstance: data?.feature?.hasProfile ?? false,
+                                                                featureRoles: data?.feature?.hasProfile ? (data?.feature?.slug === "cashbox" ? cashboxes : agendas) : [],
+                                                                featureProfiles: [],
+                                                                profileUuid: data?.profile ?? ""
+                                                            }))
+                                                        });
+
                                                     }}
-                                                    renderValue={selected => {
-                                                        if (selected.length === 0) {
-                                                            return <em>{t("users.profile")}</em>;
-                                                        }
-                                                        const profile = profiles?.find(profile => profile.uuid === selected);
-                                                        return <Typography>{profile?.name}</Typography>
-                                                    }}
-                                                    displayEmpty
-                                                    sx={{color: "text.secondary"}}>
-                                                    {profiles.map(profile =>
-                                                        <MenuItem key={profile.uuid}
-                                                                  value={profile.uuid}>{profile.name}</MenuItem>)}
-                                                </Select>
+                                                    getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                                                    renderOption={(props, option) => (
+                                                        <ListItem {...props}>
+                                                            <ListItemText primary={option?.name}/>
+                                                        </ListItem>
+                                                    )}
+                                                    sx={{color: "text.secondary"}}
+                                                    renderInput={params =>
+                                                        <TextField
+                                                            {...params}
+                                                            color={"info"}
+                                                            sx={{paddingLeft: 0}}
+                                                            placeholder={t("users.profile")}
+                                                            variant="outlined"
+                                                            fullWidth/>}/>
                                             </FormControl>
                                         </Grid>
                                     </Grid>

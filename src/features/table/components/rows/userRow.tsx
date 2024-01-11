@@ -53,10 +53,10 @@ function UserRow({...props}) {
                 )}
             </TableCell>
             <TableCell align="center">
-                <Select
+                {!row?.isProfessional && <Select
                     size={"small"}
                     displayEmpty
-                    value={row?.profile?.uuid ?? null}
+                    value={row?.profile?.uuid ?? ''}
                     sx={{
                         maxHeight: 35,
                         width: 160,
@@ -68,9 +68,7 @@ function UserRow({...props}) {
                     onChange={(event) => handleChange("PROFILE", row, event.target.value)}
                     renderValue={(selected: any) => {
                         if (!selected || (selected && selected.length === 0)) {
-                            return <Typography color={"gray"}>
-                                {t("profile-placeholder")}
-                            </Typography>;
+                            return <em>{t("profile-placeholder")}</em>;
                         }
 
                         return profiles.find((profile: ProfileModel) => profile?.uuid === selected)?.name;
@@ -82,7 +80,7 @@ function UserRow({...props}) {
                             {subItem.name}
                         </MenuItem>
                     ))}
-                </Select>
+                </Select>}
             </TableCell>
             <TableCell align="center">
                 {row ? !row?.isProfessional && <Switch

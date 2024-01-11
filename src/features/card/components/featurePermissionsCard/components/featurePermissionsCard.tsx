@@ -1,7 +1,7 @@
 import {
     Autocomplete,
     Box,
-    Button,
+    Button, CircularProgress,
     FormControl, FormHelperText,
     Grid, IconButton,
     ListItem, ListItemSecondaryAction, ListItemText,
@@ -12,12 +12,12 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import IconUrl from "@themes/urlIcon";
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import {useCashBox} from "@lib/hooks/rest";
 import {useRequestQueryMutation} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {filterReasonOptions, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector} from "@features/base";
@@ -37,11 +37,13 @@ function FeaturePermissionsCard({...props}) {
     const [selectedProfile, setSelectedProfile] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [openFeatureProfileDialog, setOpenFeatureProfileDialog] = useState(false);
+    const [openAutoComplete, setOpenAutoComplete] = useState({index: 0, value: false});
 
     const {trigger: profilePermissionsTrigger} = useRequestQueryMutation("/settings/profile/permissions/get");
     const {trigger: deleteProfileTrigger} = useRequestQueryMutation("/settings/profile/delete");
 
     const handleProfilePermissions = (index: number, hasProfileSet?: boolean, slug?: string) => {
+        setLoading(true);
         profilePermissionsTrigger({
             method: "GET",
             url: `${urlMedicalEntitySuffix}/features/${slug}/profiles/${router.locale}`
@@ -71,6 +73,19 @@ function FeaturePermissionsCard({...props}) {
             onError: () => setLoading(false)
         });
     }
+
+    const loadingReq = openAutoComplete.value && (values.roles[selectedFeature] as any)?.featureProfiles.length === 0;
+    // Setting the logic for the asynchronous function on page reload
+    useEffect(() => {
+        if (!loadingReq) {
+            return undefined;
+        }
+
+        (async () => {
+            handleProfilePermissions(selectedFeature, false, (values.roles[selectedFeature] as any)?.feature);
+        })();
+    }, [loadingReq]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
     return (
         <>
@@ -112,88 +127,119 @@ function FeaturePermissionsCard({...props}) {
                         alignItems="center">
                         <Grid item xs={12} lg={2}>
                             <FormControl size="small" fullWidth>
-                                <Select
-                                    labelId="feature-select-label"
+                                <Autocomplete
                                     id={"feature"}
-                                    {...getFieldProps(`roles[${index}].feature`)}
-                                    onChange={event => {
-                                        const slug = event.target.value as string;
-                                        setFieldValue(`roles[${index}].feature`, slug);
-                                        const feature = features?.find((profile: any) => profile.slug === slug);
-                                        console.log("feature", feature);
-                                        setFieldValue(`roles[${index}].hasMultipleInstance`, feature.hasProfile);
+                                    size="small"
+                                    value={features.find((feature: any) => feature.slug === role.feature) ?? null}
+                                    onChange={(e, feature) => {
+                                        if (feature) {
+                                            const slug = feature.slug;
+                                            setFieldValue(`roles[${index}].feature`, slug);
+                                            setFieldValue(`roles[${index}].hasMultipleInstance`, feature.hasProfile);
 
-                                        const selectedFeatures = values.roles.reduce((roles: any[], role: any) => [...(roles ?? []), ...((role?.feature === event.target.value) ? [role?.featureUuid] : [])], []);
-
-                                        switch (slug) {
-                                            case "agenda":
-                                                setFieldValue(`roles[${index}].featureRoles`, agendas.filter(feature => !selectedFeatures.includes(feature?.uuid)));
-                                                break;
-                                            case "cashbox":
-                                                setFieldValue(`roles[${index}].featureRoles`, cashboxes.filter(feature => !selectedFeatures.includes(feature?.uuid)));
-                                                break;
-                                            default:
-                                                setFieldValue(`roles[${index}].featureRoles`, []);
-                                                setTimeout(() => handleProfilePermissions(index, false, slug), 1000);
-                                                break;
+                                            const selectedFeatures = values.roles.reduce((roles: any[], role: any) => [...(roles ?? []), ...((role?.feature === slug) ? [role?.featureUuid] : [])], []);
+                                            switch (slug) {
+                                                case "agenda":
+                                                    setFieldValue(`roles[${index}].featureRoles`, agendas.filter(feature => !selectedFeatures.includes(feature?.uuid)));
+                                                    break;
+                                                case "cashbox":
+                                                    setFieldValue(`roles[${index}].featureRoles`, cashboxes.filter(feature => !selectedFeatures.includes(feature?.uuid)));
+                                                    break;
+                                                default:
+                                                    setFieldValue(`roles[${index}].featureRoles`, []);
+                                                    setTimeout(() => handleProfilePermissions(index, false, slug), 1000);
+                                                    break;
+                                            }
+                                            setFieldValue(`roles[${index}].featureProfiles`, []);
+                                        } else {
+                                            setFieldValue(`roles[${index}].feature`, "");
+                                            setFieldValue(`roles[${index}].featureUuid`, "");
+                                            setFieldValue(`roles[${index}].profileUuid`, "");
                                         }
-                                        setFieldValue(`roles[${index}].featureProfiles`, []);
                                     }}
-                                    renderValue={selected => {
-                                        if ((selected as any).length === 0) {
-                                            return <em>{t("users.feature")}</em>;
-                                        }
-                                        const feature = features?.find((profile: any) => profile.slug === selected);
-                                        return <Typography>{feature?.name}</Typography>
-                                    }}
-                                    displayEmpty
-                                    sx={{color: "text.secondary"}}>
-                                    {features?.map((profile: any) =>
-                                        <MenuItem key={profile.slug}
-                                                  value={profile.slug}>{profile.name}</MenuItem>)}
-                                </Select>
+                                    getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                                    renderOption={(props, option) => (
+                                        <ListItem {...props}>
+                                            <ListItemText primary={option?.name}/>
+                                        </ListItem>
+                                    )}
+                                    options={features}
+                                    sx={{color: "text.secondary"}}
+                                    renderInput={params =>
+                                        <TextField
+                                            {...params}
+                                            color={"info"}
+                                            sx={{paddingLeft: 0}}
+                                            placeholder={t("users.feature-uuid")}
+                                            variant="outlined"
+                                            fullWidth/>}/>
                             </FormControl>
                         </Grid>
-                        {(values.roles[index] as any).featureRoles?.length > 0 &&
+                        {role.featureRoles?.length > 0 &&
                             <Grid item xs={12} lg={2}>
                                 <FormControl size="small" fullWidth>
-                                    <Select
-                                        labelId="feature-uuid-select-label"
+                                    <Autocomplete
+                                        autoHighlight
+                                        size="small"
                                         id={"feature-uuid"}
-                                        {...getFieldProps(`roles[${index}].featureUuid`)}
-                                        renderValue={selected => {
-                                            if ((selected as any).length === 0) {
-                                                return <em>{t("users.feature-uuid")}</em>;
-                                            }
-                                            const profile = (values.roles[index] as any).featureRoles?.find((profile: any) => profile.uuid === selected);
-                                            return <Typography>{profile?.name}</Typography>
+                                        value={role.featureRoles.find((profile: ProfileModel) => profile.uuid === role?.featureUuid) ?? null}
+                                        options={role.featureRoles}
+                                        getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                        isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                                        renderOption={(props, option) => (
+                                            <ListItem {...props}>
+                                                <ListItemText primary={option?.name}/>
+                                            </ListItem>
+                                        )}
+                                        onChange={(e, feature) => {
+                                            setFieldValue(`roles[${index}].featureUuid`, feature?.uuid);
+                                            handleProfilePermissions(index, false, role?.feature);
                                         }}
-                                        onChange={event => {
-                                            setFieldValue(`roles[${index}].featureUuid`, event.target.value);
-                                            handleProfilePermissions(index, false, (values.roles[index] as any)?.feature);
-                                        }}
-                                        displayEmpty
-                                        sx={{color: "text.secondary"}}>
-                                        {(values.roles[index] as any).featureRoles.map((profile: any) =>
-                                            <MenuItem key={profile.uuid}
-                                                      value={profile.uuid}>{profile.name}</MenuItem>)}
-                                    </Select>
+                                        sx={{color: "text.secondary"}}
+                                        renderInput={params =>
+                                            <TextField
+                                                {...params}
+                                                color={"info"}
+                                                sx={{paddingLeft: 0}}
+                                                placeholder={t("users.feature-uuid")}
+                                                variant="outlined"
+                                                fullWidth/>}/>
                                 </FormControl>
                             </Grid>}
                         <Grid item xs={12}
-                              lg={(values.roles[index] as any).featureRoles?.length > 0 ? 4.4 : 6.4}>
+                              lg={role.featureRoles?.length > 0 ? 4.4 : 6.4}>
                             <Autocomplete
+                                loading={loadingReq && openAutoComplete.index === index}
                                 id={"feature-profile"}
+                                disableClearable
+                                disabled={role.feature === ""}
                                 autoHighlight
                                 size="small"
-                                value={(values.roles[index] as any).featureProfiles.find((profile: ProfileModel) => profile.uuid === (values.roles[index] as any)?.profileUuid) ?? null}
+                                open={openAutoComplete["index"] === index && openAutoComplete["value"]}
+                                onOpen={() => {
+                                    setSelectedFeature(index);
+                                    setTimeout(() => setOpenAutoComplete({index, value: true}));
+                                }}
+                                onClose={() => {
+                                    setOpenAutoComplete({index, value: false});
+                                }}
+                                value={role.featureProfiles.find((profile: ProfileModel) => profile.uuid === role?.profileUuid) ?? null}
+                                inputValue={role?.profileUuid}
+                                onInputChange={(event, value, reason) => {
+                                    if (reason !== 'reset') {
+                                        setFieldValue(`roles[${index}].profileUuid`, value)
+                                    }
+                                }}
                                 onChange={(e, profile) => {
                                     e.stopPropagation();
-                                    console.log("profile", profile)
                                     setFieldValue(`roles[${index}].profileUuid`, profile?.uuid);
                                 }}
+                                filterOptions={(options, params) => {
+                                    return options;
+                                }}
                                 options={(values.roles[index] as any).featureProfiles}
-                                getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                                getOptionLabel={(option: any) => typeof option === "string" ? option : (option?.name ?? "")}
                                 isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
                                 renderOption={(props, option) => (
                                     <ListItem {...props}>
@@ -241,6 +287,15 @@ function FeaturePermissionsCard({...props}) {
                                         sx={{paddingLeft: 0}}
                                         placeholder={t("users.profile-feature")}
                                         variant="outlined"
+                                        InputProps={{
+                                            ...params.InputProps,
+                                            endAdornment: (
+                                                <React.Fragment>
+                                                    {loadingReq && openAutoComplete.index === index ? <CircularProgress color="inherit" size={20}/> : null}
+                                                    {params.InputProps.endAdornment}
+                                                </React.Fragment>
+                                            ),
+                                        }}
                                         fullWidth/>}
                             />
                         </Grid>
@@ -249,7 +304,7 @@ function FeaturePermissionsCard({...props}) {
                                    spacing={1.2}
                                    justifyContent={"space-between"}>
                                 <Button
-                                    disabled={(values.roles[index] as any).feature?.length === 0}
+                                    disabled={role.feature?.length === 0}
                                     onClick={() => {
                                         setSelectedProfile(null);
                                         setSelectedFeature(index);
@@ -284,8 +339,8 @@ function FeaturePermissionsCard({...props}) {
                         </Grid>
                     </Grid>
                     {(values.roles[index] &&
-                            (values.roles[index] as any).featureRoles?.length === 0 &&
-                            (values.roles[index] as any).hasMultipleInstance) &&
+                            role.featureRoles?.length === 0 &&
+                            role.hasMultipleInstance) &&
                         <FormHelperText error>Vous définissez déjà les autorisations pour cette
                             fonctionnalité</FormHelperText>}
 

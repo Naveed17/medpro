@@ -18,14 +18,14 @@ function useCashBox() {
 
     useEffect(() => {
         if (httpBoxesResponse) {
-            const cashboxes = (httpBoxesResponse as HttpResponse).data;
+            const cashboxes = (httpBoxesResponse as HttpResponse).data.map((data: any) => data.cashBox);
             if (cashboxes.length > 0) {
                 dispatch(setSelectedBoxes([cashboxes[0]]));
             }
         }
     }, [dispatch, httpBoxesResponse]);
 
-    return {cashboxes: ((httpBoxesResponse as HttpResponse)?.data ?? []) as any[]}
+    return {cashboxes: ((httpBoxesResponse as HttpResponse)?.data?.map((data: any) => data.cashBox) ?? []) as any[]}
 }
 
 export default useCashBox;
