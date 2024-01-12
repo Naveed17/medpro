@@ -3,9 +3,14 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {ReactElement} from "react";
 import {DashLayout} from "@features/base";
 import {Redirect} from "@features/redirect";
+import {useSession} from "next-auth/react";
 
 function Consultation() {
-    return (<Redirect to='/dashboard/agenda'/>);
+    const {data: session} = useSession();
+
+    const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
+
+    return (<Redirect to={features?.length > 0 ? `/dashboard/${features[0].slug}` : `/dashboard/agenda`}/>);
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
