@@ -276,7 +276,7 @@ function PatientRow({...props}) {
                             <Box ml={1}>
                                 <Typography
                                     component="span"
-                                    className="next-appointment"
+                                    className="next-appointment ellipsis"
                                     variant="body2"
                                     color="text.primary"
                                     fontWeight={600}
@@ -371,7 +371,7 @@ function PatientRow({...props}) {
                             <Box ml={1}>
                                 <Typography
                                     component="span"
-                                    className="next-appointment"
+                                    className="next-appointment ellipsis"
                                     variant="body2"
                                     color="text.primary"
                                     fontWeight={600}

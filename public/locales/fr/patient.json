@@ -163,8 +163,9 @@
       "created-by": "créé par"
     },
     "add-patient": {
-      "personal-info": "Informations",
+      "personal-info": "Information personnelle",
       "additional-information": "Informations supplémentaires",
+      "insurance-info": "Assurance / Convention",
       "fin": "Fin",
       "group": "Groupe",
       "invalidDate": "La date est invalide",
@@ -175,8 +176,8 @@
       "civility": "Civilité",
       "more-detail": "Afficher plus de détails",
       "less-detail": "Afficher moins de détails",
-      "mr": "M.",
-      "mrs": "Mme.",
+      "mr": "Homme",
+      "mrs": "Femme",
       "nationality": "Nationalité",
       "nationality-placeholder": "Sélectionner la nationalité du patient",
       "date-of-birth": "Date de naissance",
