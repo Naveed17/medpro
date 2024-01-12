@@ -590,7 +590,9 @@ function DocumentDetailDialog({...props}) {
                         }
                     }
                 }
-                setLoading(false)
+                setTimeout(()=>{
+                    setLoading(false)
+                },1000)
             }
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -830,10 +832,6 @@ function DocumentDetailDialog({...props}) {
                                             document.getElementById('date-input')?.focus()
                                         }}
                                     />
-                                    {/*<Button size='small' className='btn-modi' onClick={() => console.log(date)}>
-                                    <IconUrl path="ic-edit"/>
-                                    {t('modifier')}
-                                </Button>*/}
                                 </ListItemButton>
                             </ListItem>
                             {

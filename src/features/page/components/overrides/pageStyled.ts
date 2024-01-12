@@ -6,29 +6,11 @@ const PWIDTH_A5 = "148mm"
 const PHEIGHT_A5 = "210mm"
 const PWIDTH_A4 = "210mm";
 const PageStyled = styled(Box)(({theme}) => ({
-
-        "& .item": {
-            boxSizing: "border-box",
-            border: "1px solid #ccc",
-            padding: 10,
-            margin: 5,
-            width: 200,
-            height: 100,
-            overflow: "auto"
-        },
-        '& .x': {
-            border: "1px solid",
-            display: "flex",
-            flexWrap: "wrap",
-            height: 600,
-            width: 300,
-            marginBottom: 20
-        },
         '& .page': {
             boxShadow: "0 0 6px #ccc",
             background: "white",
             marginBottom: 10,
-            border:"1px solid white"
+            border:"2px solid white"
         },
         '& .a4': {
             width: PWIDTH_A4,
@@ -72,7 +54,6 @@ const PageStyled = styled(Box)(({theme}) => ({
             "& .a5": {
                 margin: 0,
                 boxShadow: "none",
-                border: 0,
             },
             "& .a4": {
                 margin: 0,

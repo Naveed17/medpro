@@ -6,12 +6,10 @@ import Icon from "@themes/urlIcon";
 import {useTheme} from "@mui/material";
 import {DocHeader} from "@features/files";
 import {DocHeaderEditor} from "@features/files/components/docHeaderEditor";
-import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
-import {Editor} from "@tinymce/tinymce-react";
 
 function Page({...props}) {
 
-    const {data, setData, state, id = 0, setOnResize, date, title, header, setHeader} = props
+    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue} = props
 
     const theme = useTheme();
 
@@ -167,7 +165,7 @@ function Page({...props}) {
                             ev.stopPropagation()
                             setSelectedElement("title")
                         }}>
-                            {title ? title : data.title.content}
+                            {data.title.content}
                         </div>
                         <div className={"menuTop"}>
                             <div className={"btnMenu"}
@@ -177,12 +175,19 @@ function Page({...props}) {
                                  }}>
                                 <Icon path={"ic-delete"}/>
                             </div>
+                            {/* <div className={"btnMenu"}>
+                                <div onClick={() => {setValue("title")}}>
+                                    <Icon path={"focus"} width={20} height={20}/>
+                                </div>
+                            </div>*/}
                             <div className={"btnMenu"}
                                  style={{backgroundColor: selectedElement === "title" ? theme.palette.success.main : theme.palette.info.main}}
                                  onClick={() => {
                                      setSelectedElement(selectedElement !== "title" ? "title" : "")
                                  }}>
-                                <Icon path={selectedElement !== "title" ? "ic-edit-patient" : "ic-check"}/>
+                                {selectedElement === "title" ?
+                                    <Icon path={"ic-check"}/> :
+                                    <Icon path={"text-selection"} width={20} height={20}/>}
                             </div>
                         </div>
                     </Resizable>}
@@ -265,7 +270,7 @@ function Page({...props}) {
                             ev.stopPropagation()
                             setSelectedElement("patient")
                         }}>
-                            {data.patient.prefix} {state ? state.patient : data.patient.content}
+                            {data.patient.prefix} {data.patient.content}
                         </div>
                         <div className={"menuTop"}>
                             <div className={"btnMenu"}
@@ -315,7 +320,7 @@ function Page({...props}) {
                             ev.stopPropagation()
                             setSelectedElement("cin")
                         }}>
-                            {data.cin?.prefix} {state ? state.cin : data.cin?.content}
+                            {data.cin?.prefix} {data.cin?.content}
                         </div>
                         <div className={"menuTop"}>
                             <div className={"btnMenu"}
@@ -358,8 +363,8 @@ function Page({...props}) {
                         onResizeStart={() => {
                             setBlockDrag(true)
                         }}
-                        onResizeStop={() => {
-                            data.content.width = document.getElementById(`content${id}`)?.clientWidth
+                        onResizeStop={(e, direction, ref, d) => {
+                            data.content.width += d
                             const _height = document.getElementById(`content${id}`)?.clientHeight;
 
                             if (id === 0)
@@ -383,14 +388,25 @@ function Page({...props}) {
                             setOnResize(true);
                         }}>
 
-                        <div  id={`content${id}`} style={{marginTop: getMarginTop(),width:"100%",height:"100%"}}
-                             dangerouslySetInnerHTML={{__html: state && state.content ? state.content : data.content.content}}></div>
-                        <div className={"menu"}
-                             style={{background: selectedElement === "content" ? theme.palette.success.main : theme.palette.info.main}}>
-                            <div onClick={() => {
-                                setSelectedElement(selectedElement !== "content" ? "content" : "")
-                            }}>
-                                <Icon path={selectedElement !== "content" ? "ic-edit-patient" : "ic-check"}/>
+                        <div id={`content${id}`} style={{marginTop: getMarginTop(), width: "100%", height: "100%"}}
+                             dangerouslySetInnerHTML={{__html: data.content.content}}></div>
+                        <div className={"menuTop"} style={{top: 0}}>
+                            <div className={"btnMenu"}>
+                                <div onClick={() => {
+                                    setValue("content")
+                                }}>
+                                    <Icon path={"focus"} width={20} height={20}/>
+                                </div>
+                            </div>
+                            <div className={"btnMenu"}
+                                 style={{background: selectedElement === "content" ? theme.palette.success.main : theme.palette.info.main}}>
+                                <div onClick={() => {
+                                    setSelectedElement(selectedElement !== "content" ? "content" : "")
+                                }}>
+                                    {selectedElement === "content" ?
+                                        <Icon path={"ic-check"}/> :
+                                        <Icon path={"text-selection"} width={20} height={20}/>}
+                                </div>
                             </div>
                         </div>
                     </Resizable>
@@ -425,23 +441,7 @@ function Page({...props}) {
                             ev.stopPropagation()
                             setSelectedElement("footer")
                         }}>
-                            {selectedElement === "footer" ? <Editor
-                                value={data.footer.content}
-                                apiKey={process.env.EDITOR_KEY}
-                                onEditorChange={(res) => {
-                                    data.footer.content = res;
-                                    setData({...data});
-                                }}
-                                init={{
-                                    branding: false,
-                                    statusbar: false,
-                                    menubar: false,
-                                    plugins: tinymcePlugins,
-                                    toolbar: tinymceToolbar,
-                                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-
-                                }}
-                            /> : <div id={"footer"} className={"footer-st"}/>}
+                            <div id={"footer"} className={"footer-st"}/>
                         </div>
                         <div className={"menuTop"}>
                             <div className={"btnMenu"}
@@ -451,12 +451,21 @@ function Page({...props}) {
                                  }}>
                                 <Icon path={"ic-delete"}/>
                             </div>
+                            <div className={"btnMenu"}>
+                                <div onClick={() => {
+                                    setValue("footer")
+                                }}>
+                                    <Icon path={"focus"} width={20} height={20}/>
+                                </div>
+                            </div>
                             <div className={"btnMenu"}
                                  style={{backgroundColor: selectedElement === "footer" ? theme.palette.success.main : theme.palette.info.main}}
                                  onClick={() => {
                                      setSelectedElement(selectedElement !== "footer" ? "footer" : "")
                                  }}>
-                                <Icon path={selectedElement !== "footer" ? "ic-edit-patient" : "ic-check"}/>
+                                {selectedElement === "footer" ?
+                                    <Icon path={"ic-check"}/> :
+                                    <Icon path={"text-selection"} width={20} height={20}/>}
                             </div>
                         </div>
                     </Resizable>}

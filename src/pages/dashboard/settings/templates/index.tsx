@@ -332,7 +332,7 @@ function TemplatesConfig() {
                                 </Typography>
                                 <Button
                                     onClick={() => {
-                                        router.push(`/dashboard/settings/templates/new`);
+                                        router.push(`/dashboard/settings/templates/new/new`);
                                     }}
                                     variant="contained"
                                     startIcon={<IconUrl path={"ic-doc-add"}/>}
