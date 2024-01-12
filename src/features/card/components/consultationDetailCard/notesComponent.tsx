@@ -79,6 +79,7 @@ function NotesComponent({...props}) {
             SpeechRecognition.stopListening();
             setLoadChanges(true)
             saveChanges("notes", values.notes)
+            oldNote.current = values.notes;
             resetTranscript();
             setIsStarted(false)
             dispatch(SetListen(''));
