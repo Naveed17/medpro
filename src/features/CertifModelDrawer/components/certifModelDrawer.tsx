@@ -292,7 +292,7 @@ function CertifModelDrawer({...props}) {
 
                             <Editor
                                 value={getFieldProps("content").value}
-                                apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                 onEditorChange={(res) => {
                                     setFieldValue('content', res)
                                 }}

@@ -254,7 +254,7 @@ function ConsultationInProgress() {
     }]]);
     const [mobileCards, setMobileCards] = useState([[
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
-        {id: 'item-3', content: 'exam', expanded: false, icon: "ic-edit-file-pen"}
+        {id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}
     ]]);
 
     const [selectedAudio, setSelectedAudio] = useState<any>(null);
@@ -291,6 +291,7 @@ function ConsultationInProgress() {
     const hasDataHistory = sheet?.hasDataHistory
     const tabsData = [...sheet?.hasHistory ? [{
         label: "patient_history",
+        label_mobile: "patient_history",
         value: "patient history"
     }] : [], ...tabs]
 
