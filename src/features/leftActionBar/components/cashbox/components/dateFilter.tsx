@@ -10,7 +10,6 @@ function DateFilter({...props}) {
 
     const {
         filterDate,
-        setFilterDate,
         byPeriod,
         setByPeriod,
         filterCB,

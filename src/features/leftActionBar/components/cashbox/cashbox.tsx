@@ -7,7 +7,6 @@ import {
     setInsurances,
     setPaymentTypes
 } from "@features/leftActionBar";
-import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, CalendarPickers, DayOfWeek, setCurrentDate} from "@features/calendar";
