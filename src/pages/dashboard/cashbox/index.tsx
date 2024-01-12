@@ -263,8 +263,8 @@ function Cashbox() {
     ];
     const topCard = [
         {
-            icon: "ic-acte",
-            mobile_icon: "ic-acte",
+            icon: "ic-acte-light-blue",
+            mobile_icon: "ic-acte-light-blue",
             amount: ca,
             title: "total_appointment",
         },
