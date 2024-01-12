@@ -64,7 +64,6 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
 
 
     const [loadingReq, setLoadingReq] = useState(false);
-    let [oldNote, setOldNote] = useState(app_data?.notes ? app_data?.notes.value : "");
     let [diseases, setDiseases] = useState<string[]>([]);
     const [hide, setHide] = useState<boolean>(false);
     const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
@@ -72,6 +71,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
     const [loadChanges, setLoadChanges] = useState(false);
 
     const modelContent = useRef(app_data?.notes ? app_data?.notes.value : "");
+    const oldNote = useRef(app_data?.notes ? app_data?.notes.value : "");
 
     const {trigger: triggerAddReason} = useRequestQueryMutation("/motif/add");
     const {trigger: triggerDiseases} = useRequestQueryMutation("/diseases");
@@ -173,7 +173,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
         const form = new FormData();
         if (ev === 'notes') {
             modelContent.current = newValue
-            !isStarted && setOldNote(newValue);
+            oldNote.current = newValue;
         }
         form.append(ev === 'diagnosis' ? 'diagnostic' : ev, newValue);
 
@@ -346,7 +346,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                             {
                                 !editDiagnosic && <Editor
                                     initialValue={values.diagnosis}
-                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                     onEditorChange={(event) => {
                                         debouncedOnChange("diagnosis", event)
                                     }}
@@ -362,7 +362,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                             {
                                 editDiagnosic && <Editor
                                     initialValue={values.diagnosis}
-                                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                    tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                     onEditorChange={(event) => {
                                         debouncedOnChange("diagnosis", event)
                                     }}

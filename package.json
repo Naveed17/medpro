@@ -10,7 +10,8 @@
     "dev:up": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build",
     "prod:up": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build --remove-orphans",
     "prod:run": "next build && next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "tinymce": "node ./postinstall.js"
   },
   "dependencies": {
     "@casl/ability": "^6.5.0",
@@ -53,6 +54,7 @@
     "formik": "^2.4.3",
     "formiojs": "^4.15.1",
     "framer-motion": "^10.15.1",
+    "fs-extra": "^11.2.0",
     "humanize-duration": "^3.29.0",
     "i18next": "^23.7.6",
     "js-file-download": "^0.4.12",
@@ -107,6 +109,7 @@
     "smartlook-client": "^8.2.0",
     "stylis": "^4.3.0",
     "stylis-plugin-rtl": "^2.1.1",
+    "tinymce": "^6.8.2",
     "yup": "^1.2.0"
   },
   "devDependencies": {

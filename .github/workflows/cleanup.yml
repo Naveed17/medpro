@@ -11,6 +11,7 @@ on:
 jobs:
   envmap:
     runs-on: ubuntu-latest
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'cleanup') }}
     # Map a step output to a job output
     outputs:
       enable_cd: ${{ steps.export.outputs.enable_cd }}

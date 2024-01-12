@@ -267,16 +267,23 @@ function Cashbox() {
     ];
     const topCard = [
         {
-            icon: "ic-cash-light-green",
-            mobile_icon: "ic-cash-light-green",
-            amount: total,
-            title: "total_profit",
+            icon: "ic-acte-light-blue",
+            mobile_icon: "ic-acte-light-blue",
+            amount: ca,
+            title: "total_appointment",
         },
+
         {
             icon: "ic-unpaid-light-red",
             mobile_icon: "ic-unpaid-light-red",
             amount: unpaid,
             title: "not_paid",
+        },
+        {
+            icon: "ic-cash-light-green",
+            mobile_icon: "ic-cash-light-green",
+            amount: total,
+            title: "total_profit",
         },
         {
             icon: "ic-cash-light-blue",
@@ -358,7 +365,6 @@ function Cashbox() {
         } else {
             setRows([]);
         }
-        //if (filterQuery.includes("cashboxes")) setLoading(false);
     };
 
     const getConsultation = (start: string, end: string) => {
@@ -374,9 +380,7 @@ function Cashbox() {
                 onSuccess: (result) => {
                     const res = result.data.data;
                     setApps(res);
-                    setUnpaid(res.reduce((total: number, val: {
-                        appointmentRestAmount: number;
-                    }) => total + val.appointmentRestAmount, 0));
+                    setUnpaid(res.reduce((total: number, val: { appointmentRestAmount: number; }) => total + val.appointmentRestAmount, 0));
                     setCA(res.reduce((total: number, val: { fees: string; }) => total + parseInt(val.fees), 0));
                 },
             }
@@ -456,7 +460,6 @@ function Cashbox() {
         setContextMenu(null);
     };
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
-        console.log("newValue", newValue);
         setSelectedTab(newValue);
         dispatch(setSelectedTabIndex(newValue));
     };
@@ -530,7 +533,7 @@ function Cashbox() {
                     mb={0.6}
                     display="grid"
                     sx={{gap: 1.2, px: 1}}
-                    gridTemplateColumns={`repeat(${isMobile ? "2" : "4"},minmax(0,1fr))`}>
+                    gridTemplateColumns={`repeat(${isMobile ? "2" : "5"},minmax(0,1fr))`}>
                     {topCard.map((card, idx) => (
                         <Card sx={{border: "none"}} key={idx}>
                             <CardContent sx={{px: isMobile ? 1.75 : 2}}>
@@ -551,7 +554,7 @@ function Cashbox() {
                                             {card.amount}
                                             <span style={{fontSize: 14, marginLeft: 4}}>{devise}</span>
                                         </Typography>
-                                        <Typography variant="body2" textTransform="capitalize">
+                                        <Typography variant="body2" fontSize={11} textTransform="capitalize">
                                             {t(card.title)}
                                         </Typography>
                                     </Stack>
@@ -575,8 +578,6 @@ function Cashbox() {
                                     <Typography fontWeight={700}>{t("consultations")}</Typography>
                                     <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                 </Stack>
-                                <Typography>{t("total")} <span
-                                    style={{fontSize: 20, fontWeight: "bold"}}>{ca}</span> {devise}</Typography>
                             </Stack>
                             <DesktopContainer>
                                 {apps.length > 0 ? <Otable
@@ -625,23 +626,22 @@ function Cashbox() {
                                     mb={2}
                                     pb={1}
                                     borderBottom={1}
-                                    borderColor="divider">
+                                    borderColor="divider"
+                                >
                                     <Stack>
                                         <Typography fontWeight={700}>
                                             {t("transactions")}
                                         </Typography>
                                         <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                     </Stack>
-                                    {rows.length > 0 &&
-                                        <Can I={"manage"} a={"cashbox"} field={"cash_box_transaction_export"}>
-                                            <Button
-                                                onClick={exportDoc}
-                                                variant="outlined"
-                                                color="info"
-                                                startIcon={<IconUrl path="ic-export-new"/>}>
-                                                {t("export")}
-                                            </Button>
-                                        </Can>}
+                                    {rows.length > 0 && <Button
+                                        onClick={exportDoc}
+                                        variant="outlined"
+                                        color="info"
+                                        startIcon={<IconUrl path="ic-export-new"/>}
+                                    >
+                                        {t("export")}
+                                    </Button>}
                                 </Stack>
                                 <DesktopContainer>
                                     {!loading && (

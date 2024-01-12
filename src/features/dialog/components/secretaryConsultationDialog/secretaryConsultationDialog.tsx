@@ -317,7 +317,10 @@ function SecretaryConsultationDialog({...props}) {
                                     }
                                 </Stack>
                                 <Stack className="instruction-box" spacing={1}>
-                                    <Typography variant="body2" color="text.secondary">{t('note')}</Typography>
+                                    {
+                                        !isMobile &&
+                                        <Typography variant="body2" color="text.secondary">{t('note')}</Typography>
+                                    }
                                     <TextField
                                         fullWidth
                                         multiline
@@ -327,7 +330,7 @@ function SecretaryConsultationDialog({...props}) {
                                             localStorage.setItem(`instruction-data-${app_uuid}`, event.target.value.slice(0, limit));
                                         }}
                                         placeholder={t("type_instruction_for_the_secretary")}
-                                        rows={4}
+                                        rows={isMobile ? 2 : 4}
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment defaultValue={instruction} position="end">
