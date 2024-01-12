@@ -7,7 +7,7 @@ import {
     setInsurances,
     setPaymentTypes
 } from "@features/leftActionBar";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, CalendarPickers, DayOfWeek, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
@@ -16,9 +16,11 @@ import {Box, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
 import {useInsurances} from "@lib/hooks/rest";
+import {AbilityContext} from "@features/casl/can";
 
 function Cashbox() {
     const dispatch = useAppDispatch();
+    const ability = useContext(AbilityContext);
 
     const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
     const {
@@ -102,6 +104,7 @@ function Cashbox() {
         <BoxStyled className="container-filter">
             <CalendarPickers
                 renderDay
+                {...(!ability.can('manage', 'cashbox', 'cash_box_transaction_history') && {disablePast: true})}
                 onDateChange={(date: Date | null) => {
                     if (date) {
                         dispatch(setCurrentDate({date, fallback: true}));

@@ -29,6 +29,7 @@ import {NoDataCard, TransactionMobileCard} from "@features/card";
 import {motion} from "framer-motion";
 import {Dialog} from "@features/dialog";
 import {LoadingButton} from "@mui/lab";
+import Can from "@features/casl/can";
 
 function TransactionPanel({...props}) {
     const {patient, rest, wallet, walletMutate, devise, router} = props;
@@ -183,7 +184,6 @@ function TransactionPanel({...props}) {
             </Stack>}
 
             <PanelStyled sx={{bgcolor: {xs: "transparent", sm: theme.palette.common.white}}}>
-
                 {!isLoading && (
                     <Box display={{xs: "none", sm: "block"}}>
                         <CardContent>
@@ -194,16 +194,16 @@ function TransactionPanel({...props}) {
                                 borderBottom={1}
                                 borderColor="divider"
                                 pb={1.2}
-                                mb={1.2}
-                            >
+                                mb={1.2}>
                                 <Typography fontWeight={600}>{t("transactions")}</Typography>
-                                <Button
-                                    startIcon={<IconUrl path="ic-argent"/>}
-                                    onClick={() => setOpenPaymentDialog(true)}
-                                    variant="contained"
-                                >
-                                    {t("add_payment")}
-                                </Button>
+                                <Can I={"manage"} a={"cashbox"} field={"cash_box_transaction_create"}>
+                                    <Button
+                                        startIcon={<IconUrl path="ic-argent"/>}
+                                        onClick={() => setOpenPaymentDialog(true)}
+                                        variant="contained">
+                                        {t("add_payment")}
+                                    </Button>
+                                </Can>
                             </Stack>
                             {rows.length > 0 && (
                                 <Stack direction="row" alignItems="center" spacing={1.5}>
@@ -232,19 +232,16 @@ function TransactionPanel({...props}) {
                                                             collapse === row.uuid ? null : row.uuid
                                                         );
                                                         selectedRow(row.uuid);
-                                                    }}
-                                                >
+                                                    }}>
                                                     <td>
                                                         <Stack
                                                             direction={{xs: "column", sm: "row"}}
                                                             alignItems={{xs: "start", sm: "center"}}
-                                                            spacing={0.5}
-                                                        >
+                                                            spacing={0.5}>
                                                             <Stack
                                                                 direction="row"
                                                                 alignItems="center"
-                                                                spacing={0.5}
-                                                            >
+                                                                spacing={0.5}>
                                                                 <IconUrl
                                                                     path="ic-agenda"
                                                                     width={12}
@@ -260,8 +257,7 @@ function TransactionPanel({...props}) {
                                                             <Stack
                                                                 direction="row"
                                                                 alignItems="center"
-                                                                spacing={0.5}
-                                                            >
+                                                                spacing={0.5}>
                                                                 <IconUrl path="ic-time"/>
                                                                 <Typography variant="body2">
                                                                     {row.payment_time}
@@ -274,14 +270,12 @@ function TransactionPanel({...props}) {
                                                             direction="row"
                                                             alignItems="center"
                                                             justifyContent="center"
-                                                            spacing={1}
-                                                        >
+                                                            spacing={1}>
                                                             {row.payment_means &&
                                                                 row.payment_means.map((mean: any) => (
                                                                     <Tooltip
                                                                         key={mean.slug}
-                                                                        title={`${mean.amount} ${devise}`}
-                                                                    >
+                                                                        title={`${mean.amount} ${devise}`}>
                                                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                                                         <img
                                                                             style={{width: 15}}
@@ -309,18 +303,22 @@ function TransactionPanel({...props}) {
                                                         </Typography>
                                                     </td>
                                                     <td>
-                                                        {row.uuid === collapse && <IconButton
-                                                            className="btn-del"
-                                                            onClick={(event) => {
-                                                                event.stopPropagation();
-                                                                setSelected(row);
-                                                                setOpenDeleteTransactionDialog(true);
-                                                            }}>
-                                                            <IconUrl
-                                                                path="ic-delete"
-                                                                color={theme.palette.secondary.main}
-                                                            />
-                                                        </IconButton>}
+                                                        {row.uuid === collapse &&
+                                                            <Can I={"manage"} a={"cashbox"}
+                                                                 field={"cash_box_transaction_delete"}>
+                                                                <IconButton
+                                                                    className="btn-del"
+                                                                    onClick={(event) => {
+                                                                        event.stopPropagation();
+                                                                        setSelected(row);
+                                                                        setOpenDeleteTransactionDialog(true);
+                                                                    }}>
+                                                                    <IconUrl
+                                                                        path="ic-delete"
+                                                                        color={theme.palette.secondary.main}
+                                                                    />
+                                                                </IconButton>
+                                                            </Can>}
                                                     </td>
                                                 </tr>
 
@@ -333,8 +331,7 @@ function TransactionPanel({...props}) {
                                                         variants={variants}
                                                         initial="closed"
                                                         transition={{duration: 0.3}}
-                                                        exit={{opacity: 0, height: 0}}
-                                                    >
+                                                        exit={{opacity: 0, height: 0}}>
                                                         <td colSpan={6}>
                                                             <Stack
                                                                 spacing={1.2}
@@ -348,8 +345,7 @@ function TransactionPanel({...props}) {
                                                                             display: "none",
                                                                         },
                                                                     },
-                                                                })}
-                                                            >
+                                                                })}>
                                                                 <Paper className="means-wrapper">
                                                                     <Stack spacing={0.5}>
                                                                         {row?.payment_means?.length > 0 &&
@@ -388,22 +384,18 @@ function TransactionPanel({...props}) {
                                                                                         direction="row"
                                                                                         alignItems="center"
                                                                                         spacing={4}
-                                                                                        width={1}
-                                                                                    >
+                                                                                        width={1}>
                                                                                         <Typography
                                                                                             variant="body2"
                                                                                             width={1}
-                                                                                            className="ellipsis"
-
-                                                                                        >
+                                                                                            className="ellipsis">
                                                                                             {item?.data?.carrier}
                                                                                         </Typography>
                                                                                         <Stack
                                                                                             direction="row"
                                                                                             alignItems="center"
                                                                                             spacing={0.5}
-                                                                                            width={1}
-                                                                                        >
+                                                                                            width={1}>
                                                                                             <IconUrl
                                                                                                 path="ic-agenda"
                                                                                                 width={12}
@@ -420,15 +412,8 @@ function TransactionPanel({...props}) {
                                                                                         </Stack>
                                                                                         <Typography
                                                                                             variant="body2"
-                                                                                            width={1}
-                                                                                        >
-                                                                                            {item.amount ? (
-                                                                                                <>
-                                                                                                    {item.amount} {devise}
-                                                                                                </>
-                                                                                            ) : (
-                                                                                                ""
-                                                                                            )}
+                                                                                            width={1}>
+                                                                                            {item.amount ? (<>{item.amount} {devise}</>) : ""}
                                                                                         </Typography>
                                                                                     </Stack>
                                                                                 </Stack>
@@ -440,8 +425,7 @@ function TransactionPanel({...props}) {
                                                                     transaction_data.map((transaction) => (
                                                                         <Card
                                                                             className="consultation-card"
-                                                                            key={transaction.uuid}
-                                                                        >
+                                                                            key={transaction.uuid}>
                                                                             <CardContent>
                                                                                 <Stack
                                                                                     direction="row"
@@ -500,8 +484,7 @@ function TransactionPanel({...props}) {
                                                                                                     mx: 0.5,
                                                                                                 },
                                                                                             },
-                                                                                        }}
-                                                                                    >
+                                                                                        }}>
                                                                                         <Label
                                                                                             variant="filled"
                                                                                             color={
@@ -510,27 +493,29 @@ function TransactionPanel({...props}) {
                                                                                                     ?.restAmount
                                                                                                     ? "error"
                                                                                                     : "success"
-                                                                                            }
-                                                                                        >
+                                                                                            }>
                                                                                             {t("total")}
                                                                                             <strong>
                                                                                                 {transaction?.amount}
                                                                                             </strong>
                                                                                             {devise}
                                                                                         </Label>
-                                                                                        <IconButton
-                                                                                            className="btn-del"
-                                                                                            onClick={(event) => {
-                                                                                                event.stopPropagation();
-                                                                                                setSelectedData(transaction)
-                                                                                                setSelected(row);
-                                                                                                setOpenDeleteTransactionData(true);
-                                                                                            }}>
-                                                                                            <IconUrl
-                                                                                                path="ic-delete"
-                                                                                                color={theme.palette.secondary.main}
-                                                                                            />
-                                                                                        </IconButton>
+                                                                                        <Can I={"manage"} a={"cashbox"}
+                                                                                             field={"cash_box_transaction_data_delete"}>
+                                                                                            <IconButton
+                                                                                                className="btn-del"
+                                                                                                onClick={(event) => {
+                                                                                                    event.stopPropagation();
+                                                                                                    setSelectedData(transaction)
+                                                                                                    setSelected(row);
+                                                                                                    setOpenDeleteTransactionData(true);
+                                                                                                }}>
+                                                                                                <IconUrl
+                                                                                                    path="ic-delete"
+                                                                                                    color={theme.palette.secondary.main}
+                                                                                                />
+                                                                                            </IconButton>
+                                                                                        </Can>
                                                                                     </Stack>
                                                                                 </Stack>
                                                                             </CardContent>

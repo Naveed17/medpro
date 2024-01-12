@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {
     Box,
     Button,
@@ -48,7 +48,7 @@ import {agendaSelector} from "@features/calendar";
 import {saveAs} from "file-saver";
 import {ImageHandler} from "@features/image";
 import {LoadingScreen} from "@features/loadingScreen";
-import Can from "@features/casl/can";
+import Can, {AbilityContext} from "@features/casl/can";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -201,6 +201,7 @@ function Cashbox() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {insurances} = useInsurances();
     const {cashboxes} = useCashBox();
+    const ability = useContext(AbilityContext);
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
@@ -232,31 +233,34 @@ function Cashbox() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const tabsData = [
-        ...(has_agenda_feature ? [{
+        ...(has_agenda_feature && ability.can('manage', 'agenda', '*') ? [{
             label: "consultations",
-            value: "consultations",
+            value: "consultations"
         }] : []),
-        {
+        ...(ability.can('manage', 'cashbox', 'cash_box_transaction_show') ? [{
             label: "transactions",
-            value: "transactions",
-        },
+            value: "transactions"
+        }] : [])
     ];
     const MenuActions = [
         {
             title: "add-payment",
+            feature: "cashbox",
             permission: "cash_box_transaction_create",
             icon: <IconUrl path="ic-wallet-money" color="white"/>,
             action: "onCash",
         },
         {
             title: "delete",
+            feature: "cashbox",
             permission: "cash_box_transaction_delete",
             icon: <IconUrl path="ic-delete" color="white"/>,
             action: "onDelete",
         },
         {
             title: "see_patient_file",
-            permission: "",
+            feature: "patient",
+            permission: "*",
             icon: <IconUrl path="ic-file" color="white"/>,
             action: "onSeePatientFile",
         },
@@ -289,7 +293,7 @@ function Cashbox() {
     ];
     const isAddAppointment = false;
 
-    let [selectedTab, setSelectedTab] = useState(has_agenda_feature ? "consultations" : "transactions");
+    const [selectedTab, setSelectedTab] = useState(has_agenda_feature ? "consultations" : (ability.can('manage', 'cashbox', 'cash_box_transaction_show') ? "transactions" : ""));
     const filterQuery: string = generateFilter({filterCB});
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
@@ -452,6 +456,7 @@ function Cashbox() {
         setContextMenu(null);
     };
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
+        console.log("newValue", newValue);
         setSelectedTab(newValue);
         dispatch(setSelectedTabIndex(newValue));
     };
@@ -502,10 +507,10 @@ function Cashbox() {
                         scrollButtons={true}
                         textColor="primary"
                         indicatorColor="primary">
-                        {tabsData.map((tab: { label: string }) => (
+                        {tabsData.map((tab) => (
                             <Tab
-                                className="custom-tab"
                                 key={tab.label}
+                                className="custom-tab"
                                 value={tab.label}
                                 disabled={loading}
                                 label={t(tab.label)}
@@ -720,17 +725,18 @@ function Cashbox() {
             </DrawerBottom>
             <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
                 {MenuActions.map((v: any, index) => (
-                    <MenuItem
-                        key={index}
-                        className="popover-item"
-                        onClick={() => {
-                            OnMenuActions(v.action);
-                        }}>
-                        {v.icon}
-                        <Typography fontSize={15} sx={{color: "#fff"}}>
-                            {t(v.title, {ns: "common"})}
-                        </Typography>
-                    </MenuItem>
+                    <Can key={index} I={"manage"} a={v.feature} field={v.permission}>
+                        <MenuItem
+                            className="popover-item"
+                            onClick={() => {
+                                OnMenuActions(v.action);
+                            }}>
+                            {v.icon}
+                            <Typography fontSize={15} sx={{color: "#fff"}}>
+                                {t(v.title, {ns: "common"})}
+                            </Typography>
+                        </MenuItem>
+                    </Can>
                 ))}
             </ActionMenu>
             <Dialog

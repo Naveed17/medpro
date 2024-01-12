@@ -38,6 +38,7 @@ import moment from "moment/moment";
 import {Box} from "@mui/system";
 import {LottiePlayer} from "@features/card/components/successCard/successCard";
 import {useCashBox} from "@lib/hooks/rest";
+import Can from "@features/casl/can";
 
 const LoadingScreen = dynamic(
     () => import("@features/loadingScreen/components/loadingScreen")
@@ -371,17 +372,18 @@ function PaymentDialog({...props}) {
                             <Typography fontWeight={600} mb={1}>
                                 {t("payment")}
                             </Typography>
-                            <Button startIcon={<AddIcon/>}
-                                    endIcon={<UnfoldMoreRoundedIcon/>}
-                                    id="basic-button"
-                                    variant="contained"
-                                    aria-controls={open ? "basic-menu" : undefined}
-                                    aria-haspopup="true"
-                                    aria-expanded={open ? "true" : undefined}
-                                    onClick={handleClick}
-                            >
-                                {t("add_payment")}
-                            </Button>
+                            <Can I={"manage"} a={"cashbox"} field={"cash_box_transaction_create"}>
+                                <Button startIcon={<AddIcon/>}
+                                        endIcon={<UnfoldMoreRoundedIcon/>}
+                                        id="basic-button"
+                                        variant="contained"
+                                        aria-controls={open ? "basic-menu" : undefined}
+                                        aria-haspopup="true"
+                                        aria-expanded={open ? "true" : undefined}
+                                        onClick={handleClick}>
+                                    {t("add_payment")}
+                                </Button>
+                            </Can>
                             <Menu
                                 id="basic-menu"
                                 anchorEl={anchorEl}
