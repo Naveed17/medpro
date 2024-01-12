@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Avatar, Box, Checkbox, FormControl, MenuItem, TextField, Typography} from "@mui/material";
+import {Box, Checkbox, FormControl, MenuItem, TextField, Typography} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import {useAppSelector} from "@lib/redux/hooks";
 import {leftActionBarSelector} from "@features/leftActionBar";

@@ -20,11 +20,11 @@ import {
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {configSelector, DashLayout} from "@features/base";
-import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table";
+import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard,} from "@features/card";
+import {NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -35,7 +35,7 @@ import {Dialog, PatientDetail} from "@features/dialog";
 import {DefaultCountry} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useCashBox, useInsurances} from "@lib/hooks/rest";
-import {CashboxFilter, cashBoxSelector, SetSelectedTab,} from "@features/leftActionBar/components/cashbox";
+import {CashboxFilter, cashBoxSelector, setSelectedTabIndex} from "@features/leftActionBar";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import CloseIcon from "@mui/icons-material/Close";
 import {DrawerBottom} from "@features/drawerBottom";
@@ -59,7 +59,7 @@ interface HeadCell {
     align: "left" | "right" | "center";
 }
 
-export const headCells: readonly HeadCell[] = [
+const headCells: readonly HeadCell[] = [
     {
         id: "empty",
         numeric: false,
@@ -125,7 +125,7 @@ export const headCells: readonly HeadCell[] = [
         align: "center",
     },
 ];
-export const consultationCells: readonly HeadCell[] = [
+const consultationCells: readonly HeadCell[] = [
     {
         id: "date",
         numeric: false,
@@ -183,7 +183,6 @@ export const consultationCells: readonly HeadCell[] = [
         align: "center",
     },
 ];
-
 const noCardData = {
     mainIcon: "ic-unpaid",
     title: "no-data.title",
@@ -207,12 +206,12 @@ function Cashbox() {
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
+
     // ******** States ********
     const [filter, setFilter] = useState<boolean>(false);
     const [txtFilter, setTxtFilter] = useState("");
-    const [patientDetailDrawer, setPatientDetailDrawer] =
-        useState<boolean>(false);
-    const isAddAppointment = false;
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [rows, setRows] = useState<any[]>([]);
     const [apps, setApps] = useState<any[]>([]);
@@ -221,10 +220,7 @@ function Cashbox() {
     const [ca, setCA] = useState(0);
     const [totalCash, setTotalCash] = useState(0);
     const [totalCheck, setTotalCheck] = useState(0);
-    const {config: agenda} = useAppSelector(agendaSelector);
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
     const [loading, setLoading] = useState(true);
     const [selectedCashBox, setCashbox] = useState<any>(null);
@@ -248,17 +244,19 @@ function Cashbox() {
     const MenuActions = [
         {
             title: "add-payment",
-            permission: "create",
+            permission: "cash_box_transaction_create",
             icon: <IconUrl path="ic-wallet-money" color="white"/>,
             action: "onCash",
         },
         {
             title: "delete",
+            permission: "cash_box_transaction_delete",
             icon: <IconUrl path="ic-delete" color="white"/>,
             action: "onDelete",
         },
         {
             title: "see_patient_file",
+            permission: "",
             icon: <IconUrl path="ic-file" color="white"/>,
             action: "onSeePatientFile",
         },
@@ -289,6 +287,7 @@ function Cashbox() {
             title: "cheque_cashed",
         },
     ];
+    const isAddAppointment = false;
 
     let [selectedTab, setSelectedTab] = useState(has_agenda_feature ? "consultations" : "transactions");
     const filterQuery: string = generateFilter({filterCB});
@@ -454,7 +453,7 @@ function Cashbox() {
     };
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue);
-        dispatch(SetSelectedTab(newValue));
+        dispatch(setSelectedTabIndex(newValue));
     };
     const exportDoc = () => {
         triggerExport(
@@ -628,15 +627,16 @@ function Cashbox() {
                                         </Typography>
                                         <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                     </Stack>
-                                    {rows.length > 0 &&  <Can I={"manage"} a={"cashbox"} field={"cash_box_transaction_export"}>
-                                        <Button
-                                        onClick={exportDoc}
-                                        variant="outlined"
-                                        color="info"
-                                        startIcon={<IconUrl path="ic-export-new"/>}>
-                                        {t("export")}
-                                    </Button>
-                                    </Can>}
+                                    {rows.length > 0 &&
+                                        <Can I={"manage"} a={"cashbox"} field={"cash_box_transaction_export"}>
+                                            <Button
+                                                onClick={exportDoc}
+                                                variant="outlined"
+                                                color="info"
+                                                startIcon={<IconUrl path="ic-export-new"/>}>
+                                                {t("export")}
+                                            </Button>
+                                        </Can>}
                                 </Stack>
                                 <DesktopContainer>
                                     {!loading && (

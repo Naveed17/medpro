@@ -1,7 +1,8 @@
 // components
 import {
+    BoxesFilter,
     BoxStyled,
-    cashBoxSelector,
+    cashBoxSelector, DateFilter,
     setFilterCB,
     setInsurances,
     setPaymentTypes
@@ -9,18 +10,13 @@ import {
 import dynamic from "next/dynamic";
 import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, DayOfWeek, setCurrentDate} from "@features/calendar";
+import {agendaSelector, CalendarPickers, DayOfWeek, setCurrentDate} from "@features/calendar";
 import moment from "moment-timezone";
 import {Accordion} from "@features/accordion";
 import {Box, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
-import {BoxesFilter, DateFilter} from "@features/leftActionBar/components/cashbox/overrides";
 import {useInsurances} from "@lib/hooks/rest";
-
-
-const CalendarPickers = dynamic(() =>
-    import("@features/calendar/components/calendarPickers/components/calendarPickers"));
 
 function Cashbox() {
     const dispatch = useAppDispatch();

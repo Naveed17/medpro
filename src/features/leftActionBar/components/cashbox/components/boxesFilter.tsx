@@ -9,7 +9,7 @@ import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {cashBoxSelector, setSelectedBoxes} from "@features/leftActionBar/components/cashbox";
+import {cashBoxSelector, setSelectedBoxes} from "@features/leftActionBar";
 import {useCashBox} from "@lib/hooks/rest";
 
 function BoxsesFilter() {

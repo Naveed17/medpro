@@ -4,7 +4,7 @@ import {
     setCashBoxes,
     setInsurancesList, setMutate,
     setPaymentTypesList,
-    setSelectedBoxes, SetSelectedTab
+    setSelectedBoxes, setSelectedTabIndex
 } from "./actions";
 
 const initialState: any = {
@@ -57,7 +57,7 @@ export const CashboxReducer = createReducer(initialState, builder => {
         .addCase(setMutate, (state, action) => {
             state.mutate = action.payload;
         })
-        .addCase(SetSelectedTab, (state, action) => {
+        .addCase(setSelectedTabIndex, (state, action) => {
             state.selectedTab = action.payload;
         })
 });

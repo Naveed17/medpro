@@ -901,7 +901,6 @@ function Agenda() {
                     },
                     ...eventStepper.slice(2)]);
         }
-        // dispatch(openDrawer({type: "add", open: true}));
     }
 
     const handleStepperChange = (index: number) => {
