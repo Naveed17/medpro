@@ -173,7 +173,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
         const form = new FormData();
         if (ev === 'notes') {
             modelContent.current = newValue
-            oldNote.current = newValue;
+            if(!isStarted) oldNote.current = newValue;
         }
         form.append(ev === 'diagnosis' ? 'diagnostic' : ev, newValue);
 
