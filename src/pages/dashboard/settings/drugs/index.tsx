@@ -13,11 +13,13 @@ import {useRouter} from "next/router";
 import {Otable} from "@features/table";
 import {DrugsDrawer} from "@features/drawer";
 import {useAppSelector} from "@lib/redux/hooks";
+import {useMedicalProfessionalSuffix} from "@lib/hooks";
 
 function Drugs() {
     const theme: Theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const router = useRouter();
+    const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "drugs.config"});
     const {direction} = useAppSelector(configSelector);
@@ -27,7 +29,7 @@ function Drugs() {
 
     const {data: drugsResponse, mutate: mutateDrugs} = useRequestQuery({
         method: "GET",
-        url: `/api/private/drugs/${router.locale}`
+        url: `${urlMedicalProfessionalSuffix}/drugs/${router.locale}`
     }, {
         ...ReactQueryNoValidateConfig,
         variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}
