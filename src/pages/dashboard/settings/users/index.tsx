@@ -137,7 +137,7 @@ function Users() {
 
     const {data: httpProfilesResponse} = useRequestQuery({
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/profile`
+        url: `${urlMedicalEntitySuffix}/profile/${router.locale}`
     }, {refetchOnWindowFocus: false});
 
     const users = ((httpUsersResponse as HttpResponse)?.data ?? []) as UserModel[];
@@ -169,13 +169,14 @@ function Users() {
             }
         });
     }
+
     const handleChange = (action: string, props: any, event: any) => {
         switch (action) {
             case "PROFILE":
-                handleDocPermission("profile", props, event)
+                handleDocPermission("profile", props, event);
                 break;
             default:
-                handleDocPermission(action === "ACCESS" ? "isActive" : "isDocSee", props, event.target.checked)
+                handleDocPermission(action === "ACCESS" ? "isActive" : "isDocSee", props, event.target.checked);
                 break;
         }
     }

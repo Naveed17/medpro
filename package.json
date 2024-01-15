@@ -136,7 +136,7 @@
     "@types/stylis": "^4.0.2",
     "cross-env": "^7.0.3",
     "eslint": "^8.44.0",
-    "eslint-config-next": "^14.0.3",
+    "eslint-config-next": "^14.0.4",
     "prop-types": "^15.8.1",
     "typescript": "^5.2.2",
     "url-loader": "^4.1.1"

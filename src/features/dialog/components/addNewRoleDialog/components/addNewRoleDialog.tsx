@@ -10,7 +10,7 @@ import {LoadingButton} from "@mui/lab";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
 import {useCashBox, usePermissions} from "@lib/hooks/rest";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {FeaturePermissionsCard} from "@features/card";
 
 import {useRouter} from "next/router";
@@ -18,12 +18,13 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 
 function AddNewRoleDialog({...props}) {
-    const {data: {selected, handleMutate, handleClose}} = props;
+    const {data: {selected, handleClose}} = props;
     const {enqueueSnackbar} = useSnackbar();
     const {permissions: features} = usePermissions();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
     const {cashboxes} = useCashBox();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const {t} = useTranslation(["settings", "common"]);
     const {agendas} = useAppSelector(agendaSelector);
@@ -80,7 +81,7 @@ function AddNewRoleDialog({...props}) {
             }, {
                 onSuccess: () => {
                     enqueueSnackbar(t("users.alert.updated-role"), {variant: "success"})
-                    handleMutate();
+                    invalidateQueries([`${urlMedicalEntitySuffix}/profile/${router.locale}`]);
                     handleClose();
                     setLoading(false)
                 },
