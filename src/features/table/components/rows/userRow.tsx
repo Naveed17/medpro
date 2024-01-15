@@ -74,7 +74,7 @@ function UserRow({...props}) {
                         width: 160,
                         "& .MuiSelect-select": {
                             background: "white",
-                        },
+                        }
                     }}
                     id="profile-select"
                     onChange={(e, profile) => handleChange("PROFILE", row, profile?.uuid)}

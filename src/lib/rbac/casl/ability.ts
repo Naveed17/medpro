@@ -12,18 +12,14 @@ export type AppAbility = PureAbility<[Actions, Subjects]>;
 export const AppAbility = PureAbility as AbilityClass<AppAbility>;
 export const fieldMatcher: FieldMatcher = fields => field => fields.includes(field);
 
-export default function defineRulesFor(features: FeatureModel[], isOwner: boolean) {
+export default function defineRulesFor(features: FeatureModel[]) {
     const {can, build} = new AbilityBuilder(AppAbility);
-    if (isOwner) {
-        roots.forEach(feature => can(['manage', 'read'], feature as Subjects, '*'));
-    } else {
-        features.forEach(feature => can(['manage', 'read'], feature.slug as Subjects, [...feature?.permissions?.map(permission => permission?.slug) ?? '*']))
-    }
+    features.forEach(feature => can(['manage', 'read'], feature.slug as Subjects, [...feature?.permissions?.map(permission => permission?.slug) ?? '*']))
     return build;
 }
 
-export function buildAbilityFor(features: FeatureModel[], isOwner: boolean): AppAbility {
-    return defineRulesFor(features, isOwner)({
+export function buildAbilityFor(features: FeatureModel[]): AppAbility {
+    return defineRulesFor(features)({
         fieldMatcher,
         detectSubjectType: (object: any) => object.type
     });
