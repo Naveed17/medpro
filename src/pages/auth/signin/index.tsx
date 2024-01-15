@@ -10,12 +10,14 @@ import React, {useEffect, useState} from "react";
 import {Redirect} from "@features/redirect";
 
 function SignIn() {
-    const {status} = useSession();
+    const {data: session, status} = useSession();
     const loading = status === 'loading'
     const router = useRouter();
 
     const [error] = useState(router.asPath.includes("&error="));
+
     const {token} = router.query;
+    const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
     useEffect(() => {
         if (status === "unauthenticated" && !error) {
@@ -34,7 +36,7 @@ function SignIn() {
                 button
                 {...{color: "error", ...(error && {text: "loading-error"})}}
             /> :
-            <Redirect to='/dashboard/agenda'/>)
+            <Redirect to={features?.length > 0 ? `/dashboard/${features[0].slug}` : `/dashboard/agenda`}/>)
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => ({

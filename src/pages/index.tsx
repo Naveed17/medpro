@@ -64,9 +64,10 @@ function Home() {
     const medical_entities = (session?.data?.medical_entities?.reduce((entites: MedicalEntityModel[], data: any) => [...(entites ?? []), data?.medical_entity], []) ?? []) as MedicalEntityModel[];
     const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
     const hasSelectedEntity = session?.data?.medical_entity?.has_selected_entity ?? false;
+    const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
     return ((!hasMultiMedicalEntities || hasSelectedEntity) ?
-            <Redirect to='/dashboard/agenda'/>
+            <Redirect to={features?.length > 0 ? `/dashboard/${features[0].slug}` : `/dashboard/agenda`}/>
             :
             <Box className={styles.container} dir={dir}>
                 <main className={styles.main}>

@@ -227,13 +227,11 @@ function Cashbox() {
     const [selectedCashBox, setCashbox] = useState<any>(null);
 
     const {data: user} = session as Session;
-    const features = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
-    const has_agenda_feature = features?.findIndex(feature => feature.slug === "agenda") !== -1;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const tabsData = [
-        ...(has_agenda_feature && ability.can('manage', 'agenda', '*') ? [{
+        ...(ability.can('manage', 'agenda', '*') ? [{
             label: "consultations",
             value: "consultations"
         }] : []),
@@ -300,7 +298,7 @@ function Cashbox() {
     ];
     const isAddAppointment = false;
 
-    const [selectedTab, setSelectedTab] = useState(has_agenda_feature ? "consultations" : (ability.can('manage', 'cashbox', 'cash_box_transaction_show') ? "transactions" : ""));
+    const [selectedTab, setSelectedTab] = useState(ability.can('manage', 'agenda', '*') ? "consultations" : (ability.can('manage', 'cashbox', 'cash_box_transaction_show') ? "transactions" : ""));
     const filterQuery: string = generateFilter({filterCB});
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
@@ -380,7 +378,9 @@ function Cashbox() {
                 onSuccess: (result) => {
                     const res = result.data.data;
                     setApps(res);
-                    setUnpaid(res.reduce((total: number, val: { appointmentRestAmount: number; }) => total + val.appointmentRestAmount, 0));
+                    setUnpaid(res.reduce((total: number, val: {
+                        appointmentRestAmount: number;
+                    }) => total + val.appointmentRestAmount, 0));
                     setCA(res.reduce((total: number, val: { fees: string; }) => total + parseInt(val.fees), 0));
                 },
             }

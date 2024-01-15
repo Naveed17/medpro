@@ -141,7 +141,6 @@ function AccessMenage({...props}) {
                 data={{
                     t,
                     selected: selectedProfile,
-                    handleMutate: mutateProfiles,
                     handleClose: () => {
                         setOpenProfileDialog(false);
                         setSelectedProfile(null)

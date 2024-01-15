@@ -75,14 +75,15 @@ function FcmLayout({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
     const roles = (user as UserDataResponse)?.general_information.roles;
-    const features = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
+    const default_medical_entity = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default);
+    const features = default_medical_entity?.features;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+    const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
+    const isOwner = default_medical_entity?.is_owner ?? false;
+    const ability = buildAbilityFor(features ?? [], isOwner);
 
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
-
-    const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
-    const ability = buildAbilityFor(features ?? []);
 
     const handleClose = () => {
         setOpenDialog(false);
