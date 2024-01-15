@@ -1,5 +1,16 @@
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Stack, Skeleton, Select, useTheme} from "@mui/material";
+import {
+    Typography,
+    Box,
+    Stack,
+    Skeleton,
+    Select,
+    useTheme,
+    Autocomplete,
+    ListItem,
+    ListItemText,
+    TextField
+} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useRouter} from "next/router";
 import Button from "@mui/material/Button";
@@ -53,10 +64,11 @@ function UserRow({...props}) {
                 )}
             </TableCell>
             <TableCell align="center">
-                {!row?.isProfessional && <Select
+                {!row?.isProfessional && <Autocomplete
                     size={"small"}
-                    displayEmpty
-                    value={row?.profile?.uuid ?? ''}
+                    value={profiles.find((profile: any) => profile.uuid === row?.profile?.uuid) ?? null}
+                    inputValue={row?.profile?.name ?? ""}
+                    disableClearable
                     sx={{
                         maxHeight: 35,
                         width: 160,
@@ -65,22 +77,24 @@ function UserRow({...props}) {
                         },
                     }}
                     id="profile-select"
-                    onChange={(event) => handleChange("PROFILE", row, event.target.value)}
-                    renderValue={(selected: any) => {
-                        if (!selected || (selected && selected.length === 0)) {
-                            return <em>{t("profile-placeholder")}</em>;
-                        }
-
-                        return profiles.find((profile: ProfileModel) => profile?.uuid === selected)?.name;
-                    }}>
-                    {profiles.map((subItem: any) => (
-                        <MenuItem
-                            key={subItem.uuid}
-                            value={subItem.uuid}>
-                            {subItem.name}
-                        </MenuItem>
-                    ))}
-                </Select>}
+                    onChange={(e, profile) => handleChange("PROFILE", row, profile?.uuid)}
+                    getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                    options={profiles}
+                    renderOption={(props, option) => (
+                        <ListItem {...props}>
+                            <ListItemText primary={option?.name}/>
+                        </ListItem>
+                    )}
+                    renderInput={params =>
+                        <TextField
+                            {...params}
+                            color={"info"}
+                            sx={{paddingLeft: 0}}
+                            placeholder={t("profile-placeholder")}
+                            variant="outlined"
+                            fullWidth/>}
+                />}
             </TableCell>
             <TableCell align="center">
                 {row ? !row?.isProfessional && <Switch
