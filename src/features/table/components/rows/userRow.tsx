@@ -4,7 +4,6 @@ import {
     Box,
     Stack,
     Skeleton,
-    Select,
     useTheme,
     Autocomplete,
     ListItem,
@@ -19,7 +18,6 @@ import Switch from "@mui/material/Switch";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {uniqueId} from "lodash";
 import React, {useState} from "react";
-import MenuItem from "@mui/material/MenuItem";
 
 function UserRow({...props}) {
     const dispatch = useAppDispatch();
