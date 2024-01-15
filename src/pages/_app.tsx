@@ -36,7 +36,8 @@ import {useRouter} from "next/router";
 import {firebaseCloudSdk} from "@lib/firebase";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import ReactQueryProvider from "@lib/reactQuery/reactQueryProvider";
-import {buildProvidersTree} from "@lib/routes/buildProvidersTree";
+import dynamic from "next/dynamic";
+const AblyClient = dynamic(() => import("@lib/ably/ablyClient"),{ssr:false});
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -107,9 +108,11 @@ function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                                     <ErrorBoundary>
                                         {Component.auth ? (
                                             <AuthGuard>
-                                                <FcmLayout {...pageProps}>
-                                                    {getLayout(<Component key={pageKey} {...pageProps} />)}
-                                                </FcmLayout>
+                                                <AblyClient>
+                                                    <FcmLayout {...pageProps}>
+                                                        {getLayout(<Component key={pageKey} {...pageProps} />)}
+                                                    </FcmLayout>
+                                                </AblyClient>
                                             </AuthGuard>
                                         ) : (
                                             <> {getLayout(<Component key={pageKey} {...pageProps} />)}</>

@@ -40,6 +40,7 @@ import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
 import {buildAbilityFor} from "@lib/rbac/casl/ability";
 import {AbilityContext} from "@features/casl/can";
+import {useConnectionStateListener} from "ably/react";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -304,6 +305,11 @@ function FcmLayout({...props}) {
             });
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+
+    useConnectionStateListener((stateChange) => {
+        console.log("current",stateChange.current);  // the new connection state
+    });
 
     return (
         <>
