@@ -843,7 +843,7 @@ function WaitingRoom() {
                             event.stopPropagation();
                             handleAddAppointment();
                         }}
-                        disabled={type === "" || !patient}>
+                        disabled={type === "" || !patient || (!withoutDateTime && recurringDates?.length === 0)}>
                         {t("save", {ns: "common"})}
                     </LoadingButton>
                 </Paper>
