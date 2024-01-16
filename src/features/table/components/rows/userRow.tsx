@@ -1,5 +1,15 @@
 import TableCell from "@mui/material/TableCell";
-import {Typography, Box, Stack, Skeleton, Select, useTheme} from "@mui/material";
+import {
+    Typography,
+    Box,
+    Stack,
+    Skeleton,
+    useTheme,
+    Autocomplete,
+    ListItem,
+    ListItemText,
+    TextField, CircularProgress
+} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useRouter} from "next/router";
 import Button from "@mui/material/Button";
@@ -7,16 +17,46 @@ import {editUser, TableRowStyled} from "@features/table";
 import Switch from "@mui/material/Switch";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {uniqueId} from "lodash";
-import React, {useState} from "react";
-import MenuItem from "@mui/material/MenuItem";
+import React, {useEffect, useState} from "react";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 
 function UserRow({...props}) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {row, handleChange, t, editMotif, data} = props;
-    const {currentUser, profiles} = data;
+    const {currentUser} = data;
+
     const [hasDocPermission, setHasDocPermission] = useState(row.canSeeDoc);
+    const [profiles, setpProfiles] = useState([]);
+    const [openAutoComplete, setOpenAutoComplete] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const {trigger: drugsTrigger} = useRequestQueryMutation("/settings/drugs/get");
+
+    const loadingReq = openAutoComplete;
+
+    // Setting the logic for the asynchronous function on page reload
+    useEffect(() => {
+        if (!loadingReq) {
+            return undefined;
+        }
+
+        (async () => {
+            setLoading(true);
+            drugsTrigger({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/profile/${router.locale}`
+            }, {
+                onSuccess: (result) => {
+                    setpProfiles((result?.data as HttpResponse)?.data);
+                    setLoading(false);
+                }
+            });
+        })();
+    }, [loadingReq]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <TableRowStyled key={uniqueId}>
@@ -53,34 +93,50 @@ function UserRow({...props}) {
                 )}
             </TableCell>
             <TableCell align="center">
-                {!row?.isProfessional && <Select
+                {!row?.isProfessional && <Autocomplete
                     size={"small"}
-                    displayEmpty
-                    value={row?.profile?.uuid ?? ''}
+                    value={profiles.find((profile: any) => profile.uuid === row?.profile?.uuid) ?? null}
+                    inputValue={row?.profile?.name ?? ""}
+                    disableClearable
                     sx={{
                         maxHeight: 35,
                         width: 160,
                         "& .MuiSelect-select": {
                             background: "white",
-                        },
+                        }
                     }}
                     id="profile-select"
-                    onChange={(event) => handleChange("PROFILE", row, event.target.value)}
-                    renderValue={(selected: any) => {
-                        if (!selected || (selected && selected.length === 0)) {
-                            return <em>{t("profile-placeholder")}</em>;
-                        }
-
-                        return profiles.find((profile: ProfileModel) => profile?.uuid === selected)?.name;
-                    }}>
-                    {profiles.map((subItem: any) => (
-                        <MenuItem
-                            key={subItem.uuid}
-                            value={subItem.uuid}>
-                            {subItem.name}
-                        </MenuItem>
-                    ))}
-                </Select>}
+                    open={openAutoComplete}
+                    onOpen={() => setOpenAutoComplete(true)}
+                    onClose={() => setOpenAutoComplete(false)}
+                    onChange={(e, profile) => handleChange("PROFILE", row, profile?.uuid)}
+                    getOptionLabel={(option: any) => option?.name ? option.name : ""}
+                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
+                    options={profiles}
+                    renderOption={(props, option) => (
+                        <ListItem {...props}>
+                            <ListItemText primary={option?.name}/>
+                        </ListItem>
+                    )}
+                    renderInput={params =>
+                        <TextField
+                            {...params}
+                            color={"info"}
+                            sx={{paddingLeft: 0}}
+                            placeholder={t("profile-placeholder")}
+                            InputProps={{
+                                ...params.InputProps,
+                                endAdornment: (
+                                    <React.Fragment>
+                                        {loading ?
+                                            <CircularProgress color="inherit" size={20}/> : null}
+                                        {params.InputProps.endAdornment}
+                                    </React.Fragment>
+                                ),
+                            }}
+                            variant="outlined"
+                            fullWidth/>}
+                />}
             </TableCell>
             <TableCell align="center">
                 {row ? !row?.isProfessional && <Switch

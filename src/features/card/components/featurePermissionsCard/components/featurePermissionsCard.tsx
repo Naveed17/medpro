@@ -50,7 +50,7 @@ function FeaturePermissionsCard({...props}) {
                 const profiles = (result?.data as HttpResponse)?.data;
                 setFieldValue(`roles[${index}].featureProfiles`, profiles);
                 if (hasProfileSet) {
-                    setFieldValue(`roles[${index}].profileUuid`, profiles[profiles?.length - 1].uuid);
+                    setFieldValue(`roles[${index}].profileUuid`, profiles[profiles?.length - 1]);
                 }
                 setLoading(false);
             },
@@ -181,7 +181,7 @@ function FeaturePermissionsCard({...props}) {
                                         autoHighlight
                                         size="small"
                                         id={"feature-uuid"}
-                                        value={role.featureRoles.find((profile: ProfileModel) => profile.uuid === role?.featureUuid) ?? null}
+                                        value={role.featureRoles.find((profile: ProfileModel) => profile.uuid === role?.featureUuid?.uuid) ?? null}
                                         options={role.featureRoles}
                                         getOptionLabel={(option: any) => option?.name ? option.name : ""}
                                         isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
@@ -191,7 +191,7 @@ function FeaturePermissionsCard({...props}) {
                                             </ListItem>
                                         )}
                                         onChange={(e, feature) => {
-                                            setFieldValue(`roles[${index}].featureUuid`, feature?.uuid);
+                                            setFieldValue(`roles[${index}].featureUuid`, feature);
                                             handleProfilePermissions(index, false, role?.feature);
                                         }}
                                         sx={{color: "text.secondary"}}
@@ -202,7 +202,8 @@ function FeaturePermissionsCard({...props}) {
                                                 sx={{paddingLeft: 0}}
                                                 placeholder={t("users.feature-uuid")}
                                                 variant="outlined"
-                                                fullWidth/>}/>
+                                                fullWidth/>}
+                                    />
                                 </FormControl>
                             </Grid>}
                         <Grid item xs={12}
@@ -222,8 +223,8 @@ function FeaturePermissionsCard({...props}) {
                                 onClose={() => {
                                     setOpenAutoComplete({index, value: false});
                                 }}
-                                value={role.featureProfiles.find((profile: ProfileModel) => profile.uuid === role?.profileUuid) ?? null}
-                                inputValue={role?.profileUuid}
+                                value={role.featureProfiles.find((profile: ProfileModel) => profile.uuid === role?.profileUuid?.uuid) ?? null}
+                                inputValue={role?.profileUuid?.name ?? ""}
                                 onInputChange={(event, value, reason) => {
                                     if (reason !== 'reset') {
                                         setFieldValue(`roles[${index}].profileUuid`, value)
@@ -231,7 +232,7 @@ function FeaturePermissionsCard({...props}) {
                                 }}
                                 onChange={(e, profile) => {
                                     e.stopPropagation();
-                                    setFieldValue(`roles[${index}].profileUuid`, profile?.uuid);
+                                    setFieldValue(`roles[${index}].profileUuid`, profile);
                                 }}
                                 filterOptions={(options, params) => {
                                     return options;

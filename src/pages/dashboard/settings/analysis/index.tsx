@@ -249,10 +249,8 @@ function Analysis() {
                 <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
                     <Stack direction="row" spacing={1}>
                         <Button
-                            onClick={() => {
-
-                                setOpen(false);
-                            }}
+                            variant="text-black"
+                            onClick={() => setOpen(false)}
                             startIcon={<CloseIcon/>}>
                             {t("dialog.cancel")}
                         </Button>

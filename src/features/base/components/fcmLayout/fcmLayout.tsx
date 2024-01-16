@@ -80,8 +80,7 @@ function FcmLayout({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
-    const isOwner = default_medical_entity?.is_owner ?? false;
-    const ability = buildAbilityFor(features ?? [], isOwner);
+    const ability = buildAbilityFor(features ?? []);
 
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
 
