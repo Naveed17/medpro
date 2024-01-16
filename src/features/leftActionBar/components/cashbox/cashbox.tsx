@@ -1,8 +1,9 @@
 // components
 import {
+    ActionBarState,
     BoxesFilter,
     BoxStyled,
-    cashBoxSelector, DateFilter,
+    cashBoxSelector, DateFilter, InsuranceCashBoxFilter,
     setFilterCB,
     setInsurances,
     setPaymentTypes
@@ -15,7 +16,6 @@ import {Accordion} from "@features/accordion";
 import {Box, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import ItemCheckbox from "@themes/overrides/itemCheckbox";
-import {useInsurances} from "@lib/hooks/rest";
 import {AbilityContext} from "@features/casl/can";
 
 function Cashbox() {
@@ -40,10 +40,9 @@ function Cashbox() {
     const [endDate, setEndDate] = useState(new Date());
     const [loadingInscurances, setLoadingInscurances] = useState(true);
     const [loadingPM, setLoadingPM] = useState(true);
+    const [dataCashBox, setDataCashBox] = useState<any[]>([]);
 
     const hours = agendaConfig?.openingHours && agendaConfig?.openingHours.length > 0 ? agendaConfig?.openingHours[0] : null;
-
-    const {insurances: insurancesList} = useInsurances();
 
     useEffect(() => {
         let boxes = '';
@@ -52,7 +51,6 @@ function Cashbox() {
         });
         if (boxes !== '') {
             const newFilter = {
-                ...filterCB,
                 start_date: filterDate ? !byPeriod ? moment(currentDate.date).format("DD-MM-YYYY") : moment(startDate).format('DD/MM/yyyy') : "",
                 end_date: filterDate ? !byPeriod ? moment(currentDate.date).format("DD-MM-YYYY") : moment(endDate).format('DD/MM/yyyy') : "",
                 cashboxes: boxes
@@ -73,32 +71,103 @@ function Cashbox() {
     }, [hours]);
 
     useEffect(() => {
-        if (!loadingInscurances) {
-            let insuranceuuids = '';
-            insurances.map((box: { uuid: any; }, index: number) => {
-                index === insurances.length - 1 ? insuranceuuids += `${box.uuid}` : insuranceuuids += `${box.uuid},`;
-            });
-            dispatch(setFilterCB({
-                ...filterCB, insurances: insuranceuuids
-            }));
-        }
-        setLoadingInscurances(false)
-
-    }, [insurances]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
         if (!loadingPM) {
             let paymenttypeuuids = '';
             paymentTypes.map((box: { uuid: any; }, index: number) => {
                 index === paymentTypes.length - 1 ? paymenttypeuuids += `${box.uuid}` : paymenttypeuuids += `${box.uuid},`;
             });
-            dispatch(setFilterCB({
-                ...filterCB, payment_means: paymenttypeuuids
-            }));
+            dispatch(setFilterCB({payment_means: paymenttypeuuids}));
         }
         setLoadingPM(false)
     }, [paymentTypes]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        setDataCashBox([
+            {
+                heading: {
+                    id: "date",
+                    icon: "ic-agenda-jour",
+                    title: "date",
+                },
+                expanded: true,
+                children: (
+                    <DateFilter {...{
+                        filterDate,
+                        setFilterDate,
+                        byPeriod,
+                        setByPeriod,
+                        startDate,
+                        currentDate,
+                        setStartDate,
+                        filterCB,
+                        setFilterCB,
+                        endDate,
+                        setEndDate
+                    }}/>
+                ),
+            },
+            ...(selectedTab === "transactions" ? [{
+                heading: {
+                    id: "paymentType",
+                    icon: "ic-argent",
+                    title: "paymentType",
+                },
+                expanded: true,
+                children: (
+                    <Box>
+                        {paymentTypesList.map((item: any, index: number) => (
+                            <ItemCheckbox
+                                key={`pt${index}`}
+                                data={item}
+                                checked={paymentTypes.some((sb: { uuid: any; }) => sb.uuid === item.uuid)}
+                                onChange={() => {
+                                    const index = paymentTypes.findIndex((sb: {
+                                        uuid: any;
+                                    }) => sb.uuid === item.uuid)
+                                    let boxes = [...paymentTypes]
+                                    if (index >= 0) {
+                                        boxes.splice(index, 1)
+                                    } else {
+                                        boxes.push(item);
+                                    }
+                                    dispatch(setPaymentTypes(boxes));
+                                }}
+                            ></ItemCheckbox>))}
+                        {paymentTypesList.length === 0 && <Typography fontSize={12} textAlign={"center"}
+                                                                      color={"gray"}>{t('nopaymentMeans')}</Typography>}
+                    </Box>
+                ),
+            }] : []),
+            ...(selectedTab === "transactions" ? [{
+                heading: {
+                    id: "boxes",
+                    icon: "ic-invoice",
+                    title: "boxes",
+                },
+                expanded: true,
+                children: (
+                    <BoxesFilter/>
+                ),
+            }] : []),
+            ...(selectedTab === "transactions" ? [{
+                heading: {
+                    id: "insurance",
+                    icon: "ic-assurance",
+                    title: "insurance",
+                },
+                expanded: true,
+                children: <InsuranceCashBoxFilter
+                    {...{t}}
+                    OnSearch={(data: any) => {
+                        dispatch(setInsurances(data.query.insurances ?? []));
+                        dispatch(setFilterCB({
+                            insurances: data.query?.insurances?.map((insurance: any) => insurance.uuid).join(',') ?? ""
+                        }));
+                    }}/>
+                ,
+            }] : [])
+        ])
+    }, [selectedTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <BoxStyled className="container-filter">
@@ -118,110 +187,8 @@ function Cashbox() {
                     ready: ready,
                 }}
                 defaultValue={""}
-                data={[
-                    {
-                        heading: {
-                            id: "date",
-                            icon: "ic-agenda-jour",
-                            title: "date",
-                        },
-                        expanded: true,
-                        children: (
-                            <DateFilter {...{
-                                filterDate,
-                                setFilterDate,
-                                byPeriod,
-                                setByPeriod,
-                                startDate,
-                                currentDate,
-                                setStartDate,
-                                filterCB,
-                                setFilterCB,
-                                endDate,
-                                setEndDate
-                            }}/>
-                        ),
-                    },
-
-                    ...(selectedTab === "transactions" ? [{
-                        heading: {
-                            id: "paymentType",
-                            icon: "ic-argent",
-                            title: "paymentType",
-                        },
-                        expanded: true,
-                        children: (
-                            <Box>
-                                {paymentTypesList.map((item: any, index: number) => (
-                                    <ItemCheckbox
-                                        key={`pt${index}`}
-                                        data={item}
-                                        checked={paymentTypes.some((sb: { uuid: any; }) => sb.uuid === item.uuid)}
-                                        onChange={() => {
-                                            const index = paymentTypes.findIndex((sb: {
-                                                uuid: any;
-                                            }) => sb.uuid === item.uuid)
-                                            let boxes = [...paymentTypes]
-                                            if (index >= 0) {
-                                                boxes.splice(index, 1)
-                                            } else {
-                                                boxes.push(item);
-                                            }
-                                            dispatch(setPaymentTypes(boxes));
-                                        }}
-                                    ></ItemCheckbox>))}
-                                {paymentTypesList.length === 0 && <Typography fontSize={12} textAlign={"center"}
-                                                                              color={"gray"}>{t('nopaymentMeans')}</Typography>}
-                            </Box>
-                        ),
-                    }] : []),
-                    ...(selectedTab === "transactions" ? [{
-                        heading: {
-                            id: "boxes",
-                            icon: "ic-invoice",
-                            title: "boxes",
-                        },
-                        expanded: true,
-                        children: (
-                            <BoxesFilter/>
-                        ),
-                    }] : []),
-                    ...(selectedTab === "transactions" ? [{
-                        heading: {
-                            id: "insurance",
-                            icon: "ic-assurance",
-                            title: "insurance",
-                        },
-                        expanded: true,
-                        children: (
-                            <Box>
-                                {insurancesList && insurancesList.map((item: any, index: number) => (
-                                    <ItemCheckbox
-                                        key={index}
-                                        data={item}
-                                        checked={insurances.some((sb: { uuid: any; }) => sb.uuid === item.uuid)}
-                                        onChange={() => {
-                                            const index = insurances.findIndex((sb: {
-                                                uuid: any;
-                                            }) => sb.uuid === item.uuid)
-                                            let boxes = [...insurances]
-                                            if (index >= 0) {
-                                                boxes.splice(index, 1)
-                                            } else {
-                                                boxes.push(item);
-                                            }
-                                            dispatch(setInsurances(boxes));
-                                        }}
-                                    ></ItemCheckbox>))}
-                                {insurancesList.length === 0 && <Typography fontSize={12} textAlign={"center"}
-                                                                            color={"gray"}>{t('noInsurance')}</Typography>}
-                            </Box>
-                        ),
-                    }] : [])
-                ]}
-                setData={() => {
-
-                }}
+                data={dataCashBox}
+                setData={setDataCashBox}
             />
         </BoxStyled>
     )

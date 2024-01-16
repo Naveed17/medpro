@@ -25,6 +25,7 @@ function DrugsDrawer({...props}) {
     const router = useRouter();
     const {urlMedicalProfessionalSuffix} = useMedicalProfessionalSuffix();
 
+    const [loadingReqLaboratory, setLoadingReqLaboratory] = useState(false);
     const [loadingReqForm, setLoadingReqForm] = useState(false);
     const [loadingReqDci, setLoadingReqDci] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -42,18 +43,27 @@ function DrugsDrawer({...props}) {
             .min(3, t("drawer.required.ntc"))
             .max(50, t("drawer.required.ntl"))
             .required(t("drawer.required.name")),
-        dci: Yup.string().nullable(),
-        form: Yup.string().nullable(),
-        laboratory: Yup.string().nullable()
+        dci: Yup.object().shape({
+            uuid: Yup.string(),
+            name: Yup.string()
+        }).nullable(),
+        form: Yup.object().shape({
+            uuid: Yup.string(),
+            name: Yup.string()
+        }).nullable(),
+        laboratory: Yup.object().shape({
+            uuid: Yup.string(),
+            name: Yup.string()
+        }).nullable()
     });
 
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
             name: data ? (data.commercial_name as string) : "",
-            dci: data.dci?.uuid ?? null,
-            form: data.form?.uuid ?? null,
-            laboratory: data.laboratory?.uuid ?? null
+            dci: data?.dci ?? null,
+            form: data?.form ?? null,
+            laboratory: data?.laboratory ?? null
         },
         validationSchema,
         onSubmit: async (values) => {
@@ -61,9 +71,9 @@ function DrugsDrawer({...props}) {
             const form = new FormData();
             form.append("name", values.name);
             form.append("dosages", "[]");
-            form.append("dci", values.dci || " ");
-            form.append("form", values.form || " ");
-            form.append("laboratory", values.laboratory || " ");
+            form.append("dci", values.dci?.uuid || " ");
+            form.append("form", values.form?.uuid || " ");
+            form.append("laboratory", values.laboratory?.uuid || " ");
 
             triggerDrugsAdd({
                 method: data ? "PUT" : "POST",
@@ -98,14 +108,14 @@ function DrugsDrawer({...props}) {
         }
 
         (async () => {
-            setLoading(true);
+            setLoadingReqForm(true);
             drugsTrigger({
                 method: "GET",
                 url: `/api/private/drugs-forms`
             }, {
                 onSuccess: (result) => {
                     setForms((result?.data as HttpResponse)?.data);
-                    setLoading(false);
+                    setLoadingReqForm(false);
                 }
             });
         })();
@@ -118,14 +128,14 @@ function DrugsDrawer({...props}) {
         }
 
         (async () => {
-            setLoadingReqForm(true);
+            setLoadingReqLaboratory(true);
             drugsTrigger({
                 method: "GET",
                 url: `/api/private/laboratories`
             }, {
                 onSuccess: (result) => {
                     setLaboratorys((result?.data as HttpResponse)?.data);
-                    setLoadingReqForm(false);
+                    setLoadingReqLaboratory(false);
                 }
             });
         })();
@@ -202,7 +212,8 @@ function DrugsDrawer({...props}) {
                                 </Typography>
                                 <Autocomplete
                                     size={"small"}
-                                    value={dcis.find((dci: any) => dci?.uuid === values.dci) ?? null}
+                                    value={values.dci ?? null}
+                                    inputValue={values.dci?.name ?? ""}
                                     disableClearable
                                     sx={{
                                         maxHeight: 35,
@@ -214,7 +225,7 @@ function DrugsDrawer({...props}) {
                                     open={openAutoCompleteDci}
                                     onOpen={() => setOpenAutoCompleteDci(true)}
                                     onClose={() => setOpenAutoCompleteDci(false)}
-                                    onChange={(e, dci) => setFieldValue("dci", dci?.uuid)}
+                                    onChange={(e, dci) => setFieldValue("dci", dci)}
                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
                                     isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
                                     options={dcis}
@@ -254,7 +265,7 @@ function DrugsDrawer({...props}) {
                                 </Typography>
                                 <Autocomplete
                                     size={"small"}
-                                    value={forms.find((form: any) => form?.uuid === values.form) ?? null}
+                                    value={values.form ?? null}
                                     disableClearable
                                     sx={{
                                         maxHeight: 35,
@@ -266,7 +277,7 @@ function DrugsDrawer({...props}) {
                                     open={openAutoCompleteForm}
                                     onOpen={() => setOpenAutoCompleteForm(true)}
                                     onClose={() => setOpenAutoCompleteForm(false)}
-                                    onChange={(e, form) => setFieldValue("form", form?.uuid)}
+                                    onChange={(e, form) => setFieldValue("form", form)}
                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
                                     isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
                                     options={forms}
@@ -287,7 +298,7 @@ function DrugsDrawer({...props}) {
                                                 ...params.InputProps,
                                                 endAdornment: (
                                                     <React.Fragment>
-                                                        {loading ?
+                                                        {loadingReqForm ?
                                                             <CircularProgress color="inherit" size={20}/> : null}
                                                         {params.InputProps.endAdornment}
                                                     </React.Fragment>
@@ -306,7 +317,7 @@ function DrugsDrawer({...props}) {
                                 </Typography>
                                 <Autocomplete
                                     size={"small"}
-                                    value={laboratorys.find((laboratory: any) => laboratory?.uuid === values.form) ?? null}
+                                    value={values.laboratory ?? null}
                                     disableClearable
                                     sx={{
                                         maxHeight: 35,
@@ -318,7 +329,7 @@ function DrugsDrawer({...props}) {
                                     open={openAutoCompleteLaboratory}
                                     onOpen={() => setOpenAutoCompleteLaboratory(true)}
                                     onClose={() => setOpenAutoCompleteLaboratory(false)}
-                                    onChange={(e, laboratory) => setFieldValue("laboratory", laboratory?.uuid)}
+                                    onChange={(e, laboratory) => setFieldValue("laboratory", laboratory)}
                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
                                     isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
                                     options={laboratorys}
@@ -339,7 +350,7 @@ function DrugsDrawer({...props}) {
                                                 ...params.InputProps,
                                                 endAdornment: (
                                                     <React.Fragment>
-                                                        {loadingReqForm ?
+                                                        {loadingReqLaboratory ?
                                                             <CircularProgress color="inherit" size={20}/> : null}
                                                         {params.InputProps.endAdornment}
                                                     </React.Fragment>

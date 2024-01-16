@@ -27,14 +27,13 @@ const initialState: any = {
         gender: '',
         birthdate: '',
         name: ''
-
     }
 };
 
 export const CashboxReducer = createReducer(initialState, builder => {
     builder
         .addCase(setFilterCB, (state, action) => {
-            state.filterCB = action.payload;
+            return {...state, filterCB: {...state.filterCB, ...action.payload}}
         })
         .addCase(setInsurances, (state, action) => {
             state.insurances = action.payload;

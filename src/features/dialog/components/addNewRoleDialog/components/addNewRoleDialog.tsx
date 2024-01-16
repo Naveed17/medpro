@@ -12,7 +12,6 @@ import {useSnackbar} from "notistack";
 import {useCashBox, usePermissions} from "@lib/hooks/rest";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {FeaturePermissionsCard} from "@features/card";
-
 import {useRouter} from "next/router";
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
@@ -34,7 +33,35 @@ function AddNewRoleDialog({...props}) {
     const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
 
     const RoleSchema = Yup.object().shape({
-        role_name: Yup.string().required(),
+        role_name: Yup.string().min(3, t("role-error")).required(),
+        description: Yup.string(),
+        is_standard: Yup.boolean(),
+        roles: Yup.array().of(
+            Yup.object().shape({
+                slug: Yup.string().required(),
+                feature: Yup.object().shape({
+                    name: Yup.string(),
+                    uuid: Yup.string()
+                }),
+                hasMultipleInstance: Yup.boolean(),
+                featureProfiles: Yup.array().of(
+                    Yup.object().shape({
+                        name: Yup.string(),
+                        uuid: Yup.string()
+                    })
+                ),
+                featureRoles: Yup.array().of(
+                    Yup.object().shape({
+                        name: Yup.string(),
+                        uuid: Yup.string()
+                    })
+                ),
+                profile: Yup.object().shape({
+                    name: Yup.string().min(3, t("role-error")).required(),
+                    uuid: Yup.string()
+                }).required()
+            })
+        ).min(1).required()
     });
 
     const formik = useFormik({
@@ -44,19 +71,19 @@ function AddNewRoleDialog({...props}) {
             description: selected?.description ?? "",
             is_standard: selected?.is_standard ?? true,
             roles: selected?.features?.map((data: any) => ({
-                feature: data?.feature?.slug ?? "",
-                featureUuid: data[data?.feature?.slug] ?? "",
+                slug: data?.feature?.slug ?? "",
+                feature: data[data?.feature?.slug] ?? "",
                 hasMultipleInstance: data?.feature?.hasProfile ?? false,
                 featureRoles: data?.feature?.hasProfile ? (data?.feature?.slug === "cashbox" ? cashboxes : agendas) : [],
                 featureProfiles: [],
-                profileUuid: data?.profile ?? ""
+                profile: data?.profile ?? ""
             })) ?? [{
+                slug: "",
                 feature: "",
-                featureUuid: "",
                 hasMultipleInstance: false,
                 featureRoles: [],
                 featureProfiles: [],
-                profileUuid: ""
+                profile: ""
             }]
         },
         onSubmit: async (values) => {
@@ -69,7 +96,7 @@ function AddNewRoleDialog({...props}) {
 
             const features: any = {};
             values.roles.map((role: any) => {
-                features[role?.feature] = [{object: role?.featureUuid, featureProfile: role?.profileUuid}]
+                features[role?.slug] = [{object: role?.feature?.uuid, featureProfile: role?.profile?.uuid}]
             });
 
             form.append("features", JSON.stringify(features));
@@ -143,6 +170,7 @@ function AddNewRoleDialog({...props}) {
                         </Button>
                         <LoadingButton
                             {...{loading}}
+                            disabled={values.role_name?.length === 0 || Object.keys(errors).length > 0}
                             loadingPosition={"start"}
                             type="submit"
                             variant="contained"

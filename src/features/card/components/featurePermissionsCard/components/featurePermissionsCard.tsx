@@ -80,10 +80,9 @@ function FeaturePermissionsCard({...props}) {
         }
 
         (async () => {
-            handleProfilePermissions(selectedFeature, false, (values.roles[selectedFeature] as any)?.feature);
+            handleProfilePermissions(selectedFeature, false, (values.roles[selectedFeature] as any)?.slug);
         })();
     }, [loadingReq]); // eslint-disable-line react-hooks/exhaustive-deps
-
 
     return (
         <>
@@ -100,12 +99,12 @@ function FeaturePermissionsCard({...props}) {
                         setFieldValue(`roles`, [
                             ...values.roles,
                             {
-                                feature: "",
+                                slug: "",
                                 hasMultipleInstance: false,
-                                featureUuid: "",
+                                feature: "",
                                 featureRoles: [],
                                 featureProfiles: [],
-                                profileUuid: ""
+                                profile: ""
                             }]).then(() => {
                             (refContainer.current as any)?.scrollIntoView({
                                 behavior: "smooth",
@@ -128,14 +127,14 @@ function FeaturePermissionsCard({...props}) {
                                 <Autocomplete
                                     id={"feature"}
                                     size="small"
-                                    value={features.find((feature: any) => feature.slug === role.feature) ?? null}
+                                    value={features.find((feature: any) => feature.slug === role.slug) ?? null}
                                     onChange={(e, feature) => {
                                         if (feature) {
                                             const slug = feature.slug;
-                                            setFieldValue(`roles[${index}].feature`, slug);
+                                            setFieldValue(`roles[${index}].slug`, slug);
                                             setFieldValue(`roles[${index}].hasMultipleInstance`, feature.hasProfile);
 
-                                            const selectedFeatures = values.roles.reduce((roles: any[], role: any) => [...(roles ?? []), ...((role?.feature === slug) ? [role?.featureUuid] : [])], []);
+                                            const selectedFeatures = values.roles.reduce((roles: any[], role: any) => [...(roles ?? []), ...((role?.feature === slug) ? [role?.feature?.uuid] : [])], []);
                                             switch (slug) {
                                                 case "agenda":
                                                     setFieldValue(`roles[${index}].featureRoles`, agendas.filter(feature => !selectedFeatures.includes(feature?.uuid)));
@@ -151,8 +150,8 @@ function FeaturePermissionsCard({...props}) {
                                             setFieldValue(`roles[${index}].featureProfiles`, []);
                                         } else {
                                             setFieldValue(`roles[${index}].feature`, "");
-                                            setFieldValue(`roles[${index}].featureUuid`, "");
-                                            setFieldValue(`roles[${index}].profileUuid`, "");
+                                            setFieldValue(`roles[${index}].feature`, "");
+                                            setFieldValue(`roles[${index}].profile`, "");
                                         }
                                     }}
                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
@@ -181,7 +180,7 @@ function FeaturePermissionsCard({...props}) {
                                         autoHighlight
                                         size="small"
                                         id={"feature-uuid"}
-                                        value={role.featureRoles.find((profile: ProfileModel) => profile.uuid === role?.featureUuid?.uuid) ?? null}
+                                        value={role.featureRoles.find((profile: ProfileModel) => profile.uuid === role?.feature?.uuid) ?? null}
                                         options={role.featureRoles}
                                         getOptionLabel={(option: any) => option?.name ? option.name : ""}
                                         isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
@@ -191,8 +190,8 @@ function FeaturePermissionsCard({...props}) {
                                             </ListItem>
                                         )}
                                         onChange={(e, feature) => {
-                                            setFieldValue(`roles[${index}].featureUuid`, feature);
-                                            handleProfilePermissions(index, false, role?.feature);
+                                            setFieldValue(`roles[${index}].feature`, feature);
+                                            handleProfilePermissions(index, false, role?.slug);
                                         }}
                                         sx={{color: "text.secondary"}}
                                         renderInput={params =>
@@ -212,7 +211,7 @@ function FeaturePermissionsCard({...props}) {
                                 loading={loadingReq && openAutoComplete.index === index}
                                 id={"feature-profile"}
                                 disableClearable
-                                disabled={role.feature === ""}
+                                disabled={role.slug === ""}
                                 autoHighlight
                                 size="small"
                                 open={openAutoComplete["index"] === index && openAutoComplete["value"]}
@@ -223,16 +222,16 @@ function FeaturePermissionsCard({...props}) {
                                 onClose={() => {
                                     setOpenAutoComplete({index, value: false});
                                 }}
-                                value={role.featureProfiles.find((profile: ProfileModel) => profile.uuid === role?.profileUuid?.uuid) ?? null}
-                                inputValue={role?.profileUuid?.name ?? ""}
+                                value={role.featureProfiles.find((profile: ProfileModel) => profile.uuid === role?.profile?.uuid) ?? null}
+                                inputValue={role?.profile?.name ?? ""}
                                 onInputChange={(event, value, reason) => {
                                     if (reason !== 'reset') {
-                                        setFieldValue(`roles[${index}].profileUuid`, value)
+                                        setFieldValue(`roles[${index}].profile`, value)
                                     }
                                 }}
                                 onChange={(e, profile) => {
                                     e.stopPropagation();
-                                    setFieldValue(`roles[${index}].profileUuid`, profile);
+                                    setFieldValue(`roles[${index}].profile`, profile);
                                 }}
                                 filterOptions={(options, params) => {
                                     return options;
@@ -304,7 +303,7 @@ function FeaturePermissionsCard({...props}) {
                                    spacing={1.2}
                                    justifyContent={"space-between"}>
                                 <Button
-                                    disabled={role.feature?.length === 0}
+                                    disabled={role.slug?.length === 0}
                                     onClick={() => {
                                         setSelectedProfile(null);
                                         setSelectedFeature(index);
@@ -353,10 +352,10 @@ function FeaturePermissionsCard({...props}) {
                 data={{
                     t,
                     selected: selectedProfile,
-                    featureSlug: (values.roles[selectedFeature] as any)?.feature,
+                    featureSlug: (values.roles[selectedFeature] as any)?.slug,
                     handleClose: (data: any) => {
                         setOpenFeatureProfileDialog(false);
-                        data?.refresh && handleProfilePermissions(selectedFeature, true, (values.roles[selectedFeature] as any)?.feature);
+                        data?.refresh && handleProfilePermissions(selectedFeature, true, (values.roles[selectedFeature] as any)?.slug);
                     }
                 }}
                 title={t("users.add_new_feature_profile")}

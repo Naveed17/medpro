@@ -2,41 +2,41 @@ import React, {useEffect, useState} from "react";
 import {Box, Checkbox, FormControl, MenuItem, TextField, Typography} from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import {useAppSelector} from "@lib/redux/hooks";
-import {leftActionBarSelector} from "@features/leftActionBar";
+import {cashBoxSelector} from "@features/leftActionBar";
 import {MuiAutocompleteSelectAll} from "@features/muiAutocompleteSelectAll";
 import {useInsurances} from "@lib/hooks/rest";
 import {ImageHandler} from "@features/image";
 
-function InsuranceFilter({...props}) {
+function InsuranceCashBoxFilter({...props}) {
     const {t, OnSearch} = props;
 
     const {insurances: insurancesData} = useInsurances();
 
-    const {query: filterData} = useAppSelector(leftActionBarSelector);
+    const {insurances} = useAppSelector(cashBoxSelector);
 
     const [queryState, setQueryState] = useState<any>({
-        insurance: []
+        insurances: []
     });
 
-    const selectedAll = queryState.insurance.length === insurancesData?.length;
+    const selectedAll = queryState.insurances.length === insurancesData?.length;
 
     const handleInsuranceChange = (insurances: any[]) => {
         setQueryState({
-            insurance: insurances
+            insurances
         });
 
         if (insurances.length === 0) {
             OnSearch({
                 query: {
                     ...queryState,
-                    insurance: null
+                    insurances: null
                 }
             });
         } else {
             OnSearch({
                 query: {
                     ...queryState,
-                    insurance: insurances.map(insurance => insurance.uuid)
+                    insurances
                 }
             });
         }
@@ -48,12 +48,10 @@ function InsuranceFilter({...props}) {
     }
 
     useEffect(() => {
-        if (filterData?.payment && filterData?.payment?.insurance) {
-            setQueryState({
-                insurance: insurancesData.filter(insurance => filterData?.payment?.insurance?.includes(insurance.uuid))
-            });
+        if (insurances) {
+            setQueryState({insurances});
         }
-    }, [filterData]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [insurances]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <Box>
@@ -61,7 +59,7 @@ function InsuranceFilter({...props}) {
                 value={{
                     onSelectAll: (selectedAll) => void handleSelectAll({insurance: selectedAll ? [] : insurancesData}),
                     selectedAll,
-                    indeterminate: !!queryState.insurance.length && !selectedAll,
+                    indeterminate: !!queryState.insurances.length && !selectedAll,
                 }}>
                 <Autocomplete
                     size={"small"}
@@ -72,9 +70,9 @@ function InsuranceFilter({...props}) {
                     limitTags={3}
                     noOptionsText={"Aucune assurance"}
                     ListboxComponent={MuiAutocompleteSelectAll.ListBox}
-                    value={queryState.insurance ? queryState.insurance : []}
+                    value={queryState.insurances?.length > 0 ? queryState.insurances : []}
                     onChange={(event, value) => handleInsuranceChange(value)}
-                    options={insurancesData ? insurancesData : []}
+                    options={insurancesData ?? []}
                     getOptionLabel={option => option?.name ? option.name : ""}
                     isOptionEqualToValue={(option: any, value) => option.name === value.name}
                     renderOption={(params, option, {selected}) => (
@@ -102,4 +100,4 @@ function InsuranceFilter({...props}) {
         </Box>)
 }
 
-export default InsuranceFilter;
+export default InsuranceCashBoxFilter;
