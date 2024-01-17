@@ -227,16 +227,17 @@ function FcmLayout({...props}) {
         }
     };
 
-    const saveInbox = (msgs,userUuid)=>{
-/*
-        updateMessages(msgs)
-        const _local = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
+    const saveInbox = (msgs:any[],userUuid:string)=>{
 
+        updateMessages(msgs)
+        let _local = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
         if (_local) {
-            console.log(_local[userUuid])
-            _local[userUuid].messages = msgs
-        } else localStorage.setItem("chat",{userUuid:msgs})
-*/
+            if(_local[userUuid])_local[userUuid].messages = msgs
+            else _local = {..._local,[userUuid]:msgs}
+        } else _local = {[userUuid]:msgs};
+
+        console.log(JSON.stringify({[userUuid]:msgs}))
+        localStorage.setItem("chat",JSON.stringify(_local))
 
     }
 
@@ -322,24 +323,17 @@ function FcmLayout({...props}) {
         console.log("current", stateChange.current);  // the new connection state
     });
 
-
-    console.log("channel",medical_entity?.uuid)
     const {channel} = useChannel(medical_entity?.uuid, (message) => {
-        console.log(message)
         if (message.name === medicalEntityHasUser) {
-           // updateMessages((prev) => [...prev, {from:message.clientId,to:medicalEntityHasUser,data:message.data}]);
-
-
-
+            saveInbox([...messages,{from:message.clientId,to:medicalEntityHasUser,data:message.data}],message.clientId)
             // @ts-ignore
             enqueueSnackbar(message.data, {variant: "info", iconVariant: {info: '💬 '}});
-
         }
     });
 
     const { presenceData, updateStatus } = usePresence(general_information.uuid, 'initialPresenceStatus');
 
-    const peers = presenceData.map((msg, index) => console.log("present",msg.clientId));
+  //  const peers = presenceData.map((msg, index) => console.log("present",msg.clientId));
 
 
     return (

@@ -36,6 +36,7 @@ const Chat = ({...props}) => {
                     if (localMsgs) {
                         const _msgs = Object.keys(localMsgs).find(key => key === user.uuid)
                         if (_msgs) updateMessages(localMsgs[user.uuid])
+                        else updateMessages([])
                     }
                 }
                 }>Connect</Button>
@@ -46,10 +47,10 @@ const Chat = ({...props}) => {
                        placeholder={"Aaa"}
                        value={message}/>
             {selectedUser &&<Button onClick={() => {
-                console.log(message)
                 saveInbox([...messages,{from:medicalEntityHasUser,to:selectedUser.uuid,data:message}],selectedUser.uuid)
-                //channel.publish(selectedUser.uuid, message)
+                channel.publish(selectedUser.uuid, message)
             }}>Send</Button>}
+            {messages.map((message:Message,index:number) => (<Typography key={index} textAlign={message.data === medicalEntityHasUser ? "right":"left"}>{message.data}</Typography>))}
         </ChatStyled>
     );
 }
