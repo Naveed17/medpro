@@ -7,13 +7,10 @@ import RootStyled from "./overrides/accordionStyled";
 import {upperFirst} from "lodash";
 import dynamic from "next/dynamic";
 
-const LoadingScreen = dynamic(
-    () => import("@features/loadingScreen/components/loadingScreen")
-);
+const LoadingScreen = dynamic(() => import("@features/loadingScreen/components/loadingScreen"));
 
 function Accordion({...props}) {
     const {children, data, setData, badge, translate} = props;
-
     const {t, ready} = translate;
 
     const handleChange = React.useCallback(
@@ -21,9 +18,7 @@ function Accordion({...props}) {
             const updatedData = [...data];
             updatedData[panel].expanded = newExpanded;
             setData(updatedData);
-        },
-        [data, setData]
-    );
+        }, [data, setData]);
 
     if (!ready) return <LoadingScreen color={"error"} button text={"loading-error"}/>;
 
@@ -49,8 +44,7 @@ function Accordion({...props}) {
                                     textAlign: "center",
                                     borderRadius: 2.688,
                                     mr: 1,
-                                }}
-                            >
+                                }}>
                                 {badge}
                             </Box>
                         )}
@@ -65,7 +59,7 @@ function Accordion({...props}) {
                     </Typography>
                 </Box>
             </MuiAccordionSummary>
-            <MuiAccordionDetails>{item.children || children}</MuiAccordionDetails>
+            {item.expanded && <MuiAccordionDetails>{item.children || children}</MuiAccordionDetails>}
         </RootStyled>
     ));
 }

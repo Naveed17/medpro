@@ -3,9 +3,8 @@ import {appWithTranslation} from "next-i18next";
 import {GlobleStyles} from "@themes/globalStyle";
 import {Provider} from "react-redux";
 import {store} from "@lib/redux/store";
-import React, {ReactElement, ReactNode} from "react";
+import React, {ReactElement, ReactNode, useMemo} from "react";
 import {NextPage} from "next";
-import {AnimatePresence} from "framer-motion";
 import {SnackbarProvider, useSnackbar} from "notistack";
 // import global style
 import "@styles/globals.scss";
@@ -25,18 +24,14 @@ import AppThemeProvider from "@themes/index";
 import KeycloakSession from "@lib/keycloak/keycloakSession";
 import AuthGuard from "@lib/keycloak/authGuard";
 import moment from "moment-timezone";
-import Head from "next/head";
 import {FcmLayout} from "@features/base";
-import ErrorBoundary from "@features/errorBoundary";
 import {IconButton} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import {EnvPattern} from "@lib/constants";
-import smartlookClient from "smartlook-client";
 import {useRouter} from "next/router";
-import {firebaseCloudSdk} from "@lib/firebase";
-import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import ReactQueryProvider from "@lib/reactQuery/reactQueryProvider";
 import {buildProvidersTree} from "@lib/routes/buildProvidersTree";
+import RootLayout from "@features/base/components/rootLayout/rootLayout";
+import {ConditionalWrapper} from "@lib/hooks";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -58,73 +53,47 @@ const CloseSnackbarAction = ({id}: any) => {
         </IconButton>)
 }
 
-function MyApp({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
+function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     const router = useRouter();
     // Use the dashLayout defined at the page level, if available
     moment.tz.setDefault(moment.tz.guess());
     moment.locale(router.locale);
 
-    if (typeof window !== "undefined") {
-        const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
-        //init remote config
-        const smartlookClientInit = localStorage.getItem("smartlook-client");
-        const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
-        remoteConfig.settings.minimumFetchIntervalMillis = 600000;
-        if (prodEnv && remoteConfig && smartlookClientInit === null) {
-            fetchAndActivate(remoteConfig).then(() => {
-                const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
-                if (config.smartlook && config.countries?.includes(process.env.NEXT_PUBLIC_COUNTRY?.toLowerCase())) {
-                    // init smartlook client
-                    localStorage.setItem('smartlook-client', "true");
-                    smartlookClient.init('8ffbddca1e49f6d7c5836891cc9c1e8c20c1c79a', {region: 'eu'});
-                }
-            });
-        }
-    }
+    const ProvidersTree = useMemo(() => buildProvidersTree([
+        [Provider, {store}],
+        [SnackbarProvider, {
+            className: "snackbar-notification",
+            preventDuplicate: true,
+            action: (key: string) => key !== "offline" && <CloseSnackbarAction id={key}/>,
+            maxSnack: 3,
+            anchorOrigin: {horizontal: 'right', vertical: 'top'}
+        }],
+        [AppThemeProvider],
+        [GlobleStyles],
+        [KeycloakSession, {session: pageProps.session}],
+        [ReactQueryProvider, {...pageProps}],
+        [RootLayout]
+    ]), []); // eslint-disable-line react-hooks/exhaustive-deps
     // Get Layout for pages
-    const getLayout = Component.getLayout ?? ((page) => page);
+    const getLayout = Component.getLayout || ((page) => page);
     const pageKey = router.asPath;
 
     return (
-        <Provider store={store}>
-            <SnackbarProvider className={"snackbar-notification"}
-                              preventDuplicate
-                              action={key => key !== "offline" && <CloseSnackbarAction id={key}/>}
-                              maxSnack={3}
-                              anchorOrigin={{horizontal: 'right', vertical: 'top'}}>
-                <AppThemeProvider>
-                    <GlobleStyles>
-                        <KeycloakSession session={pageProps.session}>
-                            <ReactQueryProvider {...pageProps}>
-                                <Head>
-                                    <title>Med Link</title>
-                                    <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
-                                </Head>
-                                <AnimatePresence
-                                    initial={false}
-                                    mode="popLayout"
-                                    onExitComplete={() => window.scrollTo(0, 0)}>
-                                    <ErrorBoundary>
-                                        {Component.auth ? (
-                                            <AuthGuard>
-                                                <FcmLayout {...pageProps}>
-                                                    {getLayout(<Component key={pageKey} {...pageProps} />)}
-                                                </FcmLayout>
-                                            </AuthGuard>
-                                        ) : (
-                                            <> {getLayout(<Component key={pageKey} {...pageProps} />)}</>
-                                        )}
-                                    </ErrorBoundary>
-                                </AnimatePresence>
-                            </ReactQueryProvider>
-                        </KeycloakSession>
-                    </GlobleStyles>
-                </AppThemeProvider>
-            </SnackbarProvider>
-        </Provider>
+        <ProvidersTree>
+            <ConditionalWrapper
+                condition={Component.auth}
+                wrapper={(children: any) =>
+                    <AuthGuard>
+                        <FcmLayout {...pageProps}>
+                            {children}
+                        </FcmLayout>
+                    </AuthGuard>}>
+                {getLayout(<Component key={pageKey} {...pageProps} />)}
+            </ConditionalWrapper>
+        </ProvidersTree>
     );
 }
 
-MyApp.displayName = "Med Link";
+App.displayName = "Med Link";
 
-export default appWithTranslation(MyApp);
+export default appWithTranslation(App);

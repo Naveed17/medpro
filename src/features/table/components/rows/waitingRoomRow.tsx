@@ -26,7 +26,7 @@ import {getDiffDuration} from "@lib/hooks";
 
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
-    const {doctor_country, roles, setLoading} = data;
+    const {roles, setLoading} = data;
 
     const theme = useTheme();
 
@@ -40,7 +40,7 @@ function WaitingRoomRow({...props}) {
         setOpenDialog(false);
         setInfo(null);
     }
-
+    console.log("row", row)
     const DialogAction = () => {
         return (
             <DialogActions>
@@ -153,7 +153,7 @@ function WaitingRoomRow({...props}) {
                                     },
                                 }}>
                                 <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary}/>
-                                {row.arrivalTime ? getDiffDuration(`${row.dayDate} ${row.arrivalTime}`, 1) : " -- "}
+                                {row.arrivalTime && row.status !== 5 ? getDiffDuration(`${row.dayDate} ${row.arrivalTime}`, 1) : " -- "}
                             </Typography>
                         </Box>
                     ) : (

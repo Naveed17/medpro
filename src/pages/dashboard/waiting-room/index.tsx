@@ -31,15 +31,13 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
-import {ActionMenu, toggleSideBar} from "@features/menu";
+import {ActionMenu} from "@features/menu";
 import {
     prepareContextMenu,
     prepareSearchKeys,
-    useIsMountedRef,
     useMedicalEntitySuffix,
     useMutateOnGoing
 } from "@lib/hooks";
-import {appLockSelector} from "@features/appLock";
 import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
@@ -79,15 +77,13 @@ function WaitingRoom() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const isMounted = useIsMountedRef();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
-    const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
 
+    const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {config: agenda} = useAppSelector(agendaSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive} = useAppSelector(timerSelector);
@@ -489,20 +485,6 @@ function WaitingRoom() {
         }
     }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        if (isMounted.current && !lock) {
-            dispatch(toggleSideBar(false));
-        }
-    }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (!openPaymentDialog) {
-            setTimeout(() => {
-                mutateWaitingRoom();
-            }, 300);
-        }
-    }, [openPaymentDialog]); // eslint-disable-line react-hooks/exhaustive-deps
-
     useLeavePageConfirm(() => {
         dispatch(resetFilter());
     });
@@ -799,8 +781,6 @@ function WaitingRoom() {
                         ))}
                     </ActionMenu>
                 </Box>
-
-
             </Box>
 
             <Drawer

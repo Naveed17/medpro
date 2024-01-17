@@ -1699,9 +1699,5 @@ export default Agenda
 Agenda.auth = true
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
-    return (
-        <DashLayout>
-            {page}
-        </DashLayout>
-    )
+    return <DashLayout>{page}</DashLayout>;
 }

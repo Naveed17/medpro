@@ -3,25 +3,14 @@ import {useRouter} from "next/router";
 import React, {useEffect} from "react";
 import {LoadingScreen} from "@features/loadingScreen";
 import LockIcon from "@themes/overrides/icons/lockIcon";
-import {setLock} from "@features/appLock";
-import {toggleSideBar} from "@features/menu";
-import {useAppDispatch} from "../redux/hooks";
 
 function AuthGuard({children}: LayoutProps) {
     const {data: session, status} = useSession();
-    const dispatch = useAppDispatch();
     const router = useRouter();
 
     const medical_entity = (session?.data as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default);
     const features = medical_entity?.features;
     const hasPermission = features?.map((feature: FeatureModel) => feature.slug).includes(router.pathname.split('/')[2]) ?? true;
-
-    useEffect(() => {
-        if (localStorage.getItem('lock-on') === 'true') {
-            dispatch(setLock(true));
-            dispatch(toggleSideBar(true));
-        }
-    }, [dispatch]);
 
     useEffect(() => {
         if (status === "unauthenticated" && router.asPath !== "/auth/signIn") {
@@ -54,7 +43,7 @@ function AuthGuard({children}: LayoutProps) {
             OnClick={() => router.push("/dashboard")}/>
     }
 
-    return <>{children}</>;
+    return children;
 }
 
 export default AuthGuard;
