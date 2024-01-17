@@ -6,7 +6,6 @@ import {withAuth} from "next-auth/middleware"
 export default withAuth(
     // @ts-ignore
     async function middleware(req: NextRequest & { nextauth: { token: JWT } }) {
-        console.log("pathname", req.nextUrl.pathname)
         // Check Edge Config to see if the maintenance page should be shown
         const {MAINTENANCE_MODE} = process.env;
         // If in maintenance mode, point the url pathname to the maintenance page
