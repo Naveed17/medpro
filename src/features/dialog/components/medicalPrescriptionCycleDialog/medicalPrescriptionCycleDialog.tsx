@@ -122,18 +122,15 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const validationSchema = Yup.object().shape({
         data: Yup.array().of(
             Yup.object().shape({
-                drug: Yup.object()
-                    .shape({
-                        uuid: Yup.string(),
-                        form: Yup.string().nullable(),
-                        dci: Yup.string().nullable(),
-                        dose: Yup.string().nullable(),
-                        commercial_name: Yup.string(),
-                        isVerified: Yup.boolean(),
-                        inputValue: Yup.string(),
-                    })
-                    .nullable()
-                    .required("drug_error"),
+                drug: Yup.object().shape({
+                    uuid: Yup.string(),
+                    form: Yup.string().nullable(),
+                    dci: Yup.string().nullable(),
+                    dose: Yup.string().nullable(),
+                    commercial_name: Yup.string(),
+                    isVerified: Yup.boolean(),
+                    inputValue: Yup.string(),
+                }).nullable().required("drug_error"),
                 unit: Yup.string().nullable(),
                 cycles: Yup.array().of(
                     Yup.object().shape({

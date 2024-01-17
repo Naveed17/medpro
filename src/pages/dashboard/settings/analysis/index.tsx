@@ -167,7 +167,7 @@ function Analysis() {
         }
     }, [analysisResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const analysis = ((analysisResponse as HttpResponse)?.data ?? []) as AnalysisModel[];
+    const analysis = ((analysisResponse as HttpResponse)?.data?.list ?? []) as AnalysisModel[];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -196,11 +196,11 @@ function Analysis() {
                         "& table": {tableLayout: "fixed"},
                     }}>
                     <Otable
+                        {...{t}}
                         headers={headCells}
                         rows={analysis}
                         from={"analysis"}
                         pagination
-                        t={t}
                         edit={configAnalysis}
                         total={(analysisResponse as HttpResponse)?.data?.total}
                         totalPages={(analysisResponse as HttpResponse)?.data?.totalPages}

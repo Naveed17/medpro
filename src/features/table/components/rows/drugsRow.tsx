@@ -33,7 +33,7 @@ function Drugs({...props}) {
                         <Typography>--</Typography>
                     ) : (
 
-                        <Typography>{row.dci}</Typography>
+                        <Typography>{row.dci?.name}</Typography>
 
                     )
                 ) : (
@@ -46,7 +46,7 @@ function Drugs({...props}) {
                         <Typography>--</Typography>
                     ) : (
 
-                        <Typography>{row.form}</Typography>
+                        <Typography>{row.form?.name}</Typography>
 
                     )
                 ) : (
@@ -59,7 +59,7 @@ function Drugs({...props}) {
                         <Typography>--</Typography>
                     ) : (
 
-                        <Typography>{row.laboratory}</Typography>
+                        <Typography>{row.laboratory?.name}</Typography>
 
                     )
                 ) : (

@@ -158,7 +158,7 @@ function MedicalImaging() {
         }
     }, [medicalImagingResponse, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const medicalImaging = ((medicalImagingResponse as HttpResponse)?.data ?? []) as any[];
+    const medicalImaging = ((medicalImagingResponse as HttpResponse)?.data?.list ?? []) as any[];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 

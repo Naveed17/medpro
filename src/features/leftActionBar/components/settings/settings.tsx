@@ -23,6 +23,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
+import Can from "@features/casl/can";
 
 function Settings() {
     const {data: session} = useSession();
@@ -45,9 +46,10 @@ function Settings() {
                 </Typography>
                 <nav aria-label="main mailbox folders">
                     <List>
-                        {settingsData.data.map((v: any) => (
+                        {settingsData.data.map((item: any) => (
+                            <Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
                             <ListItem
-                                {...(v.fill !== "default" && {
+                                {...(item.fill !== "default" && {
                                     sx: {
                                         "& .MuiListItemIcon-root svg path": {
                                             fill: (theme) => theme.palette.primary.main
@@ -55,27 +57,28 @@ function Settings() {
                                     }
                                 })
                                 }
-                                key={v.name}
+                                key={item.name}
                                 {...((roles?.includes('ROLE_SECRETARY') &&
-                                    ['profile', 'acts', 'actfees', 'import-data'].includes(v.name) || v.disable) && {sx: {display: "none"}})}
-                                className={router.pathname === v.href ? 'active' : ''}
+                                    ['profile', 'acts', 'actfees', 'import-data'].includes(item.name) || item.disable) && {sx: {display: "none"}})}
+                                className={router.pathname === item.href ? 'active' : ''}
                                 disablePadding>
                                 <ListItemButton
                                     onClick={() => {
-                                        if (v.name === "users" && roles?.includes('ROLE_SECRETARY')) {
-                                            router.push(`${v.href}/${currentUser}`);
+                                        if (item.name === "users" && roles?.includes('ROLE_SECRETARY')) {
+                                            router.push(`${item.href}/${currentUser}`);
                                         } else {
-                                            router.push(`${locations && v?.deep === "location" ? `${v.href.replace('[uuid]', '')}${locations && locations[0]}` : v.href}`);
+                                            router.push(`${locations && item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations && locations[0]}` : item.href}`);
                                         }
                                     }}
-                                    disabled={v.disable}
+                                    disabled={item.disable}
                                     disableRipple>
                                     <ListItemIcon>
-                                        <IconUrl width={20} height={20} path={v.icon}/>
+                                        <IconUrl width={20} height={20} path={item.icon}/>
                                     </ListItemIcon>
-                                    <ListItemText primary={t('menu.' + v.name)}/>
+                                    <ListItemText primary={t('menu.' + item.name)}/>
                                 </ListItemButton>
                             </ListItem>
+                            </Can>
                         ))}
                     </List>
                 </nav>

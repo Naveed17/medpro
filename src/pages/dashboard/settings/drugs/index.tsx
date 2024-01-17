@@ -97,7 +97,7 @@ function Drugs() {
             sortable: false,
         },
     ];
-    const drugs = ((drugsResponse as HttpResponse)?.data ?? []) as DrugModel[];
+    const drugs = ((drugsResponse as HttpResponse)?.data?.list ?? []) as DrugModel[];
 
     const removeDrug = (uuid: string) => {
         setLoadingRequest(true)
@@ -163,9 +163,12 @@ function Drugs() {
                     <Otable
                         {...{t}}
                         headers={headCells}
+                        pagination
                         handleEvent={handleTableActions}
                         rows={drugs}
                         from={"drugs"}
+                        total={(drugsResponse as HttpResponse)?.data?.total}
+                        totalPages={(drugsResponse as HttpResponse)?.data?.totalPages}
                     />
                 </Box>
             </DesktopContainer>

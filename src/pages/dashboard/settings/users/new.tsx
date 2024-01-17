@@ -107,8 +107,8 @@ function NewUser() {
         profile: Yup.string().required(),
         roles: Yup.array().of(
             Yup.object().shape({
+                slug: Yup.string(),
                 feature: Yup.string(),
-                featureUuid: Yup.string(),
                 hasMultipleInstance: Yup.boolean(),
                 featureProfiles: Yup.array().of(
                     Yup.object().shape({
@@ -122,7 +122,7 @@ function NewUser() {
                         uuid: Yup.string()
                     })
                 ),
-                profileUuid: Yup.string()
+                profile: Yup.string()
             })
         )
     });
@@ -543,12 +543,12 @@ function NewUser() {
                                                             ...values,
                                                             profile: profile.uuid,
                                                             roles: profile?.features?.map((data: any) => ({
-                                                                feature: data?.feature?.slug ?? "",
-                                                                featureUuid: data[data?.feature?.slug] ?? "",
+                                                                slug: data?.feature?.slug ?? "",
+                                                                feature: data[data?.feature?.slug] ?? "",
                                                                 hasMultipleInstance: data?.feature?.hasProfile ?? false,
                                                                 featureRoles: data?.feature?.hasProfile ? (data?.feature?.slug === "cashbox" ? cashboxes : agendas) : [],
                                                                 featureProfiles: [],
-                                                                profileUuid: data?.profile ?? ""
+                                                                profile: data?.profile ?? ""
                                                             }))
                                                         });
 
