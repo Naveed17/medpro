@@ -13,6 +13,7 @@ const Chat = ({ ...props }) => {
     const {
         channel, messages, updateMessages, medicalEntityHasUser, saveInbox
     } = props;
+
     const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
     const [message, setMessage] = useState("");
 

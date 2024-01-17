@@ -22,8 +22,6 @@ export default async function POST(req: NextApiRequest, res: NextApiResponse) {
     const {data: user} = session as Session;
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
 
-    console.log("me",medicalEntityHasUser)
-
     const client = new Ably.Rest(process.env.ABLY_API_KEY);
     const tokenRequestData = await client.auth.createTokenRequest({clientId: medicalEntityHasUser});
     return res.send(tokenRequestData)

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { firebaseCloudSdk } from "@lib/firebase";
 import { getMessaging, onMessage } from "firebase/messaging";
-import { Dialog, DialogContent, DialogTitle, Drawer, Fab, Paper, PaperProps, useTheme } from "@mui/material";
+import { Badge, Dialog, DialogContent, DialogTitle, Drawer, Fab, Paper, PaperProps, useTheme } from "@mui/material";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -68,6 +68,7 @@ function FcmLayout({ ...props }) {
 
     const [open, setOpen] = React.useState(false);
     const [messages, updateMessages] = useState<any[]>([]);
+    const [hasMessage, setHasMessage] = useState(false);
 
     const { data: user } = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -228,17 +229,13 @@ function FcmLayout({ ...props }) {
     };
 
     const saveInbox = (msgs: any[], userUuid: string) => {
-
         updateMessages(msgs)
         let _local = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
         if (_local) {
-            if (_local[userUuid]) _local[userUuid].messages = msgs
+            if (_local[userUuid]) _local[userUuid] = msgs
             else _local = { ..._local, [userUuid]: msgs }
         } else _local = { [userUuid]: msgs };
-
-        console.log(JSON.stringify({ [userUuid]: msgs }))
         localStorage.setItem("chat", JSON.stringify(_local))
-
     }
 
     useEffect(() => {
@@ -325,16 +322,17 @@ function FcmLayout({ ...props }) {
 
     const { channel } = useChannel(medical_entity?.uuid, (message) => {
         if (message.name === medicalEntityHasUser) {
-            saveInbox([...messages, { from: message.clientId, to: medicalEntityHasUser, data: message.data }], message.clientId)
+            saveInbox([...messages, {
+                from: message.clientId,
+                to: medicalEntityHasUser,
+                data: message.data
+            }], message.clientId)
             // @ts-ignore
             enqueueSnackbar(message.data, { variant: "info", iconVariant: { info: '💬 ' } });
+            setHasMessage(true)
         }
     });
-
-    const { presenceData, updateStatus } = usePresence(general_information.uuid, 'initialPresenceStatus');
-
-    //  const peers = presenceData.map((msg, index) => console.log("present",msg.clientId));
-
+    const { presenceData } = usePresence(medical_entity?.uuid, 'actif');
 
     return (
         <>
@@ -466,7 +464,9 @@ function FcmLayout({ ...props }) {
                 onClick={() => {
                     setOpen(true)
                 }}>
-                <IconUrl path={"ic-chat"} width={30} height={30} />
+                <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
+                    <IconUrl path={"ic-chat"} width={30} height={30} />
+                </Badge>
             </Fab>
 
             <Drawer
@@ -477,9 +477,17 @@ function FcmLayout({ ...props }) {
                         width: { xs: "100%", md: 800 },
                         p: 1
                     }
-                }}
-                onClose={() => setOpen(false)}>
-                <Chat {...{ channel, messages, updateMessages, medicalEntityHasUser, saveInbox }} />
+                }} onClose={() => setOpen(false)}>
+                <Chat {...{
+                    channel,
+                    messages,
+                    updateMessages,
+                    medicalEntityHasUser,
+                    saveInbox,
+                    medical_entity,
+                    presenceData,
+                    setHasMessage
+                }} />
             </Drawer>
 
         </>
