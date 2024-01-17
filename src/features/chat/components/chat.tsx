@@ -50,7 +50,7 @@ const Chat = ({...props}) => {
                 saveInbox([...messages,{from:medicalEntityHasUser,to:selectedUser.uuid,data:message}],selectedUser.uuid)
                 channel.publish(selectedUser.uuid, message)
             }}>Send</Button>}
-            {messages.map((message:Message,index:number) => (<Typography key={index} textAlign={message.data === medicalEntityHasUser ? "right":"left"}>{message.data}</Typography>))}
+            {messages.map((message:Message,index:number) => (<Typography key={index} textAlign={message.from === medicalEntityHasUser ? "left":"right"}>{message.data}</Typography>))}
         </ChatStyled>
     );
 }
