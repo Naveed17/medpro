@@ -47,37 +47,38 @@ function Settings() {
                 <nav aria-label="main mailbox folders">
                     <List>
                         {settingsData.data.map((item: any) => (
-                            <Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
-                            <ListItem
-                                {...(item.fill !== "default" && {
-                                    sx: {
-                                        "& .MuiListItemIcon-root svg path": {
-                                            fill: (theme) => theme.palette.primary.main
+                            <Can key={item.name} I={"read"} a={"settings"}>
+                                {/*field={`settings__${item.href.split('/')[3]}__show` as any}>*/}
+                                <ListItem
+                                    {...(item.fill !== "default" && {
+                                        sx: {
+                                            "& .MuiListItemIcon-root svg path": {
+                                                fill: (theme) => theme.palette.primary.main
+                                            }
                                         }
+                                    })
                                     }
-                                })
-                                }
-                                key={item.name}
-                                {...((roles?.includes('ROLE_SECRETARY') &&
-                                    ['profile', 'acts', 'actfees', 'import-data'].includes(item.name) || item.disable) && {sx: {display: "none"}})}
-                                className={router.pathname === item.href ? 'active' : ''}
-                                disablePadding>
-                                <ListItemButton
-                                    onClick={() => {
-                                        if (item.name === "users" && roles?.includes('ROLE_SECRETARY')) {
-                                            router.push(`${item.href}/${currentUser}`);
-                                        } else {
-                                            router.push(`${locations && item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations && locations[0]}` : item.href}`);
-                                        }
-                                    }}
-                                    disabled={item.disable}
-                                    disableRipple>
-                                    <ListItemIcon>
-                                        <IconUrl width={20} height={20} path={item.icon}/>
-                                    </ListItemIcon>
-                                    <ListItemText primary={t('menu.' + item.name)}/>
-                                </ListItemButton>
-                            </ListItem>
+                                    key={item.name}
+                                    {...((roles?.includes('ROLE_SECRETARY') &&
+                                        ['profile', 'acts', 'actfees', 'import-data'].includes(item.name) || item.disable) && {sx: {display: "none"}})}
+                                    className={router.pathname === item.href ? 'active' : ''}
+                                    disablePadding>
+                                    <ListItemButton
+                                        onClick={() => {
+                                            if (item.name === "users" && roles?.includes('ROLE_SECRETARY')) {
+                                                router.push(`${item.href}/${currentUser}`);
+                                            } else {
+                                                router.push(`${locations && item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations && locations[0]}` : item.href}`);
+                                            }
+                                        }}
+                                        disabled={item.disable}
+                                        disableRipple>
+                                        <ListItemIcon>
+                                            <IconUrl width={20} height={20} path={item.icon}/>
+                                        </ListItemIcon>
+                                        <ListItemText primary={t('menu.' + item.name)}/>
+                                    </ListItemButton>
+                                </ListItem>
                             </Can>
                         ))}
                     </List>

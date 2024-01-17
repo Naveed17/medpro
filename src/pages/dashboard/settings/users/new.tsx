@@ -541,7 +541,7 @@ function NewUser() {
                                                     onChange={(e, profile: any) => {
                                                         setValues({
                                                             ...values,
-                                                            profile: profile.uuid,
+                                                            profile: profile?.uuid ?? "",
                                                             roles: profile?.features?.map((data: any) => ({
                                                                 slug: data?.feature?.slug ?? "",
                                                                 feature: data[data?.feature?.slug] ?? "",
@@ -549,9 +549,8 @@ function NewUser() {
                                                                 featureRoles: data?.feature?.hasProfile ? (data?.feature?.slug === "cashbox" ? cashboxes : agendas) : [],
                                                                 featureProfiles: [],
                                                                 profile: data?.profile ?? ""
-                                                            }))
+                                                            })) ?? []
                                                         });
-
                                                     }}
                                                     getOptionLabel={(option: any) => option?.name ? option.name : ""}
                                                     isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
