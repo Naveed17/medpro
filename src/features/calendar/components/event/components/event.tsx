@@ -197,7 +197,12 @@ function Event({...props}) {
                             alt="Online appointment"
                             src="/static/icons/Med-logo_.svg"
                         />}
-                        {(event.event._def.ui.display !== "background" && !["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(appointment?.status?.key) && !roles.includes('ROLE_SECRETARY') && !appointment?.patient?.isArchived && !isMobile) &&
+                        {(event.event._def.ui.display !== "background" &&
+                                !["FINISHED", "ON_GOING", "PENDING", "PATIENT_CANCELED", "CANCELED", "NOSHOW"].includes(appointment?.status?.key) &&
+                                !roles.includes('ROLE_SECRETARY') &&
+                                !appointment?.patient?.isArchived &&
+                                moment(appointment?.time).format("DD-MM-YYYY") === moment().format("DD-MM-YYYY") &&
+                                !isMobile) &&
                             <IconButton
                                 onClick={ev => {
                                     ev.stopPropagation();

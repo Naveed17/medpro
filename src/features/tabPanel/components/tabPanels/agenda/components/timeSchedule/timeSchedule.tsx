@@ -424,13 +424,31 @@ function TimeSchedule({...props}) {
                                         shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
                                     />
                                 </Grid>}
-                                <Grid item
-                                      {...((!changeTime || isMobile) && {mt: 0})} md={changeTime ? 12 : 6} xs={12}>
+                                <Grid
+                                    item
+                                    {...((!changeTime || isMobile) && {mt: 0})} md={changeTime ? 12 : 6} xs={12}>
                                     {!changeTime &&
                                         <>
-                                            <Typography variant="body1" align={"center"} color="text.primary" my={2}>
-                                                {t("stepper-1.time-message")}
-                                            </Typography>
+                                            <Stack direction={"row"} alignItems={"center"}
+                                                   justifyContent={"space-between"}>
+                                                <Typography variant="body1" align={"center"} color="text.primary"
+                                                            ml={2}
+                                                            my={2}>
+                                                    {t("stepper-1.time-message")}
+                                                </Typography>
+
+                                                <IconButton
+                                                    size="small"
+                                                    disabled={!date}
+                                                    color="primary"
+                                                    onClick={() => {
+                                                        changeDateRef.current = true;
+                                                        setChangeTime(true);
+                                                    }}>
+                                                    <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                                </IconButton>
+                                            </Stack>
+
                                             <TimeSlot
                                                 {...{t}}
                                                 sx={{width: 248, margin: "auto"}}
@@ -446,7 +464,7 @@ function TimeSchedule({...props}) {
                                         </>
                                     }
 
-                                    {changeTime ?
+                                    {changeTime &&
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                                             <StaticTimePicker
                                                 {...(!isMobile && {orientation: "landscape"})}
@@ -492,21 +510,6 @@ function TimeSchedule({...props}) {
                                                 renderInput={(params) => <TextField {...params} />}
                                             />
                                         </LocalizationProvider>
-                                        :
-                                        <Button
-                                            sx={{fontSize: 12, mt: 1}}
-                                            disabled={!date}
-                                            onClick={() => {
-                                                changeDateRef.current = true;
-                                                setChangeTime(true);
-                                            }}
-                                            startIcon={
-                                                <IconUrl
-                                                    width={"14"}
-                                                    height={"14"}
-                                                    {...(!date && {color: "white"})}
-                                                    path="ic-edit"/>}
-                                            variant="text">{t("stepper-1.change-time")}</Button>
                                     }
                                 </Grid>
                             </Grid>
@@ -532,13 +535,13 @@ function TimeSchedule({...props}) {
                                         button={
                                             <IconButton
                                                 sx={{
-                                                    p: 0, "& svg": {
-                                                        p: "2px"
+                                                    "& svg": {
+                                                        width: 20,
+                                                        height: 20
                                                     }
                                                 }}
-                                                size="small"
-                                            >
-                                                <DeleteIcon color={"error"}/>
+                                                size="small">
+                                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                                             </IconButton>
                                         }
                                         key={index.toString()} item={recurringDate} size="small"/>
