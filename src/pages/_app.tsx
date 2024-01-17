@@ -5,7 +5,7 @@ import {Provider} from "react-redux";
 import {store} from "@lib/redux/store";
 import React, {ReactElement, ReactNode, useMemo} from "react";
 import {NextPage} from "next";
-import {SnackbarProvider, useSnackbar} from "notistack";
+import {SnackbarProvider} from "notistack";
 // import global style
 import "@styles/globals.scss";
 import 'react-medium-image-zoom/dist/styles.css';
@@ -25,13 +25,12 @@ import KeycloakSession from "@lib/keycloak/keycloakSession";
 import AuthGuard from "@lib/keycloak/authGuard";
 import moment from "moment-timezone";
 import {FcmLayout} from "@features/base";
-import {IconButton} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import {useRouter} from "next/router";
 import ReactQueryProvider from "@lib/reactQuery/reactQueryProvider";
 import {buildProvidersTree} from "@lib/routes/buildProvidersTree";
 import RootLayout from "@features/base/components/rootLayout/rootLayout";
 import {ConditionalWrapper} from "@lib/hooks";
+import {CloseSnackbarAction} from "@features/popup";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -40,18 +39,6 @@ interface MyAppProps extends AppProps {
 type NextPageWithLayout = NextPage & {
     getLayout?: (page: ReactElement) => ReactNode;
 };
-
-const CloseSnackbarAction = ({id}: any) => {
-    const {closeSnackbar} = useSnackbar();
-    return (
-        <IconButton
-            className={"snackbar-notification-action"}
-            onClick={() => {
-                closeSnackbar(id)
-            }}>
-            <CloseIcon/>
-        </IconButton>)
-}
 
 function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     const router = useRouter();

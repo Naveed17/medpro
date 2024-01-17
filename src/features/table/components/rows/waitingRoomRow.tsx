@@ -146,11 +146,7 @@ function WaitingRoomRow({...props}) {
                                     fontSize: 13,
                                     fontWeight: 600,
                                     color: "text.primary",
-                                    svg: {
-
-                                        mr: 0.5,
-
-                                    },
+                                    svg: {mr: 0.5}
                                 }}>
                                 <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary}/>
                                 {row.arrivalTime && row.status !== 5 ? getDiffDuration(`${row.dayDate} ${row.arrivalTime}`, 1) : " -- "}
