@@ -1,50 +1,137 @@
 import {styled} from "@mui/material/styles";
-import {Grid} from "@mui/material";
+import {Paper} from "@mui/material";
 
 const radius = 10;
 
-const ChatStyled = styled(Grid)(({theme}) => ({
-    marginTop: 0,
-    "& .leftRow": {
-        textAlign: 'left',
+const ChatStyled = styled(Paper)(({theme}) => ({
+    flex:1,
+    backgroundColor: theme.palette.grey["A40"],
+    "& > div":{
+     height:"100%",
     },
-    "& .rightRow": {
-        textAlign: 'right',
+    ".user-wrapper":{
+        flex:1,
+        height:'calc(100vh - 20px)',
+        overflow:'auto',
+        border:0,
+        borderRadius:"6px 0 0 6px",
+        borderRight:`1px solid ${theme.palette.divider}`,
+        backgroundColor: "transparent",
+        padding:theme.spacing(2),
+        ".user-item":{
+        padding:theme.spacing(1),
+        borderRadius:theme.shape.borderRadius,
+        "&.selected":{
+            backgroundColor:theme.palette.common.white,
+        }
     },
-    "& .msg": {
-        padding: 5,
-        borderRadius: 4,
-        marginBottom: 4,
-        display: 'inline-block',
-        wordBreak: 'break-word',
-        fontFamily:
-        // eslint-disable-next-line max-len
-            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
-        fontSize: '14px',
+    [theme.breakpoints.down("md")]:{
+        border:0,
+        height:400,
+    },        
     },
-    "& .left": {
-        borderTopRightRadius: radius,
-        borderBottomRightRadius: radius,
-        backgroundColor: theme.palette.common.white,
+    '.chat-wrapper':{
+        border:0,
+        borderRadius:0,
+        backgroundColor: "transparent",
+        padding:theme.spacing(2),
+        ".prev-msgs":{
+            backgroundColor:theme.palette.common.white,
+            boxShadow:"0 1px 1px rgba(0,0,0,.05)",
+            fontSize:11,
+            color:theme.palette.text.secondary,
+            fontWeight:'normal',
+            paddingLeft:theme.spacing(2),
+            paddingRight:theme.spacing(2),
+        
+        },
+        ".chat-list":{
+            margin:theme.spacing(3,0),
+            display:'flex',
+            flexDirection:'column',
+            height:'calc(100vh - 262px)',
+            overflow:'auto',
+            ".MuiListItem-root":{
+                ".time":{
+                    display:'inline-block',
+                    marginLeft:theme.spacing(2),
+                    position:'relative',
+                    "&::before":{
+                        content: "''",
+                        display: 'inline-block',
+                        width:2,
+                        height:2,
+                        backgroundColor:theme.palette.text.secondary,
+                        borderRadius:5,
+                        position:'absolute',
+                        top:5,
+                        left:-8,
+                    }
+                },
+                ".MuiListItemAvatar-root":{
+                    minWidth:45,
+                ".MuiAvatar-root":{
+                    width:32,
+                    height:32,
+                    fontSize:14,
+                }
+                },
+                "&.left":{
+                    alignSelf:'flex-start',
+                },
+                "&.right":{
+                    textAlign:'right',
+                    alignSelf:'flex-end',
+                    flexDirection:'row-reverse',
+                    ".MuiListItemAvatar-root":{
+                        display:'flex',
+                        justifyContent:'flex-end',
+                    },
+                    ".thumb":{
+                         backgroundColor:theme.palette.common.white,
+            boxShadow:"0 1px 1px rgba(0,0,0,.05)",
+            fontSize:11,
+            paddingLeft:theme.spacing(1.5),
+            paddingRight:theme.spacing(1.5),
+            alignSelf:'flex-end',
+                    },
+                },
+                [theme.breakpoints.up("md")]:{
+                  maxWidth:'90%',
+                }
+
+            }
+        }
     },
-    "& .right": {
-        borderTopLeftRadius: radius,
-        borderBottomLeftRadius: radius,
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.common.white,
-        marginLeft: 90
+    ".MuiInputBase-root":{
+        paddingBottom:32,
+    ".MuiInputAdornment-positionStart":{
+        position:'absolute',
+        bottom:20
     },
-    "& .leftFirst": {
-        borderTopLeftRadius: radius,
+    ".MuiInputAdornment-positionEnd":{
+        position:'absolute',
+        bottom:20,
+        right:16
     },
-    "& .leftLast": {
-        borderBottomLeftRadius: radius,
     },
-    "& .rightFirst": {
-        borderTopRightRadius: radius,
-    },
-    "& .rightLast": {
-        borderBottomRightRadius: radius,
+    
+    ".send-msg":{
+         backgroundColor:theme.palette.text.primary,
+            boxShadow:"0 1px 1px rgba(0,0,0,.05)",
+            fontSize:11,
+            color:theme.palette.common.white,
+            paddingLeft:theme.spacing(1),
+            paddingRight:theme.spacing(1),
+            display:'flex',
+            alignItems:'center',
+            span:{
+                marginLeft:4,
+                marginTop:1.4,
+            },
+            "&:hover":{
+             backgroundColor:theme.palette.text.primary,
+            }
     }
 }));
 
