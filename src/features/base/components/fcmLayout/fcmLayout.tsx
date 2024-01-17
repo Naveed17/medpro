@@ -227,14 +227,14 @@ function FcmLayout({...props}) {
         }
     };
 
-    const saveInbox = (msgs:any[],userUuid:string)=>{
+    const saveInbox = (msgs: any[], userUuid: string) => {
         updateMessages(msgs)
         let _local = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
         if (_local) {
-            if(_local[userUuid])_local[userUuid] = msgs
-            else _local = {..._local,[userUuid]:msgs}
-        } else _local = {[userUuid]:msgs};
-        localStorage.setItem("chat",JSON.stringify(_local))
+            if (_local[userUuid]) _local[userUuid] = msgs
+            else _local = {..._local, [userUuid]: msgs}
+        } else _local = {[userUuid]: msgs};
+        localStorage.setItem("chat", JSON.stringify(_local))
     }
 
     useEffect(() => {
@@ -321,16 +321,16 @@ function FcmLayout({...props}) {
 
     const {channel} = useChannel(medical_entity?.uuid, (message) => {
         if (message.name === medicalEntityHasUser) {
-            saveInbox([...messages,{from:message.clientId,to:medicalEntityHasUser,data:message.data}],message.clientId)
+            saveInbox([...messages, {
+                from: message.clientId,
+                to: medicalEntityHasUser,
+                data: message.data
+            }], message.clientId)
             // @ts-ignore
             enqueueSnackbar(message.data, {variant: "info", iconVariant: {info: '💬 '}});
         }
     });
-
-    const { presenceData, updateStatus } = usePresence(general_information.uuid, 'initialPresenceStatus');
-
-  //  const peers = presenceData.map((msg, index) => console.log("present",msg.clientId));
-
+    const {presenceData} = usePresence(medical_entity?.uuid, 'actif');
 
     return (
         <>
@@ -473,7 +473,15 @@ function FcmLayout({...props}) {
                         width: {xs: "100%", sm: "40%"}
                     }
                 }} onClose={() => setOpen(false)}>
-                <Chat {...{channel,messages,updateMessages,medicalEntityHasUser,saveInbox}}/>
+                <Chat {...{
+                    channel,
+                    messages,
+                    updateMessages,
+                    medicalEntityHasUser,
+                    saveInbox,
+                    medical_entity,
+                    presenceData
+                }}/>
             </Drawer>
 
         </>
