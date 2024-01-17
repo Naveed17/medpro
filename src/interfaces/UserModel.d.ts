@@ -3,6 +3,7 @@ interface UserModel {
   uuid: string;
   userUuid?: string;
   firstName: string;
+  FirstName?: string;
   lastName: string;
   email: string;
   birthDate: string;

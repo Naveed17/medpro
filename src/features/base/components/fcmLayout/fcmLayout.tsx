@@ -1,13 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {firebaseCloudSdk} from "@lib/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
-import {
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    Paper,
-    PaperProps, useTheme
-} from "@mui/material";
+import {Dialog, DialogContent, DialogTitle, Drawer, Fab, Paper, PaperProps, useTheme} from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -21,16 +15,15 @@ import {
     setStepperIndex
 } from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
+import {AgendaPopupAction, ConsultationPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
-import {Dialog as CustomDialog} from "@features/dialog";
+import {Dialog as CustomDialog, setMoveDateTime} from "@features/dialog";
 import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
 import {resetTimer} from "@features/card";
 import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import {DefaultCountry, EnvPattern} from "@lib/constants";
-import {setMoveDateTime} from "@features/dialog";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
@@ -40,7 +33,9 @@ import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
 import {buildAbilityFor} from "@lib/rbac/casl/ability";
 import {AbilityContext} from "@features/casl/can";
-import {useConnectionStateListener} from "ably/react";
+import {useChannel, useConnectionStateListener, usePresence} from "ably/react";
+import IconUrl from "@themes/urlIcon";
+import {Chat} from "@features/chat";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -71,6 +66,9 @@ function FcmLayout({...props}) {
     const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
+    const [open, setOpen] = React.useState(false);
+    const [messages, updateMessages] = useState<any[]>([]);
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
@@ -81,6 +79,7 @@ function FcmLayout({...props}) {
     const devise = doctor_country.currency?.name;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const ability = buildAbilityFor(features ?? []);
+    const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
 
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
 
@@ -228,6 +227,19 @@ function FcmLayout({...props}) {
         }
     };
 
+    const saveInbox = (msgs,userUuid)=>{
+/*
+        updateMessages(msgs)
+        const _local = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
+
+        if (_local) {
+            console.log(_local[userUuid])
+            _local[userUuid].messages = msgs
+        } else localStorage.setItem("chat",{userUuid:msgs})
+*/
+
+    }
+
     useEffect(() => {
         if (general_information) {
             const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
@@ -306,10 +318,29 @@ function FcmLayout({...props}) {
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-
     useConnectionStateListener((stateChange) => {
-        console.log("current",stateChange.current);  // the new connection state
+        console.log("current", stateChange.current);  // the new connection state
     });
+
+
+    console.log("channel",medical_entity?.uuid)
+    const {channel} = useChannel(medical_entity?.uuid, (message) => {
+        console.log(message)
+        if (message.name === medicalEntityHasUser) {
+           // updateMessages((prev) => [...prev, {from:message.clientId,to:medicalEntityHasUser,data:message.data}]);
+
+
+
+            // @ts-ignore
+            enqueueSnackbar(message.data, {variant: "info", iconVariant: {info: '💬 '}});
+
+        }
+    });
+
+    const { presenceData, updateStatus } = usePresence(general_information.uuid, 'initialPresenceStatus');
+
+    const peers = presenceData.map((msg, index) => console.log("present",msg.clientId));
+
 
     return (
         <>
@@ -434,6 +465,27 @@ function FcmLayout({...props}) {
                         }}
                     />}
             </Dialog>
+
+
+            <Fab color="primary"
+                 style={{position: "fixed", bottom: 50, right: 40, zIndex: 99}}
+                 onClick={() => {
+                     setOpen(true)
+                 }}>
+                <IconUrl path={"ic-chat"} width={30} height={30}/>
+            </Fab>
+
+            <Drawer
+                anchor={"right"}
+                open={open}
+                sx={{
+                    "& .MuiPaper-root": {
+                        width: {xs: "100%", sm: "40%"}
+                    }
+                }} onClose={() => setOpen(false)}>
+                <Chat {...{channel,messages,updateMessages,medicalEntityHasUser,saveInbox}}/>
+            </Drawer>
+
         </>
     );
 }
