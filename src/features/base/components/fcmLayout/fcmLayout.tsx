@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {firebaseCloudSdk} from "@lib/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
-import {Dialog, DialogContent, DialogTitle, Drawer, Fab, Paper, PaperProps, useTheme} from "@mui/material";
+import {Badge, Dialog, DialogContent, DialogTitle, Drawer, Fab, Paper, PaperProps, useTheme} from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
@@ -68,6 +68,7 @@ function FcmLayout({...props}) {
 
     const [open, setOpen] = React.useState(false);
     const [messages, updateMessages] = useState<any[]>([]);
+    const [hasMessage, setHasMessage] = useState(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -328,6 +329,7 @@ function FcmLayout({...props}) {
             }], message.clientId)
             // @ts-ignore
             enqueueSnackbar(message.data, {variant: "info", iconVariant: {info: '💬 '}});
+            setHasMessage(true)
         }
     });
     const {presenceData} = usePresence(medical_entity?.uuid, 'actif');
@@ -462,7 +464,9 @@ function FcmLayout({...props}) {
                  onClick={() => {
                      setOpen(true)
                  }}>
-                <IconUrl path={"ic-chat"} width={30} height={30}/>
+                <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
+                    <IconUrl path={"ic-chat"} width={30} height={30}/>
+                </Badge>
             </Fab>
 
             <Drawer
@@ -480,7 +484,8 @@ function FcmLayout({...props}) {
                     medicalEntityHasUser,
                     saveInbox,
                     medical_entity,
-                    presenceData
+                    presenceData,
+                    setHasMessage
                 }}/>
             </Drawer>
 

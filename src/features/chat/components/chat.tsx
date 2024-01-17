@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, TextField, Typography} from "@mui/material";
 import ChatStyled from "@features/chat/components/overrides/chatStyled";
 import {useRequestQuery} from "@lib/axios";
@@ -14,7 +14,8 @@ const Chat = ({...props}) => {
         updateMessages,
         medicalEntityHasUser,
         saveInbox,
-        presenceData
+        presenceData,
+        setHasMessage
     } = props;
 
     const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
@@ -30,6 +31,10 @@ const Chat = ({...props}) => {
     }, {refetchOnWindowFocus: false});
 
     const users = ((httpUsersResponse as HttpResponse)?.data ?? []) as UserModel[];
+
+    useEffect(()=>{
+        setHasMessage(false)
+    },[]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <ChatStyled>
