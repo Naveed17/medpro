@@ -228,17 +228,13 @@ function FcmLayout({...props}) {
     };
 
     const saveInbox = (msgs:any[],userUuid:string)=>{
-
         updateMessages(msgs)
         let _local = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
         if (_local) {
-            if(_local[userUuid])_local[userUuid].messages = msgs
+            if(_local[userUuid])_local[userUuid] = msgs
             else _local = {..._local,[userUuid]:msgs}
         } else _local = {[userUuid]:msgs};
-
-        console.log(JSON.stringify({[userUuid]:msgs}))
         localStorage.setItem("chat",JSON.stringify(_local))
-
     }
 
     useEffect(() => {
