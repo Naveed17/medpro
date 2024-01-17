@@ -40,7 +40,7 @@ function WaitingRoomRow({...props}) {
         setOpenDialog(false);
         setInfo(null);
     }
-    console.log("row", row)
+
     const DialogAction = () => {
         return (
             <DialogActions>
