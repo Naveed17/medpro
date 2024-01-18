@@ -1,10 +1,10 @@
 import {styled} from "@mui/material/styles";
 import {Box} from "@mui/material";
 
-const PHEIGHT_A4 = "297mm";
-const PWIDTH_A5 = "148mm"
-const PHEIGHT_A5 = "210mm"
-const PWIDTH_A4 = "210mm";
+const PHEIGHT_A4 = "297mm !important";
+const PWIDTH_A5 = "148mm !important"
+const PHEIGHT_A5 = "210mm !important"
+const PWIDTH_A4 = "210mm !important";
 const PageStyled = styled(Box)(({theme}) => ({
         '& .page': {
             boxShadow: "0 0 6px #ccc",

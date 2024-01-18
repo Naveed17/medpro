@@ -18,8 +18,8 @@ import {
     Tabs,
     Toolbar,
     Typography,
-    useTheme,
-    useMediaQuery
+    useMediaQuery,
+    useTheme
 } from "@mui/material";
 import dynamic from "next/dynamic";
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
@@ -30,11 +30,7 @@ import {SubHeader} from "@features/subHeader";
 import PreviewA4 from "@features/files/components/previewA4";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {
-    a11yProps,
-    capitalizeFirst,
-    useMedicalProfessionalSuffix,
-} from "@lib/hooks";
+import {a11yProps, capitalizeFirst, useMedicalProfessionalSuffix,} from "@lib/hooks";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CertifModelDrawer} from "@features/CertifModelDrawer";
@@ -48,6 +44,7 @@ import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {TabPanel} from "@features/tabPanel";
 import {startCase} from 'lodash';
+import {Page} from "@features/page";
 
 const LoadingScreen = dynamic(() => import("@features/loadingScreen/components/loadingScreen"));
 
@@ -146,8 +143,8 @@ function TemplatesConfig() {
     const handleMouseOut = () => {
         setIsHovering("");
     };
-    const edit = (id: string | undefined) => {
-        router.push(`/dashboard/settings/templates/${id}`);
+    const edit = (res: any) => {
+        router.push(res.header.data.isNew ?`/dashboard/settings/templates/new/${res.uuid}` :`/dashboard/settings/templates/${res.uuid}`);
     };
 
     const handleEditDoc = (res: CertifModel) => {
@@ -349,7 +346,7 @@ function TemplatesConfig() {
                             <div
                                 className={"portraitA4"}
                                 onClick={() => {
-                                    router.push(`/dashboard/settings/templates/new`);
+                                    router.push(`/dashboard/settings/templates/new/new`);
                                 }}
                                 style={{
                                     width: "100%",
@@ -378,22 +375,33 @@ function TemplatesConfig() {
                         </Stack>
                         {docs.map((res) => (
                             <Stack key={res.uuid} spacing={2}>
-                                <Box className={"container"}>
+                                <Box className={"container"} >
                                     <div
                                         onMouseOver={() => {
                                             handleMouseOver(res.uuid);
                                         }}
                                         onMouseOut={handleMouseOut}>
-                                        <PreviewA4
-                                            {...{
-                                                eventHandler: null,
-                                                nbPage: 1,
+                                        {res.header.data.isNew ?
+                                            <Box>
+                                                <Page  {...{
                                                 data: res.header.data,
-                                                values: res.header.header,
+                                                setData,
                                                 state: null,
-                                                loading,
-                                            }}
-                                        />
+                                                header: res.header.header,
+                                                setHeader: null,
+                                                onReSize: null,
+                                                setOnResize: null
+                                            }}/></Box>
+                                            : <PreviewA4
+                                                {...{
+                                                    eventHandler: null,
+                                                    nbPage: 1,
+                                                    data: res.header.data,
+                                                    values: res.header.header,
+                                                    state: null,
+                                                    loading,
+                                                }}
+                                            />}
                                     </div>
                                     {isHovering === res.uuid && (
                                         <Stack
@@ -407,7 +415,7 @@ function TemplatesConfig() {
                                             <IconButton
                                                 size="small"
                                                 onClick={() => {
-                                                    edit(res.uuid);
+                                                    edit(res);
                                                 }}
                                             >
                                                 <IconUrl path="setting/edit"/>
