@@ -290,8 +290,8 @@ function DocumentDetailDialog({...props}) {
                             action: 'medical_prescription_cycle',
                             state: state?.info.map((drug: any) => ({
                                 cycles: drug.cycles,
-                                drugUuid: drug.standard_drug.uuid,
-                                name: drug.standard_drug.commercial_name,
+                                drugUuid: drug.standard_drug?.uuid,
+                                name: drug.drugName
                             })),
                             uuid: state?.uuidDoc,
                             appUuid: state?.appUuid
