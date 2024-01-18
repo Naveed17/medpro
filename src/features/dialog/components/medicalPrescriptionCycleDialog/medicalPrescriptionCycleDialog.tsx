@@ -1498,7 +1498,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                             }>
                                             {drugs?.map((drug: DrugCycleModel, index: number) => (
                                                 <ListItemButton
-                                                    key={drug.drugUuid}
+                                                    key={drug.drugUuid ?? `drug-${index}`}
                                                     className="drug-list-item"
                                                     onClick={(event) => {
                                                         event.stopPropagation();

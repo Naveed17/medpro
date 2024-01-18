@@ -117,7 +117,7 @@ const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "left",
     },
-     {
+    {
         id: "insurance",
         numeric: false,
         disablePadding: true,
@@ -133,7 +133,7 @@ const headCells: readonly HeadCell[] = [
         sortable: false,
         align: "left",
     },
-     {
+    {
         id: "nextAppointment",
         numeric: false,
         disablePadding: false,
@@ -472,12 +472,12 @@ function Patient() {
                         } : null,
                 );
                 break;
-                case "DELETE":
-                    setSelectedPatient(event);
-                    setDeleteDialog(true);
-                    break;
-                case "EDIT":
-                  dispatch(
+            case "DELETE":
+                setSelectedPatient(event);
+                setDeleteDialog(true);
+                break;
+            case "EDIT":
+                dispatch(
                     onOpenPatientDrawer({
                         patientId: event?.uuid,
                         patientAction: "PATIENT_DETAILS",
