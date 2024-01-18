@@ -18,12 +18,11 @@ import {SettingBarStyled} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import Can from "@features/casl/can";
+import {useFeaturePermissions} from "@lib/hooks/rest";
 
 function Settings() {
     const {data: session} = useSession();
@@ -31,13 +30,14 @@ function Settings() {
 
     const {t, ready} = useTranslation("settings");
     const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {permissions} = useFeaturePermissions("settings");
 
     const locations = agendaConfig?.locations;
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
     const {id: currentUser} = session?.user as any;
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
-
+    console.log("'permissions", permissions)
     return (
         <SettingBarStyled>
             <Box sx={{width: "100%", bgcolor: "background.paper", height: '100vh'}}>
