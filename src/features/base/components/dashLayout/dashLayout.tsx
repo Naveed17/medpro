@@ -73,7 +73,8 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
-    const permission = !isAppleDevise() ? checkNotification() : false; // Check notification permission
+    const isSupported = () => 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window
+    const permission = !isAppleDevise() && isSupported() ? checkNotification() : false; // Check notification permission
 
     const {trigger: mergeDuplicationsTrigger} = useRequestQueryMutation("/duplications/merge");
     const {trigger: noDuplicationsTrigger} = useRequestQueryMutation("/duplications/unMerge");
