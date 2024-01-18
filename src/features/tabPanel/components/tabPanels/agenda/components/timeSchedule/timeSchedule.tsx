@@ -5,7 +5,6 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
-import DeleteIcon from '@mui/icons-material/Delete';
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
