@@ -953,7 +953,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
             "agenda",
             "consultation",
             "payment",
-            "waitingRoom",
+            "waitingRoom"
         ])),
     },
 });

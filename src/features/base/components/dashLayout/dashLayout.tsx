@@ -72,7 +72,8 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
-    const permission = !isAppleDevise() ? checkNotification() : false; // Check notification permission
+    const isSupported = () => 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window
+    const permission = !isAppleDevise() && isSupported() ? checkNotification() : false; // Check notification permission
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
 
     const {trigger: mergeDuplicationsTrigger} = useRequestQueryMutation("/duplications/merge");

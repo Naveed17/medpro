@@ -117,7 +117,7 @@ const headCells: readonly HeadCell[] = [
         sortable: true,
         align: "left",
     },
-     {
+    {
         id: "insurance",
         numeric: false,
         disablePadding: true,
@@ -133,7 +133,7 @@ const headCells: readonly HeadCell[] = [
         sortable: false,
         align: "left",
     },
-     {
+    {
         id: "nextAppointment",
         numeric: false,
         disablePadding: false,
@@ -472,12 +472,12 @@ function Patient() {
                         } : null,
                 );
                 break;
-                case "DELETE":
-                    setSelectedPatient(event);
-                    setDeleteDialog(true);
-                    break;
-                case "EDIT":
-                  dispatch(
+            case "DELETE":
+                setSelectedPatient(event);
+                setDeleteDialog(true);
+                break;
+            case "EDIT":
+                dispatch(
                     onOpenPatientDrawer({
                         patientId: event?.uuid,
                         patientAction: "PATIENT_DETAILS",
@@ -647,8 +647,7 @@ function Patient() {
                 </DesktopContainer>
                 <MobileContainer>
                     <Stack direction={"row"} mb={1} justifyContent={"space-between"}>
-                        {
-                            rows.length > 0 &&
+                        {rows.length > 0 &&
                             <FormControlLabel
                                 sx={{ml: 0}}
                                 control={
@@ -659,8 +658,6 @@ function Patient() {
 
                             />
                         }
-
-
                         {rowsSelected.length > 1 && <Button
                             onClick={(event) => {
                                 event.stopPropagation();
@@ -1032,13 +1029,9 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 
     const countries = `api/public/places/countries/${locale}?nationality=true`;
-    const insurances = `api/public/insurances/${locale}`;
     const contactTypes = `api/public/contact-type/${locale}`;
 
     await queryClient.prefetchQuery([`/${countries}`], () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json()));
-
-    await queryClient.prefetchQuery([`/${insurances}`], () => fetch(`${baseURL}${insurances}`, {method: "GET"}).then(response => response.json()));
-
     await queryClient.prefetchQuery([`/${contactTypes}`], () => fetch(`${baseURL}${contactTypes}`, {method: "GET"}).then(response => response.json()));
 
     return {
