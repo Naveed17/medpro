@@ -5,12 +5,12 @@ import TableHead from "@mui/material/TableHead";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import {Checkbox} from "@mui/material";
-import {visuallyHidden} from "@mui/utils";
+import { Checkbox } from "@mui/material";
+import { visuallyHidden } from "@mui/utils";
 import CodeIcon from "@mui/icons-material/Code";
-import {capitalize} from 'lodash'
+import { capitalize } from 'lodash'
 
-function OHead({...props}) {
+function OHead({ ...props }) {
     const {
         order,
         orderBy,
@@ -71,6 +71,7 @@ function OHead({...props}) {
                                     })}
                                     IconComponent={headCell.sortable ? CodeIcon : null}
                                     sx={{
+                                        fontWeight: 500,
                                         justifyContent:
                                             headCell.align === "center"
                                                 ? "center !important"

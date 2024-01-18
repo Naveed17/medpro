@@ -295,6 +295,20 @@ const TableRowStyled = styled(TableRow)<any>(
                     },
                 },
             },
+        },
+        "&.user-row":{
+            ".role-select":{
+                ".MuiOutlinedInput-root":{
+                    backgroundColor: 'transparent',
+                    fontSize:13,
+                    fontWeight:700
+                },
+                fieldset: { border: 'none !important',boxShadow:'none !important' },
+            },
+            ".btn-edit":{
+                border:`1px solid ${theme.palette.divider}`,
+                padding:theme.spacing(1),
+            }
         }
     })
 );
