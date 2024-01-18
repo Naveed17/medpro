@@ -499,5 +499,12 @@
   "big": "Fichier trop gros max 40 mo",
   "long": "Nom de fichier trop long",
   "Male": "Homme",
-  "Female": "Femme"
+  "Female": "Femme",
+  "chat": {
+    "prev_msgs": "Messages précédents",
+    "you": "Vous",
+    "seen": "Vu",
+    "send": "Envoyer",
+    "msg_placeholder": "Tapez votre message ici..."
+  }
 }
