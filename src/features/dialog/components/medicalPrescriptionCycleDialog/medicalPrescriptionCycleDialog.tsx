@@ -1432,8 +1432,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     (drug: any) => {
                                                                         last.push({
                                                                             cycles: drug.cycles,
-                                                                            drugUuid: drug.standard_drug.uuid,
-                                                                            name: drug.standard_drug.commercial_name,
+                                                                            drugUuid: drug.standard_drug?.uuid,
+                                                                            name: drug.drugName
                                                                         });
                                                                     }
                                                                 );

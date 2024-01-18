@@ -95,7 +95,7 @@ function PreviewDialog({...props}) {
                                 elx.style.maxWidth = data.content.maxWidth ? `${data.content.maxWidth}mm` : '190mm'
                                 switch (pr.name) {
                                     case "name":
-                                        const val = `${index + 1} • ${el.standard_drug.commercial_name}`;
+                                        const val = `${index + 1} • ${el.drugName}`;
                                         elx.append(val)
                                         rows.push({
                                             value: val,
