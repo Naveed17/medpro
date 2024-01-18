@@ -460,7 +460,7 @@ function FcmLayout({...props}) {
 
 
             <Fab color="primary"
-                 style={{position: "fixed", bottom: 50, right: 40, zIndex: 99}}
+                 style={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}
                  onClick={() => {
                      setOpen(true)
                  }}>

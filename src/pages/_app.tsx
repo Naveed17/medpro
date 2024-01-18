@@ -31,6 +31,7 @@ import {buildProvidersTree} from "@lib/routes/buildProvidersTree";
 import RootLayout from "@features/base/components/rootLayout/rootLayout";
 import {ConditionalWrapper} from "@lib/hooks";
 import {CloseSnackbarAction} from "@features/popup";
+import AblyClient from "@lib/ably/ablyClient";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -71,9 +72,11 @@ function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
                 condition={Component.auth}
                 wrapper={(children: any) =>
                     <AuthGuard>
-                        <FcmLayout {...pageProps}>
-                            {children}
-                        </FcmLayout>
+                        <AblyClient>
+                            <FcmLayout {...pageProps}>
+                                {children}
+                            </FcmLayout>
+                        </AblyClient>
                     </AuthGuard>}>
                 {getLayout(<Component key={pageKey} {...pageProps} />)}
             </ConditionalWrapper>
