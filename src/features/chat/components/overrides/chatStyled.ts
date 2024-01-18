@@ -11,7 +11,7 @@ const ChatStyled = styled(Paper)(({theme}) => ({
     },
     ".user-wrapper":{
         flex:1,
-        height:'calc(100vh - 20px)',
+        height:'calc(100vh - 3px)',
         overflow:'auto',
         border:0,
         borderRadius:"6px 0 0 6px",
@@ -49,7 +49,7 @@ const ChatStyled = styled(Paper)(({theme}) => ({
             margin:theme.spacing(3,0),
             display:'flex',
             flexDirection:'column',
-            height:'calc(100vh - 262px)',
+            height:'calc(100vh - 245px)',
             overflow:'auto',
             ".MuiListItem-root":{
                 ".time":{

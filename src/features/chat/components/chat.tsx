@@ -8,6 +8,7 @@ import { useTranslation } from "next-i18next";
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import IconUrl from '@themes/urlIcon';
+import { InputStyled } from "@features/tabPanel";
 const Chat = ({ ...props }) => {
     const { t } = useTranslation("common", { keyPrefix: "chat" });
     const {
@@ -112,11 +113,19 @@ const Chat = ({ ...props }) => {
                                     InputProps={{
                                         startAdornment: <InputAdornment position="start">
                                             <Stack direction='row' alignItems='center' spacing={.3}>
-                                                <IconButton size='small'>
+                                                <IconButton component="label" size='small'>
                                                     <IconUrl path="ic-upload-chat" />
+                                                    <InputStyled
+                                                        id="contained-button-img"
+                                                        type="file"
+                                                    />
                                                 </IconButton>
-                                                <IconButton size='small'>
+                                                <IconButton component="label" size='small'>
                                                     <IconUrl path="ic-attach-file" />
+                                                    <InputStyled
+                                                        id="contained-button-file"
+                                                        type="file"
+                                                    />
                                                 </IconButton>
                                             </Stack>
                                         </InputAdornment>,
