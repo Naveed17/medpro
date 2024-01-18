@@ -23,7 +23,6 @@ import "moment/locale/fr";
 import AppThemeProvider from "@themes/index";
 import KeycloakSession from "@lib/keycloak/keycloakSession";
 import AuthGuard from "@lib/keycloak/authGuard";
-import moment from "moment-timezone";
 import {FcmLayout} from "@features/base";
 import {useRouter} from "next/router";
 import ReactQueryProvider from "@lib/reactQuery/reactQueryProvider";
@@ -42,9 +41,6 @@ type NextPageWithLayout = NextPage & {
 
 function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
     const router = useRouter();
-    // Use the dashLayout defined at the page level, if available
-    moment.tz.setDefault(moment.tz.guess());
-    moment.locale(router.locale);
 
     const ProvidersTree = useMemo(() => buildProvidersTree([
         [Provider, {store}],

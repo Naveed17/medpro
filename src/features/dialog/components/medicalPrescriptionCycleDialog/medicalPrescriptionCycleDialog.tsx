@@ -124,8 +124,14 @@ function MedicalPrescriptionCycleDialog({...props}) {
             Yup.object().shape({
                 drug: Yup.object().shape({
                     uuid: Yup.string(),
-                    form: Yup.string().nullable(),
-                    dci: Yup.string().nullable(),
+                    form: Yup.object().shape({
+                        uuid: Yup.string(),
+                        name: Yup.string(),
+                    }).nullable(),
+                    dci: Yup.object().shape({
+                        uuid: Yup.string(),
+                        name: Yup.string(),
+                    }).nullable(),
                     dose: Yup.string().nullable(),
                     commercial_name: Yup.string(),
                     isVerified: Yup.boolean(),
@@ -615,7 +621,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     `data[${idx}].drug`,
                                                                     drug as DrugModel
                                                                 );
-                                                                setFieldValue(`data[${idx}].unit`, drug?.form);
+                                                                setFieldValue(`data[${idx}].unit`, drug?.form?.name);
                                                                 drug?.uuid && triggerGetDrugModel({
                                                                     method: "GET",
                                                                     url: `${urlMedicalProfessionalSuffix}/drug/posologie-models/drug/${drug.uuid}`,
@@ -735,7 +741,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                             data
                                                                 ? typeof data === "string"
                                                                     ? data
-                                                                    : `${data.forms[0].form}${
+                                                                    : `${data.forms[0].form?.name}${
                                                                         hasMultiValues ? `_${data.unit}` : ""
                                                                     }`
                                                                 : ""

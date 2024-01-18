@@ -6,8 +6,14 @@ import {EnvPattern} from "@lib/constants";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import {firebaseCloudSdk} from "@lib/firebase";
 import smartlookClient from "smartlook-client";
+import {useRouter} from "next/router";
+import moment from "moment-timezone";
 
 function RootLayout({children}: LayoutProps) {
+    const router = useRouter();
+    // Use the dashLayout defined at the page level, if available
+    moment.tz.setDefault(moment.tz.guess());
+    moment.locale(router.locale);
     // initialise smartlook client
     if (typeof window !== "undefined") {
         const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
