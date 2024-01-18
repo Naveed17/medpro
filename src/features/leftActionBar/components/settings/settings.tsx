@@ -37,7 +37,7 @@ function Settings() {
     const {id: currentUser} = session?.user as any;
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
-    console.log("'permissions", permissions)
+
     return (
         <SettingBarStyled>
             <Box sx={{width: "100%", bgcolor: "background.paper", height: '100vh'}}>
