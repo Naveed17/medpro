@@ -325,7 +325,8 @@ function FcmLayout({ ...props }) {
             saveInbox([...messages, {
                 from: message.clientId,
                 to: medicalEntityHasUser,
-                data: message.data
+                data: message.data,
+                date:new Date(message.timestamp)
             }], message.clientId)
             // @ts-ignore
             enqueueSnackbar(message.data, { variant: "info", iconVariant: { info: '💬 ' } });
