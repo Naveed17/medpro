@@ -15,7 +15,7 @@ import {
     FormHelperText,
     Grid,
     IconButton, InputBase,
-    List,
+    List, ListItem,
     ListItemButton,
     ListItemText,
     ListSubheader,
@@ -720,31 +720,17 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 <Autocomplete
                                                     size="small"
                                                     freeSolo
-                                                    value={
-                                                        values.data[idx].unit
-                                                            ? getFormUnitMedic(values.data[idx].unit)
-                                                            : ""
-                                                    }
+                                                    value={values.data[idx].unit ? getFormUnitMedic(values.data[idx].unit) : ""}
                                                     onChange={(event, data) => {
-                                                        const hasMultiValues =
-                                                            data &&
-                                                            PrescriptionMultiUnits.includes(data.unit);
+                                                        const hasMultiValues = data && PrescriptionMultiUnits.includes(data.unit);
                                                         values.data[idx].cycles.forEach(
-                                                            (element: any, index: number) =>
-                                                                setFieldValue(
-                                                                    `data[${idx}].cycles[${index}].dosageInput`,
-                                                                    false
-                                                                )
-                                                        );
+                                                            (element: any, index: number) => setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false));
                                                         setFieldValue(
                                                             `data[${idx}].unit`,
-                                                            data
-                                                                ? typeof data === "string"
+                                                            data ?
+                                                                typeof data === "string"
                                                                     ? data
-                                                                    : `${data.forms[0].form?.name}${
-                                                                        hasMultiValues ? `_${data.unit}` : ""
-                                                                    }`
-                                                                : ""
+                                                                    : `${data.forms[0].form}${hasMultiValues ? `_${data.unit}` : ""}` : ""
                                                         );
                                                     }}
                                                     placeholder={t("unit", {ns: "consultation"})}
@@ -756,11 +742,14 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                             return option;
                                                         }
                                                         // Regular option
-                                                        return option.unit;
+                                                        return option?.unit;
                                                     }}
-                                                    isOptionEqualToValue={(option: any, value) =>
-                                                        option?.unit === value?.unit
-                                                    }
+                                                    isOptionEqualToValue={(option: any, value) => option?.unit === value?.unit}
+                                                    renderOption={(props, option) => (
+                                                        <ListItem {...props}>
+                                                            <ListItemText primary={option?.unit}/>
+                                                        </ListItem>
+                                                    )}
                                                     renderInput={(params) => (
                                                         <TextField placeholder={t("unit")} {...params} />
                                                     )}

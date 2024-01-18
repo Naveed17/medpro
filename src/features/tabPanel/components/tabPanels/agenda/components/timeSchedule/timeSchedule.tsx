@@ -438,6 +438,7 @@ function TimeSchedule({...props}) {
                                                 </Typography>
 
                                                 <IconButton
+                                                    sx={{mt: -.5}}
                                                     size="small"
                                                     disabled={!date}
                                                     color="primary"
