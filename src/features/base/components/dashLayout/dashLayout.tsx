@@ -39,6 +39,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {pdfjs} from "react-pdf";
 import {NewFeaturesCarousel} from "@features/carousels";
 import {openNewFeaturesDialog, sideBarSelector} from "@features/menu";
+import {useFeaturePermissions} from "@lib/hooks/rest";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
@@ -48,7 +49,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const router = useRouter();
-    const {data: session} = useSession();
+    const {data: session, update} = useSession();
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {closeSnackbar} = useSnackbar();
@@ -75,6 +76,11 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const isSupported = () => 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window
     const permission = !isAppleDevise() && isSupported() ? checkNotification() : false; // Check notification permission
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
+    // Get current root feature
+    const slugFeature = router.pathname.split('/')[2];
+    const features = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
+    const rootFeature = features?.find(feature => feature.slug === slugFeature);
+    const {permissions} = useFeaturePermissions(rootFeature?.slug as string, !rootFeature?.hasProfile);
 
     const {trigger: mergeDuplicationsTrigger} = useRequestQueryMutation("/duplications/merge");
     const {trigger: noDuplicationsTrigger} = useRequestQueryMutation("/duplications/unMerge");
@@ -301,6 +307,15 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             }));
         }
     }, [httpProfessionalsResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (permissions?.length > 0) {
+            update({
+                permissions: permissions.map(permission => permission?.slug),
+                slug: "settings"
+            });
+        }
+    }, [permissions]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (!localStorage.getItem("new-features")) {

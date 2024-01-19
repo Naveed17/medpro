@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {useRouter} from "next/router";
 // Material ui
 import {
@@ -14,36 +14,21 @@ import {
 
 // config data
 import settingsData from "./settingsConfig";
-import {setSelectedBoxes, SettingBarStyled} from "@features/leftActionBar";
+import {SettingBarStyled} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
-import {useSession} from "next-auth/react";
 import {LoadingScreen} from "@features/loadingScreen";
 import {useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector} from "@features/calendar";
 import Can from "@features/casl/can";
-import {useFeaturePermissions} from "@lib/hooks/rest";
 
 function Settings() {
-    const {data: session, update} = useSession();
     const router = useRouter();
 
     const {t, ready} = useTranslation("settings");
     const {config: agendaConfig} = useAppSelector(agendaSelector);
-    const {permissions} = useFeaturePermissions("settings");
 
     const locations = agendaConfig?.locations;
-    const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
-    const {id: currentUser} = session?.user as any;
-
-    useEffect(() => {
-        if (permissions?.length > 0) {
-            update({
-                permissions: permissions.map(permission => permission?.slug),
-                slug: "settings"
-            });
-        }
-    }, [permissions]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 

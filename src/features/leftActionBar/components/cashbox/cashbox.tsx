@@ -1,6 +1,5 @@
 // components
 import {
-    ActionBarState,
     BoxesFilter,
     BoxStyled,
     cashBoxSelector, DateFilter, InsuranceCashBoxFilter,
@@ -25,7 +24,6 @@ function Cashbox() {
     const {t, ready} = useTranslation('payment', {keyPrefix: 'filter'});
     const {
         selectedBoxes,
-        insurances,
         paymentTypes,
         paymentTypesList,
         filterCB, selectedTab
@@ -38,7 +36,6 @@ function Cashbox() {
     const [byPeriod, setByPeriod] = useState(false);
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
-    const [loadingInscurances, setLoadingInscurances] = useState(true);
     const [loadingPM, setLoadingPM] = useState(true);
     const [dataCashBox, setDataCashBox] = useState<any[]>([]);
 
