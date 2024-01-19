@@ -15,9 +15,6 @@ import {
     useTheme
 } from "@mui/material";
 import ChatStyled from "@features/chat/components/overrides/chatStyled";
-import {useRequestQuery} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import IconUrl from '@themes/urlIcon';
 import moment from "moment/moment";
@@ -26,25 +23,25 @@ import PresenceMessage = Types.PresenceMessage;
 
 const Chat = ({...props}) => {
 
-    const {channel, messages, updateMessages, medicalEntityHasUser, saveInbox, presenceData, setHasMessage} = props;
+    const {
+        channel,
+        messages,
+        updateMessages,
+        selectedUser,
+        setSelectedUser,
+        medicalEntityHasUser,
+        saveInbox,
+        presenceData,
+        setHasMessage,
+        users
+    } = props;
 
     const theme = useTheme();
     const {t} = useTranslation("common", {keyPrefix: "chat"});
 
-    const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
     const [message, setMessage] = useState("");
-    const [lastMessages, setLastMessages] = useState([]);
+    const [lastMessages, setLastMessages] = useState(null);
 
-    const router = useRouter();
-
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-
-    const {data: httpUsersResponse} = useRequestQuery({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
-    }, {refetchOnWindowFocus: false});
-
-    const users = ((httpUsersResponse as HttpResponse)?.data ?? []) as UserModel[];
     const refList = document.getElementById("chat-list")
 
     const scrollToTop = () => {
@@ -55,9 +52,28 @@ const Chat = ({...props}) => {
             });
     }
 
-    useEffect(()=>{
+    const getUserName = (key: string) => {
+        const _user = users.find(user => user.uuid === key)
+        return `${_user.FirstName} ${_user.lastName}`
+    }
+
+    const getLastMessage = (key: string, data: string) => {
+        let _res = "";
+
+        if (lastMessages) {
+            const _msgs:Message[] = lastMessages[key]
+            if (data === "data")
+                _res = `${_msgs[_msgs.length -1].from === key ? "Vous:" : ""}  ${_msgs[_msgs.length -1].data}`
+            if (data === "date")
+                _res = `${moment.duration(moment().diff(_msgs[_msgs.length -1].date)).humanize()}`
+        }
+
+        return _res
+    }
+
+    useEffect(() => {
         setHasMessage(false);
-    },[]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (refList)
@@ -68,12 +84,53 @@ const Chat = ({...props}) => {
         console.log(messages)
     }, [messages]) // eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        const _local = localStorage.getItem("chat")
+        if (_local) {
+            setLastMessages(JSON.parse(_local))
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [localStorage.getItem("chat")]);
+
     return (
         <ChatStyled>
             <Grid container>
                 <Grid item xs={12} md={4}>
                     <Paper className='user-wrapper' component={Stack} spacing={2}>
-                        {users.filter(user => user.uuid !== medicalEntityHasUser).map(user => (
+
+                        {lastMessages && Object.keys(lastMessages).map((user: string) => (
+                            <Stack
+                                className={`user-item ${user === selectedUser?.uuid ? "selected" : ""}`}
+                                sx={{cursor: 'pointer'}}
+                                spacing={.5} key={user}
+                                onClick={() => {
+                                    setSelectedUser(users.find(_user => _user.uuid === user))
+                                    const localMsgs = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
+                                    if (localMsgs) {
+                                        const _msgs = Object.keys(localMsgs).find(key => key === user)
+                                        if (_msgs) updateMessages(localMsgs[user])
+                                        else updateMessages([])
+                                    }
+                                }
+                                }>
+                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                    <Typography fontWeight={500} variant='body2'>{getUserName(user)}</Typography>
+                                    <div style={{
+                                        width: 5,
+                                        height: 5,
+                                        borderRadius: 10,
+                                        background: `${presenceData.find((data: PresenceMessage) => data.clientId === user) && presenceData.find((data: PresenceMessage) => data.clientId === user).data === "actif" ? "#1BC47D" : "#DDD"}`
+                                    }}/>
+                                </Stack>
+                                <Typography variant='body2' color="text.secondary"
+                                            className='ellipsis'>{getLastMessage(user, "data")}</Typography>
+                                <Typography variant='caption' fontSize={9}
+                                            color="text.secondary">{getLastMessage(user, "date")}</Typography>
+                            </Stack>
+                        ))}
+
+                        {/*
+                        {users.filter((user:UserModel) => user.uuid !== medicalEntityHasUser).map((user:UserModel) => (
                             <Stack
                                 className={`user-item ${user.uuid === selectedUser?.uuid ? "selected" : ""}`}
                                 sx={{cursor: 'pointer'}}
@@ -87,19 +144,22 @@ const Chat = ({...props}) => {
                                         else updateMessages([])
                                     }
                                 }
-                                }
-
-                            >
-                                <Stack direction={"row"} spacing={1}  alignItems={"center"}>
-                                    <Typography fontWeight={500} variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
-                                    <div style={{width:5,height:5,background:`${presenceData.find((data:PresenceMessage) => data.clientId === user.uuid) && presenceData.find((data:PresenceMessage) => data.clientId === user.uuid).data ==="actif" ? "#1BC47D":"#DDD"}`, borderRadius:10}}/>
+                                }>
+                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                    <Typography fontWeight={500}
+                                                variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
+                                    <div style={{
+                                        width: 5,
+                                        height: 5,
+                                        background: `${presenceData.find((data: PresenceMessage) => data.clientId === user.uuid) && presenceData.find((data: PresenceMessage) => data.clientId === user.uuid).data === "actif" ? "#1BC47D" : "#DDD"}`,
+                                        borderRadius: 10
+                                    }}/>
                                 </Stack>
-                                <Typography variant='body2' color="text.secondary" className='ellipsis'>Id like to
-                                    upgrade to the premiumddddddddddd</Typography>
-                                <Typography variant='caption' fontSize={9} color="text.secondary">Chat started just
-                                    now</Typography>
+                                <Typography variant='body2' color="text.secondary" className='ellipsis'>{getLastMessage(user.uuid)}</Typography>
+                                <Typography variant='caption' fontSize={9} color="text.secondary">no message</Typography>
                             </Stack>
                         ))}
+*/}
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={8}>
@@ -181,14 +241,14 @@ const Chat = ({...props}) => {
                                         endAdornment:
                                             <InputAdornment position="end">
                                                 <Fab
-                                                    disabled={!message  || !presenceData.find((data:PresenceMessage) => data.clientId === selectedUser.uuid)}
+                                                    disabled={!message || !presenceData.find((data: PresenceMessage) => data.clientId === selectedUser.uuid)}
                                                     onClick={() => {
-                                                        saveInbox([...messages, {
+                                                        saveInbox({
                                                             from: medicalEntityHasUser,
                                                             to: selectedUser.uuid,
                                                             data: message,
                                                             date: new Date()
-                                                        }], selectedUser.uuid)
+                                                        }, selectedUser.uuid)
                                                         channel.publish(selectedUser.uuid, message)
                                                         setMessage("")
                                                     }
@@ -205,14 +265,17 @@ const Chat = ({...props}) => {
                                     fullWidth
                                     placeholder={t("msg_placeholder")}
                                     value={message}/>
-                            </>:<div className='no-chat'>
+                            </> : <div className='no-chat'>
                                 <Stack>
-                                    <div style={{justifyContent:"center",display:"flex"}}>
-                                        <IconUrl path={"ic-no-msg"} />
+                                    <div style={{justifyContent: "center", display: "flex"}}>
+                                        <IconUrl path={"ic-no-msg"}/>
                                     </div>
-                                    <Typography fontSize={18} textAlign={"center"} fontWeight={"bold"}>{t('noDes')}</Typography>
-                                    <Typography fontSize={12} textAlign={"center"} color={theme.palette.grey["200"]}>{t('chooseUser1')}</Typography>
-                                    <Typography fontSize={12} textAlign={"center"} color={theme.palette.grey["200"]}>{t('chooseUser2')}</Typography>
+                                    <Typography fontSize={18} textAlign={"center"}
+                                                fontWeight={"bold"}>{t('noDes')}</Typography>
+                                    <Typography fontSize={12} textAlign={"center"}
+                                                color={theme.palette.grey["400"]}>{t('chooseUser1')}</Typography>
+                                    <Typography fontSize={12} textAlign={"center"}
+                                                color={theme.palette.grey["400"]}>{t('chooseUser2')}</Typography>
 
                                 </Stack>
                             </div>
