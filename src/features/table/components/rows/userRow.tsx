@@ -12,16 +12,14 @@ import {
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import { useRouter } from "next/router";
-import Button from "@mui/material/Button";
 import { editUser, TableRowStyled } from "@features/table";
-import Switch from "@mui/material/Switch";
 import { useAppDispatch } from "@lib/redux/hooks";
 import { uniqueId } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useRequestQueryMutation } from "@lib/axios";
 import { useMedicalEntitySuffix } from "@lib/hooks";
-import { CustomSwitch, IconSwitch } from "@features/buttons";
-
+import { CustomSwitch } from "@features/buttons";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 function UserRow({ ...props }) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
@@ -97,6 +95,7 @@ function UserRow({ ...props }) {
             <TableCell align="center">
                 {!row?.isProfessional && <Autocomplete
                     size={"small"}
+                    popupIcon={<KeyboardArrowDownIcon />}
                     className="role-select"
                     value={profiles.find((profile: any) => profile.uuid === row?.profile?.uuid) ?? null}
                     inputValue={row?.profile?.name ?? ""}

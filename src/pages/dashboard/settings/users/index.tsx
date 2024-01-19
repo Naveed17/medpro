@@ -18,12 +18,7 @@ import {
     Theme,
     Tabs,
     Tab,
-    Grid,
-    Paper,
-    List,
-    ListItem,
-    IconButton,
-    Badge,
+    MenuItem,
 } from "@mui/material";
 import { useTranslation } from "next-i18next";
 import { Otable, resetUser } from "@features/table";
@@ -41,15 +36,13 @@ import { useSnackbar } from "notistack";
 import { UserMobileCard } from '@features/card';
 import { DesktopContainer } from "@themes/desktopConainter";
 import { MobileContainer } from "@themes/mobileContainer";
-import { useCashBox, useSendNotification } from "@lib/hooks/rest";
+import { useSendNotification } from "@lib/hooks/rest";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { Redirect } from "@features/redirect";
 import AddIcon from '@mui/icons-material/Add'
-import { TabPanel } from "@features/tabPanel";
-import MoreVert from "@mui/icons-material/MoreVert";
-import { agendaSelector } from "@features/calendar";
-
+import { TabPanel, UsersTabs } from "@features/tabPanel";
+import { ActionMenu } from "@features/menu";
 const CardData = {
     mainIcon: "ic-user",
     title: "no-data.user.title",
@@ -76,14 +69,6 @@ const headCells = [
         align: "center",
         sortable: true,
     },
-    /*{
-        id: "status",
-        numeric: false,
-        disablePadding: false,
-        label: "access",
-        align: "center",
-        sortable: true,
-    },*/
     {
         id: "role",
         numeric: false,
@@ -123,6 +108,11 @@ function a11yProps(index: number) {
         'aria-controls': `simple-tabpanel-${index}`,
     };
 }
+const popoverActions = [{
+    icon: <IconUrl path="ic-agenda" color="white" />,
+    title: "roles",
+    action: "onAgenda"
+}]
 function Users() {
     const router = useRouter();
     const { data: session } = useSession();
@@ -130,8 +120,6 @@ function Users() {
     const { enqueueSnackbar } = useSnackbar();
     const { trigger: triggerNotificationPush } = useSendNotification();
     const dispatch = useAppDispatch();
-    const { cashboxes } = useCashBox();
-    const { agendas } = useAppSelector(agendaSelector);
     const { t, ready } = useTranslation("settings", { keyPrefix: "users.config" });
     const { direction } = useAppSelector(configSelector);
     const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
@@ -140,14 +128,15 @@ function Users() {
     const [loading, setLoading] = useState(false);
     const [selected, setSelected] = useState<any>("");
     const [open, setOpen] = useState(false);
-    const [profileRoles, setProfileRoles] = useState<any[]>([]);
     const { jti, id: currentUser } = session?.user as any;
     const { data: user } = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles;
-
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
     const { trigger: triggerUserUpdate } = useRequestQueryMutation("/users/update");
     const { trigger: triggerUserDelete } = useRequestQueryMutation("/users/delete");
-    const [selectedProfile, setSelectedProfile] = useState<any>(null);
     const { data: httpUsersResponse, mutate } = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
@@ -160,17 +149,6 @@ function Users() {
 
     const users = ((httpUsersResponse as HttpResponse)?.data ?? []) as UserModel[];
     const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as ProfileModel[];
-    const selectedRole = (props: any) => {
-        const data = props?.features?.map((data: any) => ({
-            slug: data?.feature?.slug ?? "",
-            feature: data[data?.feature?.slug] ?? "",
-            hasMultipleInstance: data?.feature?.hasProfile ?? false,
-            featureRoles: data?.feature?.hasProfile ? (data?.feature?.slug === "cashbox" ? cashboxes : agendas) : [],
-            featureProfiles: [],
-            profile: data?.profile ?? ""
-        }));
-        setProfileRoles(data)
-    }
     const handleDocPermission = (action: string, props: any, value: any) => {
         const form = new FormData();
         form.append("attribute", action);
@@ -197,15 +175,31 @@ function Users() {
             }
         });
     }
-    const features: any = {};
-    profileRoles.map((role: any) => {
-        features[role?.slug] = [{ object: role?.feature?.uuid, featureProfile: role?.profile?.uuid }]
-    });
 
     const handleChangeTabs = (event: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);
     };
-
+    const handleContextMenu = (event: MouseEvent) => {
+        event.preventDefault();
+        setContextMenu(
+            contextMenu === null
+                ? {
+                    mouseX: event.clientX + 2,
+                    mouseY: event.clientY - 6,
+                } : null,
+        );
+    };
+    const handleClose = () => {
+        setContextMenu(null);
+    }
+    const OnMenuActions = (action: string) => {
+        switch (action) {
+            case "onAgenda":
+                console.log(action)
+                break;
+        }
+        handleClose();
+    }
     const handleChange = (action: string, props: any, event: any) => {
         switch (action) {
             case "PROFILE":
@@ -253,11 +247,10 @@ function Users() {
     if (roles.includes('ROLE_SECRETARY')) {
         return <Redirect to='/dashboard/settings' />
     }
-    console.log(profileRoles)
     return (
         <>
-            <SubHeader>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" width={1}>
+            <SubHeader sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Stack direction="row" alignItems="center" mt={2} justifyContent="space-between" width={1}>
                     <Tabs value={tabvalue} onChange={handleChangeTabs} aria-label="">
                         <Tab disableRipple label={t("all_users")} {...a11yProps(0)} />
                         <Tab disableRipple label={t("roles_permissons")} {...a11yProps(1)} />
@@ -267,7 +260,7 @@ function Users() {
                         <Button
                             type="submit"
                             variant="contained"
-                            sx={{ minWidth: 45, px: 0 }}
+                            sx={{ minWidth: 45, px: 0, mt: -2 }}
                             onClick={() => {
                                 dispatch(resetUser());
                                 router.push(`/dashboard/settings/users/new`);
@@ -308,46 +301,7 @@ function Users() {
                     )}
                 </TabPanel>
                 <TabPanel value={tabvalue} index={1} padding={0}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={3}>
-                            <Paper sx={{ p: 2, borderRadius: 2 }}>
-                                <Button variant="contained" fullWidth>
-                                    <AddIcon />
-                                    {t("add_role")}
-                                </Button>
-                                <Typography my={2} fontWeight={600} variant="subtitle1">
-                                    {t("role")}
-                                </Typography>
-                                <List disablePadding>
-                                    {profiles.map((profile) => (
-                                        <ListItem
-                                            onClick={() => {
-                                                setSelectedProfile(profile);
-                                                selectedRole(profile)
-                                            }}
-                                            sx={{
-                                                px: 1, borderRadius: 2, cursor: 'pointer', ".MuiListItemSecondaryAction-root": { right: 0 },
-                                                ...(selectedProfile?.uuid === profile?.uuid && {
-                                                    bgcolor: (theme: Theme) => theme.palette.info.main,
-                                                })
-
-                                            }}
-                                            secondaryAction={
-                                                <IconButton disableRipple size="small" edge="end" aria-label="more">
-                                                    <MoreVert sx={{ fontSize: 16, color: (theme: Theme) => theme.palette.text.secondary }} />
-                                                </IconButton>
-                                            }
-                                            key={profile.uuid}>
-                                            {profile.name}
-                                            <Badge badgeContent={4} color="info" sx={{ position: 'absolute', right: 40 }} />
-                                        </ListItem>
-                                    ))}
-
-                                </List>
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={12} md={9}></Grid>
-                    </Grid>
+                    <UsersTabs {...{ profiles, t, handleContextMenu }} />
                 </TabPanel>
             </Box>
             <Drawer
@@ -401,6 +355,19 @@ function Users() {
                     </Stack>
                 </DialogActions>
             </Dialog>
+            <ActionMenu {...{ contextMenu, handleClose }}>
+                {popoverActions.map((v: any, index) => (
+                    <MenuItem
+                        key={index}
+                        className="popover-item"
+                        onClick={() => OnMenuActions(v.action)}>
+                        {v.icon}
+                        <Typography fontSize={15} sx={{ color: "#fff" }}>
+                            {t(v.title)}
+                        </Typography>
+                    </MenuItem>
+                ))}
+            </ActionMenu>
         </>
     );
 }

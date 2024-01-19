@@ -547,6 +547,11 @@
       "roles_permissons": "Rôles & Autorisations",
       "add_role": "Ajouter un rôle",
       "roles": "Rôles",
+      "role_name": "Nom du rôle",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "settings": "Paramètres",
+      "cashbox": "Caisse",
       "dialog": {
         "delete-profile-title": "Suppression du profil",
         "delete-user-title": "Suppression du utilisateur",
