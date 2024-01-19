@@ -173,7 +173,7 @@ function Cashbox() {
         <BoxStyled className="container-filter">
             <CalendarPickers
                 renderDay
-                {...(!ability.can('manage', 'cashbox', 'cash_box_transaction_history') && {disablePast: true})}
+                {...(!ability.can('manage', 'cashbox', 'cash_box__transaction__history') && {disablePast: true})}
                 onDateChange={(date: Date | null) => {
                     if (date) {
                         dispatch(setCurrentDate({date, fallback: true}));

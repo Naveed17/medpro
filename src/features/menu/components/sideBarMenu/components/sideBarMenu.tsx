@@ -62,7 +62,6 @@ function SideBarMenu({children}: LayoutProps) {
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
-    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const {t, ready} = useTranslation("menu");
     const {opened, mobileOpened} = useAppSelector(sideBarSelector);
@@ -91,13 +90,7 @@ function SideBarMenu({children}: LayoutProps) {
     };
 
     const handleSettingRoute = () => {
-        isMobile
-            ? router.push("/dashboard/settings")
-            : router.push(
-                `/dashboard/settings/${
-                    roles.includes("ROLE_SECRETARY") ? "motif" : "profil"
-                }`
-            );
+        router.push("/dashboard/settings");
         dispatch(toggleMobileBar(true));
     }
 

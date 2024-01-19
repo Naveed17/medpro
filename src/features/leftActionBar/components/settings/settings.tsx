@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {useRouter} from "next/router";
 // Material ui
 import {
@@ -14,7 +14,7 @@ import {
 
 // config data
 import settingsData from "./settingsConfig";
-import {SettingBarStyled} from "@features/leftActionBar";
+import {setSelectedBoxes, SettingBarStyled} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
@@ -25,7 +25,7 @@ import Can from "@features/casl/can";
 import {useFeaturePermissions} from "@lib/hooks/rest";
 
 function Settings() {
-    const {data: session} = useSession();
+    const {data: session, update} = useSession();
     const router = useRouter();
 
     const {t, ready} = useTranslation("settings");
@@ -35,6 +35,15 @@ function Settings() {
     const locations = agendaConfig?.locations;
     const roles = (session?.data as UserDataResponse).general_information.roles as Array<string>
     const {id: currentUser} = session?.user as any;
+
+    useEffect(() => {
+        if (permissions?.length > 0) {
+            update({
+                permissions: permissions.map(permission => permission?.slug),
+                slug: "settings"
+            });
+        }
+    }, [permissions]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -47,8 +56,8 @@ function Settings() {
                 <nav aria-label="main mailbox folders">
                     <List>
                         {settingsData.data.map((item: any) => (
-                            <Can key={item.name} I={"read"} a={"settings"}>
-                                {/*field={`settings__${item.href.split('/')[3]}__show` as any}>*/}
+                            <Can key={item.name} I={"read"} a={"settings"}
+                                 field={`settings__${item.href.split('/')[3]}__show` as any}>
                                 <ListItem
                                     {...(item.fill !== "default" && {
                                         sx: {
@@ -59,18 +68,11 @@ function Settings() {
                                     })
                                     }
                                     key={item.name}
-                                    {...((roles?.includes('ROLE_SECRETARY') &&
-                                        ['profile', 'acts', 'actfees', 'import-data'].includes(item.name) || item.disable) && {sx: {display: "none"}})}
+                                    {...(item.disable && {sx: {display: "none"}})}
                                     className={router.pathname === item.href ? 'active' : ''}
                                     disablePadding>
                                     <ListItemButton
-                                        onClick={() => {
-                                            if (item.name === "users" && roles?.includes('ROLE_SECRETARY')) {
-                                                router.push(`${item.href}/${currentUser}`);
-                                            } else {
-                                                router.push(`${locations && item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations && locations[0]}` : item.href}`);
-                                            }
-                                        }}
+                                        onClick={() => router.push(`${locations && locations?.length > 0 && item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations[0]}` : item.href}`)}
                                         disabled={item.disable}
                                         disableRipple>
                                         <ListItemIcon>

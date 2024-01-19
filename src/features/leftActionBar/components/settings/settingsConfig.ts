@@ -4,7 +4,7 @@ const settingsData = {
         {
             name: "profile",
             icon: "setting/ic-patient",
-            href: '/dashboard/settings/profil',
+            href: '/dashboard/settings/profile',
             disable: false
         },
         {

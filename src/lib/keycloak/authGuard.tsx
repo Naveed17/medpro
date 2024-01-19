@@ -10,7 +10,9 @@ function AuthGuard({children}: LayoutProps) {
 
     const medical_entity = (session?.data as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default);
     const features = medical_entity?.features;
-    const hasPermission = features?.map((feature: FeatureModel) => feature.slug).includes(router.pathname.split('/')[2]) ?? true;
+    const routerPathname = router.pathname;
+    const slugFeature = routerPathname.split('/')[2];
+    const hasFeatureAccess = features?.find((feature: FeatureModel) => slugFeature?.includes(feature.slug)) ?? false;
 
     useEffect(() => {
         if (status === "unauthenticated" && router.asPath !== "/auth/signIn") {
@@ -34,7 +36,7 @@ function AuthGuard({children}: LayoutProps) {
         return <LoadingScreen/>
     }
 
-    if (!hasPermission && router.pathname !== '/dashboard') {
+    if (!hasFeatureAccess && router.pathname !== '/dashboard') {
         console.log("auth guard loading")
         return <LoadingScreen
             text={"permission"}

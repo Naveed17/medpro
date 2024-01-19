@@ -14,7 +14,7 @@ export const fieldMatcher: FieldMatcher = fields => field => fields.includes(fie
 
 export default function defineRulesFor(features: FeatureModel[]) {
     const {can, build} = new AbilityBuilder(AppAbility);
-    features.forEach(feature => can(['manage', 'read'], feature.slug as Subjects, [...feature?.permissions?.map(permission => permission?.slug) ?? '*']))
+    features.forEach(feature => can(['manage', 'read'], feature.slug as Subjects, [...feature?.permissions ?? '*']))
     return build;
 }
 

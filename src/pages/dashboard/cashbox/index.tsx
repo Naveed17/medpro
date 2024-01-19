@@ -235,7 +235,7 @@ function Cashbox() {
             label: "consultations",
             value: "consultations"
         }] : []),
-        ...(ability.can('manage', 'cashbox', 'cash_box_transaction_show') ? [{
+        ...(ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? [{
             label: "transactions",
             value: "transactions"
         }] : [])
@@ -244,14 +244,14 @@ function Cashbox() {
         {
             title: "add-payment",
             feature: "cashbox",
-            permission: "cash_box_transaction_create",
+            permission: "cash_box__transaction__create",
             icon: <IconUrl path="ic-wallet-money" color="white"/>,
             action: "onCash",
         },
         {
             title: "delete",
             feature: "cashbox",
-            permission: "cash_box_transaction_delete",
+            permission: "cash_box__transaction__delete",
             icon: <IconUrl path="ic-delete" color="white"/>,
             action: "onDelete",
         },
@@ -298,7 +298,7 @@ function Cashbox() {
     ];
     const isAddAppointment = false;
 
-    const [selectedTab, setSelectedTab] = useState(ability.can('manage', 'agenda', '*') ? "consultations" : (ability.can('manage', 'cashbox', 'cash_box_transaction_show') ? "transactions" : ""));
+    const [selectedTab, setSelectedTab] = useState(ability.can('manage', 'agenda', '*') ? "consultations" : (ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? "transactions" : ""));
     const filterQuery: string = generateFilter({filterCB});
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
@@ -508,7 +508,6 @@ function Cashbox() {
                             marginTop: "8px",
                         }}
                         scrollButtons={true}
-                        textColor="primary"
                         indicatorColor="primary">
                         {tabsData.map((tab) => (
                             <Tab
@@ -626,22 +625,23 @@ function Cashbox() {
                                     mb={2}
                                     pb={1}
                                     borderBottom={1}
-                                    borderColor="divider"
-                                >
+                                    borderColor="divider">
                                     <Stack>
                                         <Typography fontWeight={700}>
                                             {t("transactions")}
                                         </Typography>
                                         <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                     </Stack>
-                                    {rows.length > 0 && <Button
-                                        onClick={exportDoc}
-                                        variant="outlined"
-                                        color="info"
-                                        startIcon={<IconUrl path="ic-export-new"/>}
-                                    >
-                                        {t("export")}
-                                    </Button>}
+                                    {rows.length > 0 &&
+                                        <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
+                                            <Button
+                                                onClick={exportDoc}
+                                                variant="outlined"
+                                                color="info"
+                                                startIcon={<IconUrl path="ic-export-new"/>}>
+                                                {t("export")}
+                                            </Button>
+                                        </Can>}
                                 </Stack>
                                 <DesktopContainer>
                                     {!loading && (

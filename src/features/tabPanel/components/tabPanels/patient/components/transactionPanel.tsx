@@ -196,7 +196,7 @@ function TransactionPanel({...props}) {
                                 pb={1.2}
                                 mb={1.2}>
                                 <Typography fontWeight={600}>{t("transactions")}</Typography>
-                                <Can I={"manage"} a={"cashbox"} field={"cash_box_transaction_create"}>
+                                <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__create"}>
                                     <Button
                                         startIcon={<IconUrl path="ic-argent"/>}
                                         onClick={() => setOpenPaymentDialog(true)}
@@ -305,7 +305,7 @@ function TransactionPanel({...props}) {
                                                     <td>
                                                         {row.uuid === collapse &&
                                                             <Can I={"manage"} a={"cashbox"}
-                                                                 field={"cash_box_transaction_delete"}>
+                                                                 field={"cash_box__transaction__delete"}>
                                                                 <IconButton
                                                                     className="btn-del"
                                                                     onClick={(event) => {
@@ -501,7 +501,7 @@ function TransactionPanel({...props}) {
                                                                                             {devise}
                                                                                         </Label>
                                                                                         <Can I={"manage"} a={"cashbox"}
-                                                                                             field={"cash_box_transaction_data_delete"}>
+                                                                                             field={"cash_box__transaction__data_delete"}>
                                                                                             <IconButton
                                                                                                 className="btn-del"
                                                                                                 onClick={(event) => {
