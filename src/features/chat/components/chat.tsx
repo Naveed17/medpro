@@ -53,7 +53,7 @@ const Chat = ({...props}) => {
     }
 
     const getUserName = (key: string) => {
-        const _user = users.find(user => user.uuid === key)
+        const _user = users.find((user:UserModel) => user.uuid === key)
         return `${_user.FirstName} ${_user.lastName}`
     }
 
