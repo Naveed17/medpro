@@ -61,11 +61,13 @@ const Chat = ({...props}) => {
         let _res = "";
 
         if (lastMessages) {
-            const _msgs:Message[] = lastMessages[key]
-            if (data === "data")
-                _res = `${_msgs[_msgs.length -1].from === key ? "Vous:" : ""}  ${_msgs[_msgs.length -1].data}`
+            const _msgs: Message[] = lastMessages[key]
+            if(_msgs){
+                if (data === "data")
+                _res = `${_msgs[_msgs.length - 1].from === key ? "Vous:" : ""}  ${_msgs[_msgs.length - 1].data}`
             if (data === "date")
-                _res = `${moment.duration(moment().diff(_msgs[_msgs.length -1].date)).humanize()}`
+                _res = `${moment.duration(moment().diff(_msgs[_msgs.length - 1].date)).humanize()}`
+            } else _res = "-"
         }
 
         return _res
@@ -97,7 +99,7 @@ const Chat = ({...props}) => {
             <Grid container>
                 <Grid item xs={12} md={4}>
                     <Paper className='user-wrapper' component={Stack} spacing={2}>
-
+                        {/*
                         {lastMessages && Object.keys(lastMessages).map((user: string) => (
                             <Stack
                                 className={`user-item ${user === selectedUser?.uuid ? "selected" : ""}`}
@@ -128,9 +130,8 @@ const Chat = ({...props}) => {
                                             color="text.secondary">{getLastMessage(user, "date")}</Typography>
                             </Stack>
                         ))}
-
-                        {/*
-                        {users.filter((user:UserModel) => user.uuid !== medicalEntityHasUser).map((user:UserModel) => (
+*/}
+                        {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser).map((user: UserModel) => (
                             <Stack
                                 className={`user-item ${user.uuid === selectedUser?.uuid ? "selected" : ""}`}
                                 sx={{cursor: 'pointer'}}
@@ -155,11 +156,12 @@ const Chat = ({...props}) => {
                                         borderRadius: 10
                                     }}/>
                                 </Stack>
-                                <Typography variant='body2' color="text.secondary" className='ellipsis'>{getLastMessage(user.uuid)}</Typography>
-                                <Typography variant='caption' fontSize={9} color="text.secondary">no message</Typography>
+                                <Typography variant='body2' color="text.secondary"
+                                            className='ellipsis'>{getLastMessage(user.uuid,"data")}</Typography>
+                                <Typography variant='caption' fontSize={9} color="text.secondary">no
+                                    message</Typography>
                             </Stack>
                         ))}
-*/}
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={8}>

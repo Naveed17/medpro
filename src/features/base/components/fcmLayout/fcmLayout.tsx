@@ -81,6 +81,7 @@ function FcmLayout({...props}) {
 
     const [open, setOpen] = React.useState(false);
     const [messages, updateMessages] = useState<any[]>([]);
+    const [message, setMessage] = useState("");
     const [hasMessage, setHasMessage] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
 
@@ -249,7 +250,7 @@ function FcmLayout({...props}) {
         let _local = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
 
         const msgs = [..._local[userUuid], msg];
-        console.log(msgs)
+
         if (_local) {
             if (_local[userUuid]) _local[userUuid] = msgs
             else _local = {..._local, [userUuid]: msgs}
@@ -349,6 +350,8 @@ function FcmLayout({...props}) {
                 date: new Date(message.timestamp)
             }, message.clientId)
             //enqueueSnackbar(`${user?.FirstName} : ${message.data}`, {variant: "info", iconVariant: {info: '💬 '}});
+            setMessage(`${user?.FirstName} : ${message.data}`)
+            setTimeout(()=>setMessage(""),3000)
             setHasMessage(true)
         }
     });
@@ -483,7 +486,7 @@ function FcmLayout({...props}) {
                    spacing={2}
                    alignItems={'center'}
                    style={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>
-                <Typography>Aaaaa</Typography>
+                {message && <Typography>{message}</Typography>}
                 <Fab color="primary"
                      onClick={() => {
                          setOpen(true)
