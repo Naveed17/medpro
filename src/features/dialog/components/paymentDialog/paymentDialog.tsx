@@ -379,7 +379,7 @@ function PaymentDialog({...props}) {
                             <Typography fontWeight={600} mb={1}>
                                 {t("payment")}
                             </Typography>
-                            <Can I={"manage"} a={"cashbox"} field={"cash_box_transaction_create"}>
+                            <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__create"}>
                                 <Button startIcon={<AddIcon/>}
                                         endIcon={<UnfoldMoreRoundedIcon/>}
                                         id="basic-button"

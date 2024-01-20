@@ -9,7 +9,7 @@ function useFeaturePermissions(slug: string) {
 
     const {data: httpPermissionsResponse, isLoading} = useRequestQuery(slug ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/features/${slug}/profiles/${router.locale}`,
+        url: `${urlMedicalEntitySuffix}/features/${slug}/permissions/${router.locale}`,
     } : null, ReactQueryNoValidateConfig);
 
     return {

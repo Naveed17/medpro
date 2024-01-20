@@ -28,7 +28,7 @@ function useCashBox() {
             }
             if (permissions.length > 0) {
                 update({
-                    permissions: permissions[0],
+                    permissions: (permissions[0] as PermissionModel[]).map(permission => permission?.slug),
                     slug: "cashbox"
                 })
             }

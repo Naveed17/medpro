@@ -32,7 +32,7 @@ const Config = [
     {
         name: 'Settings',
         icon: 'ic-setting',
-        path: '/dashboard/settings/profil',
+        path: '/dashboard/settings/profile',
         action: 'profile'
     },
     {

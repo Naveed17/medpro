@@ -15,8 +15,7 @@ import {
     MenuList,
     Paper,
     Popper, Stack, ToggleButton, ToggleButtonGroup,
-    Typography,
-    useMediaQuery
+    Typography
 } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import React, {useRef, useState} from "react";
@@ -25,7 +24,6 @@ import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import axios from "axios";
-import {Theme} from "@mui/material/styles";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -37,7 +35,6 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 function ProfilMenu() {
     const {data: session, update} = useSession();
     const router = useRouter();
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const dispatch = useAppDispatch();
     const anchorRef: any = useRef();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -55,6 +52,7 @@ function ProfilMenu() {
     const medical_entity = (user as UserDataResponse).medical_entity;
     const medical_entities = ((user as UserDataResponse).medical_entities?.reduce((entites: MedicalEntityModel[], data: any) => [...(entites ?? []), data?.medical_entity], []) ?? []) as MedicalEntityModel[];
     const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
+
     const {trigger: triggerSettingsUpdate} = useRequestQueryMutation("/settings/update");
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -95,7 +93,7 @@ function ProfilMenu() {
                 }).then(() => router.push('/'))
                 break;
             case 'profile':
-                await router.push(isMobile ? "/dashboard/settings" : `/dashboard/settings/${roles.includes('ROLE_SECRETARY') ? "motif" : "profil"}`)
+                await router.push("/dashboard/settings");
                 dispatch(toggleMobileBar(true));
                 break;
             case 'rooting':

@@ -6,12 +6,21 @@ import {DashLayout} from "@features/base";
 import {Settings as SettingsFilter} from '@features/leftActionBar';
 import {Redirect} from "@features/redirect";
 import {MobileContainer} from "@lib/constants";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
 
 function Settings() {
+    const {data: session} = useSession();
+    const router = useRouter();
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
+    const slugFeature = router.pathname.split('/')[2];
+    const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
+    const permissions = features?.find((feature: FeatureModel) => slugFeature?.includes(feature.slug))?.permissions ?? [];
+    const featurePermissionSlug = permissions?.reduce((permissions: string[], permission: string) => [...(permissions ?? []), ...(permission.includes('__show') ? [permission] : [])], []) ?? false;
 
     if (!isMobile) {
-        return <Redirect to='/dashboard/settings/profil'/>
+        return <Redirect
+            to={`/dashboard/settings/${featurePermissionSlug?.length > 0 ? featurePermissionSlug[0].split("__")[1] : 'profile'}`}/>
     }
 
     return (

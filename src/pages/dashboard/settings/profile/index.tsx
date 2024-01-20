@@ -41,7 +41,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ImageHandler} from "@features/image";
 
-function Profil() {
+function Profile() {
     const {data: session} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -267,7 +267,7 @@ function Profil() {
                                     <IconUrl className="left-icon" path="ic-doctor-h"/>
                                     <Stack spacing={1} alignItems="flex-start" width={1}>
                                         <Typography variant="subtitle2" fontWeight={600}>
-                                            {t("profil.specialities")}
+                                            {t("profile.specialities")}
                                         </Typography>
                                         <Button
                                             {...(isMobile && {fullWidth: true})}
@@ -281,7 +281,7 @@ function Profil() {
                                         </Button>
                                         <BasicAlert
                                             icon="danger"
-                                            data={t("profil.contact")}
+                                            data={t("profile.contact")}
                                             color="warning">
                                             info
                                         </BasicAlert>
@@ -300,7 +300,7 @@ function Profil() {
                                             variant="subtitle2"
                                             gutterBottom
                                             fontWeight={600}>
-                                            {t("profil.qualification")}
+                                            {t("profile.qualification")}
                                         </Typography>
 
                                         {loading ? (
@@ -317,7 +317,7 @@ function Profil() {
                                             ))
                                         ) : (
                                             <Typography color={"gray"} fontWeight={400}>
-                                                {t("profil.noQualification")}
+                                                {t("profile.noQualification")}
                                             </Typography>
                                         )}
                                     </Stack>
@@ -341,7 +341,7 @@ function Profil() {
                                             variant="subtitle2"
                                             gutterBottom
                                             fontWeight={600}>
-                                            {t("profil.assurence")}
+                                            {t("profile.assurence")}
                                         </Typography>
                                         <Stack
                                             spacing={1.2}
@@ -374,7 +374,7 @@ function Profil() {
                                                 ))
                                             ) : (
                                                 <Typography color={"gray"} fontWeight={400}>
-                                                    {t("profil.noInsurance")}
+                                                    {t("profile.noInsurance")}
                                                 </Typography>
                                             )}
                                         </Stack>
@@ -399,7 +399,7 @@ function Profil() {
                                             variant="subtitle2"
                                             gutterBottom
                                             fontWeight={600}>
-                                            {t("profil.sms-rappel")}
+                                            {t("profile.sms-rappel")}
                                         </Typography>
                                         <Stack
                                             spacing={1}
@@ -431,7 +431,7 @@ function Profil() {
                                                             onSuccess: () => invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`]),
                                                         });
                                                     }}/>}
-                                                label={t("profil.sms-rappel-send")}/>}
+                                                label={t("profile.sms-rappel-send")}/>}
                                         </Stack>
                                     </Stack>
                                 </Stack>
@@ -448,7 +448,7 @@ function Profil() {
                                             variant="subtitle2"
                                             gutterBottom
                                             fontWeight={600}>
-                                            {t("profil.regMode")}
+                                            {t("profile.regMode")}
                                         </Typography>
                                         <Stack
                                             spacing={1}
@@ -477,7 +477,7 @@ function Profil() {
                                                 ))
                                             ) : (
                                                 <Typography color={"gray"} fontWeight={400}>
-                                                    {t("profil.noPaymentMean")}
+                                                    {t("profile.noPaymentMean")}
                                                 </Typography>
                                             )}
                                         </Stack>
@@ -502,7 +502,7 @@ function Profil() {
                                             variant="subtitle2"
                                             gutterBottom
                                             fontWeight={600}>
-                                            {t("profil.langues")}
+                                            {t("profile.langues")}
                                         </Typography>
                                         <Stack
                                             spacing={1}
@@ -531,7 +531,7 @@ function Profil() {
                                                 ))
                                             ) : (
                                                 <Typography color={"gray"} fontWeight={400}>
-                                                    {t("profil.noLanguage")}
+                                                    {t("profile.noLanguage")}
                                                 </Typography>
                                             )}
                                         </Stack>
@@ -556,7 +556,7 @@ function Profil() {
                                             variant="subtitle2"
                                             gutterBottom
                                             fontWeight={600}>
-                                            {t("profil.actes")}
+                                            {t("profile.actes")}
                                         </Typography>
                                         <Stack
                                             flexWrap="wrap"
@@ -599,7 +599,7 @@ function Profil() {
                                                     ))
                                             ) : (
                                                 <Typography color={"gray"} fontWeight={400}>
-                                                    {t("profil.noActes")}
+                                                    {t("profile.noActes")}
                                                 </Typography>
                                             )}
                                         </Stack>
@@ -624,7 +624,7 @@ function Profil() {
                                                 variant="subtitle2"
                                                 gutterBottom
                                                 fontWeight={600}>
-                                                {t("profil.actesSec")}
+                                                {t("profile.actesSec")}
                                             </Typography>
                                             <Stack
                                                 flexWrap="wrap"
@@ -677,13 +677,13 @@ function Profil() {
                     actionDialog={
                         <DialogActions>
                             <Button onClick={dialogClose} startIcon={<CloseIcon/>}>
-                                {t("profil.cancel")}
+                                {t("profile.cancel")}
                             </Button>
                             <Button
                                 variant="contained"
                                 onClick={dialogSave}
                                 startIcon={<IconUrl path="ic-dowlaodfile"></IconUrl>}>
-                                {t("profil.save")}
+                                {t("profile.save")}
                             </Button>
                         </DialogActions>
                     }
@@ -704,10 +704,10 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ])),
     },
 });
-export default Profil;
+export default Profile;
 
-Profil.auth = true;
+Profile.auth = true;
 
-Profil.getLayout = function getLayout(page: ReactElement) {
+Profile.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 };

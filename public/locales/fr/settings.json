@@ -23,7 +23,7 @@
     "analysis": "Analyse",
     "medical_imaging": "Imagerie médicale"
   },
-  "profil": {
+  "profile": {
     "specialities": "Spécialités",
     "sms-rappel": "SMS de rappel",
     "sms-rappel-send": "Activer le rappel par SMS",

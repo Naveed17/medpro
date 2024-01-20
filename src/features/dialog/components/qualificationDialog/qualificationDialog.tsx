@@ -43,10 +43,10 @@ function QualificationDialog(info: any) {
     return (
         <>
             <Stack spacing={2} className="top-sec">
-                <Typography>{t('profil.title')}</Typography>
+                <Typography>{t('profile.title')}</Typography>
                 <TextField placeholder='...'/>
                 <BasicAlert icon="ic-danger"
-                            data={t('profil.alertQ')}
+                            data={t('profile.alertQ')}
                             color="warning">.</BasicAlert>
                 {files.length > 0 ?
                     <Stack spacing={2}>
@@ -56,10 +56,10 @@ function QualificationDialog(info: any) {
                     </Stack>
                     :
                     <UploadMultiFile files={files} onDrop={handleDrop} error={undefined} sx={undefined}
-                                     singleFile={undefined} title={t('profil.drop')}/>}
+                                     singleFile={undefined} title={t('profile.drop')}/>}
             </Stack>
             <Stack spacing={2} className="bottom-sec">
-                <Typography variant="subtitle1" fontWeight={600} marginTop={4}>{t('profil.listQ')}</Typography>
+                <Typography variant="subtitle1" fontWeight={600} marginTop={4}>{t('profile.listQ')}</Typography>
 
                 <SortableList items={items} setItems={setItems}>
                     {({items}) => (
