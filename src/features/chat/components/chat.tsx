@@ -40,7 +40,7 @@ const Chat = ({...props}) => {
     const {t} = useTranslation("common", {keyPrefix: "chat"});
 
     const [message, setMessage] = useState("");
-    const [lastMessages, setLastMessages] = useState(null);
+    const [lastMessages, setLastMessages] = useState<any>(null);
 
     const refList = document.getElementById("chat-list")
 
@@ -59,12 +59,11 @@ const Chat = ({...props}) => {
 
     const getLastMessage = (key: string, data: string) => {
         let _res = "";
-
         if (lastMessages) {
             const _msgs: Message[] = lastMessages[key]
             if(_msgs){
                 if (data === "data")
-                _res = `${_msgs[_msgs.length - 1].from} ${key} ${_msgs[_msgs.length - 1].data}`
+                _res = `${_msgs[_msgs.length - 1].from === medicalEntityHasUser ? "Vous: " : ""}  ${_msgs[_msgs.length - 1].data}`
             if (data === "date")
                 _res = `${moment.duration(moment().diff(_msgs[_msgs.length - 1].date)).humanize()}`
             } else _res = "-"
@@ -76,6 +75,15 @@ const Chat = ({...props}) => {
     const hasMessages =(uuid:string) =>{
         return lastMessages && Object.keys(lastMessages).find(lm => lm === uuid)
     }
+
+    const comparerParDate = (a:string, b:string) => {
+        if (lastMessages) {
+            const dateA = lastMessages[a][lastMessages[a].length -1].date
+            const dateB = lastMessages[b][lastMessages[b].length -1].date
+            return moment(dateB).diff(moment(dateA))
+        }
+        return 0
+    };
 
     useEffect(() => {
         setHasMessage(false);
@@ -102,7 +110,11 @@ const Chat = ({...props}) => {
             <Grid container>
                 <Grid item xs={12} md={4}>
                     <Paper className='user-wrapper' component={Stack} spacing={2}>
-                        <Typography>Users</Typography>
+                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                            <IconUrl path={"chat"} width={20} height={20}/>
+                            <Typography fontWeight={"bold"}>Chat</Typography>
+                        </Stack>
+
                         {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser && !hasMessages(user.uuid)).map((user: UserModel) => (
                             <Stack
                                 className={`user-item ${user.uuid === selectedUser?.uuid ? "selected" : ""}`}
@@ -130,8 +142,10 @@ const Chat = ({...props}) => {
                                 </Stack>
                             </Stack>
                         ))}
-                        <Typography>Messages</Typography>
-                        {lastMessages && Object.keys(lastMessages).map((user: string) => (
+
+                        <div style={{borderBottom:"1px solid #DDD"}}></div>
+                        <Typography fontSize={12}>Messages</Typography>
+                        {lastMessages && Object.keys(lastMessages).sort((a,b) => comparerParDate(a,b)).map((user: string) => (
                             <Stack
                                 className={`user-item ${user === selectedUser?.uuid ? "selected" : ""}`}
                                 sx={{cursor: 'pointer'}}
