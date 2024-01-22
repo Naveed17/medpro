@@ -339,6 +339,7 @@ function FcmLayout({...props}) {
 
     useConnectionStateListener((stateChange) => {
         console.log("current", stateChange.current);  // the new connection state
+        console.log("error", stateChange.reason);  // the new connection state
     });
 
     const {channel} = useChannel(medical_entity?.uuid, (message) => {

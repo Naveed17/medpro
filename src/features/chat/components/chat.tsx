@@ -106,7 +106,7 @@ const Chat = ({...props}) => {
                                 sx={{cursor: 'pointer'}}
                                 spacing={.5} key={user}
                                 onClick={() => {
-                                    setSelectedUser(users.find(_user => _user.uuid === user))
+                                    setSelectedUser(users.find((_user:UserModel) => _user.uuid === user))
                                     const localMsgs = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
                                     if (localMsgs) {
                                         const _msgs = Object.keys(localMsgs).find(key => key === user)
