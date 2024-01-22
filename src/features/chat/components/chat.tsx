@@ -64,13 +64,17 @@ const Chat = ({...props}) => {
             const _msgs: Message[] = lastMessages[key]
             if(_msgs){
                 if (data === "data")
-                _res = `${_msgs[_msgs.length - 1].from === key ? "Vous:" : ""}  ${_msgs[_msgs.length - 1].data}`
+                _res = `${_msgs[_msgs.length - 1].from} ${key} ${_msgs[_msgs.length - 1].data}`
             if (data === "date")
                 _res = `${moment.duration(moment().diff(_msgs[_msgs.length - 1].date)).humanize()}`
             } else _res = "-"
         }
 
         return _res
+    }
+
+    const hasMessages =(uuid:string) =>{
+        return lastMessages && Object.keys(lastMessages).find(lm => lm === uuid)
     }
 
     useEffect(() => {
@@ -83,7 +87,6 @@ const Chat = ({...props}) => {
                 top: refList.scrollHeight,
                 behavior: 'smooth',
             });
-        console.log(messages)
     }, [messages]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -99,7 +102,35 @@ const Chat = ({...props}) => {
             <Grid container>
                 <Grid item xs={12} md={4}>
                     <Paper className='user-wrapper' component={Stack} spacing={2}>
-                        {/*
+                        <Typography>Users</Typography>
+                        {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser && !hasMessages(user.uuid)).map((user: UserModel) => (
+                            <Stack
+                                className={`user-item ${user.uuid === selectedUser?.uuid ? "selected" : ""}`}
+                                sx={{cursor: 'pointer'}}
+                                spacing={.5} key={user.uuid}
+                                onClick={() => {
+                                    setSelectedUser(user)
+                                    const localMsgs = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
+                                    if (localMsgs) {
+                                        const _msgs = Object.keys(localMsgs).find(key => key === user.uuid)
+                                        if (_msgs) updateMessages(localMsgs[user.uuid])
+                                        else updateMessages([])
+                                    }
+                                }
+                                }>
+                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                    <Typography fontWeight={500}
+                                                variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
+                                    <div style={{
+                                        width: 5,
+                                        height: 5,
+                                        background: `${presenceData.find((data: PresenceMessage) => data.clientId === user.uuid) && presenceData.find((data: PresenceMessage) => data.clientId === user.uuid).data === "actif" ? "#1BC47D" : "#DDD"}`,
+                                        borderRadius: 10
+                                    }}/>
+                                </Stack>
+                            </Stack>
+                        ))}
+                        <Typography>Messages</Typography>
                         {lastMessages && Object.keys(lastMessages).map((user: string) => (
                             <Stack
                                 className={`user-item ${user === selectedUser?.uuid ? "selected" : ""}`}
@@ -128,38 +159,6 @@ const Chat = ({...props}) => {
                                             className='ellipsis'>{getLastMessage(user, "data")}</Typography>
                                 <Typography variant='caption' fontSize={9}
                                             color="text.secondary">{getLastMessage(user, "date")}</Typography>
-                            </Stack>
-                        ))}
-*/}
-                        {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser).map((user: UserModel) => (
-                            <Stack
-                                className={`user-item ${user.uuid === selectedUser?.uuid ? "selected" : ""}`}
-                                sx={{cursor: 'pointer'}}
-                                spacing={.5} key={user.uuid}
-                                onClick={() => {
-                                    setSelectedUser(user)
-                                    const localMsgs = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
-                                    if (localMsgs) {
-                                        const _msgs = Object.keys(localMsgs).find(key => key === user.uuid)
-                                        if (_msgs) updateMessages(localMsgs[user.uuid])
-                                        else updateMessages([])
-                                    }
-                                }
-                                }>
-                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                    <Typography fontWeight={500}
-                                                variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
-                                    <div style={{
-                                        width: 5,
-                                        height: 5,
-                                        background: `${presenceData.find((data: PresenceMessage) => data.clientId === user.uuid) && presenceData.find((data: PresenceMessage) => data.clientId === user.uuid).data === "actif" ? "#1BC47D" : "#DDD"}`,
-                                        borderRadius: 10
-                                    }}/>
-                                </Stack>
-                                <Typography variant='body2' color="text.secondary"
-                                            className='ellipsis'>{getLastMessage(user.uuid,"data")}</Typography>
-                                <Typography variant='caption' fontSize={9} color="text.secondary">no
-                                    message</Typography>
                             </Stack>
                         ))}
                     </Paper>

@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import {firebaseCloudSdk} from "@lib/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
+    Avatar,
     Badge,
     Dialog,
     DialogContent,
@@ -10,7 +11,8 @@ import {
     Fab,
     Paper,
     PaperProps,
-    Stack, Typography,
+    Stack,
+    Typography,
     useTheme
 } from "@mui/material";
 import axios from "axios";
@@ -81,7 +83,7 @@ function FcmLayout({...props}) {
 
     const [open, setOpen] = React.useState(false);
     const [messages, updateMessages] = useState<any[]>([]);
-    const [message, setMessage] = useState("");
+    const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
     const [hasMessage, setHasMessage] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
 
@@ -96,6 +98,7 @@ function FcmLayout({...props}) {
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const ability = buildAbilityFor(features ?? []);
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
+    const audio = new Audio("/sound/beep.mp3");
 
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
 
@@ -249,12 +252,12 @@ function FcmLayout({...props}) {
 
         let _local = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
 
-        const msgs = [..._local[userUuid], msg];
 
         if (_local) {
+            const msgs = [..._local[userUuid], msg];
             if (_local[userUuid]) _local[userUuid] = msgs
             else _local = {..._local, [userUuid]: msgs}
-        } else _local = {[userUuid]: msgs};
+        } else _local = {[userUuid]: [msg]};
 
         localStorage.setItem("chat", JSON.stringify(_local))
     }
@@ -344,16 +347,19 @@ function FcmLayout({...props}) {
 
     const {channel} = useChannel(medical_entity?.uuid, (message) => {
         if (message.name === medicalEntityHasUser) {
+            audio.play()
+
             saveInbox({
                 from: message.clientId,
                 to: medicalEntityHasUser,
                 data: message.data,
                 date: new Date(message.timestamp)
             }, message.clientId)
-            //enqueueSnackbar(`${user?.FirstName} : ${message.data}`, {variant: "info", iconVariant: {info: '💬 '}});
-            setMessage(`${user?.FirstName} : ${message.data}`)
-            setTimeout(()=>setMessage(""),3000)
+            const _user = users.find(user => user.uuid === message.clientId)
+            setMessage({user: `${_user?.FirstName} ${_user?.lastName}`, message: message.data})
+            setTimeout(() => setMessage(null), 3000)
             setHasMessage(true)
+
         }
     });
 
@@ -487,13 +493,32 @@ function FcmLayout({...props}) {
                    spacing={2}
                    alignItems={'center'}
                    style={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>
-                {message && <Typography>{message}</Typography>}
-                <Fab color="primary"
+                {message && <Stack direction={"row"}
+                                   padding={1}
+                                   spacing={2}
+                                   borderRadius={2}
+                                   alignItems={"center"}
+                                   style={{
+                                       background: theme.palette.info.main,
+                                       width:300,
+                                       boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px"
+                                   }}>
+                    <Avatar sx={{bgcolor: theme.palette.primary.main}}>W</Avatar>
+                    <Stack spacing={0} width={"100%"}>
+                        <Stack direction={"row"} justifyContent={"space-between"}>
+                            <Typography fontSize={12}>{message.user}</Typography>
+                            <Typography fontSize={11} color={"#7C878E"} fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
+                        </Stack>
+                        <Typography>{message.message}</Typography>
+                    </Stack>
+                </Stack>}
+                <Fab color="info"
+                     style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
                      onClick={() => {
                          setOpen(true)
                      }}>
                     <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
-                        <IconUrl path={"ic-chat"} width={30} height={30}/>
+                        <IconUrl path={"chat"} width={30} height={30}/>
                     </Badge>
                 </Fab>
             </Stack>
