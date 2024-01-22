@@ -543,6 +543,15 @@
       "profile_created": "Profil créé",
       "visitor_added": "Visiteur ajoute",
       "updated": "Utilisateur mis à jour",
+      "all_users": "Tous les utilisateurs",
+      "roles_permissons": "Rôles & Autorisations",
+      "add_role": "Ajouter un rôle",
+      "roles": "Rôles",
+      "role_name": "Nom du rôle",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "settings": "Paramètres",
+      "cashbox": "Caisse",
       "dialog": {
         "delete-profile-title": "Suppression du profil",
         "delete-user-title": "Suppression du utilisateur",
@@ -578,7 +587,10 @@
         "secretary": "Secretaire",
         "active": "Actif",
         "docPermission": "Accès aux documents de rendez-vous",
-        "inactive": "Inactif"
+        "inactive": "Inactif",
+        "role": "Rôle",
+        "status": "Statut",
+        "lastActive": "Dernière activité"
       }
     },
     "dialog": {

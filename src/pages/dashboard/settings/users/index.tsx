@@ -1,10 +1,10 @@
-import React, {ReactElement, useState} from "react";
-import {DashLayout, dashLayoutSelector} from "@features/base";
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {configSelector} from "@features/base";
-import {SubHeader} from "@features/subHeader";
-import {RootStyled} from "@features/toolbar";
+import React, { ReactElement, useState } from "react";
+import { DashLayout, dashLayoutSelector } from "@features/base";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { configSelector } from "@features/base";
+import { SubHeader } from "@features/subHeader";
+import { RootStyled } from "@features/toolbar";
 import {
     Box,
     Button,
@@ -16,28 +16,33 @@ import {
     DialogTitle,
     Dialog,
     Theme,
+    Tabs,
+    Tab,
+    MenuItem,
 } from "@mui/material";
-import {useTranslation} from "next-i18next";
-import {Otable, resetUser} from "@features/table";
-import {useRouter} from "next/router";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NoDataCard} from "@features/card";
-import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {LoadingScreen} from "@features/loadingScreen";
+import { useTranslation } from "next-i18next";
+import { Otable, resetUser } from "@features/table";
+import { useRouter } from "next/router";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { NoDataCard } from "@features/card";
+import { useRequestQuery, useRequestQueryMutation } from "@lib/axios";
+import { LoadingScreen } from "@features/loadingScreen";
 import IconUrl from "@themes/urlIcon";
-import {AccessMenage} from "@features/drawer";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {LoadingButton} from "@mui/lab";
+import { AccessMenage } from "@features/drawer";
+import { useMedicalEntitySuffix } from "@lib/hooks";
+import { LoadingButton } from "@mui/lab";
 import CloseIcon from '@mui/icons-material/Close';
-import {useSnackbar} from "notistack";
-import {UserMobileCard} from '@features/card';
-import {DesktopContainer} from "@themes/desktopConainter";
-import {MobileContainer} from "@themes/mobileContainer";
-import {useSendNotification} from "@lib/hooks/rest";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-import {Redirect} from "@features/redirect";
-
+import { useSnackbar } from "notistack";
+import { UserMobileCard } from '@features/card';
+import { DesktopContainer } from "@themes/desktopConainter";
+import { MobileContainer } from "@themes/mobileContainer";
+import { useSendNotification } from "@lib/hooks/rest";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { Redirect } from "@features/redirect";
+import AddIcon from '@mui/icons-material/Add'
+import { TabPanel, UsersTabs } from "@features/tabPanel";
+import { ActionMenu } from "@features/menu";
 const CardData = {
     mainIcon: "ic-user",
     title: "no-data.user.title",
@@ -64,38 +69,30 @@ const headCells = [
         align: "center",
         sortable: true,
     },
-    /*{
+    {
+        id: "role",
+        numeric: false,
+        disablePadding: false,
+        label: "role",
+        align: "center",
+        sortable: true,
+    },
+    {
         id: "status",
         numeric: false,
         disablePadding: false,
-        label: "access",
-        align: "center",
-        sortable: true,
-    },*/
-    {
-        id: "profile",
-        numeric: false,
-        disablePadding: false,
-        label: "profile",
+        label: "status",
         align: "center",
         sortable: true,
     },
     {
-        id: "permission",
-        numeric: false,
+        id: "lastActive",
+        numeric: true,
         disablePadding: false,
-        label: "docPermission",
+        label: "lastActive",
         align: "center",
         sortable: true,
     },
-    // {
-    //     id: "access",
-    //     numeric: true,
-    //     disablePadding: false,
-    //     label: "access",
-    //     align: "center",
-    //     sortable: true,
-    // },
     {
         id: "action",
         numeric: false,
@@ -105,44 +102,53 @@ const headCells = [
         sortable: false,
     },
 ];
-
+function a11yProps(index: number) {
+    return {
+        id: `simple-tab-${index}`,
+        'aria-controls': `simple-tabpanel-${index}`,
+    };
+}
+const popoverActions = [{
+    icon: <IconUrl path="ic-agenda" color="white" />,
+    title: "roles",
+    action: "onAgenda"
+}]
 function Users() {
     const router = useRouter();
-    const {data: session} = useSession();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {enqueueSnackbar} = useSnackbar();
-    const {trigger: triggerNotificationPush} = useSendNotification();
+    const { data: session } = useSession();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
+    const { enqueueSnackbar } = useSnackbar();
+    const { trigger: triggerNotificationPush } = useSendNotification();
     const dispatch = useAppDispatch();
-
-    const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
-    const {direction} = useAppSelector(configSelector);
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-
+    const { t, ready } = useTranslation("settings", { keyPrefix: "users.config" });
+    const { direction } = useAppSelector(configSelector);
+    const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
+    const [tabvalue, setTabValue] = React.useState(0);
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selected, setSelected] = useState<any>("");
     const [open, setOpen] = useState(false);
-
-    const {jti, id: currentUser} = session?.user as any;
-    const {data: user} = session as Session;
+    const { jti, id: currentUser } = session?.user as any;
+    const { data: user } = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles;
-
-    const {trigger: triggerUserUpdate} = useRequestQueryMutation("/users/update");
-    const {trigger: triggerUserDelete} = useRequestQueryMutation("/users/delete");
-
-    const {data: httpUsersResponse, mutate} = useRequestQuery({
+    const [contextMenu, setContextMenu] = useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
+    const { trigger: triggerUserUpdate } = useRequestQueryMutation("/users/update");
+    const { trigger: triggerUserDelete } = useRequestQueryMutation("/users/delete");
+    const { data: httpUsersResponse, mutate } = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
-    }, {refetchOnWindowFocus: false});
+    }, { refetchOnWindowFocus: false });
 
-    const {data: httpProfilesResponse} = useRequestQuery({
+    const { data: httpProfilesResponse } = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/profile/${router.locale}`
-    }, {refetchOnWindowFocus: false});
+    }, { refetchOnWindowFocus: false });
 
     const users = ((httpUsersResponse as HttpResponse)?.data ?? []) as UserModel[];
     const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as ProfileModel[];
-
     const handleDocPermission = (action: string, props: any, value: any) => {
         const form = new FormData();
         form.append("attribute", action);
@@ -154,7 +160,7 @@ function Users() {
         }, {
             onSuccess: () => {
                 mutate();
-                enqueueSnackbar(t("updated"), {variant: "success"});
+                enqueueSnackbar(t("updated"), { variant: "success" });
                 if (action === "isDocSee") {
                     medicalEntityHasUser && triggerNotificationPush({
                         action: "push",
@@ -170,6 +176,30 @@ function Users() {
         });
     }
 
+    const handleChangeTabs = (event: React.SyntheticEvent, newValue: number) => {
+        setTabValue(newValue);
+    };
+    const handleContextMenu = (event: MouseEvent) => {
+        event.preventDefault();
+        setContextMenu(
+            contextMenu === null
+                ? {
+                    mouseX: event.clientX + 2,
+                    mouseY: event.clientY - 6,
+                } : null,
+        );
+    };
+    const handleClose = () => {
+        setContextMenu(null);
+    }
+    const OnMenuActions = (action: string) => {
+        switch (action) {
+            case "onAgenda":
+                console.log(action)
+                break;
+        }
+        handleClose();
+    }
     const handleChange = (action: string, props: any, event: any) => {
         switch (action) {
             case "PROFILE":
@@ -197,7 +227,7 @@ function Users() {
             url: `${urlMedicalEntitySuffix}/users/${selected.uuid}/${router.locale}`
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t("delete_success"), {variant: 'success'})
+                enqueueSnackbar(t("delete_success"), { variant: 'success' })
                 setDeleteDialog(false);
                 setTimeout(() => setLoading(false));
                 mutate();
@@ -215,62 +245,64 @@ function Users() {
         );
 
     if (roles.includes('ROLE_SECRETARY')) {
-        return <Redirect to='/dashboard/settings'/>
+        return <Redirect to='/dashboard/settings' />
     }
-
     return (
         <>
-            <SubHeader>
-                <RootStyled>
-                    <p style={{margin: 0}}>{t("path")}</p>
-                </RootStyled>
-                <Stack direction="row" alignItems="center" spacing={2}>
-                    <Button
-                        sx={{
-                            display: {xs: "none", md: "flex"},
-                        }}
-                        onClick={() => setOpen(true)}
-                        startIcon={<IconUrl path="ic-setting"/>}
-                        variant="contained">
-                        {t("access_management")}
-                    </Button>
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        onClick={() => {
-                            dispatch(resetUser());
-                            router.push(`/dashboard/settings/users/new`);
-                        }}
-                        color="success">
-                        {t("add")}
-                    </Button>
+            <SubHeader sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Stack direction="row" alignItems="center" mt={2} justifyContent="space-between" width={1}>
+                    <Tabs value={tabvalue} onChange={handleChangeTabs} aria-label="">
+                        <Tab disableRipple label={t("all_users")} {...a11yProps(0)} />
+                        <Tab disableRipple label={t("roles_permissons")} {...a11yProps(1)} />
+                    </Tabs>
+                    {
+                        tabvalue === 0 &&
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            sx={{ minWidth: 45, px: 0, mt: -2 }}
+                            onClick={() => {
+                                dispatch(resetUser());
+                                router.push(`/dashboard/settings/users/new`);
+                            }}
+                        >
+                            <AddIcon />
+                        </Button>
+
+                    }
+
                 </Stack>
             </SubHeader>
             <Box className="container">
-                {users && users.length > 0 ? (
-                    <>
-                        <DesktopContainer>
-                            <Otable
-                                headers={headCells}
-                                rows={users}
-                                from={"users"}
-                                {...{t, currentUser, profiles, handleChange}}
-                                edit={onDelete}
-                            />
-                        </DesktopContainer>
-                        <MobileContainer>
-                            <Stack spacing={1}>
-                                {users.map((user) => (
-                                    <React.Fragment key={user.uuid}>
-                                        <UserMobileCard data={user} t={t}/>
-                                    </React.Fragment>
-                                ))}
-                            </Stack>
-                        </MobileContainer>
-                    </>
-                ) : (
-                    <NoDataCard t={t} ns={"settings"} data={CardData}/>
-                )}
+                <TabPanel value={tabvalue} index={0} padding={0}>
+                    {users && users.length > 0 ? (
+                        <>
+                            <DesktopContainer>
+                                <Otable
+                                    headers={headCells}
+                                    rows={users}
+                                    from={"users"}
+                                    {...{ t, currentUser, profiles, handleChange }}
+                                    edit={onDelete}
+                                />
+                            </DesktopContainer>
+                            <MobileContainer>
+                                <Stack spacing={1}>
+                                    {users.map((user) => (
+                                        <React.Fragment key={user.uuid}>
+                                            <UserMobileCard data={user} t={t} />
+                                        </React.Fragment>
+                                    ))}
+                                </Stack>
+                            </MobileContainer>
+                        </>
+                    ) : (
+                        <NoDataCard t={t} ns={"settings"} data={CardData} />
+                    )}
+                </TabPanel>
+                <TabPanel value={tabvalue} index={1} padding={0}>
+                    <UsersTabs {...{ profiles, t, handleContextMenu }} />
+                </TabPanel>
             </Box>
             <Drawer
                 PaperProps={{
@@ -283,7 +315,7 @@ function Users() {
                 open={open}
                 dir={direction}
                 onClose={closeDraw}>
-                <AccessMenage {...{t}}/>
+                <AccessMenage {...{ t }} />
             </Drawer>
             <Dialog PaperProps={{
                 sx: {
@@ -298,18 +330,18 @@ function Users() {
                 }}>
                     {t("dialog.delete-user-title")}
                 </DialogTitle>
-                <DialogContent style={{paddingTop: 20}}>
+                <DialogContent style={{ paddingTop: 20 }}>
                     <Typography>
                         {t("dialog.delete-user-desc")}
                     </Typography>
                 </DialogContent>
-                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                <DialogActions sx={{ borderTop: 1, borderColor: "divider", px: 1, py: 2 }}>
                     <Stack direction="row" spacing={1}>
                         <Button
                             onClick={() => {
                                 setDeleteDialog(false);
                             }}
-                            startIcon={<CloseIcon/>}>
+                            startIcon={<CloseIcon />}>
                             {t("dialog.cancel")}
                         </Button>
                         <LoadingButton
@@ -317,12 +349,25 @@ function Users() {
                             loading={loading}
                             color="error"
                             onClick={() => deleteUser()}
-                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}>
+                            startIcon={<IconUrl path="setting/icdelete" color="white" />}>
                             {t("dialog.delete")}
                         </LoadingButton>
                     </Stack>
                 </DialogActions>
             </Dialog>
+            <ActionMenu {...{ contextMenu, handleClose }}>
+                {popoverActions.map((v: any, index) => (
+                    <MenuItem
+                        key={index}
+                        className="popover-item"
+                        onClick={() => OnMenuActions(v.action)}>
+                        {v.icon}
+                        <Typography fontSize={15} sx={{ color: "#fff" }}>
+                            {t(v.title)}
+                        </Typography>
+                    </MenuItem>
+                ))}
+            </ActionMenu>
         </>
     );
 }
