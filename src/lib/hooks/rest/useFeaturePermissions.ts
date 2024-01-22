@@ -3,11 +3,11 @@ import {useRouter} from "next/router";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 
-function useFeaturePermissions(slug: string) {
+function useFeaturePermissions(slug: string, enabled: boolean = false) {
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {data: httpPermissionsResponse, isLoading} = useRequestQuery(slug ? {
+    const {data: httpPermissionsResponse, isLoading} = useRequestQuery(slug && enabled ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/features/${slug}/permissions/${router.locale}`,
     } : null, ReactQueryNoValidateConfig);
