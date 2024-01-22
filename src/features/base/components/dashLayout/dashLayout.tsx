@@ -312,7 +312,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         if (permissions?.length > 0) {
             update({
                 permissions: permissions.map(permission => permission?.slug),
-                slug: "settings"
+                slug: rootFeature?.slug
             });
         }
     }, [permissions]); // eslint-disable-line react-hooks/exhaustive-deps
