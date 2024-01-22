@@ -2,18 +2,21 @@
   "patientSpace": "Patient space",
   "main-menu": {
     "agenda": "Agenda",
-    "room": "Waiting Room",
+    "waiting-room": "Waiting Room",
     "patient": "Patients",
     "message": "Message",
     "articles": "Articles",
     "questions": "Questions",
+    "documents": "Document",
     "shop": "Shop",
     "wallet": "My Wallet",
-    "stats": "Statistics",
+    "statistics": "Statistics",
     "settings": "My Profile",
     "logout": "Logout",
     "payment": "Payment",
-    "inventory": "Inventory"
+    "cashbox": "Payment",
+    "inventory": "Inventory",
+    "consultation": "Consultation"
   },
   "doctor-dropdown": {
     "news": "News Feed",

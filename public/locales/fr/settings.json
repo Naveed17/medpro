@@ -530,7 +530,10 @@
     "add_new_feature_profile": "Ajouter un nouveau profil de fonctionnalité",
     "config": {
       "add": "Ajouter",
+      "updated-role": "Le profil a été mis à jour avec succès",
+      "created-role": "Le profil a été créé avec succès",
       "delete_success": "l'utilisateur a été supprimé avec succès",
+      "delete-role": "Supprimer le profil",
       "manageAccess": "Gestion des accès",
       "roleAccess": "Sélectionnez le rôle de l'utilisateur",
       "path": "Paramètres > Utilisateurs",

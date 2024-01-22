@@ -3,19 +3,20 @@
   "lang": "Langue",
   "main-menu": {
     "agenda": "Agenda",
-    "room": "Salle d'attente",
+    "waiting-room": "Salle d'attente",
     "patient": "Patients",
     "message": "Message",
     "articles": "Articles",
     "questions": "Questions",
-    "docs": "Document",
+    "documents": "Document",
     "shop": "Shop",
     "wallet": "My Wallet",
-    "stats": "Statistiques",
-    "settings": "Mon profil",
+    "statistics": "Statistiques",
+    "settings": "Paramètres",
     "logout": "Se déconnecter",
-    "payment": "Caisse",
-    "inventory": "inventaire"
+    "cashbox": "Caisse",
+    "inventory": "Inventaire",
+    "consultation": "Consultation"
   },
   "doctor-dropdown": {
     "news": "Fil d'actualité",

@@ -11,29 +11,30 @@ import {
     TextField, CircularProgress, IconButton
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import { useRouter } from "next/router";
-import { editUser, TableRowStyled } from "@features/table";
-import { useAppDispatch } from "@lib/redux/hooks";
-import { uniqueId } from "lodash";
-import React, { useEffect, useState } from "react";
-import { useRequestQueryMutation } from "@lib/axios";
-import { useMedicalEntitySuffix } from "@lib/hooks";
-import { CustomSwitch } from "@features/buttons";
+import {useRouter} from "next/router";
+import {editUser, TableRowStyled} from "@features/table";
+import {useAppDispatch} from "@lib/redux/hooks";
+import {uniqueId} from "lodash";
+import React, {useEffect, useState} from "react";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {CustomSwitch} from "@features/buttons";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-function UserRow({ ...props }) {
+
+function UserRow({...props}) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const router = useRouter();
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { row, handleChange, t, editMotif, data } = props;
-    const { currentUser } = data;
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {row, handleChange, t, editMotif, data} = props;
+    const {currentUser} = data;
 
     const [hasDocPermission, setHasDocPermission] = useState(row.canSeeDoc);
     const [profiles, setpProfiles] = useState([]);
     const [openAutoComplete, setOpenAutoComplete] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const { trigger: drugsTrigger } = useRequestQueryMutation("/settings/drugs/get");
+    const {trigger: drugsTrigger} = useRequestQueryMutation("/settings/drugs/get");
 
     const loadingReq = openAutoComplete;
 
@@ -68,8 +69,8 @@ function UserRow({ ...props }) {
                     </>
                 ) : (
                     <Stack>
-                        <Skeleton variant="text" width={100} />
-                        <Skeleton variant="text" width={100} />
+                        <Skeleton variant="text" width={100}/>
+                        <Skeleton variant="text" width={100}/>
                     </Stack>
                 )}
             </TableCell>
@@ -87,15 +88,15 @@ function UserRow({ ...props }) {
                     </>
                 ) : (
                     <Stack alignItems="center">
-                        <Skeleton variant="text" width={100} />
-                        <Skeleton variant="text" width={100} />
+                        <Skeleton variant="text" width={100}/>
+                        <Skeleton variant="text" width={100}/>
                     </Stack>
                 )}
             </TableCell>
             <TableCell align="center">
                 {!row?.isProfessional && <Autocomplete
                     size={"small"}
-                    popupIcon={<KeyboardArrowDownIcon />}
+                    popupIcon={<KeyboardArrowDownIcon/>}
                     className="role-select"
                     value={profiles.find((profile: any) => profile.uuid === row?.profile?.uuid) ?? null}
                     inputValue={row?.profile?.name ?? ""}
@@ -117,28 +118,28 @@ function UserRow({ ...props }) {
                     options={profiles}
                     renderOption={(props, option) => (
                         <ListItem {...props}>
-                            <ListItemText primary={option?.name} />
+                            <ListItemText primary={option?.name}/>
                         </ListItem>
                     )}
                     renderInput={params =>
                         <TextField
                             {...params}
                             color={"info"}
-                            sx={{ paddingLeft: 0 }}
+                            sx={{paddingLeft: 0}}
                             placeholder={t("profile-placeholder")}
                             InputProps={{
                                 ...params.InputProps,
                                 endAdornment: (
                                     <React.Fragment>
                                         {loading ?
-                                            <CircularProgress color="inherit" size={20} /> : null}
+                                            <CircularProgress color="inherit" size={20}/> : null}
                                         {params.InputProps.endAdornment}
                                     </React.Fragment>
                                 ),
 
                             }}
                             variant="outlined"
-                            fullWidth />}
+                            fullWidth/>}
                 />}
             </TableCell>
             <TableCell align="center">
@@ -151,16 +152,16 @@ function UserRow({ ...props }) {
                     }}
                     checked={hasDocPermission}
                 /> : (
-                    <Skeleton width={50} height={40} sx={{ m: "auto" }} />
+                    <Skeleton width={50} height={40} sx={{m: "auto"}}/>
                 )}
             </TableCell>
             <TableCell align="center">
                 <Stack direction='row' alignItems='center' spacing={.5}>
-                    <IconUrl path="ic-agenda-jour" />
+                    <IconUrl path="ic-agenda-jour"/>
                     <Typography variant="body1" fontSize={13} fontWeight={700} color="text.primary">
                         10/10/2022
                     </Typography>
-                    <IconUrl path="ic-time" />
+                    <IconUrl path="ic-time"/>
                     <Typography variant="body1" fontWeight={700} fontSize={13} color="text.primary">
                         09:30
                     </Typography>
@@ -168,7 +169,7 @@ function UserRow({ ...props }) {
             </TableCell>
             <TableCell align="right">
                 {row ? (
-                    <Box display="flex" sx={{ float: "right" }} alignItems="center">
+                    <Box display="flex" sx={{float: "right"}} alignItems="center">
                         {row?.ssoId === currentUser && <IconButton
 
                             size="small"
@@ -176,26 +177,24 @@ function UserRow({ ...props }) {
                             className="btn-edit"
                             onClick={() => {
                                 dispatch(editUser(row));
-                                router.push(`${router.pathname}/${row.ssoId}`, `${router.pathname}/${row.ssoId}`, { locale: router.locale });
+                                router.push(`${router.pathname}/${row.ssoId}`, `${router.pathname}/${row.ssoId}`, {locale: router.locale});
                             }}>
-                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient" />
+                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                         </IconButton>}
-                        {!row.isProfessional && <IconButton
-                            className={"delete-icon"}
-
-                            size="small"
-
-
-                            onClick={() => editMotif(row)}
-                            sx={{
-                                mr: { md: 1 },
-                                '& .react-svg svg': {
-                                    width: 20,
-                                    height: 20
-                                }
-                            }}>
-                            <IconUrl color={theme.palette.text.secondary} path="ic-trash" />
-                        </IconButton>}
+                        {!row.isProfessional &&
+                            <IconButton
+                                className={"delete-icon"}
+                                size="small"
+                                onClick={() => editMotif(row)}
+                                sx={{
+                                    mr: {md: 1},
+                                    '& .react-svg svg': {
+                                        width: 20,
+                                        height: 20
+                                    }
+                                }}>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
+                            </IconButton>}
                     </Box>
                 ) : (
                     <Stack
@@ -203,8 +202,8 @@ function UserRow({ ...props }) {
                         spacing={1}
                         alignItems="center"
                         justifyContent="flex-end">
-                        <Skeleton variant="text" width={50} />
-                        <Skeleton variant="text" width={50} />
+                        <Skeleton variant="text" width={50}/>
+                        <Skeleton variant="text" width={50}/>
                     </Stack>
                 )}
             </TableCell>

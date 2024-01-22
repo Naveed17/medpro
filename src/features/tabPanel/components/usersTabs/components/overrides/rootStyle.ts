@@ -42,7 +42,7 @@ const RootSyled = styled(Grid)(({ theme }) => ({
         ".MuiListItemSecondaryAction-root":{
             transform:"none",
             top:10,
-            
+
         }
     },
 }));

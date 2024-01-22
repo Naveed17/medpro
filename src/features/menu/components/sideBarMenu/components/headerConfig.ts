@@ -17,7 +17,7 @@ export const siteHeader = {
         },
         {
             icon: "ic-salle-sidenav",
-            name: "room",
+            name: "waiting-room",
             href: '/dashboard/waiting-room',
             badge: 0,
             enabled: true
@@ -30,13 +30,13 @@ export const siteHeader = {
         },
         {
             icon: "ic-payment",
-            name: "payment",
+            name: "cashbox",
             href: '/dashboard/payment',
             enabled: true
         },
         {
             icon: "ic-docs",
-            name: "docs",
+            name: "documents",
             href: '/dashboard/documents',
             enabled: process.env.NODE_ENV === 'development'
         },
