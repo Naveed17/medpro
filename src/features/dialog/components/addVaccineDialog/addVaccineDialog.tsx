@@ -13,7 +13,7 @@ function AddVaccineDialog({...props}) {
             number: "",
             date: new Date(),
         },
-        onSubmit: async (values) => {
+        onSubmit: () => {
         },
     });
     const {values, getFieldProps, handleSubmit, setFieldValue} = formik;

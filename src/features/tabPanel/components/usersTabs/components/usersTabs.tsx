@@ -252,7 +252,7 @@ function UsersTabs({...props}) {
                         </Stack>
                         <Divider sx={{mt: 2}}/>
                         <List sx={{pb: 0}}>
-                            {Object.entries(values?.roles)?.map((role: any, indexRole: number) => (
+                            {Object.entries(values?.roles)?.map((role: any) => (
                                 <ListItem key={role[0]}
                                           className={`motif-list ${openCollapseFeature === role[0] ? "selected" : ""}`}
                                           onClick={() => {
