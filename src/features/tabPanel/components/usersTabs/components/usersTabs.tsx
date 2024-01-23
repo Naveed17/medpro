@@ -13,8 +13,7 @@ import {
     Divider,
     Collapse,
     Box,
-    FormControlLabel,
-    Checkbox
+    FormControlLabel
 } from '@mui/material';
 import React, {useState} from 'react'
 import MoreVert from "@mui/icons-material/MoreVert";
@@ -38,6 +37,7 @@ import {startCase} from "lodash";
 import {LoadingButton} from "@mui/lab";
 import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
+import {TreeCheckbox} from "@features/treeViewCheckbox";
 
 function UsersTabs({...props}) {
     const {t, profiles, handleContextMenu} = props
@@ -72,7 +72,10 @@ function UsersTabs({...props}) {
                         checked: false
                     },
                     permissions: []
-                })) : [feature]
+                })) : [{
+                    ...feature,
+                    permissions: []
+                }]
             });
         });
         return featuresInit
@@ -143,7 +146,7 @@ function UsersTabs({...props}) {
             }
         });
 
-        form.append("permissions", JSON.stringify(features));
+        form.append("features", JSON.stringify(features));
         triggerProfileUpdate({
             method: selectedProfile ? "PUT" : "POST",
             url: `${urlMedicalEntitySuffix}/profile/${selectedProfile ? `${selectedProfile.uuid}/` : ""}${router.locale}`,
@@ -158,6 +161,24 @@ function UsersTabs({...props}) {
         });
     }
 
+    const HandleFeatureCollapse = (slug: string, roles: any) => {
+        if (openCollapseFeature !== slug) {
+            featurePermissionsTrigger({
+                method: "GET",
+                url: `${urlMedicalEntitySuffix}/permissions/${router.locale}?feature=${slug}`
+            }, {
+                onSuccess: (result) => {
+                    const permissions = (result?.data as HttpResponse)?.data;
+                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, permissions.map((permission: PermissionModel, index: number) => ({
+                        ...permission,
+                        checked: roles[idx].permissions?.at(index)?.checked ?? false
+                    }))));
+                }
+            });
+        }
+        setOpenCollapseFeature(openCollapseFeature === slug ? "" : slug);
+    }
+    console.log(values.roles)
     return (
         <RootSyled container spacing={2}>
             <Grid item xs={12} md={3}>
@@ -255,25 +276,7 @@ function UsersTabs({...props}) {
                             {Object.entries(values?.roles)?.map((role: any) => (
                                 <ListItem key={role[0]}
                                           className={`motif-list ${openCollapseFeature === role[0] ? "selected" : ""}`}
-                                          onClick={() => {
-                                              const slug = role[0];
-                                              const roles = role[1];
-                                              if (openCollapseFeature !== slug) {
-                                                  featurePermissionsTrigger({
-                                                      method: "GET",
-                                                      url: `${urlMedicalEntitySuffix}/permissions/${router.locale}?feature=${slug}`
-                                                  }, {
-                                                      onSuccess: (result) => {
-                                                          const permissions = (result?.data as HttpResponse)?.data;
-                                                          values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, permissions.map((permission: PermissionModel, index: number) => ({
-                                                              ...permission,
-                                                              checked: roles[idx].permissions?.at(index)?.checked ?? false
-                                                          }))));
-                                                      }
-                                                  });
-                                              }
-                                              setOpenCollapseFeature(openCollapseFeature === slug ? "" : slug);
-                                          }}
+                                          onClick={() => HandleFeatureCollapse(role[0], role[1])}
                                           secondaryAction={
                                               <>
                                                   {openCollapseFeature === role[0] ? <ExpandLess/> : <ExpandMore/>}
@@ -300,14 +303,10 @@ function UsersTabs({...props}) {
                                                         onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
                                                         label={featurePermission?.featureEntity?.name}/>}
                                                 <Box mt={2} className="permissions-wrapper">
-                                                    {featurePermission?.permissions?.map((permission: PermissionModel, idx: number) => (
-                                                        <FormControlLabel
-                                                            key={idx}
-                                                            control={<Checkbox
-                                                                checked={permission?.checked as any ?? false}/>}
-                                                            onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].permissions[${idx}].checked`, event.target.checked)}
-                                                            label={permission.name}/>
-                                                    ))}
+                                                    <TreeCheckbox
+                                                        data={featurePermission?.permissions ?? []}
+                                                        onNodeCheck={(uuid: string, value: boolean) => setFieldValue(`roles[${role[0]}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].checked`, value)}
+                                                        t={t}/>
                                                 </Box>
                                             </Box>)}
                                     </Collapse>
