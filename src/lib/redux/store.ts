@@ -25,7 +25,8 @@ import {selectCheckboxReducer} from "@features/selectCheckboxCard"
 import {CashboxReducer} from "@features/leftActionBar/components/cashbox";
 import {dialogOpeningHoursReducer} from "@features/dialog/components/openingHoursDialog";
 import {absenceDrawerReducer} from "@features/drawer/components/absenceDrawer/reducer";
-import {minMaxWindowToggleReducer} from '@features/buttons'
+import {minMaxWindowToggleReducer} from '@features/buttons';
+import {StepperReducer} from "@features/stepper";
 export const store = configureStore({
     reducer: {
         theme: ConfigReducer,
@@ -58,6 +59,8 @@ export const store = configureStore({
         openingHours: dialogOpeningHoursReducer,
         absence: absenceDrawerReducer,
         minMaxWindow: minMaxWindowToggleReducer,
+        stepper: StepperReducer,
+
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware(
         {
