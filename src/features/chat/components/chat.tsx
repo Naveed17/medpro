@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {
     Avatar,
+    Button,
     Fab,
     Grid,
     InputAdornment,
@@ -19,7 +20,20 @@ import {useTranslation} from "next-i18next";
 import IconUrl from '@themes/urlIcon';
 import moment from "moment/moment";
 import {Types} from "ably";
+import Fade from "@mui/material/Fade";
+import Popper, {PopperPlacementType} from '@mui/material/Popper';
+import {debounce} from "lodash";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
+import {useMedicalEntitySuffix} from "@lib/hooks";
 import PresenceMessage = Types.PresenceMessage;
+import {Editor} from "@tinymce/tinymce-react";
+
+interface IPatient {
+    uuid: string,
+    firstName: string,
+    lastName: string
+}
 
 const Chat = ({...props}) => {
 
@@ -38,9 +52,18 @@ const Chat = ({...props}) => {
 
     const theme = useTheme();
     const {t} = useTranslation("common", {keyPrefix: "chat"});
+    const router = useRouter();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+
+    const {trigger: triggerSearchPatient} = useRequestQueryMutation("/patients/search");
 
     const [message, setMessage] = useState("");
+    const [hiddenMessage, setHiddenMessage] = useState("");
     const [lastMessages, setLastMessages] = useState<any>(null);
+    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+    const [open, setOpen] = useState(false);
+    const [placement, setPlacement] = useState<PopperPlacementType>();
+    const [patients, setPatients] = useState<IPatient[]>([]);
 
     const refList = document.getElementById("chat-list")
 
@@ -53,7 +76,7 @@ const Chat = ({...props}) => {
     }
 
     const getUserName = (key: string) => {
-        const _user = users.find((user:UserModel) => user.uuid === key)
+        const _user = users.find((user: UserModel) => user.uuid === key)
         return `${_user.FirstName} ${_user.lastName}`
     }
 
@@ -61,28 +84,54 @@ const Chat = ({...props}) => {
         let _res = "";
         if (lastMessages) {
             const _msgs: Message[] = lastMessages[key]
-            if(_msgs){
+            if (_msgs) {
                 if (data === "data")
-                _res = `${_msgs[_msgs.length - 1].from === medicalEntityHasUser ? "Vous: " : ""}  ${_msgs[_msgs.length - 1].data}`
-            if (data === "date")
-                _res = `${moment.duration(moment().diff(_msgs[_msgs.length - 1].date)).humanize()}`
+                    _res = `${_msgs[_msgs.length - 1].from === medicalEntityHasUser ? "Vous: " : ""}  ${_msgs[_msgs.length - 1].data}`
+                if (data === "date")
+                    _res = `${moment.duration(moment().diff(_msgs[_msgs.length - 1].date)).humanize()}`
             } else _res = "-"
         }
 
         return _res
     }
 
-    const hasMessages =(uuid:string) =>{
+    const hasMessages = (uuid: string) => {
         return lastMessages && Object.keys(lastMessages).find(lm => lm === uuid)
     }
 
-    const comparerParDate = (a:string, b:string) => {
+    const comparerParDate = (a: string, b: string) => {
         if (lastMessages) {
-            const dateA = lastMessages[a][lastMessages[a].length -1].date
-            const dateB = lastMessages[b][lastMessages[b].length -1].date
+            const dateA = lastMessages[a][lastMessages[a].length - 1].date
+            const dateB = lastMessages[b][lastMessages[b].length - 1].date
             return moment(dateB).diff(moment(dateA))
         }
         return 0
+    };
+
+    const handleOnChange = (text: string) => {
+        console.log(text);
+        triggerSearchPatient({
+            method: "GET",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${router.locale}?name=${text}&withPagination=false`
+        }, {
+            onSuccess: (res) => {
+                let _patients: IPatient[] = [];
+                res.data.data.map((p: PatientModel) => _patients.push({
+                    uuid: p.uuid,
+                    firstName: p.firstName,
+                    lastName: p.lastName
+                }));
+                setPatients(_patients)
+            }
+        });
+    }
+
+    const debouncedOnChange = debounce(handleOnChange, 500);
+
+    const handleClick = (newPlacement: PopperPlacementType) => (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+        setOpen((prev) => placement !== newPlacement || !prev);
+        setPlacement(newPlacement);
     };
 
     useEffect(() => {
@@ -143,15 +192,14 @@ const Chat = ({...props}) => {
                             </Stack>
                         ))}
 
-                        <div style={{borderBottom:"1px solid #DDD"}}></div>
-                        <Typography fontSize={12}>Messages</Typography>
-                        {lastMessages && Object.keys(lastMessages).sort((a,b) => comparerParDate(a,b)).map((user: string) => (
+                        <div style={{borderBottom: "1px solid #DDD"}}></div>
+                        {lastMessages && Object.keys(lastMessages).sort((a, b) => comparerParDate(a, b)).map((user: string) => (
                             <Stack
                                 className={`user-item ${user === selectedUser?.uuid ? "selected" : ""}`}
                                 sx={{cursor: 'pointer'}}
                                 spacing={.5} key={user}
                                 onClick={() => {
-                                    setSelectedUser(users.find((_user:UserModel) => _user.uuid === user))
+                                    setSelectedUser(users.find((_user: UserModel) => _user.uuid === user))
                                     const localMsgs = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
                                     if (localMsgs) {
                                         const _msgs = Object.keys(localMsgs).find(key => key === user)
@@ -230,13 +278,87 @@ const Chat = ({...props}) => {
                                         </ListItem>
                                     ))}
                                 </List>
-                                <TextField
+
+                                <div style={{position:"relative"}}>
+                                    <Editor
+                                        value={message}
+                                        tinymceScriptSrc={'/tinymce/tinymce.min.js'}
+                                        onEditorChange={(event) => {
+                                            setMessage(event)
+                                            setHiddenMessage(event)
+                                        }}
+
+                                        init={{
+                                            branding: false,
+                                            statusbar: false,
+                                            menubar: false,
+                                            height: 120,
+                                            toolbar: false,
+                                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                        }}/>
+                                        <Popper
+                                            // Note: The following zIndex style is specifically for documentation purposes and may not be necessary in your application.
+                                            sx={{zIndex: 1200,}}
+                                            open={open}
+                                            anchorEl={anchorEl}
+                                            placement={placement}
+                                            transition>
+                                            {({TransitionProps}) => (
+                                                <Fade {...TransitionProps} timeout={350}>
+                                                    <Paper style={{padding: 10}}>
+                                                        <Stack spacing={1}>
+                                                            <Typography fontSize={11}
+                                                                        color={"grey"}>Patient</Typography>
+                                                            <TextField placeholder={"Aaa"} onChange={(ev) => {
+                                                                debouncedOnChange(ev.target.value)
+                                                            }}/>
+                                                            {patients.map(patient => (
+                                                                <Typography onClick={() => {
+                                                                    setHiddenMessage((prev) => `${prev} ${JSON.stringify(patient)}`)
+                                                                    setMessage((prev) => `${prev} <span>@${patient.firstName} ${patient.firstName}</span>`)
+                                                                    setOpen(false)
+                                                                }}
+                                                                            key={patient.uuid}>{`${patient.firstName} ${patient.lastName}`}</Typography>))}
+                                                        </Stack>
+                                                    </Paper>
+                                                </Fade>
+                                            )}
+                                        </Popper>
+                                        <Button size={"small"}
+                                                style={{position:"absolute",bottom:10, left:10,fontStyle:"italic"}}
+                                                color={"black"} onClick={handleClick('top')}>@patient</Button>
+
+                                        <Fab
+                                            disabled={!message || !presenceData.find((data: PresenceMessage) => data.clientId === selectedUser.uuid)}
+                                            onClick={() => {
+                                                saveInbox({
+                                                    from: medicalEntityHasUser,
+                                                    to: selectedUser.uuid,
+                                                    data: hiddenMessage,
+                                                    date: new Date()
+                                                }, selectedUser.uuid)
+                                                channel.publish(selectedUser.uuid, hiddenMessage)
+                                                setMessage("")
+                                                setHiddenMessage("")
+                                            }
+                                            }
+                                            size={"small"}
+                                            disableRipple
+                                            style={{position:"absolute",bottom:10, right:10}}
+                                            variant='extended' className='send-msg'>
+                                            <IconUrl path="ic-send-up"/>
+                                            <span>{t("send")}</span>
+                                        </Fab>
+                                </div>
+
+                                {/*<TextField
                                     onChange={(ev) => {
                                         setMessage(ev.target.value)
                                     }}
                                     InputProps={{
                                         startAdornment: <InputAdornment position="start">
-                                            {/* <Stack direction='row' alignItems='center' spacing={.3}>
+                                            <Stack direction='row' alignItems='center' spacing={.3}>
+
                                                 <IconButton component="label" size='small'>
                                                     <IconUrl path="ic-upload-chat" />
                                                     <InputStyled
@@ -251,35 +373,19 @@ const Chat = ({...props}) => {
                                                         type="file"
                                                     />
                                                 </IconButton>
-                                            </Stack>*/}
+
+                                            </Stack>
                                         </InputAdornment>,
                                         endAdornment:
                                             <InputAdornment position="end">
-                                                <Fab
-                                                    disabled={!message || !presenceData.find((data: PresenceMessage) => data.clientId === selectedUser.uuid)}
-                                                    onClick={() => {
-                                                        saveInbox({
-                                                            from: medicalEntityHasUser,
-                                                            to: selectedUser.uuid,
-                                                            data: message,
-                                                            date: new Date()
-                                                        }, selectedUser.uuid)
-                                                        channel.publish(selectedUser.uuid, message)
-                                                        setMessage("")
-                                                    }
-                                                    }
-                                                    disableRipple
-                                                    variant='extended' className='send-msg'>
-                                                    <IconUrl path="ic-send-up"/>
-                                                    <span>{t("send")}</span>
-                                                </Fab>
+
                                             </InputAdornment>
                                     }}
                                     multiline
                                     rows={4}
                                     fullWidth
                                     placeholder={t("msg_placeholder")}
-                                    value={message}/>
+                                    value={message}/>*/}
                             </> : <div className='no-chat'>
                                 <Stack>
                                     <div style={{justifyContent: "center", display: "flex"}}>
@@ -291,7 +397,6 @@ const Chat = ({...props}) => {
                                                 color={theme.palette.grey["400"]}>{t('chooseUser1')}</Typography>
                                     <Typography fontSize={12} textAlign={"center"}
                                                 color={theme.palette.grey["400"]}>{t('chooseUser2')}</Typography>
-
                                 </Stack>
                             </div>
                         }
