@@ -118,8 +118,6 @@ function Users() {
     const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
     const { enqueueSnackbar } = useSnackbar();
     const { trigger: triggerNotificationPush } = useSendNotification();
-    const dispatch = useAppDispatch();
-
     const { t, ready } = useTranslation("settings", { keyPrefix: "users.config" });
     const { direction } = useAppSelector(configSelector);
     const { medicalEntityHasUser } = useAppSelector(dashLayoutSelector);
@@ -402,8 +400,15 @@ function Users() {
                     </MenuItem>
                 ))}
             </ActionMenu>
-            <Dialog open={newUserDialog} onClose={handleCloseNewUserDialog}>
-                <NewUserDialog />
+            <Dialog
+                maxWidth="md"
+                PaperProps={{
+                    sx: {
+                        width: '100%'
+                    }
+                }}
+                open={newUserDialog} onClose={handleCloseNewUserDialog}>
+                <NewUserDialog t={t} handleClose={handleCloseNewUserDialog} />
             </Dialog>
 
 
