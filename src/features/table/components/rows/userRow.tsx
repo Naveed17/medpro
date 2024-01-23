@@ -8,18 +8,18 @@ import {
     Autocomplete,
     ListItem,
     ListItemText,
-    TextField, CircularProgress
+    TextField, CircularProgress, IconButton
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useRouter} from "next/router";
-import Button from "@mui/material/Button";
 import {editUser, TableRowStyled} from "@features/table";
-import Switch from "@mui/material/Switch";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {uniqueId} from "lodash";
 import React, {useEffect, useState} from "react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
+import {CustomSwitch} from "@features/buttons";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 function UserRow({...props}) {
     const dispatch = useAppDispatch();
@@ -57,13 +57,12 @@ function UserRow({...props}) {
             });
         })();
     }, [loadingReq]); // eslint-disable-line react-hooks/exhaustive-deps
-
     return (
-        <TableRowStyled key={uniqueId}>
+        <TableRowStyled key={uniqueId} className="user-row">
             <TableCell>
                 {row ? (
                     <>
-                        <Typography variant="body1" color="text.primary">
+                        <Typography variant="body1" fontWeight={700} color="text.primary">
                             {row.FirstName} {row.lastName}
                         </Typography>
                         {row.email}
@@ -81,6 +80,8 @@ function UserRow({...props}) {
                         <Typography
                             textAlign={"center"}
                             variant="body1"
+                            fontSize={13}
+                            fontWeight={700}
                             color="text.primary">
                             {row.isProfessional ? t("table.role_professional") : t("table.secretary")}
                         </Typography>
@@ -95,6 +96,8 @@ function UserRow({...props}) {
             <TableCell align="center">
                 {!row?.isProfessional && <Autocomplete
                     size={"small"}
+                    popupIcon={<KeyboardArrowDownIcon/>}
+                    className="role-select"
                     value={profiles.find((profile: any) => profile.uuid === row?.profile?.uuid) ?? null}
                     inputValue={row?.profile?.name ?? ""}
                     disableClearable
@@ -133,13 +136,15 @@ function UserRow({...props}) {
                                         {params.InputProps.endAdornment}
                                     </React.Fragment>
                                 ),
+
                             }}
                             variant="outlined"
                             fullWidth/>}
                 />}
             </TableCell>
             <TableCell align="center">
-                {row ? !row?.isProfessional && <Switch
+                {row ? !row?.isProfessional && <CustomSwitch
+                    className="custom-switch"
                     name="active"
                     onChange={(e) => {
                         setHasDocPermission(e.target.checked);
@@ -150,36 +155,46 @@ function UserRow({...props}) {
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>
                 )}
             </TableCell>
+            <TableCell align="center">
+                <Stack direction='row' alignItems='center' spacing={.5}>
+                    <IconUrl path="ic-agenda-jour"/>
+                    <Typography variant="body1" fontSize={13} fontWeight={700} color="text.primary">
+                        10/10/2022
+                    </Typography>
+                    <IconUrl path="ic-time"/>
+                    <Typography variant="body1" fontWeight={700} fontSize={13} color="text.primary">
+                        09:30
+                    </Typography>
+                </Stack>
+            </TableCell>
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        {row?.ssoId === currentUser && <Button
-                            variant="text"
+                        {row?.ssoId === currentUser && <IconButton
+
                             size="small"
                             color="primary"
-                            startIcon={<IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>}
+                            className="btn-edit"
                             onClick={() => {
                                 dispatch(editUser(row));
                                 router.push(`${router.pathname}/${row.ssoId}`, `${router.pathname}/${row.ssoId}`, {locale: router.locale});
                             }}>
-                            {t("table.update")}
-                        </Button>}
-                        {!row.isProfessional && <Button
-                            className={"delete-icon"}
-                            variant="text"
-                            size="small"
-                            color="error"
-                            startIcon={<IconUrl color={theme.palette.error.main} path="ic-trash"/>}
-                            onClick={() => editMotif(row)}
-                            sx={{
-                                mr: {md: 1},
-                                '& .react-svg svg': {
-                                    width: 20,
-                                    height: 20
-                                }
-                            }}>
-                            {t("table.remove")}
-                        </Button>}
+                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
+                        </IconButton>}
+                        {!row.isProfessional &&
+                            <IconButton
+                                className={"delete-icon"}
+                                size="small"
+                                onClick={() => editMotif(row)}
+                                sx={{
+                                    mr: {md: 1},
+                                    '& .react-svg svg': {
+                                        width: 20,
+                                        height: 20
+                                    }
+                                }}>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
+                            </IconButton>}
                     </Box>
                 ) : (
                     <Stack

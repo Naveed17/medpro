@@ -1,36 +1,36 @@
-import React, {useState} from "react";
-import {Form, FormikProvider, useFormik} from "formik";
+import React, { useState } from "react";
+import { Form, FormikProvider, useFormik } from "formik";
 import * as Yup from "yup";
 import RootStyled from "./overrides/rootStyle";
-import {Box, Button, FormControlLabel, Stack, Switch, TextField, Typography} from "@mui/material";
+import { Box, Button, FormControlLabel, Stack, Switch, TextField, Typography } from "@mui/material";
 import IconClose from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
-import {useRequestQueryMutation} from "@lib/axios";
-import {LoadingButton} from "@mui/lab";
-import {useTranslation} from "next-i18next";
-import {useSnackbar} from "notistack";
-import {useCashBox, usePermissions} from "@lib/hooks/rest";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {FeaturePermissionsCard} from "@features/card";
-import {useRouter} from "next/router";
-import {useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector} from "@features/calendar";
+import { useRequestQueryMutation } from "@lib/axios";
+import { LoadingButton } from "@mui/lab";
+import { useTranslation } from "next-i18next";
+import { useSnackbar } from "notistack";
+import { useCashBox, usePermissions } from "@lib/hooks/rest";
+import { useInvalidateQueries, useMedicalEntitySuffix } from "@lib/hooks";
+import { FeaturePermissionsCard } from "@features/card";
+import { useRouter } from "next/router";
+import { useAppSelector } from "@lib/redux/hooks";
+import { agendaSelector } from "@features/calendar";
 
-function AddNewRoleDialog({...props}) {
-    const {data: {selected, handleClose}} = props;
-    const {enqueueSnackbar} = useSnackbar();
-    const {permissions: features} = usePermissions();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+function AddNewRoleDialog({ ...props }) {
+    const { data: { selected, handleClose } } = props;
+    const { enqueueSnackbar } = useSnackbar();
+    const { permissions: features } = usePermissions();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
     const router = useRouter();
-    const {cashboxes} = useCashBox();
-    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const { cashboxes } = useCashBox();
+    const { trigger: invalidateQueries } = useInvalidateQueries();
 
-    const {t} = useTranslation(["settings", "common"]);
-    const {agendas} = useAppSelector(agendaSelector);
+    const { t } = useTranslation(["settings", "common"]);
+    const { agendas } = useAppSelector(agendaSelector);
 
     const [loading, setLoading] = useState(false);
 
-    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
+    const { trigger: triggerProfileUpdate } = useRequestQueryMutation("/profile/update");
 
     const RoleSchema = Yup.object().shape({
         role_name: Yup.string().min(3, t("role-error")).required(),
@@ -96,7 +96,7 @@ function AddNewRoleDialog({...props}) {
 
             const features: any = {};
             values.roles.map((role: any) => {
-                features[role?.slug] = [{object: role?.feature?.uuid, featureProfile: role?.profile?.uuid}]
+                features[role?.slug] = [{ object: role?.feature?.uuid, featureProfile: role?.profile?.uuid }]
             });
 
             form.append("features", JSON.stringify(features));
@@ -107,7 +107,7 @@ function AddNewRoleDialog({...props}) {
                 data: form
             }, {
                 onSuccess: () => {
-                    enqueueSnackbar(t("users.alert.updated-role"), {variant: "success"})
+                    enqueueSnackbar(t("users.alert.updated-role"), { variant: "success" })
                     invalidateQueries([`${urlMedicalEntitySuffix}/profile/${router.locale}`]);
                     handleClose();
                     setLoading(false)
@@ -117,8 +117,7 @@ function AddNewRoleDialog({...props}) {
         },
         validationSchema: RoleSchema,
     });
-
-    const {getFieldProps, values, setFieldValue, touched, errors} = formik;
+    const { getFieldProps, values, setFieldValue, touched, errors } = formik;
 
     return (
         <>
@@ -144,11 +143,11 @@ function AddNewRoleDialog({...props}) {
                                 rows={2}
                             />
                             <FormControlLabel
-                                control={<Switch {...getFieldProps("is_standard")} checked={values.is_standard}/>}
-                                label={t("users.dialog.is_standard")}/>
+                                control={<Switch {...getFieldProps("is_standard")} checked={values.is_standard} />}
+                                label={t("users.dialog.is_standard")} />
                         </Stack>
                         <Box className="permissions-wrapper">
-                            <FeaturePermissionsCard {...{t, features, values, setFieldValue}}/>
+                            <FeaturePermissionsCard {...{ t, features, values, setFieldValue }} />
                         </Box>
                     </RootStyled>
 
@@ -165,16 +164,16 @@ function AddNewRoleDialog({...props}) {
                         <Button
                             onClick={() => handleClose()}
                             variant="text-black"
-                            startIcon={<IconClose/>}>
+                            startIcon={<IconClose />}>
                             {t("users.dialog.cancel")}
                         </Button>
                         <LoadingButton
-                            {...{loading}}
+                            {...{ loading }}
                             disabled={values.role_name?.length === 0 || Object.keys(errors).length > 0}
                             loadingPosition={"start"}
                             type="submit"
                             variant="contained"
-                            startIcon={<IconUrl path="iconfinder_save"/>}>
+                            startIcon={<IconUrl path="iconfinder_save" />}>
                             {t("users.dialog.save")}
                         </LoadingButton>
                     </Stack>
