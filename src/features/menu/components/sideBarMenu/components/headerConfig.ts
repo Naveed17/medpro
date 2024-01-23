@@ -25,7 +25,7 @@ export const siteHeader = {
         {
             icon: "ic-user2",
             name: "patient",
-            href: '/dashboard/patient',
+            href: '/dashboard/patients',
             enabled: true
         },
         {

@@ -1,33 +1,39 @@
-import {FormControlLabel, Checkbox, IconButton, Collapse, List, Box} from '@mui/material';
+import {FormControlLabel, Checkbox, IconButton, Collapse, List, Stack} from '@mui/material';
 import IconUrl from '@themes/urlIcon';
 import React from 'react'
 import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
-import {capitalizeFirst} from "@lib/hooks";
+
 
 function TreeViewCheckbox({...props}) {
-    const {data, disabled, onNodeCheck} = props;
+    const {data, disabled, onNodeCheck, onCollapseIn} = props;
 
     const renderNode = (node: any) => {
         const hasChildren = node.children && node.children.length > 0;
 
         const handleNodeCheck = () => {
-            onNodeCheck(node.uuid, !node.checked);
+            onNodeCheck(node.uuid, !node.checked, hasChildren, node?.slug?.split("__")[1]);
+        }
+
+        const handleCollapseIn = () => {
+            onCollapseIn(node.uuid, !node.collapseIn);
         }
 
         return (
             <React.Fragment key={node.uuid}>
-                <Box>
+                <Stack direction={"row"} sx={{cursor: "pointer"}} alignItems={"center"} onClick={handleCollapseIn}>
                     <FormControlLabel
                         {
                             ...(hasChildren && {
                                 className: hasChildren ? "bold-label" : "simple-label",
                             })
                         }
-
                         control={
                             <Checkbox
                                 {...{disabled}}
-                                onChange={handleNodeCheck}
+                                onChange={event => {
+                                    event.stopPropagation();
+                                    handleNodeCheck()
+                                }}
                                 checked={hasChildren ? node.children.every((child: any) => child.checked) : node.checked}
                                 {...(hasChildren && {
                                     icon: node.children.some((child: any) => child.checked) ?
@@ -36,34 +42,33 @@ function TreeViewCheckbox({...props}) {
                                 })}
                             />
                         }
-                        label={capitalizeFirst(node.name)}
+                        label={node.name}
                     />
 
                     <IconButton
                         sx={{
                             display: hasChildren ? "block" : "none",
                             ".react-svg": {
-                                transform: node.checked ? "scale(-1)" : "none",
+                                transform: node.collapseIn ? "scale(-1)" : "none",
                             },
                         }}
                         disableRipple
                         className="collapse-icon">
                         <IconUrl path="setting/ic-down-arrow" width={12} height={12}/>
                     </IconButton>
-                </Box>
+                </Stack>
                 {hasChildren &&
-                    <Collapse in={node.children.some((child: any) => child.checked)} className="inner-collapse">
+                    <Collapse in={node.collapseIn} className="inner-collapse">
                         <List className="inside-list">
                             {node.children.map((childNode: any) => renderNode(childNode))}
                         </List>
                     </Collapse>
                 }
             </React.Fragment>
-
         )
     }
 
     return data.map((node: any) => renderNode(node))
 }
 
-export default TreeViewCheckbox
+export default TreeViewCheckbox;

@@ -151,7 +151,7 @@ const headCells: readonly HeadCell[] = [
     },
 ];
 
-function Patient() {
+function Patients() {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const theme = useTheme();
@@ -1050,10 +1050,10 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     }
 }
 
-export default Patient;
+export default Patients;
 
-Patient.auth = true;
+Patients.auth = true;
 
-Patient.getLayout = function getLayout(page: ReactElement) {
+Patients.getLayout = function getLayout(page: ReactElement) {
     return <DashLayout>{page}</DashLayout>;
 };
