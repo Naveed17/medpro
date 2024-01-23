@@ -5,8 +5,8 @@ import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox
 import {capitalizeFirst} from "@lib/hooks";
 
 function TreeViewCheckbox({...props}) {
-    const {data, onNodeCheck} = props;
-    console.log("data", data)
+    const {data, disabled, onNodeCheck} = props;
+
     const renderNode = (node: any) => {
         const hasChildren = node.children && node.children.length > 0;
 
@@ -26,6 +26,7 @@ function TreeViewCheckbox({...props}) {
 
                         control={
                             <Checkbox
+                                {...{disabled}}
                                 onChange={handleNodeCheck}
                                 checked={hasChildren ? node.children.every((child: any) => child.checked) : node.checked}
                                 {...(hasChildren && {

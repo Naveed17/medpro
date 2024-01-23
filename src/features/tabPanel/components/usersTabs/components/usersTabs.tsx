@@ -102,9 +102,13 @@ function UsersTabs({...props}) {
 
     const handleSelectedRole = (props: any) => {
         if (props?.features?.length > 0) {
+            setFieldValue("role_name", props?.name ?? "");
             props?.features?.forEach((data: any) => {
                 const slug = data?.feature?.slug;
                 values.roles[slug].map((role: any, idx: number) => {
+                    if (data[slug]) {
+                        setFieldValue(`roles[${slug}][${idx}].featureEntity.checked`, true);
+                    }
                     setFieldValue(`roles[${slug}][${idx}].permissions`, data?.profile?.permissions?.map((permission: PermissionModel) => ({
                         ...permission,
                         checked: true
@@ -136,13 +140,19 @@ function UsersTabs({...props}) {
 
         form.append("name", selectedProfile?.name ?? values.role_name);
         Object.entries(values.roles).map((role: any) => {
-            const hasPermissions = role[1].reduce((permissions: any[], feature: FeatureModel) => [...(permissions ?? []), ...(feature?.permissions?.filter(permission => permission?.checked) ?? [])], [])?.length > 0;
-            if (hasPermissions) {
-                features[role[0]] = role[1].map((feature: any) => ({
-                    object: feature?.featureEntity?.uuid,
-                    featureProfile: feature?.profile,
-                    permissions: feature?.permissions?.reduce((permissions: string[], permission: PermissionModel) => [...(permissions ?? []), ...(permission?.checked ? [permission.uuid] : [])], [])
-                }))
+            const hasFeaturePermissions = role[1].reduce((permissions: any[], feature: FeatureModel) => [...(permissions ?? []), ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? feature?.permissions?.filter(permission => permission?.checked) : []) : feature?.permissions?.filter(permission => permission?.checked)) ?? [])], [])?.length > 0;
+            if (hasFeaturePermissions) {
+                features[role[0]] = role[1].reduce((features: FeatureModel[], feature: FeatureModel) => {
+                    const hasPermissions = feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked && (feature?.permissions?.length ?? 0) > 0) : (feature?.permissions?.length ?? 0) > 0;
+                    return [
+                        ...(features ?? []),
+                        ...(hasPermissions ? [{
+                            object: feature?.featureEntity?.uuid,
+                            featureProfile: feature?.profile,
+                            permissions: feature?.permissions?.reduce((permissions: string[], permission: PermissionModel) => [...(permissions ?? []), ...(permission?.checked ? [permission.uuid] : [])], [])
+                        }] : [])
+                    ];
+                }, [])
             }
         });
 
@@ -156,6 +166,7 @@ function UsersTabs({...props}) {
                 enqueueSnackbar(t(selectedProfile ? "updated-role" : "created-role"), {variant: "success"});
                 invalidateQueries([`${urlMedicalEntitySuffix}/profile/${router.locale}`]);
                 setLoading(false);
+                resetFormData();
             },
             onSettled: () => setLoading(false)
         });
@@ -178,7 +189,7 @@ function UsersTabs({...props}) {
         }
         setOpenCollapseFeature(openCollapseFeature === slug ? "" : slug);
     }
-    console.log(values.roles)
+
     return (
         <RootSyled container spacing={2}>
             <Grid item xs={12} md={3}>
@@ -196,6 +207,7 @@ function UsersTabs({...props}) {
                                 onClick={() => {
                                     setSelectedProfile(profile);
                                     handleSelectedRole(profile);
+                                    setOpenCollapseFeature("");
                                 }}
                                 sx={{
                                     px: 1,
@@ -304,6 +316,7 @@ function UsersTabs({...props}) {
                                                         label={featurePermission?.featureEntity?.name}/>}
                                                 <Box mt={2} className="permissions-wrapper">
                                                     <TreeCheckbox
+                                                        disabled={featurePermission?.hasOwnProperty('featureEntity') ? !featurePermission?.featureEntity?.checked : false}
                                                         data={featurePermission?.permissions ?? []}
                                                         onNodeCheck={(uuid: string, value: boolean) => setFieldValue(`roles[${role[0]}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].checked`, value)}
                                                         t={t}/>
