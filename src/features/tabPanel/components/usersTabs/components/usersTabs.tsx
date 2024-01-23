@@ -209,7 +209,7 @@ function UsersTabs({...props}) {
     const handleTreeCheck = (uuid: string, value: boolean, hasChildren: boolean, group: string, featurePermission: any, role: any, index: number) => {
         console.log("onNodeCheck", uuid, value, hasChildren, group);
         let groupUuid;
-        let field = "";
+        let field: string;
         if (hasChildren) {
             groupUuid = featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid);
             field = `roles[${role[0]}][${index}].permissions[${groupUuid}].checked`
