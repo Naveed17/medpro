@@ -1759,6 +1759,11 @@ function ConsultationInProgress() {
                 <Dialog
                     action={info}
                     open={openDialog}
+                    PaperProps={{
+                        sx: {
+                            overflow:'hidden'
+                        }
+                    }}
                     data={{
                         appuuid: app_uuid,
                         patient,

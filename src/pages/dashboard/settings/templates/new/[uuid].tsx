@@ -488,7 +488,7 @@ function DocsConfig() {
                     </Box>
                 </Grid>
 
-                <Grid item xs={12} md={7}>
+                <Grid item xs={12} md={9}>
                     {loading && <LinearProgress/>}
 
                     <Box style={{height: "81vh", overflowX: "auto"}} pt={5} pb={5}>
@@ -501,7 +501,7 @@ function DocsConfig() {
                 </Grid>
 
 
-                <Grid item xs={12} md={2} padding={2} style={{background:"white"}}>
+{/*                <Grid item xs={12} md={2} padding={2} style={{background:"white"}}>
                     <Stack spacing={1}>
                         <Typography fontSize={16} fontWeight={"bold"}>Pages</Typography>
                         <Box style={{            backgroundColor: theme.palette.background.default,
@@ -524,7 +524,7 @@ function DocsConfig() {
                         </Box>
                     </Stack>
 
-                </Grid>
+                </Grid>*/}
 
 
                 {/* <Grid item xs={12} md={7}>

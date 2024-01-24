@@ -35,9 +35,9 @@ const TemplateStyled = styled(Card)(({theme}) => ({
             borderRadius: 6,
             position: "relative",
             display: "flex",
-            flexDirection: "column",
+            justifyContent: "center",
             alignItems: 'center',
-            minHeight: 168,
+            minHeight: 235,
             ".portraitA4": {
                 minHeight: 400,
                 [theme.breakpoints.down("md")]: {
@@ -47,7 +47,13 @@ const TemplateStyled = styled(Card)(({theme}) => ({
 
             },
             ".page":{
-              zoom: "20%"
+              zoom: "18%"
+            },
+            ".a4":{
+                zoom:"18%"
+            },
+            ".a5":{
+                zoom:"25%"
             },
             [theme.breakpoints.down("md")]: {
                 width: '100%',

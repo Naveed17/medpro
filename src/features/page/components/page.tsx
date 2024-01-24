@@ -16,6 +16,7 @@ function Page({...props}) {
     const [selectedElement, setSelectedElement] = useState("")
     const [blockDrag, setBlockDrag] = useState(false)
     const [backgroundImg, setBackgroundImg] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
 
     const getMarginTop = () => {
         let _margin = 0;
@@ -27,6 +28,10 @@ function Page({...props}) {
         }
         return -1 * _margin
     }
+
+    useEffect(()=>{
+       setTimeout(()=>{setLoading(false)},2000)
+    },[])
 
     useEffect(() => {
         if (selectedElement !== "") {
@@ -82,7 +87,7 @@ function Page({...props}) {
                     className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
                     {/*Header*/}
                     {
-                        data.header.show && <Resizable
+                        data.header.show && id == 0 &&  <Resizable
                             defaultSize={{
                                 width: `${data.header.width ? data.header.width + "px" : "100%"}`,
                                 height: "fit-content",
@@ -136,7 +141,7 @@ function Page({...props}) {
                         </Resizable>}
 
                     {/*Title*/}
-                    {data.title.show && <Resizable
+                    {data.title.show && id == 0 &&  <Resizable
                         defaultSize={{
                             width: `${data.title.width ? data.title.width + "px" : "100%"}`,
                             height: "fit-content",
@@ -192,7 +197,7 @@ function Page({...props}) {
                         </div>
                     </Resizable>}
                     {/*Date*/}
-                    {data.date.show && <Resizable
+                    {data.date.show && id == 0 &&  <Resizable
                         defaultSize={{
                             width: `${data.date.width ? data.date.width + "px" : 300}`,
                             height: "fit-content",
@@ -241,7 +246,7 @@ function Page({...props}) {
                         </div>
                     </Resizable>}
                     {/*patient*/}
-                    {data.patient.show && <Resizable
+                    {data.patient.show && id == 0 &&  <Resizable
                         defaultSize={{
                             width: `${data.patient.width ? data.patient.width + "px" : 300}`,
                             height: "fit-content",
@@ -290,7 +295,7 @@ function Page({...props}) {
                         </div>
                     </Resizable>}
                     {/*Cin*/}
-                    {data.cin?.show && <Resizable
+                    {data.cin?.show && id == 0 && <Resizable
                         defaultSize={{
                             width: `${data.cin?.width ? data.cin?.width + "px" : 300}`,
                             height: "fit-content",
@@ -346,7 +351,7 @@ function Page({...props}) {
                         className={`${selectedElement === "content" ? "selected" : "notSelected"} content resizable`}
                         style={{
                             paddingLeft: 15, paddingRight: 15,
-                            transform: `translate(${data.content.x}px, ${data.content.y}px)`,
+                            transform: `translate(${id === 0 ?data.content.x : 0}px, ${id === 0 ? data.content.y : 50 }px)`,
                             width: `${data.content.width ? data.content.width + "px" : "90%"}`,
                             height: `${data.content.maxHeight}px`
                         }}
@@ -388,7 +393,7 @@ function Page({...props}) {
                             setOnResize(true);
                         }}>
 
-                        <div id={`content${id}`} style={{marginTop: getMarginTop(), width: "100%", height: "100%"}}
+                        <div id={`content${id}`} style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
                              dangerouslySetInnerHTML={{__html: data.content.content}}></div>
                         <div className={"menuTop"} style={{top: 0}}>
                             <div className={"btnMenu"}>
