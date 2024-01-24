@@ -33,6 +33,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
+import PreviewA4 from "@features/files/components/previewA4";
 
 import {useReactToPrint} from "react-to-print";
 import moment from "moment";
@@ -43,7 +44,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import {Dialog as CustomDialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
-import PreviewA4 from "@features/files/components/previewA4";
 import {generatePdfFromHtml, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
@@ -54,6 +54,7 @@ import {FacebookCircularProgress} from "@features/progressUI";
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {Doc} from "@features/page";
 
 function DocumentDetailDialog({...props}) {
     const {
@@ -116,6 +117,7 @@ function DocumentDetailDialog({...props}) {
     const [sendEmailDrawer, setSendEmailDrawer] = useState(false);
     const [previewDoc, setPreviewDoc] = useState<any>(null);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [onReSize, setOnResize] = useState(true)
 
     const {direction} = useAppSelector(configSelector);
 
@@ -225,6 +227,7 @@ function DocumentDetailDialog({...props}) {
                 ...selected.header.data,
                 background: {show: selected.header.data.background.show, content: selected.file ? selected.file : ''}
             })
+            setOnResize(true)
             setHeader(selected.header.header)
             setOpenAlert(false);
             setTimeout(() => {
@@ -588,14 +591,58 @@ function DocumentDetailDialog({...props}) {
                         }
                     }
                 }
-                setLoading(false)
+                setTimeout(()=>{
+                    setLoading(false)
+                },1000)
             }
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const generatedDocsNode = generatedDocs.some(doc => doc === state?.type) &&
         <div>
-            {!loading && <PreviewA4
+            {loading ? <div className={data.size ? data.size : "portraitA5"}></div> :
+                data.isNew ? <Box ref={previewDocRef}>
+                    <Doc {...{
+                        data,
+                        setData,
+                        header,setHeader,
+                        date,
+                        onReSize,setOnResize,
+                        state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
+                            ...state,
+                            info: [{
+                                fees: state?.consultationFees,
+                                hiddenData: true,
+                                act: {
+                                    name: "Consultation",
+                                },
+                                qte: 1
+                            }]
+                        } : state
+                    }}/>
+                </Box>:<PreviewA4
+                    {...{
+                        previewDocRef,
+                        componentRef,
+                        eventHandler,
+                        data,
+                        values: header,
+                        state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
+                            ...state,
+                            info: [{
+                                fees: state?.consultationFees,
+                                hiddenData: true,
+                                act: {
+                                    name: "Consultation",
+                                },
+                                qte: 1
+                            }]
+                        } : state,
+                        date,
+                        loading,
+                        t
+                    }} /> }
+            {/* {!loading && <PreviewA4
                 {...{
                     previewDocRef,
                     componentRef,
@@ -616,8 +663,7 @@ function DocumentDetailDialog({...props}) {
                     date,
                     loading,
                     t
-                }} />}
-            {loading && <div className={data.size ? data.size : "portraitA5"}></div>}
+                }} />}*/}
         </div>
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -633,8 +679,8 @@ function DocumentDetailDialog({...props}) {
                 </CardContent>
             </Card>}
             <Grid container>
-                <Grid item xs={12} md={menu ? 8 : 11}>
-                    <Stack spacing={2}>
+                <Grid item xs={12} md={menu ? 8 : 11} style={{height:"68vh",overflowX: "hidden"}}>
+                    <Stack spacing={2} >
                         {!multimedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box id={"previewID"}>
@@ -657,7 +703,8 @@ function DocumentDetailDialog({...props}) {
                                                                 style={{opacity: 0.5}}>{t('downloadnow')}</Typography>
                                                     <Button onClick={downloadF} color={"info"}
                                                             variant="outlined"
-                                                            startIcon={<IconUrl path="menu/ic-download-square" width={20}
+                                                            startIcon={<IconUrl path="menu/ic-download-square"
+                                                                                width={20}
                                                                                 height={20}/>}>
                                                         {t('download')}
                                                     </Button>
@@ -807,10 +854,6 @@ function DocumentDetailDialog({...props}) {
                                             document.getElementById('date-input')?.focus()
                                         }}
                                     />
-                                    {/*<Button size='small' className='btn-modi' onClick={() => console.log(date)}>
-                                    <IconUrl path="ic-edit"/>
-                                    {t('modifier')}
-                                </Button>*/}
                                 </ListItemButton>
                             </ListItem>
                             {
