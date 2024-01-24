@@ -15,51 +15,51 @@ import {
     Box,
     FormControlLabel
 } from '@mui/material';
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import MoreVert from "@mui/icons-material/MoreVert";
 import * as Yup from "yup";
 import AddIcon from '@mui/icons-material/Add'
-import {useCashBox,} from "@lib/hooks/rest";
-import {useAppSelector} from '@lib/redux/hooks';
-import {agendaSelector} from '@features/calendar';
-import {Form, FormikProvider, useFormik} from 'formik';
+import { useCashBox, } from "@lib/hooks/rest";
+import { useAppSelector } from '@lib/redux/hooks';
+import { agendaSelector } from '@features/calendar';
+import { Form, FormikProvider, useFormik } from 'formik';
 import RootSyled from './overrides/rootStyle';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import {CustomSwitch} from '@features/buttons';
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
-import {useTranslation} from "next-i18next";
-import {useRequestQueryMutation} from "@lib/axios";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {useRouter} from "next/router";
-import {startCase} from "lodash";
-import {LoadingButton} from "@mui/lab";
-import {useSnackbar} from "notistack";
+import { CustomSwitch } from '@features/buttons';
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import { useTranslation } from "next-i18next";
+import { useRequestQueryMutation } from "@lib/axios";
+import { useInvalidateQueries, useMedicalEntitySuffix } from "@lib/hooks";
+import { useRouter } from "next/router";
+import { startCase } from "lodash";
+import { LoadingButton } from "@mui/lab";
+import { useSnackbar } from "notistack";
 import IconUrl from "@themes/urlIcon";
-import {TreeCheckbox} from "@features/treeViewCheckbox";
+import { TreeCheckbox } from "@features/treeViewCheckbox";
 
-function UsersTabs({...props}) {
-    const {t, profiles, handleContextMenu} = props
-    const {cashboxes} = useCashBox();
-    const {data: session} = useSession();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+function UsersTabs({ ...props }) {
+    const { t, profiles, handleContextMenu } = props
+    const { cashboxes } = useCashBox();
+    const { data: session } = useSession();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
     const router = useRouter();
-    const {enqueueSnackbar} = useSnackbar();
-    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const { enqueueSnackbar } = useSnackbar();
+    const { trigger: invalidateQueries } = useInvalidateQueries();
 
-    const {t: menuTranslation} = useTranslation("menu");
-    const {agendas} = useAppSelector(agendaSelector);
+    const { t: menuTranslation } = useTranslation("menu");
+    const { agendas } = useAppSelector(agendaSelector);
 
     const [selectedProfile, setSelectedProfile] = useState<any>(null);
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const features = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
-    const {trigger: featurePermissionsTrigger} = useRequestQueryMutation("/feature/permissions/all");
-    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
+    const { trigger: featurePermissionsTrigger } = useRequestQueryMutation("/feature/permissions/all");
+    const { trigger: triggerProfileUpdate } = useRequestQueryMutation("/profile/update");
 
     const initData = () => {
         const featuresInit: any = {};
@@ -86,20 +86,19 @@ function UsersTabs({...props}) {
     });
 
     const formik = useFormik({
-            enableReinitialize: true,
-            initialValues: {
-                role_name: "",
-                roles: initData()
-            },
-            onSubmit: (values) => {
-                console.log(values)
-            },
-            validationSchema: RoleSchema,
-        }
+        enableReinitialize: true,
+        initialValues: {
+            role_name: "",
+            roles: initData()
+        },
+        onSubmit: (values) => {
+            console.log(values)
+        },
+        validationSchema: RoleSchema,
+    }
     )
 
-    const {getFieldProps, values, errors, touched, setFieldValue, setValues, handleSubmit} = formik;
-
+    const { getFieldProps, values, errors, touched, setFieldValue, setValues, handleSubmit } = formik;
     const handleSelectedRole = (props: any) => {
         if (props?.features?.length > 0) {
             setFieldValue("role_name", props?.name ?? "");
@@ -163,7 +162,7 @@ function UsersTabs({...props}) {
             data: form
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t(selectedProfile ? "updated-role" : "created-role"), {variant: "success"});
+                enqueueSnackbar(t(selectedProfile ? "updated-role" : "created-role"), { variant: "success" });
                 invalidateQueries([`${urlMedicalEntitySuffix}/profile/${router.locale}`]);
                 setLoading(false);
                 resetFormData();
@@ -193,9 +192,9 @@ function UsersTabs({...props}) {
     return (
         <RootSyled container spacing={2}>
             <Grid item xs={12} md={3}>
-                <Paper sx={{p: 2, borderRadius: 1}}>
+                <Paper sx={{ p: 2, borderRadius: 1 }}>
                     <Button variant="contained" onClick={resetFormData} fullWidth>
-                        <AddIcon/>
+                        <AddIcon />
                         {t("add_role")}
                     </Button>
                     <Typography my={2} fontWeight={600} variant="subtitle1">
@@ -213,17 +212,17 @@ function UsersTabs({...props}) {
                                     px: 1,
                                     borderRadius: 2,
                                     cursor: 'pointer',
-                                    ".MuiListItemSecondaryAction-root": {right: 0},
+                                    ".MuiListItemSecondaryAction-root": { right: 0 },
                                     ...(selectedProfile?.uuid === profile?.uuid && {
                                         bgcolor: (theme: Theme) => theme.palette.info.main,
                                     })
                                 }}
                                 secondaryAction={
                                     <IconButton onClick={(e) => handleContextMenu(e, selectedProfile)} disableRipple
-                                                size="small"
-                                                edge="end" aria-label="more">
+                                        size="small"
+                                        edge="end" aria-label="more">
                                         <MoreVert
-                                            sx={{fontSize: 16, color: (theme: Theme) => theme.palette.text.secondary}}/>
+                                            sx={{ fontSize: 16, color: (theme: Theme) => theme.palette.text.secondary }} />
                                     </IconButton>
                                 }
                                 key={profile.uuid}>
@@ -237,30 +236,30 @@ function UsersTabs({...props}) {
                 </Paper>
             </Grid>
             <Grid item xs={12} md={9}>
-                <Paper sx={{p: 2, borderRadius: 2}}>
+                <Paper sx={{ p: 2, borderRadius: 2 }}>
                     <FormikProvider value={formik}>
                         <Stack component={Form}
-                               spacing={{xs: 1, md: 2}}
-                               direction={{xs: 'column', md: 'row'}}
-                               justifyContent={"space-between"}
-                               alignItems={{xs: 'stretch', md: 'center'}}
-                               autoComplete="off"
-                               onSubmit={handleSubmit}
-                               noValidate>
+                            spacing={{ xs: 1, md: 2 }}
+                            direction={{ xs: 'column', md: 'row' }}
+                            justifyContent={"space-between"}
+                            alignItems={{ xs: 'stretch', md: 'center' }}
+                            autoComplete="off"
+                            onSubmit={handleSubmit}
+                            noValidate>
                             {selectedProfile === null ? <>
-                                    <Typography minWidth={100}>
-                                        {t("role_name")}
-                                        <Typography variant="caption" color="error">
-                                            *
-                                        </Typography>
+                                <Typography minWidth={100}>
+                                    {t("role_name")}
+                                    <Typography variant="caption" color="error">
+                                        *
                                     </Typography>
-                                    <TextField
-                                        fullWidth
-                                        {...getFieldProps("role_name")}
-                                        placeholder={t("role_name")}
-                                        error={Boolean(touched.role_name && errors.role_name)}
-                                    />
-                                </> :
+                                </Typography>
+                                <TextField
+                                    fullWidth
+                                    {...getFieldProps("role_name")}
+                                    placeholder={t("role_name")}
+                                    error={Boolean(touched.role_name && errors.role_name)}
+                                />
+                            </> :
                                 <Typography fontSize={16} fontWeight={800}>
                                     {startCase(selectedProfile?.name)}
                                 </Typography>
@@ -271,38 +270,38 @@ function UsersTabs({...props}) {
                                     {t("cancel")}
                                 </Button>
                                 <LoadingButton
-                                    {...{loading}}
+                                    {...{ loading }}
                                     disabled={values?.role_name === ""}
                                     loadingPosition={"start"}
                                     type="submit"
-                                    sx={{minWidth: 130}}
+                                    sx={{ minWidth: 130 }}
                                     variant="contained"
                                     onClick={handleSetProfile}
-                                    startIcon={<IconUrl path="iconfinder_save"/>}>
+                                    startIcon={<IconUrl path="iconfinder_save" />}>
                                     {t("save")}
                                 </LoadingButton>
                             </Stack>
                         </Stack>
-                        <Divider sx={{mt: 2}}/>
-                        <List sx={{pb: 0}}>
+                        <Divider sx={{ mt: 2 }} />
+                        <List sx={{ pb: 0 }}>
                             {Object.entries(values?.roles)?.map((role: any) => (
                                 <ListItem key={role[0]}
-                                          className={`motif-list ${openCollapseFeature === role[0] ? "selected" : ""}`}
-                                          onClick={() => HandleFeatureCollapse(role[0], role[1])}
-                                          secondaryAction={
-                                              <>
-                                                  {openCollapseFeature === role[0] ? <ExpandLess/> : <ExpandMore/>}
-                                              </>
-                                          }>
+                                    className={`motif-list ${openCollapseFeature === role[0] ? "selected" : ""}`}
+                                    onClick={() => HandleFeatureCollapse(role[0], role[1])}
+                                    secondaryAction={
+                                        <>
+                                            {openCollapseFeature === role[0] ? <ExpandLess /> : <ExpandMore />}
+                                        </>
+                                    }>
                                     <Stack direction={"row"} alignItems={"center"}>
                                         <Typography fontSize={16} fontWeight={600}
-                                                    variant='subtitle1'>
+                                            variant='subtitle1'>
                                             {menuTranslation(`main-menu.${role[0]}`)}
                                         </Typography>
 
-                                        <Badge sx={{ml: 2}}
-                                               badgeContent={role[1].reduce((permissions: any[], feature: FeatureModel) => [...(permissions ?? []), ...(feature?.permissions?.filter(permission => permission?.checked) ?? [])], [])?.length}
-                                               color="primary"/>
+                                        <Badge sx={{ ml: 2 }}
+                                            badgeContent={role[1].reduce((permissions: any[], feature: FeatureModel) => [...(permissions ?? []), ...(feature?.permissions?.filter(permission => permission?.checked) ?? [])], [])?.length}
+                                            color="primary" />
                                     </Stack>
 
                                     <Collapse in={role[0] === openCollapseFeature} onClick={(e) => e.stopPropagation()}>
@@ -311,15 +310,15 @@ function UsersTabs({...props}) {
                                                 {featurePermission?.featureEntity &&
                                                     <FormControlLabel
                                                         control={<CustomSwitch
-                                                            checked={featurePermission?.featureEntity?.checked ?? false}/>}
+                                                            checked={featurePermission?.featureEntity?.checked ?? false} />}
                                                         onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
-                                                        label={featurePermission?.featureEntity?.name}/>}
+                                                        label={featurePermission?.featureEntity?.name} />}
                                                 <Box mt={2} className="permissions-wrapper">
                                                     <TreeCheckbox
                                                         disabled={featurePermission?.hasOwnProperty('featureEntity') ? !featurePermission?.featureEntity?.checked : false}
                                                         data={featurePermission?.permissions ?? []}
                                                         onNodeCheck={(uuid: string, value: boolean) => setFieldValue(`roles[${role[0]}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].checked`, value)}
-                                                        t={t}/>
+                                                        t={t} />
                                                 </Box>
                                             </Box>)}
                                     </Collapse>

@@ -573,7 +573,15 @@
         "email": "Adresse mail",
         "password": "Mot de passe",
         "confirm_password": "confirmer le mot de passe",
-        "next": "Suivant"
+        "next": "Suivant",
+        "role": "Rôle",
+        "dr": "Docteur",
+        "secretary": "Secretaire",
+        "accountant": "Comptable",
+        "add_role": "Ajouter un rôle",
+        "finish": "Terminer",
+        "success_title": "Création de l’utilisateur Réussie",
+        "success_desc": "Bravo! L'utilisateur a été créé avec succès.Consultez les détails de l'utilisateur pour vous assurer que toutes les informations sont correctes."
       },
       "no-data": {
         "user": {
@@ -605,6 +613,10 @@
         "role": "Rôle",
         "status": "Statut",
         "lastActive": "Dernière activité"
+      },
+      "alert": {
+        "add_user_success": "Ajouter un utilisateur avec succès",
+        "went_wrong": "Quelque chose n'a pas fonctionné"
       }
     },
     "dialog": {

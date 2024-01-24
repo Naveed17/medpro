@@ -44,6 +44,7 @@ import { ActionMenu } from "@features/menu";
 import { CustomIconButton } from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import { Dialog as CustomDialog, NewUserDialog } from "@features/dialog";
+import { setStepperIndex } from "@features/stepper";
 
 const CardData = {
     mainIcon: "ic-user",
@@ -137,7 +138,7 @@ function Users() {
     const { jti, id: currentUser } = session?.user as any;
     const { data: user } = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles;
-
+    const dispatch = useAppDispatch()
     const { trigger: triggerUserUpdate } = useRequestQueryMutation("/users/update");
     const { trigger: triggerUserDelete } = useRequestQueryMutation("/users/delete");
     const { trigger: triggerProfileUpdate } = useRequestQueryMutation("/profile/update");
@@ -269,6 +270,7 @@ function Users() {
     }
     const handleCloseNewUserDialog = () => {
         setNewUserDialog(false)
+        dispatch(setStepperIndex(0))
     }
 
     if (!ready) return (<LoadingScreen button text={"loading-error"} />);
@@ -404,11 +406,12 @@ function Users() {
                 maxWidth="md"
                 PaperProps={{
                     sx: {
-                        width: '100%'
+                        width: '100%',
+                        m: 1
                     }
                 }}
                 open={newUserDialog} onClose={handleCloseNewUserDialog}>
-                <NewUserDialog t={t} handleClose={handleCloseNewUserDialog} />
+                <NewUserDialog t={t} handleClose={handleCloseNewUserDialog} mutate={mutate} />
             </Dialog>
 
 
