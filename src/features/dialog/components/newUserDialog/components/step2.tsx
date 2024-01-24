@@ -11,30 +11,75 @@ import { CustomSwitch } from '@features/buttons';
 import { TreeCheckbox } from '@features/treeViewCheckbox';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import { FacebookCircularProgress } from '@features/progressUI';
 function Step2({ ...props }) {
     const { t, formik, openFeatureCollapse, setFeatureCollapse } = props;
     const { getFieldProps, touched, errors, values, setFieldValue } = formik;
     const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
     const { t: menuTranslation } = useTranslation("menu");
+    const [loadingReq, setLoadingReq] = useState(false);
     const router = useRouter()
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const { trigger: featurePermissionsTrigger } = useRequestQueryMutation("/feature/permissions/all");
+
+    const groupPermissionsByFeature = (permissions: PermissionModel[]) => {
+        const groupedPermissions = permissions.group((permission: PermissionModel) => permission.slug?.split("__")[1]);
+        return Object.entries(groupedPermissions).reduce((groups: any[], group: any) => [...(groups ?? []), {
+            name: group[0],
+            uuid: group[0],
+            checkAll: false,
+            collapseIn: false,
+            children: group[1]
+        }], []);
+    }
     const HandleFeatureCollapse = (slug: string, roles: any) => {
         if (openCollapseFeature !== slug) {
+            setLoadingReq(true);
             featurePermissionsTrigger({
                 method: "GET",
                 url: `${urlMedicalEntitySuffix}/permissions/${router.locale}?feature=${slug}`
             }, {
                 onSuccess: (result) => {
                     const permissions = (result?.data as HttpResponse)?.data;
-                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, permissions.map((permission: PermissionModel, index: number) => ({
+                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(permissions).map((permission: any, index: number) => ({
                         ...permission,
-                        checked: roles[idx].permissions?.at(index)?.checked ?? false
-                    }))));
-                }
+                        collapseIn: roles[idx].permissions[index]?.collapseIn ?? false,
+                        children: permission.children.map((item: PermissionModel, permissionIdx: number) => ({
+                            ...item,
+                            checked: roles[idx].permissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1])?.children.at(permissionIdx)?.checked ?? false
+                        }))
+                    }))
+                    ));
+                },
+                onSettled: () => setLoadingReq(false)
             });
         }
         setOpenCollapseFeature(openCollapseFeature === slug ? "" : slug);
+    }
+    const handleSelectedPermissionCount = (role: FeatureModel[]) => {
+        return role.reduce((features: any[], feature: FeatureModel) =>
+            [...(features ?? []),
+            ...(feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                [...(permissions ?? []),
+                ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [])], [])?.length;
+    }
+    const handleTreeCheck = (uuid: string, value: boolean, hasChildren: boolean, group: string, featurePermission: any, role: any, index: number) => {
+        if (hasChildren) {
+            const groupUuid = featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid);
+            setFieldValue(`roles[${role[0]}][${index}].permissions[${groupUuid}]`, {
+                ...featurePermission?.permissions[groupUuid],
+                checked: value,
+                children: featurePermission?.permissions[groupUuid].children.map((permission: PermissionModel) => ({
+                    ...permission,
+                    checked: value
+                }))
+            });
+        } else {
+            const permissionUuid = featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === group);
+            const permissionChildIndex = featurePermission?.permissions[permissionUuid].children.findIndex((permission: PermissionModel) => permission.uuid === uuid);
+            const field = `roles[${role[0]}][${index}].permissions[${permissionUuid}].children[${permissionChildIndex}].checked`;
+            setFieldValue(field, value);
+        }
     }
     return (
         <DialogStyled spacing={2}>
@@ -78,13 +123,16 @@ function Step2({ ...props }) {
                 </Stack>
                 <List sx={{ pb: 0 }}>
                     {Object.entries(values?.roles)?.map((role: any) => (
-                        <ListItem key={role[0]}
+                        <ListItem
+                            key={role[0]}
                             className={`motif-list ${openCollapseFeature === role[0] ? "selected" : ""}`}
                             onClick={() => HandleFeatureCollapse(role[0], role[1])}
                             secondaryAction={
-                                <>
+                                <Stack direction={"row"}>
+                                    {(openCollapseFeature === role[0] && loadingReq) &&
+                                        <FacebookCircularProgress size={20} />}
                                     {openCollapseFeature === role[0] ? <ExpandLess /> : <ExpandMore />}
-                                </>
+                                </Stack>
                             }>
                             <Stack direction={"row"} alignItems={"center"}>
                                 <Typography fontSize={16} fontWeight={600}
@@ -93,25 +141,27 @@ function Step2({ ...props }) {
                                 </Typography>
 
                                 <Badge sx={{ ml: 2 }}
-                                    badgeContent={role[1].reduce((permissions: any[], feature: FeatureModel) => [...(permissions ?? []), ...(feature?.permissions?.filter(permission => permission?.checked) ?? [])], [])?.length}
+                                    badgeContent={handleSelectedPermissionCount(role[1])}
                                     color="primary" />
                             </Stack>
-
                             <Collapse in={role[0] === openCollapseFeature} onClick={(e) => e.stopPropagation()}>
                                 {role[1].map((featurePermission: any, index: number) =>
                                     <Box key={featurePermission?.uuid} p={2} className="collapse-wrapper">
                                         {featurePermission?.featureEntity &&
                                             <FormControlLabel
+                                                sx={{ paddingTop: 2 }}
                                                 control={<CustomSwitch
                                                     checked={featurePermission?.featureEntity?.checked ?? false} />}
                                                 onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
                                                 label={featurePermission?.featureEntity?.name} />}
                                         <Box mt={2} className="permissions-wrapper">
                                             <TreeCheckbox
+                                                {...{ t }}
                                                 disabled={featurePermission?.hasOwnProperty('featureEntity') ? !featurePermission?.featureEntity?.checked : false}
                                                 data={featurePermission?.permissions ?? []}
-                                                onNodeCheck={(uuid: string, value: boolean) => setFieldValue(`roles[${role[0]}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].checked`, value)}
-                                                t={t} />
+                                                onCollapseIn={(uuid: string, value: boolean) => setFieldValue(`roles[${role[0]}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].collapseIn`, value)}
+                                                onNodeCheck={(uuid: string, value: boolean, hasChildren: boolean, group: string) => handleTreeCheck(uuid, value, hasChildren, group, featurePermission, role, index)}
+                                            />
                                         </Box>
                                     </Box>)}
                             </Collapse>
@@ -119,8 +169,6 @@ function Step2({ ...props }) {
                     ))}
                 </List>
             </Paper>
-
-
 
         </DialogStyled>
     )

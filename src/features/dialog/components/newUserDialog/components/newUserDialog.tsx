@@ -158,7 +158,6 @@ function NewUserDialog({ ...props }) {
                     }
                 });
             } else {
-                alert('hello')
                 dispatch(setStepperIndex(currentStep + 1))
             }
         },
