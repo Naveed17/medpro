@@ -6,6 +6,7 @@ interface FeatureModel {
     profile?: any;
     hasProfile?: boolean,
     slug: string;
+    root: string;
     isAutoRenewal: boolean
     permissions?: any[]
 }

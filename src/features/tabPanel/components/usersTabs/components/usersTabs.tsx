@@ -38,6 +38,7 @@ import { LoadingButton } from "@mui/lab";
 import { useSnackbar } from "notistack";
 import IconUrl from "@themes/urlIcon";
 import { TreeCheckbox } from "@features/treeViewCheckbox";
+import { FacebookCircularProgress } from "@features/progressUI";
 
 function UsersTabs({ ...props }) {
     const { t, profiles, handleContextMenu } = props
@@ -54,6 +55,7 @@ function UsersTabs({ ...props }) {
     const [selectedProfile, setSelectedProfile] = useState<any>(null);
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const [loading, setLoading] = useState(false);
+    const [loadingReq, setLoadingReq] = useState(false);
 
     const { data: user } = session as Session;
     const features = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
@@ -99,28 +101,50 @@ function UsersTabs({ ...props }) {
     )
 
     const { getFieldProps, values, errors, touched, setFieldValue, setValues, handleSubmit } = formik;
+
+    const groupPermissionsByFeature = (permissions: PermissionModel[]) => {
+        const groupedPermissions = permissions.group((permission: PermissionModel) => permission.slug?.split("__")[1]);
+        return Object.entries(groupedPermissions).reduce((groups: any[], group: any) => [...(groups ?? []), {
+            name: group[0],
+            uuid: group[0],
+            checkAll: false,
+            collapseIn: false,
+            children: group[1]
+        }], []);
+    }
+
     const handleSelectedRole = (props: any) => {
+        setValues({
+            role_name: props?.name,
+            roles: initData()
+        });
         if (props?.features?.length > 0) {
-            setFieldValue("role_name", props?.name ?? "");
             props?.features?.forEach((data: any) => {
                 const slug = data?.feature?.slug;
                 values.roles[slug].map((role: any, idx: number) => {
                     if (data[slug]) {
                         setFieldValue(`roles[${slug}][${idx}].featureEntity.checked`, true);
                     }
-                    setFieldValue(`roles[${slug}][${idx}].permissions`, data?.profile?.permissions?.map((permission: PermissionModel) => ({
+                    setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(data?.profile?.permissions).map((permission: any) => ({
                         ...permission,
-                        checked: true
-                    })))
+                        collapseIn: true,
+                        children: permission.children.map((item: PermissionModel) => ({
+                            ...item,
+                            checked: true
+                        }))
+                    })));
                     setFieldValue(`roles[${slug}][${idx}].profile`, data?.profile?.uuid);
                 });
             });
-        } else {
-            setValues({
-                role_name: props?.name,
-                roles: initData()
-            });
         }
+    }
+
+    const handleSelectedPermissionCount = (role: FeatureModel[]) => {
+        return role.reduce((features: any[], feature: FeatureModel) =>
+            [...(features ?? []),
+            ...(feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                [...(permissions ?? []),
+                ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [])], [])?.length;
     }
 
     const resetFormData = () => {
@@ -139,16 +163,28 @@ function UsersTabs({ ...props }) {
 
         form.append("name", selectedProfile?.name ?? values.role_name);
         Object.entries(values.roles).map((role: any) => {
-            const hasFeaturePermissions = role[1].reduce((permissions: any[], feature: FeatureModel) => [...(permissions ?? []), ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? feature?.permissions?.filter(permission => permission?.checked) : []) : feature?.permissions?.filter(permission => permission?.checked)) ?? [])], [])?.length > 0;
+            const hasFeaturePermissions = role[1].reduce((features: any[], feature: FeatureModel) => {
+                const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                    [...(permissions ?? []),
+                    ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+                return [
+                    ...(features ?? []),
+                    ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? permissions : []) : permissions) ?? [])]
+            }, []).length > 0;
+
             if (hasFeaturePermissions) {
                 features[role[0]] = role[1].reduce((features: FeatureModel[], feature: FeatureModel) => {
-                    const hasPermissions = feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked && (feature?.permissions?.length ?? 0) > 0) : (feature?.permissions?.length ?? 0) > 0;
+                    const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                        [...(permissions ?? []),
+                        ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+
+                    const hasPermissions = feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked && (permissions.length ?? 0) > 0) : (permissions.length ?? 0) > 0;
                     return [
                         ...(features ?? []),
                         ...(hasPermissions ? [{
                             object: feature?.featureEntity?.uuid,
                             featureProfile: feature?.profile,
-                            permissions: feature?.permissions?.reduce((permissions: string[], permission: PermissionModel) => [...(permissions ?? []), ...(permission?.checked ? [permission.uuid] : [])], [])
+                            permissions: permissions.map((permission: PermissionModel) => permission.uuid)
                         }] : [])
                     ];
                 }, [])
@@ -156,6 +192,7 @@ function UsersTabs({ ...props }) {
         });
 
         form.append("features", JSON.stringify(features));
+
         triggerProfileUpdate({
             method: selectedProfile ? "PUT" : "POST",
             url: `${urlMedicalEntitySuffix}/profile/${selectedProfile ? `${selectedProfile.uuid}/` : ""}${router.locale}`,
@@ -164,7 +201,6 @@ function UsersTabs({ ...props }) {
             onSuccess: () => {
                 enqueueSnackbar(t(selectedProfile ? "updated-role" : "created-role"), { variant: "success" });
                 invalidateQueries([`${urlMedicalEntitySuffix}/profile/${router.locale}`]);
-                setLoading(false);
                 resetFormData();
             },
             onSettled: () => setLoading(false)
@@ -173,20 +209,46 @@ function UsersTabs({ ...props }) {
 
     const HandleFeatureCollapse = (slug: string, roles: any) => {
         if (openCollapseFeature !== slug) {
+            setLoadingReq(true);
             featurePermissionsTrigger({
                 method: "GET",
                 url: `${urlMedicalEntitySuffix}/permissions/${router.locale}?feature=${slug}`
             }, {
                 onSuccess: (result) => {
                     const permissions = (result?.data as HttpResponse)?.data;
-                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, permissions.map((permission: PermissionModel, index: number) => ({
+                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(permissions).map((permission: any, index: number) => ({
                         ...permission,
-                        checked: roles[idx].permissions?.at(index)?.checked ?? false
-                    }))));
-                }
+                        collapseIn: roles[idx].permissions[index]?.collapseIn ?? false,
+                        children: permission.children.map((item: PermissionModel, permissionIdx: number) => ({
+                            ...item,
+                            checked: roles[idx].permissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1])?.children.at(permissionIdx)?.checked ?? false
+                        }))
+                    }))
+                    ));
+                },
+                onSettled: () => setLoadingReq(false)
             });
         }
         setOpenCollapseFeature(openCollapseFeature === slug ? "" : slug);
+    }
+
+    const handleTreeCheck = (uuid: string, value: boolean, hasChildren: boolean, group: string, featurePermission: any, role: any, index: number) => {
+        if (hasChildren) {
+            const groupUuid = featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid);
+            setFieldValue(`roles[${role[0]}][${index}].permissions[${groupUuid}]`, {
+                ...featurePermission?.permissions[groupUuid],
+                checked: value,
+                children: featurePermission?.permissions[groupUuid].children.map((permission: PermissionModel) => ({
+                    ...permission,
+                    checked: value
+                }))
+            });
+        } else {
+            const permissionUuid = featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === group);
+            const permissionChildIndex = featurePermission?.permissions[permissionUuid].children.findIndex((permission: PermissionModel) => permission.uuid === uuid);
+            const field = `roles[${role[0]}][${index}].permissions[${permissionUuid}].children[${permissionChildIndex}].checked`;
+            setFieldValue(field, value);
+        }
     }
 
     return (
@@ -285,13 +347,16 @@ function UsersTabs({ ...props }) {
                         <Divider sx={{ mt: 2 }} />
                         <List sx={{ pb: 0 }}>
                             {Object.entries(values?.roles)?.map((role: any) => (
-                                <ListItem key={role[0]}
+                                <ListItem
+                                    key={role[0]}
                                     className={`motif-list ${openCollapseFeature === role[0] ? "selected" : ""}`}
                                     onClick={() => HandleFeatureCollapse(role[0], role[1])}
                                     secondaryAction={
-                                        <>
+                                        <Stack direction={"row"}>
+                                            {(openCollapseFeature === role[0] && loadingReq) &&
+                                                <FacebookCircularProgress size={20} />}
                                             {openCollapseFeature === role[0] ? <ExpandLess /> : <ExpandMore />}
-                                        </>
+                                        </Stack>
                                     }>
                                     <Stack direction={"row"} alignItems={"center"}>
                                         <Typography fontSize={16} fontWeight={600}
@@ -300,25 +365,27 @@ function UsersTabs({ ...props }) {
                                         </Typography>
 
                                         <Badge sx={{ ml: 2 }}
-                                            badgeContent={role[1].reduce((permissions: any[], feature: FeatureModel) => [...(permissions ?? []), ...(feature?.permissions?.filter(permission => permission?.checked) ?? [])], [])?.length}
+                                            badgeContent={handleSelectedPermissionCount(role[1])}
                                             color="primary" />
                                     </Stack>
-
                                     <Collapse in={role[0] === openCollapseFeature} onClick={(e) => e.stopPropagation()}>
                                         {role[1].map((featurePermission: any, index: number) =>
                                             <Box key={featurePermission?.uuid} p={2} className="collapse-wrapper">
                                                 {featurePermission?.featureEntity &&
                                                     <FormControlLabel
+                                                        sx={{ paddingTop: 2 }}
                                                         control={<CustomSwitch
                                                             checked={featurePermission?.featureEntity?.checked ?? false} />}
                                                         onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
                                                         label={featurePermission?.featureEntity?.name} />}
                                                 <Box mt={2} className="permissions-wrapper">
                                                     <TreeCheckbox
+                                                        {...{ t }}
                                                         disabled={featurePermission?.hasOwnProperty('featureEntity') ? !featurePermission?.featureEntity?.checked : false}
                                                         data={featurePermission?.permissions ?? []}
-                                                        onNodeCheck={(uuid: string, value: boolean) => setFieldValue(`roles[${role[0]}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].checked`, value)}
-                                                        t={t} />
+                                                        onCollapseIn={(uuid: string, value: boolean) => setFieldValue(`roles[${role[0]}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].collapseIn`, value)}
+                                                        onNodeCheck={(uuid: string, value: boolean, hasChildren: boolean, group: string) => handleTreeCheck(uuid, value, hasChildren, group, featurePermission, role, index)}
+                                                    />
                                                 </Box>
                                             </Box>)}
                                     </Collapse>
