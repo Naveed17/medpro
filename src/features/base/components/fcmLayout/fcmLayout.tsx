@@ -509,7 +509,7 @@ function FcmLayout({...props}) {
                             <Typography fontSize={12}>{message.user}</Typography>
                             <Typography fontSize={11} color={"#7C878E"} fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
                         </Stack>
-                        <Typography>{message.message}</Typography>
+                        <Typography>{message.message.replace(/<[^>]+>/g, '')}</Typography>
                     </Stack>
                 </Stack>}
                 <Fab color="info"

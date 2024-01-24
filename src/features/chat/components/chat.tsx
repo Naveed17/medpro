@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {
     Avatar,
     Button,
+    Drawer,
     Fab,
     Grid,
     List,
@@ -26,10 +27,11 @@ import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {Editor} from "@tinymce/tinymce-react";
-import PresenceMessage = Types.PresenceMessage;
 import {tinymcePlugins} from "@lib/constants";
-import {onOpenPatientDrawer} from "@features/table";
-import {useAppDispatch} from "@lib/redux/hooks";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {PatientDetail} from "@features/dialog";
+import {configSelector} from "@features/base";
+import PresenceMessage = Types.PresenceMessage;
 
 interface IPatient {
     uuid: string,
@@ -53,16 +55,17 @@ const Chat = ({...props}) => {
     } = props;
 
 
-
     const theme = useTheme();
     const {t} = useTranslation("common", {keyPrefix: "chat"});
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const dispatch = useAppDispatch();
 
     const {trigger: triggerSearchPatient} = useRequestQueryMutation("/patients/search");
+    const {direction} = useAppSelector(configSelector);
 
     const [message, setMessage] = useState("");
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
+    const [patientId, setPatientId] = useState("");
 
     const [lastMessages, setLastMessages] = useState<any>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -139,25 +142,32 @@ const Chat = ({...props}) => {
         setPlacement(newPlacement);
     };
 
+    const checkTags = () => {
+        const tags = document.getElementsByClassName("tag");
+        Array.from(tags).forEach((tag: any) => {
+            tag.style.background = "#b1e8ff";
+            tag.style.borderRadius = "5px";
+            tag.style.cursor = "pointer";
+            tag.onclick = () => {
+                setPatientDetailDrawer(true)
+                setPatientId(tag.id)
+            }
+        });
+
+    }
+
     useEffect(() => {
         setHasMessage(false);
+        checkTags()
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (refList) {
+        if (refList)
             refList.scrollTo({
                 top: refList.scrollHeight,
                 behavior: 'smooth',
             });
-
-            const tags = document.getElementsByClassName("tag");
-            Array.from(tags).forEach(tag => {
-                (tag as HTMLElement).style.background = "#F0F7FA";
-                (tag as HTMLElement).style.cursor = "pointer";
-                (tag as HTMLElement).onclick = () => dispatch(onOpenPatientDrawer({patientId: tag.id}));
-            });
-        }
-
+        checkTags()
     }, [messages]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -185,6 +195,7 @@ const Chat = ({...props}) => {
                                 spacing={.5} key={user.uuid}
                                 onClick={() => {
                                     setSelectedUser(user)
+                                    setMessage("")
                                     const localMsgs = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
                                     if (localMsgs) {
                                         const _msgs = Object.keys(localMsgs).find(key => key === user.uuid)
@@ -231,8 +242,9 @@ const Chat = ({...props}) => {
                                         background: `${presenceData.find((data: PresenceMessage) => data.clientId === user) && presenceData.find((data: PresenceMessage) => data.clientId === user).data === "actif" ? "#1BC47D" : "#DDD"}`
                                     }}/>
                                 </Stack>
-                                <Typography variant='body2' color="text.secondary"
-                                            className='ellipsis'>{getLastMessage(user, "data")}</Typography>
+
+                                <Typography variant='caption' fontSize={9}
+                                            color="text.secondary">{getLastMessage(user, "data").replace(/<[^>]+>/g, '')}</Typography>
                                 <Typography variant='caption' fontSize={9}
                                             color="text.secondary">{getLastMessage(user, "date")}</Typography>
                             </Stack>
@@ -329,8 +341,7 @@ const Chat = ({...props}) => {
                                                         }}/>
                                                         {patients.map(patient => (
                                                             <Typography onClick={() => {
-                                                                console.log(JSON.stringify(patient))
-                                                                setMessage((prev) => `${prev} <span class="tag" id="${patient.uuid}">@${patient.firstName} ${patient.lastName} </span><span class="afterTag">,</span>`)
+                                                                setMessage((prev) => `${prev} <span class="tag" id="${patient.uuid}">@${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`)
                                                                 setOpen(false)
                                                             }}
                                                                         key={patient.uuid}>{`${patient.firstName} ${patient.lastName}`}</Typography>))}
@@ -417,6 +428,22 @@ const Chat = ({...props}) => {
                     </Paper>
                 </Grid>
             </Grid>
+
+            <Drawer
+                anchor={"right"}
+                open={patientDetailDrawer}
+                dir={direction}
+                onClose={() => {
+                    setPatientDetailDrawer(false);
+                }}>
+                <PatientDetail
+                    onCloseDialog={() => {
+                        setPatientDetailDrawer(false);
+                    }}
+                    onAddAppointment={() => console.log("onAddAppointment")}
+                    patientId={patientId}
+                />
+            </Drawer>
         </ChatStyled>
     );
 }
