@@ -43,13 +43,11 @@ const TemplateStyled = styled(Card)(({theme}) => ({
                 [theme.breakpoints.down("md")]: {
                     width: '100%',
                     margin: '0 !important',
-
-
                 },
 
             },
-            "& div": {
-                width: '100%',
+            ".page":{
+              zoom: "20%"
             },
             [theme.breakpoints.down("md")]: {
                 width: '100%',

@@ -33,6 +33,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {SetSelectedDialog} from "@features/toolbar";
 import {Session} from "next-auth";
 import Dialog from "@mui/material/Dialog";
+import PreviewA4 from "@features/files/components/previewA4";
 
 import {useReactToPrint} from "react-to-print";
 import moment from "moment";
@@ -600,7 +601,7 @@ function DocumentDetailDialog({...props}) {
     const generatedDocsNode = generatedDocs.some(doc => doc === state?.type) &&
         <div>
             {loading ? <div className={data.size ? data.size : "portraitA5"}></div> :
-                <Box ref={previewDocRef}>
+                data.isNew ? <Box ref={previewDocRef}>
                     <Doc {...{
                         data,
                         setData,
@@ -619,7 +620,28 @@ function DocumentDetailDialog({...props}) {
                             }]
                         } : state
                     }}/>
-                </Box>}
+                </Box>:<PreviewA4
+                    {...{
+                        previewDocRef,
+                        componentRef,
+                        eventHandler,
+                        data,
+                        values: header,
+                        state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
+                            ...state,
+                            info: [{
+                                fees: state?.consultationFees,
+                                hiddenData: true,
+                                act: {
+                                    name: "Consultation",
+                                },
+                                qte: 1
+                            }]
+                        } : state,
+                        date,
+                        loading,
+                        t
+                    }} /> }
             {/* {!loading && <PreviewA4
                 {...{
                     previewDocRef,

@@ -42,7 +42,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import {LoadingScreen} from "@features/loadingScreen";
-import {Doc} from "@features/page";
+import {Doc, Page} from "@features/page";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import PageStyled from "@features/page/components/overrides/pageStyled";
@@ -91,7 +91,7 @@ function DocsConfig() {
             content: '<p>[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]</p>',
             x: 0,
             y: 320
-        }
+        },
     })
     const [queryState, setQueryState] = useState<any>({type: []});
     const [files, setFiles] = useState<any[]>([]);
@@ -276,7 +276,7 @@ function DocsConfig() {
                     }}
                     onClick={printNow}
                     startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
-                    {t("print")}
+                    {t("preview")}
                 </Button>
                 {uuid !== 'new' && !hasData && <Button
                     type="submit"
@@ -488,7 +488,7 @@ function DocsConfig() {
                     </Box>
                 </Grid>
 
-                <Grid item xs={12} md={9}>
+                <Grid item xs={12} md={7}>
                     {loading && <LinearProgress/>}
 
                     <Box style={{height: "81vh", overflowX: "auto"}} pt={5} pb={5}>
@@ -500,7 +500,7 @@ function DocsConfig() {
                     </Box>
                 </Grid>
 
-                {/*
+
                 <Grid item xs={12} md={2} padding={2} style={{background:"white"}}>
                     <Stack spacing={1}>
                         <Typography fontSize={16} fontWeight={"bold"}>Pages</Typography>
@@ -518,14 +518,14 @@ function DocsConfig() {
                             borderRadius: 6,
                         }}>
                             <Box style={{zoom:"20%"}} className={"container"}>
-                                <Page   {...{data, setData, state:null, id: 0, title,header,setHeader}}/>
+                                <Page {...{data, setData, state:null, id: 1, title,header,setHeader}}/>
                             </Box>
                             <Typography fontSize={12} textAlign={"center"}>Page2</Typography>
                         </Box>
                     </Stack>
 
                 </Grid>
-*/}
+
 
                 {/* <Grid item xs={12} md={7}>
                     {<Box padding={2}>
