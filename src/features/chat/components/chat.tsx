@@ -4,7 +4,6 @@ import {
     Button,
     Fab,
     Grid,
-    InputAdornment,
     List,
     ListItem,
     ListItemAvatar,
@@ -26,8 +25,11 @@ import {debounce} from "lodash";
 import {useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import PresenceMessage = Types.PresenceMessage;
 import {Editor} from "@tinymce/tinymce-react";
+import PresenceMessage = Types.PresenceMessage;
+import {tinymcePlugins} from "@lib/constants";
+import {onOpenPatientDrawer} from "@features/table";
+import {useAppDispatch} from "@lib/redux/hooks";
 
 interface IPatient {
     uuid: string,
@@ -50,15 +52,18 @@ const Chat = ({...props}) => {
         users
     } = props;
 
+
+
     const theme = useTheme();
     const {t} = useTranslation("common", {keyPrefix: "chat"});
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const dispatch = useAppDispatch();
 
     const {trigger: triggerSearchPatient} = useRequestQueryMutation("/patients/search");
 
     const [message, setMessage] = useState("");
-    const [hiddenMessage, setHiddenMessage] = useState("");
+
     const [lastMessages, setLastMessages] = useState<any>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [open, setOpen] = useState(false);
@@ -139,11 +144,20 @@ const Chat = ({...props}) => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (refList)
+        if (refList) {
             refList.scrollTo({
                 top: refList.scrollHeight,
                 behavior: 'smooth',
             });
+
+            const tags = document.getElementsByClassName("tag");
+            Array.from(tags).forEach(tag => {
+                (tag as HTMLElement).style.background = "#F0F7FA";
+                (tag as HTMLElement).style.cursor = "pointer";
+                (tag as HTMLElement).onclick = () => dispatch(onOpenPatientDrawer({patientId: tag.id}));
+            });
+        }
+
     }, [messages]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -259,7 +273,8 @@ const Chat = ({...props}) => {
                                                             component="span"
                                                             color="text.primary"
                                                         >
-                                                            {message.data}
+                                                            <div dangerouslySetInnerHTML={{__html: message.data}}></div>
+
                                                         </Typography>
                                                         {/*{message?.from === medicalEntityHasUser ?
                                                             <Typography variant="caption" component={Stack} direction='row' alignItems='center' spacing={.5}>
@@ -279,13 +294,12 @@ const Chat = ({...props}) => {
                                     ))}
                                 </List>
 
-                                <div style={{position:"relative"}}>
+                                <div style={{position: "relative"}}>
                                     <Editor
                                         value={message}
                                         tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                         onEditorChange={(event) => {
                                             setMessage(event)
-                                            setHiddenMessage(event)
                                         }}
 
                                         init={{
@@ -294,61 +308,61 @@ const Chat = ({...props}) => {
                                             menubar: false,
                                             height: 120,
                                             toolbar: false,
+                                            plugins: tinymcePlugins,
                                             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                                         }}/>
-                                        <Popper
-                                            // Note: The following zIndex style is specifically for documentation purposes and may not be necessary in your application.
-                                            sx={{zIndex: 1200,}}
-                                            open={open}
-                                            anchorEl={anchorEl}
-                                            placement={placement}
-                                            transition>
-                                            {({TransitionProps}) => (
-                                                <Fade {...TransitionProps} timeout={350}>
-                                                    <Paper style={{padding: 10}}>
-                                                        <Stack spacing={1}>
-                                                            <Typography fontSize={11}
-                                                                        color={"grey"}>Patient</Typography>
-                                                            <TextField placeholder={"Aaa"} onChange={(ev) => {
-                                                                debouncedOnChange(ev.target.value)
-                                                            }}/>
-                                                            {patients.map(patient => (
-                                                                <Typography onClick={() => {
-                                                                    setHiddenMessage((prev) => `${prev} ${JSON.stringify(patient)}`)
-                                                                    setMessage((prev) => `${prev} <span>@${patient.firstName} ${patient.firstName}</span>`)
-                                                                    setOpen(false)
-                                                                }}
-                                                                            key={patient.uuid}>{`${patient.firstName} ${patient.lastName}`}</Typography>))}
-                                                        </Stack>
-                                                    </Paper>
-                                                </Fade>
-                                            )}
-                                        </Popper>
-                                        <Button size={"small"}
-                                                style={{position:"absolute",bottom:10, left:10,fontStyle:"italic"}}
-                                                color={"black"} onClick={handleClick('top')}>@patient</Button>
+                                    <Popper
+                                        // Note: The following zIndex style is specifically for documentation purposes and may not be necessary in your application.
+                                        sx={{zIndex: 1200,}}
+                                        open={open}
+                                        anchorEl={anchorEl}
+                                        placement={placement}
+                                        transition>
+                                        {({TransitionProps}) => (
+                                            <Fade {...TransitionProps} timeout={350}>
+                                                <Paper style={{padding: 10}}>
+                                                    <Stack spacing={1}>
+                                                        <Typography fontSize={11}
+                                                                    color={"grey"}>Patient</Typography>
+                                                        <TextField placeholder={"Aaa"} onChange={(ev) => {
+                                                            debouncedOnChange(ev.target.value)
+                                                        }}/>
+                                                        {patients.map(patient => (
+                                                            <Typography onClick={() => {
+                                                                console.log(JSON.stringify(patient))
+                                                                setMessage((prev) => `${prev} <span class="tag" id="${patient.uuid}">@${patient.firstName} ${patient.lastName} </span><span class="afterTag">,</span>`)
+                                                                setOpen(false)
+                                                            }}
+                                                                        key={patient.uuid}>{`${patient.firstName} ${patient.lastName}`}</Typography>))}
+                                                    </Stack>
+                                                </Paper>
+                                            </Fade>
+                                        )}
+                                    </Popper>
+                                    <Button size={"small"}
+                                            style={{position: "absolute", bottom: 10, left: 10, fontStyle: "italic"}}
+                                            color={"black"} onClick={handleClick('top')}>@patient</Button>
 
-                                        <Fab
-                                            disabled={!message || !presenceData.find((data: PresenceMessage) => data.clientId === selectedUser.uuid)}
-                                            onClick={() => {
-                                                saveInbox({
-                                                    from: medicalEntityHasUser,
-                                                    to: selectedUser.uuid,
-                                                    data: hiddenMessage,
-                                                    date: new Date()
-                                                }, selectedUser.uuid)
-                                                channel.publish(selectedUser.uuid, hiddenMessage)
-                                                setMessage("")
-                                                setHiddenMessage("")
-                                            }
-                                            }
-                                            size={"small"}
-                                            disableRipple
-                                            style={{position:"absolute",bottom:10, right:10}}
-                                            variant='extended' className='send-msg'>
-                                            <IconUrl path="ic-send-up"/>
-                                            <span>{t("send")}</span>
-                                        </Fab>
+                                    <Fab
+                                        disabled={!message || !presenceData.find((data: PresenceMessage) => data.clientId === selectedUser.uuid)}
+                                        onClick={() => {
+                                            saveInbox({
+                                                from: medicalEntityHasUser,
+                                                to: selectedUser.uuid,
+                                                data: message,
+                                                date: new Date()
+                                            }, selectedUser.uuid)
+                                            channel.publish(selectedUser.uuid, message)
+                                            setMessage("")
+                                        }
+                                        }
+                                        size={"small"}
+                                        disableRipple
+                                        style={{position: "absolute", bottom: 10, right: 10}}
+                                        variant='extended' className='send-msg'>
+                                        <IconUrl path="ic-send-up"/>
+                                        <span>{t("send")}</span>
+                                    </Fab>
                                 </div>
 
                                 {/*<TextField
