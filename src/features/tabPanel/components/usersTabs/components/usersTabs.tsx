@@ -124,7 +124,7 @@ function UsersTabs({...props}) {
                         setFieldValue(`roles[${slug}][${idx}].featureEntity.checked`, true);
                     }
 
-                    setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(data?.profile?.permissions).map((permission: any, index: number) => ({
+                    setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(data?.profile?.permissions).map((permission: any) => ({
                         ...permission,
                         children: permission.children.map((item: PermissionModel) => ({
                             ...item,
