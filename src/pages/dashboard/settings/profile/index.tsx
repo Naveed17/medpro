@@ -40,6 +40,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 
 import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ImageHandler} from "@features/image";
+import Can from "@features/casl/can";
 
 function Profile() {
     const {data: session} = useSession();
@@ -379,63 +380,67 @@ function Profile() {
                                             )}
                                         </Stack>
                                     </Stack>
-                                    <IconButton
-                                        size="small"
-                                        color="primary"
-                                        onClick={() => dialogOpen("assurance")}>
-                                        <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
-                                    </IconButton>
+                                    <Can I={"manage"} a={"settings"} field={"settings__profile__insurance__edit"}>
+                                        <IconButton
+                                            size="small"
+                                            color="primary"
+                                            onClick={() => dialogOpen("assurance")}>
+                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                        </IconButton>
+                                    </Can>
                                 </Stack>
                             </ListItem>
-                            <ListItem>
-                                <Stack
-                                    spacing={2.3}
-                                    direction="row"
-                                    alignItems="flex-start"
-                                    width={1}>
-                                    <IconUrl className="left-icon" path="ic-send-mail"/>
-                                    <Stack spacing={1} alignItems="flex-start" width={1}>
-                                        <Typography
-                                            variant="subtitle2"
-                                            gutterBottom
-                                            fontWeight={600}>
-                                            {t("profile.sms-rappel")}
-                                        </Typography>
-                                        <Stack
-                                            spacing={1}
-                                            direction={{xs: "column", md: "row"}}
-                                            alignItems={{xs: "stretch", md: "flex-start"}}
-                                            width={1}>
-                                            {loading ? (initialData.map((mode: any, index) => (
-                                                    <Button
-                                                        key={index}
-                                                        variant="outlined"
-                                                        color="info"
-                                                        onClick={() => dialogOpen("mode")}>
-                                                        {<Skeleton width={50} variant="text"/>}
-                                                    </Button>
-                                                ))
-                                            ) : <FormControlLabel
-                                                control={<Switch
-                                                    checked={smsRappel}
-                                                    onChange={e => {
-                                                        setSmsRappel(e.target.checked)
-                                                        const form = new FormData();
-                                                        form.append("attribute", "isSendSms");
-                                                        form.append("value", e.target.checked.toString());
-                                                        triggerSmsRappelEdit({
-                                                            method: "PATCH",
-                                                            url: `${urlMedicalProfessionalSuffix}/config/${router.locale}`,
-                                                            data: form
-                                                        }, {
-                                                            onSuccess: () => invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`]),
-                                                        });
-                                                    }}/>}
-                                                label={t("profile.sms-rappel-send")}/>}
+                            <Can I={"manage"} a={"settings"} field={"settings__profile__sms_reminder__edit"}>
+                                <ListItem>
+                                    <Stack
+                                        spacing={2.3}
+                                        direction="row"
+                                        alignItems="flex-start"
+                                        width={1}>
+                                        <IconUrl className="left-icon" path="ic-send-mail"/>
+                                        <Stack spacing={1} alignItems="flex-start" width={1}>
+                                            <Typography
+                                                variant="subtitle2"
+                                                gutterBottom
+                                                fontWeight={600}>
+                                                {t("profile.sms-rappel")}
+                                            </Typography>
+                                            <Stack
+                                                spacing={1}
+                                                direction={{xs: "column", md: "row"}}
+                                                alignItems={{xs: "stretch", md: "flex-start"}}
+                                                width={1}>
+                                                {loading ? (initialData.map((mode: any, index) => (
+                                                        <Button
+                                                            key={index}
+                                                            variant="outlined"
+                                                            color="info"
+                                                            onClick={() => dialogOpen("mode")}>
+                                                            {<Skeleton width={50} variant="text"/>}
+                                                        </Button>
+                                                    ))
+                                                ) : <FormControlLabel
+                                                    control={<Switch
+                                                        checked={smsRappel}
+                                                        onChange={e => {
+                                                            setSmsRappel(e.target.checked)
+                                                            const form = new FormData();
+                                                            form.append("attribute", "isSendSms");
+                                                            form.append("value", e.target.checked.toString());
+                                                            triggerSmsRappelEdit({
+                                                                method: "PATCH",
+                                                                url: `${urlMedicalProfessionalSuffix}/config/${router.locale}`,
+                                                                data: form
+                                                            }, {
+                                                                onSuccess: () => invalidateQueries([`${urlMedicalEntitySuffix}/professionals/${router.locale}`]),
+                                                            });
+                                                        }}/>}
+                                                    label={t("profile.sms-rappel-send")}/>}
+                                            </Stack>
                                         </Stack>
                                     </Stack>
-                                </Stack>
-                            </ListItem>
+                                </ListItem>
+                            </Can>
                             <ListItem>
                                 <Stack
                                     spacing={2.3}
@@ -482,12 +487,14 @@ function Profile() {
                                             )}
                                         </Stack>
                                     </Stack>
-                                    <IconButton
-                                        size="small"
-                                        color="primary"
-                                        onClick={() => dialogOpen("mode")}>
-                                        <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
-                                    </IconButton>
+                                    <Can I={"manage"} a={"settings"} field={"settings__profile__payment_means__edit"}>
+                                        <IconButton
+                                            size="small"
+                                            color="primary"
+                                            onClick={() => dialogOpen("mode")}>
+                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                        </IconButton>
+                                    </Can>
                                 </Stack>
                             </ListItem>
                             <ListItem>
@@ -536,12 +543,14 @@ function Profile() {
                                             )}
                                         </Stack>
                                     </Stack>
-                                    <IconButton
-                                        size="small"
-                                        color="primary"
-                                        onClick={() => dialogOpen("langues")}>
-                                        <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
-                                    </IconButton>
+                                    <Can I={"manage"} a={"settings"} field={"settings__profile__languages__edit"}>
+                                        <IconButton
+                                            size="small"
+                                            color="primary"
+                                            onClick={() => dialogOpen("langues")}>
+                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                        </IconButton>
+                                    </Can>
                                 </Stack>
                             </ListItem>
                             <ListItem>
@@ -604,12 +613,14 @@ function Profile() {
                                             )}
                                         </Stack>
                                     </Stack>
-                                    <IconButton
-                                        size="small"
-                                        color="primary"
-                                        onClick={() => router.push("/dashboard/settings/actfees")}>
-                                        <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
-                                    </IconButton>
+                                    <Can I={"manage"} a={"settings"} field={"settings__actfees__show"}>
+                                        <IconButton
+                                            size="small"
+                                            color="primary"
+                                            onClick={() => router.push("/dashboard/settings/actfees")}>
+                                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                        </IconButton>
+                                    </Can>
                                 </Stack>
                             </ListItem>
                             {acts?.filter((a) => !a.isTopAct).length > 0 && (

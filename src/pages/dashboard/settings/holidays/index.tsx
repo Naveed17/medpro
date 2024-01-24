@@ -18,8 +18,9 @@ import {AbsenceDrawer, absenceDrawerSelector, resetAbsenceData, setAbsenceData} 
 import {LoadingButton} from "@mui/lab";
 import {HolidaysMobileCard, NoDataCard} from "@features/card";
 import IconUrl from "@themes/urlIcon";
-import { DesktopContainer } from "@themes/desktopConainter";
-import { MobileContainer } from "@themes/mobileContainer";
+import {DesktopContainer} from "@themes/desktopConainter";
+import {MobileContainer} from "@themes/mobileContainer";
+import Can from "@features/casl/can";
 
 function Holidays() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -154,44 +155,45 @@ function Holidays() {
             <RootStyled>
                 <p style={{margin: 0}}>{t('path')}</p>
             </RootStyled>
-
-            <Button type='submit'
-                    variant="contained"
-                    onClick={() => {
-                        dispatch(openDrawer({type: "absence", open: true}));
-                    }}
-                    color="success">
-                {t('add')}
-            </Button>
+            <Can I={"manage"} a={"settings"} field={"settings__holidays__create"}>
+                <Button type='submit'
+                        variant="contained"
+                        onClick={() => {
+                            dispatch(openDrawer({type: "absence", open: true}));
+                        }}
+                        color="success">
+                    {t('add')}
+                </Button>
+            </Can>
         </SubHeader>
 
         <Box className="container">
             {(absences.length > 0 || isAbsencesLoading) ?
                 <>
                     <DesktopContainer>
-                <Otable
-                    {...{t}}
-                    headers={headCells}
-                    rows={absences}
-                    from={'holidays'}
-                    handleEvent={handleTableActions}
-                    total={total}
-                    totalPages={totalPages}
-                    pagination
-                />
-                </DesktopContainer>
+                        <Otable
+                            {...{t}}
+                            headers={headCells}
+                            rows={absences}
+                            from={'holidays'}
+                            handleEvent={handleTableActions}
+                            total={total}
+                            totalPages={totalPages}
+                            pagination
+                        />
+                    </DesktopContainer>
                     <MobileContainer>
                         <Stack spacing={1}>
                             {
-                                absences.map((absence, index) =>(
+                                absences.map((absence, index) => (
                                     <React.Fragment key={absence.uuid}>
-                                    <HolidaysMobileCard {...{data:absence,t,handleEvent:handleTableActions}}/>
+                                        <HolidaysMobileCard {...{data: absence, t, handleEvent: handleTableActions}}/>
                                     </React.Fragment>
                                 ))
                             }
                         </Stack>
                     </MobileContainer>
-                    
+
                 </>
                 :
                 <NoDataCard

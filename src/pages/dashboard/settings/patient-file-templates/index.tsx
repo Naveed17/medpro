@@ -26,6 +26,7 @@ import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
 import {useWidgetModels} from "@lib/hooks/rest";
+import Can from "@features/casl/can";
 
 function PatientFileTemplates() {
     const theme: Theme = useTheme();
@@ -185,18 +186,19 @@ function PatientFileTemplates() {
                 <RootStyled>
                     <p style={{margin: 0}}>{t("path")}</p>
                 </RootStyled>
-
-                <Button
-                    type="submit"
-                    variant="contained"
-                    onClick={() => {
-                        setOpen(true);
-                        setData(null);
-                        setAction("add");
-                    }}
-                    color="success">
-                    {!isMobile ? t("add") : <AddIcon/>}
-                </Button>
+                <Can I={"manage"} a={"settings"} field={"settings__patient-file-templates__create"}>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        onClick={() => {
+                            setOpen(true);
+                            setData(null);
+                            setAction("add");
+                        }}
+                        color="success">
+                        {!isMobile ? t("add") : <AddIcon/>}
+                    </Button>
+                </Can>
             </SubHeader>
             <Box
                 bgcolor={theme.palette.background.default}

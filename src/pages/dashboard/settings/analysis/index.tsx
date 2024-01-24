@@ -34,6 +34,7 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {AnalysisDrawer} from "@features/drawer";
 import {AnalysisMobileCard} from "@features/card";
+import Can from "@features/casl/can";
 
 function Analysis() {
     const theme: Theme = useTheme();
@@ -180,13 +181,15 @@ function Analysis() {
                     width={1}
                     alignItems="center">
                     <Typography color="text.primary">{t("path")}</Typography>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => configAnalysis(null, "add")}
-                        sx={{ml: "auto"}}>
-                        {t("add")}
-                    </Button>
+                    <Can I={"manage"} a={"settings"} field={"settings__analysis__create"}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() => configAnalysis(null, "add")}
+                            sx={{ml: "auto"}}>
+                            {t("add")}
+                        </Button>
+                    </Can>
                 </Stack>
             </SubHeader>
             <DesktopContainer>

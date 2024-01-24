@@ -216,14 +216,21 @@ function UsersTabs({...props}) {
             }, {
                 onSuccess: (result) => {
                     const permissions = (result?.data as HttpResponse)?.data;
-                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(permissions).map((permission: any, index: number) => ({
-                            ...permission,
-                            collapseIn: roles[idx].permissions[index]?.collapseIn ?? false,
-                            children: permission.children.map((item: PermissionModel, permissionIdx: number) => ({
-                                ...item,
-                                checked: roles[idx].permissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1])?.children.at(permissionIdx)?.checked ?? false
-                            }))
-                        }))
+                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`,
+                        groupPermissionsByFeature(permissions).map((permission: any, index: number) => {
+                            const featurePermissions = roles[idx].permissions;
+                            return {
+                                ...permission,
+                                collapseIn: featurePermissions[index]?.collapseIn ?? false,
+                                children: permission.children.map((item: PermissionModel) => {
+                                    const permissions = featurePermissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1]);
+                                    return {
+                                        ...item,
+                                        checked: permissions?.children.map((permission: PermissionModel) => permission?.uuid).includes(item.uuid) ?? false
+                                    }
+                                })
+                            }
+                        })
                     ));
                 },
                 onSettled: () => setLoadingReq(false)

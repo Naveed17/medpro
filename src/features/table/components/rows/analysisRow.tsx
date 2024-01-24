@@ -4,6 +4,7 @@ import {IconButton, Typography, Skeleton, Stack, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import {uniqueId} from "lodash";
+import Can from "@features/casl/can";
 
 function Analysis({...props}) {
     const {row, editMotif} = props;
@@ -43,24 +44,28 @@ function Analysis({...props}) {
             <TableCell align="right">
                 {row ? (
                     <Stack direction='row' alignItems='center' justifyContent='flex-end'>
-                        <IconButton
-                            size="small"
-                            sx={{mr: {md: 1}}}
-                            onClick={() => editMotif(row, "edit")}>
-                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
-                        </IconButton>
-                        <IconButton
-                            size="small"
-                            sx={{
-                                mr: {md: 1},
-                                '& .react-svg svg': {
-                                    width: 20,
-                                    height: 20
-                                }
-                            }}
-                            onClick={() => editMotif(row, "delete")}>
-                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
-                        </IconButton>
+                        <Can I={"manage"} a={"settings"} field={"settings__analysis__update"}>
+                            <IconButton
+                                size="small"
+                                sx={{mr: {md: 1}}}
+                                onClick={() => editMotif(row, "edit")}>
+                                <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                            </IconButton>
+                        </Can>
+                        <Can I={"manage"} a={"settings"} field={"settings__analysis__delete"}>
+                            <IconButton
+                                size="small"
+                                sx={{
+                                    mr: {md: 1},
+                                    '& .react-svg svg': {
+                                        width: 20,
+                                        height: 20
+                                    }
+                                }}
+                                onClick={() => editMotif(row, "delete")}>
+                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
+                            </IconButton>
+                        </Can>
                     </Stack>
                 ) : (
                     <Skeleton width={30} height={40} sx={{m: "auto"}}/>

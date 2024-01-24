@@ -6,6 +6,7 @@ import {TableRowStyled} from "@features/table";
 import {uniqueId} from "lodash";
 import {ModelDot} from "@features/modelDot";
 import {IconsTypes} from "@features/calendar";
+import Can from "@features/casl/can";
 
 function MotifRow({...props}) {
     const {row, editMotif} = props;
@@ -58,24 +59,28 @@ function MotifRow({...props}) {
             <TableCell align="right">
                 {row ? (
                     <Stack direction='row' alignItems='center' justifyContent='flex-end'>
-                        <IconButton
-                            size="small"
-                            sx={{mr: {md: 1}}}
-                            onClick={() => editMotif(row, "edit")}>
-                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
-                        </IconButton>
-                        {!row.hasData && <IconButton
-                            size="small"
-                            sx={{
-                                mr: {md: 1},
-                                '& .react-svg svg': {
-                                    width: 20,
-                                    height: 20
-                                }
-                            }}
-                            onClick={() => editMotif(row, "delete")}>
-                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
-                        </IconButton>}
+                        <Can I={"manage"} a={"settings"} field={"settings__consultation-type__update"}>
+                            <IconButton
+                                size="small"
+                                sx={{mr: {md: 1}}}
+                                onClick={() => editMotif(row, "edit")}>
+                                <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                            </IconButton>
+                        </Can>
+                        <Can I={"manage"} a={"settings"} field={"settings__consultation-type__delete"}>
+                            {!row.hasData && <IconButton
+                                size="small"
+                                sx={{
+                                    mr: {md: 1},
+                                    '& .react-svg svg': {
+                                        width: 20,
+                                        height: 20
+                                    }
+                                }}
+                                onClick={() => editMotif(row, "delete")}>
+                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
+                            </IconButton>}
+                        </Can>
                     </Stack>
                 ) : (
                     <Skeleton width={30} height={40} sx={{m: "auto"}}/>

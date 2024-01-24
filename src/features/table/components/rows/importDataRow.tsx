@@ -33,6 +33,7 @@ import {OverridableStringUnion} from "@mui/types";
 import {ChipPropsColorOverrides} from "@mui/material/Chip/Chip";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {Label} from "@features/label";
+import Can from "@features/casl/can";
 
 type ChipColors = OverridableStringUnion<'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning',
     ChipPropsColorOverrides>;
@@ -178,31 +179,33 @@ function ImportDataRow({...props}) {
                     )}
                 </TableCell>
                 <TableCell align="right">
-                    {process.env.NODE_ENV === 'development' && (row ? (
-                        <Box display="flex" sx={{float: "right"}} alignItems="center">
-                            {(row.status == 1 || row.status == 3) && <LoadingButton
-                                {...{loading}}
-                                onClick={() => {
-                                    handleEvent("delete-import", row.uuid);
-                                }}
-                                variant="text"
-                                size="small"
-                                color="error"
-                                startIcon={<RestartAltIcon/>}
-                                sx={{mr: 1}}>
-                                {t("table.reset")}
-                            </LoadingButton>}
-                        </Box>
-                    ) : (
-                        <Stack
-                            direction="row"
-                            spacing={1}
-                            alignItems="center"
-                            justifyContent="flex-end">
-                            <Skeleton variant="text" width={50}/>
-                            <Skeleton variant="text" width={50}/>
-                        </Stack>
-                    ))}
+                    <Can I={"manage"} a={"settings"} field={"settings__data__delete"}>
+                        {process.env.NODE_ENV === 'development' && (row ? (
+                            <Box display="flex" sx={{float: "right"}} alignItems="center">
+                                {(row.status == 1 || row.status == 3) && <LoadingButton
+                                    {...{loading}}
+                                    onClick={() => {
+                                        handleEvent("delete-import", row.uuid);
+                                    }}
+                                    variant="text"
+                                    size="small"
+                                    color="error"
+                                    startIcon={<RestartAltIcon/>}
+                                    sx={{mr: 1}}>
+                                    {t("table.reset")}
+                                </LoadingButton>}
+                            </Box>
+                        ) : (
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                                justifyContent="flex-end">
+                                <Skeleton variant="text" width={50}/>
+                                <Skeleton variant="text" width={50}/>
+                            </Stack>
+                        ))}
+                    </Can>
                 </TableCell>
             </TableRowStyled>
             {expandType.length > 0 &&

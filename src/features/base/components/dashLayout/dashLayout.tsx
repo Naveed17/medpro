@@ -79,7 +79,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     // Get current root feature
     const slugFeature = router.pathname.split('/')[2];
     const features = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
-    const rootFeature = features?.find(feature => feature.slug === slugFeature);
+    const rootFeature = features?.find(feature => feature.root === slugFeature);
     const {permissions} = useFeaturePermissions(rootFeature?.slug as string, !rootFeature?.hasProfile);
 
     const {trigger: mergeDuplicationsTrigger} = useRequestQueryMutation("/duplications/merge");

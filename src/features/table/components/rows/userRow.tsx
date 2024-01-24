@@ -20,6 +20,7 @@ import {useRequestQueryMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {CustomSwitch} from "@features/buttons";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import Can from "@features/casl/can";
 
 function UserRow({...props}) {
     const dispatch = useAppDispatch();
@@ -170,31 +171,35 @@ function UserRow({...props}) {
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        {row?.ssoId === currentUser && <IconButton
+                        <Can I={"manage"} a={"settings"} field={"settings__users__update"}>
+                            {row?.ssoId === currentUser && <IconButton
 
-                            size="small"
-                            color="primary"
-                            className="btn-edit"
-                            onClick={() => {
-                                dispatch(editUser(row));
-                                router.push(`${router.pathname}/${row.ssoId}`, `${router.pathname}/${row.ssoId}`, {locale: router.locale});
-                            }}>
-                            <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
-                        </IconButton>}
-                        {!row.isProfessional &&
-                            <IconButton
-                                className={"delete-icon"}
                                 size="small"
-                                onClick={() => editMotif(row)}
-                                sx={{
-                                    mr: {md: 1},
-                                    '& .react-svg svg': {
-                                        width: 20,
-                                        height: 20
-                                    }
+                                color="primary"
+                                className="btn-edit"
+                                onClick={() => {
+                                    dispatch(editUser(row));
+                                    router.push(`${router.pathname}/${row.ssoId}`, `${router.pathname}/${row.ssoId}`, {locale: router.locale});
                                 }}>
-                                <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
+                                <IconUrl color={theme.palette.text.secondary} path="ic-edit-patient"/>
                             </IconButton>}
+                        </Can>
+                        <Can I={"manage"} a={"settings"} field={"settings__users__delete"}>
+                            {!row.isProfessional &&
+                                <IconButton
+                                    className={"delete-icon"}
+                                    size="small"
+                                    onClick={() => editMotif(row)}
+                                    sx={{
+                                        mr: {md: 1},
+                                        '& .react-svg svg': {
+                                            width: 20,
+                                            height: 20
+                                        }
+                                    }}>
+                                    <IconUrl color={theme.palette.text.secondary} path="ic-trash"/>
+                                </IconButton>}
+                        </Can>
                     </Box>
                 ) : (
                     <Stack

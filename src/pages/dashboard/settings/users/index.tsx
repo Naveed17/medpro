@@ -43,6 +43,7 @@ import {TabPanel, UsersTabs} from "@features/tabPanel";
 import {ActionMenu} from "@features/menu";
 import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
+import Can from "@features/casl/can";
 
 const CardData = {
     mainIcon: "ic-user",
@@ -283,18 +284,20 @@ function Users() {
                         <Tab disableRipple label={t("all_users")} {...a11yProps(0)} />
                         <Tab disableRipple label={t("roles_permissons")} {...a11yProps(1)} />
                     </Tabs>
-                    {tabvalue === 0 && <CustomIconButton
-                        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                            event.stopPropagation();
-                            dispatch(resetUser());
-                            router.push(`/dashboard/settings/users/new`);
-                        }}
-                        variant="filled"
-                        sx={{p: .8}}
-                        color={"primary"}
-                        size={"small"}>
-                        <AgendaAddViewIcon/>
-                    </CustomIconButton>}
+                    <Can I={"manage"} a={"settings"} field={"settings__users__create"}>
+                        {tabvalue === 0 && <CustomIconButton
+                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                event.stopPropagation();
+                                dispatch(resetUser());
+                                router.push(`/dashboard/settings/users/new`);
+                            }}
+                            variant="filled"
+                            sx={{p: .8}}
+                            color={"primary"}
+                            size={"small"}>
+                            <AgendaAddViewIcon/>
+                        </CustomIconButton>}
+                    </Can>
                 </Stack>
             </SubHeader>
             <Box className="container">

@@ -29,6 +29,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
+import Can from "@features/casl/can";
 
 function Drugs() {
     const theme: Theme = useTheme();
@@ -142,16 +143,18 @@ function Drugs() {
                     width={1}
                     alignItems="center">
                     <Typography color="text.primary">{t("path")}</Typography>
-                    <Button
-                        onClick={() => {
-                            setSelectedDrug(null);
-                            setTimeout(() => setEdit(true));
-                        }}
-                        variant="contained"
-                        color="success"
-                        sx={{ml: "auto"}}>
-                        {t("add")}
-                    </Button>
+                    <Can I={"manage"} a={"settings"} field={"settings__drugs__create"}>
+                        <Button
+                            onClick={() => {
+                                setSelectedDrug(null);
+                                setTimeout(() => setEdit(true));
+                            }}
+                            variant="contained"
+                            color="success"
+                            sx={{ml: "auto"}}>
+                            {t("add")}
+                        </Button>
+                    </Can>
                 </Stack>
             </SubHeader>
             <DesktopContainer>
