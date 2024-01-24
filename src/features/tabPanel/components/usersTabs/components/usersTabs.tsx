@@ -100,6 +100,17 @@ function UsersTabs({...props}) {
 
     const {getFieldProps, values, errors, touched, setFieldValue, setValues, handleSubmit} = formik;
 
+    const groupPermissionsByFeature = (permissions: PermissionModel[]) => {
+        const groupedPermissions = permissions.group((permission: PermissionModel) => permission.slug?.split("__")[1]);
+        return Object.entries(groupedPermissions).reduce((groups: any[], group: any) => [...(groups ?? []), {
+            name: group[0],
+            uuid: group[0],
+            checkAll: false,
+            collapseIn: false,
+            children: group[1]
+        }], []);
+    }
+
     const handleSelectedRole = (props: any) => {
         if (props?.features?.length > 0) {
             setFieldValue("role_name", props?.name ?? "");
@@ -180,9 +191,14 @@ function UsersTabs({...props}) {
             }, {
                 onSuccess: (result) => {
                     const permissions = (result?.data as HttpResponse)?.data;
-                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, permissions.map((permission: PermissionModel, index: number) => ({
+
+                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(permissions).map((permission: any, index: number) => ({
                         ...permission,
-                        checked: roles[idx].permissions?.at(index)?.checked ?? false
+                        children: permission.children.map((item: PermissionModel) => ({
+                            ...item,
+                            checked: roles[idx].permissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1])?.children.at(index)?.checked ?? false
+                        }))
+
                     }))));
                 }
             });
@@ -190,6 +206,21 @@ function UsersTabs({...props}) {
         setOpenCollapseFeature(openCollapseFeature === slug ? "" : slug);
     }
 
+    const handleTreeCheck = (uuid: string, value: boolean, hasChildren: boolean, group: string, featurePermission: any, role: any, index: number) => {
+        console.log("onNodeCheck", uuid, value, hasChildren, group);
+        let groupUuid;
+        let field: string;
+        if (hasChildren) {
+            groupUuid = featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid);
+            field = `roles[${role[0]}][${index}].permissions[${groupUuid}].checked`
+        } else {
+            groupUuid = featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === group);
+            const permissionChildIndex = featurePermission?.permissions[groupUuid].children.findIndex((permission: PermissionModel) => permission.uuid === uuid);
+            field = `roles[${role[0]}][${index}].permissions[${groupUuid}].children[${permissionChildIndex}].checked`
+        }
+        setFieldValue(field, value)
+    }
+    console.log("values", values.roles)
     return (
         <RootSyled container spacing={2}>
             <Grid item xs={12} md={3}>
@@ -318,7 +349,8 @@ function UsersTabs({...props}) {
                                                     <TreeCheckbox
                                                         disabled={featurePermission?.hasOwnProperty('featureEntity') ? !featurePermission?.featureEntity?.checked : false}
                                                         data={featurePermission?.permissions ?? []}
-                                                        onNodeCheck={(uuid: string, value: boolean) => setFieldValue(`roles[${role[0]}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].checked`, value)}
+                                                        onCollapseIn={(uuid: string, value: boolean) => setFieldValue(`roles[${role[0]}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].collapseIn`, value)}
+                                                        onNodeCheck={(uuid: string, value: boolean, hasChildren: boolean, group: string) => handleTreeCheck(uuid, value, hasChildren, group, featurePermission, role, index)}
                                                         t={t}/>
                                                 </Box>
                                             </Box>)}
