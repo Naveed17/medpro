@@ -24,6 +24,7 @@ function TreeViewCheckbox({...props}) {
                     <FormControlLabel
                         {
                             ...(hasChildren && {
+                                sx: {pointerEvents: "none"},
                                 className: hasChildren ? "bold-label" : "simple-label",
                             })
                         }
@@ -36,6 +37,7 @@ function TreeViewCheckbox({...props}) {
                                 }}
                                 checked={hasChildren ? node.children.every((child: any) => child.checked) : node.checked}
                                 {...(hasChildren && {
+                                    sx: {pointerEvents: "auto"},
                                     icon: node.children.some((child: any) => child.checked) ?
                                         <IndeterminateCheckBoxIcon color="primary"/> : node.checked ?
                                             <IconUrl path="ic_check"/> : <IconUrl path="ic_uncheck"/>,

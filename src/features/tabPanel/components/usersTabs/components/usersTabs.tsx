@@ -112,27 +112,37 @@ function UsersTabs({...props}) {
     }
 
     const handleSelectedRole = (props: any) => {
+        setValues({
+            role_name: props?.name,
+            roles: initData()
+        });
         if (props?.features?.length > 0) {
-            setFieldValue("role_name", props?.name ?? "");
             props?.features?.forEach((data: any) => {
                 const slug = data?.feature?.slug;
                 values.roles[slug].map((role: any, idx: number) => {
                     if (data[slug]) {
                         setFieldValue(`roles[${slug}][${idx}].featureEntity.checked`, true);
                     }
-                    setFieldValue(`roles[${slug}][${idx}].permissions`, data?.profile?.permissions?.map((permission: PermissionModel) => ({
+
+                    setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(data?.profile?.permissions).map((permission: any, index: number) => ({
                         ...permission,
-                        checked: true
-                    })))
+                        children: permission.children.map((item: PermissionModel) => ({
+                            ...item,
+                            checked: true
+                        }))
+                    })));
                     setFieldValue(`roles[${slug}][${idx}].profile`, data?.profile?.uuid);
                 });
             });
-        } else {
-            setValues({
-                role_name: props?.name,
-                roles: initData()
-            });
         }
+    }
+
+    const handleSelectedPermissionCount = (role: FeatureModel[]) => {
+        return role.reduce((features: any[], feature: FeatureModel) =>
+            [...(features ?? []),
+                ...(feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                    [...(permissions ?? []),
+                        ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [])], [])?.length;
     }
 
     const resetFormData = () => {
@@ -151,16 +161,28 @@ function UsersTabs({...props}) {
 
         form.append("name", selectedProfile?.name ?? values.role_name);
         Object.entries(values.roles).map((role: any) => {
-            const hasFeaturePermissions = role[1].reduce((permissions: any[], feature: FeatureModel) => [...(permissions ?? []), ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? feature?.permissions?.filter(permission => permission?.checked) : []) : feature?.permissions?.filter(permission => permission?.checked)) ?? [])], [])?.length > 0;
+            const hasFeaturePermissions = role[1].reduce((features: any[], feature: FeatureModel) => {
+                const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                    [...(permissions ?? []),
+                        ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+                return [
+                    ...(features ?? []),
+                    ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? permissions : []) : permissions) ?? [])]
+            }, []).length > 0;
+
             if (hasFeaturePermissions) {
                 features[role[0]] = role[1].reduce((features: FeatureModel[], feature: FeatureModel) => {
-                    const hasPermissions = feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked && (feature?.permissions?.length ?? 0) > 0) : (feature?.permissions?.length ?? 0) > 0;
+                    const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                        [...(permissions ?? []),
+                            ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+
+                    const hasPermissions = feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked && (permissions.length ?? 0) > 0) : (permissions.length ?? 0) > 0;
                     return [
                         ...(features ?? []),
                         ...(hasPermissions ? [{
                             object: feature?.featureEntity?.uuid,
                             featureProfile: feature?.profile,
-                            permissions: feature?.permissions?.reduce((permissions: string[], permission: PermissionModel) => [...(permissions ?? []), ...(permission?.checked ? [permission.uuid] : [])], [])
+                            permissions: permissions.map((permission: PermissionModel) => permission.uuid)
                         }] : [])
                     ];
                 }, [])
@@ -168,6 +190,7 @@ function UsersTabs({...props}) {
         });
 
         form.append("features", JSON.stringify(features));
+
         triggerProfileUpdate({
             method: selectedProfile ? "PUT" : "POST",
             url: `${urlMedicalEntitySuffix}/profile/${selectedProfile ? `${selectedProfile.uuid}/` : ""}${router.locale}`,
@@ -184,22 +207,21 @@ function UsersTabs({...props}) {
     }
 
     const HandleFeatureCollapse = (slug: string, roles: any) => {
-        if (openCollapseFeature !== slug) {
+        if (openCollapseFeature !== slug && (values.roles[slug]?.permissions?.length ?? 0) === 0) {
             featurePermissionsTrigger({
                 method: "GET",
                 url: `${urlMedicalEntitySuffix}/permissions/${router.locale}?feature=${slug}`
             }, {
                 onSuccess: (result) => {
                     const permissions = (result?.data as HttpResponse)?.data;
-
-                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(permissions).map((permission: any, index: number) => ({
-                        ...permission,
-                        children: permission.children.map((item: PermissionModel) => ({
-                            ...item,
-                            checked: roles[idx].permissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1])?.children.at(index)?.checked ?? false
+                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(permissions).map((permission: any) => ({
+                            ...permission,
+                            children: permission.children.map((item: PermissionModel, permissionIdx: number) => ({
+                                ...item,
+                                checked: roles[idx].permissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1])?.children.at(permissionIdx)?.checked ?? false
+                            }))
                         }))
-
-                    }))));
+                    ));
                 }
             });
         }
@@ -207,20 +229,24 @@ function UsersTabs({...props}) {
     }
 
     const handleTreeCheck = (uuid: string, value: boolean, hasChildren: boolean, group: string, featurePermission: any, role: any, index: number) => {
-        console.log("onNodeCheck", uuid, value, hasChildren, group);
-        let groupUuid;
-        let field: string;
         if (hasChildren) {
-            groupUuid = featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid);
-            field = `roles[${role[0]}][${index}].permissions[${groupUuid}].checked`
+            const groupUuid = featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid);
+            setFieldValue(`roles[${role[0]}][${index}].permissions[${groupUuid}]`, {
+                ...featurePermission?.permissions[groupUuid],
+                checked: value,
+                children: featurePermission?.permissions[groupUuid].children.map((permission: PermissionModel) => ({
+                    ...permission,
+                    checked: value
+                }))
+            });
         } else {
-            groupUuid = featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === group);
-            const permissionChildIndex = featurePermission?.permissions[groupUuid].children.findIndex((permission: PermissionModel) => permission.uuid === uuid);
-            field = `roles[${role[0]}][${index}].permissions[${groupUuid}].children[${permissionChildIndex}].checked`
+            const permissionUuid = featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === group);
+            const permissionChildIndex = featurePermission?.permissions[permissionUuid].children.findIndex((permission: PermissionModel) => permission.uuid === uuid);
+            const field = `roles[${role[0]}][${index}].permissions[${permissionUuid}].children[${permissionChildIndex}].checked`;
+            setFieldValue(field, value);
         }
-        setFieldValue(field, value)
     }
-    console.log("values", values.roles)
+
     return (
         <RootSyled container spacing={2}>
             <Grid item xs={12} md={3}>
@@ -332,7 +358,7 @@ function UsersTabs({...props}) {
                                         </Typography>
 
                                         <Badge sx={{ml: 2}}
-                                               badgeContent={role[1].reduce((permissions: any[], feature: FeatureModel) => [...(permissions ?? []), ...(feature?.permissions?.filter(permission => permission?.checked) ?? [])], [])?.length}
+                                               badgeContent={handleSelectedPermissionCount(role[1])}
                                                color="primary"/>
                                     </Stack>
 
