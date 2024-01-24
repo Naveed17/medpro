@@ -3,12 +3,13 @@ import IconUrl from '@themes/urlIcon';
 import React from 'react'
 import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
 
-
 function TreeViewCheckbox({...props}) {
-    const {data, disabled, onNodeCheck, onCollapseIn} = props;
+    const {t, data, disabled, onNodeCheck, onCollapseIn} = props;
 
     const renderNode = (node: any) => {
         const hasChildren = node.children && node.children.length > 0;
+        const everyChildrenChecked = node.children && node.children.every((child: any) => child.checked);
+        const someChildrenChecked = node.children && node.children.some((child: any) => child.checked);
 
         const handleNodeCheck = () => {
             onNodeCheck(node.uuid, !node.checked, hasChildren, node?.slug?.split("__")[1]);
@@ -20,7 +21,13 @@ function TreeViewCheckbox({...props}) {
 
         return (
             <React.Fragment key={node.uuid}>
-                <Stack direction={"row"} sx={{cursor: "pointer"}} alignItems={"center"} onClick={handleCollapseIn}>
+                <Stack direction={"row"}
+                       sx={{
+                           cursor: "pointer",
+                           ...(!node.collapseIn && {mb: 1})
+                       }}
+                       alignItems={"center"}
+                       onClick={handleCollapseIn}>
                     <FormControlLabel
                         {
                             ...(hasChildren && {
@@ -35,16 +42,16 @@ function TreeViewCheckbox({...props}) {
                                     event.stopPropagation();
                                     handleNodeCheck()
                                 }}
-                                checked={hasChildren ? node.children.every((child: any) => child.checked) : node.checked}
+                                checked={hasChildren ? everyChildrenChecked : node.checked}
                                 {...(hasChildren && {
                                     sx: {pointerEvents: "auto"},
-                                    icon: node.children.some((child: any) => child.checked) ?
+                                    icon: someChildrenChecked ?
                                         <IndeterminateCheckBoxIcon color="primary"/> : node.checked ?
                                             <IconUrl path="ic_check"/> : <IconUrl path="ic_uncheck"/>,
                                 })}
                             />
                         }
-                        label={node.name}
+                        label={hasChildren ? t(`features.${node.name}`) : node.name}
                     />
 
                     <IconButton
@@ -59,7 +66,8 @@ function TreeViewCheckbox({...props}) {
                         <IconUrl path="setting/ic-down-arrow" width={12} height={12}/>
                     </IconButton>
                 </Stack>
-                {hasChildren &&
+                {
+                    hasChildren &&
                     <Collapse in={node.collapseIn} className="inner-collapse">
                         <List className="inside-list">
                             {node.children.map((childNode: any) => renderNode(childNode))}

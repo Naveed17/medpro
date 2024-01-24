@@ -20,8 +20,8 @@ const RootSyled = styled(Grid)(({theme}) => ({
             cursor: 'default',
             width: '100%',
             ".collapse-wrapper": {
+                paddingTop: 0,
                 width: 'calc(100% + 64px)',
-
                 borderTop: `1px solid ${theme.palette.common.white}`,
                 marginLeft: theme.spacing(-2),
                 marginRight: theme.spacing(-2),
@@ -48,7 +48,7 @@ const RootSyled = styled(Grid)(({theme}) => ({
                 ".inside-list": {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                    gap: theme.spacing(2),
+                    gap: theme.spacing(1),
                     [theme.breakpoints.down("md")]: {
                         gridTemplateColumns: 'repeat(1, minmax(0, 1fr))',
                     }
