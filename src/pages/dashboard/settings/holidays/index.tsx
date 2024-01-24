@@ -185,7 +185,7 @@ function Holidays() {
                     <MobileContainer>
                         <Stack spacing={1}>
                             {
-                                absences.map((absence, index) => (
+                                absences.map((absence) => (
                                     <React.Fragment key={absence.uuid}>
                                         <HolidaysMobileCard {...{data: absence, t, handleEvent: handleTableActions}}/>
                                     </React.Fragment>

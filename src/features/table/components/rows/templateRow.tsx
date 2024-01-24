@@ -9,7 +9,7 @@ import {ModelDot} from "@features/modelDot";
 import Can from "@features/casl/can";
 
 function MotifRow({...props}) {
-    const {row, tableHeadData, active, handleChange, editMotif, ids, data} = props;
+    const {row, handleChange, editMotif} = props;
 
     return (
         <TableRowStyled key={uniqueId}>
