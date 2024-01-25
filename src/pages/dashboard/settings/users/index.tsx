@@ -43,6 +43,8 @@ import {TabPanel, UsersTabs} from "@features/tabPanel";
 import {ActionMenu} from "@features/menu";
 import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
+import { Dialog as CustomDialog, NewUserDialog } from "@features/dialog";
+import { setStepperIndex } from "@features/stepper";
 import Can from "@features/casl/can";
 
 const CardData = {
@@ -135,6 +137,7 @@ function Users() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
+    const [newUserDialog, setNewUserDialog] = useState<boolean>(false)
 
     const {jti, id: currentUser} = session?.user as any;
     const {data: user} = session as Session;
@@ -269,6 +272,10 @@ function Users() {
             }
         })
     }
+    const handleCloseNewUserDialog = () => {
+        setNewUserDialog(false)
+        dispatch(setStepperIndex(0))
+    }
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -402,6 +409,19 @@ function Users() {
                     </MenuItem>
                 ))}
             </ActionMenu>
+            <Dialog
+                maxWidth="md"
+                PaperProps={{
+                    sx: {
+                        width: '100%',
+                        m: 1
+                    }
+                }}
+                open={newUserDialog} onClose={handleCloseNewUserDialog}>
+                <NewUserDialog t={t} handleClose={handleCloseNewUserDialog} mutate={mutate} />
+            </Dialog>
+
+
         </>
     );
 }
