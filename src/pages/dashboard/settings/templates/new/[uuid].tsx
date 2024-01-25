@@ -42,7 +42,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import {LoadingScreen} from "@features/loadingScreen";
-import {Doc, Page} from "@features/page";
+import {Doc} from "@features/page";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import PageStyled from "@features/page/components/overrides/pageStyled";
@@ -129,6 +129,7 @@ function DocsConfig() {
     }
 
     const save = () => {
+        console.log(file);
         let typeUuids = ""
         queryState.type.map((type: { uuid: string; }) => {
             typeUuids += type.uuid + ','
@@ -483,6 +484,61 @@ function DocsConfig() {
                                         </div>
                                     </Grid>))}
                             </Grid>
+
+                            <Typography mt={2} mb={2}>{t('static')}</Typography>
+
+                            <Grid
+                                container
+                                spacing={1}
+                                alignItems="center">
+
+                                <Grid item xs={6}>
+                                    <Stack
+                                        direction={"row"}
+                                        spacing={1}
+                                        alignItems={"center"}
+                                        onClick={() => {
+                                            if (data.other)
+                                                data.other = [...data.other, {
+                                                    type: "text",
+                                                    x: 0,
+                                                    y: 0,
+                                                    content: "text..."
+                                                }]
+                                            else
+                                                data.other = [{type: "text", x: 0, y: 0, content: "text..."}]
+                                            setData({...data})
+                                        }}
+                                        style={{
+                                            backgroundColor: "#F0FAFF",
+                                            height: 40,
+                                            padding: 10,
+                                            borderRadius: 6
+                                        }}>
+                                        <Typography textAlign={"center"} width={"100%"}>Texte</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                    </Stack>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Stack
+                                        direction={"row"}
+                                        spacing={1}
+                                        alignItems={"center"}
+                                        onClick={() => {
+
+                                        }}
+                                        style={{
+                                            backgroundColor: "#F0FAFF",
+                                            height: 40,
+                                            padding: 10,
+                                            borderRadius: 6
+                                        }}>
+                                        <Typography textAlign={"center"} width={"100%"}>Image</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                    </Stack>
+                                </Grid>
+                            </Grid>
+
                         </Collapse>
 
                     </Box>
@@ -501,7 +557,7 @@ function DocsConfig() {
                 </Grid>
 
 
-{/*                <Grid item xs={12} md={2} padding={2} style={{background:"white"}}>
+                {/*                <Grid item xs={12} md={2} padding={2} style={{background:"white"}}>
                     <Stack spacing={1}>
                         <Typography fontSize={16} fontWeight={"bold"}>Pages</Typography>
                         <Box style={{            backgroundColor: theme.palette.background.default,

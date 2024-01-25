@@ -345,6 +345,61 @@ function Page({...props}) {
                         </div>
                     </Resizable>}
 
+                    {
+                        data.other && data.other.map((other,index) => (
+
+                        <Resizable key={index} className={`${selectedElement === "content" ? "selected" : "notSelected"} content resizable`}
+                    style={{
+                        paddingLeft: 15, paddingRight: 15,
+                        transform: `translate(${other.x}px, ${other.y}px)`,
+                        width: `${data.content.width ? data.content.width + "px" : "90%"}`,
+                        height: `${data.content.maxHeight}px`
+                    }}
+                    bounds={"parent"}
+                    enable={{
+                        right: selectedElement === "content" && id === 0,
+                        bottom: selectedElement === "content",
+                        bottomRight: selectedElement === "content" && id === 0
+                    }}
+                    defaultSize={{
+                        width: `${other.width ? other.width + "px" : 300}`,
+                        height: "fit-content",
+                    }}
+                    onResizeStart={() => {
+                        setBlockDrag(true)
+                    }}
+                    onResizeStop={(e, direction, ref, d) => {
+                        other.width = document.getElementById(`patient${id}`)?.clientWidth
+                        other.height += d.height
+                        setData({...data})
+                        setBlockDrag(false)
+                    }}>
+
+                    <div id={`content${id}`} style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
+                         dangerouslySetInnerHTML={{__html: data.content.content}}></div>
+                    <div className={"menuTop"} style={{top: 0}}>
+                        <div className={"btnMenu"}>
+                            <div onClick={() => {
+                                setValue("content")
+                            }}>
+                                <Icon path={"focus"} width={20} height={20}/>
+                            </div>
+                        </div>
+                        <div className={"btnMenu"}
+                             style={{background: selectedElement === "content" ? theme.palette.success.main : theme.palette.info.main}}>
+                            <div onClick={() => {
+                                setSelectedElement(selectedElement !== "content" ? "content" : "")
+                            }}>
+                                {selectedElement === "content" ?
+                                    <Icon path={"ic-check"}/> :
+                                    <Icon path={"text-selection"} width={20} height={20}/>}
+                            </div>
+                        </div>
+                    </div>
+                </Resizable>
+                        ))
+                    }
+
 
                     {/*Content*/}
                     <Resizable
