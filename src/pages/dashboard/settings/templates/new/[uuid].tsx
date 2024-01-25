@@ -129,7 +129,6 @@ function DocsConfig() {
     }
 
     const save = () => {
-        console.log(file);
         let typeUuids = ""
         queryState.type.map((type: { uuid: string; }) => {
             typeUuids += type.uuid + ','
@@ -461,7 +460,7 @@ function DocsConfig() {
                                 container
                                 spacing={1}
                                 alignItems="center">
-                                {data && Object.keys(data).filter(key => !["content", "size", "background", "layout", "isNew"].includes(key)).map(key => (
+                                {data && Object.keys(data).filter(key => !["content", "size", "background", "layout", "isNew","other"].includes(key)).map(key => (
                                     <Grid key={key} item xs={6}>
                                         <div style={{opacity: data[key].show === true ? 0.5 : 1}}>
                                             <Stack
@@ -503,10 +502,12 @@ function DocsConfig() {
                                                     type: "text",
                                                     x: 0,
                                                     y: 0,
+                                                    width:300,
+                                                    height: null,
                                                     content: "text..."
                                                 }]
                                             else
-                                                data.other = [{type: "text", x: 0, y: 0, content: "text..."}]
+                                                data.other = [{type: "text", x: 0, y: 0,width:300, content: "text..."}]
                                             setData({...data})
                                         }}
                                         style={{
@@ -525,8 +526,55 @@ function DocsConfig() {
                                         spacing={1}
                                         alignItems={"center"}
                                         onClick={() => {
-
+                                            if (data.other)
+                                                data.other = [...data.other, {
+                                                    type: "image",
+                                                    x: 0,
+                                                    y: 0,
+                                                    width:80,
+                                                    height:80,
+                                                    content: "/static/icons/Med-logo.png"
+                                                }]
+                                            else
+                                                data.other = [{type: "image",
+                                                    x: 0,
+                                                    y: 0,
+                                                    width:80,
+                                                    height:80,
+                                                    content: "/static/icons/Med-logo.png"}]
+                                            setData({...data})
                                         }}
+
+                                        style={{
+                                            backgroundColor: "#F0FAFF",
+                                            height: 40,
+                                            padding: 10,
+                                            borderRadius: 6
+                                        }}>
+                                        <Typography textAlign={"center"} width={"100%"}>Image</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                    </Stack>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Stack
+                                        direction={"row"}
+                                        spacing={1}
+                                        alignItems={"center"}
+                                        onClick={() => {
+                                            if (data.other)
+                                                data.other = [...data.other, {
+                                                    type: "qrcode",
+                                                    x: 0,
+                                                    y: 0,
+                                                    width:80,
+                                                    height:80,
+                                                    content: "/static/icons/Med-logo.png"
+                                                }]
+                                            else
+                                                data.other = [{type: "qrcode", x: 0, y: 0,width:80, height:80, content: "text..."}]
+                                            setData({...data})
+                                        }}
+
                                         style={{
                                             backgroundColor: "#F0FAFF",
                                             height: 40,

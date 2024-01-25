@@ -23,6 +23,16 @@ function Doc({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
 
+    const editorInit = {
+        branding: false,
+        statusbar: false,
+        menubar: false,
+        height: 200,
+        plugins: tinymcePlugins,
+        toolbar: tinymceToolbarNotes,
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+    }
+
     const createPageContent = () => {
         let elx = "";
         switch (state.type) {
@@ -106,11 +116,11 @@ function Doc({...props}) {
 
     useEffect(() => {
         if (state) {
-               if (state.info)
-                   createPageContent()
-               else if (state && state.content) {
-                   data.content.content = state.content;
-                   setData({...data})
+            if (state.info)
+                createPageContent()
+            else if (state && state.content) {
+                data.content.content = state.content;
+                setData({...data})
             }
             //data.content.content = "x";
             setData({...data})
@@ -214,25 +224,27 @@ function Doc({...props}) {
             </PageStyled>
 
 
-           <Dialog onClose={() => {
-                setValue("")
-            }} open={value !== ""}>
+            <Dialog open={value !== ""}
+                    onClose={() => {
+                        setValue("")
+                    }}>
                 {data[value] && <Editor
-                    initialValue={data[value].content}
+                    value={data[value].content}
                     apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
                     onEditorChange={(event) => {
                         data[value].content = event
                         setData({...data})
                     }}
-                    init={{
-                        branding: false,
-                        statusbar: false,
-                        menubar: false,
-                        height: 200,
-                        plugins: tinymcePlugins,
-                        toolbar: tinymceToolbarNotes,
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                    }}/>}
+                    init={editorInit}/>}
+
+                {value.includes("other") && <Editor
+                    value={data["other"][value.replace("other", "")].content}
+                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                    onEditorChange={(event) => {
+                        data["other"][value.replace("other", "")].content = event
+                        setData({...data})
+                    }}
+                    init={editorInit}/>}
             </Dialog>
         </Box>
     )

@@ -729,7 +729,8 @@
       "elDoc": "Elément du document",
       "upload_document": "Importer",
       "bg": "Background",
-      "section": "Sections du document"
+      "section": "Sections du document",
+      "static": "Composants statiques"
     }
   }
 }

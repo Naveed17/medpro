@@ -6,10 +6,12 @@ import Icon from "@themes/urlIcon";
 import {useTheme} from "@mui/material";
 import {DocHeader} from "@features/files";
 import {DocHeaderEditor} from "@features/files/components/docHeaderEditor";
+import { useQRCode } from 'next-qrcode';
 
 function Page({...props}) {
 
     const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue} = props
+    const { Canvas } = useQRCode();
 
     const theme = useTheme();
 
@@ -29,29 +31,53 @@ function Page({...props}) {
         return -1 * _margin
     }
 
-    useEffect(()=>{
-       setTimeout(()=>{setLoading(false)},2000)
-    },[])
+    useEffect(() => {
+        setTimeout(() => {
+            setLoading(false)
+        }, 2000)
+    }, [])
 
     useEffect(() => {
         if (selectedElement !== "") {
-            interact(`.${selectedElement}`)
-                .draggable({
-                    listeners: {
-                        move(event) {
-                            if (!blockDrag) {
-                                data[selectedElement].x += event.dx
-                                data[selectedElement].y += event.dy
-                                setData({...data})
-                            }
+            if (selectedElement.includes("other")) {
+                interact(`.${selectedElement}`)
+                    .draggable({
+                        listeners: {
+                            move(event) {
+                                if (!blockDrag) {
+                                    let index = selectedElement.replace('other', '')
+                                    data["other"][index].x += event.dx
+                                    data["other"][index].y += event.dy
+                                    setData({...data})
+                                }
+                            },
                         },
-                    },
-                    modifiers: [
-                        interact.modifiers.restrictRect({
-                            restriction: 'parent'
-                        })
-                    ]
-                })
+                        modifiers: [
+                            interact.modifiers.restrictRect({
+                                restriction: 'parent'
+                            })
+                        ]
+                    })
+            } else {
+                interact(`.${selectedElement}`)
+                    .draggable({
+                        listeners: {
+                            move(event) {
+                                if (!blockDrag) {
+                                    data[selectedElement].x += event.dx
+                                    data[selectedElement].y += event.dy
+                                    setData({...data})
+                                }
+                            },
+                        },
+                        modifiers: [
+                            interact.modifiers.restrictRect({
+                                restriction: 'parent'
+                            })
+                        ]
+                    })
+            }
+
         }
 
         const footer = document.getElementById('footer')
@@ -87,7 +113,7 @@ function Page({...props}) {
                     className={`page ${data.size === "portraitA4" ? `${!data.layout ? "" : data.layout}a4` : `${!data.layout ? "" : data.layout}a5`}`}>
                     {/*Header*/}
                     {
-                        data.header.show && id == 0 &&  <Resizable
+                        data.header.show && id == 0 && <Resizable
                             defaultSize={{
                                 width: `${data.header.width ? data.header.width + "px" : "100%"}`,
                                 height: "fit-content",
@@ -141,7 +167,7 @@ function Page({...props}) {
                         </Resizable>}
 
                     {/*Title*/}
-                    {data.title.show && id == 0 &&  <Resizable
+                    {data.title.show && id == 0 && <Resizable
                         defaultSize={{
                             width: `${data.title.width ? data.title.width + "px" : "100%"}`,
                             height: "fit-content",
@@ -197,7 +223,7 @@ function Page({...props}) {
                         </div>
                     </Resizable>}
                     {/*Date*/}
-                    {data.date.show && id == 0 &&  <Resizable
+                    {data.date.show && id == 0 && <Resizable
                         defaultSize={{
                             width: `${data.date.width ? data.date.width + "px" : 300}`,
                             height: "fit-content",
@@ -246,7 +272,7 @@ function Page({...props}) {
                         </div>
                     </Resizable>}
                     {/*patient*/}
-                    {data.patient.show && id == 0 &&  <Resizable
+                    {data.patient.show && id == 0 && <Resizable
                         defaultSize={{
                             width: `${data.patient.width ? data.patient.width + "px" : 300}`,
                             height: "fit-content",
@@ -346,57 +372,103 @@ function Page({...props}) {
                     </Resizable>}
 
                     {
-                        data.other && data.other.map((other,index) => (
+                        data.other && data.other.map((other: any, index: number) => (
 
-                        <Resizable key={index} className={`${selectedElement === "content" ? "selected" : "notSelected"} content resizable`}
-                    style={{
-                        paddingLeft: 15, paddingRight: 15,
-                        transform: `translate(${other.x}px, ${other.y}px)`,
-                        width: `${data.content.width ? data.content.width + "px" : "90%"}`,
-                        height: `${data.content.maxHeight}px`
-                    }}
-                    bounds={"parent"}
-                    enable={{
-                        right: selectedElement === "content" && id === 0,
-                        bottom: selectedElement === "content",
-                        bottomRight: selectedElement === "content" && id === 0
-                    }}
-                    defaultSize={{
-                        width: `${other.width ? other.width + "px" : 300}`,
-                        height: "fit-content",
-                    }}
-                    onResizeStart={() => {
-                        setBlockDrag(true)
-                    }}
-                    onResizeStop={(e, direction, ref, d) => {
-                        other.width = document.getElementById(`patient${id}`)?.clientWidth
-                        other.height += d.height
-                        setData({...data})
-                        setBlockDrag(false)
-                    }}>
+                            <Resizable
+                                key={index}
+                                defaultSize={{
+                                    width: `${other.width ? other.width + "px" : "100%"}`,
+                                    height: `${other.height ? other.height + "px" : "fit-content"}`,
+                                }}
+                                className={`${selectedElement === `other${index}` ? "selected" : "notSelected"} other${index}`}
+                                style={{
+                                    transform: `translate(${other.x}px, ${other.y}px)`,
+                                    width: `${other.width ? other.width + "px" : "fit-content"}`,
+                                    height: `${other.height ? other.height + "px" : "fit-content"}`,
+                                }}
+                                bounds={"parent"}
+                                enable={{
+                                    right: selectedElement === `other${index}`,
+                                    bottom: selectedElement === `other${index}`,
+                                    bottomRight: selectedElement === `other${index}`,
+                                }}
+                                onResizeStart={() => {
+                                    setBlockDrag(true)
+                                }}
+                                onResizeStop={(e, direction, ref, d) => {
+                                    other.width = document.getElementById(`other${index}`)?.clientWidth
+                                    other.height += d.height
+                                    setData({...data})
+                                    setBlockDrag(false)
+                                }}>
 
-                    <div id={`content${id}`} style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
-                         dangerouslySetInnerHTML={{__html: data.content.content}}></div>
-                    <div className={"menuTop"} style={{top: 0}}>
-                        <div className={"btnMenu"}>
-                            <div onClick={() => {
-                                setValue("content")
-                            }}>
-                                <Icon path={"focus"} width={20} height={20}/>
-                            </div>
-                        </div>
-                        <div className={"btnMenu"}
-                             style={{background: selectedElement === "content" ? theme.palette.success.main : theme.palette.info.main}}>
-                            <div onClick={() => {
-                                setSelectedElement(selectedElement !== "content" ? "content" : "")
-                            }}>
-                                {selectedElement === "content" ?
-                                    <Icon path={"ic-check"}/> :
-                                    <Icon path={"text-selection"} width={20} height={20}/>}
-                            </div>
-                        </div>
-                    </div>
-                </Resizable>
+                                {other.type === "text" && <div id={`other${index}`} style={{textAlign: "center"}}
+                                                               dangerouslySetInnerHTML={{__html: other.content}}
+                                                               onClick={(ev) => {
+                                                                   ev.stopPropagation()
+                                                                   setSelectedElement(`other${index}`)
+                                                               }}/>}
+                                {other.type === "image" && <div id={`other${index}`}
+                                                                onClick={(ev) => {
+                                                                    ev.stopPropagation()
+                                                                    setSelectedElement(`other${index}`)
+                                                                }}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={other.content} style={{width: other.width, height: other.height}} alt={"logo"}/>
+                                </div>}
+                                {other.type === "qrcode" && <div id={`other${index}`}
+                                                                onClick={(ev) => {
+                                                                    ev.stopPropagation()
+                                                                    setSelectedElement(`other${index}`)
+                                                                }}>
+                                    <Canvas
+                                        text={other.content}
+                                        options={{
+                                            errorCorrectionLevel: 'M',
+                                            margin: 0,
+                                            scale: 4,
+                                            width: other.width,
+                                            color: {
+                                                dark: '#000000',
+                                                light: '#FFFFFF',
+                                            },
+                                        }}
+                                        logo={{
+                                            src: '/static/icons/Med-logo.png',
+                                            options: {
+                                                width: 35,
+                                                x: undefined,
+                                                y: undefined,
+                                            }
+                                        }}
+                                    />
+                                </div>}
+                                <div className={"menuTop"}>
+                                    <div className={"btnMenu"}
+                                         onClick={() => {
+                                             data.other.splice(index, 1)
+                                             setData({...data})
+                                         }}>
+                                        <Icon path={"ic-delete"}/>
+                                    </div>
+                                    {selectedElement === `other${index}` && <div className={"btnMenu"}>
+                                        <div onClick={() => {
+                                            setValue(`other${index}`)
+                                        }}>
+                                            <Icon path={"focus"} width={20} height={20}/>
+                                        </div>
+                                    </div>}
+                                    <div className={"btnMenu"}
+                                         style={{backgroundColor: selectedElement === `other${index}` ? theme.palette.success.main : theme.palette.info.main}}
+                                         onClick={() => {
+                                             setSelectedElement(selectedElement !== `other${index}` ? `other${index}` : "")
+                                         }}>
+                                        {selectedElement === `other${index}` ?
+                                            <Icon path={"ic-check"}/> :
+                                            <Icon path={"text-selection"} width={20} height={20}/>}
+                                    </div>
+                                </div>
+                            </Resizable>
                         ))
                     }
 
@@ -406,7 +478,7 @@ function Page({...props}) {
                         className={`${selectedElement === "content" ? "selected" : "notSelected"} content resizable`}
                         style={{
                             paddingLeft: 15, paddingRight: 15,
-                            transform: `translate(${id === 0 ?data.content.x : 0}px, ${id === 0 ? data.content.y : 50 }px)`,
+                            transform: `translate(${id === 0 ? data.content.x : 0}px, ${id === 0 ? data.content.y : 50}px)`,
                             width: `${data.content.width ? data.content.width + "px" : "90%"}`,
                             height: `${data.content.maxHeight}px`
                         }}
@@ -448,7 +520,8 @@ function Page({...props}) {
                             setOnResize(true);
                         }}>
 
-                        <div id={`content${id}`} style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
+                        <div id={`content${id}`}
+                             style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
                              dangerouslySetInnerHTML={{__html: data.content.content}}></div>
                         <div className={"menuTop"} style={{top: 0}}>
                             <div className={"btnMenu"}>
