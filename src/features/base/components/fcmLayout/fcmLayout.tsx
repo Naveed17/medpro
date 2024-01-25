@@ -40,6 +40,7 @@ import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
 import {buildAbilityFor} from "@lib/rbac/casl/ability";
 import {AbilityContext} from "@features/casl/can";
+import {caslSelector} from "@features/casl";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -62,6 +63,7 @@ function FcmLayout({...props}) {
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
+    const permissions = useAppSelector(caslSelector);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
@@ -79,7 +81,7 @@ function FcmLayout({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
-    const ability = buildAbilityFor(features ?? []);
+    const ability = buildAbilityFor(features ?? [], permissions);
 
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
 

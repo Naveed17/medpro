@@ -2,7 +2,7 @@ import type {AppProps} from "next/app";
 import {appWithTranslation} from "next-i18next";
 import {GlobleStyles} from "@themes/globalStyle";
 import {Provider} from "react-redux";
-import {store} from "@lib/redux/store";
+import {store, persistor} from "@lib/redux/store";
 import React, {ReactElement, ReactNode, useMemo} from "react";
 import {NextPage} from "next";
 import {SnackbarProvider} from "notistack";
@@ -30,6 +30,7 @@ import {buildProvidersTree} from "@lib/routes/buildProvidersTree";
 import RootLayout from "@features/base/components/rootLayout/rootLayout";
 import {ConditionalWrapper} from "@lib/hooks";
 import {CloseSnackbarAction} from "@features/popup";
+import {PersistGate} from 'redux-persist/integration/react';
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -44,6 +45,7 @@ function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
 
     const ProvidersTree = useMemo(() => buildProvidersTree([
         [Provider, {store}],
+        [PersistGate, {loading: null, persistor}],
         [SnackbarProvider, {
             className: "snackbar-notification",
             preventDuplicate: true,

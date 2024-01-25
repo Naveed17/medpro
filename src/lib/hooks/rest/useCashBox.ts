@@ -5,13 +5,11 @@ import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useEffect} from "react";
 import {setSelectedBoxes} from "@features/leftActionBar";
 import {useAppDispatch} from "@lib/redux/hooks";
-import {useSession} from "next-auth/react";
+import {setPermissions} from "@features/casl";
 
 function useCashBox() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const {update} = useSession();
-
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
     const {data: httpBoxesResponse} = useRequestQuery({
@@ -27,10 +25,7 @@ function useCashBox() {
                 dispatch(setSelectedBoxes([cashBoxes[0]]));
             }
             if (permissions.length > 0) {
-                update({
-                    permissions: (permissions[0] as PermissionModel[]).map(permission => permission?.slug),
-                    slug: "cashbox"
-                })
+                dispatch(setPermissions({"cashbox": (permissions[0] as PermissionModel[]).map(permission => permission?.slug)}));
             }
         }
     }, [dispatch, httpBoxesResponse]); // eslint-disable-line react-hooks/exhaustive-deps

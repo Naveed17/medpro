@@ -231,7 +231,7 @@ function Cashbox() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const tabsData = [
-        ...(ability.can('manage', 'agenda', '*') ? [{
+        ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
             label: "consultations",
             value: "consultations"
         }] : []),

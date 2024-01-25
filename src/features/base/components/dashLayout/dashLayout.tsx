@@ -40,6 +40,7 @@ import {pdfjs} from "react-pdf";
 import {NewFeaturesCarousel} from "@features/carousels";
 import {openNewFeaturesDialog, sideBarSelector} from "@features/menu";
 import {useFeaturePermissions} from "@lib/hooks/rest";
+import {setPermissions} from "@features/casl";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
@@ -104,8 +105,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/appointments/types/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
-
-    const agendasData = ((httpAgendasResponse as HttpResponse)?.data ?? []) as AgendaConfigurationModel[];
 
     const renderNoDataCard = <NoDataCard
         {...{t}}
@@ -233,11 +232,17 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     useEffect(() => {
         if (httpAgendasResponse) {
-            const localAgendasData = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
-            const agendaUser = localAgendasData?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
-            setAgenda(agendaUser);
-            dispatch(setConfig({...agendaUser}));
-            dispatch(setAgendas(agendasData));
+            const agendasData = ((httpAgendasResponse as HttpResponse)?.data ?? []) as AgendaPermissionsModel[];
+            const defaultAgenda = agendasData.reduce((agendas: AgendaPermissionsModel, agendaPermission: AgendaPermissionsModel) => ({...(agendas ?? {}), ...(agendaPermission.agenda?.isDefault ? agendaPermission : {})}), {});
+            if (defaultAgenda?.permissions) {
+                dispatch(setPermissions({"agenda": defaultAgenda?.permissions.map(permission => permission?.slug)}));
+            }
+            if (defaultAgenda?.agenda) {
+                setAgenda(defaultAgenda?.agenda);
+                dispatch(setConfig({...defaultAgenda?.agenda}));
+                const agendas = agendasData.reduce((agendas: AgendaConfigurationModel[], agendaPermission: AgendaPermissionsModel) => [...(agendas ?? []), ...(agendaPermission.agenda ? [agendaPermission.agenda] : [])], []);
+                dispatch(setAgendas(agendas));
+            }
         }
     }, [httpAgendasResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -310,10 +315,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     useEffect(() => {
         if (permissions?.length > 0) {
-            update({
-                permissions: permissions.map(permission => permission?.slug),
-                slug: rootFeature?.slug
-            });
+            dispatch(setPermissions({[rootFeature?.slug as string]: permissions.map(permission => permission?.slug)}));
         }
     }, [permissions]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -321,14 +323,12 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         if (!localStorage.getItem("new-features")) {
             setTimeout(() => {
                 dispatch(openNewFeaturesDialog(true));
-
             }, 3000);
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SideBarMenu>
-            {/*<AppLock/>*/}
             <PageTransition ref={ref}>
                 {children}
             </PageTransition>
