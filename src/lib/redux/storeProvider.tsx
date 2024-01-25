@@ -1,11 +1,13 @@
-import {useRef} from 'react'
-import {Provider} from 'react-redux'
+import {useRef} from 'react';
+import {Provider} from 'react-redux';
 import {AppStore, store} from "@lib/redux/store";
-import {PersistGate} from 'redux-persist/integration/react';
 import {persistStore} from "redux-persist";
 import {Persistor} from "redux-persist/es/types";
+import dynamic from 'next/dynamic';
 
-export default function StoreProvider({children,}: { children: React.ReactNode }) {
+const PersistGateProvider = dynamic(() => import('@lib/redux/persistGateProvider'), {ssr: false});
+
+function StoreProvider({children}: { children: React.ReactNode }) {
     const storeRef = useRef<AppStore>()
     const persistor = useRef<Persistor>()
 
@@ -17,9 +19,11 @@ export default function StoreProvider({children,}: { children: React.ReactNode }
 
     return (
         <Provider store={storeRef.current}>
-            <PersistGate loading={null} persistor={persistor.current as Persistor}>
+            <PersistGateProvider persistor={persistor.current as Persistor}>
                 {children}
-            </PersistGate>
+            </PersistGateProvider>
         </Provider>
     )
 }
+
+export default StoreProvider;
