@@ -1,4 +1,4 @@
-import {Action, combineReducers, configureStore, ThunkAction} from "@reduxjs/toolkit";
+import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import {ConfigReducer} from "@features/base/reducer";
 import {SideBarReducer, ProfileMenuReducer} from "@features/menu";
 import {CheckListReducer} from "@features/checkList";
@@ -28,7 +28,7 @@ import {absenceDrawerReducer} from "@features/drawer";
 import {minMaxWindowToggleReducer} from '@features/buttons';
 import {StepperReducer} from "@features/stepper";
 import storageSession from 'redux-persist/lib/storage/session'
-import {persistReducer, persistStore} from 'redux-persist';
+import {persistReducer} from 'redux-persist';
 import {CaslReducer} from "@features/casl";
 
 const persistConfig = {
@@ -73,20 +73,19 @@ const rootReducer = combineReducers({
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-export const store = configureStore({
-    reducer: persistedReducer,
-    devTools: process.env.NODE_ENV !== 'production',
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware(
-        {
-            serializableCheck: false
-        }
-    ),
-});
-
-export const persistor = persistStore(store);
-export type AppDispatch = typeof store.dispatch;
-export type RootState = ReturnType<typeof store.getState>;
-export type AppThunk<ReturnType = void> = ThunkAction<ReturnType,
-    RootState,
-    unknown,
-    Action<string>>;
+export const store = () => {
+    return configureStore({
+        reducer: persistedReducer,
+        devTools: process.env.NODE_ENV !== 'production',
+        middleware: (getDefaultMiddleware) => getDefaultMiddleware(
+            {
+                serializableCheck: false
+            }
+        ),
+    })
+}
+// Infer the type of makeStore
+export type AppStore = ReturnType<typeof store>
+// Infer the `RootState` and `AppDispatch` types from the store itself
+export type RootState = ReturnType<AppStore['getState']>
+export type AppDispatch = AppStore['dispatch']

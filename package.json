@@ -94,7 +94,7 @@
     "react-phone-number-input": "^3.2.19",
     "react-player": "^2.11.0",
     "react-qr-code": "^2.0.7",
-    "react-redux": "^8.0.1",
+    "react-redux": "^9.1.0",
     "react-simple-image-viewer": "^1.2.2",
     "react-slick": "^0.29.0",
     "react-speech-recognition": "^3.10.0",
