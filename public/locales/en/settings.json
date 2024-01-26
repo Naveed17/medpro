@@ -469,7 +469,7 @@
     "updated": "Act is updated",
     "price_of_act": "Price",
     "save": "Save",
-    "betav":"Use the new cash box version (beta)",
+    "betav": "Use the new cash box version (beta)",
     "newAct": "New act",
     "add_act": "New act",
     "placeholder_act": "e.g., act name",
@@ -584,6 +584,21 @@
       "status": "Status",
       "action": "Action",
       "reset": "Reset"
+    }
+  },
+  "insurance": {
+    "config": {
+      "path": {
+        "root": "Paramètres > Assurance & Convention"
+      },
+      "add": "Ajouter",
+      "table": {
+        "name": "Assurance",
+        "label": "Libellé",
+        "start_data": "Date de début",
+        "end_date": "Date de fin",
+        "empty": ""
+      }
     }
   },
   "appLock": {

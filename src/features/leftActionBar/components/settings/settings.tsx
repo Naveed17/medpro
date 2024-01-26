@@ -1,5 +1,5 @@
 import React from "react";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 // Material ui
 import {
     Typography,
@@ -14,27 +14,27 @@ import {
 
 // config data
 import settingsData from "./settingsConfig";
-import {SettingBarStyled} from "@features/leftActionBar";
-import {useTranslation} from "next-i18next";
+import { SettingBarStyled } from "@features/leftActionBar";
+import { useTranslation } from "next-i18next";
 import IconUrl from "@themes/urlIcon";
-import {LoadingScreen} from "@features/loadingScreen";
-import {useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector} from "@features/calendar";
+import { LoadingScreen } from "@features/loadingScreen";
+import { useAppSelector } from "@lib/redux/hooks";
+import { agendaSelector } from "@features/calendar";
 import Can from "@features/casl/can";
 
 function Settings() {
     const router = useRouter();
 
-    const {t, ready} = useTranslation("settings");
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const { t, ready } = useTranslation("settings");
+    const { config: agendaConfig } = useAppSelector(agendaSelector);
 
     const locations = agendaConfig?.locations;
 
-    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"} />);
 
     return (
         <SettingBarStyled>
-            <Box sx={{width: "100%", bgcolor: "background.paper", height: '100vh'}}>
+            <Box sx={{ width: "100%", bgcolor: "background.paper", height: '100vh' }}>
                 <Typography variant="h6" className="heading" mb={2}>
                     {t('menu.' + settingsData.title)}
                 </Typography>
@@ -42,18 +42,18 @@ function Settings() {
                     <List>
                         {settingsData.data.map((item: any) => (
                             <Can key={item.name} I={"read"} a={"settings"}
-                                 field={`settings__${item.href.split('/')[3]}__show` as any}>
+                                field={`settings__${item.href.split('/')[3]}__show` as any}>
                                 <ListItem
                                     {...(item.fill !== "default" && {
                                         sx: {
                                             "& .MuiListItemIcon-root svg path": {
-                                                fill: (theme) => theme.palette.primary.main
+                                                fill: (theme: any) => theme.palette.primary.main
                                             }
                                         }
                                     })
                                     }
                                     key={item.name}
-                                    {...(item.disable && {sx: {display: "none"}})}
+                                    {...(item.disable && { sx: { display: "none" } })}
                                     className={router.pathname === item.href ? 'active' : ''}
                                     disablePadding>
                                     <ListItemButton
@@ -61,9 +61,9 @@ function Settings() {
                                         disabled={item.disable}
                                         disableRipple>
                                         <ListItemIcon>
-                                            <IconUrl width={20} height={20} path={item.icon}/>
+                                            <IconUrl width={20} height={20} path={item.icon} />
                                         </ListItemIcon>
-                                        <ListItemText primary={t('menu.' + item.name)}/>
+                                        <ListItemText primary={t('menu.' + item.name)} />
                                     </ListItemButton>
                                 </ListItem>
                             </Can>

@@ -229,6 +229,14 @@ const rowsActionsData = [
             )
         ),
     },
+    {
+        action: "insurance-agreement",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/insuranceAgreementRow").then(
+                (mod) => mod
+            )
+        ),
+    },
 ];
 
 export default rowsActionsData;

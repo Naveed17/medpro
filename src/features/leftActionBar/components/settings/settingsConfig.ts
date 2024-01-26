@@ -27,6 +27,12 @@ const settingsData = {
             disable: false
         },
         {
+            name: "insurance_agreement",
+            icon: "convention",
+            href: "/dashboard/settings/insurance-agreement",
+            disable: false
+        },
+        {
             name: "motif",
             icon: "setting/ic-motifs",
             href: "/dashboard/settings/motif",

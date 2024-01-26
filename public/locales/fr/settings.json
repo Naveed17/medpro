@@ -21,7 +21,8 @@
     "app_lock": "Verrouillage",
     "drugs": "Médicaments",
     "analysis": "Analyse",
-    "medical_imaging": "Imagerie médicale"
+    "medical_imaging": "Imagerie médicale",
+    "insurance_agreement": "Assurance & Convention"
   },
   "profile": {
     "specialities": "Spécialités",
@@ -801,6 +802,30 @@
       "status": "statut",
       "action": "Action",
       "reset": "Réinitialiser"
+    }
+  },
+  "insurance": {
+    "config": {
+      "title": "Assurance & Convention",
+      "search": "Recherche",
+      "path": {
+        "root": "Paramètres > Assurance & Convention"
+      },
+      "add": "Ajouter",
+      "table": {
+        "name": "Assurance",
+        "label": "Libellé",
+        "start_date": "Date de début",
+        "end_date": "Date de fin",
+        "empty": ""
+      },
+      "no-data": {
+        "title": "Ajouter une Assurance & Convention",
+        "description": "Description"
+      },
+      "popover-actions": {
+        "add": "Ajouter"
+      }
     }
   },
   "appLock": {
