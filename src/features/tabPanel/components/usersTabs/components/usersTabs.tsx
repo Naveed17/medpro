@@ -221,17 +221,16 @@ function UsersTabs({...props}) {
                             const featurePermissions = roles[idx].permissions;
                             return {
                                 ...permission,
-                                collapseIn: featurePermissions[index]?.collapseIn ?? false,
+                                collapseIn: featurePermissions[idx]?.collapseIn ?? false,
                                 children: permission.children.map((item: PermissionModel) => {
                                     const permissions = featurePermissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1]);
                                     return {
                                         ...item,
-                                        checked: permissions?.children.map((permission: PermissionModel) => permission?.uuid).includes(item.uuid) ?? false
+                                        checked: permissions?.children.reduce((permissions: string[], permission: PermissionModel) => [...(permissions ?? []), ...(permission.checked ? [permission.uuid] : [])], []).includes(item.uuid) ?? false
                                     }
                                 })
                             }
-                        })
-                    ));
+                        })));
                 },
                 onSettled: () => setLoadingReq(false)
             });

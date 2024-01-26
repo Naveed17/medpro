@@ -315,7 +315,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     useEffect(() => {
         if (permissions?.length > 0) {
-            dispatch(setPermissions({[rootFeature?.slug as string]: permissions.map(permission => permission?.slug)}));
+            dispatch(setPermissions({[rootFeature?.root as string]: permissions.map(permission => permission?.slug)}));
         }
     }, [permissions]); // eslint-disable-line react-hooks/exhaustive-deps
 
