@@ -6,12 +6,12 @@ import Icon from "@themes/urlIcon";
 import {useTheme} from "@mui/material";
 import {DocHeader} from "@features/files";
 import {DocHeaderEditor} from "@features/files/components/docHeaderEditor";
-import { useQRCode } from 'next-qrcode';
+import {useQRCode} from 'next-qrcode';
 
 function Page({...props}) {
 
     const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue} = props
-    const { Canvas } = useQRCode();
+    const {Canvas} = useQRCode();
 
     const theme = useTheme();
 
@@ -99,6 +99,7 @@ function Page({...props}) {
         }
     }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // @ts-ignore
     return (
         <PageStyled>
             <div className={"dropzone"} id="inner-dropzone">
@@ -414,13 +415,14 @@ function Page({...props}) {
                                                                     setSelectedElement(`other${index}`)
                                                                 }}>
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={other.content} style={{width: other.width, height: other.height}} alt={"logo"}/>
+                                    <img src={other.content} style={{width: other.width, height: other.height}}
+                                         alt={"logo"}/>
                                 </div>}
                                 {other.type === "qrcode" && <div id={`other${index}`}
-                                                                onClick={(ev) => {
-                                                                    ev.stopPropagation()
-                                                                    setSelectedElement(`other${index}`)
-                                                                }}>
+                                                                 onClick={(ev) => {
+                                                                     ev.stopPropagation()
+                                                                     setSelectedElement(`other${index}`)
+                                                                 }}>
                                     <Canvas
                                         text={other.content}
                                         options={{
@@ -475,7 +477,7 @@ function Page({...props}) {
 
                     {/*Content*/}
                     <Resizable
-                        className={`${selectedElement === "content" ? "selected" : "notSelected"} content resizable`}
+                        className={`${selectedElement === "content" ? "selected" : "notSelected"} content resizable content${id}`}
                         style={{
                             paddingLeft: 15, paddingRight: 15,
                             transform: `translate(${id === 0 ? data.content.x : 0}px, ${id === 0 ? data.content.y : 50}px)`,
@@ -520,7 +522,8 @@ function Page({...props}) {
                             setOnResize(true);
                         }}>
 
-                        <div id={`content${id}`}
+                        <div
+                            id={`content${id}`}
                              style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
                              dangerouslySetInnerHTML={{__html: data.content.content}}></div>
                         <div className={"menuTop"} style={{top: 0}}>
@@ -548,17 +551,19 @@ function Page({...props}) {
                     {data.footer.show && <Resizable
                         defaultSize={{
                             width: `${data.footer.width ? data.footer.width + "px" : 300}`,
-                            height: "fit-content",
+                            height: `${data.footer.height ? data.footer.height + "px" : "fit-content"}`,
                         }}
                         className={`${selectedElement === "footer" ? "selected" : "notSelected"} footer`}
                         style={{
                             transform: `translate(${data.footer.x}px, ${data.footer.y}px)`,
                             width: `${data.footer.width ? data.footer.width + "px" : "fit-content"}`,
-                            height: `fit-content`
+                            height: `${data.footer.height ? data.footer.height + "px" : "fit-content"}`,
                         }}
                         bounds={"parent"}
                         enable={{
                             right: selectedElement === "footer",
+                            bottom: selectedElement === "footer",
+                            bottomRight: selectedElement === "footer",
                         }}
                         onResizeStart={() => {
                             setBlockDrag(true)

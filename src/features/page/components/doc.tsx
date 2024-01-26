@@ -155,7 +155,7 @@ function Doc({...props}) {
             const container = document.getElementById("containerx")
 
             if (contentDiv && container) {
-                var paragraphs = container.getElementsByTagName('p');
+                let paragraphs = container.getElementsByTagName('p');
                 for (let i = 0; i < paragraphs.length; i++) {
                     paragraphs[i].style.marginTop = paragraphs[i].style.fontSize ? paragraphs[i].style.fontSize + "px" : '14px'; // Ajustez cette valeur au besoin
                     paragraphs[i].style.marginBottom = paragraphs[i].style.fontSize ? paragraphs[i].style.fontSize + "px" : '14px'; // Ajustez cette valeur au besoin
