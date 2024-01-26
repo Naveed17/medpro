@@ -422,8 +422,7 @@ function DocumentDetailDialog({...props}) {
         if (state?.type === "quote") {
             medicalEntityHasUser && triggerDocumentDelete({
                     method: "DELETE",
-                    url: `${urlMedicalEntitySuffix} / mehu /${medicalEntityHasUser[0].uuid}/quotes/${state?.uuid}
-    /${router.locale}`
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${state?.uuid}/${router.locale}`
                 },
                 {
                     onSuccess: () => {
@@ -591,9 +590,9 @@ function DocumentDetailDialog({...props}) {
                         }
                     }
                 }
-                setTimeout(()=>{
+                setTimeout(() => {
                     setLoading(false)
-                },1000)
+                }, 1000)
             }
         }
     }, [httpDocumentHeader, state]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -605,9 +604,9 @@ function DocumentDetailDialog({...props}) {
                     <Doc {...{
                         data,
                         setData,
-                        header,setHeader,
+                        header, setHeader,
                         date,
-                        onReSize,setOnResize,
+                        onReSize, setOnResize,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,
                             info: [{
@@ -620,7 +619,7 @@ function DocumentDetailDialog({...props}) {
                             }]
                         } : state
                     }}/>
-                </Box>:<PreviewA4
+                </Box> : <PreviewA4
                     {...{
                         previewDocRef,
                         componentRef,
@@ -641,7 +640,7 @@ function DocumentDetailDialog({...props}) {
                         date,
                         loading,
                         t
-                    }} /> }
+                    }} />}
             {/* {!loading && <PreviewA4
                 {...{
                     previewDocRef,
@@ -679,8 +678,8 @@ function DocumentDetailDialog({...props}) {
                 </CardContent>
             </Card>}
             <Grid container>
-                <Grid item xs={12} md={menu ? 8 : 11} style={{height:"68vh",overflowX: "hidden"}}>
-                    <Stack spacing={2} >
+                <Grid item xs={12} md={menu ? 8 : 11} style={{height: "68vh", overflowX: "hidden"}}>
+                    <Stack spacing={2}>
                         {!multimedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>
                                 <Box id={"previewID"}>
