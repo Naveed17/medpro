@@ -678,7 +678,7 @@ function DocumentDetailDialog({...props}) {
                 </CardContent>
             </Card>}
             <Grid container>
-                <Grid item xs={12} md={menu ? 8 : 11} style={{height: "68vh", overflowX: "hidden"}}>
+                <Grid item xs={12} md={menu ? 8 : 11}>
                     <Stack spacing={2}>
                         {!multimedias.some(multi => multi === state?.type) &&
                             <Box style={{minWidth: '148mm', margin: 'auto'}}>

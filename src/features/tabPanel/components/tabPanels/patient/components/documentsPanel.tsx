@@ -524,8 +524,6 @@ function DocumentsPanel({...props}) {
                                                     fees: _el.price_item
                                                 }];
                                             showQuote(card.uuid, _acts, card.notes)
-
-
                                         })
                                     }}
                                            alignItems={"center"}
