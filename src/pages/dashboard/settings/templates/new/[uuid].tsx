@@ -42,7 +42,7 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRoundedIcon from '@mui/icons-material/KeyboardArrowUpRounded';
 import {LoadingScreen} from "@features/loadingScreen";
-import {Doc, Page} from "@features/page";
+import {Doc} from "@features/page";
 import IconUrl from "@themes/urlIcon";
 import Icon from "@themes/urlIcon";
 import PageStyled from "@features/page/components/overrides/pageStyled";
@@ -55,6 +55,27 @@ function DocsConfig() {
     const isMobile = useMediaQuery("(max-width:669px)");
     const {enqueueSnackbar} = useSnackbar();
 
+    const defaultData = {
+        background: {show: false, content: {url: ''}},
+        header: {show: false, x: 0, y: 0},
+        footer: {show: false, x: 0, y: 400, content: 'change me ...'},
+        title: {show: false, content: 'ORDONNANCE MEDICALE', x: 0, y: 150},
+        date: {show: false, prefix: 'Le ', content: '[ 00 / 00 / 0000 ]', x: 0, y: 200, textAlign: "right"},
+        patient: {show: false, prefix: 'Nom & prénom: ', content: 'MOHAMED ALI', x: 40, y: 250},
+        cin: {show: false, prefix: 'CIN : ', content: '', x: 40, y: 274},
+        age: {show: false, prefix: 'AGE:', content: '', x: 40, y: 316},
+        size: 'portraitA4',
+        isNew: true,
+        content: {
+            show: true,
+            maxHeight: 100,
+            heightPages: [],
+            maxWidth: 130,
+            content: '<p>[ Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia, molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborum numquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentium ]</p>',
+            x: 0,
+            y: 320
+        },
+    }
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
     const {direction} = useAppSelector(configSelector);
 
@@ -66,7 +87,7 @@ function DocsConfig() {
     const [title, setTitle] = useState("");
     const [isDefault, setIsDefault] = useState(false);
     const [hasData, setHasData] = useState(false);
-    const [propsModel, setPropsModel] = useState(false);
+    const [propsModel, setPropsModel] = useState(true);
     const [elDoc, setElDoc] = useState(true);
     const [loading, setLoading] = useState(true);
     const [header, setHeader] = useState<any>(null);
@@ -96,6 +117,9 @@ function DocsConfig() {
     const [queryState, setQueryState] = useState<any>({type: []});
     const [files, setFiles] = useState<any[]>([]);
     const [onReSize, setOnResize] = useState(true)
+    const [used, setUsed] = useState(false)
+    const [openReset, setOpenReset] = useState(false)
+    const [paperSize, setPaperSize] = useState({target: "", value: ""})
 
     const uuid = router.query.uuid;
 
@@ -205,6 +229,32 @@ function DocsConfig() {
         [files]
     );
 
+    const resetFormat = (target: string, value: string) => {
+        if (used) {
+            setOpenReset(true)
+            setPaperSize({target, value})
+        } else
+            resetNow(target, value)
+    }
+
+    const resetNow = (target: string, value: string) => {
+        let _data: any = {...defaultData}
+        _data[target] = value;
+        _data.content.width = "90%"
+        setOnResize(true)
+        _data.content.maxHeight = 100
+        _data.content.x = 0
+        _data.content.y = 320
+        const _content = document.getElementsByClassName("content0")[0] as HTMLElement
+        if (_content) {
+            _content.style.width = "90%"
+            _content.style.height = "100px";
+        }
+        setData({..._data})
+        setUsed(false);
+        setPaperSize({target: "", value: ""})
+        setOpenReset(false)
+    }
 
     useEffect(() => {
         if (httpDocumentHeader) {
@@ -237,6 +287,8 @@ function DocsConfig() {
                         ...data,
                         background: {show: data.background.show, content: docHeader.file ? docHeader.file : ''}
                     })
+
+                setUsed(true)
             }
 
             setTimeout(() => {
@@ -247,9 +299,7 @@ function DocsConfig() {
         } else
             setHeader({left1: "", left2: "", left3: "", right1: "", right2: "", right3: ""})
         // eslint-disable-next-line react-hooks/exhaustive-deps
-
         setLoading(false)
-
     }, [docHeader])
 
     useEffect(() => {
@@ -261,7 +311,6 @@ function DocsConfig() {
 
     return (
         <PageStyled>
-
             <SubHeader>
                 <RootStyled>
                     <p style={{margin: 0}}>{`${t("path")} > ${uuid === 'new' ? 'Créer document' : 'Modifier document'}`}</p>
@@ -319,8 +368,48 @@ function DocsConfig() {
                                 }}
                                 fullWidth/>
 
+                            <Typography fontSize={14} color={'#999'} mb={1}>{t('docSize')}</Typography>
 
-                            <Typography fontSize={14} color={'#999'} mb={1}>{t('selectTypes')}</Typography>
+                            <Stack direction={"row"} spacing={1} justifyContent={"center"}>
+                                <ButtonGroup color={"info"} variant="outlined" aria-label="outlined button group">
+                                    <Button onClick={() => {
+                                        resetFormat("size", "portraitA4")
+                                    }}>
+                                        <Typography fontSize={12}
+                                                    fontWeight={"bold"}
+                                                    color={data.size === "portraitA4" ? "primary" : theme.palette.grey["400"]}>
+                                            A4
+                                        </Typography>
+                                    </Button>
+                                    <Button onClick={() => {
+                                        resetFormat("size", "portraitA5")
+                                    }}>
+                                        <Typography fontSize={12}
+                                                    fontWeight={"bold"}
+                                                    color={data.size === "portraitA5" ? "primary" : theme.palette.grey["400"]}>
+                                            A5
+                                        </Typography>
+                                    </Button>
+                                </ButtonGroup>
+                                <ButtonGroup color={"info"} variant="outlined" aria-label="outlined button group">
+                                    <Button onClick={() => {
+                                        resetFormat("layout", "")
+                                    }}>
+                                        <IconUrl path={"Portrait"}
+                                                 color={data.layout === undefined || data.layout === "" ? theme.palette.primary.main : theme.palette.grey["400"]}/>
+                                    </Button>
+                                    <Button onClick={() => {
+                                        resetFormat("layout", "landscape")
+                                    }}>
+                                        <IconUrl path={"Landscape"}
+                                                 color={data.layout === "landscape" ? theme.palette.primary.main : theme.palette.grey["400"]}/>
+                                    </Button>
+
+                                </ButtonGroup>
+                            </Stack>
+
+
+                            <Typography fontSize={14} color={'#999'} mt={2} mb={1}>{t('selectTypes')}</Typography>
 
                             <MuiAutocompleteSelectAll.Provider
                                 value={{
@@ -361,52 +450,6 @@ function DocsConfig() {
                                         </FormControl>)}
                                 />
                             </MuiAutocompleteSelectAll.Provider>
-
-                            <Typography fontSize={14} color={'#999'} mb={1}>{t('docSize')}</Typography>
-
-                            <Stack direction={"row"} spacing={1} justifyContent={"center"}>
-                                <ButtonGroup color={"info"} variant="outlined" aria-label="outlined button group">
-                                    <Button onClick={() => {
-                                        data.size = "portraitA4";
-                                        data.content.width = "90%"
-                                        setOnResize(true)
-                                        setData({...data})
-                                    }}>
-                                        <Typography fontSize={12} fontWeight={"bold"}
-                                                    color={data.size === "portraitA4" ? "primary" : theme.palette.grey["400"]}>A4</Typography>
-                                    </Button>
-                                    <Button onClick={() => {
-                                        data.size = "portraitA5";
-                                        data.content.width = "90%"
-                                        setOnResize(true)
-                                        setData({...data})
-                                    }}>
-                                        <Typography fontSize={12} fontWeight={"bold"}
-                                                    color={data.size === "portraitA5" ? "primary" : theme.palette.grey["400"]}>A5</Typography>
-                                    </Button>
-                                </ButtonGroup>
-                                <ButtonGroup color={"info"} variant="outlined" aria-label="outlined button group">
-                                    <Button onClick={() => {
-                                        data.layout = "";
-                                        data.content.width = "90%"
-                                        setOnResize(true)
-                                        setData({...data})
-                                    }}>
-                                        <IconUrl path={"Portrait"}
-                                                 color={data.layout === undefined || data.layout === "" ? theme.palette.primary.main : theme.palette.grey["400"]}/>
-                                    </Button>
-                                    <Button onClick={() => {
-                                        data.layout = "landscape";
-                                        data.content.width = "90%"
-                                        setOnResize(true)
-                                        setData({...data})
-                                    }}>
-                                        <IconUrl path={"Landscape"}
-                                                 color={data.layout === "landscape" ? theme.palette.primary.main : theme.palette.grey["400"]}/>
-                                    </Button>
-
-                                </ButtonGroup>
-                            </Stack>
 
                             <Stack direction="row" alignItems='center' sx={{
                                 border: `1px solid ${theme.palette.grey["200"]}`,
@@ -460,7 +503,7 @@ function DocsConfig() {
                                 container
                                 spacing={1}
                                 alignItems="center">
-                                {data && Object.keys(data).filter(key => !["content", "size", "background", "layout", "isNew"].includes(key)).map(key => (
+                                {data && Object.keys(data).filter(key => !["content", "size", "background", "layout", "isNew", "other"].includes(key)).map(key => (
                                     <Grid key={key} item xs={6}>
                                         <div style={{opacity: data[key].show === true ? 0.5 : 1}}>
                                             <Stack
@@ -468,6 +511,7 @@ function DocsConfig() {
                                                 spacing={1}
                                                 alignItems={"center"}
                                                 onClick={() => {
+                                                    setUsed(true)
                                                     data[key].show = true
                                                     setData({...data})
                                                 }}
@@ -477,17 +521,141 @@ function DocsConfig() {
                                                     padding: 10,
                                                     borderRadius: 6
                                                 }}>
-                                                <Typography textAlign={"center"} width={"100%"}>{t(key)}</Typography>
+                                                <Typography textAlign={"center"} width={"100%"}
+                                                            style={{cursor: "pointer"}}>{t(key)}</Typography>
                                                 <IconUrl path={"ic-plus"} width={20} height={20}/>
                                             </Stack>
                                         </div>
                                     </Grid>))}
                             </Grid>
+
+                            <Typography mt={2} mb={2}>{t('static')}</Typography>
+
+                            <Grid
+                                container
+                                spacing={1}
+                                alignItems="center">
+                                <Grid item xs={6}>
+                                    <Stack
+                                        direction={"row"}
+                                        spacing={1}
+                                        alignItems={"center"}
+                                        onClick={() => {
+                                            setUsed(true)
+                                            if (data.other)
+                                                data.other = [...data.other, {
+                                                    type: "text",
+                                                    x: 0,
+                                                    y: 0,
+                                                    width: 300,
+                                                    height: null,
+                                                    content: "text..."
+                                                }]
+                                            else
+                                                data.other = [{
+                                                    type: "text",
+                                                    x: 0,
+                                                    y: 0,
+                                                    width: 300,
+                                                    content: "text..."
+                                                }]
+                                            setData({...data})
+                                        }}
+                                        style={{
+                                            backgroundColor: "#F0FAFF",
+                                            height: 40,
+                                            padding: 10,
+                                            borderRadius: 6
+                                        }}>
+                                        <Typography textAlign={"center"} width={"100%"}
+                                                    style={{cursor: "pointer"}}>{t('text')}</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                    </Stack>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Stack
+                                        direction={"row"}
+                                        spacing={1}
+                                        alignItems={"center"}
+                                        onClick={() => {
+                                            setUsed(true)
+                                            if (data.other)
+                                                data.other = [...data.other, {
+                                                    type: "image",
+                                                    x: 0,
+                                                    y: 0,
+                                                    width: 80,
+                                                    height: 80,
+                                                    content: "/static/icons/Med-logo.png"
+                                                }]
+                                            else
+                                                data.other = [{
+                                                    type: "image",
+                                                    x: 0,
+                                                    y: 0,
+                                                    width: 80,
+                                                    height: 80,
+                                                    content: "/static/icons/Med-logo.png"
+                                                }]
+                                            setData({...data})
+                                        }}
+
+                                        style={{
+                                            backgroundColor: "#F0FAFF",
+                                            height: 40,
+                                            padding: 10,
+                                            borderRadius: 6
+                                        }}>
+                                        <Typography textAlign={"center"} width={"100%"}
+                                                    style={{cursor: "pointer"}}>{t('image')}</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                    </Stack>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Stack
+                                        direction={"row"}
+                                        spacing={1}
+                                        alignItems={"center"}
+                                        onClick={() => {
+                                            setUsed(true)
+                                            if (data.other)
+                                                data.other = [...data.other, {
+                                                    type: "qrcode",
+                                                    x: 0,
+                                                    y: 0,
+                                                    width: 80,
+                                                    height: 80,
+                                                    content: "/static/icons/Med-logo.png"
+                                                }]
+                                            else
+                                                data.other = [{
+                                                    type: "qrcode",
+                                                    x: 0,
+                                                    y: 0,
+                                                    width: 80,
+                                                    height: 80,
+                                                    content: "text..."
+                                                }]
+                                            setData({...data})
+                                        }}
+
+                                        style={{
+                                            backgroundColor: "#F0FAFF",
+                                            height: 40,
+                                            padding: 10,
+                                            borderRadius: 6
+                                        }}>
+                                        <Typography textAlign={"center"} width={"100%"}
+                                                    style={{cursor: "pointer"}}>{t('qr')}</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                    </Stack>
+                                </Grid>
+                            </Grid>
+
                         </Collapse>
 
                     </Box>
                 </Grid>
-
                 <Grid item xs={12} md={9}>
                     {loading && <LinearProgress/>}
 
@@ -499,9 +667,7 @@ function DocsConfig() {
                         </Box>
                     </Box>
                 </Grid>
-
-
-{/*                <Grid item xs={12} md={2} padding={2} style={{background:"white"}}>
+                {/*                <Grid item xs={12} md={2} padding={2} style={{background:"white"}}>
                     <Stack spacing={1}>
                         <Typography fontSize={16} fontWeight={"bold"}>Pages</Typography>
                         <Box style={{            backgroundColor: theme.palette.background.default,
@@ -525,23 +691,6 @@ function DocsConfig() {
                     </Stack>
 
                 </Grid>*/}
-
-
-                {/* <Grid item xs={12} md={7}>
-                    {<Box padding={2}>
-                        <Box style={{margin: 'auto', paddingTop: 20}}>
-                            <Box ref={componentRef}>
-                                {!loading && <PreviewA4  {...{eventHandler, data, values, loading}} />}
-                                {loading &&
-                                    <div className={data.size ? data.size : "portraitA5"} style={{padding: 20}}>
-                                        {Array.from(Array(30)).map((item, key) => (
-                                            <Skeleton key={key}></Skeleton>))}
-                                    </div>}
-                            </Box>
-                        </Box>
-
-                    </Box>}
-                </Grid>*/}
             </Grid>
 
             <Dialog
@@ -562,6 +711,26 @@ function DocsConfig() {
                             loading={loading}
                             sx={{backgroundColor: (theme: Theme) => theme.palette.error.main}}
                             onClick={removeModel}>{t('remove')}</LoadingButton>
+                    </DialogActions>
+                }
+            />
+            <Dialog
+                action={"used"}
+                open={openReset}
+                data={{title: t('change'), subtitle: t('reset'), doc: t('doc')}}
+                direction={direction}
+                title={t('used')}
+                color={(theme: Theme) => theme.palette.error.main}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={() => {
+                            setOpenReset(false)
+                        }}
+                                startIcon={<CloseIcon/>}>{t('no')}</Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loading}
+                            onClick={() => resetNow(paperSize.target, paperSize.value)}>{t('save')}</LoadingButton>
                     </DialogActions>
                 }
             />

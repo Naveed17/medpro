@@ -729,7 +729,16 @@
       "elDoc": "Elément du document",
       "upload_document": "Importer",
       "bg": "Background",
-      "section": "Sections du document"
+      "section": "Sections du document",
+      "static": "Composants statiques",
+      "text": "Texte",
+      "image": "Image",
+      "qr": "QR code",
+      "no": "Non",
+      "used": "Suppression des configurations existantes",
+      "change": "Le changement de format de page",
+      "reset": "entraînera la suppression des configurations existantes",
+      "doc": "document"
     }
   }
 }
