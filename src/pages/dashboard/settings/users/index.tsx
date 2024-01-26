@@ -43,8 +43,8 @@ import {TabPanel, UsersTabs} from "@features/tabPanel";
 import {ActionMenu} from "@features/menu";
 import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
-import { Dialog as CustomDialog, NewUserDialog } from "@features/dialog";
-import { setStepperIndex } from "@features/stepper";
+import {Dialog as CustomDialog, NewUserDialog} from "@features/dialog";
+import {setStepperIndex, stepperSelector} from "@features/stepper";
 import Can from "@features/casl/can";
 
 const CardData = {
@@ -125,6 +125,7 @@ function Users() {
     const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {currentStep} = useAppSelector(stepperSelector);
 
     const [tabvalue, setTabValue] = useState(0);
     const [deleteDialog, setDeleteDialog] = useState(false);
@@ -272,9 +273,18 @@ function Users() {
             }
         })
     }
+
     const handleCloseNewUserDialog = () => {
         setNewUserDialog(false)
         dispatch(setStepperIndex(0))
+    }
+
+    const handleNextPreviStep = () => {
+        if (currentStep == 0) {
+            setNewUserDialog(false)
+        } else {
+            dispatch(setStepperIndex(currentStep - 1))
+        }
     }
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -292,18 +302,19 @@ function Users() {
                         <Tab disableRipple label={t("roles_permissons")} {...a11yProps(1)} />
                     </Tabs>
                     <Can I={"manage"} a={"settings"} field={"settings__users__create"}>
-                        {tabvalue === 0 && <CustomIconButton
-                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                                event.stopPropagation();
-                                dispatch(resetUser());
-                                router.push(`/dashboard/settings/users/new`);
-                            }}
-                            variant="filled"
-                            sx={{p: .8}}
-                            color={"primary"}
-                            size={"small"}>
-                            <AgendaAddViewIcon/>
-                        </CustomIconButton>}
+                        {tabvalue === 0 &&
+                            <CustomIconButton
+                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                    event.stopPropagation();
+                                    dispatch(resetUser());
+                                    setNewUserDialog(true);
+                                }}
+                                variant="filled"
+                                sx={{p: .8}}
+                                color={"primary"}
+                                size={"small"}>
+                                <AgendaAddViewIcon/>
+                            </CustomIconButton>}
                     </Can>
                 </Stack>
             </SubHeader>
@@ -417,11 +428,13 @@ function Users() {
                         m: 1
                     }
                 }}
-                open={newUserDialog} onClose={handleCloseNewUserDialog}>
-                <NewUserDialog t={t} handleClose={handleCloseNewUserDialog} mutate={mutate} />
+                open={newUserDialog}
+                onClose={handleCloseNewUserDialog}>
+                <NewUserDialog
+                    {...{t, profiles}}
+                    onNextPreviStep={handleNextPreviStep}
+                    onClose={handleCloseNewUserDialog}/>
             </Dialog>
-
-
         </>
     );
 }

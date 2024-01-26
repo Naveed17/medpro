@@ -1,26 +1,42 @@
-import React, { useState } from 'react'
+import React, {useState} from 'react'
 import DialogStyled from './overrides/dialogStyle';
-import { Badge, Box, Button, Collapse, FormControlLabel, List, ListItem, Paper, Radio, RadioGroup, Stack, TextField, Typography } from '@mui/material';
+import {
+    Badge,
+    Box,
+    Button,
+    Collapse,
+    FormControlLabel,
+    List,
+    ListItem,
+    Paper,
+    Radio,
+    RadioGroup,
+    Stack,
+    TextField,
+    Typography
+} from '@mui/material';
 import IconUrl from '@themes/urlIcon';
-import { Add } from '@mui/icons-material';
-import { useRouter } from 'next/router';
-import { useMedicalEntitySuffix } from '@lib/hooks';
-import { useRequestQueryMutation } from '@lib/axios';
-import { useTranslation } from 'next-i18next';
-import { CustomSwitch } from '@features/buttons';
-import { TreeCheckbox } from '@features/treeViewCheckbox';
+import {Add} from '@mui/icons-material';
+import {useRouter} from 'next/router';
+import {useMedicalEntitySuffix} from '@lib/hooks';
+import {useRequestQueryMutation} from '@lib/axios';
+import {useTranslation} from 'next-i18next';
+import {CustomSwitch} from '@features/buttons';
+import {TreeCheckbox} from '@features/treeViewCheckbox';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { FacebookCircularProgress } from '@features/progressUI';
-function Step2({ ...props }) {
-    const { t, formik, openFeatureCollapse, setFeatureCollapse } = props;
-    const { getFieldProps, touched, errors, values, setFieldValue } = formik;
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { t: menuTranslation } = useTranslation("menu");
+import {FacebookCircularProgress} from '@features/progressUI';
+import {startCase} from "lodash";
+
+function Step2({...props}) {
+    const {t, formik, profiles, openFeatureCollapse, setFeatureCollapse} = props;
+    const {getFieldProps, touched, errors, values, setFieldValue} = formik;
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {t: menuTranslation} = useTranslation("menu");
     const [loadingReq, setLoadingReq] = useState(false);
     const router = useRouter()
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
-    const { trigger: featurePermissionsTrigger } = useRequestQueryMutation("/feature/permissions/all");
+    const {trigger: featurePermissionsTrigger} = useRequestQueryMutation("/feature/permissions/all");
 
     const groupPermissionsByFeature = (permissions: PermissionModel[]) => {
         const groupedPermissions = permissions.group((permission: PermissionModel) => permission.slug?.split("__")[1]);
@@ -32,6 +48,7 @@ function Step2({ ...props }) {
             children: group[1]
         }], []);
     }
+
     const HandleFeatureCollapse = (slug: string, roles: any) => {
         if (openCollapseFeature !== slug) {
             setLoadingReq(true);
@@ -42,13 +59,13 @@ function Step2({ ...props }) {
                 onSuccess: (result) => {
                     const permissions = (result?.data as HttpResponse)?.data;
                     values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(permissions).map((permission: any, index: number) => ({
-                        ...permission,
-                        collapseIn: roles[idx].permissions[index]?.collapseIn ?? false,
-                        children: permission.children.map((item: PermissionModel, permissionIdx: number) => ({
-                            ...item,
-                            checked: roles[idx].permissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1])?.children.at(permissionIdx)?.checked ?? false
+                            ...permission,
+                            collapseIn: roles[idx].permissions[index]?.collapseIn ?? false,
+                            children: permission.children.map((item: PermissionModel, permissionIdx: number) => ({
+                                ...item,
+                                checked: roles[idx].permissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1])?.children.at(permissionIdx)?.checked ?? false
+                            }))
                         }))
-                    }))
                     ));
                 },
                 onSettled: () => setLoadingReq(false)
@@ -59,9 +76,9 @@ function Step2({ ...props }) {
     const handleSelectedPermissionCount = (role: FeatureModel[]) => {
         return role.reduce((features: any[], feature: FeatureModel) =>
             [...(features ?? []),
-            ...(feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
-                [...(permissions ?? []),
-                ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [])], [])?.length;
+                ...(feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                    [...(permissions ?? []),
+                        ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [])], [])?.length;
     }
     const handleTreeCheck = (uuid: string, value: boolean, hasChildren: boolean, group: string, featurePermission: any, role: any, index: number) => {
         if (hasChildren) {
@@ -88,26 +105,26 @@ function Step2({ ...props }) {
             </Typography>
             <RadioGroup
                 className='role-input-group'
-                {...getFieldProps("selectedRole")}
-            >
-                {
-                    ["dr", "secretary", "accountant"].map((item, index) => (
-                        <FormControlLabel className='role-label' value={t("dialog." + item)} key={index} control={<Radio disableRipple checkedIcon={<IconUrl path="ic-radio-check" />} />} label={t("dialog." + item)} />
-                    ))
-                }
-
+                {...getFieldProps("selectedRole")}>
+                {profiles.map((profile: ProfileModel, index: number) => (
+                    <FormControlLabel className='role-label' value={profile.uuid} key={index}
+                                      control={<Radio disableRipple
+                                                      checkedIcon={<IconUrl path="ic-radio-check"/>}/>}
+                                      label={startCase(profile.name)}/>
+                ))}
             </RadioGroup>
             {
                 !openFeatureCollapse && (
                     <Button
                         onClick={() => setFeatureCollapse(true)}
-                        startIcon={<Add />} className='add-role' variant='contained' color='info'>
+                        startIcon={<Add/>} className='add-role' variant='contained' color='info'>
                         {t("dialog.add_role")}
                     </Button>
                 )
             }
-            <Paper sx={{ p: 2, borderRadius: 2, display: openFeatureCollapse ? "block" : "none" }}>
-                <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={{ xs: 1, sm: 2 }}>
+            <Paper sx={{p: 2, borderRadius: 2, display: openFeatureCollapse ? "block" : "none"}}>
+                <Stack direction={{xs: 'column', sm: 'row'}} alignItems={{xs: 'flex-start', sm: 'center'}}
+                       spacing={{xs: 1, sm: 2}}>
                     <Typography minWidth={100}>
                         {t("role_name")}
                         <Typography variant="caption" color="error">
@@ -121,7 +138,7 @@ function Step2({ ...props }) {
                         error={Boolean(touched.role_name && errors.role_name)}
                     />
                 </Stack>
-                <List sx={{ pb: 0 }}>
+                <List sx={{pb: 0}}>
                     {Object.entries(values?.roles)?.map((role: any) => (
                         <ListItem
                             key={role[0]}
@@ -130,33 +147,33 @@ function Step2({ ...props }) {
                             secondaryAction={
                                 <Stack direction={"row"}>
                                     {(openCollapseFeature === role[0] && loadingReq) &&
-                                        <FacebookCircularProgress size={20} />}
-                                    {openCollapseFeature === role[0] ? <ExpandLess /> : <ExpandMore />}
+                                        <FacebookCircularProgress size={20}/>}
+                                    {openCollapseFeature === role[0] ? <ExpandLess/> : <ExpandMore/>}
                                 </Stack>
                             }>
                             <Stack direction={"row"} alignItems={"center"}>
                                 <Typography fontSize={16} fontWeight={600}
-                                    variant='subtitle1'>
+                                            variant='subtitle1'>
                                     {menuTranslation(`main-menu.${role[0]}`)}
                                 </Typography>
 
-                                <Badge sx={{ ml: 2 }}
-                                    badgeContent={handleSelectedPermissionCount(role[1])}
-                                    color="primary" />
+                                <Badge sx={{ml: 2}}
+                                       badgeContent={handleSelectedPermissionCount(role[1])}
+                                       color="primary"/>
                             </Stack>
                             <Collapse in={role[0] === openCollapseFeature} onClick={(e) => e.stopPropagation()}>
                                 {role[1].map((featurePermission: any, index: number) =>
                                     <Box key={featurePermission?.uuid} p={2} className="collapse-wrapper">
                                         {featurePermission?.featureEntity &&
                                             <FormControlLabel
-                                                sx={{ paddingTop: 2 }}
+                                                sx={{paddingTop: 2}}
                                                 control={<CustomSwitch
-                                                    checked={featurePermission?.featureEntity?.checked ?? false} />}
+                                                    checked={featurePermission?.featureEntity?.checked ?? false}/>}
                                                 onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
-                                                label={featurePermission?.featureEntity?.name} />}
+                                                label={featurePermission?.featureEntity?.name}/>}
                                         <Box mt={2} className="permissions-wrapper">
                                             <TreeCheckbox
-                                                {...{ t }}
+                                                {...{t}}
                                                 disabled={featurePermission?.hasOwnProperty('featureEntity') ? !featurePermission?.featureEntity?.checked : false}
                                                 data={featurePermission?.permissions ?? []}
                                                 onCollapseIn={(uuid: string, value: boolean) => setFieldValue(`roles[${role[0]}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].collapseIn`, value)}
