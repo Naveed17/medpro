@@ -42,7 +42,6 @@ import PhoneInput from "react-phone-number-input/input";
 import {useMedicalEntitySuffix, prepareInsurancesData, useMutateOnGoing} from "@lib/hooks";
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
-import {agendaSelector} from "@features/calendar";
 import {setDuplicated} from "@features/duplicateDetected";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
@@ -80,7 +79,6 @@ function AddPatientStep2({...props}) {
     const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
@@ -145,7 +143,7 @@ function AddPatientStep2({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const locations = agendaConfig?.locations;
+    const locations = null;
 
     const formik = useFormik({
         initialValues: {
@@ -197,7 +195,7 @@ function AddPatientStep2({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpProfessionalLocationResponse} = useRequestQuery((locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+    const {data: httpProfessionalLocationResponse} = useRequestQuery((locations && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -575,7 +573,7 @@ function AddPatientStep2({...props}) {
                                 </Grid>
                             </Grid>
                         </Box>
-                       
+
                         <Box>
                             <Typography variant="body2" color="text.secondary" gutterBottom>
                                 {t("add-patient.email")}
@@ -957,7 +955,7 @@ function AddPatientStep2({...props}) {
                             </Box>
                         </Box>
                         </Collapse>
-                   
+
                 </div>
                 <Stack
                     spacing={3}

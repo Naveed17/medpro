@@ -28,8 +28,6 @@ function Settings() {
     const {t, ready} = useTranslation("settings");
     const {config: agendaConfig} = useAppSelector(agendaSelector);
 
-    const locations = agendaConfig?.locations;
-
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
@@ -57,7 +55,7 @@ function Settings() {
                                     className={router.pathname === item.href ? 'active' : ''}
                                     disablePadding>
                                     <ListItemButton
-                                        onClick={() => router.push(`${locations && locations?.length > 0 && item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations[0]}` : item.href}`)}
+                                        onClick={() => router.push(`${item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${"locations[0]"}` : item.href}`)}
                                         disabled={item.disable}
                                         disableRipple>
                                         <ListItemIcon>
