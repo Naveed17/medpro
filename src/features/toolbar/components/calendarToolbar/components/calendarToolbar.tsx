@@ -29,6 +29,7 @@ import PendingTimerIcon from "@themes/overrides/icons/pendingTimerIcon";
 import {Dialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {DefaultViewMenu} from "@features/menu";
+import Can from "@features/casl/can";
 
 function CalendarToolbar({...props}) {
     const {
@@ -105,7 +106,6 @@ function CalendarToolbar({...props}) {
                                 <CalendarIcon/>
                             </IconButton>
                         </Tooltip>
-
                         <Box
                             className="action-header-main"
                             sx={{
@@ -223,11 +223,12 @@ function CalendarToolbar({...props}) {
                     />
 
                     <DefaultViewMenu/>
-
-                    <CalendarAddButton
-                        {...{t}}
-                        onClickEvent={OnAddAppointment}
-                    />
+                    <Can I={"manage"} a={"agenda"} field={"agenda__appointment__create"}>
+                        <CalendarAddButton
+                            {...{t}}
+                            onClickEvent={OnAddAppointment}
+                        />
+                    </Can>
                 </Stack>
             </Hidden>
 
