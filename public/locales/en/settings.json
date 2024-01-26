@@ -662,9 +662,9 @@
       "updated": "Document saved",
       "removed": "Document deleted",
       "background": "Import Current Document",
-      "title": "Document Title",
+      "title": "Title",
       "date": "Date",
-      "patient": "Patient Name",
+      "patient": "Patient",
       "firstName": "First Name & Last Name",
       "configPatient": "Configure Patient Name",
       "cin": "CIN",
@@ -694,7 +694,21 @@
       "asDefault": "Set it as the default template",
       "modifier": "Update",
       "close": "Close",
-      "analyses": "Analyses"
+      "analyses": "Analyses",
+      "elDoc": "Document elements",
+      "upload_document": "Upload",
+      "bg": "Background",
+      "section": "Document sections",
+      "static": "Static components",
+      "text": "Text",
+      "image": "Image",
+      "qr": "QR code",
+      "no": "No",
+      "used": "Deleting existing configurations",
+      "change": "Changing page format",
+      "reset": "will remove existing configurations",
+      "doc": "document"
+
     }
   }
 }

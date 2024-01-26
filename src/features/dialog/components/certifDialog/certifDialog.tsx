@@ -418,7 +418,6 @@ function CertifDialog({...props}) {
     }, [httpDocumentHeader])
 
     useEffect(() => {
-        console.log(height)
         setHeight(fullScreen ? (window.innerHeight > 800 ? 580 : 280) : 280);
     }, [fullScreen, window.innerHeight])  // eslint-disable-line react-hooks/exhaustive-deps
 
