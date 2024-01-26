@@ -217,7 +217,7 @@ function UsersTabs({...props}) {
                 onSuccess: (result) => {
                     const permissions = (result?.data as HttpResponse)?.data;
                     values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`,
-                        groupPermissionsByFeature(permissions).map((permission: any, index: number) => {
+                        groupPermissionsByFeature(permissions).map((permission: any) => {
                             const featurePermissions = roles[idx].permissions;
                             return {
                                 ...permission,
