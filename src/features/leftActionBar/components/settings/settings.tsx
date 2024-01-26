@@ -18,15 +18,12 @@ import {SettingBarStyled} from "@features/leftActionBar";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {LoadingScreen} from "@features/loadingScreen";
-import {useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector} from "@features/calendar";
 import Can from "@features/casl/can";
 
 function Settings() {
     const router = useRouter();
 
     const {t, ready} = useTranslation("settings");
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 

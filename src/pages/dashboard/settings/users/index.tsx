@@ -43,7 +43,7 @@ import {TabPanel, UsersTabs} from "@features/tabPanel";
 import {ActionMenu} from "@features/menu";
 import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
-import {Dialog as CustomDialog, NewUserDialog} from "@features/dialog";
+import {NewUserDialog} from "@features/dialog";
 import {setStepperIndex, stepperSelector} from "@features/stepper";
 import Can from "@features/casl/can";
 
