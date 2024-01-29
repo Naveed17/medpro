@@ -882,12 +882,14 @@
       "prescription": "Modèles d'ordonnance",
       "case3": "Troisième case",
       "save": "Enregistrer",
+      "save_as_model": "Enregistrer comme modèle",
+      "print": "Vérifier l'impression",
       "preview": "Aperçu",
       "unfolded": "Modèles",
       "updated": "Document enregistré",
       "removed": "Document supprimé",
       "background": "Importer le document actuel",
-      "title": "Titre du document",
+      "title": "Titre",
       "date": "Date",
       "patient": "Nom patient",
       "firstName": "Nom & prénom",
@@ -929,7 +931,20 @@
       "months": "Mois",
       "days": "Jours",
       "blankDoc": "document blanc",
-      "modelProprities": "Propriétés du modèle"
+      "modelProprities": "Propriétés du modèle",
+      "elDoc": "Elément du document",
+      "upload_document": "Importer",
+      "bg": "Background",
+      "section": "Sections du document",
+      "static": "Composants statiques",
+      "text": "Texte",
+      "image": "Image",
+      "qr": "QR code",
+      "no": "Non",
+      "used": "Suppression des configurations existantes",
+      "change": "Le changement de format de page",
+      "reset": "entraînera la suppression des configurations existantes",
+      "doc": "document"
     }
   }
 }

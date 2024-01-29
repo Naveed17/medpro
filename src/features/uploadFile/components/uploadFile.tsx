@@ -45,9 +45,9 @@ export default function UploadMultiFile({...props}) {
                         </Typography>
                     </Box>
                 ) : (
-                    <Stack alignItems="center">
-                        <Icon path="ic-upload-3"/>
-                        <Typography sx={{color: "text.secondary"}}>
+                    <Stack direction={"row"} spacing={1} alignItems="center">
+                        <Icon path="ic-gallery" width={20} height={20}/>
+                        <Typography>
                             {t("drag_and_drop_file_here_or_click")}
                         </Typography>
                     </Stack>

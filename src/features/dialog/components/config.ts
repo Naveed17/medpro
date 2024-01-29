@@ -74,6 +74,14 @@ const dialogData = [
         ),
     },
     {
+        action: "used",
+        component: dynamic((): any =>
+            import("@features/dialog/components/unusedDialog/unusedDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "consultation-modal",
         component: dynamic((): any =>
             import(
