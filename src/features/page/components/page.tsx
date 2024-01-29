@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import interact from "interactjs";
-import PageStyled from "@features/page/components/overrides/pageStyled";
+import PageStyled from "./overrides/pageStyled";
 import {Resizable} from "re-resizable";
 import Icon from "@themes/urlIcon";
 import {useTheme} from "@mui/material";
