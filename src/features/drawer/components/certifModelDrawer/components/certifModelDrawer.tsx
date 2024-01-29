@@ -23,7 +23,7 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import PreviewA4 from "@features/files/components/previewA4";
 import AddIcon from "@mui/icons-material/Add";
 import {useSnackbar} from "notistack";
-import PaperStyled from "@features/drawer/components/CertifModelDrawer/components/overrides/paperStyled";
+import PaperStyled from "./overrides/paperStyled";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {tinymcePlugins, tinymceToolbar} from "@lib/constants";
 

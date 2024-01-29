@@ -33,7 +33,7 @@ import {useRouter} from "next/router";
 import {a11yProps, capitalizeFirst, useMedicalProfessionalSuffix,} from "@lib/hooks";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {CertifModelDrawer} from "src/features/drawer/components/CertifModelDrawer";
+import {CertifModelDrawer} from "@features/drawer";
 import IconUrl from "@themes/urlIcon";
 import {useSnackbar} from "notistack";
 import {Dialog, handleDrawerAction} from "@features/dialog";
