@@ -1,4 +1,4 @@
-import {GetStaticProps} from "next";
+import {GetServerSideProps} from "next";
 import {useTranslation} from "next-i18next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {MutableRefObject, ReactElement, useCallback, useEffect, useRef, useState} from "react";
@@ -901,7 +901,6 @@ function Agenda() {
                     },
                     ...eventStepper.slice(2)]);
         }
-        // dispatch(openDrawer({type: "add", open: true}));
     }
 
     const handleStepperChange = (index: number) => {
@@ -960,7 +959,7 @@ function Agenda() {
                 setLoadingRequest(false);
                 localStorage.removeItem(`Modeldata${event?.publicId}`);
                 setTimeout(() => setOpenPreConsultationDialog(false));
-                medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`]);
+                medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`]);
             }
         });
     }
@@ -1200,7 +1199,6 @@ function Agenda() {
                             </Typography>
                             <Stack spacing={1}>
                                 {row.events.map((event, idx) => (
-
                                     <AppointmentListMobile
                                         {...{roles, event}}
                                         key={event.id}
@@ -1679,7 +1677,7 @@ function Agenda() {
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => {
+export const getServerSideProps: GetServerSideProps = async ({locale}) => {
     const queryClient = new QueryClient();
     const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -1701,9 +1699,5 @@ export default Agenda
 Agenda.auth = true
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
-    return (
-        <DashLayout>
-            {page}
-        </DashLayout>
-    )
+    return <DashLayout>{page}</DashLayout>;
 }

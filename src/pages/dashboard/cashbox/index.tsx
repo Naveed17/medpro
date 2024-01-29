@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {
     Box,
     Button,
@@ -20,11 +20,11 @@ import {
 } from "@mui/material";
 import {SubHeader} from "@features/subHeader";
 import {configSelector, DashLayout} from "@features/base";
-import {onOpenPatientDrawer, Otable, tableActionSelector,} from "@features/table";
+import {onOpenPatientDrawer, Otable, tableActionSelector} from "@features/table";
 import {useTranslation} from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard,} from "@features/card";
+import {NewCashboxMobileCard, NoDataCard, UnpaidConsultationCard} from "@features/card";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -34,8 +34,8 @@ import {useRouter} from "next/router";
 import {Dialog, PatientDetail} from "@features/dialog";
 import {DefaultCountry} from "@lib/constants";
 import {useMedicalEntitySuffix} from "@lib/hooks";
-import {useInsurances} from "@lib/hooks/rest";
-import {CashboxFilter, cashBoxSelector, SetSelectedTab,} from "@features/leftActionBar/components/cashbox";
+import {useCashBox, useInsurances} from "@lib/hooks/rest";
+import {CashboxFilter, cashBoxSelector, setSelectedTabIndex} from "@features/leftActionBar";
 import {generateFilter} from "@lib/hooks/generateFilter";
 import CloseIcon from "@mui/icons-material/Close";
 import {DrawerBottom} from "@features/drawerBottom";
@@ -48,6 +48,7 @@ import {agendaSelector} from "@features/calendar";
 import {saveAs} from "file-saver";
 import {ImageHandler} from "@features/image";
 import {LoadingScreen} from "@features/loadingScreen";
+import Can, {AbilityContext} from "@features/casl/can";
 
 interface HeadCell {
     disablePadding: boolean;
@@ -58,7 +59,7 @@ interface HeadCell {
     align: "left" | "right" | "center";
 }
 
-export const headCells: readonly HeadCell[] = [
+const headCells: readonly HeadCell[] = [
     {
         id: "empty",
         numeric: false,
@@ -124,7 +125,7 @@ export const headCells: readonly HeadCell[] = [
         align: "center",
     },
 ];
-export const consultationCells: readonly HeadCell[] = [
+const consultationCells: readonly HeadCell[] = [
     {
         id: "date",
         numeric: false,
@@ -182,7 +183,6 @@ export const consultationCells: readonly HeadCell[] = [
         align: "center",
     },
 ];
-
 const noCardData = {
     mainIcon: "ic-unpaid",
     title: "no-data.title",
@@ -192,23 +192,6 @@ const noAppData = {
     mainIcon: "ic-agenda",
     title: "no-data.title_consult",
 };
-const MenuActions = [
-    {
-        title: "add-payment",
-        icon: <IconUrl path="ic-wallet-money" color="white"/>,
-        action: "onCash",
-    },
-    {
-        title: "delete",
-        icon: <IconUrl path="ic-delete" color="white"/>,
-        action: "onDelete",
-    },
-    {
-        title: "see_patient_file",
-        icon: <IconUrl path="ic-file" color="white"/>,
-        action: "onSeePatientFile",
-    },
-];
 
 function Cashbox() {
     const {data: session} = useSession();
@@ -216,19 +199,20 @@ function Cashbox() {
     const dispatch = useAppDispatch();
     const theme: Theme = useTheme();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-
     const {insurances} = useInsurances();
+    const {cashboxes} = useCashBox();
+    const ability = useContext(AbilityContext);
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
     const {t, ready} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
+
     // ******** States ********
     const [filter, setFilter] = useState<boolean>(false);
     const [txtFilter, setTxtFilter] = useState("");
-    const [patientDetailDrawer, setPatientDetailDrawer] =
-        useState<boolean>(false);
-    const isAddAppointment = false;
+    const [patientDetailDrawer, setPatientDetailDrawer] = useState<boolean>(false);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [rows, setRows] = useState<any[]>([]);
     const [apps, setApps] = useState<any[]>([]);
@@ -237,28 +221,46 @@ function Cashbox() {
     const [ca, setCA] = useState(0);
     const [totalCash, setTotalCash] = useState(0);
     const [totalCheck, setTotalCheck] = useState(0);
-    const {config: agenda} = useAppSelector(agendaSelector);
-    const isMobile = useMediaQuery((theme: Theme) =>
-        theme.breakpoints.down("md")
-    );
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
-    /*
-    const [toReceive, setToReceive] = useState(0);
-          const [collected, setCollected] = useState(0);
-          let [checksToCashout, setChecksToCashout] = useState<any[]>([]);
-          let [collectedCash, setCollectedCash] = useState(0);
-      */
     const [loading, setLoading] = useState(true);
     const [selectedCashBox, setCashbox] = useState<any>(null);
-    let [selectedTab, setSelectedTab] = useState("consultations");
+
+    const {data: user} = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const devise = doctor_country.currency?.name;
     const tabsData = [
-        {
+        ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
             label: "consultations",
-            value: "consultations",
+            value: "consultations"
+        }] : []),
+        ...(ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? [{
+            label: "transactions",
+            value: "transactions"
+        }] : [])
+    ];
+    const MenuActions = [
+        {
+            title: "add-payment",
+            feature: "cashbox",
+            permission: "cash_box__transaction__create",
+            icon: <IconUrl path="ic-wallet-money" color="white"/>,
+            action: "onCash",
         },
         {
-            label: "transactions",
-            value: "transactions",
+            title: "delete",
+            feature: "cashbox",
+            permission: "cash_box__transaction__delete",
+            icon: <IconUrl path="ic-delete" color="white"/>,
+            action: "onDelete",
+        },
+        {
+            title: "see_patient_file",
+            feature: "patient",
+            permission: "patients__patient__show",
+            icon: <IconUrl path="ic-file" color="white"/>,
+            action: "onSeePatientFile",
         },
     ];
     const topCard = [
@@ -294,51 +296,30 @@ function Cashbox() {
             title: "cheque_cashed",
         },
     ];
-    const {data: user} = session as Session;
+    const isAddAppointment = false;
 
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
-    const devise = doctor_country.currency?.name;
+    const [selectedTab, setSelectedTab] = useState(ability.can('manage', 'agenda', 'agenda__appointment__show') ? "consultations" : (ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? "transactions" : ""));
     const filterQuery: string = generateFilter({filterCB});
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [loadingDeleteTransaction, setLoadingDeleteTransaction] =
-        useState(false);
-    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] =
-        useState(false);
-    const {trigger: triggerPostTransaction} = useRequestQueryMutation(
-        "/payment/cashbox/post"
-    );
-    const {trigger: triggerAppointmentDetails} = useRequestQueryMutation(
-        "/agenda/appointment/details"
-    );
+    const [loadingDeleteTransaction, setLoadingDeleteTransaction] = useState(false);
+    const [openDeleteTransactionDialog, setOpenDeleteTransactionDialog] = useState(false);
+
+    const {trigger: triggerPostTransaction} = useRequestQueryMutation("/payment/cashbox/post");
+    const {trigger: triggerAppointmentDetails} = useRequestQueryMutation("/agenda/appointment/details");
     const {trigger: triggerExport} = useRequestQueryMutation("/cashbox/export");
 
-    const {data: paymentMeansHttp} = useRequestQuery(
-        {
-            method: "GET",
-            url: `/api/public/payment-means/${router.locale}`,
-        },
-        ReactQueryNoValidateConfig
-    );
+    const {data: paymentMeansHttp} = useRequestQuery({
+        method: "GET",
+        url: `/api/public/payment-means/${router.locale}`,
+    }, ReactQueryNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransactions} =
-        useRequestQuery(
-            filterQuery
-                ? {
-                    method: "GET",
-                    url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
-                }
-                : null,
-            {
-                ...(filterQuery && {variables: {query: filterQuery}}),
-            }
-        );
+    const {data: httpTransactionsResponse, mutate: mutateTransactions} = useRequestQuery(filterQuery ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
+    } : null, {...(filterQuery && {variables: {query: filterQuery}})});
 
     useEffect(() => {
         if (httpTransactionsResponse) {
@@ -377,17 +358,18 @@ function Cashbox() {
             setToReceive(data.total_insurance_amount);
             setCollected(data.total_collected);*/
         txtGenerator();
-        if (data.transactions) setRows(data.transactions);
-        else setRows([]);
-        if (filterQuery.includes("cashboxes")) setLoading(false);
+        if (data.transactions) {
+            setRows(data.transactions);
+        } else {
+            setRows([]);
+        }
     };
 
     const getConsultation = (start: string, end: string) => {
         const query = `?mode=rest&start_date=${moment(start, "DD-MM-YYYY").format(
             "DD-MM-YYYY"
         )}&end_date=${moment(end, "DD-MM-YYYY").format("DD-MM-YYYY")}&format=week`;
-        agenda &&
-        triggerAppointmentDetails(
+        agenda?.uuid && triggerAppointmentDetails(
             {
                 method: "GET",
                 url: `${urlMedicalEntitySuffix}/agendas/${agenda.uuid}/appointments/${router.locale}${query}`,
@@ -396,7 +378,9 @@ function Cashbox() {
                 onSuccess: (result) => {
                     const res = result.data.data;
                     setApps(res);
-                    setUnpaid(res.reduce((total: number, val: { appointmentRestAmount: number; }) => total + val.appointmentRestAmount, 0));
+                    setUnpaid(res.reduce((total: number, val: {
+                        appointmentRestAmount: number;
+                    }) => total + val.appointmentRestAmount, 0));
                     setCA(res.reduce((total: number, val: { fees: string; }) => total + parseInt(val.fees), 0));
                 },
             }
@@ -477,7 +461,7 @@ function Cashbox() {
     };
     const handleChangeTab = (_: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue);
-        dispatch(SetSelectedTab(newValue));
+        dispatch(setSelectedTabIndex(newValue));
     };
     const exportDoc = () => {
         triggerExport(
@@ -495,6 +479,12 @@ function Cashbox() {
     };
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];
 
+    useEffect(() => {
+        if (cashboxes.length > 0) {
+            setLoading(false);
+        }
+
+    }, [cashboxes])
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -506,8 +496,7 @@ function Cashbox() {
                     alignItems="center"
                     paddingTop={1}
                     justifyContent={"space-between"}
-                    width={"100%"}
-                >
+                    width={"100%"}>
                     <Tabs
                         value={selectedTab}
                         onChange={handleChangeTab}
@@ -519,13 +508,11 @@ function Cashbox() {
                             marginTop: "8px",
                         }}
                         scrollButtons={true}
-                        textColor="primary"
-                        indicatorColor="primary"
-                    >
-                        {tabsData.map((tab: { label: string }) => (
+                        indicatorColor="primary">
+                        {tabsData.map((tab) => (
                             <Tab
-                                className="custom-tab"
                                 key={tab.label}
+                                className="custom-tab"
                                 value={tab.label}
                                 disabled={loading}
                                 label={t(tab.label)}
@@ -545,16 +532,14 @@ function Cashbox() {
                     mb={0.6}
                     display="grid"
                     sx={{gap: 1.2, px: 1}}
-                    gridTemplateColumns={`repeat(${isMobile ? "2" : "5"},minmax(0,1fr))`}
-                >
+                    gridTemplateColumns={`repeat(${isMobile ? "2" : "5"},minmax(0,1fr))`}>
                     {topCard.map((card, idx) => (
                         <Card sx={{border: "none"}} key={idx}>
                             <CardContent sx={{px: isMobile ? 1.75 : 2}}>
                                 <Stack
                                     direction="row"
                                     alignItems="center"
-                                    spacing={{xs: 1, md: 2}}
-                                >
+                                    spacing={{xs: 1, md: 2}}>
                                     <ImageHandler
                                         src={`/static/icons/${
                                             isMobile ? card.mobile_icon : card.icon
@@ -566,9 +551,7 @@ function Cashbox() {
                                     <Stack direction={isMobile ? "column-reverse" : "column"}>
                                         <Typography variant="h6" fontWeight={700}>
                                             {card.amount}
-                                            <span style={{fontSize: 14, marginLeft: 4}}>
-                        {devise}
-                      </span>
+                                            <span style={{fontSize: 14, marginLeft: 4}}>{devise}</span>
                                         </Typography>
                                         <Typography variant="body2" fontSize={11} textTransform="capitalize">
                                             {t(card.title)}
@@ -589,8 +572,7 @@ function Cashbox() {
                                 mb={2}
                                 pb={1}
                                 borderBottom={1}
-                                borderColor="divider"
-                            >
+                                borderColor="divider">
                                 <Stack>
                                     <Typography fontWeight={700}>{t("consultations")}</Typography>
                                     <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
@@ -643,22 +625,23 @@ function Cashbox() {
                                     mb={2}
                                     pb={1}
                                     borderBottom={1}
-                                    borderColor="divider"
-                                >
+                                    borderColor="divider">
                                     <Stack>
                                         <Typography fontWeight={700}>
                                             {t("transactions")}
                                         </Typography>
                                         <Typography fontSize={12} color={"grey"}>{txtFilter}</Typography>
                                     </Stack>
-                                    {rows.length > 0 && <Button
-                                        onClick={exportDoc}
-                                        variant="outlined"
-                                        color="info"
-                                        startIcon={<IconUrl path="ic-export-new"/>}
-                                    >
-                                        {t("export")}
-                                    </Button>}
+                                    {rows.length > 0 &&
+                                        <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__export"}>
+                                            <Button
+                                                onClick={exportDoc}
+                                                variant="outlined"
+                                                color="info"
+                                                startIcon={<IconUrl path="ic-export-new"/>}>
+                                                {t("export")}
+                                            </Button>
+                                        </Can>}
                                 </Stack>
                                 <DesktopContainer>
                                     {!loading && (
@@ -709,8 +692,7 @@ function Cashbox() {
                     setPatientDetailDrawer(false);
                 }}
                 open={patientDetailDrawer}
-                dir={direction}
-            >
+                dir={direction}>
                 <PatientDetail
                     {...{isAddAppointment, patientId: tableState.patientId}}
                     onCloseDialog={() => {
@@ -731,32 +713,30 @@ function Cashbox() {
                         transform: "translateX(-50%)",
                         left: "50%",
                         zIndex: 999,
-                    }}
-                >
+                    }}>
                     {t("filter.title", {ns: "common"})} (0)
                 </Button>
             </MobileContainer>
             <DrawerBottom
                 handleClose={() => setFilter(false)}
                 open={filter}
-                title={t("filter.title", {ns: "common"})}
-            >
+                title={t("filter.title", {ns: "common"})}>
                 <CashboxFilter/>
             </DrawerBottom>
             <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
                 {MenuActions.map((v: any, index) => (
-                    <MenuItem
-                        key={index}
-                        className="popover-item"
-                        onClick={() => {
-                            OnMenuActions(v.action);
-                        }}
-                    >
-                        {v.icon}
-                        <Typography fontSize={15} sx={{color: "#fff"}}>
-                            {t(v.title, {ns: "common"})}
-                        </Typography>
-                    </MenuItem>
+                    <Can key={index} I={"manage"} a={v.feature} field={v.permission}>
+                        <MenuItem
+                            className="popover-item"
+                            onClick={() => {
+                                OnMenuActions(v.action);
+                            }}>
+                            {v.icon}
+                            <Typography fontSize={15} sx={{color: "#fff"}}>
+                                {t(v.title, {ns: "common"})}
+                            </Typography>
+                        </MenuItem>
+                    </Can>
                 ))}
             </ActionMenu>
             <Dialog
@@ -773,8 +753,7 @@ function Cashbox() {
                                 setLoadingDeleteTransaction(false);
                                 setOpenDeleteTransactionDialog(false);
                             }}
-                            startIcon={<CloseIcon/>}
-                        >
+                            startIcon={<CloseIcon/>}>
                             {t("cancel")}
                         </Button>
                         <LoadingButton
@@ -782,8 +761,7 @@ function Cashbox() {
                             loading={loadingDeleteTransaction}
                             color="error"
                             onClick={deleteTransaction}
-                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}
-                        >
+                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}>
                             {t("delete")}
                         </LoadingButton>
                     </Stack>

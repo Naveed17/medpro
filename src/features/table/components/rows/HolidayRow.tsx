@@ -1,10 +1,10 @@
 import {TableRowStyled} from "@features/table"
 import TableCell from '@mui/material/TableCell';
-import {Typography, Skeleton, IconButton, Stack,useTheme} from '@mui/material';
+import {Typography, Skeleton, IconButton, Stack, useTheme} from '@mui/material';
 import IconUrl from "@themes/urlIcon";
 import {uniqueId} from 'lodash'
-import {Theme} from "@mui/material/styles";
 import React from "react";
+import Can from "@features/casl/can";
 
 function HolidayRow({...props}) {
     const {row, handleEvent} = props
@@ -61,18 +61,28 @@ function HolidayRow({...props}) {
             <TableCell align="right">
                 {row ?
                     <Stack direction='row' alignItems='center' justifyContent='flex-end'>
-                        <IconButton
-                            size="small"
-                            sx={{mr: {md: 1}}}
-                            onClick={() => handleEvent("onEditAbsence", row)}>
-                            <IconUrl path="setting/edit"/>
-                        </IconButton>
-                        {!row.hasData && <IconButton
-                            size="small"
-                            sx={{mr: {md: 1}}}
-                            onClick={() => handleEvent("onDeleteAbsence", row)}>
-                            <IconUrl path="setting/icdelete"/>
-                        </IconButton>}
+                        <Can I={"manage"} a={"settings"} field={"settings__holidays__update"}>
+                            <IconButton
+                                size="small"
+                                sx={{mr: {md: 1}}}
+                                onClick={() => handleEvent("onEditAbsence", row)}>
+                                <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                            </IconButton>
+                        </Can>
+                        <Can I={"manage"} a={"settings"} field={"settings__holidays__delete"}>
+                            {!row.hasData && <IconButton
+                                size="small"
+                                sx={{
+                                    mr: {md: 1},
+                                    '& .react-svg svg': {
+                                        width: 20,
+                                        height: 20
+                                    }
+                                }}
+                                onClick={() => handleEvent("onDeleteAbsence", row)}>
+                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
+                            </IconButton>}
+                        </Can>
                     </Stack>
                     : <Skeleton variant="text" width={10} height={30} sx={{m: 'auto'}}/>}
             </TableCell>

@@ -61,20 +61,27 @@ function InsuranceRow({...props}) {
             </TableRowStyled>
 
             <TableRow>
-                <TableCell style={{paddingBottom: 0, paddingLeft: '3rem'}}
-                           {...(!open && {
-                               style: {
-                                   paddingBottom: 0,
-                                   paddingTop: 0
-                               }
-                           })}
-                           colSpan={6}>
+                <TableCell
+                    style={{
+                        paddingBottom: 0,
+                        paddingLeft: '3rem'
+                    }}
+                    {...(!open && {
+                        style: {
+                            paddingBottom: 0,
+                            paddingTop: 0
+                        }
+                    })}
+                    colSpan={6}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Table>
                             <TableBody>
                                 {row.documents.map((doc: any, index: number) => (
-                                    <tr key={index}>
-                                        <td colSpan={6}>
+                                    <tr key={index} className={"collapse-row"}>
+                                        <td colSpan={6} style={{
+                                            paddingTop: 6,
+                                            paddingBottom: 6
+                                        }}>
                                             {row ?
                                                 <Stack direction={"row"} alignItems={"center"}>
                                                     <ListItemText
@@ -84,7 +91,10 @@ function InsuranceRow({...props}) {
                                                 : <Skeleton variant="text" width={100}/>}
                                         </td>
 
-                                        <td align="right" colSpan={6}>
+                                        <td align="right" colSpan={6} style={{
+                                            paddingTop: 6,
+                                            paddingBottom: 6
+                                        }}>
                                             <Stack direction={"row"} spacing={1.2} justifyContent={"end"}>
                                                 <FormControlLabel
                                                     control={<Checkbox

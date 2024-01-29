@@ -10,6 +10,7 @@ import {
     CardContent,
     CardHeader,
     Collapse,
+    Divider,
     FormControl,
     FormHelperText,
     Grid,
@@ -41,7 +42,6 @@ import PhoneInput from "react-phone-number-input/input";
 import {useMedicalEntitySuffix, prepareInsurancesData, useMutateOnGoing} from "@lib/hooks";
 import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
-import {agendaSelector} from "@features/calendar";
 import {setDuplicated} from "@features/duplicateDetected";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
@@ -75,11 +75,10 @@ function AddPatientStep2({...props}) {
     const {contacts} = useContactType();
     const {countries} = useCountries("nationality=true");
     const {trigger: mutateOnGoing} = useMutateOnGoing();
-
+    const [collapse,setCollapse] = useState<String[]>(["patient-info"])
     const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
@@ -144,7 +143,7 @@ function AddPatientStep2({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const locations = agendaConfig?.locations;
+    const locations = medical_entity?.location ?? null;
 
     const formik = useFormik({
         initialValues: {
@@ -196,7 +195,7 @@ function AddPatientStep2({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpProfessionalLocationResponse} = useRequestQuery((locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+    const {data: httpProfessionalLocationResponse} = useRequestQuery((locations && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
@@ -242,7 +241,7 @@ function AddPatientStep2({...props}) {
 
         medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
             data: form
         }, {
             onSuccess: (res: any) => {
@@ -333,11 +332,32 @@ function AddPatientStep2({...props}) {
                 noValidate
                 onSubmit={handleSubmit}>
                 <div className="inner-section">
-                    <Stack spacing={2}>
-                        <Typography mt={1} variant="h6" color="text.primary">
+                       <Stack mb={2} sx={{cursor:'pointer'}} onClick={() => {
+                          const newCollapse = [...collapse];
+                           if(collapse.includes("patient-info")){
+                               const index = collapse.indexOf("patient-info");
+                               newCollapse.splice(index, 1);
+                               setCollapse(newCollapse);
+                           }else{
+                            newCollapse.push("patient-info");
+                            setCollapse(newCollapse);
+
+                           }
+                       } } direction='row' alignItems='center' justifyContent='space-between'>
+                         <Typography mt={1} variant="h6" color="text.primary">
                             {t("add-patient.additional-information")}
                         </Typography>
-                        <Box>
+                        <Box sx={{
+                            '.react-svg':{
+                                transform: collapse.includes("patient-info") ? "scale(1)" :'scale(-1)'
+                            }
+                        }}>
+                        <Icon path="ic-up-arrow"/>
+                        </Box>
+                       </Stack>
+                        <Collapse in={collapse.includes("patient-info")}>
+                            <Stack spacing={2}>
+                            <Box>
                             <Typography
                                 variant="body2"
                                 color="text.secondary"
@@ -553,7 +573,92 @@ function AddPatientStep2({...props}) {
                                 </Grid>
                             </Grid>
                         </Box>
+
                         <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("add-patient.email")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("add-patient.email-placeholder")}
+                                type="email"
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("email")}
+                                error={Boolean(touched.email && errors.email)}
+                                helperText={
+                                    Boolean(touched.email && errors.email)
+                                        ? String(errors.email)
+                                        : undefined
+                                }
+                            />
+                        </Box>
+                        <Stack direction={{xs:'column',md:'row'}} spacing={{xs:2,md:1}} pb={3}>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("add-patient.cin")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("add-patient.cin-placeholder")}
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("cin")}
+                            />
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("add-patient.profession")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("add-patient.profession-placeholder")}
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("profession")}
+                            />
+                        </Box>
+                        <Box>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                {t("add-patient.family_doctor")}
+                            </Typography>
+                            <TextField
+                                placeholder={t("add-patient.family_doctor-placeholder")}
+                                type="text"
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                {...getFieldProps("family_doctor")}
+                            />
+                        </Box>
+                        </Stack>
+                        </Stack>
+                        </Collapse>
+                        <Divider/>
+                        <Stack my={2} sx={{cursor:'pointer'}} onClick={() => {
+                           const newCollapse = [...collapse];
+                           if(collapse.includes("insurance-info")){
+                               const index = collapse.indexOf("insurance-info");
+                               newCollapse.splice(index, 1);
+                               setCollapse(newCollapse);
+                           }else{
+                            newCollapse.push('insurance-info');
+                            setCollapse(newCollapse);
+                           }
+                        }} direction='row' alignItems='center' justifyContent='space-between'>
+                         <Typography variant="h6" color="text.primary">
+                            {t("add-patient.insurance-info")}
+                        </Typography>
+                        <Box sx={{
+                            '.react-svg':{
+                                transform: collapse.includes("insurance-info") ? "scale(1)" :'scale(-1)'
+                            }
+                        }}>
+                        <Icon path="ic-up-arrow"/>
+                        </Box>
+                       </Stack>
+                        <Collapse in={collapse.includes("insurance-info")}>
+                         <Box>
                             <Typography sx={{mb: 1.5, textTransform: "capitalize"}}>
                                 <IconButton
                                     onClick={handleAddInsurance}
@@ -849,63 +954,8 @@ function AddPatientStep2({...props}) {
                                 ))}
                             </Box>
                         </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("add-patient.email")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("add-patient.email-placeholder")}
-                                type="email"
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("email")}
-                                error={Boolean(touched.email && errors.email)}
-                                helperText={
-                                    Boolean(touched.email && errors.email)
-                                        ? String(errors.email)
-                                        : undefined
-                                }
-                            />
-                        </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("add-patient.cin")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("add-patient.cin-placeholder")}
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("cin")}
-                            />
-                        </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("add-patient.profession")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("add-patient.profession-placeholder")}
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("profession")}
-                            />
-                        </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                                {t("add-patient.family_doctor")}
-                            </Typography>
-                            <TextField
-                                placeholder={t("add-patient.family_doctor-placeholder")}
-                                type="text"
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                {...getFieldProps("family_doctor")}
-                            />
-                        </Box>
-                    </Stack>
+                        </Collapse>
+
                 </div>
                 <Stack
                     spacing={3}

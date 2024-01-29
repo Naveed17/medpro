@@ -15,8 +15,7 @@ import {
     MenuList,
     Paper,
     Popper, Stack, ToggleButton, ToggleButtonGroup,
-    Typography,
-    useMediaQuery
+    Typography
 } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import React, {useRef, useState} from "react";
@@ -25,20 +24,18 @@ import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
 import {useSession} from "next-auth/react";
 import axios from "axios";
-import {Theme} from "@mui/material/styles";
-import {agendaSelector} from "@features/calendar";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
-import {unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
+import {ConditionalWrapper, unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector, setLocalization} from "@features/base";
 import Langs from "@features/topNavBar/components/langButton/config";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import Can from "@features/casl/can";
 
 function ProfilMenu() {
-    const {data: session} = useSession();
+    const {data: session, update} = useSession();
     const router = useRouter();
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("sm"));
     const dispatch = useAppDispatch();
     const anchorRef: any = useRef();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -53,6 +50,9 @@ function ProfilMenu() {
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>
     const general_information = (user as UserDataResponse).general_information;
+    const medical_entity = (user as UserDataResponse).medical_entity;
+    const medical_entities = ((user as UserDataResponse).medical_entities?.reduce((entites: MedicalEntityModel[], data: any) => [...(entites ?? []), data?.medical_entity], []) ?? []) as MedicalEntityModel[];
+    const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
 
     const {trigger: triggerSettingsUpdate} = useRequestQueryMutation("/settings/update");
 
@@ -65,7 +65,7 @@ function ProfilMenu() {
     const switchAgenda = (agenda: AgendaConfigurationModel) => {
         medicalEntityHasUser && triggerSettingsUpdate({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda.uuid}/switch/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda.uuid}/switch/${router.locale}`
         }, {
             onSuccess: () => {
                 setLoading(true);
@@ -87,8 +87,14 @@ function ProfilMenu() {
                 });
                 dispatch(logout({redirect: true, path}));
                 break;
+            case 'switch-medical-entity':
+                await update({
+                    default_medical_entity: medical_entity?.uuid,
+                    reset: true
+                }).then(() => router.push('/'))
+                break;
             case 'profile':
-                router.push(isMobile ? "/dashboard/settings" : `/dashboard/settings/${roles.includes('ROLE_SECRETARY') ? "motif" : "profil"}`)
+                await router.push("/dashboard/settings");
                 dispatch(toggleMobileBar(true));
                 break;
             case 'rooting':
@@ -160,7 +166,7 @@ function ProfilMenu() {
                                     <MenuItem
                                         className={`item-list`}
                                         disableRipple>
-                                        <IconUrl path={"ic-world-language"} width={30} height={30}/>
+                                        <IconUrl path={"ic-world-language"}/>
                                         <Typography variant="body1" mr={1} ml={1.6} color={"text.secondary"}>
                                             {t("lang")}
                                         </Typography>
@@ -190,19 +196,25 @@ function ProfilMenu() {
                                             ))}
                                         </ToggleButtonGroup>
                                     </MenuItem>
-
-                                    {ProfileMenuConfig.map((item: any, index) => (
-                                        <MenuItem
+                                    {ProfileMenuConfig.map((item: any, index) => ((item.action === 'switch-medical-entity' && hasMultiMedicalEntities) || item.action !== 'switch-medical-entity') && (
+                                        <ConditionalWrapper
                                             key={`menu-${index}`}
-                                            onClick={() => handleMenuItem(item.action)}
-                                            disableRipple
-                                            className={`item-list ${item.name === "Settings" ? "border-bottom" : ""
-                                            }${item.hasOwnProperty("items") ? "has-items" : ""}`}>
-                                            <IconUrl path={item.icon}/>
-                                            <Typography variant="body1" className="item-name">
-                                                {t("doctor-dropdown." + item.name.toLowerCase())}
-                                            </Typography>
-                                        </MenuItem>
+                                            condition={!!item?.feature}
+                                            wrapper={(children: any) =>
+                                                <Can I={"manage"} a={item.feature}>
+                                                    {children}
+                                                </Can>}>
+                                            <MenuItem
+                                                onClick={() => handleMenuItem(item.action)}
+                                                disableRipple
+                                                className={`item-list ${item.name === "Settings" ? "border-bottom" : ""
+                                                }${item.hasOwnProperty("items") ? "has-items" : ""}`}>
+                                                <IconUrl path={item.icon}/>
+                                                <Typography variant="body1" className="item-name">
+                                                    {t("doctor-dropdown." + item.name.toLowerCase())}
+                                                </Typography>
+                                            </MenuItem>
+                                        </ConditionalWrapper>
                                     ))}
                                 </MenuList>
                             </ClickAwayListener>

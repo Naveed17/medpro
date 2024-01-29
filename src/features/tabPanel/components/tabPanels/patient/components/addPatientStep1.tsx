@@ -200,7 +200,7 @@ function AddPatientStep1({...props}) {
     const checkFicheID = () => {
         medicalEntityHasUser && triggerDetectFiche({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/duplicated-field/${router.locale}?attribute=fiche_id&value=${values.fiche_id}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/duplicated-field/${router.locale}?attribute=fiche_id&value=${values.fiche_id}`
         }, {
             onSuccess: (res: any) => {
                 setDuplicatedFiche(res.data.data.length > 0);
@@ -251,7 +251,7 @@ function AddPatientStep1({...props}) {
                             </Typography>
                             <Box>
                                 <Grid container spacing={2}>
-                                    <Grid item md={4} xs={12} sx={{
+                                    <Grid item md={3} xs={12} sx={{
                                         display: {xs: 'flex', md: 'block'},
                                         justifyContent: "center"
 
@@ -261,7 +261,9 @@ function AddPatientStep1({...props}) {
                                                    position: "relative",
                                                    zIndex: 1,
                                                    cursor: "pointer",
-                                                   display: 'inline-flex'
+                                                   display: 'inline-flex',
+                                                   width:118,
+                                                   height:118,
                                                }}>
                                             <InputStyled
                                                 id="contained-button-file"
@@ -270,27 +272,32 @@ function AddPatientStep1({...props}) {
                                             />
                                             <Avatar
                                                 src={values.picture.url}
-                                                sx={{width: 164, height: 164}}>
-                                                <IconUrl path="ic-user-profile"/>
+                                                sx={{width: 118, height: 118}}>
+                                                <IconUrl path="ic-image"/>
                                             </Avatar>
                                             <IconButton
                                                 color="primary"
                                                 type="button"
                                                 sx={{
                                                     position: "absolute",
-                                                    bottom: 10,
+                                                    bottom: 6,
                                                     padding: .5,
-                                                    marginRight: 1,
-                                                    right: 10,
+                                                    right: 6,
                                                     zIndex: 1,
                                                     pointerEvents: "none",
                                                     bgcolor: "#fff !important",
-                                                }}>
-                                                <IconUrl path="ic-return-photo"/>
+                                                
+                                                }}
+                                                style={{
+                                                    minWidth:32,
+                                                    minHeight:32,
+                                                }}
+                                                >
+                                                <IconUrl path="ic-return-photo" width={18} height={18}/>
                                             </IconButton>
                                         </label>
                                     </Grid>
-                                    <Grid item md={8} xs={12}>
+                                    <Grid item md={9} xs={12}>
                                         <Stack direction={"column"} sx={{width: "100%"}}>
                                             <FormControl
                                                 component="fieldset"
@@ -325,7 +332,52 @@ function AddPatientStep1({...props}) {
                                                     </FormHelperText>
                                                 )}
                                             </FormControl>
-                                            <Grid container spacing={1}>
+                                             <Box mt={1}>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        gutterBottom
+                                        component="span">
+                                        {t("fiche")}{" "}
+                                    </Typography>
+                                    <TextField
+                                        variant="outlined"
+                                        placeholder={t("fiche-placeholder")}
+                                        size="small"
+                                        fullWidth
+                                        {...getFieldProps("fiche_id")}
+                                        error={Boolean(duplicatedFiche)}
+                                        helperText={
+                                            Boolean(touched.fiche_id && errors.fiche_id)
+                                                ? String(errors.fiche_id)
+                                                : undefined
+                                        }
+                                        onBlur={checkFicheID}
+                                    />
+                                </Box>
+                                {(duplicatedFiche && (
+                                    <FormHelperText error sx={{px: 2, mx: 0}}>
+                                        {t('duplicatedFileID')}
+                                    </FormHelperText>
+                                ))}
+                                        </Stack>
+                                    </Grid>
+                                </Grid>
+                               
+                            </Box>
+                        </>
+                    )}
+
+                    <Box
+                        sx={{
+                            "& .MuiOutlinedInput-root button": {
+                                padding: "5px",
+                                minHeight: "auto",
+                                height: "auto",
+                                minWidth: "auto",
+                            },
+                        }}>
+                        <Grid container spacing={{xs: 1, md: 2}}>
                                                 <Grid item md={6} xs={12} lg={6}>
                                                     <Box>
                                                         <Typography
@@ -384,52 +436,7 @@ function AddPatientStep1({...props}) {
                                                         />
                                                     </Box>
                                                 </Grid>
-                                            </Grid>
-                                        </Stack>
-                                    </Grid>
-                                </Grid>
-                                <Box mt={1}>
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                        gutterBottom
-                                        component="span">
-                                        {t("fiche")}{" "}
-                                    </Typography>
-                                    <TextField
-                                        variant="outlined"
-                                        placeholder={t("fiche-placeholder")}
-                                        size="small"
-                                        fullWidth
-                                        {...getFieldProps("fiche_id")}
-                                        error={Boolean(duplicatedFiche)}
-                                        helperText={
-                                            Boolean(touched.fiche_id && errors.fiche_id)
-                                                ? String(errors.fiche_id)
-                                                : undefined
-                                        }
-                                        onBlur={checkFicheID}
-                                    />
-                                </Box>
-                                {(duplicatedFiche && (
-                                    <FormHelperText error sx={{px: 2, mx: 0}}>
-                                        {t('duplicatedFileID')}
-                                    </FormHelperText>
-                                ))}
-                            </Box>
-                        </>
-                    )}
-
-                    <Box
-                        sx={{
-                            "& .MuiOutlinedInput-root button": {
-                                padding: "5px",
-                                minHeight: "auto",
-                                height: "auto",
-                                minWidth: "auto",
-                            },
-                        }}>
-                        <Grid container spacing={{xs: 1, md: 2}}>
+                                            
                             <Grid item xs={6} md={8}>
                                 <Typography
                                     variant="body2"
@@ -522,6 +529,15 @@ function AddPatientStep1({...props}) {
                                                 setFieldValue(`phones[${index}].dial`, state);
                                             }}
                                         />
+                                         {touched.phones &&
+                                    touched.phones[index] &&
+                                    errors.phones &&
+                                    errors.phones[index] && (
+                                        <FormHelperText error sx={{px: 2, mx: 0}}>
+                                            {(touched.phones[index].phone as any) &&
+                                                (errors.phones[index] as any).phone}
+                                        </FormHelperText>
+                                    )}
                                     </Grid>
                                     <Grid item xs={6} md={7}>
                                         {phoneObject && <PhoneInput
@@ -541,6 +557,7 @@ function AddPatientStep1({...props}) {
                                             onChange={value => setFieldValue(`phones[${index}].phone`, value)}
                                             inputComponent={CustomInput as any}
                                         />}
+                                        
                                     </Grid>
                                     <Grid item xs={12} md={1}>
                                         {index === 0 ? (
@@ -576,15 +593,7 @@ function AddPatientStep1({...props}) {
                                         )}
                                     </Grid>
                                 </Grid>
-                                {touched.phones &&
-                                    touched.phones[index] &&
-                                    errors.phones &&
-                                    errors.phones[index] && (
-                                        <FormHelperText error sx={{px: 2, mx: 0}}>
-                                            {(touched.phones[index].phone as any) &&
-                                                (errors.phones[index] as any).phone}
-                                        </FormHelperText>
-                                    )}
+                               
                             </Box>
                         ))}
                     </Box>

@@ -112,12 +112,12 @@ function Document() {
         data: httpOcrDocumentResponse
     } = useRequestQuery(medicalEntityHasUser && documentUuid ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${documentUuid}/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/ocr/documents/${documentUuid}/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const {data: httpPatientResponse} = useRequestQuery(medicalEntityHasUser && query.length > 0 ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...((medicalEntityHasUser && query.length > 0) && {variables: {query: `?${query.length > 0 ? `name=${query}&` : ""}withPagination=false`}})
@@ -125,7 +125,7 @@ function Document() {
 
     const {data: httpPatientHistoryResponse} = useRequestQuery(medicalEntityHasUser && selectedPatient && values.target === 'appointment' ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient.uuid}/appointments/list/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selectedPatient.uuid}/appointments/list/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const {data: httpTypeResponse} = useRequestQuery({

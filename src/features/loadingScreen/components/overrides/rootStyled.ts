@@ -14,6 +14,12 @@ const RootStyled = styled("div")(({theme}) => ({
     backgroundColor: theme.palette.background.default,
     "& .MuiTypography-root": {
         whiteSpace: "break-spaces"
+    },
+    "& .loading-text": {
+        fontWeight: 100,
+        fontFamily: "sans-serif, 'Poppins'",
+        fontSize: 18,
+        width: 350
     }
 }));
 

@@ -189,10 +189,42 @@ const rowsActionsData = [
             )
         ),
     },
-     {
+    {
         action: "paid-consultation",
         component: dynamic((): any =>
             import("@features/table/components/rows/paidConsultRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "analysis",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/analysisRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "drugs",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/drugsRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "profile",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/profileRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "medical-imaging",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/medicalImagingRow").then(
                 (mod) => mod
             )
         ),

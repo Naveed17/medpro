@@ -8,7 +8,7 @@ import {
     TextField,
     Typography,
     useMediaQuery,
-    Theme,
+    Theme, useTheme,
 } from "@mui/material";
 import {TableRowStyled} from "@features/table";
 import React, {useEffect, useState} from "react";
@@ -16,12 +16,15 @@ import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
+import Can from "@features/casl/can";
 
 function ActFeesRow({...props}) {
     const {row, editMotif, data, t} = props;
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
     );
+    const theme = useTheme();
+
     const [fees, setFees] = useState("");
     const [contribution, setContribution] = useState("");
     const [code, setCode] = useState("");
@@ -130,42 +133,51 @@ function ActFeesRow({...props}) {
             <TableCell align="right">
                 {row ? (
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        {edit === row.uuid ? (
-                            <IconButton
-                                size="small"
-                                disabled={fees?.length === 0}
-                                color={"primary"}
-                                sx={{mr: {md: 1}}}
+                        <Can I={"manage"} a={"settings"} field={"settings__actfees__update"}>
+                            {edit === row.uuid ? (
+                                <IconButton
+                                    size="small"
+                                    disabled={fees?.length === 0}
+                                    color={"primary"}
+                                    sx={{mr: {md: 1}}}
+                                    onClick={() => {
+                                        editMotif(row, fees, name, code, contribution);
+                                        setTimeout(() => {
+                                            setEdit("");
+                                        }, 1000);
+                                    }}>
+                                    {!isMobile && <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>}
+                                    <Typography fontSize={11} ml={1}>
+                                        {t("save")}
+                                    </Typography>
+                                </IconButton>
+                            ) : (
+                                <IconButton
+                                    size="small"
+                                    sx={{mr: {md: 1}}}
+                                    onClick={() => {
+                                        setEdit(row.uuid);
+                                    }}>
+                                    <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                </IconButton>
+                            )}
+                        </Can>
+                        <Can I={"manage"} a={"settings"} field={"settings__actfees__delete"}>
+                            {!row.hasData && <IconButton
                                 onClick={() => {
-                                    editMotif(row, fees, name, code, contribution);
-                                    setTimeout(() => {
-                                        setEdit("");
-                                    }, 1000);
-                                }}>
-                                {!isMobile && <IconUrl path="setting/edit"/>}
-
-                                <Typography fontSize={11} ml={1}>
-                                    {t("save")}
-                                </Typography>
-                            </IconButton>
-                        ) : (
-                            <IconButton
+                                    data.handleSelected(row);
+                                }}
                                 size="small"
-                                sx={{mr: {md: 1}}}
-                                onClick={() => {
-                                    setEdit(row.uuid);
+                                sx={{
+                                    mr: {md: 1},
+                                    '& .react-svg svg': {
+                                        width: 20,
+                                        height: 20
+                                    }
                                 }}>
-                                <IconUrl path="setting/edit"/>
-                            </IconButton>
-                        )}
-                        {!row.hasData && <IconButton
-                            onClick={() => {
-                                data.handleSelected(row);
-                            }}
-                            size="small"
-                            sx={{mr: {md: 1}}}>
-                            <IconUrl path="setting/icdelete"/>
-                        </IconButton>}
+                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
+                            </IconButton>}
+                        </Can>
                     </Box>
                 ) : (
                     <Stack

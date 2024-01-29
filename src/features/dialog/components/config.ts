@@ -53,7 +53,7 @@ const dialogData = [
         action: "createCashBox",
         component: dynamic((): any =>
             import(
-                "@features/dialog/components/createCashBox/createCashBoxDialog"
+                "@features/dialog/components/createCashBox/components/createCashBoxDialog"
                 ).then((mod) => mod)
         ),
     },
@@ -294,6 +294,14 @@ const dialogData = [
         ),
     },
     {
+        action: "pending_Appointment",
+        component: dynamic((): any =>
+            import("@features/dialog/components/pendingAppointmentDialog/pendingAppointmentDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "write_certif",
         component: dynamic((): any =>
             import("@features/dialog/components/certifDialog/certifDialog").then(
@@ -346,6 +354,14 @@ const dialogData = [
         ),
     },
     {
+        action: "add-feature-profile",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/addFeatureProfileDialog/components/addFeatureProfileDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
         action: "add-visitor",
         component: dynamic((): any =>
             import(
@@ -366,6 +382,14 @@ const dialogData = [
         component: dynamic((): any =>
             import(
                 "@features/dialog/components/deleteModalDialog/components/deleteTransactionDialog"
+                ).then((mod) => mod)
+        ),
+    },
+     {
+        action: "new-user",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/newUserDialog/components/newUserDialog"
                 ).then((mod) => mod)
         ),
     }

@@ -87,7 +87,7 @@ function Document() {
             url: `${urlMedicalEntitySuffix}/ocr/documents/${documentUuid}/${router.locale}`,
             data: form
         }, {
-            onSuccess: () => router.push('/dashboard/documents').then(() => medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/ocr/documents/${router.locale}`])),
+            onSuccess: () => router.push('/dashboard/documents').then(() => invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/ocr/documents/${router.locale}`])),
             onSettled: () => setLoading(false)
         });
     }

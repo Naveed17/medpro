@@ -52,8 +52,11 @@ export * from "./noteCardCollapse";
 export * from "./cashBoxMobileCard";
 export * from "./cashoutMobileCard";
 export * from "./inventoryMobileCard";
-export * from './waitingRoomMobileCard'
-export * from './transactionMobileCard'
+export * from './waitingRoomMobileCard';
+export * from './transactionMobileCard';
 export * from './unpaidConsultationCard';
-export * from './newCashboxMobileCard'
-export * from './holidaysMobileCard'
+export * from './newCashboxMobileCard';
+export * from './holidaysMobileCard';
+export * from './analysisMobileCard';
+export * from './medicalImagingMobileCard';
+export * from './featurePermissionsCard';

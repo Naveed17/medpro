@@ -8,7 +8,6 @@ export const setCurrentDate = createAction<{ date: Date, fallback: boolean }>("a
 export const setConfig = createAction<AgendaConfigurationModel | null>("agenda/setConfig");
 export const setAction = createAction<any | null>("agenda/setAction");
 export const setAgendas = createAction<AgendaConfigurationModel[]>("agenda/setAgendas");
-export const setPendingAppointments = createAction<AppointmentModel[]>("agenda/setPendingAppointments");
 export const setSelectedEvent = createAction<EventDef | null>("agenda/setSelectedEvent");
 export const setGroupedByDayAppointments = createAction<GroupEventsModel[]>("agenda/setGroupedByDayAppointments");
 export const setAbsences = createAction<AppointmentModel[]>("agenda/setAbsences");

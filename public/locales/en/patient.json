@@ -159,6 +159,7 @@
     "add-patient": {
       "personal-info": "Personal Information",
       "additional-information": "Additional Information",
+      "insurance-info": "Insurance / Agreement",
       "fin": "End",
       "group": "Group",
       "duplicatedFileID": "Numéro de dossier déjà utilisé",
@@ -168,8 +169,8 @@
       "civility": "Civility",
       "more-detail": "Show more details",
       "less-detail": "Show less details",
-      "mr": "Mr.",
-      "mrs": "Mrs.",
+      "mr": "Male",
+      "mrs": "Female",
       "nationality": "Nationality",
       "nationality-placeholder": "Select the patient's nationality",
       "date-of-birth": "Date of Birth",

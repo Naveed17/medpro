@@ -5,7 +5,7 @@ import {
     setConfig,
     setCurrentDate,
     setGroupedByDayAppointments,
-    setLastUpdate, setPendingAppointments,
+    setLastUpdate,
     setSelectedEvent,
     setStepperIndex,
     setView
@@ -23,7 +23,6 @@ export type CalendarProps = {
     currentStepper: number;
     config: AgendaConfigurationModel | null;
     agendas: AgendaConfigurationModel[];
-    pendingAppointments: AppointmentModel[];
     currentDate: { date: Date, fallback: boolean };
     selectedEvent: EventDef | null;
     actionSet: any | null;
@@ -45,7 +44,6 @@ const initialState: CalendarProps = {
     config: null,
     actionSet: null,
     agendas: [],
-    pendingAppointments: [],
     currentDate: {date: new Date(), fallback: false},
     selectedEvent: null,
     sortedData: [],
@@ -86,8 +84,6 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.actionSet = action.payload;
     }).addCase(setAgendas, (state, action) => {
         state.agendas = action.payload;
-    }).addCase(setPendingAppointments, (state, action) => {
-        state.pendingAppointments = action.payload;
     }).addCase(setCurrentDate, (state, action) => {
         state.currentDate = action.payload;
     }).addCase(setSelectedEvent, (state, action) => {

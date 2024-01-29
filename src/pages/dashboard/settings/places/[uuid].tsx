@@ -2,7 +2,7 @@ import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import * as Yup from "yup";
 import {Form, FormikProvider, useFormik} from "formik";
-import React, {ReactElement, SyntheticEvent, useCallback, useEffect, useRef, useState} from "react";
+import React, {ReactElement, SyntheticEvent, useEffect, useRef, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {
@@ -23,7 +23,7 @@ import {
     Stack,
     Switch, Tab, Tabs,
     TextField,
-    Typography,
+    Typography, useTheme,
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -131,6 +131,7 @@ function PlacesDetail() {
     const {contacts: contactTypes} = useContactType();
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const dispatch = useAppDispatch();
+    const theme = useTheme();
 
     const {t} = useTranslation(["settings", "common"]);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
@@ -268,7 +269,7 @@ function PlacesDetail() {
                 onSuccess: (r: any) => {
                     if (r.status === 200 || r.status === 201) {
                         mutate();
-                        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`])
+                        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${router.locale}`])
                         router.back();
                         setLoading(false);
                     }
@@ -297,18 +298,17 @@ function PlacesDetail() {
         });
     }
 
-    const initialCites = useCallback(
-        (adr: any) => {
-            triggerPlaceUpdate({
-                method: "GET",
-                url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`
-            }, {
-                onSuccess: (r: any) => {
-                    setCities(r.data.data);
-                    setFieldValue("city", adr.address.city.uuid);
-                }
-            });
-        }, [router, setFieldValue, triggerPlaceUpdate]);
+    const initialCites = (adr: any) => {
+        triggerPlaceUpdate({
+            method: "GET",
+            url: `/api/public/places/state/${adr.address.state.uuid}/cities/${router.locale}`
+        }, {
+            onSuccess: (r: any) => {
+                setCities(r.data.data);
+                setFieldValue("city", adr.address.city.uuid);
+            }
+        });
+    }
 
     const getCountryByCode = (code: string) => {
         return dialCountries.find(country => country.phone === code)
@@ -481,7 +481,7 @@ function PlacesDetail() {
             setHoraires([...hours]);
             setCheck(false);
         }
-    }, [check, initialCites, row]);
+    }, [check, row]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -776,9 +776,10 @@ function PlacesDetail() {
                                                         />
                                                         <IconButton
                                                             onClick={() => handleRemovePhone(index)}
-                                                            sx={{position: "absolute", right: -40, top: 6}}
+                                                            sx={{position: "absolute", right: -40, top: 3}}
                                                             size="small">
-                                                            <IconUrl path="setting/icdelete"/>
+                                                            <IconUrl width={20} height={20}
+                                                                     color={theme.palette.error.main} path="ic-trash"/>
                                                         </IconButton>
                                                     </Stack>
                                                 </Grid>

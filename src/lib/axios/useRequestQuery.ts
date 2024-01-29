@@ -28,7 +28,7 @@ function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {
             signal
         }).catch(async (error) => {
             const originalRequest = error.config;
-            if (error.response?.data?.code === 4000 && !originalRequest._retry) {
+            if (error.response?.status === 401 && !originalRequest._retry) {
                 const refresh = await update();
                 originalRequest._retry = true;
                 originalRequest.headers.Authorization = `Bearer ${refresh?.accessToken}`;

@@ -3,4 +3,7 @@ import {createSelector} from "@reduxjs/toolkit";
 
 export const setConfig = (state: RootState) => state.theme;
 
-export const configSelector = createSelector(setConfig, state => state);
+export const configSelector = createSelector(setConfig, state => state,
+    {
+        devModeChecks: {identityFunctionCheck: 'never'}
+    });

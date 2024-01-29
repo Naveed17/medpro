@@ -13,14 +13,9 @@ import {
     Box,
     TextField,
     Grid,
-    Select,
     Button,
-    FormControlLabel,
-    Checkbox,
-    MenuItem,
-    FormControl,
+    IconButton,
 } from "@mui/material";
-import {Theme} from "@mui/material/styles";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
@@ -41,10 +36,9 @@ import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import PhoneInput from "react-phone-number-input/input";
-import {
-    CustomInput,
-
-} from "@features/tabPanel";
+import {CustomInput} from "@features/tabPanel";
+import IconUrl from "@themes/urlIcon";
+import AddIcon from "@mui/icons-material/Add";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -64,28 +58,20 @@ function ModifyUser() {
 
     const [loading, setLoading] = useState(false);
     const [agendaRoles] = useState(agendas);
-    const [roles] = useState([
-        {id: "read", name: "Accès en lecture"},
-        {id: "write", name: "Accès en écriture"}
-    ]);
 
     const {data: userData} = session as Session;
     const medical_entity = (userData as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const {uuid} = router.query;
 
-    const {trigger: triggerUserUpdate} = useRequestQueryMutation("/user/update");
-    const {data: httpProfilesResponse,} = useRequestQuery({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/profile`
-    });
-    const {data: httpUserResponse} = useRequestQuery({
+    const {data: httpUserResponse, error} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`
-    });
+    }, {refetchOnWindowFocus: false});
+
+    const {trigger: triggerUserUpdate} = useRequestQueryMutation("/user/update");
 
     const user = (httpUserResponse as HttpResponse)?.data ?? null;
-    const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as any[];
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -95,8 +81,7 @@ function ModifyUser() {
         email: Yup.string()
             .email(t("users.mailInvalid"))
             .required(t("users.mailReq")),
-        consultation_fees: Yup.string().required(),
-        birthdate: Yup.string().required(),
+        birthdate: Yup.string().nullable(),
         FirstName: Yup.string().required(),
         lastName: Yup.string().required(),
         phones: Yup.array().of(
@@ -114,12 +99,18 @@ function ModifyUser() {
                             return value ? isValidPhoneNumber(value) : false
                         }
                     })
-                    .required(),
             })
         ),
-        profile: Yup.string()
-            .required(),
+        profile: Yup.string().required(),
+        oldPassword: Yup.string().when('password', {
+            is: (val: string) => val && val.length > 0,
+            then: (schema) => schema.required(t("password-error"))
+        }),
+        password: Yup.string(),
+        confirmPassword: Yup.string().when('password', (password, field) =>
+            password ? field.oneOf([Yup.ref('password')]) : field),
     });
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -134,12 +125,11 @@ function ModifyUser() {
             birthdate: user?.birthDate || null,
             FirstName: user?.FirstName || "",
             lastName: user?.lastName || "",
-            phones: [
-                {
-                    phone: "", dial: doctor_country
-                }
-            ],
-            profile: user?.profile?.uuid || ""
+            phones: [],
+            profile: user?.profile?.uuid || "",
+            oldPassword: "",
+            password: "",
+            confirmPassword: "",
         },
         validationSchema,
         onSubmit: async (values) => {
@@ -153,11 +143,10 @@ function ModifyUser() {
             form.append('is_accepted', 'true');
             form.append('is_public', "true");
             form.append('is_default', "true");
-            form.append('consultation_fees', values.consultation_fees);
-            form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
+            values.birthdate && form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
             form.append('firstname', values.FirstName);
             form.append('lastname', values.lastName);
-            form.append('phone', JSON.stringify(values.phones.map(phoneData => ({
+            values.phones.length > 0 && form.append('phone', JSON.stringify(values.phones.map((phoneData: any) => ({
                 code: phoneData.dial?.phone,
                 value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
                 type: "phone",
@@ -165,9 +154,12 @@ function ModifyUser() {
                 is_support: false
             }))));
             form.append('profile', values.profile);
+            form.append('oldPassword', values.oldPassword);
+            form.append('password', values.password);
+
             triggerUserUpdate({
                 method: "PUT",
-                url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/edit/user/${uuid}/${router.locale}`,
                 data: form
             }, {
                 onSuccess: () => {
@@ -181,8 +173,7 @@ function ModifyUser() {
                     enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
                 }
             });
-
-        },
+        }
     });
 
     const {
@@ -194,16 +185,17 @@ function ModifyUser() {
         setFieldValue,
     } = formik;
 
-    if (!ready) return (<LoadingScreen
-        button
-        {...(uuid && {
-            error: true,
-            button: 'loading-error-404-reset',
-            text: 'loading-error'
-        })}
-    />);
+    if (!ready || error) {
+        return <LoadingScreen
+            button
+            {...(error ? {
+                OnClick: () => router.push('/dashboard/settings/users'),
+                text: 'loading-error-404-reset'
+            } : {})}
+        />;
+    }
 
-    if (!user) return (<LoadingScreen button text={"loading-error-data-404"}/>);
+    console.log(errors);
 
     return (
         <>
@@ -221,46 +213,6 @@ function ModifyUser() {
                         </Typography>
                         <Card className="venue-card">
                             <CardContent>
-                                <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.pro")}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={values.isProfessional}
-                                                        onChange={() => {
-                                                            setFieldValue("isProfessional", true);
-                                                        }}
-                                                    />
-                                                }
-                                                label={t("users.yes")}
-                                            />
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={!values.isProfessional}
-                                                        onChange={() => {
-                                                            setFieldValue("isProfessional", false);
-                                                        }}
-                                                    />
-                                                }
-                                                label={t("users.no")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
                                 <Box mb={2}>
                                     <Grid
                                         container
@@ -309,42 +261,13 @@ function ModifyUser() {
                                         </Grid>
                                         <Grid item xs={12} lg={10}>
                                             <TextField
+                                                disabled
                                                 variant="outlined"
                                                 placeholder={t("users.tname")}
                                                 fullWidth
                                                 required
                                                 error={Boolean(touched.name && errors.name)}
                                                 {...getFieldProps("name")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                                <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.consultation_fees")}{" "}
-                                                <Typography component="span" color="error">
-                                                    *
-                                                </Typography>
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <TextField
-                                                type="number"
-                                                variant="outlined"
-                                                placeholder={t("users.consultation_fees")}
-                                                fullWidth
-                                                required
-                                                error={Boolean(touched.consultation_fees && errors.consultation_fees)}
-                                                {...getFieldProps("consultation_fees")}
                                             />
                                         </Grid>
                                     </Grid>
@@ -443,7 +366,7 @@ function ModifyUser() {
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                {values.phones.map((phoneObject, index: number) => (
+                                {values.phones.map((phoneObject: any, index: number) => (
                                     <Box mb={2} key={index}>
                                         <Grid
                                             container
@@ -455,10 +378,7 @@ function ModifyUser() {
                                                     color="text.secondary"
                                                     variant="body2"
                                                     fontWeight={400}>
-                                                    {t("users.phone")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
-                                                    </Typography>
+                                                    {t("users.phone")}
                                                 </Typography>
                                             </Grid>
                                             <Grid item xs={12} md={10}>
@@ -472,7 +392,7 @@ function ModifyUser() {
                                                             }}
                                                         />
                                                     </Grid>
-                                                    <Grid item xs={12} md={8}>
+                                                    <Grid item xs={12} md={7.5}>
                                                         {phoneObject && <PhoneInput
                                                             ref={phoneInputRef}
                                                             international
@@ -486,197 +406,132 @@ function ModifyUser() {
                                                             inputComponent={CustomInput as any}
                                                         />}
                                                     </Grid>
+                                                    <Grid item xs={12} md={.5}>
+                                                        <IconButton
+                                                            sx={{mt: .2, p: 1, ml: -1}}
+                                                            onClick={() => {
+                                                                const phones = [...values.phones];
+                                                                phones.splice(index, 1)
+                                                                setFieldValue(`phones`, values.phones.length > 0 ? phones : [])
+                                                            }}
+                                                            size="small">
+                                                            <IconUrl path="setting/icdelete"/>
+                                                        </IconButton>
+                                                    </Grid>
                                                 </Grid>
                                             </Grid>
                                         </Grid>
                                     </Box>
                                 ))}
-
-                                <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}>
-                                            <Typography
-                                                textAlign={{lg: "right", xs: "left"}}
-                                                color="text.secondary"
-                                                variant="body2"
-                                                fontWeight={400}>
-                                                {t("users.profile")}{" "}
-
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <FormControl size="small" fullWidth
-                                                         error={Boolean(touched.profile && errors.profile)}>
-                                                <Select
-                                                    labelId="demo-simple-select-label"
-                                                    id={"role"}
-                                                    {...getFieldProps("profile")}
-                                                    renderValue={selected => {
-                                                        if (selected.length === 0) {
-                                                            return <em>{t("users.profile")}</em>;
-                                                        }
-                                                        const profile = profiles?.find(profile => profile.uuid === selected);
-                                                        return <Typography>{profile?.name}</Typography>
-                                                    }}
-                                                    displayEmpty
-                                                    sx={{color: "text.secondary"}}>
-                                                    {profiles.map(profile =>
-                                                        <MenuItem key={profile.uuid}
-                                                                  value={profile.uuid}>{profile.name}</MenuItem>)}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid>
+                                <Box mb={4} ml={5}>
+                                    <Button
+                                        size={"small"}
+                                        onClick={() => {
+                                            setFieldValue(`phones`, [
+                                                ...values.phones,
+                                                {
+                                                    phone: "", dial: doctor_country
+                                                }])
+                                        }}
+                                        startIcon={<AddIcon/>}>
+                                        {t("lieux.new.addNumber")}
+                                    </Button>
                                 </Box>
-                                <Box mb={2}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={2}></Grid>
-                                        <Grid item xs={12} lg={10}>
-                                            <FormControlLabel
-                                                control={
-                                                    <Checkbox
-                                                        checked={values.admin}
-                                                        onClick={() => {
-                                                            setFieldValue("admin", !values.admin);
-                                                        }}
-                                                    />
-                                                }
-                                                label={t("users.admin")}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                </Box>
+
                             </CardContent>
                         </Card>
-                        <Typography marginBottom={2} gutterBottom>
-                            {t("users.roles")}
-                        </Typography>
-                        <Card>
-                            <Box mb={2}>
-                                <Grid
-                                    container
-                                    spacing={{lg: 2, xs: 1}}
-                                    justifyContent="center"
-                                    sx={{
-                                        background: (theme: Theme) => theme.palette.primary.light,
-                                        borderBottom: `1px solid ${(theme: Theme) =>
-                                            theme.palette.divider}`,
-                                    }}
-                                    padding={"16px"}
-                                    alignItems="center">
-                                    <Grid item xs={12} lg={4}>
-                                        <Typography variant="body2" fontWeight={400}>
-                                            {t("users.all")}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={12} lg={7}>
-                                        <FormControl size="small" fullWidth>
-                                            <Select
-                                                labelId="demo-simple-select-label"
-                                                id={"role"}
-                                                {...getFieldProps("role")}
-                                                onChange={event => {
-                                                    setFieldValue("role", event.target.value);
-                                                    agendaRoles.map((agenda, index) => {
-                                                        setFieldValue(`agendas[${index}].role`, event.target.value);
-                                                    })
-                                                }}
-                                                renderValue={selected => {
-                                                    if (selected.length === 0) {
-                                                        return <em>{t("users.config.roleAccess")}</em>;
-                                                    }
-                                                    const role = roles?.find(role => role.id === selected);
-                                                    return <Typography>{role?.name}</Typography>
-                                                }}
-                                                displayEmpty
-                                                sx={{color: "text.secondary"}}>
-                                                {roles.map(role =>
-                                                    <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>)}
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-                                </Grid>
-                            </Box>
-                            {values.agendas.map((agenda, index) => (
-                                <Box mb={2} key={index}>
-                                    <Grid
-                                        container
-                                        spacing={{lg: 2, xs: 1}}
-                                        justifyContent="center"
-                                        padding={"0 20px 16px"}
-                                        margin={0}
-                                        sx={{
-                                            borderBottom:
-                                                index !== agendas.length - 1
-                                                    ? `1px solid ${(theme: Theme) =>
-                                                        theme.palette.divider}`
-                                                    : "0",
-                                        }}
-                                        alignItems="center">
-                                        <Grid item xs={12} lg={4}>
-                                            <FormControlLabel
-                                                control={<Checkbox/>}
-                                                label={agenda.name}
 
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} lg={7}>
-                                            <FormControl size="small" fullWidth>
-                                                <Select
-                                                    placeholder={"motif.dialog.selectGroupe"}
-                                                    displayEmpty={true}
-                                                    {...getFieldProps(`agendas[${index}].role`)}
-                                                    sx={{color: "text.secondary", padding: 0}}
-                                                    renderValue={selected => {
-                                                        if (selected.length === 0) {
-                                                            return <em>{t("users.config.roleAccess")}</em>;
-                                                        }
-                                                        const role = roles?.find(role => role.id === selected);
-                                                        return <Typography>{role?.name}</Typography>
-                                                    }}>
-                                                    {roles.map(role => <MenuItem key={role.id}
-                                                                                 value={role.id}>{role.name}</MenuItem>)}
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                            ))}
-                        </Card>
                         <Typography marginBottom={2} gutterBottom>
-                            {t("users.send")}
+                            {t("users.password")}
                         </Typography>
-                        <Card>
+                        <Card className="venue-card">
                             <CardContent>
                                 <Box mb={2}>
                                     <Grid
                                         container
                                         spacing={{lg: 2, xs: 1}}
-                                        alignItems="flex-start">
+                                        alignItems="center">
                                         <Grid item xs={12} lg={2}>
                                             <Typography
                                                 textAlign={{lg: "right", xs: "left"}}
                                                 color="text.secondary"
                                                 variant="body2"
                                                 fontWeight={400}>
-                                                {t("users.message")}
+                                                {t("users.oldPassword")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={12} lg={9}>
+                                        <Grid item xs={12} lg={10}>
                                             <TextField
+                                                type="password"
                                                 variant="outlined"
-                                                placeholder={t("users.tmessage")}
-                                                multiline
-                                                rows={4}
+                                                placeholder={t("users.oldPassword")}
                                                 fullWidth
                                                 required
-                                                {...getFieldProps("message")}
+                                                error={Boolean(touched.oldPassword && errors.oldPassword)}
+                                                {...getFieldProps("oldPassword")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.password")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                            <TextField
+                                                type="password"
+                                                variant="outlined"
+                                                placeholder={t("users.password")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.password && errors.password)}
+                                                {...getFieldProps("password")}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                                <Box mb={2}>
+                                    <Grid
+                                        container
+                                        spacing={{lg: 2, xs: 1}}
+                                        alignItems="center">
+                                        <Grid item xs={12} lg={2}>
+                                            <Typography
+                                                textAlign={{lg: "right", xs: "left"}}
+                                                color="text.secondary"
+                                                variant="body2"
+                                                fontWeight={400}>
+                                                {t("users.confirm_password")}{" "}
+                                                <Typography component="span" color="error">
+                                                    *
+                                                </Typography>
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs={12} lg={10}>
+                                            <TextField
+                                                type="password"
+                                                variant="outlined"
+                                                placeholder={t("users.confirm_password")}
+                                                fullWidth
+                                                required
+                                                error={Boolean(touched.confirmPassword && errors.confirmPassword)}
+                                                {...getFieldProps("confirmPassword")}
                                             />
                                         </Grid>
                                     </Grid>
@@ -693,7 +548,10 @@ function ModifyUser() {
                             <Button onClick={() => router.back()}>
                                 {t("motif.dialog.cancel")}
                             </Button>
-                            <LoadingButton loading={loading} type="submit" variant="contained" color="primary">
+                            <LoadingButton
+                                {...{loading}}
+                                disabled={Object.keys(errors).length > 0}
+                                type="submit" variant="contained" color="primary">
                                 {t("motif.dialog.save")}
                             </LoadingButton>
                         </Stack>

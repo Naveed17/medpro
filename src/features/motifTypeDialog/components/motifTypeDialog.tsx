@@ -158,7 +158,7 @@ function EditMotifDialog({...props}) {
             if (props.data) {
                 medicalEntityHasUser && triggerTypeUpdate({
                     method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${props.data.uuid}/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/appointments/types/${props.data.uuid}/${router.locale}`,
                     data: form
                 }, {
                     onSuccess: () => {
@@ -173,7 +173,7 @@ function EditMotifDialog({...props}) {
             } else {
                 medicalEntityHasUser && triggerTypeAdd({
                     method: "POST",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`,
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/appointments/types/${router.locale}`,
                     data: form
                 }, {
                     onSuccess: () => {
@@ -265,8 +265,8 @@ function EditMotifDialog({...props}) {
                                         *
                                     </Typography>
                                 </Typography>
-                                <Stack direction="row" alignItems="center" spacing={{xs:.5,sm:1}} 
-                                
+                                <Stack direction="row" alignItems="center" spacing={{xs:.5,sm:1}}
+
                                 >
                                     {colors.map((color) => (
                                         <ModelDot

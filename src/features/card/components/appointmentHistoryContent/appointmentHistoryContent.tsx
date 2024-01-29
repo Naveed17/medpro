@@ -39,7 +39,7 @@ function AppointmentHistoryContent({...props}) {
     const {trigger: triggerRaEdit} = useRequestQueryMutation("/RA/edit");
     const {data: httpPatientHistory} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/${historyUUID}/data/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/${historyUUID}/data/${router.locale}`
     } : null);
 
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -104,8 +104,8 @@ function AppointmentHistoryContent({...props}) {
         }, {
             onSuccess: () => {
                 if (medicalEntityHasUser) {
-                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`)
-                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`)
+                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/antecedents/${router.locale}`)
+                    mutate(`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/analysis/${router.locale}`)
                 }
             }
         });

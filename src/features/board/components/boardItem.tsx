@@ -122,23 +122,35 @@ function BoardItem({...props}) {
             data-testid={quote?.id}
             data-index={index}
             aria-label={`${quote?.column?.name} quote ${quote?.content}`}>
-            <Card sx={{
-                width: '100%',
-                ...([1, 2, 3].includes(quote.content.status) && {
-                    borderLeft: 6,
-                    borderRight: quote.content.consultationReasons.length > 0 ? 10 : 1,
-                    borderRightColor: quote.content.consultationReasons.length > 0 ? quote.content.consultationReasons[0].color : 'divider',
-                    borderLeftColor: quote.content.type.color ?? theme.palette.primary.main
-                }),
-                bgcolor: [0].includes(quote.content.status) ? alpha(theme.palette.warning.lighter, .7) : theme.palette.common.white,
-                ".MuiCardContent-root": {
-               "&.MuiCardContent-root":{     
-                    "&:last-child":{
-                     paddingBottom: 1,
+            <Card
+                {...(quote.content.status === 4 && {
+                    onClick: (event: React.MouseEvent<any>) => {
+                        event.stopPropagation();
+                        handleEvent({
+                            action: roles.includes('ROLE_SECRETARY') ? "PATIENT_DETAILS" : "OPEN_CONSULTATION",
+                            row: quote.content,
+                            event
+                        })
                     }
-                } 
-           }
-            }}>
+                })}
+                sx={{
+                    width: '100%',
+                    ...(quote.content.status === 4 && {cursor: 'pointer'}),
+                    ...([1, 2, 3].includes(quote.content.status) && {
+                        borderLeft: 6,
+                        borderRight: quote.content.consultationReasons.length > 0 ? 10 : 1,
+                        borderRightColor: quote.content.consultationReasons.length > 0 ? quote.content.consultationReasons[0].color : 'divider',
+                        borderLeftColor: quote.content.type.color ?? theme.palette.primary.main
+                    }),
+                    bgcolor: [0].includes(quote.content.status) ? alpha(theme.palette.warning.lighter, .7) : theme.palette.common.white,
+                    ".MuiCardContent-root": {
+                        "&.MuiCardContent-root": {
+                            "&:last-child": {
+                                paddingBottom: 1,
+                            }
+                        }
+                    }
+                }}>
                 <CardContent sx={{
                     p: 1
                 }}>
@@ -200,8 +212,8 @@ function BoardItem({...props}) {
                                         </>
                                     }
                                     {quote.content.status === 5 &&
-                                        <Label variant={"ghost"}
-                                               color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
+                                        <Label
+                                            color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
                                     }
                                 </Stack>
                             </Stack>
@@ -346,11 +358,14 @@ function BoardItem({...props}) {
                                         title={commonTranslation("plus", {ns: "waitingRoom"})}>
                                         <IconButton
                                             disableRipple
-                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                                action: "OPEN-POPOVER",
-                                                row: quote.content,
-                                                event
-                                            })}
+                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                event.stopPropagation();
+                                                handleEvent({
+                                                    action: "OPEN-POPOVER",
+                                                    row: quote.content,
+                                                    event
+                                                })
+                                            }}
                                             sx={{display: "block", borderRadius: 1, mr: .5}}
                                             size="small">
                                             <Icon path="more-vert" width={16} height={16}/>
@@ -366,5 +381,4 @@ function BoardItem({...props}) {
     );
 }
 
-export default React.memo
-< any > (BoardItem);
+export default React.memo<any>(BoardItem);

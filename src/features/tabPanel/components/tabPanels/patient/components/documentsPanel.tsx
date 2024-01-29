@@ -187,7 +187,7 @@ function DocumentsPanel({...props}) {
 
     const {data: httpAppDocPatientResponse} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/documents/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/documents/${router.locale}`
     } : null);
 
     const {data: httpQuotesResponse, mutate: mutateQuotes} = useRequestQuery(patient ? {
@@ -395,7 +395,7 @@ function DocumentsPanel({...props}) {
 
             triggerQuoteUpdate({
                 method: "POST",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/quotes/${router.locale}`,
                 data: form
             }, {
                 onSuccess: () => {

@@ -293,8 +293,8 @@ function DocumentDetailDialog({...props}) {
                             action: 'medical_prescription_cycle',
                             state: state?.info.map((drug: any) => ({
                                 cycles: drug.cycles,
-                                drugUuid: drug.standard_drug.uuid,
-                                name: drug.standard_drug.commercial_name,
+                                drugUuid: drug.standard_drug?.uuid,
+                                name: drug.drugName
                             })),
                             uuid: state?.uuidDoc,
                             appUuid: state?.appUuid
@@ -422,7 +422,8 @@ function DocumentDetailDialog({...props}) {
         if (state?.type === "quote") {
             medicalEntityHasUser && triggerDocumentDelete({
                     method: "DELETE",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${state?.uuid}/${router.locale}`
+                    url: `${urlMedicalEntitySuffix} / mehu /${medicalEntityHasUser}/quotes/${state?.uuid}
+    /${router.locale}`
                 },
                 {
                     onSuccess: () => {
@@ -438,7 +439,7 @@ function DocumentDetailDialog({...props}) {
         } else {
             medicalEntityHasUser && triggerDocumentDelete({
                 method: "DELETE",
-                url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}`}/documents/${state?.uuid}/${router.locale}`
+                url: `/api/medical-entity/${documentViewIndex === 0 ? "agendas/appointments" : `${medical_entity.uuid}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}`}/documents/${state?.uuid}/${router.locale}`
             }, {
                 onSuccess: () => {
                     state?.mutate && state?.mutate();

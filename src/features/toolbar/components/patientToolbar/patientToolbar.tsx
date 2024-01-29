@@ -15,6 +15,7 @@ import {setDuplicated} from "@features/duplicateDetected";
 import {LoadingScreen} from "@features/loadingScreen";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import {CustomIconButton} from "@features/buttons";
+import Can from "@features/casl/can";
 
 
 function PatientToolbar({...props}) {
@@ -50,35 +51,38 @@ function PatientToolbar({...props}) {
                 </Typography>
                 {isDesktop && (
                     <Stack direction={"row"} spacing={1.2}>
-                        {rowsSelected.length > 1 && <Button
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                const duplications = [...rowsSelected];
-                                const firstElement = duplications.shift();
-                                dispatch(setDuplicated({
-                                    duplications,
-                                    duplicationSrc: firstElement,
-                                    duplicationInit: firstElement,
-                                    openDialog: true,
-                                    mutate: mutatePatient
-                                }));
-                            }}
-                            variant="contained"
-                            color="primary"
-                            sx={{ml: "auto"}}
-                            startIcon={<ArchiveRoundedIcon/>}>
-                            {t("sub-header.merge-patient")}
-                        </Button>}
-                        <CustomIconButton
-                            onClick={onPatientDrawer}
-                            variant="filled"
-                            sx={{p: .8}}
-                            color={"primary"}
-                            size={"small"}>
-                            <AgendaAddViewIcon/>
-                        </CustomIconButton>
+                        <Can I={"manage"} a={"patients"} field={"patients__patient__merge"}>
+                            {rowsSelected.length > 1 && <Button
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    const duplications = [...rowsSelected];
+                                    const firstElement = duplications.shift();
+                                    dispatch(setDuplicated({
+                                        duplications,
+                                        duplicationSrc: firstElement,
+                                        duplicationInit: firstElement,
+                                        openDialog: true,
+                                        mutate: mutatePatient
+                                    }));
+                                }}
+                                variant="contained"
+                                color="primary"
+                                sx={{ml: "auto"}}
+                                startIcon={<ArchiveRoundedIcon/>}>
+                                {t("sub-header.merge-patient")}
+                            </Button>}
+                        </Can>
+                        <Can I={"manage"} a={"patients"} field={"patients__patient__create"}>
+                            <CustomIconButton
+                                onClick={onPatientDrawer}
+                                variant="filled"
+                                sx={{p: .8}}
+                                color={"primary"}
+                                size={"small"}>
+                                <AgendaAddViewIcon/>
+                            </CustomIconButton>
+                        </Can>
                     </Stack>
-
                 )}
             </Stack>
         </>

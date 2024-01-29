@@ -281,7 +281,7 @@ function ConsultationInProgress() {
     // ********** Requests ********** \\
     const {data: httpSheetResponse, mutate: mutateSheetData} = useRequestQuery(agenda && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/appointments/${app_uuid}/consultation-sheet/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const sheet = (httpSheetResponse as HttpResponse)?.data
@@ -297,7 +297,7 @@ function ConsultationInProgress() {
 
     const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${sheet?.patient}/preview/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${sheet?.patient}/preview/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const {data: httpPreviousResponse} = useRequestQuery(sheet?.hasHistory && agenda ? {
@@ -438,7 +438,7 @@ function ConsultationInProgress() {
             setLoadingRequest(true);
             medicalEntityHasUser && triggerDocumentSpeechToText({
                 method: "POST",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/stt/${selectedAudio?.uuid}/${router.locale}`
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/stt/${selectedAudio?.uuid}/${router.locale}`
             }, {
                 onSuccess: () => {
                     enqueueSnackbar(t(`consultationIP.alerts.speech-text.title`), {variant: "info"});

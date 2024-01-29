@@ -79,22 +79,22 @@ const Content = ({...props}) => {
         mutate: mutateAntecedents
     } = useRequestQuery([4, 6, 7].includes(id) && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/antecedents/${router.locale}`
     } : null);
 
     const {data: httpPatientAnalyses, mutate: mutateAnalyses} = useRequestQuery(id === 9 && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/analysis/${router.locale}`
     } : null);
 
     const {data: httpPatientMI, mutate: mutateMi} = useRequestQuery(id === 5 && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/requested-imaging/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/requested-imaging/${router.locale}`
     } : null);
 
     const {data: httpTreatment, mutate: mutateTreatment} = useRequestQuery(id === 1 && medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/appointments/treatments/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/appointments/treatments/${router.locale}`
     } : null);
 
     const patientAntecedents = (httpAntecedents as HttpResponse)?.data;
@@ -152,7 +152,7 @@ const Content = ({...props}) => {
             form.append("patient_uuid", patient.uuid);
             medicalEntityHasUser && triggerAntecedentCreate({
                 method: "POST",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/antecedents/${allAntecedents.find((ant: {
                     slug: any;
                 }) => ant.slug === infoDynamic).uuid}/fr`,
                 data: form

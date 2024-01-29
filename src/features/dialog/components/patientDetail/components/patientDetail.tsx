@@ -29,7 +29,7 @@ import {Session} from "next-auth";
 import {useRouter} from "next/router";
 import {useTranslation} from "next-i18next";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
-import React, {SyntheticEvent, useEffect, useState} from "react";
+import React, {SyntheticEvent, useContext, useEffect, useState} from "react";
 import PatientDetailStyled from "./overrides/patientDetailStyled";
 import {EventDef} from "@fullcalendar/core/internal";
 import CloseIcon from "@mui/icons-material/Close";
@@ -51,6 +51,7 @@ import AddIcon from "@mui/icons-material/Add";
 import {DefaultCountry} from "@lib/constants";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {LoadingScreen} from "@features/loadingScreen";
+import {AbilityContext} from "@features/casl/can";
 
 function a11yProps(index: number) {
     return {
@@ -79,6 +80,7 @@ function PatientDetail({...props}) {
     const {allAntecedents} = useAntecedentTypes();
     const {trigger: invalidateQueries} = useInvalidateQueries();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const ability = useContext(AbilityContext);
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "config"});
     const {t: translate} = useTranslation("consultation");
@@ -148,14 +150,14 @@ function PatientDetail({...props}) {
         mutate: mutatePatientDetails
     } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/infos/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/infos/${router.locale}`
     } : null);
 
     const patient = ((httpPatientDetailsResponse as HttpResponse)?.data as PatientModel) ?? null;
 
     const {data: httpPatientWallet, mutate: walletMutate} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/wallet/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/wallet/${router.locale}`
     } : null);
 
     const {patientPhoto} = useProfilePhoto({patientId, hasPhoto: patient?.hasPhoto});
@@ -165,7 +167,7 @@ function PatientDetail({...props}) {
         mutate: mutateAntecedents
     } = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/antecedents/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/antecedents/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const handleOpenFab = () => setOpenFabAdd(true);
@@ -226,11 +228,11 @@ function PatientDetail({...props}) {
         });
         medicalEntityHasUser && triggerUploadDocuments({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/documents/${router.locale}`,
             data: params
         }, {
             onSuccess: () => {
-                const mutateUrl = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`;
+                const mutateUrl = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/documents/${router.locale}`;
                 invalidateQueries([mutateUrl]);
                 triggerNotificationPush({
                     action: "push",
@@ -262,8 +264,8 @@ function PatientDetail({...props}) {
                 }, {
                     onSuccess: (result: any) => {
                         medicalEntityHasUser && invalidateQueries([
-                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/appointments/history/${router.locale}`,
-                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/documents/${router.locale}`]);
+                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/appointments/history/${router.locale}`,
+                            `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/documents/${router.locale}`]);
                         setOpenDialog(false);
                         setInfo("document_detail");
                         const res = result.data.data;
@@ -324,7 +326,7 @@ function PatientDetail({...props}) {
     }
 
     const tabsContent = [
-        {
+        ...(ability.can('manage', 'patients', 'patients__patient__details__informations') ? [{
             title: "tabs.personal-info",
             children: <PersonalInfoPanel loading={!patient} {...{
                 patient,
@@ -335,24 +337,21 @@ function PatientDetail({...props}) {
                 mutateAgenda,
                 editable,
                 setEditable
-            }} />,
-            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
-        },
-        {
+            }} />
+        }] : []),
+        ...(ability.can('manage', 'patients', 'patients__patient__details__history') ? [{
             title: "tabs.history",
             children: <HistoryPanel {...{
                 t,
                 patient,
                 closePatientDialog
-            }} />,
-            permission: ["ROLE_PROFESSIONAL"]
-        },
-        {
+            }} />
+        }] : []),
+        ...(ability.can('manage', 'patients', 'patients__patient__details__appointment') ? [{
             title: "tabs.appointment",
-            children: <GroupTable from="patient" data={{patient, translate: t}}/>,
-            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
-        },
-        {
+            children: <GroupTable from="patient" data={{patient, translate: t}}/>
+        }] : []),
+        ...(ability.can('manage', 'patients', 'patients__patient__details__documents') ? [{
             title: "tabs.documents",
             children: <DocumentsPanel {...{
                 roles,
@@ -364,27 +363,26 @@ function PatientDetail({...props}) {
                 mutatePatientDetails,
                 loadingRequest,
                 setLoadingRequest
-            }} />,
-            permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
-        },
-        ...(isBeta ? [{
+            }} />
+        }] : []),
+        ...(isBeta && ability.can('manage', 'patients', 'patients__patient__details__payment') ? [{
             title: "tabs.transactions",
             children: <TransactionPanel {...{
                 patient, wallet, rest, walletMutate, devise, router
             }} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
         }] : []),
-        {
+        ...(ability.can('manage', 'patients', 'patients__patient__details__note') ? [{
             title: "tabs.notes",
             children: <NotesPanel loading={!patient}  {...{t, patient, mutatePatientDetails}} />,
             permission: ["ROLE_SECRETARY", "ROLE_PROFESSIONAL"]
-        },
-        {
+        }] : []),
+        ...(ability.can('manage', 'patients', 'patients__patient__details__resume') ? [{
             title: "tabs.recap",
             children: <PatientFile {...{patient, antecedentsData, t, allAntecedents}} />,
             permission: ["ROLE_PROFESSIONAL"]
-        }
-    ].filter(tab => tab.permission.includes(roles[0]));
+        }] : [])
+    ];
 
     useEffect(() => {
         if (selectedDialog && !router.asPath.includes('/dashboard/consultation/')) {

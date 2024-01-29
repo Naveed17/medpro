@@ -1,15 +1,15 @@
-import React, {useCallback, useState} from "react";
+import React, { useCallback, useState } from "react";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from "@mui/material/Autocomplete";
-import {countries} from "./countries";
-import {Avatar, MenuItem, Typography} from "@mui/material";
+import { countries } from "./countries";
+import { Avatar, MenuItem, Typography } from "@mui/material";
 
-function CountrySelect({...props}) {
-    const {onSelect, initCountry = "", small, ...rest} = props;
+function CountrySelect({ ...props }) {
+    const { onSelect, initCountry = "", small, ...rest } = props;
 
     const [countriesData] = useState<any[]>(countries.sort(
-        country => initCountry.code?.toLowerCase() === country.code.toLowerCase() ? -1 : 1));
+        country => initCountry.code?.toLowerCase() === country?.code?.toLowerCase() ? -1 : 1));
 
     const onSelectState = useCallback(
         (state: any) => {
@@ -38,7 +38,7 @@ function CountrySelect({...props}) {
             onChange={(e, v) => {
                 onSelectState(v);
             }}
-            value={countries.find(country => country.code.toLocaleLowerCase() === initCountry.code.toLocaleLowerCase())}
+            value={countries.find(country => country?.code?.toLocaleLowerCase() === initCountry?.code?.toLocaleLowerCase())}
             options={countriesData}
             autoHighlight
             disableClearable
@@ -55,7 +55,7 @@ function CountrySelect({...props}) {
                         alt={initCountry && initCountry.name}
                         src={`https://flagcdn.com/${option?.code.toLowerCase()}.svg`}
                     />}
-                    <Typography sx={{ml: 1}}>{option.name}</Typography>
+                    <Typography sx={{ ml: 1 }}>{option.name}</Typography>
                 </MenuItem>
             )}
             renderInput={(params) => {
@@ -75,7 +75,7 @@ function CountrySelect({...props}) {
                     </InputAdornment>
                 );
 
-                return <TextField {...params} sx={{paddingLeft: 0}} variant="outlined" fullWidth/>;
+                return <TextField {...params} sx={{ paddingLeft: 0 }} variant="outlined" fullWidth />;
             }}
         />
     );

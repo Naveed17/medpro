@@ -38,6 +38,9 @@ import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
+import {buildAbilityFor} from "@lib/rbac/casl/ability";
+import {AbilityContext} from "@features/casl/can";
+import {caslSelector} from "@features/casl";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -46,7 +49,7 @@ function PaperComponent(props: PaperProps) {
 }
 
 function FcmLayout({...props}) {
-    const {data: session} = useSession();
+    const {data: session, update} = useSession();
     const {jti} = session?.user as any;
     const router = useRouter();
     const theme = useTheme();
@@ -60,6 +63,7 @@ function FcmLayout({...props}) {
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
+    const permissions = useAppSelector(caslSelector);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
@@ -72,12 +76,14 @@ function FcmLayout({...props}) {
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
     const roles = (user as UserDataResponse)?.general_information.roles;
+    const default_medical_entity = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default);
+    const features = default_medical_entity?.features;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+    const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
+    const ability = buildAbilityFor(features ?? [], permissions);
 
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
-
-    const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
     const handleClose = () => {
         setOpenDialog(false);
@@ -108,6 +114,8 @@ function FcmLayout({...props}) {
                             dispatch(setProgress(parseFloat(data.body.progress)));
                         }
                     }
+                } else if (data.type === "session") {
+                    update({[message.data.root]: data.body});
                 } else {
                     switch (message.data.root) {
                         case "agenda":
@@ -242,13 +250,19 @@ function FcmLayout({...props}) {
     }, [general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
         if (typeof window !== "undefined" && window?.usetifulInit && general_information && process.env.NODE_ENV !== 'development') {
-            window.usetifulTags = {
-                userId: general_information.uuid,
-                role: roles[0],
-                name: `${general_information.firstName} ${general_information.lastName}`
-            };
-            window.usetifulInit(window, document, "/static/files/usetiful.js", process.env.NEXT_PUBLIC_USETIFUL_TOKEN ?? "");
+            fetchAndActivate(remoteConfig).then(() => {
+                const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
+                if (config.usetiful) {
+                    window.usetifulTags = {
+                        userId: general_information.uuid,
+                        role: roles[0],
+                        name: `${general_information.firstName} ${general_information.lastName}`
+                    };
+                    window.usetifulInit(window, document, "/static/files/usetiful.js", process.env.NEXT_PUBLIC_USETIFUL_TOKEN ?? "");
+                }
+            });
         }
     }, [window?.usetifulInit, general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -260,7 +274,7 @@ function FcmLayout({...props}) {
                 (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day"));
             dispatch(setOngoing({notifications}))
         }
-    }, [dispatch])
+    }, [dispatch]);
 
     useEffect(() => {
         if (agendaConfig) {
@@ -295,8 +309,9 @@ function FcmLayout({...props}) {
 
     return (
         <>
-            {props.children}
-
+            <AbilityContext.Provider value={ability}>
+                {props.children}
+            </AbilityContext.Provider>
             <CustomDialog
                 action={"payment_dialog"}
                 {...{

@@ -15,13 +15,12 @@ function AppointmentPatientCard({...props}) {
                 direction="row"
                 spacing={1}
                 mt={1}
-                sx={{p: "0 1rem"}}
-            >
-                <Box mt={.5}>
+                sx={{p: "0 1rem"}}>
+                {data?.patient.gender && <Box mt={.5}>
                     <Avatar sx={{width: 24, height: 24}}
-                            src={`/static/icons/${data?.patient.gender !== "O" ?
+                            src={`/static/icons/${data.patient.gender !== "O" ?
                                 "men" : "women"}-avatar.svg`}/>
-                </Box>
+                </Box>}
                 <Box>
                     <Typography
                         variant="body1"
@@ -76,7 +75,8 @@ function AppointmentPatientCard({...props}) {
                 spacing={1}
                 sx={{p: "0  .2rem .6rem .8rem"}}
             >
-                Motif: <Typography ml={1}>{data?.motif.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
+                Motif: <Typography
+                ml={1}>{data?.motif.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</Typography>
             </Stack>}
             <Stack sx={{p: 2, background: "rgba(255, 212, 0, 0.4)",}}>
                 <Box>

@@ -141,7 +141,7 @@ export const UrlMedicalProfessionalSuffix: string = '/api/medical-professional';
 
 export const MedicalFormUnit = data;
 
-export const PrescriptionMultiUnits = MedicalFormUnit.filter(medic => medic.multiple).map(medic => medic.unit);
+export const PrescriptionMultiUnits = MedicalFormUnit.reduce((medics: any[], medic: any) => [...(medics ?? []), ...(medic.multiple ? [medic.unit] : [])], []);
 
 export const TransactionType = [
     // Add Payment ( ajout caisse/ Alimenter )
@@ -185,7 +185,7 @@ export const TransactionStatus = [
     },
 ];
 
-export const iconDocument = (data:string) => {
+export const iconDocument = (data: string) => {
     return data === "prescription" && "docs/ic-prescription" ||
         data == "requested-analysis" && "docs/ic-analyse" ||
         data == "analyse" && "docs/ic-analyse" ||

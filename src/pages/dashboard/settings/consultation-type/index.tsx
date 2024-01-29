@@ -37,6 +37,7 @@ import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import Can from "@features/casl/can";
 
 function ConsultationType() {
     const theme: Theme = useTheme();
@@ -108,7 +109,7 @@ function ConsultationType() {
         mutate: mutateAppointmentTypes
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/appointments/types/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medicalEntityHasUser && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}})
@@ -118,7 +119,7 @@ function ConsultationType() {
         setLoading(true)
         medicalEntityHasUser && triggerTypeDelete({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/appointments/types/${uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/appointments/types/${uuid}/${router.locale}`
         }, {
             onSuccess: () => {
                 enqueueSnackbar(t("alert.delete-reasonType"), {variant: "success"});
@@ -195,13 +196,15 @@ function ConsultationType() {
                     width={1}
                     alignItems="center">
                     <Typography color="text.primary">{t("path")}</Typography>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => editMotif(null, "add")}
-                        sx={{ml: "auto"}}>
-                        {t("add")}
-                    </Button>
+                    <Can I={"manage"} a={"settings"} field={"settings__consultation-type__create"}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() => editMotif(null, "add")}
+                            sx={{ml: "auto"}}>
+                            {t("add")}
+                        </Button>
+                    </Can>
                 </Stack>
             </SubHeader>
             <DesktopContainer>

@@ -15,7 +15,7 @@ import {
     FormHelperText,
     Grid,
     IconButton, InputBase,
-    List,
+    List, ListItem,
     ListItemButton,
     ListItemText,
     ListSubheader,
@@ -122,18 +122,21 @@ function MedicalPrescriptionCycleDialog({...props}) {
     const validationSchema = Yup.object().shape({
         data: Yup.array().of(
             Yup.object().shape({
-                drug: Yup.object()
-                    .shape({
+                drug: Yup.object().shape({
+                    uuid: Yup.string(),
+                    form: Yup.object().shape({
                         uuid: Yup.string(),
-                        form: Yup.string().nullable(),
-                        dci: Yup.string().nullable(),
-                        dose: Yup.string().nullable(),
-                        commercial_name: Yup.string(),
-                        isVerified: Yup.boolean(),
-                        inputValue: Yup.string(),
-                    })
-                    .nullable()
-                    .required("drug_error"),
+                        name: Yup.string(),
+                    }).nullable(),
+                    dci: Yup.object().shape({
+                        uuid: Yup.string(),
+                        name: Yup.string(),
+                    }).nullable(),
+                    dose: Yup.string().nullable(),
+                    commercial_name: Yup.string(),
+                    isVerified: Yup.boolean(),
+                    inputValue: Yup.string(),
+                }).nullable().required("drug_error"),
                 unit: Yup.string().nullable(),
                 cycles: Yup.array().of(
                     Yup.object().shape({
@@ -258,6 +261,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
 
         return data;
     };
+
     const formik = useFormik({
         enableReinitialize: false,
         initialValues: {
@@ -617,7 +621,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     `data[${idx}].drug`,
                                                                     drug as DrugModel
                                                                 );
-                                                                setFieldValue(`data[${idx}].unit`, drug?.form);
+                                                                setFieldValue(`data[${idx}].unit`, drug?.form?.name);
                                                                 drug?.uuid && triggerGetDrugModel({
                                                                     method: "GET",
                                                                     url: `${urlMedicalProfessionalSuffix}/drug/posologie-models/drug/${drug.uuid}`,
@@ -697,7 +701,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     if (ev.target.value.length >= 2) {
                                                                         triggerDrugList({
                                                                             method: "GET",
-                                                                            url: `/api/drugs/${router.locale}?name=${ev.target.value}`,
+                                                                            url: `/api/private/drugs/${router.locale}?name=${ev.target.value}`,
                                                                         }, {
                                                                             onSuccess: (cnx) => setDrugsList((cnx?.data as HttpResponse)?.data ?? [])
                                                                         });
@@ -716,31 +720,17 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                 <Autocomplete
                                                     size="small"
                                                     freeSolo
-                                                    value={
-                                                        values.data[idx].unit
-                                                            ? getFormUnitMedic(values.data[idx].unit)
-                                                            : ""
-                                                    }
+                                                    value={values.data[idx].unit ? getFormUnitMedic(values.data[idx].unit) : ""}
                                                     onChange={(event, data) => {
-                                                        const hasMultiValues =
-                                                            data &&
-                                                            PrescriptionMultiUnits.includes(data.unit);
+                                                        const hasMultiValues = data && PrescriptionMultiUnits.includes(data.unit);
                                                         values.data[idx].cycles.forEach(
-                                                            (element: any, index: number) =>
-                                                                setFieldValue(
-                                                                    `data[${idx}].cycles[${index}].dosageInput`,
-                                                                    false
-                                                                )
-                                                        );
+                                                            (element: any, index: number) => setFieldValue(`data[${idx}].cycles[${index}].dosageInput`, false));
                                                         setFieldValue(
                                                             `data[${idx}].unit`,
-                                                            data
-                                                                ? typeof data === "string"
+                                                            data ?
+                                                                typeof data === "string"
                                                                     ? data
-                                                                    : `${data.forms[0].form}${
-                                                                        hasMultiValues ? `_${data.unit}` : ""
-                                                                    }`
-                                                                : ""
+                                                                    : `${data.forms[0].form}${hasMultiValues ? `_${data.unit}` : ""}` : ""
                                                         );
                                                     }}
                                                     placeholder={t("unit", {ns: "consultation"})}
@@ -752,11 +742,14 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                             return option;
                                                         }
                                                         // Regular option
-                                                        return option.unit;
+                                                        return option?.unit;
                                                     }}
-                                                    isOptionEqualToValue={(option: any, value) =>
-                                                        option?.unit === value?.unit
-                                                    }
+                                                    isOptionEqualToValue={(option: any, value) => option?.unit === value?.unit}
+                                                    renderOption={(props, option) => (
+                                                        <ListItem {...props}>
+                                                            <ListItemText primary={option?.unit}/>
+                                                        </ListItem>
+                                                    )}
                                                     renderInput={(params) => (
                                                         <TextField placeholder={t("unit")} {...params} />
                                                     )}
@@ -1439,8 +1432,8 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                                                     (drug: any) => {
                                                                         last.push({
                                                                             cycles: drug.cycles,
-                                                                            drugUuid: drug.standard_drug.uuid,
-                                                                            name: drug.standard_drug.commercial_name,
+                                                                            drugUuid: drug.standard_drug?.uuid,
+                                                                            name: drug.drugName
                                                                         });
                                                                     }
                                                                 );
@@ -1505,7 +1498,7 @@ function MedicalPrescriptionCycleDialog({...props}) {
                                             }>
                                             {drugs?.map((drug: DrugCycleModel, index: number) => (
                                                 <ListItemButton
-                                                    key={drug.drugUuid}
+                                                    key={drug.drugUuid ?? `drug-${index}`}
                                                     className="drug-list-item"
                                                     onClick={(event) => {
                                                         event.stopPropagation();
