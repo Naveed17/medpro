@@ -33,7 +33,8 @@ const Config = [
         name: 'Settings',
         icon: 'ic-setting',
         path: '/dashboard/settings/profile',
-        action: 'profile'
+        action: 'profile',
+        feature: "settings"
     },
     {
         name: 'switch-account',

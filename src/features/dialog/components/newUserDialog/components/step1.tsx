@@ -4,9 +4,9 @@ import {Box, IconButton, Stack, TextField, Theme, Typography} from '@mui/materia
 import {CountrySelect} from '@features/countrySelect';
 import PhoneInput from 'react-phone-number-input/input';
 import {CustomInput} from '@features/tabPanel';
-import AddIcon from '@mui/icons-material/Add';
 import {CustomIconButton} from '@features/buttons';
 import IconUrl from '@themes/urlIcon';
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -34,9 +34,7 @@ function Step1({...props}) {
                         fullWidth
                         {...getFieldProps('name')}
                         error={Boolean(errors.name && touched.name)}
-
                     />
-
                 </Stack>
                 <Stack width={1}>
                     <Typography gutterBottom>
@@ -48,10 +46,7 @@ function Step1({...props}) {
                         fullWidth
                         {...getFieldProps('first_name')}
                         error={Boolean(errors.first_name && touched.first_name)}
-
-
                     />
-
                 </Stack>
             </Stack>
 
@@ -98,9 +93,8 @@ function Step1({...props}) {
                                                     {
                                                         phone: "", dial: doctor_country
                                                     }])
-                                            }}
-                                        >
-                                            {<AddIcon/>}
+                                            }}>
+                                            {<AgendaAddViewIcon/>}
                                         </CustomIconButton>
                                     ) : (
                                         <IconButton

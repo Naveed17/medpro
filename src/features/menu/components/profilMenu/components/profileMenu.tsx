@@ -27,12 +27,14 @@ import axios from "axios";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
-import {unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
-import {configSelector, dashLayoutSelector, setLocalization} from "@features/base";
+import {ConditionalWrapper, unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
+import {configSelector, dashLayoutSelector, setDirection, setLocalization} from "@features/base";
 import Langs from "@features/topNavBar/components/langButton/config";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import Can from "@features/casl/can";
+import moment from "moment-timezone";
 
-function ProfilMenu() {
+function ProfileMenu() {
     const {data: session, update} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -177,10 +179,14 @@ function ProfilMenu() {
                                             color="primary"
                                             value={locale}
                                             exclusive
-                                            onChange={(event, locale) => {
+                                            onChange={async (event, locale) => {
                                                 const lang = locale.substring(0, 2);
-                                                dispatch(setLocalization(locale));
-                                                router.replace(router.pathname, router.asPath, {locale: lang});
+                                                const dir = lang === 'ar' ? 'rtl' : 'ltr';
+                                                router.replace(router.pathname, router.asPath, {locale: lang}).then(() => {
+                                                    dispatch(setDirection(dir));
+                                                    dispatch(setLocalization(locale));
+                                                    moment.locale(lang === 'ar' ? 'ar-tn' : lang);
+                                                });
                                             }}
                                             aria-label="Lang">
                                             {Object.entries(Langs).map((item) => (
@@ -196,17 +202,24 @@ function ProfilMenu() {
                                         </ToggleButtonGroup>
                                     </MenuItem>
                                     {ProfileMenuConfig.map((item: any, index) => ((item.action === 'switch-medical-entity' && hasMultiMedicalEntities) || item.action !== 'switch-medical-entity') && (
-                                        <MenuItem
+                                        <ConditionalWrapper
                                             key={`menu-${index}`}
-                                            onClick={() => handleMenuItem(item.action)}
-                                            disableRipple
-                                            className={`item-list ${item.name === "Settings" ? "border-bottom" : ""
-                                            }${item.hasOwnProperty("items") ? "has-items" : ""}`}>
-                                            <IconUrl path={item.icon}/>
-                                            <Typography variant="body1" className="item-name">
-                                                {t("doctor-dropdown." + item.name.toLowerCase())}
-                                            </Typography>
-                                        </MenuItem>
+                                            condition={!!item?.feature}
+                                            wrapper={(children: any) =>
+                                                <Can I={"manage"} a={item.feature}>
+                                                    {children}
+                                                </Can>}>
+                                            <MenuItem
+                                                onClick={() => handleMenuItem(item.action)}
+                                                disableRipple
+                                                className={`item-list ${item.name === "Settings" ? "border-bottom" : ""
+                                                }${item.hasOwnProperty("items") ? "has-items" : ""}`}>
+                                                <IconUrl path={item.icon}/>
+                                                <Typography variant="body1" className="item-name">
+                                                    {t("doctor-dropdown." + item.name.toLowerCase())}
+                                                </Typography>
+                                            </MenuItem>
+                                        </ConditionalWrapper>
                                     ))}
                                 </MenuList>
                             </ClickAwayListener>
@@ -218,4 +231,4 @@ function ProfilMenu() {
     )
 }
 
-export default ProfilMenu
+export default ProfileMenu

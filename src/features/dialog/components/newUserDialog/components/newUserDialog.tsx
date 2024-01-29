@@ -56,8 +56,9 @@ function NewUserDialog({...props}) {
     const features = (userSession as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
     const {trigger: triggerUserAdd} = useRequestQueryMutation("/users/add");
+    const {trigger: triggerProfileUpdate} = useRequestQueryMutation("users/profile/add");
 
-    const initData = () => {
+    const initFormData = () => {
         const featuresInit: any = {};
         features?.map((feature: any) => {
             Object.assign(featuresInit, {
@@ -75,6 +76,95 @@ function NewUserDialog({...props}) {
             });
         });
         return featuresInit
+    }
+
+    const handleCreateUser = () => {
+        setLoading(true);
+        const form = new FormData();
+        form.append('username', values.name);
+        form.append('email', values.email);
+        form.append('is_active', 'true');
+        form.append('is_accepted', 'true');
+        form.append('is_public', "true");
+        form.append('is_default', "true");
+        form.append('firstname', values.first_name);
+        values.selectedRole.length > 0 && form.append('profile', values.selectedRole);
+        values.phones.length > 0 && form.append('phone', JSON.stringify(values.phones.map((phoneData: any) => ({
+            code: phoneData.dial?.phone,
+            value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
+            type: "phone",
+            contact_type: contacts[0].uuid,
+            is_public: false,
+            is_support: false
+        }))));
+        form.append('password', values.password);
+        triggerUserAdd({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/users/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t("alert.add_user_success"), {variant: "success"});
+                setLoading(false);
+                dispatch(setStepperIndex(currentStep + 1))
+                invalidateQueries([`${urlMedicalEntitySuffix}/mehus/${router.locale}`]);
+            },
+            onError: () => {
+                setLoading(false);
+                enqueueSnackbar(t("alert.went_wrong"), {variant: "error"});
+            }
+        });
+    }
+
+    const handleCreateProfile = () => {
+        setLoading(true);
+        const form = new FormData();
+        const features: any = {};
+
+        form.append("name", values.role_name);
+        Object.entries(values.roles).map((role: any) => {
+            const hasFeaturePermissions = role[1].reduce((features: any[], feature: FeatureModel) => {
+                const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                    [...(permissions ?? []),
+                        ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+                return [
+                    ...(features ?? []),
+                    ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? permissions : []) : permissions) ?? [])]
+            }, []).length > 0;
+
+            if (hasFeaturePermissions) {
+                features[role[0]] = role[1].reduce((features: FeatureModel[], feature: FeatureModel) => {
+                    const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                        [...(permissions ?? []),
+                            ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+
+                    const hasPermissions = feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked && (permissions.length ?? 0) > 0) : (permissions.length ?? 0) > 0;
+                    return [
+                        ...(features ?? []),
+                        ...(hasPermissions ? [{
+                            object: feature?.featureEntity?.uuid,
+                            featureProfile: feature?.profile,
+                            permissions: permissions.map((permission: PermissionModel) => permission.uuid)
+                        }] : [])
+                    ];
+                }, [])
+            }
+        });
+
+        form.append("features", JSON.stringify(features));
+
+        triggerProfileUpdate({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/profile/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => {
+                enqueueSnackbar(t("created-role"), {variant: "success"});
+                invalidateQueries([`${urlMedicalEntitySuffix}/profile/${router.locale}`]);
+                setFeatureCollapse(false);
+            },
+            onSettled: () => setLoading(false)
+        });
     }
 
     const validationSchema = [
@@ -107,33 +197,31 @@ function NewUserDialog({...props}) {
             } : {})
         }),
         Yup.object().shape({
-            selectedRole: Yup.string().required(),
+            selectedRole: Yup.string().when("$condition", (condition, schema) =>
+                openFeatureCollapse ? schema : schema.required()
+            ),
+            role_name: Yup.string().when("$condition", (condition, schema) =>
+                !openFeatureCollapse ? schema : schema.required()
+            ),
             roles: Yup.object().shape(
                 features?.reduce((features: any, feature: any) => ({
                     ...(features ?? {}), ...{
                         [feature.slug]: Yup.array().of(Yup.object().shape({
-                            slug: Yup.string().required(),
-                            feature: Yup.object().shape({
+                            name: Yup.string(),
+                            hasProfile: Yup.boolean(),
+                            featureEntity: Yup.object().shape({
                                 name: Yup.string(),
                                 uuid: Yup.string()
                             }),
-                            hasMultipleInstance: Yup.boolean(),
-                            featureProfiles: Yup.array().of(
+                            uuid: Yup.string(),
+                            slug: Yup.string(),
+                            root: Yup.string(),
+                            permissions: Yup.array().of(
                                 Yup.object().shape({
                                     name: Yup.string(),
                                     uuid: Yup.string()
                                 })
-                            ),
-                            featureRoles: Yup.array().of(
-                                Yup.object().shape({
-                                    name: Yup.string(),
-                                    uuid: Yup.string()
-                                })
-                            ),
-                            profile: Yup.object().shape({
-                                name: Yup.string().min(3, t("role-error")).required(),
-                                uuid: Yup.string()
-                            }).required()
+                            )
                         }))
                     }
                 }), {})
@@ -152,53 +240,23 @@ function NewUserDialog({...props}) {
             ],
             email: '',
             selectedRole: "",
-            roles: initData(),
-            roles_name: '',
+            roles: initFormData(),
+            role_name: '',
             password: '',
             confirm_password: '',
 
         },
-        onSubmit: (values) => {
+        onSubmit: () => {
             if (currentStep === stepperData.length - 1) {
                 onClose()
                 return;
             }
             if (currentStep === stepperData.length - 2) {
-                setLoading(true);
-                const form = new FormData();
-                form.append('username', values.name);
-                form.append('email', values.email);
-                form.append('is_active', 'true');
-                form.append('is_accepted', 'true');
-                form.append('is_public', "true");
-                form.append('is_default', "true");
-                form.append('firstname', values.first_name);
-                values.selectedRole.length > 0 && form.append('profile', values.selectedRole);
-                values.phones.length > 0 && form.append('phone', JSON.stringify(values.phones.map((phoneData: any) => ({
-                    code: phoneData.dial?.phone,
-                    value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
-                    type: "phone",
-                    contact_type: contacts[0].uuid,
-                    is_public: false,
-                    is_support: false
-                }))));
-                form.append('password', values.password);
-                triggerUserAdd({
-                    method: "POST",
-                    url: `${urlMedicalEntitySuffix}/users/${router.locale}`,
-                    data: form
-                }, {
-                    onSuccess: () => {
-                        enqueueSnackbar(t("alert.add_user_success"), {variant: "success"});
-                        setLoading(false);
-                        dispatch(setStepperIndex(currentStep + 1))
-                        invalidateQueries([`${urlMedicalEntitySuffix}/mehus/${router.locale}`]);
-                    },
-                    onError: () => {
-                        setLoading(false);
-                        enqueueSnackbar(t("alert.went_wrong"), {variant: "error"});
-                    }
-                });
+                if (openFeatureCollapse) {
+                    handleCreateProfile();
+                } else {
+                    handleCreateUser();
+                }
             } else {
                 dispatch(setStepperIndex(currentStep + 1))
             }
@@ -245,7 +303,13 @@ function NewUserDialog({...props}) {
                     </Box>
                     <DialogActions className='dialog-action'>
                         <Button
-                            onClick={onNextPreviStep}
+                            onClick={() => {
+                                if (openFeatureCollapse) {
+                                    setFeatureCollapse(false);
+                                } else {
+                                    onNextPreviStep();
+                                }
+                            }}
                             variant='text-black'>
                             {t("dialog.cancel")}
                         </Button>

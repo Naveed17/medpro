@@ -103,24 +103,25 @@ function Step2({...props}) {
             <Typography fontWeight={600} fontSize={20}>
                 {t("dialog.role")}
             </Typography>
-            <RadioGroup
-                className='role-input-group'
-                {...getFieldProps("selectedRole")}>
-                {profiles.map((profile: ProfileModel, index: number) => (
-                    <FormControlLabel className='role-label' value={profile.uuid} key={index}
-                                      control={<Radio disableRipple
-                                                      checkedIcon={<IconUrl path="ic-radio-check"/>}/>}
-                                      label={startCase(profile.name)}/>
-                ))}
-            </RadioGroup>
-            {
-                !openFeatureCollapse && (
+
+            {!openFeatureCollapse &&
+                <>
+                    <RadioGroup
+                        className='role-input-group'
+                        {...getFieldProps("selectedRole")}>
+                        {profiles.map((profile: ProfileModel, index: number) => (
+                            <FormControlLabel className='role-label' value={profile.uuid} key={index}
+                                              control={<Radio disableRipple
+                                                              checkedIcon={<IconUrl path="ic-radio-check"/>}/>}
+                                              label={startCase(profile.name)}/>
+                        ))}
+                    </RadioGroup>
                     <Button
                         onClick={() => setFeatureCollapse(true)}
                         startIcon={<Add/>} className='add-role' variant='contained' color='info'>
                         {t("dialog.add_role")}
                     </Button>
-                )
+                </>
             }
             <Paper sx={{p: 2, borderRadius: 2, display: openFeatureCollapse ? "block" : "none"}}>
                 <Stack direction={{xs: 'column', sm: 'row'}} alignItems={{xs: 'flex-start', sm: 'center'}}
@@ -133,6 +134,7 @@ function Step2({...props}) {
                     </Typography>
                     <TextField
                         fullWidth
+                        value={values.role_name ?? ""}
                         {...getFieldProps("role_name")}
                         placeholder={t("role_name")}
                         error={Boolean(touched.role_name && errors.role_name)}

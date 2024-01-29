@@ -13,7 +13,7 @@ import {
     Divider,
     Collapse,
     Box,
-    FormControlLabel
+    FormControlLabel, DialogActions, DialogTitle, DialogContent, Dialog
 } from '@mui/material';
 import React, {useState} from 'react'
 import MoreVert from "@mui/icons-material/MoreVert";
@@ -26,7 +26,7 @@ import {Form, FormikProvider, useFormik} from 'formik';
 import RootSyled from './overrides/rootStyle';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import {CustomSwitch} from '@features/buttons';
+import {CustomIconButton, CustomSwitch} from '@features/buttons';
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useTranslation} from "next-i18next";
@@ -39,6 +39,10 @@ import {useSnackbar} from "notistack";
 import IconUrl from "@themes/urlIcon";
 import {TreeCheckbox} from "@features/treeViewCheckbox";
 import {FacebookCircularProgress} from "@features/progressUI";
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
+import CloseIcon from "@mui/icons-material/Close";
+import Icon from "@themes/urlIcon";
+import {Dialog as CustomDialog, dialogSelector} from "@features/dialog";
 
 function UsersTabs({...props}) {
     const {t, profiles, handleContextMenu} = props
@@ -51,17 +55,23 @@ function UsersTabs({...props}) {
 
     const {t: menuTranslation} = useTranslation("menu");
     const {agendas} = useAppSelector(agendaSelector);
+    const {cashBoxDialogData} = useAppSelector(dialogSelector);
 
     const [selectedProfile, setSelectedProfile] = useState<any>(null);
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const [loading, setLoading] = useState(false);
     const [loadingReq, setLoadingReq] = useState(false);
+    const [openAddCashBoxDialog, setOpenAddCashBoxDialog] = useState<boolean>(false);
+    const [deleteCashBoxDialog, setDeleteCashBoxDialog] = useState(false);
+    const [selectedCashBox, setSelectedCashBox] = useState<any>(null);
 
     const {data: user} = session as Session;
     const features = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
     const {trigger: featurePermissionsTrigger} = useRequestQueryMutation("/feature/permissions/all");
     const {trigger: triggerProfileUpdate} = useRequestQueryMutation("/profile/update");
+    const {trigger: triggerCreateCashbox} = useRequestQueryMutation("/payment/cashbox/delete");
+    const {trigger: triggerDeleteCashbox} = useRequestQueryMutation("/payment/cashbox/create");
 
     const initData = () => {
         const featuresInit: any = {};
@@ -121,20 +131,22 @@ function UsersTabs({...props}) {
         if (props?.features?.length > 0) {
             props?.features?.forEach((data: any) => {
                 const slug = data?.feature?.slug;
-                values.roles[slug].map((role: any, idx: number) => {
-                    if (data[slug]) {
-                        setFieldValue(`roles[${slug}][${idx}].featureEntity.checked`, true);
-                    }
-                    setFieldValue(`roles[${slug}][${idx}].permissions`, groupPermissionsByFeature(data?.profile?.permissions).map((permission: any) => ({
-                        ...permission,
-                        collapseIn: true,
-                        children: permission.children.map((item: PermissionModel) => ({
-                            ...item,
-                            checked: true
-                        }))
-                    })));
-                    setFieldValue(`roles[${slug}][${idx}].profile`, data?.profile?.uuid);
-                });
+                const groupedPermissions = groupPermissionsByFeature(data?.profile?.permissions);
+                const featureIndex = values.roles[slug].findIndex((role: any) => data[slug] && role.featureEntity.uuid === data[slug].uuid);
+                const currentIndex = featureIndex === -1 ? 0 : featureIndex;
+
+                if (data[slug]) {
+                    setFieldValue(`roles[${slug}][${currentIndex}].featureEntity.checked`, true);
+                }
+                setFieldValue(`roles[${slug}][${currentIndex}].permissions`, groupedPermissions.map((permission: any) => ({
+                    ...permission,
+                    collapseIn: true,
+                    children: permission.children.map((item: PermissionModel) => ({
+                        ...item,
+                        checked: true
+                    }))
+                })));
+                setFieldValue(`roles[${slug}][${currentIndex}].profile`, data?.profile?.uuid);
             });
         }
     }
@@ -207,8 +219,8 @@ function UsersTabs({...props}) {
         });
     }
 
-    const HandleFeatureCollapse = (slug: string, roles: any) => {
-        if (openCollapseFeature !== slug) {
+    const HandleFeatureCollapse = (slug: string, roles: any, collapsed?: boolean) => {
+        if (openCollapseFeature !== slug || collapsed) {
             setLoadingReq(true);
             featurePermissionsTrigger({
                 method: "GET",
@@ -216,26 +228,32 @@ function UsersTabs({...props}) {
             }, {
                 onSuccess: (result) => {
                     const permissions = (result?.data as HttpResponse)?.data;
-                    values.roles[slug].map((role: any, idx: number) => setFieldValue(`roles[${slug}][${idx}].permissions`,
-                        groupPermissionsByFeature(permissions).map((permission: any) => {
-                            const featurePermissions = roles[idx].permissions;
-                            return {
-                                ...permission,
-                                collapseIn: featurePermissions[idx]?.collapseIn ?? false,
-                                children: permission.children.map((item: PermissionModel) => {
-                                    const permissions = featurePermissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1]);
-                                    return {
-                                        ...item,
-                                        checked: permissions?.children.reduce((permissions: string[], permission: PermissionModel) => [...(permissions ?? []), ...(permission.checked ? [permission.uuid] : [])], []).includes(item.uuid) ?? false
-                                    }
-                                })
-                            }
-                        })));
+                    const groupedPermissions = groupPermissionsByFeature(permissions);
+                    values.roles[slug].forEach((role: any, idx: number) => {
+                        setFieldValue(`roles[${slug}][${idx}].permissions`,
+                            groupedPermissions.map((permission: any) => {
+                                const featurePermissions = roles[idx].permissions;
+                                return {
+                                    ...permission,
+                                    collapseIn: featurePermissions[0]?.collapseIn ?? false,
+                                    children: permission.children.map((item: PermissionModel) => {
+                                        const permissions = featurePermissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1]);
+                                        return {
+                                            ...item,
+                                            checked: permissions?.children.reduce((permissions: string[], permission: PermissionModel) => [...(permissions ?? []), ...(permission.checked ? [permission.uuid] : [])], []).includes(item.uuid) ?? false
+                                        }
+                                    })
+                                }
+                            }))
+                    });
                 },
                 onSettled: () => setLoadingReq(false)
             });
         }
-        setOpenCollapseFeature(openCollapseFeature === slug ? "" : slug);
+
+        if (!collapsed) {
+            setOpenCollapseFeature(openCollapseFeature === slug ? "" : slug);
+        }
     }
 
     const handleTreeCheck = (uuid: string, value: boolean, hasChildren: boolean, group: string, featurePermission: any, role: any, index: number) => {
@@ -255,6 +273,37 @@ function UsersTabs({...props}) {
             const field = `roles[${role[0]}][${index}].permissions[${permissionUuid}].children[${permissionChildIndex}].checked`;
             setFieldValue(field, value);
         }
+    }
+
+    const handleCreateCashBox = () => {
+        setLoadingReq(true);
+        const form = new FormData();
+        form.append("name", cashBoxDialogData?.name ?? "");
+        triggerCreateCashbox({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`,
+            data: form
+        }, {
+            onSuccess: () => invalidateQueries([`${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`]).then(() => {
+                setOpenAddCashBoxDialog(false);
+                setOpenCollapseFeature("");
+            }),
+            onSettled: () => setLoadingReq(false)
+        });
+    }
+
+    const handleDeleteCashBox = () => {
+        setLoadingReq(true);
+        triggerDeleteCashbox({
+            method: "DELETE",
+            url: `${urlMedicalEntitySuffix}/cash-boxes/${selectedCashBox}/${router.locale}`,
+        }, {
+            onSuccess: async () => invalidateQueries([`${urlMedicalEntitySuffix}/cash-boxes/${router.locale}`]).then(() => {
+                setDeleteCashBoxDialog(false);
+                setOpenCollapseFeature("");
+            }),
+            onSettled: () => setLoadingReq(false)
+        });
     }
 
     return (
@@ -376,14 +425,44 @@ function UsersTabs({...props}) {
                                     </Stack>
                                     <Collapse in={role[0] === openCollapseFeature} onClick={(e) => e.stopPropagation()}>
                                         {role[1].map((featurePermission: any, index: number) =>
-                                            <Box key={featurePermission?.uuid} p={2} className="collapse-wrapper">
+                                            <Box key={`${index}-${featurePermission?.uuid}`} p={2}
+                                                 className="collapse-wrapper">
                                                 {featurePermission?.featureEntity &&
-                                                    <FormControlLabel
-                                                        sx={{paddingTop: 2}}
-                                                        control={<CustomSwitch
-                                                            checked={featurePermission?.featureEntity?.checked ?? false}/>}
-                                                        onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
-                                                        label={featurePermission?.featureEntity?.name}/>}
+                                                    <Stack direction={"row"} alignItems={"center"}
+                                                           justifyContent={"space-between"}>
+                                                        <FormControlLabel
+                                                            sx={{paddingTop: 2}}
+                                                            control={<CustomSwitch
+                                                                checked={featurePermission?.featureEntity?.checked ?? false}/>}
+                                                            onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
+                                                            label={featurePermission?.featureEntity?.name}/>
+                                                        {featurePermission.root === "cashbox" &&
+                                                            (index === 0 ?
+                                                                <CustomIconButton
+                                                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                                        event.stopPropagation();
+                                                                        setOpenAddCashBoxDialog(true);
+                                                                    }}
+                                                                    variant="filled"
+                                                                    color={"primary"}
+                                                                    size={"small"}>
+                                                                    <AgendaAddViewIcon/>
+                                                                </CustomIconButton>
+                                                                :
+                                                                <CustomIconButton
+                                                                    onClick={() => {
+                                                                        setSelectedCashBox(featurePermission?.featureEntity?.uuid);
+                                                                        setTimeout(() => setDeleteCashBoxDialog(true));
+                                                                    }}
+                                                                    variant="filled"
+                                                                    sx={{p: .4}}
+                                                                    color={"error"}
+                                                                    size={"small"}>
+                                                                    <IconUrl color={"white"} path="ic-trash"/>
+                                                                </CustomIconButton>)
+                                                        }
+                                                    </Stack>
+                                                }
                                                 <Box mt={2} className="permissions-wrapper">
                                                     <TreeCheckbox
                                                         {...{t}}
@@ -401,8 +480,76 @@ function UsersTabs({...props}) {
                     </FormikProvider>
                 </Paper>
             </Grid>
-        </RootSyled>
+            <CustomDialog
+                action={'createCashBox'}
+                open={openAddCashBoxDialog}
+                data={{t}}
+                size={"sm"}
+                title={t('newCash')}
+                dialogClose={() => setOpenAddCashBoxDialog(false)}
+                actionDialog={
+                    <DialogActions>
+                        <Button
+                            variant={"text-black"}
+                            onClick={() => setOpenAddCashBoxDialog(false)}
+                            startIcon={<CloseIcon/>}>
+                            {t('cancel')}
+                        </Button>
+                        <LoadingButton
+                            loading={loadingReq}
+                            loadingPosition={"start"}
+                            variant="contained"
+                            onClick={handleCreateCashBox}
+                            startIcon={<Icon
+                                path='iconfinder_save'/>}>
+                            {t('save')}
+                        </LoadingButton>
+                    </DialogActions>
+                }/>
 
+            <Dialog
+                PaperProps={{
+                    sx: {
+                        width: "100%"
+                    }
+                }}
+                maxWidth="sm"
+                open={deleteCashBoxDialog}>
+                <DialogTitle
+                    sx={{
+                        bgcolor: (theme: Theme) => theme.palette.error.main,
+                        px: 1,
+                        py: 2,
+
+                    }}>
+                    {t(`dialog.delete-cashBox-title`)}
+                </DialogTitle>
+                <DialogContent style={{paddingTop: 20}}>
+                    <Typography>
+                        {t(`dialog.delete-cashBox-desc`)}
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{borderTop: 1, borderColor: "divider", px: 1, py: 2}}>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            variant={"text-black"}
+                            onClick={() => setDeleteCashBoxDialog(false)}
+                            startIcon={<CloseIcon/>}>
+                            {t("dialog.cancel")}
+                        </Button>
+                        <LoadingButton
+                            variant="contained"
+                            loading={loadingReq}
+                            loadingPosition={"start"}
+                            color="error"
+                            onClick={() => handleDeleteCashBox()}
+                            startIcon={<IconUrl path="setting/icdelete" color="white"/>}>
+                            {t("dialog.delete")}
+                        </LoadingButton>
+                    </Stack>
+                </DialogActions>
+            </Dialog>
+        </RootSyled>
     )
 }
 

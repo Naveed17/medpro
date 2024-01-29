@@ -6,7 +6,7 @@ export * from "./moveAppointmentDialog";
 export * from "./qrCodeDialog";
 export * from "./patientDetail";
 export * from "./quickAddAppointment";
-export * from "./createCashBox";
+export * from "./createCashBox/components";
 export * from "./preConsultationDialog";
 export * from "./addVisitorDialog";
 export * from "./medicalPrescriptionCycleDialog";

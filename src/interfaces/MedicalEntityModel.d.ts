@@ -8,4 +8,5 @@ interface MedicalEntityModel {
   country: CountryModel;
   subscription: ProductSubscriptionsModel;
   paymentMeans: PaymentMeansModel[];
+  location: string[];
 }

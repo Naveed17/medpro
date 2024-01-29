@@ -53,7 +53,7 @@ const dialogData = [
         action: "createCashBox",
         component: dynamic((): any =>
             import(
-                "@features/dialog/components/createCashBox/createCashBoxDialog"
+                "@features/dialog/components/createCashBox/components/createCashBoxDialog"
                 ).then((mod) => mod)
         ),
     },

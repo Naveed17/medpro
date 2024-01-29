@@ -536,6 +536,7 @@
         "profile": "Profil",
         "transaction": "Transaction",
         "places": "Horaire",
+        "consultation": "Fiche consultation",
         "actfees": "Honoraire",
         "motif": "Motif de consultation",
         "patient-file-templates": "Fiche consultation",
@@ -548,6 +549,9 @@
         "users": "Utilisateur",
         "data": "Importation"
       },
+      "newCash": "Créer caisse",
+      "name-cashBox": "Nom du caisse",
+      "name-cashBox-placeholder": "Tapez le nom du caisse",
       "updated-role": "Le profil a été mis à jour avec succès",
       "created-role": "Le profil a été créé avec succès",
       "delete_success": "l'utilisateur a été supprimé avec succès",

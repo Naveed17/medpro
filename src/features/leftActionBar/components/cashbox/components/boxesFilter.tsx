@@ -80,31 +80,32 @@ function BoxsesFilter() {
                 {t('add')}
             </Button>}
 
-            <Dialog action={'createCashBox'}
-                    open={openDialog}
-                    data={{cashName, setCashName}}
-                    change={false}
-                    max
-                    size={"sm"}
-                    direction={'ltr'}
-                    actions={true}
-                    title={t('newCash')}
-                    dialogClose={handleCloseDialog}
-                    actionDialog={
-                        <DialogActions>
-                            <Button onClick={handleCloseDialog}
-                                    startIcon={<CloseIcon/>}>
-                                {t('cancel')}
-                            </Button>
-                            <Button variant="contained"
-                                    onClick={handleSaveDialog}
-                                    disabled={cashName.length === 0}
-                                    startIcon={<Icon
-                                        path='ic-dowlaodfile'/>}>
-                                {t('save')}
-                            </Button>
-                        </DialogActions>
-                    }/>
+            <Dialog
+                action={'createCashBox'}
+                open={openDialog}
+                data={{cashName, setCashName}}
+                change={false}
+                max
+                size={"sm"}
+                direction={'ltr'}
+                actions={true}
+                title={t('newCash')}
+                dialogClose={handleCloseDialog}
+                actionDialog={
+                    <DialogActions>
+                        <Button onClick={handleCloseDialog}
+                                startIcon={<CloseIcon/>}>
+                            {t('cancel')}
+                        </Button>
+                        <Button variant="contained"
+                                onClick={handleSaveDialog}
+                                disabled={cashName.length === 0}
+                                startIcon={<Icon
+                                    path='ic-dowlaodfile'/>}>
+                            {t('save')}
+                        </Button>
+                    </DialogActions>
+                }/>
         </Box>
     )
 }
