@@ -34,6 +34,7 @@ import {useMedicalProfessionalSuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {MedicalImagingMobileCard} from "@features/card";
 import {MedicalImagingDrawer} from "@features/drawer";
+import Can from "@features/casl/can";
 
 function MedicalImaging() {
     const theme: Theme = useTheme();
@@ -171,13 +172,15 @@ function MedicalImaging() {
                     width={1}
                     alignItems="center">
                     <Typography color="text.primary">{t("path")}</Typography>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => configMedicalImaging(null, "add")}
-                        sx={{ml: "auto"}}>
-                        {t("add")}
-                    </Button>
+                    <Can I={"manage"} a={"settings"} field={"settings__medical-imaging__create"}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() => configMedicalImaging(null, "add")}
+                            sx={{ml: "auto"}}>
+                            {t("add")}
+                        </Button>
+                    </Can>
                 </Stack>
             </SubHeader>
             <DesktopContainer>

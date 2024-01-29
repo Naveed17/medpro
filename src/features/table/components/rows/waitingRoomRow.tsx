@@ -14,7 +14,6 @@ import {Dialog} from "@features/dialog";
 import Icon from "@themes/urlIcon";
 import React, {useState} from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import moment from "moment-timezone";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';

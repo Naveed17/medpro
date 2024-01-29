@@ -3,4 +3,7 @@ import {createSelector} from "@reduxjs/toolkit";
 
 export const setUser = (state: RootState) => state.user;
 
-export const userSelector = createSelector(setUser, state => state);
+export const userSelector = createSelector(setUser, state => state,
+    {
+        devModeChecks: {identityFunctionCheck: 'never'}
+    });

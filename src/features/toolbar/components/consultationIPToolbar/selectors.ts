@@ -3,4 +3,7 @@ import { createSelector } from "@reduxjs/toolkit";
 
 export const selectData = (state: RootState) => state.consultationDetails;
 
-export const consultationSelector = createSelector(selectData, (state) => state);
+export const consultationSelector = createSelector(selectData, (state) => state,
+    {
+        devModeChecks: {identityFunctionCheck: 'never'}
+    });

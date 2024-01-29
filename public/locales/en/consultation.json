@@ -93,7 +93,7 @@
     "credit": "Credit"
   },
   "end of consultation": "End of Consultation",
-  "week": "Week" ,
+  "week": "Week",
   "month": "Month",
   "noteQuote": "The patient confirms having voluntarily chosen his treatment, being fully informed of the indications and contraindications, and undertakes to pay the fees linked to the care mentioned in this estimate.",
   "cancel": "Cancel",
@@ -615,7 +615,6 @@
     "title": "Tooth Treatment",
     "subtitle": "Click on the desired tooth and select the acts",
     "note": "Note",
-
     "rightEye": "Right eye",
     "leftEye": "Left eye",
     "av": "Av",
@@ -640,7 +639,7 @@
     "cv": "Visual field",
     "oct": "OCT",
     "angiographie": "Angiography",
-    "other":"Others",
+    "other": "Others",
     "tonus": "Toning exam",
     "comp": "Complementary exam",
     "close": "Close"

@@ -3,4 +3,7 @@ import { createSelector } from "@reduxjs/toolkit";
 
 export const stepperProfileState = (state: RootState) => state.stepperProfile;
 
-export const stepperProfileSelector = createSelector(stepperProfileState, (state) => state);
+export const stepperProfileSelector = createSelector(stepperProfileState, (state) => state,
+    {
+        devModeChecks: {identityFunctionCheck: 'never'}
+    });

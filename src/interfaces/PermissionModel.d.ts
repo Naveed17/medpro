@@ -3,4 +3,5 @@ interface PermissionModel {
     name: string;
     slug?: string;
     checked?: string;
+    children?: any[];
 }

@@ -37,6 +37,7 @@ import Icon from "@themes/urlIcon";
 import CloseIcon from '@mui/icons-material/Close';
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import Can from "@features/casl/can";
 
 function ConsultationType() {
     const theme: Theme = useTheme();
@@ -195,13 +196,15 @@ function ConsultationType() {
                     width={1}
                     alignItems="center">
                     <Typography color="text.primary">{t("path")}</Typography>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => editMotif(null, "add")}
-                        sx={{ml: "auto"}}>
-                        {t("add")}
-                    </Button>
+                    <Can I={"manage"} a={"settings"} field={"settings__consultation-type__create"}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() => editMotif(null, "add")}
+                            sx={{ml: "auto"}}>
+                            {t("add")}
+                        </Button>
+                    </Can>
                 </Stack>
             </SubHeader>
             <DesktopContainer>

@@ -231,7 +231,7 @@ function Cashbox() {
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
     const tabsData = [
-        ...(ability.can('manage', 'agenda', '*') ? [{
+        ...(ability.can('manage', 'agenda', 'agenda__appointment__show') ? [{
             label: "consultations",
             value: "consultations"
         }] : []),
@@ -258,7 +258,7 @@ function Cashbox() {
         {
             title: "see_patient_file",
             feature: "patient",
-            permission: "*",
+            permission: "patients__patient__show",
             icon: <IconUrl path="ic-file" color="white"/>,
             action: "onSeePatientFile",
         },
@@ -298,7 +298,7 @@ function Cashbox() {
     ];
     const isAddAppointment = false;
 
-    const [selectedTab, setSelectedTab] = useState(ability.can('manage', 'agenda', '*') ? "consultations" : (ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? "transactions" : ""));
+    const [selectedTab, setSelectedTab] = useState(ability.can('manage', 'agenda', 'agenda__appointment__show') ? "consultations" : (ability.can('manage', 'cashbox', 'cash_box__transaction__show') ? "transactions" : ""));
     const filterQuery: string = generateFilter({filterCB});
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;

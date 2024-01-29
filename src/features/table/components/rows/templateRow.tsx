@@ -6,9 +6,10 @@ import IconUrl from "@themes/urlIcon";
 import {TableRowStyled} from "@features/table";
 import {uniqueId} from "lodash";
 import {ModelDot} from "@features/modelDot";
+import Can from "@features/casl/can";
 
 function MotifRow({...props}) {
-    const {row, tableHeadData, active, handleChange, editMotif, ids, data} = props;
+    const {row, handleChange, editMotif} = props;
 
     return (
         <TableRowStyled key={uniqueId}>
@@ -52,18 +53,28 @@ function MotifRow({...props}) {
                         </IconButton>
                         {!row.hasData &&
                             <>
-                                <IconButton
-                                    size="small"
-                                    sx={{mr: {md: 1}}}
-                                    onClick={() => editMotif(row, "edit")}>
-                                    <IconUrl path="setting/edit"/>
-                                </IconButton>
-                                <IconButton
-                                    size="small"
-                                    sx={{mr: {md: 1}}}
-                                    onClick={() => editMotif(row, "delete")}>
-                                    <IconUrl path="setting/icdelete"/>
-                                </IconButton>
+                                <Can I={"manage"} a={"settings"} field={"settings__patient-file-templates__update"}>
+                                    <IconButton
+                                        size="small"
+                                        sx={{mr: {md: .5}}}
+                                        onClick={() => editMotif(row, "edit")}>
+                                        <IconUrl path="setting/edit"/>
+                                    </IconButton>
+                                </Can>
+                                <Can I={"manage"} a={"settings"} field={"settings__patient-file-templates__delete"}>
+                                    <IconButton
+                                        size="small"
+                                        sx={{
+                                            mr: {md: 1},
+                                            '& .react-svg svg': {
+                                                width: 20,
+                                                height: 20
+                                            }
+                                        }}
+                                        onClick={() => editMotif(row, "delete")}>
+                                        <IconUrl path="setting/icdelete"/>
+                                    </IconButton>
+                                </Can>
                             </>}
                     </>
                 ) : (

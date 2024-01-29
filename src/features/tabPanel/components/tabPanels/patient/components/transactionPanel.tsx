@@ -30,17 +30,17 @@ import {motion} from "framer-motion";
 import {Dialog} from "@features/dialog";
 import {LoadingButton} from "@mui/lab";
 import Can from "@features/casl/can";
+import {useCashBox} from "@lib/hooks/rest";
 
 function TransactionPanel({...props}) {
     const {patient, rest, wallet, walletMutate, devise, router} = props;
     const theme: Theme = useTheme();
-
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {trigger: invalidateQueries} = useInvalidateQueries();
-    const [collapse, setCollapse] = useState<any>(null);
-    const {t} = useTranslation(["payment", "common"]);
+    const {cashboxes} = useCashBox();
 
+    const {t} = useTranslation(["payment", "common"]);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {selectedBoxes} = useAppSelector(cashBoxSelector);
     const {direction} = useAppSelector(configSelector);
 
@@ -53,6 +53,8 @@ function TransactionPanel({...props}) {
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
     const [selected, setSelected] = useState<any>(null);
     const [selectedData, setSelectedData] = useState<any>(null);
+    const [collapse, setCollapse] = useState<any>(null);
+
     const {trigger} = useRequestQueryMutation("/payment/cashbox");
 
     const variants = {
@@ -73,17 +75,20 @@ function TransactionPanel({...props}) {
         url: `/api/public/payment-means/${router.locale}`,
     }, ReactQueryNoValidateConfig);
 
-    const {data: httpTransactionsResponse, mutate: mutateTransactions, isLoading} = useRequestQuery(
-        patient ? {
+    const {
+        data: httpTransactionsResponse,
+        mutate: mutateTransactions,
+        isLoading
+    } = useRequestQuery(patient && cashboxes.length > 0 && selectedBoxes.length > 0 ? {
             method: "GET",
             url: `${urlMedicalEntitySuffix}/transactions/${router.locale}`,
         } : null, {
             keepPreviousData: true,
-            ...(patient && {
+            ...((patient && cashboxes.length > 0 && selectedBoxes.length > 0) && {
                 variables: {
                     query: `?cashboxes=${selectedBoxes[0].uuid}&patient=${patient.uuid}`,
                 },
-            }),
+            })
         }
     );
     const pmList = (paymentMeansHttp as HttpResponse)?.data ?? [];

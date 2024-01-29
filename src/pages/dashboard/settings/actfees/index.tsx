@@ -42,6 +42,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import Can from "@features/casl/can";
 
 const filter = createFilterOptions<any>();
 
@@ -329,37 +330,15 @@ function ActFees() {
                 {!isMobile && (
                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
                         {!create && (
-                            <Button
-                                variant="contained"
-                                color={"success"}
-                                onClick={() => handleCreate()}>
-                                {t("add_a_new_act")}
-                            </Button>
+                            <Can I={"manage"} a={"settings"} field={"settings__actfees__create"}>
+                                <Button
+                                    variant="contained"
+                                    color={"success"}
+                                    onClick={() => handleCreate()}>
+                                    {t("add_a_new_act")}
+                                </Button>
+                            </Can>
                         )}
-                        {/*<span>|</span>
-                        <Typography>{t("consultation")} :</Typography>
-                        <TextField
-                            id="outlined-basic"
-                            value={consultationFees}
-                            size="small"
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">{devise}</InputAdornment>
-                                ),
-                                style: {width: 120, backgroundColor: "white"},
-                            }}
-                            onChange={(ev) => {
-                                setConsultationFees(Number(ev.target.value));
-                            }}
-                            variant="outlined"
-                        />
-                        <IconButton
-                            color={"primary"}
-                            onClick={() => {
-                                editFees();
-                            }}>
-                            <SaveRoundedIcon color={"primary"}/>
-                        </IconButton>*/}
                     </Stack>
                 )}
             </SubHeader>

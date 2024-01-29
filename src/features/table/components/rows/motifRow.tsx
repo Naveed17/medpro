@@ -13,6 +13,7 @@ import {TableRowStyled} from "@features/table";
 import {useTranslation} from "next-i18next";
 import {ModelDot} from "@features/modelDot";
 import {useTheme} from "@mui/material/styles";
+import Can from "@features/casl/can";
 
 function MotifRow({...props}) {
     const {row, handleChange, editMotif} = props;
@@ -75,23 +76,27 @@ function MotifRow({...props}) {
             <TableCell align="right">
                 {row ? (
                     <Stack direction="row" spacing={1} justifyContent="flex-end" alignItems="center">
-                        <IconButton
-                            size="small"
+                        <Can I={"manage"} a={"settings"} field={"settings__motif__update"}>
+                            <IconButton
+                                size="small"
 
-                            onClick={() => editMotif(row, "edit")}>
-                            <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
-                        </IconButton>
-                        <IconButton
-                            size="small"
-                            sx={{
-                                '& .react-svg svg': {
-                                    width: 20,
-                                    height: 20
-                                }
-                            }}
-                            onClick={() => editMotif(row, "delete")}>
-                            <IconUrl color={theme.palette.error.main} path="ic-trash"/>
-                        </IconButton>
+                                onClick={() => editMotif(row, "edit")}>
+                                <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                            </IconButton>
+                        </Can>
+                        <Can I={"manage"} a={"settings"} field={"settings__motif__delete"}>
+                            <IconButton
+                                size="small"
+                                sx={{
+                                    '& .react-svg svg': {
+                                        width: 20,
+                                        height: 20
+                                    }
+                                }}
+                                onClick={() => editMotif(row, "delete")}>
+                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
+                            </IconButton>
+                        </Can>
                     </Stack>
                 ) : (
                     <Skeleton width={30} height={40} sx={{m: "auto"}}/>

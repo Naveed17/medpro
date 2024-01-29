@@ -40,6 +40,7 @@ import {pdfjs} from "react-pdf";
 import {NewFeaturesCarousel} from "@features/carousels";
 import {openNewFeaturesDialog, sideBarSelector} from "@features/menu";
 import {useFeaturePermissions} from "@lib/hooks/rest";
+import {setPermissions} from "@features/casl";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
 
@@ -49,7 +50,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     const router = useRouter();
-    const {data: session, update} = useSession();
+    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const {closeSnackbar} = useSnackbar();
@@ -79,7 +80,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     // Get current root feature
     const slugFeature = router.pathname.split('/')[2];
     const features = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
-    const rootFeature = features?.find(feature => feature.slug === slugFeature);
+    const rootFeature = features?.find(feature => feature.root === slugFeature);
     const {permissions} = useFeaturePermissions(rootFeature?.slug as string, !rootFeature?.hasProfile);
 
     const {trigger: mergeDuplicationsTrigger} = useRequestQueryMutation("/duplications/merge");
@@ -99,13 +100,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`
     }, ReactQueryNoValidateConfig);
-
-    const {data: httpAppointmentTypesResponse} = useRequestQuery(medicalEntityHasUser ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/appointments/types/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
-
-    const agendasData = ((httpAgendasResponse as HttpResponse)?.data ?? []) as AgendaConfigurationModel[];
 
     const renderNoDataCard = <NoDataCard
         {...{t}}
@@ -233,11 +227,19 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     useEffect(() => {
         if (httpAgendasResponse) {
-            const localAgendasData = (httpAgendasResponse as HttpResponse)?.data as AgendaConfigurationModel[];
-            const agendaUser = localAgendasData?.find((item: AgendaConfigurationModel) => item.isDefault) as AgendaConfigurationModel;
-            setAgenda(agendaUser);
-            dispatch(setConfig({...agendaUser}));
-            dispatch(setAgendas(agendasData));
+            const agendasData = ((httpAgendasResponse as HttpResponse)?.data ?? []) as AgendaPermissionsModel[];
+            const defaultAgenda = agendasData.reduce((agendas: AgendaPermissionsModel, agendaPermission: AgendaPermissionsModel) => ({...(agendas ?? {}), ...(agendaPermission.agenda?.isDefault ? agendaPermission : {})}), {});
+            if (defaultAgenda?.permissions) {
+                dispatch(setPermissions({"agenda": defaultAgenda?.permissions.map(permission => permission?.slug)}));
+            }
+            if (defaultAgenda?.agenda) {
+                const agenda = defaultAgenda?.agenda;
+                setAgenda(agenda);
+                dispatch(setOngoing({appointmentTypes: agenda.appointmentType}));
+                dispatch(setConfig({...agenda}));
+                const agendas = agendasData.reduce((agendas: AgendaConfigurationModel[], agendaPermission: AgendaPermissionsModel) => [...(agendas ?? []), ...(agendaPermission.agenda ? [agendaPermission.agenda] : [])], []);
+                dispatch(setAgendas(agendas));
+            }
         }
     }, [httpAgendasResponse, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -291,13 +293,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (httpAppointmentTypesResponse) {
-            const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
-            dispatch(setOngoing({appointmentTypes}));
-        }
-    }, [dispatch, httpAppointmentTypesResponse]);
-
-    useEffect(() => {
         if (httpProfessionalsResponse) {
             const medicalProfessionalData = (httpProfessionalsResponse as HttpResponse)?.data as MedicalProfessionalPermissionModel;
             dispatch(setPaymentTypesList(medicalProfessionalData[0].payments));
@@ -310,10 +305,7 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
 
     useEffect(() => {
         if (permissions?.length > 0) {
-            update({
-                permissions: permissions.map(permission => permission?.slug),
-                slug: rootFeature?.slug
-            });
+            dispatch(setPermissions({[rootFeature?.root as string]: permissions.map(permission => permission?.slug)}));
         }
     }, [permissions]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -321,14 +313,12 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         if (!localStorage.getItem("new-features")) {
             setTimeout(() => {
                 dispatch(openNewFeaturesDialog(true));
-
             }, 3000);
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <SideBarMenu>
-            {/*<AppLock/>*/}
             <PageTransition ref={ref}>
                 {children}
             </PageTransition>

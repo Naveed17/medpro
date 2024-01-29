@@ -1,0 +1,11 @@
+<svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Radio" clip-path="url(#clip0_23566_43138)">
+<circle id="Big" cx="12" cy="12.8667" r="12" fill="#0696D6"/>
+<rect id="Small" x="6" y="6.8667" width="12" height="12" rx="6" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_23566_43138">
+<rect width="24" height="24" fill="white" transform="translate(0 0.866699)"/>
+</clipPath>
+</defs>
+</svg>

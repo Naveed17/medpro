@@ -28,6 +28,7 @@ import {ConditionalWrapper} from "@lib/hooks";
 import {useProfilePhoto} from "@lib/hooks/rest";
 import {SmallAvatar} from "@features/avatar";
 import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
+import Can from "@features/casl/can";
 
 function PatientRow({...props}) {
     const {row, isItemSelected, t, loading, handleEvent, data, handleClick, selected} = props;
@@ -340,34 +341,35 @@ function PatientRow({...props}) {
                                 alignSelf: "center"
                             }
                         }}>
-                            <IconButton
-                                onClick={event => {
-                                    event.stopPropagation();
-                                    const appointment = {
-                                        title: `${row.lastName}  ${row.firstName}`,
-                                        publicId: row.nextAppointment.uuid,
-                                        extendedProps: {
-                                            time: moment(`${row.nextAppointment.dayDate} ${row.nextAppointment.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
-                                            patient: row,
-                                            description: "",
-                                            dur: row.nextAppointment.duration
+                            <Can I={"manage"} a={"agenda"} field={"agenda__appointment__edit"}>
+                                <IconButton
+                                    onClick={event => {
+                                        event.stopPropagation();
+                                        const appointment = {
+                                            title: `${row.lastName}  ${row.firstName}`,
+                                            publicId: row.nextAppointment.uuid,
+                                            extendedProps: {
+                                                time: moment(`${row.nextAppointment.dayDate} ${row.nextAppointment.startTime}`, 'DD-MM-YYYY HH:mm').toDate(),
+                                                patient: row,
+                                                description: "",
+                                                dur: row.nextAppointment.duration
+                                            }
                                         }
-                                    }
-                                    dispatch(setSelectedEvent(appointment as any));
-                                    const newDate = moment(appointment?.extendedProps.time);
-                                    dispatch(setMoveDateTime({
-                                        date: newDate,
-                                        time: newDate.format("HH:mm"),
-                                        action: "move",
-                                        selected: false
-                                    }));
-                                    handleEvent("APPOINTMENT_MOVE", appointment);
-                                }}
-                                size="small">
-                                <IconUrl path="ic-historique" width={17} height={17}
-                                         color={theme.palette.primary.main}/>
-                            </IconButton>
-
+                                        dispatch(setSelectedEvent(appointment as any));
+                                        const newDate = moment(appointment?.extendedProps.time);
+                                        dispatch(setMoveDateTime({
+                                            date: newDate,
+                                            time: newDate.format("HH:mm"),
+                                            action: "move",
+                                            selected: false
+                                        }));
+                                        handleEvent("APPOINTMENT_MOVE", appointment);
+                                    }}
+                                    size="small">
+                                    <IconUrl path="ic-historique" width={17} height={17}
+                                             color={theme.palette.primary.main}/>
+                                </IconButton>
+                            </Can>
                             <Box ml={1}>
                                 <Typography
                                     component="span"
@@ -375,8 +377,7 @@ function PatientRow({...props}) {
                                     variant="body2"
                                     color="text.primary"
                                     fontWeight={600}
-                                    fontSize={13}
-                                >
+                                    fontSize={13}>
                                     <>
                                         <IconUrl path="ic-agenda-jour" width={16} height={16}/>
                                         {row.nextAppointment?.dayDate}
@@ -395,8 +396,7 @@ function PatientRow({...props}) {
                                     variant="body2"
                                     color="text.primary"
                                     fontWeight={600}
-                                    fontSize={13}
-                                >
+                                    fontSize={13}>
                                     <>
                                         <IconUrl path="ic-time" width={16} height={16}/>
                                         {row.nextAppointment?.startTime}
@@ -405,20 +405,21 @@ function PatientRow({...props}) {
                             </Box>
                         </Stack>
                     ) : (
-                        <Button
-                            onClick={event => {
-                                event.stopPropagation();
-                                handleEvent("ADD_APPOINTMENT", row);
-                            }}
-                            variant="text"
-                            size="small"
-                            color="primary"
-                            style={{margin: "auto"}}
-                            startIcon={<IconUrl path="ic-agenda-+"/>}
-                            sx={{position: "relative", fontWeight: 600}}
-                        >
-                            {t("table.add-appointment")}
-                        </Button>
+                        <Can I={"manage"} a={"agenda"} field={"agenda__appointment__create"}>
+                            <Button
+                                onClick={event => {
+                                    event.stopPropagation();
+                                    handleEvent("ADD_APPOINTMENT", row);
+                                }}
+                                variant="text"
+                                size="small"
+                                color="primary"
+                                style={{margin: "auto"}}
+                                startIcon={<IconUrl path="ic-agenda-+"/>}
+                                sx={{position: "relative", fontWeight: 600}}>
+                                {t("table.add-appointment")}
+                            </Button>
+                        </Can>
                     )}
                 </Box>
             </TableCell>
@@ -438,31 +439,34 @@ function PatientRow({...props}) {
                         </>
                     ) : (
                         <>
-                            <Tooltip title={t('popover-action.delete_patient_data')}>
-                                <IconButton
-                                    disabled={loading}
-                                    onClick={event => {
-                                        event.stopPropagation();
-                                        handleEvent("DELETE", row, event);
-                                    }}
-                                    size="small">
-                                    <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip title={t('popover-action.view_patient_data')}>
-                                <IconButton
-                                    disabled={loading}
-                                    onClick={event => {
-                                        event.stopPropagation();
-                                        handleEvent("EDIT", row, event);
-                                    }}
-                                    size="small"
-                                    sx={{mt: .2}}
-                                >
-                                    <IconUrl path="ic-edit-pen" width={20} height={20}
-                                             color={theme.palette.text.secondary}/>
-                                </IconButton>
-                            </Tooltip>
+                            <Can I={"manage"} a={"patients"} field={"patients__patient__delete"}>
+                                <Tooltip title={t('popover-action.delete_patient_data')}>
+                                    <IconButton
+                                        disabled={loading}
+                                        onClick={event => {
+                                            event.stopPropagation();
+                                            handleEvent("DELETE", row, event);
+                                        }}
+                                        size="small">
+                                        <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>
+                                    </IconButton>
+                                </Tooltip>
+                            </Can>
+                            <Can I={"manage"} a={"patients"} field={"patients__patient__update"}>
+                                <Tooltip title={t('popover-action.view_patient_data')}>
+                                    <IconButton
+                                        disabled={loading}
+                                        onClick={event => {
+                                            event.stopPropagation();
+                                            handleEvent("EDIT", row, event);
+                                        }}
+                                        size="small"
+                                        sx={{mt: .2}}>
+                                        <IconUrl path="ic-edit-pen" width={20} height={20}
+                                                 color={theme.palette.text.secondary}/>
+                                    </IconButton>
+                                </Tooltip>
+                            </Can>
                         </>
                     )}
                 </Stack>

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";
@@ -22,7 +22,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {
     AddAppointmentCardData,
     agendaSelector,
-    CalendarContextMenu,
+    CalendarContextMenu, ContextMenuModel,
     DayOfWeek,
     Event,
     Header,
@@ -44,6 +44,7 @@ import {motion} from "framer-motion";
 import {useTranslation} from "next-i18next";
 import {batch} from "react-redux";
 import {prepareContextMenu} from "@lib/hooks";
+import Can, {AbilityContext} from "@features/casl/can";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
@@ -76,6 +77,7 @@ function Calendar({...props}) {
     const {t} = useTranslation('common');
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
+    const ability = useContext(AbilityContext);
 
     const {
         view,
@@ -165,7 +167,7 @@ function Calendar({...props}) {
             }
         }
     }
-    
+
     const handleTableEvent = (action: string, eventData: EventModal, event?: any) => {
         switch (action) {
             case "OPEN-POPOVER":
@@ -404,11 +406,14 @@ function Calendar({...props}) {
                                 }}
                                 eventClick={(eventArg) => (eventArg.event._def.ui.display !== "background" && !eventArg.event._def.extendedProps.patient?.isArchived) && handleOnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
-                                dateClick={(info) => {
-                                    setSlotInfo(info as DateClickTouchArg);
-                                    OnAddAppointment("add-quick");
-                                    OnSelectDate(info);
-                                }}
+                                {...(ability.can('manage', 'agenda', 'agenda__appointment__create') && {
+                                        dateClick: (info) => {
+                                            setSlotInfo(info as DateClickTouchArg);
+                                            OnAddAppointment("add-quick");
+                                            OnSelectDate(info);
+                                        }
+                                    }
+                                )}
                                 select={(eventArg) => OnRangeDateSelect(eventArg)}
                                 showNonCurrentDates={true}
                                 selectMinDistance={10}
@@ -534,26 +539,28 @@ function Calendar({...props}) {
                             !prepareContextMenu(data.action,
                                 (view === "listWeek" ? eventGroupByDay.reduce((eventsData: EventCalendarModel[], data) =>
                                     [...(eventsData ?? []), ...data?.events], []) : events).find(event =>
-                                    event.id === eventMenu) as EventModal, roles)).map((v: any) => (
-                                <IconButton
-                                    key={uniqueId()}
-                                    onClick={() => {
-                                        const appointment = events.find(event => event.id === eventMenu) as EventModal;
-                                        const event = {
-                                            publicId: appointment.id,
-                                            extendedProps: {
-                                                ...appointment
+                                    event.id === eventMenu) as EventModal, roles)).map((context: ContextMenuModel) => (
+                                <Can key={uniqueId()}
+                                     I={"manage"} a={context.feature as any} field={context.permission}>
+                                    <IconButton
+                                        onClick={() => {
+                                            const appointment = events.find(event => event.id === eventMenu) as EventModal;
+                                            const event = {
+                                                publicId: appointment.id,
+                                                extendedProps: {
+                                                    ...appointment
+                                                }
                                             }
-                                        }
-                                        OnMenuActions(v.action, event);
-                                        handleClose();
-                                    }}
-                                    className="popover-item">
-                                    {v.icon}
-                                    <Typography fontSize={15} sx={{color: "#fff"}}>
-                                        {translation(`${v.title}`, {ns: 'common'})}
-                                    </Typography>
-                                </IconButton>
+                                            OnMenuActions(context.action, event);
+                                            handleClose();
+                                        }}
+                                        className="popover-item">
+                                        {context.icon}
+                                        <Typography fontSize={15} sx={{color: "#fff"}}>
+                                            {translation(`${context.title}`, {ns: 'common'})}
+                                        </Typography>
+                                    </IconButton>
+                                </Can>
                             )
                         )}
                     </Menu>

@@ -376,6 +376,14 @@ const dialogData = [
                 "@features/dialog/components/deleteModalDialog/components/deleteTransactionDialog"
                 ).then((mod) => mod)
         ),
+    },
+     {
+        action: "new-user",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/newUserDialog/components/newUserDialog"
+                ).then((mod) => mod)
+        ),
     }
 ];
 
