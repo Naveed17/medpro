@@ -437,30 +437,29 @@ function UsersTabs({...props}) {
                                                             onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
                                                             label={featurePermission?.featureEntity?.name}/>
                                                         {featurePermission.root === "cashbox" &&
-                                                        index === 0 ?
-                                                            <CustomIconButton
-                                                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                                                                    event.stopPropagation();
-                                                                    setOpenAddCashBoxDialog(true);
-                                                                }}
-                                                                variant="filled"
-                                                                sx={{p: .4}}
-                                                                color={"primary"}
-                                                                size={"small"}>
-                                                                <AgendaAddViewIcon/>
-                                                            </CustomIconButton>
-                                                            :
-                                                            <CustomIconButton
-                                                                onClick={() => {
-                                                                    setSelectedCashBox(featurePermission?.featureEntity?.uuid);
-                                                                    setTimeout(() => setDeleteCashBoxDialog(true));
-                                                                }}
-                                                                variant="filled"
-                                                                sx={{p: .4}}
-                                                                color={"error"}
-                                                                size={"small"}>
-                                                                <IconUrl color={"white"} path="ic-trash"/>
-                                                            </CustomIconButton>
+                                                            (index === 0 ?
+                                                                <CustomIconButton
+                                                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                                        event.stopPropagation();
+                                                                        setOpenAddCashBoxDialog(true);
+                                                                    }}
+                                                                    variant="filled"
+                                                                    color={"primary"}
+                                                                    size={"small"}>
+                                                                    <AgendaAddViewIcon/>
+                                                                </CustomIconButton>
+                                                                :
+                                                                <CustomIconButton
+                                                                    onClick={() => {
+                                                                        setSelectedCashBox(featurePermission?.featureEntity?.uuid);
+                                                                        setTimeout(() => setDeleteCashBoxDialog(true));
+                                                                    }}
+                                                                    variant="filled"
+                                                                    sx={{p: .4}}
+                                                                    color={"error"}
+                                                                    size={"small"}>
+                                                                    <IconUrl color={"white"} path="ic-trash"/>
+                                                                </CustomIconButton>)
                                                         }
                                                     </Stack>
                                                 }
