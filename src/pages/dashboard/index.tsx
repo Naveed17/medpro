@@ -10,7 +10,7 @@ function Dashboard() {
 
     const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
-    return (<Redirect to={features?.length > 0 ? `/dashboard/${features[0].slug}` : `/dashboard/agenda`}/>);
+    return (<Redirect to={features?.length > 0 ? `/dashboard/${features[0].root}` : `/dashboard/agenda`}/>);
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => ({

@@ -66,14 +66,12 @@ function TreeViewCheckbox({...props}) {
                         <IconUrl path="setting/ic-down-arrow" width={12} height={12}/>
                     </IconButton>
                 </Stack>
-                {
-                    hasChildren &&
+                {hasChildren &&
                     <Collapse in={node.collapseIn} className="inner-collapse">
                         <List className="inside-list">
                             {node.children.map((childNode: any) => renderNode(childNode))}
                         </List>
-                    </Collapse>
-                }
+                    </Collapse>}
             </React.Fragment>
         )
     }

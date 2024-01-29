@@ -120,7 +120,7 @@ function OnStepPatient({...props}) {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const locations = null;
+    const locations = medical_entity?.location ?? null;
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()

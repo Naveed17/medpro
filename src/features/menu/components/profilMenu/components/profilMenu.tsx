@@ -27,10 +27,11 @@ import axios from "axios";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {LoadingScreen} from "@features/loadingScreen";
-import {unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
+import {ConditionalWrapper, unsubscribeTopic, useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector, setLocalization} from "@features/base";
 import Langs from "@features/topNavBar/components/langButton/config";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import Can from "@features/casl/can";
 
 function ProfilMenu() {
     const {data: session, update} = useSession();
@@ -196,17 +197,24 @@ function ProfilMenu() {
                                         </ToggleButtonGroup>
                                     </MenuItem>
                                     {ProfileMenuConfig.map((item: any, index) => ((item.action === 'switch-medical-entity' && hasMultiMedicalEntities) || item.action !== 'switch-medical-entity') && (
-                                        <MenuItem
+                                        <ConditionalWrapper
                                             key={`menu-${index}`}
-                                            onClick={() => handleMenuItem(item.action)}
-                                            disableRipple
-                                            className={`item-list ${item.name === "Settings" ? "border-bottom" : ""
-                                            }${item.hasOwnProperty("items") ? "has-items" : ""}`}>
-                                            <IconUrl path={item.icon}/>
-                                            <Typography variant="body1" className="item-name">
-                                                {t("doctor-dropdown." + item.name.toLowerCase())}
-                                            </Typography>
-                                        </MenuItem>
+                                            condition={!!item?.feature}
+                                            wrapper={(children: any) =>
+                                                <Can I={"manage"} a={item.feature}>
+                                                    {children}
+                                                </Can>}>
+                                            <MenuItem
+                                                onClick={() => handleMenuItem(item.action)}
+                                                disableRipple
+                                                className={`item-list ${item.name === "Settings" ? "border-bottom" : ""
+                                                }${item.hasOwnProperty("items") ? "has-items" : ""}`}>
+                                                <IconUrl path={item.icon}/>
+                                                <Typography variant="body1" className="item-name">
+                                                    {t("doctor-dropdown." + item.name.toLowerCase())}
+                                                </Typography>
+                                            </MenuItem>
+                                        </ConditionalWrapper>
                                     ))}
                                 </MenuList>
                             </ClickAwayListener>

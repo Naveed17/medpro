@@ -1,6 +1,6 @@
 module.exports = {
     i18n: {
-        locales: ["fr", "en"],
+        locales: ["fr", "en", "ar"],
         defaultLocale: "fr"
     },
     /** To avoid issues when deploying to some paas (vercel...) */
