@@ -392,7 +392,23 @@ const dialogData = [
                 "@features/dialog/components/newUserDialog/components/newUserDialog"
                 ).then((mod) => mod)
         ),
-    }
+    },
+    {
+        action: "agreement",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/agreementDialog/components/agreementDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
+        action: "create-act",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/createActDialog/components/createActDialog"
+                ).then((mod) => mod)
+        ),
+    },
 ];
 
 export default dialogData;
