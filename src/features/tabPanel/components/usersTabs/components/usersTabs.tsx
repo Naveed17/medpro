@@ -15,7 +15,7 @@ import {
     Box,
     FormControlLabel, DialogActions, DialogTitle, DialogContent, Dialog
 } from '@mui/material';
-import React, {useCallback, useState} from 'react'
+import React, {useState} from 'react'
 import MoreVert from "@mui/icons-material/MoreVert";
 import * as Yup from "yup";
 import AddIcon from '@mui/icons-material/Add'
@@ -451,7 +451,7 @@ function UsersTabs({...props}) {
                                                             </CustomIconButton>
                                                             :
                                                             <CustomIconButton
-                                                                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                                onClick={() => {
                                                                     setSelectedCashBox(featurePermission?.featureEntity?.uuid);
                                                                     setTimeout(() => setDeleteCashBoxDialog(true));
                                                                 }}

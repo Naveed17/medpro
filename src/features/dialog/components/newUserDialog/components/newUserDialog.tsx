@@ -246,7 +246,7 @@ function NewUserDialog({...props}) {
             confirm_password: '',
 
         },
-        onSubmit: (values) => {
+        onSubmit: () => {
             if (currentStep === stepperData.length - 1) {
                 onClose()
                 return;
