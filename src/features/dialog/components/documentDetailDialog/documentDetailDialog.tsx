@@ -422,7 +422,7 @@ function DocumentDetailDialog({...props}) {
         if (state?.type === "quote") {
             medicalEntityHasUser && triggerDocumentDelete({
                     method: "DELETE",
-                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${state?.uuid}/${router.locale}`
+                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/quotes/${state?.uuid}/${router.locale}`
                 },
                 {
                     onSuccess: () => {
