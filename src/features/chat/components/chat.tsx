@@ -28,7 +28,7 @@ import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {Editor} from "@tinymce/tinymce-react";
 import {tinymcePlugins} from "@lib/constants";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 import {PatientDetail} from "@features/dialog";
 import {configSelector} from "@features/base";
 import PresenceMessage = Types.PresenceMessage;
