@@ -18,8 +18,8 @@ import {
     Tabs,
     Toolbar,
     Typography,
-    useTheme,
-    useMediaQuery
+    useMediaQuery,
+    useTheme
 } from "@mui/material";
 import dynamic from "next/dynamic";
 import TemplateStyled from "@features/pfTemplateDetail/components/overrides/templateStyled";
@@ -30,11 +30,7 @@ import {SubHeader} from "@features/subHeader";
 import PreviewA4 from "@features/files/components/previewA4";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
-import {
-    a11yProps,
-    capitalizeFirst,
-    useMedicalProfessionalSuffix,
-} from "@lib/hooks";
+import {a11yProps, capitalizeFirst, useMedicalProfessionalSuffix,} from "@lib/hooks";
 import CloseIcon from "@mui/icons-material/Close";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {CertifModelDrawer} from "src/features/drawer/components/CertifModelDrawer";
@@ -48,6 +44,7 @@ import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {TabPanel} from "@features/tabPanel";
 import {startCase} from 'lodash';
+import {Page} from "@features/page";
 import Can from "@features/casl/can";
 
 const LoadingScreen = dynamic(() => import("@features/loadingScreen/components/loadingScreen"));
@@ -147,8 +144,8 @@ function TemplatesConfig() {
     const handleMouseOut = () => {
         setIsHovering("");
     };
-    const edit = (id: string | undefined) => {
-        router.push(`/dashboard/settings/templates/${id}`);
+    const edit = (res: any) => {
+        router.push(res.header.data.isNew ? `/dashboard/settings/templates/new/${res.uuid}` : `/dashboard/settings/templates/${res.uuid}`);
     };
 
     const handleEditDoc = (res: CertifModel) => {
@@ -351,7 +348,7 @@ function TemplatesConfig() {
                                     <div
                                         className={"portraitA4"}
                                         onClick={() => {
-                                            router.push(`/dashboard/settings/templates/new`);
+                                            router.push(`/dashboard/settings/templates/new/new`);
                                         }}
                                         style={{
                                             width: "100%",
@@ -387,16 +384,27 @@ function TemplatesConfig() {
                                                 handleMouseOver(res.uuid);
                                             }}
                                             onMouseOut={handleMouseOut}>
-                                            <PreviewA4
-                                                {...{
-                                                    eventHandler: null,
-                                                    nbPage: 1,
-                                                    data: res.header.data,
-                                                    values: res.header.header,
-                                                    state: null,
-                                                    loading,
-                                                }}
-                                            />
+                                            {res.header.data.isNew ?
+                                                <Box>
+                                                    <Page  {...{
+                                                        data: res.header.data,
+                                                        setData,
+                                                        state: null,
+                                                        header: res.header.header,
+                                                        setHeader: null,
+                                                        onReSize: null,
+                                                        setOnResize: null
+                                                    }}/></Box>
+                                                : <PreviewA4
+                                                    {...{
+                                                        eventHandler: null,
+                                                        nbPage: 1,
+                                                        data: res.header.data,
+                                                        values: res.header.header,
+                                                        state: null,
+                                                        loading,
+                                                    }}
+                                                />}
                                         </div>
                                         <Can I={"manage"} a={"settings"} field={"settings__templates__layout__update"}>
                                             {isHovering === res.uuid && (
@@ -410,7 +418,7 @@ function TemplatesConfig() {
                                                     <IconButton
                                                         size="small"
                                                         onClick={() => {
-                                                            edit(res.uuid);
+                                                            edit(res);
                                                         }}>
                                                         <IconUrl color={theme.palette.primary.main}
                                                                  path="ic-edit-patient"/>

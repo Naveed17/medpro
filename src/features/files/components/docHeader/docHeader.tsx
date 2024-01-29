@@ -5,8 +5,8 @@ function DocHeader({...props}) {
 
     return (
         <>
-            {data && <div style={{display: "grid", gridTemplateColumns: 'repeat(2, 1fr)'}}>
-                <div style={{gridColumn: 1 / 2}}>
+            {data && <div style={{display: "grid", gridTemplateColumns: 'repeat(2, 1fr)',padding:10}}>
+                <div style={{gridColumn: 1 / 2,textAlign:"left"}}>
                     <p style={{margin: 0, fontWeight: "bold",fontSize:26, color: "#0696D6",marginBottom: 5}}>{data.left1}</p>
                     <p style={{margin: 0, fontSize: 18, fontWeight: "bold"}}>{data.left2}</p>
                     <p style={{
