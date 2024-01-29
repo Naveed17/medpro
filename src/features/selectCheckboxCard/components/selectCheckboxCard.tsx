@@ -1,15 +1,15 @@
-import {Checkbox} from "@mui/material";
+import { Checkbox } from "@mui/material";
 import React from "react";
-import {setSelectedRows, tableActionSelector} from "@features/table";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {onSelectCheckbox, selectCheckboxActionSelector} from "@features/selectCheckboxCard";
+import { setSelectedRows, tableActionSelector } from "@features/table";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { onSelectCheckbox, selectCheckboxActionSelector } from "@features/selectCheckboxCard";
 
 
-function SelectCheckboxCard({...props}) {
-    const {row, isSmall} = props;
+function SelectCheckboxCard({ ...props }) {
+    const { row, isSmall } = props;
     const dispatch = useAppDispatch();
-    const {tableState: {rowsSelected}} = useAppSelector(tableActionSelector);
-    const {selectedCheckbox} = useAppSelector(selectCheckboxActionSelector);
+    const { tableState: { rowsSelected } } = useAppSelector(tableActionSelector);
+    const { selectedCheckbox } = useAppSelector(selectCheckboxActionSelector);
 
     const handleChange = (id: any) => {
         const selectedIndex = selectedCheckbox.indexOf(id);

@@ -237,6 +237,14 @@ const rowsActionsData = [
             )
         ),
     },
+    {
+        action: "act-row",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/actRow").then(
+                (mod) => mod
+            )
+        ),
+    },
 ];
 
 export default rowsActionsData;

@@ -808,8 +808,10 @@
     "config": {
       "title": "Assurance & Convention",
       "search": "Recherche",
+      "save": "Enregistrer",
       "path": {
-        "root": "Paramètres > Assurance & Convention"
+        "root": "Paramètres > Assurance & Convention",
+        "update": "Paramètres > Assurance & Convention > Actes"
       },
       "add": "Ajouter",
       "table": {
@@ -817,7 +819,12 @@
         "label": "Libellé",
         "start_date": "Date de début",
         "end_date": "Date de fin",
-        "empty": ""
+        "empty": "",
+        "act": "Acte",
+        "fees": "Honoraires",
+        "rem_amount": "Montant de Remb.",
+        "patient_share": "Part patient",
+        "apci": "APCI"
       },
       "no-data": {
         "title": "Ajouter une Assurance & Convention",

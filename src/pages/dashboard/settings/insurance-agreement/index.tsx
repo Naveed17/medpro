@@ -4,7 +4,7 @@ import React, { ReactElement, useEffect, useState } from "react";
 import { SubHeader } from "@features/subHeader";
 import { RootStyled } from "@features/toolbar";
 import { useTranslation } from "next-i18next";
-import { Box, Button, DialogActions, InputAdornment, MenuItem, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, DialogActions, InputAdornment, MenuItem, Paper, Stack, TextField, Typography } from "@mui/material";
 import { configSelector, DashLayout, dashLayoutSelector } from "@features/base";
 import { Otable } from "@features/table";
 import { Dialog } from "@features/dialog";
@@ -15,7 +15,7 @@ import { useRouter } from "next/router";
 import { Theme } from "@mui/material/styles";
 import { MobileContainer } from "@themes/mobileContainer";
 import { DesktopContainer } from "@themes/desktopConainter";
-import { SettingAgendaMobileCard, NoDataCard } from "@features/card";
+import { SettingAgendaMobileCard, NoDataCard, InsuranceMobileCard } from "@features/card";
 
 
 import { LoadingScreen } from "@features/loadingScreen";
@@ -39,13 +39,14 @@ const insuranceData = [
 const Toolbar = (props: any) => {
     const { t, search, handleSearch } = props
     return (
-        <Stack direction="row" borderBottom={1} borderColor={"divider"} pb={1} mb={2} alignItems="center" justifyContent="space-between">
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1, sm: 0 }} borderBottom={1} borderColor={"divider"} pb={1} mb={2} alignItems={{ xs: 'flex-start', sm: 'center' }} justifyContent="space-between">
             <Typography fontWeight={500}>
                 {t("title")}
             </Typography>
             <TextField
                 value={search}
                 onChange={handleSearch}
+                sx={{ width: { xs: 1, sm: 'auto' } }}
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
@@ -200,7 +201,17 @@ function InsuranceAndAgreement() {
                             />
                         </DesktopContainer>
                         <MobileContainer>
+                            <Paper component={Stack} spacing={1} sx={{ p: 2, borderRadius: 1 }}>
+                                <Toolbar {...{ t, search, handleSearch }} />
+                                {
+                                    rows.map((insurance: any) => (
+                                        <React.Fragment key={insurance.uuid}>
+                                            <InsuranceMobileCard t={t} row={insurance} handleEvent={handleTableActions} />
+                                        </React.Fragment>
+                                    ))
+                                }
 
+                            </Paper>
                         </MobileContainer>
                     </>
                 ) : (
