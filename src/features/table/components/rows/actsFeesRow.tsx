@@ -116,17 +116,17 @@ function ActFeesRow({...props}) {
 
     return (
         <>
-        <TableRowStyled className="act-fees-row" 
+        <TableRowStyled className="act-fees-row"
         {...(collapse && {
             sx:{
                 "& > .MuiTableCell-root":{
-                    
+
                     "&:first-of-type":{
                         borderBottomLeftRadius: '0 !important',
                     },
                     "&:last-of-type":{
                         borderBottomRightRadius: '0 !important',
-                    
+
                 }
                 }
             }
@@ -134,7 +134,7 @@ function ActFeesRow({...props}) {
         >
             <TableCell>
                 <Stack direction='row' alignItems='center' spacing={2}>
-                     <IconButton
+                    {/* <IconButton
                      onClick={()=> setCollapse(!collapse)}
                      sx={{
                         border: 1,
@@ -142,10 +142,10 @@ function ActFeesRow({...props}) {
                         borderRadius: .7,
                         width: 27,
                         height: 27,
-                        
+
                     }}>
                         <IconUrl path="ic-expand"/>
-                    </IconButton>
+                    </IconButton>*/}
                     {edit === row?.uuid && !row?.act.isVerified ? (
                     <TextField
                         placeholder={"--"}
@@ -163,7 +163,7 @@ function ActFeesRow({...props}) {
                     </Tooltip>
                 )}
                 </Stack>
-                
+
             </TableCell>
             <TableCell align={"center"}>
                 {edit === row?.uuid ? (
@@ -237,7 +237,7 @@ function ActFeesRow({...props}) {
             <TableCell align="right">
                 {row ? (
                     <Stack direction='row' spacing={1} alignItems="center" justifyContent='flex-end'>
-                        {/* {edit === row.uuid ? (
+                         {edit === row.uuid ? (
                             <IconButton
                                 size="small"
                                 disabled={fees?.length === 0}
@@ -272,19 +272,19 @@ function ActFeesRow({...props}) {
                             size="small"
                             sx={{mr: {md: 1}}}>
                             <IconUrl path="setting/icdelete"/>
-                        </IconButton>} */}
-                        <Button 
+                        </IconButton>}
+                        {/*<Button
                         onClick={(e)=> handleEvent({row,event:e,action:'OPEN-AGREEMENT-DIALOG'})}
                         variant="outlined" color="info" className="btn-action" startIcon={<IconUrl path="ic-plus" width={12} height={12}/>}>
                             {t("table.btn_action_text")} ({10})
                         </Button>
-                        <IconButton size="small" 
+                        <IconButton size="small"
                          onClick={(e)=> handleEvent({row,event:e,action:'OPEN-POPOVER'})}
                          className="btn-more"
                         >
                             <MoreVertIcon fontSize="small"/>
-                            
-                            </IconButton>
+
+                            </IconButton>*/}
                     </Stack>
                 ) : (
                     <Stack
@@ -299,7 +299,7 @@ function ActFeesRow({...props}) {
             </TableCell>
         </TableRowStyled>
         {collapse && <TableRowStyled className="row-collapse">
-            <TableCell colSpan={5} 
+            <TableCell colSpan={5}
             style={{
                             backgroundColor: "none",
                             border: "none",
@@ -310,8 +310,8 @@ function ActFeesRow({...props}) {
                         }}
             >
                 <Paper sx={{bgcolor:theme.palette.background.default,p:1,mt:-1,borderTopLeftRadius:0,borderTopRightRadius:0}}>
-               <Otable 
-               
+               <Otable
+
                headers={headCells}
                rows={[1,2,3]}
                from={"actfees-collapse"}
@@ -320,7 +320,7 @@ function ActFeesRow({...props}) {
                </Paper>
             </TableCell>
 </TableRowStyled>}
-        
+
         </>
     );
 }
