@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import ConsultationModalDialogStyle from './overides/consultationModalDialogStyle'
 import { List, ListItem, FormControlLabel, Checkbox, Collapse, Paper } from '@mui/material'
 import Icon from '@themes/urlIcon'
+import ConsultationModalDialogStyle
+    from "@features/dialog/consultationModalDialog/overides/consultationModalDialogStyle";
 function ConsultationModalDialog({ data: propsData }: { data: any }) {
     const [open, setOpen] = useState('');
     const [genral, setGenral] = useState<any[]>([]);

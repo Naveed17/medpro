@@ -332,7 +332,7 @@ function Step2({ ...props }) {
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon
-                      sx={{ color: (theme) => theme.palette.grey["B903"] }}
+                      sx={{ color: (theme) => theme.palette.grey["A200"] }}
                     />
                   </InputAdornment>
                 ),
@@ -347,7 +347,7 @@ function Step2({ ...props }) {
                     >
                       <CloseIcon
                         fontSize="small"
-                        sx={{ color: (theme) => theme.palette.grey["B903"] }}
+                        sx={{ color: (theme) => theme.palette.grey["A200"] }}
                       />
                     </IconButton>
                   </InputAdornment>

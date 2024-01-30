@@ -4,7 +4,7 @@ const radius = 10;
 
 const ChatStyled = styled("div")(({theme}) => ({
     flex: 1,
-    backgroundColor: theme.palette.grey["A40"],
+    backgroundColor: theme.palette.grey["A400"],
     "& > div": {
         height: "100%",
     },

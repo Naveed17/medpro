@@ -1,8 +1,6 @@
 import {
   Stepper,
   stepperSelector,
-  Insurance,
-  Agreement,
 } from "@features/stepper";
 import { useAppSelector } from "@lib/redux/hooks";
 import {
@@ -19,6 +17,8 @@ import { FormikProvider, useFormik, Form } from "formik";
 import * as Yup from "yup";
 import { AnimatePresence } from "framer-motion";
 import { useRef } from "react";
+import {Insurance} from "@features/stepper/components/insurance";
+import {Agreement} from "@features/stepper/components/agreement";
 function AgreementDialog({ ...props }) {
   const {
     data: { t, devise, stepperData, collapse = false },
