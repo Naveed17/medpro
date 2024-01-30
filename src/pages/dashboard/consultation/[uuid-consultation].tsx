@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
@@ -84,6 +84,7 @@ import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
 import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
 import ObservationHistoryDialog from "@features/dialog/components/observationHistoryDialog/observationHistoryDialog";
+import {AbilityContext} from "@features/casl/can";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -128,13 +129,11 @@ function ConsultationInProgress() {
         recordingBlob,
         isPaused
     } = useAudioRecorder();
+    const ability = useContext(AbilityContext);
+
     const {t} = useTranslation("consultation");
     //***** SELECTORS ****//
-    const {
-        medicalEntityHasUser,
-        medicalProfessionalData
-    } = useAppSelector(dashLayoutSelector);
-
+    const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {selectedDialog, record} = useAppSelector(consultationSelector);
@@ -237,21 +236,30 @@ function ConsultationInProgress() {
     const [addFinishAppointment, setAddFinishAppointment] = useState<boolean>(false);
     const [showDocument, setShowDocument] = useState(false);
     const [nbDoc, setNbDoc] = useState(0);
-    const [cards, setCards] = useState([[
-        {
-            id: 'item-1',
-            content: 'widget',
-            expanded: cardPositions ? cardPositions.widget : false,
-            config: false,
-            icon: "ic-edit-file-pen"
-        },
-        {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
-    ], [{
-        id: 'item-3',
-        content: 'exam',
-        expanded: cardPositions ? cardPositions.exam : true,
-        icon: "ic-edit-file-pen"
-    }]]);
+    const [cards, setCards] = useState([
+        [
+            {
+                id: 'item-1',
+                content: 'widget',
+                expanded: cardPositions ? cardPositions.widget : false,
+                config: false,
+                icon: "ic-edit-file-pen"
+            },
+            ...(ability.can("manage", "consultation", "consultation__consultation__history__show") ? [{
+                id: 'item-2',
+                content: 'history',
+                expanded: false,
+                icon: "ic-historique"
+            }] : [])
+        ],
+        [
+            {
+                id: 'item-3',
+                content: 'exam',
+                expanded: cardPositions ? cardPositions.exam : true,
+                icon: "ic-edit-file-pen"
+            }
+        ]]);
     const [mobileCards, setMobileCards] = useState([[
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}
@@ -289,11 +297,28 @@ function ConsultationInProgress() {
     const sheetModal = sheet?.modal;
 
     const hasDataHistory = sheet?.hasDataHistory
-    const tabsData = [...sheet?.hasHistory ? [{
-        label: "patient_history",
-        label_mobile: "patient_history",
-        value: "patient history"
-    }] : [], ...tabs]
+    const tabsData = [
+        ...sheet?.hasHistory && ability.can("manage", "consultation", "consultation__consultation__history__show") ? [{
+            label: "patient_history",
+            label_mobile: "patient_history",
+            value: "patient history"
+        }] : [],
+        ...(ability.can("manage", "consultation", "consultation__consultation__fiche__show") ? [{
+            label: "consultation_form",
+            label_mobile: "cfiche",
+            value: "consultation form"
+        }] : []),
+        ...(ability.can("manage", "consultation", "consultation__consultation__documents__show") ? [{
+            label: "documents",
+            label_mobile: "docs",
+            value: "documents"
+        }] : []),
+        ...(ability.can("manage", "consultation", "consultation__consultation__fees__show") ? [{
+            label: "medical_procedures",
+            label_mobile: "fees",
+            value: "medical procedures"
+        }] : [])
+    ]
 
     const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
@@ -1761,7 +1786,7 @@ function ConsultationInProgress() {
                     open={openDialog}
                     PaperProps={{
                         sx: {
-                            overflow:'hidden'
+                            overflow: 'hidden'
                         }
                     }}
                     data={{
@@ -1911,7 +1936,7 @@ function ConsultationInProgress() {
                 />
             )}
 
-           {/* {!isMobile && <Draggable bounds="body">
+            {/* {!isMobile && <Draggable bounds="body">
                 <Fab sx={{
                     position: "fixed",
                     bottom: 82,

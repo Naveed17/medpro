@@ -33,6 +33,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
+import Can from "@features/casl/can";
 
 function AppToolbar({...props}) {
 
@@ -409,18 +410,21 @@ function AppToolbar({...props}) {
                                 "aria-labelledby": "basic-button",
                             }}>
                             {documentButtonList.map((item, index) => (
-                                <MenuItem
-                                    key={`document-button-list-${index}`}
-                                    onClick={() => handleClose(item.label)}>
-                                    <Icon path={item.icon}/>
-                                    {t(item.label)}
-                                    {changes.find((ch: {
-                                            index: number;
-                                        }) => ch.index === index) && changes.find((ch: {
-                                            index: number;
-                                        }) => ch.index === index).checked &&
-                                        <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
-                                </MenuItem>
+                                <Can I={"manage"} a={item.feature as any}
+                                     {...(item.permission && {field: item.permission})}>
+                                    <MenuItem
+                                        key={`document-button-list-${index}`}
+                                        onClick={() => handleClose(item.label)}>
+                                        <Icon path={item.icon}/>
+                                        {t(item.label)}
+                                        {changes.find((ch: {
+                                                index: number;
+                                            }) => ch.index === index) && changes.find((ch: {
+                                                index: number;
+                                            }) => ch.index === index).checked &&
+                                            <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
+                                    </MenuItem>
+                                </Can>
                             ))}
                         </StyledMenu>
                     </Stack>}
