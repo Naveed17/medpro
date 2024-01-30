@@ -101,11 +101,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         url: `${urlMedicalEntitySuffix}/professionals/${router.locale}`
     }, ReactQueryNoValidateConfig);
 
-    const {data: httpAppointmentTypesResponse} = useRequestQuery(medicalEntityHasUser ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/appointments/types/${router.locale}`
-    } : null, ReactQueryNoValidateConfig);
-
     const renderNoDataCard = <NoDataCard
         {...{t}}
         ns={'common'}
@@ -238,8 +233,10 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
                 dispatch(setPermissions({"agenda": defaultAgenda?.permissions.map(permission => permission?.slug)}));
             }
             if (defaultAgenda?.agenda) {
-                setAgenda(defaultAgenda?.agenda);
-                dispatch(setConfig({...defaultAgenda?.agenda}));
+                const agenda = defaultAgenda?.agenda;
+                setAgenda(agenda);
+                dispatch(setOngoing({appointmentTypes: agenda.appointmentType}));
+                dispatch(setConfig({...agenda}));
                 const agendas = agendasData.reduce((agendas: AgendaConfigurationModel[], agendaPermission: AgendaPermissionsModel) => [...(agendas ?? []), ...(agendaPermission.agenda ? [agendaPermission.agenda] : [])], []);
                 dispatch(setAgendas(agendas));
             }
@@ -294,13 +291,6 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
             dispatch(setView(general_information.agendaDefaultFormat));
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (httpAppointmentTypesResponse) {
-            const appointmentTypes = (httpAppointmentTypesResponse as HttpResponse)?.data as AppointmentTypeModel[];
-            dispatch(setOngoing({appointmentTypes}));
-        }
-    }, [dispatch, httpAppointmentTypesResponse]);
 
     useEffect(() => {
         if (httpProfessionalsResponse) {

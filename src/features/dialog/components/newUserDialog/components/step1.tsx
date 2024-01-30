@@ -1,26 +1,29 @@
-import React, { memo, useRef } from 'react'
+import React, {memo, useRef} from 'react'
 import DialogStyled from './overrides/dialogStyle';
-import { Box, Button, IconButton, Stack, TextField, Theme, Typography } from '@mui/material';
-import { CountrySelect } from '@features/countrySelect';
+import {Box, IconButton, Stack, TextField, Theme, Typography} from '@mui/material';
+import {CountrySelect} from '@features/countrySelect';
 import PhoneInput from 'react-phone-number-input/input';
-import { CustomInput } from '@features/tabPanel';
-import AddIcon from '@mui/icons-material/Add';
-import { CustomIconButton } from '@features/buttons';
+import {CustomInput} from '@features/tabPanel';
+import {CustomIconButton} from '@features/buttons';
 import IconUrl from '@themes/urlIcon';
-const PhoneCountry: any = memo(({ ...props }) => {
+import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
+
+const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
 });
 PhoneCountry.displayName = "Phone country";
-function Stept1({ ...props }) {
-    const { formik, t, doctor_country } = props;
-    const { getFieldProps, values, setFieldValue, errors, touched } = formik;
+
+function Step1({...props}) {
+    const {formik, t, doctor_country} = props;
+    const {getFieldProps, values, setFieldValue, errors, touched} = formik;
     const phoneInputRef = useRef(null);
+
     return (
         <DialogStyled spacing={2} width={1} pb={6}>
             <Typography fontWeight={600} fontSize={20}>
                 {t("dialog.user")}
             </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} alignItems='center' spacing={1.25} width={1}>
+            <Stack direction={{xs: 'column', sm: 'row'}} alignItems='center' spacing={1.25} width={1}>
                 <Stack width={1}>
                     <Typography gutterBottom>
                         {t("dialog.family_name")}
@@ -31,9 +34,7 @@ function Stept1({ ...props }) {
                         fullWidth
                         {...getFieldProps('name')}
                         error={Boolean(errors.name && touched.name)}
-
                     />
-
                 </Stack>
                 <Stack width={1}>
                     <Typography gutterBottom>
@@ -45,10 +46,7 @@ function Stept1({ ...props }) {
                         fullWidth
                         {...getFieldProps('first_name')}
                         error={Boolean(errors.first_name && touched.first_name)}
-
-
                     />
-
                 </Stack>
             </Stack>
 
@@ -59,8 +57,9 @@ function Stept1({ ...props }) {
                 </Typography>
                 <Stack spacing={1.25}>
                     {values.phones.map((phoneObject: any, index: number) => (
-                        <Stack direction={{ xs: 'column', sm: 'row' }} key={index} alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={1.25} width={1}>
-                            <Box minWidth={{ xs: '100%', sm: 150 }}>
+                        <Stack direction={{xs: 'column', sm: 'row'}} key={index}
+                               alignItems={{xs: 'flex-start', sm: 'center'}} spacing={1.25} width={1}>
+                            <Box minWidth={{xs: '100%', sm: 150}}>
                                 <PhoneCountry
                                     initCountry={getFieldProps(`phones[${index}].dial`).value}
                                     onSelect={(state: any) => {
@@ -86,7 +85,7 @@ function Stept1({ ...props }) {
                                     index === 0 ? (
                                         <CustomIconButton
                                             variant="filled"
-                                            sx={{ p: .8, bgcolor: (theme: Theme) => theme.palette.success.light }}
+                                            sx={{p: .8, bgcolor: (theme: Theme) => theme.palette.success.light}}
                                             color='success'
                                             onClick={() => {
                                                 setFieldValue(`phones`, [
@@ -94,9 +93,8 @@ function Stept1({ ...props }) {
                                                     {
                                                         phone: "", dial: doctor_country
                                                     }])
-                                            }}
-                                        >
-                                            {<AddIcon />}
+                                            }}>
+                                            {<AgendaAddViewIcon/>}
                                         </CustomIconButton>
                                     ) : (
                                         <IconButton
@@ -114,7 +112,7 @@ function Stept1({ ...props }) {
                                                 setFieldValue(`phones`, phones)
                                             }}
                                             size="small">
-                                            <IconUrl path="setting/icdelete" />
+                                            <IconUrl path="setting/icdelete"/>
                                         </IconButton>
                                     )
                                 }
@@ -137,7 +135,7 @@ function Stept1({ ...props }) {
 
                 />
             </Stack>
-            <Stack direction={{ xs: 'column', sm: 'row' }} alignItems='center' spacing={1.25} width={1}>
+            <Stack direction={{xs: 'column', sm: 'row'}} alignItems='center' spacing={1.25} width={1}>
                 <Stack width={1}>
                     <Typography gutterBottom>
                         {t("dialog.password")}
@@ -166,13 +164,11 @@ function Stept1({ ...props }) {
                         fullWidth
                         error={Boolean(touched.confirm_password && errors.confirm_password)}
                         {...getFieldProps("confirm_password")}
-
                     />
-
                 </Stack>
             </Stack>
         </DialogStyled>
     )
 }
 
-export default Stept1
+export default Step1

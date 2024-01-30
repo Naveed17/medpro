@@ -78,6 +78,10 @@ const RootSyled = styled(Grid)(({theme}) => ({
 
         }
     },
+    '& .MuiSvgIcon-root': {
+        width: 20,
+        height: 20
+    }
 }));
 
 export default RootSyled;

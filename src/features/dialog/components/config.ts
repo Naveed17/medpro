@@ -53,7 +53,7 @@ const dialogData = [
         action: "createCashBox",
         component: dynamic((): any =>
             import(
-                "@features/dialog/components/createCashBox/createCashBoxDialog"
+                "@features/dialog/components/createCashBox/components/createCashBoxDialog"
                 ).then((mod) => mod)
         ),
     },
@@ -69,6 +69,14 @@ const dialogData = [
         action: "remove",
         component: dynamic((): any =>
             import("@features/dialog/components/removeDialog/removeDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "used",
+        component: dynamic((): any =>
+            import("@features/dialog/components/unusedDialog/unusedDialog").then(
                 (mod) => mod
             )
         ),

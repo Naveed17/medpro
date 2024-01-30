@@ -18,17 +18,19 @@ import { SettingBarStyled } from "@features/leftActionBar";
 import { useTranslation } from "next-i18next";
 import IconUrl from "@themes/urlIcon";
 import { LoadingScreen } from "@features/loadingScreen";
-import { useAppSelector } from "@lib/redux/hooks";
-import { agendaSelector } from "@features/calendar";
 import Can from "@features/casl/can";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
 
 function Settings() {
+    const { data: session } = useSession();
     const router = useRouter();
 
     const { t, ready } = useTranslation("settings");
-    const { config: agendaConfig } = useAppSelector(agendaSelector);
 
-    const locations = agendaConfig?.locations;
+    const { data: user } = session as Session;
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const locations = medical_entity?.location ?? null;
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"} />);
 
@@ -57,7 +59,7 @@ function Settings() {
                                     className={router.pathname === item.href ? 'active' : ''}
                                     disablePadding>
                                     <ListItemButton
-                                        onClick={() => router.push(`${locations && locations?.length > 0 && item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations[0]}` : item.href}`)}
+                                        onClick={() => router.push(`${item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations && locations[0]}` : item.href}`)}
                                         disabled={item.disable}
                                         disableRipple>
                                         <ListItemIcon>

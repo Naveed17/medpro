@@ -29,6 +29,7 @@ import RootLayout from "@features/base/components/rootLayout/rootLayout";
 import {ConditionalWrapper} from "@lib/hooks";
 import {CloseSnackbarAction} from "@features/popup";
 import StoreProvider from "@lib/redux/storeProvider";
+import moment from "moment-timezone";
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;

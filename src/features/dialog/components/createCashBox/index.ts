@@ -1,1 +1,1 @@
-export { default as CreateCashboxDialog } from './createCashBoxDialog';
+export * from './components';

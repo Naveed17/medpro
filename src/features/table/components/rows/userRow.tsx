@@ -173,7 +173,6 @@ function UserRow({...props}) {
                     <Box display="flex" sx={{float: "right"}} alignItems="center">
                         <Can I={"manage"} a={"settings"} field={"settings__users__update"}>
                             {row?.ssoId === currentUser && <IconButton
-
                                 size="small"
                                 color="primary"
                                 className="btn-edit"

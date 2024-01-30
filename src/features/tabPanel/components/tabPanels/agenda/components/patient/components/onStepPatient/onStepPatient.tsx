@@ -34,7 +34,6 @@ import {useRequestQuery} from "@lib/axios";
 import {useRouter} from "next/router";
 import {styled} from "@mui/material/styles";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
 import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import {countries as dialCountries} from "@features/countrySelect/countries";
@@ -51,9 +50,7 @@ import {LoadingButton} from "@mui/lab";
 import {CountrySelect} from "@features/countrySelect";
 import {arrayUniqueByKey, getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
-
 import {LoadingScreen} from "@features/loadingScreen";
-import {agendaSelector} from "@features/calendar";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -119,12 +116,11 @@ function OnStepPatient({...props}) {
     const {patient: selectedPatient} = useAppSelector(appointmentSelector);
     const {stepsData: patient} = useAppSelector(addPatientSelector);
     const {last_fiche_id} = useAppSelector(dashLayoutSelector);
-    const {config: agendaConfig} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
-    const locations = agendaConfig?.locations;
+    const locations = medical_entity?.location ?? null;
 
     const RegisterPatientSchema = Yup.object().shape({
         firstName: Yup.string()
@@ -309,7 +305,7 @@ function OnStepPatient({...props}) {
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
-    const {data: httpProfessionalLocationResponse} = useRequestQuery((expanded && locations && locations.length > 0 && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
+    const {data: httpProfessionalLocationResponse} = useRequestQuery((expanded && locations && (address?.length > 0 && !address[0].city || address.length === 0)) ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/locations/${(locations[0] as string)}/${router.locale}`
     } : null, ReactQueryNoValidateConfig);

@@ -67,7 +67,7 @@ function Home() {
     const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
     return ((!hasMultiMedicalEntities || hasSelectedEntity) ?
-            <Redirect to={features?.length > 0 ? `/dashboard/${features[0].slug}` : `/dashboard/agenda`}/>
+            <Redirect to={features?.length > 0 ? `/dashboard/${features[0].root}` : `/dashboard/agenda`}/>
             :
             <Box className={styles.container} dir={dir}>
                 <main className={styles.main}>

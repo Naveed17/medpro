@@ -1029,9 +1029,11 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
     const baseURL: string = process.env.NEXT_PUBLIC_API_URL || "";
 
     const countries = `api/public/places/countries/${locale}?nationality=true`;
+    //const insurances = `api/public/insurances/${locale}`;
     const contactTypes = `api/public/contact-type/${locale}`;
 
     await queryClient.prefetchQuery([`/${countries}`], () => fetch(`${baseURL}${countries}`, {method: "GET"}).then(response => response.json()));
+    //await queryClient.prefetchQuery([`/${insurances}`], () => fetch(`${baseURL}${insurances}`, {method: "GET"}).then(response => response.json()));
     await queryClient.prefetchQuery([`/${contactTypes}`], () => fetch(`${baseURL}${contactTypes}`, {method: "GET"}).then(response => response.json()));
 
     return {

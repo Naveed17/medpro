@@ -36,7 +36,7 @@ function SignIn() {
                 button
                 {...{color: "error", ...(error && {text: "loading-error"})}}
             /> :
-            <Redirect to={features?.length > 0 ? `/dashboard/${features[0].slug}` : `/dashboard/agenda`}/>)
+            <Redirect to={features?.length > 0 ? `/dashboard/${features[0].root}` : `/dashboard/agenda`}/>)
 }
 
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
