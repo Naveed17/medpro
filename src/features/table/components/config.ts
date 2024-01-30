@@ -229,6 +229,15 @@ const rowsActionsData = [
             )
         ),
     },
+    {
+        action: "actfees-collapse",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/actsFeesCollapseRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+
 ];
 
 export default rowsActionsData;

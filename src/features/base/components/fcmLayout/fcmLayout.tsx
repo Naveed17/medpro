@@ -2,11 +2,18 @@ import React, {useEffect, useState} from "react";
 import {firebaseCloudSdk} from "@lib/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
+    Avatar,
+    Badge,
     Dialog,
     DialogContent,
     DialogTitle,
+    Drawer,
+    Fab,
     Paper,
-    PaperProps, useTheme
+    PaperProps,
+    Stack,
+    Typography,
+    useTheme
 } from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
@@ -21,16 +28,15 @@ import {
     setStepperIndex
 } from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
+import {AgendaPopupAction, ConsultationPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
-import {Dialog as CustomDialog} from "@features/dialog";
+import {Dialog as CustomDialog, setMoveDateTime} from "@features/dialog";
 import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
 import {resetTimer} from "@features/card";
 import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import {DefaultCountry, EnvPattern} from "@lib/constants";
-import {setMoveDateTime} from "@features/dialog";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
@@ -40,6 +46,10 @@ import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
 import {buildAbilityFor} from "@lib/rbac/casl/ability";
 import {AbilityContext} from "@features/casl/can";
+import {useChannel, useConnectionStateListener, usePresence} from "ably/react";
+import IconUrl from "@themes/urlIcon";
+import {Chat} from "@features/chat";
+import useUsers from "@lib/hooks/rest/useUsers";
 import {caslSelector} from "@features/casl";
 
 function PaperComponent(props: PaperProps) {
@@ -56,6 +66,7 @@ function FcmLayout({...props}) {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {users} = useUsers();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
@@ -72,6 +83,12 @@ function FcmLayout({...props}) {
     const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
+    const [open, setOpen] = React.useState(false);
+    const [messages, updateMessages] = useState<any[]>([]);
+    const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
+    const [hasMessage, setHasMessage] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
@@ -81,6 +98,8 @@ function FcmLayout({...props}) {
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
+    const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
+    const audio = new Audio("/sound/beep.mp3");
     const ability = buildAbilityFor(features ?? [], permissions);
 
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
@@ -229,6 +248,22 @@ function FcmLayout({...props}) {
         }
     };
 
+    const saveInbox = (msg: Message, userUuid: string) => {
+        if (selectedUser?.uuid === userUuid)
+            updateMessages((prev) => [...prev, msg])
+
+        let _local = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
+
+
+        if (_local) {
+            const msgs = [..._local[userUuid], msg];
+            if (_local[userUuid]) _local[userUuid] = msgs
+            else _local = {..._local, [userUuid]: msgs}
+        } else _local = {[userUuid]: [msg]};
+
+        localStorage.setItem("chat", JSON.stringify(_local))
+    }
+
     useEffect(() => {
         if (general_information) {
             const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
@@ -307,11 +342,59 @@ function FcmLayout({...props}) {
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+    useConnectionStateListener((stateChange) => {
+        console.log("current", stateChange.current);  // the new connection state
+        console.log("error", stateChange.reason);  // the new connection state
+    });
+
+    const {channel} = useChannel(medical_entity?.uuid, (message) => {
+        if (message.name === medicalEntityHasUser) {
+            audio.play()
+
+            saveInbox({
+                from: message.clientId,
+                to: medicalEntityHasUser,
+                data: message.data,
+                date: new Date(message.timestamp)
+            }, message.clientId)
+            const _user = users.find(user => user.uuid === message.clientId)
+            setMessage({user: `${_user?.FirstName} ${_user?.lastName}`, message: message.data})
+            setTimeout(() => setMessage(null), 3000)
+            setHasMessage(true)
+
+        }
+    });
+
+    const {presenceData} = usePresence(medical_entity?.uuid, 'actif');
+
     return (
-        <>
-            <AbilityContext.Provider value={ability}>
-                {props.children}
-            </AbilityContext.Provider>
+        <AbilityContext.Provider value={ability}>
+            {props.children}
+
+            <Drawer
+                anchor={"right"}
+                open={open}
+                PaperProps={{
+                    sx: {
+                        width: {xs: "100%", md: 800},
+                    }
+                }}
+                onClose={() => setOpen(false)}>
+                <Chat {...{
+                    channel,
+                    messages,
+                    selectedUser,
+                    setSelectedUser,
+                    updateMessages,
+                    medicalEntityHasUser,
+                    saveInbox,
+                    medical_entity,
+                    presenceData,
+                    users,
+                    setHasMessage
+                }} />
+            </Drawer>
+
             <CustomDialog
                 action={"payment_dialog"}
                 {...{
@@ -430,7 +513,43 @@ function FcmLayout({...props}) {
                         }}
                     />}
             </Dialog>
-        </>
+
+            <Stack direction={"row"}
+                   spacing={2}
+                   alignItems={'center'}
+                   style={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>
+                {message && <Stack direction={"row"}
+                                   padding={1}
+                                   spacing={2}
+                                   borderRadius={2}
+                                   alignItems={"center"}
+                                   style={{
+                                       background: theme.palette.info.main,
+                                       width: 300,
+                                       boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px"
+                                   }}>
+                    <Avatar sx={{bgcolor: theme.palette.primary.main}}>W</Avatar>
+                    <Stack spacing={0} width={"100%"}>
+                        <Stack direction={"row"} justifyContent={"space-between"}>
+                            <Typography fontSize={12}>{message.user}</Typography>
+                            <Typography fontSize={11} color={"#7C878E"}
+                                        fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
+                        </Stack>
+                        <Typography>{message.message.replace(/<[^>]+>/g, '')}</Typography>
+                    </Stack>
+                </Stack>}
+                <Fab color="info"
+                     style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
+                     onClick={() => {
+                         setOpen(true)
+                     }}>
+                    <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
+                        <IconUrl path={"chat"} width={30} height={30}/>
+                    </Badge>
+                </Fab>
+            </Stack>
+
+        </AbilityContext.Provider>
     );
 }
 

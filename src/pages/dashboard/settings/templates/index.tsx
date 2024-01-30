@@ -145,7 +145,7 @@ function TemplatesConfig() {
         setIsHovering("");
     };
     const edit = (res: any) => {
-        router.push(res.header.data.isNew ?`/dashboard/settings/templates/new/${res.uuid}` :`/dashboard/settings/templates/${res.uuid}`);
+        router.push(res.header.data.isNew ? `/dashboard/settings/templates/new/${res.uuid}` : `/dashboard/settings/templates/${res.uuid}`);
     };
 
     const handleEditDoc = (res: CertifModel) => {
@@ -348,7 +348,7 @@ function TemplatesConfig() {
                                     <div
                                         className={"portraitA4"}
                                         onClick={() => {
-                                            router.push(`/dashboard/settings/templates/new`);
+                                            router.push(`/dashboard/settings/templates/new/new`);
                                         }}
                                         style={{
                                             width: "100%",
@@ -418,7 +418,7 @@ function TemplatesConfig() {
                                                     <IconButton
                                                         size="small"
                                                         onClick={() => {
-                                                            edit(res.uuid);
+                                                            edit(res);
                                                         }}>
                                                         <IconUrl color={theme.palette.primary.main}
                                                                  path="ic-edit-patient"/>
