@@ -1,7 +1,5 @@
 import {styled} from "@mui/material/styles";
 
-const radius = 10;
-
 const ChatStyled = styled("div")(({theme}) => ({
     flex: 1,
     backgroundColor: theme.palette.grey["A400"],
