@@ -600,7 +600,7 @@ function ActFees() {
                         borderColor="divider"
                     >
                         <Typography variant="h6">{t("acts")}</Typography>
-                        <TextField
+                        {/*<TextField
                             placeholder={t("search")}
                             InputProps={{
                                 startAdornment: (
@@ -609,7 +609,7 @@ function ActFees() {
                                     </InputAdornment>
                                 ),
                             }}
-                        />
+                        />*/}
                     </Stack>
                     <DesktopContainer>
                         <Otable
