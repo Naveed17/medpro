@@ -368,10 +368,33 @@ function FcmLayout({...props}) {
     const {presenceData} = usePresence(medical_entity?.uuid, 'actif');
 
     return (
-        <>
-            <AbilityContext.Provider value={ability}>
-                {props.children}
-            </AbilityContext.Provider>
+        <AbilityContext.Provider value={ability}>
+            {props.children}
+
+            <Drawer
+                anchor={"right"}
+                open={open}
+                PaperProps={{
+                    sx: {
+                        width: {xs: "100%", md: 800},
+                    }
+                }}
+                onClose={() => setOpen(false)}>
+                <Chat {...{
+                    channel,
+                    messages,
+                    selectedUser,
+                    setSelectedUser,
+                    updateMessages,
+                    medicalEntityHasUser,
+                    saveInbox,
+                    medical_entity,
+                    presenceData,
+                    users,
+                    setHasMessage
+                }} />
+            </Drawer>
+
             <CustomDialog
                 action={"payment_dialog"}
                 {...{
@@ -502,14 +525,15 @@ function FcmLayout({...props}) {
                                    alignItems={"center"}
                                    style={{
                                        background: theme.palette.info.main,
-                                       width:300,
+                                       width: 300,
                                        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px"
                                    }}>
                     <Avatar sx={{bgcolor: theme.palette.primary.main}}>W</Avatar>
                     <Stack spacing={0} width={"100%"}>
                         <Stack direction={"row"} justifyContent={"space-between"}>
                             <Typography fontSize={12}>{message.user}</Typography>
-                            <Typography fontSize={11} color={"#7C878E"} fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
+                            <Typography fontSize={11} color={"#7C878E"}
+                                        fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
                         </Stack>
                         <Typography>{message.message.replace(/<[^>]+>/g, '')}</Typography>
                     </Stack>
@@ -525,31 +549,7 @@ function FcmLayout({...props}) {
                 </Fab>
             </Stack>
 
-
-            <Drawer
-                anchor={"right"}
-                open={open}
-                PaperProps={{
-                    sx: {
-                        width: {xs: "100%", md: 800},
-                    }
-                }}
-                onClose={() => setOpen(false)}>
-                <Chat {...{
-                    channel,
-                    messages,
-                    selectedUser,
-                    setSelectedUser,
-                    updateMessages,
-                    medicalEntityHasUser,
-                    saveInbox,
-                    medical_entity,
-                    presenceData,
-                    users,
-                    setHasMessage
-                }} />
-            </Drawer>
-        </>
+        </AbilityContext.Provider>
     );
 }
 
