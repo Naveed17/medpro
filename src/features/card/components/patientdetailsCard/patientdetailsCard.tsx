@@ -76,7 +76,7 @@ function PatientDetailsCard({...props}) {
             name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
         },
-        onSubmit: (values) => {
+        onSubmit: () => {
             return undefined
         }
     });
