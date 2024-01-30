@@ -55,39 +55,37 @@ function Patient() {
             },
             expanded: true,
             children: (
-                <FilterRootStyled>
-                    <PatientFilter
-                        {...{t}}
-                        OnSearch={(data: { query: ActionBarState }) => {
-                            handleFilterChange({patient: data.query});
-                        }}
-                        item={{
-                            heading: {
-                                icon: "ic-patient",
-                                title: "patient",
-                            },
-                            textField: {
-                                labels: [
-                                    {label: "name", placeholder: "search"},
-                                    {label: "birthdate", placeholder: "--/--/----"},
-                                ],
-                            },
-                            gender: {
-                                heading: "gender",
-                                genders: ["male", "female"],
-                            },
-                            hasDouble: {
-                                heading: "duplication"
-                            },
-                            ...(isBeta && {
-                                rest: {
-                                    heading: "unPayed"
-                                }
-                            })
-                        }}
-                        keyPrefix={"filter."}
-                    />
-                </FilterRootStyled>
+                <PatientFilter
+                    {...{t}}
+                    OnSearch={(data: { query: ActionBarState }) => {
+                        handleFilterChange({patient: data.query});
+                    }}
+                    item={{
+                        heading: {
+                            icon: "ic-patient",
+                            title: "patient",
+                        },
+                        textField: {
+                            labels: [
+                                {label: "name", placeholder: "search"},
+                                {label: "birthdate", placeholder: "--/--/----"},
+                            ],
+                        },
+                        gender: {
+                            heading: "gender",
+                            genders: ["male", "female"],
+                        },
+                        hasDouble: {
+                            heading: "duplication"
+                        },
+                        ...(isBeta && {
+                            rest: {
+                                heading: "unPayed"
+                            }
+                        })
+                    }}
+                    keyPrefix={"filter."}
+                />
             ),
         },
         {
@@ -137,10 +135,7 @@ function Patient() {
             children: (<AppointmentDisease OnSearch={(data: any) => {
                 handleFilterChange(data);
             }}/>)
-        }
-    ]);
-
-    const [dataPlace, setDataPlace] = useState([
+        },
         {
             heading: {
                 id: collapse[1].heading.title,
@@ -160,7 +155,7 @@ function Patient() {
                     />
                 </FilterRootStyled>
             ),
-        },
+        }
     ]);
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
@@ -180,11 +175,6 @@ function Patient() {
                     translate={{t, ready}}
                     data={dataPatient}
                     setData={setDataPatient}
-                />
-                <Accordion
-                    translate={{t, ready}}
-                    data={dataPlace}
-                    setData={setDataPlace}
                 />
             </FilterContainerStyles>
         </>
