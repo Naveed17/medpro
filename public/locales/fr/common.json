@@ -235,7 +235,7 @@
     "sign_sub_title_1": "Connectez-vous en un seul clic",
     "sign_sub_title_2": "avec votre réseau social préféré",
     "sign_med_connect": "Se connecter avec Med",
-    "sign_divider": "or",
+    "sign_divider": "ou",
     "sign_email_placeholder": "Email ou Numéro de téléphone",
     "sign_pass_placeholder": "Mot de passe",
     "sign_reset_pass": "Mot de passe oublié ?",
@@ -499,5 +499,15 @@
   "big": "Fichier trop gros max 40 mo",
   "long": "Nom de fichier trop long",
   "Male": "Homme",
-  "Female": "Femme"
+  "Female": "Femme",
+  "chat": {
+    "prev_msgs": "Messages précédents",
+    "you": "Vous",
+    "seen": "Vu",
+    "send": "Envoyer",
+    "msg_placeholder": "Tapez votre message ici...",
+    "noDes": "Pas de discussion en cours",
+    "chooseUser1": "Choisissez une personne dans le menu de gauche",
+    "chooseUser2": "et entamez une conversation."
+  }
 }

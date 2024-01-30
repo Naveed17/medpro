@@ -1,26 +1,33 @@
 {
+  "patientSpace": "مساحة المريض",
+  "lang": "اللغة",
   "main-menu": {
-    "agenda": "جدول مواعيدي",
-    "room": "قاعة انتظار",
-    "patient": "سجل مرضايا",
-    "message": "رسائلي",
+    "agenda": "الأجندة",
+    "waiting-room": "غرفة الانتظار",
+    "patient": "المرضى",
+    "message": "رسالة",
     "articles": "مقالات",
-    "questions": "أسئلة طبية",
-    "shop": "خدماتي",
-    "wallet": "محفظتى",
-    "stats": "إحصائيات",
+    "questions": "أسئلة",
+    "documents": "مستند",
+    "shop": "المتجر",
+    "wallet": "محفظتي",
+    "statistics": "إحصائيات",
     "settings": "الإعدادات",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "cashbox": "صندوق النقد",
+    "inventory": "الجرد",
+    "consultation": "الاستشارة"
   },
-  "doctor-dropdown":{
-    "news" : "اخر الاخبار",
+  "doctor-dropdown": {
+    "news": "سلسلة الأخبار",
     "messages": "رسائلي",
-    "questions": "أسئلة طبية",
+    "questions": "الأسئلة الطبية",
     "articles": "المجلة الطبية",
     "wallet": "خدماتي",
-    "settings": "حسابي",
+    "settings": "الإعدادات",
     "statistics": "إحصائيات",
-    "switch-agenda": "إعادة تعيين جدول مواعيدي",
+    "switch-agenda": "إعادة تعيين الأجندة",
+    "switch-account": "تغيير الحساب",
     "logout": "تسجيل الخروج"
   }
 }

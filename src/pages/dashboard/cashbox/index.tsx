@@ -328,7 +328,7 @@ function Cashbox() {
     }, [httpTransactionsResponse]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        if (filterCB) getConsultation(filterCB.start_date, filterCB.end_date);
+        if (filterCB && filterCB.start_date) getConsultation(filterCB.start_date, filterCB.end_date);
     }, [filterCB]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const txtGenerator = () => {

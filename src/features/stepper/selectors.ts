@@ -5,8 +5,5 @@ export const selectStepper = (state: RootState) => state;
 
 export const stepperSelector = createSelector(
   selectStepper,
-  (state) => state.stepper,
-    {
-        devModeChecks: {identityFunctionCheck: 'never'}
-    }
+  (state) => state.stepper
 );

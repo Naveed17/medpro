@@ -1911,7 +1911,7 @@ function ConsultationInProgress() {
                 />
             )}
 
-            {!isMobile && <Draggable bounds="body">
+           {/* {!isMobile && <Draggable bounds="body">
                 <Fab sx={{
                     position: "fixed",
                     bottom: 82,
@@ -1925,7 +1925,7 @@ function ConsultationInProgress() {
                      aria-label="edit">
                     <IconUrl path={'ic-chatbot'}/>
                 </Fab>
-            </Draggable>}
+            </Draggable>}*/}
 
             {(record || selectedAudio !== null) && <Draggable bounds="body" cancel=".btn-action">
                 <CardMedia
