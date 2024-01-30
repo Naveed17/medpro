@@ -14,7 +14,7 @@ const IconSwitch = styled(Switch)(({ theme }) => ({
             height: 16,
             backgroundImage: `url('data:image/svg+xml;utf8,<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="6.00012" r="5" stroke="white" stroke-width="2"/></svg>')`,
             backgroundRepeat:'no-repeat',
-            right: 9,
+            right:theme.direction === 'rtl' ? 12 :  9,
             top:12.5
         },
     },

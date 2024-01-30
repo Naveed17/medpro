@@ -4,6 +4,10 @@ div.MuiModal-root:has(> div[style*="opacity: 0"]) {
   pointer-events: none;
 }
 
+[lang="ar"] {
+  direction: rtl;
+}
+
 body {
   overflow: auto;
 
@@ -343,6 +347,7 @@ fieldset {
     box-shadow: none;
     zoom: 1;
   }
+
   .a4 {
     margin: 0;
     box-shadow: none;
@@ -357,7 +362,9 @@ fieldset {
 }
 
 @media print {
-  html, body {
+
+  html,
+  body {
     height: initial !important;
     overflow: initial !important;
     -webkit-print-color-adjust: exact;

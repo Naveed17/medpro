@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import {
     Avatar,
     Badge,
@@ -18,23 +18,23 @@ import AppToolbarStyled from "./overrides/appToolbarStyle";
 import AddIcon from "@mui/icons-material/Add";
 import StyledMenu from "./overrides/menuStyle";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import {documentButtonList} from "@features/toolbar/components/appToolbar/config";
+import { documentButtonList } from "@features/toolbar/components/appToolbar/config";
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
-import {useTranslation} from "next-i18next";
-import {useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
-import {useAppDispatch} from "@lib/redux/hooks";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {useRouter} from "next/router";
-import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
-import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
-import {openDrawer} from "@features/calendar";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
-import {CustomIconButton} from "@features/buttons";
+import { useTranslation } from "next-i18next";
+import { useProfilePhoto, useSendNotification } from "@lib/hooks/rest";
+import { useAppDispatch } from "@lib/redux/hooks";
+import { useInvalidateQueries, useMedicalEntitySuffix } from "@lib/hooks";
+import { useRouter } from "next/router";
+import { getPrescriptionUI } from "@lib/hooks/setPrescriptionUI";
+import { resetAppointment, setAppointmentPatient } from "@features/tabPanel";
+import { openDrawer } from "@features/calendar";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import { CustomIconButton } from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 
-function AppToolbar({...props}) {
+function AppToolbar({ ...props }) {
 
     const {
         selectedTab,
@@ -61,23 +61,23 @@ function AppToolbar({...props}) {
         prescription, checkUp, imagery,
         showDocument, setShowDocument
     } = props;
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const {data: session} = useSession();
-    const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
-    const {trigger: invalidateQueries} = useInvalidateQueries();
-    const {trigger: triggerNotificationPush} = useSendNotification();
+    const { data: session } = useSession();
+    const { patientPhoto } = useProfilePhoto({ patientId: patient?.uuid, hasPhoto: patient?.hasPhoto });
+    const { trigger: invalidateQueries } = useInvalidateQueries();
+    const { trigger: triggerNotificationPush } = useSendNotification();
 
-    const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+    const { t } = useTranslation("consultation", { keyPrefix: "consultationIP" })
 
     const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
     const open = Boolean(anchorEl);
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const general_information = (user as UserDataResponse).general_information;
-    const {jti} = session?.user as any;
+    const { jti } = session?.user as any;
 
     const mutateDoc = async () => {
         await invalidateQueries([docUrl]);
@@ -91,7 +91,7 @@ function AppToolbar({...props}) {
     const handleOpen = () => {
         dispatch(resetAppointment());
         dispatch(setAppointmentPatient(patient));
-        dispatch(openDrawer({type: "add", open: true}));
+        dispatch(openDrawer({ type: "add", open: true }));
     }
 
     const refreshDocSession = () => {
@@ -136,7 +136,7 @@ function AppToolbar({...props}) {
                 break;
             case "upload_document":
                 setInfo("add_a_document");
-                setState({name: "", description: "", type: "", files: []});
+                setState({ name: "", description: "", type: "", files: [] });
                 break;
             case "insurance_document_print":
                 setInfo("insurance_document_print");
@@ -237,13 +237,13 @@ function AppToolbar({...props}) {
                                 marginRight: 2,
                                 borderRadius: 2,
                             }}>
-                            <IconUrl width={"40"} height={"40"} path="men-avatar"/>
+                            <IconUrl width={"40"} height={"40"} path="men-avatar" />
                         </Avatar>
                         <Stack onClick={() => {
                             setFilterDrawer(true)
                         }}>
                             <Typography variant="body1" color='primary.main'
-                                        sx={{fontFamily: 'Poppins'}}>{patient.firstName} {patient.lastName}</Typography>
+                                sx={{ fontFamily: 'Poppins' }}>{patient.firstName} {patient.lastName}</Typography>
                             <Typography variant="body2" color="text.secondary">{patient.fiche_id}</Typography>
                         </Stack>
                     </Stack>}
@@ -252,17 +252,17 @@ function AppToolbar({...props}) {
                         spacing={1}
                         mb={1}
                         justifyContent="flex-end"
-                        sx={{width: {xs: "30%", md: "30%"}}}>
+                        sx={{ width: { xs: "30%", md: "30%" } }}>
                         <Button
-                            sx={{minWidth: 35}}
+                            sx={{ minWidth: 35 }}
                             size={"medium"}
                             onClick={handleClick}
                             variant="contained"
                             color="warning">
                             {
-                                isMobile ? <AddIcon/> :
+                                isMobile ? <AddIcon /> :
                                     <>
-                                        <AddIcon style={{marginRight: 5, fontSize: 18}}/> {t("add")}
+                                        <AddIcon style={{ marginRight: 5, fontSize: 18 }} /> {t("add")}
                                     </>
                             }
                         </Button>
@@ -287,12 +287,12 @@ function AppToolbar({...props}) {
                                 <MenuItem
                                     key={`document-button-list-${index}`}
                                     onClick={() => handleClose(item.label)}>
-                                    <Icon path={item.icon}/>
+                                    <Icon path={item.icon} />
                                     {t(item.label)}
                                     {changes.find((ch: { index: number; }) => ch.index === index) && changes.find((ch: {
-                                            index: number;
-                                        }) => ch.index === index).checked &&
-                                        <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
+                                        index: number;
+                                    }) => ch.index === index).checked &&
+                                        <CheckCircleIcon color={"success"} sx={{ width: 15, ml: 1 }} />}
                                 </MenuItem>
                             ))}
                         </StyledMenu>
@@ -308,9 +308,9 @@ function AppToolbar({...props}) {
                         value={selectedTab}
                         onChange={handleChangeTab}
                         sx={{
-                            width: {xs: "100%", md: "70%"},
+                            width: { xs: "100%", md: "70%" },
                             [`& .${tabsClasses.scrollButtons}`]: {
-                                '&.Mui-disabled': {opacity: 0.5},
+                                '&.Mui-disabled': { opacity: 0.5 },
                             }
                         }}
                         variant={isMobile ? "scrollable" : "standard"}
@@ -336,7 +336,7 @@ function AppToolbar({...props}) {
                         alignItems={"center"}
                         mb={1}
                         justifyContent={"flex-end"}
-                        sx={{width: {xs: "30%", md: "30%"}}}>
+                        sx={{ width: { xs: "30%", md: "30%" } }}>
                         <CustomIconButton
                             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
                                 setAnchorEl(event.currentTarget);
@@ -344,28 +344,28 @@ function AppToolbar({...props}) {
                             variant="filled"
                             color={"warning"}
                             size={"small"}>
-                            <AgendaAddViewIcon color={theme.palette.text.primary}/>
+                            <AgendaAddViewIcon color={theme.palette.text.primary} />
                         </CustomIconButton>
 
                         {selectedTab === 'consultation_form' &&
                             <Zoom in={selectedTab === 'consultation_form'}
-                                  style={{transitionDelay: selectedTab === 'consultation_form' ? '500ms' : '0ms'}}>
+                                style={{ transitionDelay: selectedTab === 'consultation_form' ? '500ms' : '0ms' }}>
                                 <Tooltip title={t("documents")}>
                                     <Badge badgeContent={nbDoc} showZero={true} color="primary">
                                         <IconButton onClick={() => setShowDocument(!showDocument)}
-                                                    style={{
-                                                        borderRadius: "0.625rem",
-                                                        border: "1px solid var(--secondaire-gris-claire, #DDD)",
-                                                        width: 40
-                                                    }}>
-                                            <IconUrl path={"doc"}/>
+                                            style={{
+                                                borderRadius: "0.625rem",
+                                                border: "1px solid var(--secondaire-gris-claire, #DDD)",
+                                                width: 40
+                                            }}>
+                                            <IconUrl path={"doc"} />
                                         </IconButton>
                                     </Badge>
                                 </Tooltip>
                             </Zoom>}
 
                         <StyledMenu
-                            {...{open, anchorEl}}
+                            {...{ open, anchorEl }}
                             id="basic-menu"
                             elevation={0}
                             anchorOrigin={{
@@ -389,18 +389,22 @@ function AppToolbar({...props}) {
                                             ml: -0.5,
                                             mr: 1,
                                         },
-                                        '&:before': {
-                                            content: '""',
-                                            display: 'block',
-                                            position: 'absolute',
-                                            top: 0,
-                                            right: 14,
-                                            width: 10,
-                                            height: 10,
-                                            bgcolor: 'text.primary',
-                                            transform: 'translateY(-50%) rotate(45deg)',
-                                            zIndex: 0,
-                                        },
+                                        ...(theme.direction !== 'rtl' && {
+                                            '&:before': {
+                                                content: '""',
+                                                display: 'block',
+                                                position: 'absolute',
+                                                top: 0,
+                                                right: 14,
+                                                width: 10,
+                                                height: 10,
+                                                bgcolor: 'text.primary',
+                                                transform: 'translateY(-50%) rotate(45deg)',
+                                                zIndex: 0,
+
+                                            },
+                                        }),
+
                                     },
                                 }
                             }}
@@ -412,14 +416,14 @@ function AppToolbar({...props}) {
                                 <MenuItem
                                     key={`document-button-list-${index}`}
                                     onClick={() => handleClose(item.label)}>
-                                    <Icon path={item.icon}/>
+                                    <Icon path={item.icon} />
                                     {t(item.label)}
                                     {changes.find((ch: {
-                                            index: number;
-                                        }) => ch.index === index) && changes.find((ch: {
-                                            index: number;
-                                        }) => ch.index === index).checked &&
-                                        <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
+                                        index: number;
+                                    }) => ch.index === index) && changes.find((ch: {
+                                        index: number;
+                                    }) => ch.index === index).checked &&
+                                        <CheckCircleIcon color={"success"} sx={{ width: 15, ml: 1 }} />}
                                 </MenuItem>
                             ))}
                         </StyledMenu>
