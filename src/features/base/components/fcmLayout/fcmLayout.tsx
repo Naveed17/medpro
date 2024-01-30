@@ -49,7 +49,6 @@ import {AbilityContext} from "@features/casl/can";
 import {useChannel, useConnectionStateListener, usePresence} from "ably/react";
 import IconUrl from "@themes/urlIcon";
 import {Chat} from "@features/chat";
-import useUsers from "@lib/hooks/rest/useUsers";
 import {caslSelector} from "@features/casl";
 
 function PaperComponent(props: PaperProps) {
@@ -66,7 +65,6 @@ function FcmLayout({...props}) {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {users} = useUsers();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
@@ -350,18 +348,16 @@ function FcmLayout({...props}) {
     const {channel} = useChannel(medical_entity?.uuid, (message) => {
         if (message.name === medicalEntityHasUser) {
             audio.play()
-
+            const payload = JSON.parse(message.data);
             saveInbox({
                 from: message.clientId,
                 to: medicalEntityHasUser,
-                data: message.data,
+                data: payload.data,
                 date: new Date(message.timestamp)
             }, message.clientId)
-            const _user = users.find(user => user.uuid === message.clientId)
-            setMessage({user: `${_user?.FirstName} ${_user?.lastName}`, message: message.data})
+            setMessage({user: payload.user, message: payload.data})
             setTimeout(() => setMessage(null), 3000)
             setHasMessage(true)
-
         }
     });
 
@@ -390,7 +386,6 @@ function FcmLayout({...props}) {
                     saveInbox,
                     medical_entity,
                     presenceData,
-                    users,
                     setHasMessage
                 }} />
             </Drawer>

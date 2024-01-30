@@ -32,6 +32,9 @@ import {useAppSelector} from "@lib/redux/hooks";
 import {PatientDetail} from "@features/dialog";
 import {configSelector} from "@features/base";
 import PresenceMessage = Types.PresenceMessage;
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
+import useUsers from "@lib/hooks/rest/useUsers";
 
 interface IPatient {
     uuid: string,
@@ -50,23 +53,25 @@ const Chat = ({...props}) => {
         medicalEntityHasUser,
         saveInbox,
         presenceData,
-        setHasMessage,
-        users
+        setHasMessage
     } = props;
-
-
+    const {users} = useUsers();
+    const {data: session} = useSession();
     const theme = useTheme();
-    const {t} = useTranslation("common", {keyPrefix: "chat"});
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-    const {trigger: triggerSearchPatient} = useRequestQueryMutation("/patients/search");
+    const {data: user} = session as Session;
+    const general_information = (user as UserDataResponse).general_information;
+
+    const {t} = useTranslation("common", {keyPrefix: "chat"});
     const {direction} = useAppSelector(configSelector);
+
+    const {trigger: triggerSearchPatient} = useRequestQueryMutation("/patients/search");
 
     const [message, setMessage] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
     const [patientId, setPatientId] = useState("");
-
     const [lastMessages, setLastMessages] = useState<any>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [open, setOpen] = useState(false);
@@ -85,7 +90,7 @@ const Chat = ({...props}) => {
 
     const getUserName = (key: string) => {
         const _user = users.find((user: UserModel) => user.uuid === key)
-        return `${_user.FirstName} ${_user.lastName}`
+        return `${_user?.FirstName} ${_user?.lastName}`;
     }
 
     const getLastMessage = (key: string, data: string) => {
@@ -363,7 +368,10 @@ const Chat = ({...props}) => {
                                                 data: message,
                                                 date: new Date()
                                             }, selectedUser.uuid)
-                                            channel.publish(selectedUser.uuid, message)
+                                            channel.publish(selectedUser.uuid, JSON.stringify({
+                                                data: message,
+                                                user: `${general_information.firstName} ${general_information.lastName}`
+                                            }))
                                             setMessage("")
                                         }
                                         }
