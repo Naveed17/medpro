@@ -81,6 +81,7 @@ function PatientDetailsCard({...props}) {
     });
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+
     const {direction} = useAppSelector(configSelector);
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
