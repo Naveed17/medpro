@@ -1,5 +1,72 @@
 {
+  "add-doc": "إضافة وثيقة",
+  "add-complete": "إضافة كاملة",
+  "add-quick": "إضافة سريعة",
+  "scanner": "الماسح الضوئي",
   "sub-header": {
-    "title": "Documents"
+    "title": "المستندات",
+    "sub-title": "نتيجة تحليل الدم",
+    "add-doc": "إضافة وثيقة"
+  },
+  "document-in-progress": "المستندات قيد المعالجة",
+  "document-treated": "المستندات المعالجة",
+  "delete-document": "حذف المستند",
+  "preview-document": "معاينة المستند",
+  "wait": "فحص الملف...",
+  "classify-document": "تصنيف المستند",
+  "retry-ocr": "إعادة معالجة المستند بتقنية OCR",
+  "filter": {
+    "title": "تفاصيل المستند",
+    "sub-title": "فلتر",
+    "caption": "المستند",
+    "patient-suggested": "اقتراح المريض",
+    "name": "اسم المستند",
+    "name-placeholder": "اكتب اسم المستند",
+    "type": "نوع المستند",
+    "type-placeholder": "حدد النوع",
+    "assign": "الوجهة",
+    "assign-patient": "ملف المريض",
+    "assign-appointment": "الاستشارة",
+    "selected-appointment": "اختر الاستشارة",
+    "date": "تاريخ المستند",
+    "status": "حالة المستند"
+  },
+  "doc-status": {
+    "pending": "قيد المعالجة",
+    "finish": "تم المعالجة",
+    "failed": "فشلت المعالجة",
+    "affected": "تأثرت المعالجة"
+  },
+  "table": {
+    "header": {
+      "name": "الاسم",
+      "value": "القيمة المسجلة"
+    }
+  },
+  "no-data": {
+    "docs": {
+      "title": "أضف أول وثيقة",
+      "description": "ليس لديك أي وثائق طبية. قم بإضافة وثائقك عن طريق النقر على إضافة وثيقة",
+      "import": "استيراد وثيقة"
+    }
+  },
+  "dialogs": {
+    "add-dialog": {
+      "title": "إضافة وثيقة جديدة",
+      "upload-title": "قم بسحب وإسقاط وثيقة واحدة أو أكثر",
+      "upload-sub-title": "تصفح على جهاز الكمبيوتر الخاص بي",
+      "notification-title": "إشعار معالجة المستند",
+      "notification-desc": "قد يستغرق معالجة هذا المستند بعض الوقت. لديك خيار الانتظار حتى الانتهاء أو تصنيفه لاحقًا، حسب رغبتك.",
+      "scan-more": "مسح إضافي",
+      "scan-doc": "مسح المستند",
+      "scan-doc-desc": "قم بتصوير المستند، سيتم تقديمه تلقائيًا",
+      "list-title": "لضمان جودة وثائقك",
+      "list-1": "استخدم خلفية موحدة.",
+      "list-2": "تأكد من وجود إضاءة جيدة.",
+      "add-img-or-file": "إضافة صورة أو ملف",
+      "cancel": "إلغاء",
+      "later": "تصنيف لاحقًا",
+      "confirm": "تصنيف"
+    }
   }
 }

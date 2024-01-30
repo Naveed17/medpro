@@ -8,28 +8,97 @@ import {
     TextField,
     Typography,
     useMediaQuery,
-    Theme, useTheme,
+    Theme,
+    Tooltip,
+    Button,
+    Paper,
+    useTheme,
 } from "@mui/material";
-import {TableRowStyled} from "@features/table";
+import {Otable, TableRowStyled} from "@features/table";
 import React, {useEffect, useState} from "react";
 import IconUrl from "@themes/urlIcon";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {DefaultCountry} from "@lib/constants";
-import Can from "@features/casl/can";
-
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+const headCells: readonly HeadCell[] = [
+    {
+        id: "title",
+        numeric: false,
+        disablePadding: true,
+        label: "title",
+        sortable: true,
+        align: "left",
+    },
+    {
+        id: "type",
+        numeric: true,
+        disablePadding: false,
+        label: "type",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "exp_date",
+        numeric: true,
+        disablePadding: false,
+        label: "exp_date",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "mtt",
+        numeric: true,
+        disablePadding: false,
+        label: "mtt",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "tax",
+        numeric: true,
+        disablePadding: false,
+        label: "tax",
+        sortable: true,
+        align: "center",
+    },
+     {
+        id: "remb",
+        numeric: true,
+        disablePadding: false,
+        label: "remb",
+        sortable: true,
+        align: "center",
+    },
+     {
+        id: "tax_remb",
+        numeric: true,
+        disablePadding: false,
+        label: "tax_remb",
+        sortable: true,
+        align: "center",
+    },
+    {
+        id: "actions",
+        numeric: true,
+        disablePadding: false,
+        label: "actions",
+        sortable: false,
+        align: "right",
+    },
+];
 function ActFeesRow({...props}) {
-    const {row, editMotif, data, t} = props;
+    const {row, editMotif,handleEvent, data, t} = props;
+    const theme = useTheme()
     const isMobile = useMediaQuery((theme: Theme) =>
         theme.breakpoints.down("md")
     );
-    const theme = useTheme();
-
     const [fees, setFees] = useState("");
     const [contribution, setContribution] = useState("");
     const [code, setCode] = useState("");
     const [name, setName] = useState("");
     const [edit, setEdit] = useState("");
+    const [collapse,setCollapse] = useState(false)
 
     useEffect(() => {
         setFees(row?.fees);
@@ -46,9 +115,38 @@ function ActFeesRow({...props}) {
     const devise = doctor_country.currency?.name;
 
     return (
-        <TableRowStyled>
+        <>
+        <TableRowStyled className="act-fees-row"
+        {...(collapse && {
+            sx:{
+                "& > .MuiTableCell-root":{
+
+                    "&:first-of-type":{
+                        borderBottomLeftRadius: '0 !important',
+                    },
+                    "&:last-of-type":{
+                        borderBottomRightRadius: '0 !important',
+
+                }
+                }
+            }
+        })}
+        >
             <TableCell>
-                {edit === row?.uuid && !row?.act.isVerified ? (
+                <Stack direction='row' alignItems='center' spacing={2}>
+                    {/* <IconButton
+                     onClick={()=> setCollapse(!collapse)}
+                     sx={{
+                        border: 1,
+                        borderColor: 'divider',
+                        borderRadius: .7,
+                        width: 27,
+                        height: 27,
+
+                    }}>
+                        <IconUrl path="ic-expand"/>
+                    </IconButton>*/}
+                    {edit === row?.uuid && !row?.act.isVerified ? (
                     <TextField
                         placeholder={"--"}
                         value={name}
@@ -58,8 +156,14 @@ function ActFeesRow({...props}) {
                         }}
                     />
                 ) : (
-                    row?.act?.name
+                    <Tooltip title={row?.act?.name}>
+                    <Typography fontWeight={500} className="ellipsis" width={200}>
+                    {row?.act?.name}
+                    </Typography>
+                    </Tooltip>
                 )}
+                </Stack>
+
             </TableCell>
             <TableCell align={"center"}>
                 {edit === row?.uuid ? (
@@ -79,7 +183,7 @@ function ActFeesRow({...props}) {
                     />
                 ) : (
                     <Typography fontSize={14} letterSpacing={1}>
-                        {row?.code}
+                        {row?.code ? row?.code :"--"}
                     </Typography>
                 )}
             </TableCell>
@@ -101,7 +205,7 @@ function ActFeesRow({...props}) {
                     />
                 ) : (
                     <Typography fontSize={14} letterSpacing={1}>
-                        {row?.contribution}
+                        {row?.contribution ? row?.contribution:"--"}
                     </Typography>
                 )}
             </TableCell>
@@ -125,60 +229,63 @@ function ActFeesRow({...props}) {
                         }}
                     />
                 ) : (
-                    <Typography fontSize={14} letterSpacing={1}>
-                        {row?.fees} <span style={{fontSize: 9}}>{devise}</span>
+                    <Typography color='secondary'  fontWeight={700}>
+                        {row?.fees} {devise}
                     </Typography>
                 )}
             </TableCell>
             <TableCell align="right">
                 {row ? (
-                    <Box display="flex" sx={{float: "right"}} alignItems="center">
-                        <Can I={"manage"} a={"settings"} field={"settings__actfees__update"}>
-                            {edit === row.uuid ? (
-                                <IconButton
-                                    size="small"
-                                    disabled={fees?.length === 0}
-                                    color={"primary"}
-                                    sx={{mr: {md: 1}}}
-                                    onClick={() => {
-                                        editMotif(row, fees, name, code, contribution);
-                                        setTimeout(() => {
-                                            setEdit("");
-                                        }, 1000);
-                                    }}>
-                                    {!isMobile && <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>}
-                                    <Typography fontSize={11} ml={1}>
-                                        {t("save")}
-                                    </Typography>
-                                </IconButton>
-                            ) : (
-                                <IconButton
-                                    size="small"
-                                    sx={{mr: {md: 1}}}
-                                    onClick={() => {
-                                        setEdit(row.uuid);
-                                    }}>
-                                    <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
-                                </IconButton>
-                            )}
-                        </Can>
-                        <Can I={"manage"} a={"settings"} field={"settings__actfees__delete"}>
-                            {!row.hasData && <IconButton
-                                onClick={() => {
-                                    data.handleSelected(row);
-                                }}
+                    <Stack direction='row' spacing={1} alignItems="center" justifyContent='flex-end'>
+                         {edit === row.uuid ? (
+                            <IconButton
                                 size="small"
-                                sx={{
-                                    mr: {md: 1},
-                                    '& .react-svg svg': {
-                                        width: 20,
-                                        height: 20
-                                    }
+                                disabled={fees?.length === 0}
+                                color={"primary"}
+                                sx={{mr: {md: 1}}}
+                                onClick={() => {
+                                    editMotif(row, fees, name, code, contribution);
+                                    setTimeout(() => {
+                                        setEdit("");
+                                    }, 1000);
                                 }}>
-                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
-                            </IconButton>}
-                        </Can>
-                    </Box>
+                                {!isMobile && <IconUrl path="setting/edit"/>}
+
+                                <Typography fontSize={11} ml={1}>
+                                    {t("save")}
+                                </Typography>
+                            </IconButton>
+                        ) : (
+                            <IconButton
+                                size="small"
+                                sx={{mr: {md: 1}}}
+                                onClick={() => {
+                                    setEdit(row.uuid);
+                                }}>
+                                <IconUrl path="setting/edit"/>
+                            </IconButton>
+                        )}
+                        {!row.hasData && <IconButton
+                            onClick={() => {
+                                data.handleSelected(row);
+                            }}
+                            size="small"
+                            sx={{mr: {md: 1}}}>
+                            <IconUrl path="setting/icdelete"/>
+                        </IconButton>}
+                        {/*<Button
+                        onClick={(e)=> handleEvent({row,event:e,action:'OPEN-AGREEMENT-DIALOG'})}
+                        variant="outlined" color="info" className="btn-action" startIcon={<IconUrl path="ic-plus" width={12} height={12}/>}>
+                            {t("table.btn_action_text")} ({10})
+                        </Button>
+                        <IconButton size="small"
+                         onClick={(e)=> handleEvent({row,event:e,action:'OPEN-POPOVER'})}
+                         className="btn-more"
+                        >
+                            <MoreVertIcon fontSize="small"/>
+
+                            </IconButton>*/}
+                    </Stack>
                 ) : (
                     <Stack
                         direction="row"
@@ -191,6 +298,30 @@ function ActFeesRow({...props}) {
                 )}
             </TableCell>
         </TableRowStyled>
+        {collapse && <TableRowStyled className="row-collapse">
+            <TableCell colSpan={5}
+            style={{
+                            backgroundColor: "none",
+                            border: "none",
+                            borderTop: "none",
+                            borderBottom: "none",
+                            lineHeight: 0,
+                            padding:0,
+                        }}
+            >
+                <Paper sx={{bgcolor:theme.palette.background.default,p:1,mt:-1,borderTopLeftRadius:0,borderTopRightRadius:0}}>
+               <Otable
+
+               headers={headCells}
+               rows={[1,2,3]}
+               from={"actfees-collapse"}
+               {...{t,devise,handleEvent}}
+               />
+               </Paper>
+            </TableCell>
+</TableRowStyled>}
+
+        </>
     );
 }
 

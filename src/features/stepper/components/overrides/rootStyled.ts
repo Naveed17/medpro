@@ -53,81 +53,46 @@ const RootStyled = styled(Box)<Props>(({ theme, isChecked }) => ({
       "&::after": {
         content: "''",
         position: "absolute",
-        width: "100%",
+        width: "50%",
         height: 2,
-        background: `linear-gradient(to right,
-            ${theme.palette.primary.main} 0%,
-            ${theme.palette.primary.main} 50%,
-            ${theme.palette.warning.main} 50%,
-            ${theme.palette.warning.main} 100%)`,
-        zIndex: 9,
-        left: 0,
+        background: theme.palette.warning.main,
+        zIndex: 9999,
+        left: "50%",
         top: 11.5,
-      },
-      "&:first-of-type":{
-        "&::after":{
-          background: theme.palette.warning.main,
-          width: "50%",
-          right:0,
-          left:'unset'
-        },
       },
     },
-      "&.last-step": {
-        "& .MuiSvgIcon-root": {
-          color: theme.palette.primary.main,
-        },
-        ".MuiStepLabel-iconContainer": {
-          position: "relative",
-          zIndex: 999,
-          "&::before": {
-            content: "''",
-            position: "absolute",
-            width: theme.spacing(2),
-            height: theme.spacing(2),
-            background: theme.palette.warning.main,
-            borderRadius: "50%",
-            left: "50%",
-            top: "50%",
-            transform: "translate(-50%,-50%)",
-            zIndex: 9999,
-          },
-        },
-        "&::after": {
+    "&.last-step": {
+      "& .MuiSvgIcon-root": {
+        color: theme.palette.primary.main,
+      },
+      ".MuiStepLabel-iconContainer": {
+        position: "relative",
+        zIndex: 999,
+        "&::before": {
           content: "''",
           position: "absolute",
-          width: "50%",
-          height: 2,
+          width: theme.spacing(2),
+          height: theme.spacing(2),
           background: theme.palette.warning.main,
+          borderRadius: "50%",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%,-50%)",
           zIndex: 9999,
-          left: "0",
-          top: 11.5,
         },
       },
-    "&.Mui-completed":{
-      "&::after":{
+      "&::after": {
         content: "''",
         position: "absolute",
-        width: "100%",
+        width: "50%",
         height: 2,
-        right: 0,
+        background: theme.palette.warning.main,
+        zIndex: 9999,
+        left: "0",
         top: 11.5,
-        zIndex:0,
-        backgroundColor:theme.palette.primary.main,
       },
-      "&:first-of-type":{
-        "&::after":{
-          width: "calc(50% - 10px)",
-        },
-      },
-      "&:last-of-type":{
-        "&::after":{
-          width: "calc(50% - 10px)",
-          rigth:'unset',
-          left:0,
-        },
-      },
-    }
+    },
+
   },
   ".MuiStepLabel-label":{
     "&.Mui-active":{
@@ -149,14 +114,11 @@ const RootStyled = styled(Box)<Props>(({ theme, isChecked }) => ({
         height: "100%",
         left: 0,
         top: 0,
-        zIndex: 9999,
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
         backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path fill="${encodeURIComponent(
-          theme.palette.getContrastText(theme.palette.primary.main)
+            theme.palette.getContrastText(theme.palette.primary.main)
         )}" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/></svg>')`,
-        backgroundColor: theme.palette.primary.main,
-        borderRadius: "50%",
       },
     },
   },

@@ -230,6 +230,15 @@ const rowsActionsData = [
         ),
     },
     {
+        action: "actfees-collapse",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/actsFeesCollapseRow").then(
+                (mod) => mod
+            )
+        ),
+    },
+
+    {
         action: "insurance-agreement",
         component: dynamic((): any =>
             import("@features/table/components/rows/insuranceAgreementRow").then(

@@ -1,8 +1,9 @@
 {
-  "patientSpace": "Patient space",
+  "patientSpace": "Espace patient",
+  "lang": "Langue",
   "main-menu": {
     "agenda": "Agenda",
-    "waiting-room": "Waiting Room",
+    "waiting-room": "Salle d'attente",
     "patient": "Patients",
     "message": "Message",
     "articles": "Articles",
@@ -10,23 +11,23 @@
     "documents": "Document",
     "shop": "Shop",
     "wallet": "My Wallet",
-    "statistics": "Statistics",
-    "settings": "My Profile",
-    "logout": "Logout",
-    "payment": "Payment",
-    "cashbox": "Payment",
-    "inventory": "Inventory",
+    "statistics": "Statistiques",
+    "settings": "Paramètres",
+    "logout": "Se déconnecter",
+    "cashbox": "Caisse",
+    "inventory": "Inventaire",
     "consultation": "Consultation"
   },
   "doctor-dropdown": {
-    "news": "News Feed",
-    "messages": "My Messages",
-    "questions": "Medical Questions",
-    "articles": "Medical Magazine",
-    "wallet": "My Services",
-    "settings": "Settings",
-    "statistics": "Statistics",
-    "switch-agenda": "Reset Agenda",
-    "logout": "Logout"
+    "news": "Fil d'actualité",
+    "messages": "Mes messages",
+    "questions": "Questions médicales",
+    "articles": "Magazine Médical",
+    "wallet": "Mes services",
+    "settings": "Paramètres",
+    "statistics": "Statistiques",
+    "switch-agenda": "Réinitialiser agenda",
+    "switch-account": "Changer de compte",
+    "logout": "Se déconnecter"
   }
 }
