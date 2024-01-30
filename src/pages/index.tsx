@@ -153,6 +153,7 @@ function Home() {
                                                             fontWeight={500}>{session.user.email || session.user.name}</Typography>
                                             </Stack>
                                             <Button
+                                                variant={"text-black"}
                                                 startIcon={
                                                     <IconUrl path="ic-deconnexion"/>
                                                 }
