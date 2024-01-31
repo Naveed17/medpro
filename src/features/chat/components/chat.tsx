@@ -283,9 +283,9 @@ const Chat = ({...props}) => {
                                 </Stack>
 
                                 <Typography variant='caption' fontSize={9}
-                                            color="text.secondary">{"getLastMessage(user)".replace(/<[^>]+>/g, '')}</Typography>
+                                            color="text.secondary">{getLastMessage(user, "data").replace(/<[^>]+>/g, '')}</Typography>
                                 <Typography variant='caption' fontSize={9}
-                                            color="text.secondary">{'getLastMessage(user, "date")'}</Typography>
+                                            color="text.secondary">{getLastMessage(user, "date")}</Typography>
                             </Stack>
                         ))}
                     </Paper>

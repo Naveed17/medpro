@@ -91,6 +91,7 @@ jobs:
         SKAFFOLD_NAMESPACE=${{ secrets.SKAFFOLD_NAMESPACE }}
         SKAFFOLD_CACHE_ARTIFACTS=false
         WORKSPACE=${{ matrix.envs.ws }}
+        NODE_OPTIONS='--max-old-space-size=2500'
 
   sonar:
     if: ${{ github.ref == 'refs/heads/develop' }}
