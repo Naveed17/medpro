@@ -266,7 +266,15 @@ function PatientFilter({...props}) {
                         </Typography>
 
                         <FormControlLabel
-                            sx={{ml: .2, my: 1}}
+                            sx={{
+                                ml: .2,
+                                my: 1,
+                                '& .MuiSwitch-thumb': {
+                                    boxShadow: theme => theme.customShadows.filterButton,
+                                    width: 16,
+                                    height: 16,
+                                }
+                            }}
                             control={
                                 <Switch
                                     color="warning"
@@ -293,7 +301,15 @@ function PatientFilter({...props}) {
                             {t(`${keyPrefix}payment`)}
                         </Typography>
                         <FormControlLabel
-                            sx={{ml: .2, my: 1}}
+                            sx={{
+                                ml: .2,
+                                my: 1,
+                                '& .MuiSwitch-thumb': {
+                                    boxShadow: theme => theme.customShadows.filterButton,
+                                    width: 16,
+                                    height: 16,
+                                }
+                            }}
                             control={
                                 <Switch
                                     color="primary"
