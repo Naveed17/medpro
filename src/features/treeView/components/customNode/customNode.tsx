@@ -1,29 +1,29 @@
-import React, {useCallback, useState} from "react";
+import React, { useCallback, useState } from "react";
 import Typography from "@mui/material/Typography";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-import {TypeIcon} from "@features/treeView";
+import { TypeIcon } from "@features/treeView";
 import CustomNodeStyled from "./overrides/customNodeStyled";
-import {IconButton, MenuItem} from "@mui/material";
+import { IconButton, MenuItem, useTheme } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
-import {ModelDot} from "@features/modelDot";
+import { ModelDot } from "@features/modelDot";
 import Icon from "@themes/urlIcon";
 import StyledMenu from "@features/toolbar/components/appToolbar/overrides/menuStyle";
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 
-export const CustomNode = ({...props}) => {
+export const CustomNode = ({ ...props }) => {
     const {
         selectedNode = null,
         switchModel = null,
         handleDeleteModel = null,
         handleMoveModel = null,
         handleEditModel = null,
-        node: {droppable, data},
-        depth: {indent}
+        node: { droppable, data },
+        depth: { indent }
     } = props;
 
-    const {t} = useTranslation("common");
-
+    const { t } = useTranslation("common");
+    const theme = useTheme();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -46,29 +46,28 @@ export const CustomNode = ({...props}) => {
                     }
                 })}
                 className={`tree-node`}
-                style={{paddingInlineStart: indent, ...((props.node.parent !== 0 || props.node.parent === 0 && !props.node.hasOwnProperty("isDefault")) && selectedNode && selectedNode !== props.node.id && {opacity: 0.6})}}>
+                style={{ paddingInlineStart: indent, ...((props.node.parent !== 0 || props.node.parent === 0 && !props.node.hasOwnProperty("isDefault")) && selectedNode && selectedNode !== props.node.id && { opacity: 0.6 }) }}>
                 <div
-                style={{
-                    display: props.node.parent === 0 ? "block":'none'
-                }}
-                    className={`expandIconWrapper ${
-                        props.isOpen ? "isOpen" : ""
-                    }`}>
+                    style={{
+                        display: props.node.parent === 0 ? "block" : 'none'
+                    }}
+                    className={`expandIconWrapper ${props.isOpen ? "isOpen" : ""
+                        }`}>
                     {props.node.droppable && (
                         <div onClick={handleToggle}>
-                            <ArrowRightIcon/>
+                            <ArrowRightIcon sx={{ transform: theme.direction === "rtl" ? "scale(-1)" : "scale(1)" }} />
                         </div>
                     )}
                 </div>
                 <div>
                     {
-                        props.node.parent === 0 && <TypeIcon droppable={droppable} fileType={data?.fileType}/>
+                        props.node.parent === 0 && <TypeIcon droppable={droppable} fileType={data?.fileType} />
                     }
-                        
+
                 </div>
-                <div className={"labelGridItem"} {...(props.node.droppable && {onClick: handleToggle})}>
-                    <Typography {...(props.node.parent !== 0 && {color: "primary", sx: {cursor: "pointer"}})}
-                                variant="body2">{props.node.text}</Typography>
+                <div className={"labelGridItem"} {...(props.node.droppable && { onClick: handleToggle })}>
+                    <Typography {...(props.node.parent !== 0 && { color: "primary", sx: { cursor: "pointer" } })}
+                        variant="body2">{props.node.text}</Typography>
                 </div>
                 {(handleMoveModel || handleEditModel) && (props.node.parent !== 0 || props.node.parent === 0 && !props.node.hasOwnProperty("isDefault")) ?
                     <IconButton
@@ -77,25 +76,25 @@ export const CustomNode = ({...props}) => {
                             setAnchorEl(null);
                             setAnchorEl(event.currentTarget);
                         }}
-                        sx={{display: "block", ml: "auto"}}
+                        sx={{ display: "block", ml: "auto" }}
                         size="small">
-                        <Icon path="more-vert"/>
+                        <Icon path="more-vert" />
                     </IconButton> :
                     (!props.node.isDefault && handleDeleteModel) && <IconButton
                         disableRipple
-                        sx={{mt: "-6px"}}
+                        sx={{ mt: "-6px" }}
                         className="btn-del"
                         onClick={(event) => {
                             event.stopPropagation();
                             setAnchorEl(null);
                             handleDeleteModel(props);
                         }}>
-                        <IconUrl color="red" width={16} height={16} path="ic-delete"/>
+                        <IconUrl color="red" width={16} height={16} path="ic-delete" />
                     </IconButton>}
 
 
                 <StyledMenu
-                    {...{open, anchorEl}}
+                    {...{ open, anchorEl }}
                     id="basic-menu"
                     elevation={0}
                     anchorOrigin={{
@@ -145,7 +144,7 @@ export const CustomNode = ({...props}) => {
                                 setAnchorEl(null);
                                 handleMoveModel(props);
                             }}>
-                            <DriveFileMoveOutlinedIcon sx={{width: 16, height: 16, mr: 1.2}}/>
+                            <DriveFileMoveOutlinedIcon sx={{ width: 16, height: 16, mr: 1.2 }} />
                             {t("move")}
                         </MenuItem>}
                     {((props.node.parent !== 0 || props.node.parent === 0 && !props.node.hasOwnProperty("isDefault")) && handleEditModel) &&
@@ -155,7 +154,7 @@ export const CustomNode = ({...props}) => {
                                 setAnchorEl(null);
                                 handleEditModel(props);
                             }}>
-                            <IconUrl width={12} height={12} path="ic-edit"/>
+                            <IconUrl width={12} height={12} path="ic-edit" />
                             {t("edit")}
                         </MenuItem>}
                     {(!props.node.isDefault && handleDeleteModel) && <MenuItem
@@ -164,7 +163,7 @@ export const CustomNode = ({...props}) => {
                             setAnchorEl(null);
                             handleDeleteModel(props);
                         }}>
-                        <IconUrl color="red" width={16} height={16} path="ic-delete"/>
+                        <IconUrl color="red" width={16} height={16} path="ic-delete" />
                         {t("delete")}
                     </MenuItem>}
                 </StyledMenu>

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Avatar,
     Button,
@@ -16,24 +16,24 @@ import {
     useTheme
 } from "@mui/material";
 import ChatStyled from "@features/chat/components/overrides/chatStyled";
-import {useTranslation} from "next-i18next";
+import { useTranslation } from "next-i18next";
 import IconUrl from '@themes/urlIcon';
 import moment from "moment/moment";
-import {Types} from "ably";
+import { Types } from "ably";
 import Fade from "@mui/material/Fade";
-import Popper, {PopperPlacementType} from '@mui/material/Popper';
-import {debounce} from "lodash";
-import {useRequestQueryMutation} from "@lib/axios";
-import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@lib/hooks";
-import {Editor} from "@tinymce/tinymce-react";
-import {tinymcePlugins} from "@lib/constants";
-import {useAppSelector} from "@lib/redux/hooks";
-import {PatientDetail} from "@features/dialog";
-import {configSelector} from "@features/base";
+import Popper, { PopperPlacementType } from '@mui/material/Popper';
+import { debounce } from "lodash";
+import { useRequestQueryMutation } from "@lib/axios";
+import { useRouter } from "next/router";
+import { useMedicalEntitySuffix } from "@lib/hooks";
+import { Editor } from "@tinymce/tinymce-react";
+import { tinymcePlugins } from "@lib/constants";
+import { useAppSelector } from "@lib/redux/hooks";
+import { PatientDetail } from "@features/dialog";
+import { configSelector } from "@features/base";
 import PresenceMessage = Types.PresenceMessage;
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
 import useUsers from "@lib/hooks/rest/useUsers";
 
 interface IPatient {
@@ -42,7 +42,7 @@ interface IPatient {
     lastName: string
 }
 
-const Chat = ({...props}) => {
+const Chat = ({ ...props }) => {
 
     const {
         channel,
@@ -55,19 +55,19 @@ const Chat = ({...props}) => {
         presenceData,
         setHasMessage
     } = props;
-    const {users} = useUsers();
-    const {data: session} = useSession();
+    const { users } = useUsers();
+    const { data: session } = useSession();
     const theme = useTheme();
     const router = useRouter();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
 
-    const {data: user} = session as Session;
+    const { data: user } = session as Session;
     const general_information = (user as UserDataResponse).general_information;
 
-    const {t} = useTranslation("common", {keyPrefix: "chat"});
-    const {direction} = useAppSelector(configSelector);
+    const { t } = useTranslation("common", { keyPrefix: "chat" });
+    const { direction } = useAppSelector(configSelector);
 
-    const {trigger: triggerSearchPatient} = useRequestQueryMutation("/patients/search");
+    const { trigger: triggerSearchPatient } = useRequestQueryMutation("/patients/search");
 
     const [message, setMessage] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
@@ -189,14 +189,14 @@ const Chat = ({...props}) => {
                 <Grid item xs={12} md={4}>
                     <Paper className='user-wrapper' component={Stack} spacing={2}>
                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                            <IconUrl path={"chat"} width={20} height={20}/>
+                            <IconUrl path={"chat"} width={20} height={20} />
                             <Typography fontWeight={"bold"}>Chat</Typography>
                         </Stack>
 
                         {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser && !hasMessages(user.uuid)).map((user: UserModel) => (
                             <Stack
                                 className={`user-item ${user.uuid === selectedUser?.uuid ? "selected" : ""}`}
-                                sx={{cursor: 'pointer'}}
+                                sx={{ cursor: 'pointer' }}
                                 spacing={.5} key={user.uuid}
                                 onClick={() => {
                                     setSelectedUser(user)
@@ -211,22 +211,22 @@ const Chat = ({...props}) => {
                                 }>
                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                     <Typography fontWeight={500}
-                                                variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
+                                        variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
                                     <div style={{
                                         width: 5,
                                         height: 5,
                                         background: `${presenceData.find((data: PresenceMessage) => data.clientId === user.uuid) && presenceData.find((data: PresenceMessage) => data.clientId === user.uuid).data === "actif" ? "#1BC47D" : "#DDD"}`,
                                         borderRadius: 10
-                                    }}/>
+                                    }} />
                                 </Stack>
                             </Stack>
                         ))}
 
-                        <div style={{borderBottom: "1px solid #DDD"}}></div>
+                        <div style={{ borderBottom: "1px solid #DDD" }}></div>
                         {lastMessages && Object.keys(lastMessages).sort((a, b) => comparerParDate(a, b)).map((user: string) => (
                             <Stack
                                 className={`user-item ${user === selectedUser?.uuid ? "selected" : ""}`}
-                                sx={{cursor: 'pointer'}}
+                                sx={{ cursor: 'pointer' }}
                                 spacing={.5} key={user}
                                 onClick={() => {
                                     setSelectedUser(users.find((_user: UserModel) => _user.uuid === user))
@@ -245,13 +245,13 @@ const Chat = ({...props}) => {
                                         height: 5,
                                         borderRadius: 10,
                                         background: `${presenceData.find((data: PresenceMessage) => data.clientId === user) && presenceData.find((data: PresenceMessage) => data.clientId === user).data === "actif" ? "#1BC47D" : "#DDD"}`
-                                    }}/>
+                                    }} />
                                 </Stack>
 
                                 <Typography variant='caption' fontSize={9}
-                                            color="text.secondary">{getLastMessage(user, "data").replace(/<[^>]+>/g, '')}</Typography>
+                                    color="text.secondary">{getLastMessage(user, "data").replace(/<[^>]+>/g, '')}</Typography>
                                 <Typography variant='caption' fontSize={9}
-                                            color="text.secondary">{getLastMessage(user, "date")}</Typography>
+                                    color="text.secondary">{getLastMessage(user, "date")}</Typography>
                             </Stack>
                         ))}
                     </Paper>
@@ -262,15 +262,15 @@ const Chat = ({...props}) => {
                             <>
                                 <Stack alignItems="center">
                                     <Fab variant="extended" onClick={scrollToTop} className='prev-msgs'
-                                         size="small">{t('prev_msgs')}</Fab>
+                                        size="small">{t('prev_msgs')}</Fab>
                                 </Stack>
                                 <List id={"chat-list"} className='chat-list'>
                                     {messages.map((message: Message, index: number) => (
                                         <ListItem key={index} alignItems="flex-start"
-                                                  className={message?.from !== medicalEntityHasUser ? "left" : "right"}>
+                                            className={message?.from !== medicalEntityHasUser ? "left" : "right"}>
                                             {message.from !== medicalEntityHasUser && <ListItemAvatar>
                                                 <Avatar
-                                                    sx={{bgcolor: theme.palette.primary.main}}>{selectedUser?.FirstName?.charAt(0)}</Avatar>
+                                                    sx={{ bgcolor: theme.palette.primary.main }}>{selectedUser?.FirstName?.charAt(0)}</Avatar>
 
                                             </ListItemAvatar>}
                                             <ListItemText
@@ -286,11 +286,11 @@ const Chat = ({...props}) => {
                                                 secondary={
                                                     <Stack spacing={1}>
                                                         <Typography
-                                                            sx={{display: 'inline', wordWrap: "break-word"}}
+                                                            sx={{ display: 'inline', wordWrap: "break-word" }}
                                                             component="span"
                                                             color="text.primary"
                                                         >
-                                                            <div dangerouslySetInnerHTML={{__html: message.data}}></div>
+                                                            <div dangerouslySetInnerHTML={{ __html: message.data }}></div>
 
                                                         </Typography>
                                                         {/*{message?.from === medicalEntityHasUser ?
@@ -311,7 +311,7 @@ const Chat = ({...props}) => {
                                     ))}
                                 </List>
 
-                                <div style={{position: "relative"}}>
+                                <div style={{ position: "relative" }}>
                                     <Editor
                                         value={message}
                                         tinymceScriptSrc={'/tinymce/tinymce.min.js'}
@@ -327,37 +327,37 @@ const Chat = ({...props}) => {
                                             toolbar: false,
                                             plugins: tinymcePlugins,
                                             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                                        }}/>
+                                        }} />
                                     <Popper
                                         // Note: The following zIndex style is specifically for documentation purposes and may not be necessary in your application.
-                                        sx={{zIndex: 1200,}}
+                                        sx={{ zIndex: 1200, }}
                                         open={open}
                                         anchorEl={anchorEl}
                                         placement={placement}
                                         transition>
-                                        {({TransitionProps}) => (
+                                        {({ TransitionProps }) => (
                                             <Fade {...TransitionProps} timeout={350}>
-                                                <Paper style={{padding: 10}}>
+                                                <Paper style={{ padding: 10 }}>
                                                     <Stack spacing={1}>
                                                         <Typography fontSize={11}
-                                                                    color={"grey"}>Patient</Typography>
+                                                            color={"grey"}>Patient</Typography>
                                                         <TextField placeholder={"Aaa"} onChange={(ev) => {
                                                             debouncedOnChange(ev.target.value)
-                                                        }}/>
+                                                        }} />
                                                         {patients.map(patient => (
                                                             <Typography onClick={() => {
                                                                 setMessage((prev) => `${prev} <span class="tag" id="${patient.uuid}">@${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`)
                                                                 setOpen(false)
                                                             }}
-                                                                        key={patient.uuid}>{`${patient.firstName} ${patient.lastName}`}</Typography>))}
+                                                                key={patient.uuid}>{`${patient.firstName} ${patient.lastName}`}</Typography>))}
                                                     </Stack>
                                                 </Paper>
                                             </Fade>
                                         )}
                                     </Popper>
                                     <Button size={"small"}
-                                            style={{position: "absolute", bottom: 10, left: 10, fontStyle: "italic"}}
-                                            color={"black"} onClick={handleClick('top')}>@patient</Button>
+                                        style={{ position: "absolute", bottom: 10, left: 10, fontStyle: "italic" }}
+                                        color={"black"} onClick={handleClick('top')}>@patient</Button>
 
                                     <Fab
                                         disabled={!message || !presenceData.find((data: PresenceMessage) => data.clientId === selectedUser.uuid)}
@@ -377,9 +377,9 @@ const Chat = ({...props}) => {
                                         }
                                         size={"small"}
                                         disableRipple
-                                        style={{position: "absolute", bottom: 10, right: 10}}
+                                        style={{ position: "absolute", bottom: 10, right: 10 }}
                                         variant='extended' className='send-msg'>
-                                        <IconUrl path="ic-send-up"/>
+                                        <IconUrl path="ic-send-up" />
                                         <span>{t("send")}</span>
                                     </Fab>
                                 </div>
@@ -421,15 +421,15 @@ const Chat = ({...props}) => {
                                     value={message}/>*/}
                             </> : <div className='no-chat'>
                                 <Stack>
-                                    <div style={{justifyContent: "center", display: "flex"}}>
-                                        <IconUrl path={"ic-no-msg"}/>
+                                    <div style={{ justifyContent: "center", display: "flex" }}>
+                                        <IconUrl path={"ic-no-msg"} />
                                     </div>
                                     <Typography fontSize={18} textAlign={"center"}
-                                                fontWeight={"bold"}>{t('noDes')}</Typography>
+                                        fontWeight={"bold"}>{t('noDes')}</Typography>
                                     <Typography fontSize={12} textAlign={"center"}
-                                                color={theme.palette.grey["400"]}>{t('chooseUser1')}</Typography>
+                                        color={theme.palette.grey["400"]}>{t('chooseUser1')}</Typography>
                                     <Typography fontSize={12} textAlign={"center"}
-                                                color={theme.palette.grey["400"]}>{t('chooseUser2')}</Typography>
+                                        color={theme.palette.grey["400"]}>{t('chooseUser2')}</Typography>
                                 </Stack>
                             </div>
                         }
