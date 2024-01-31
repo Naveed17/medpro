@@ -23,7 +23,7 @@ import {Types} from "ably";
 import Fade from "@mui/material/Fade";
 import Popper, {PopperPlacementType} from '@mui/material/Popper';
 import {debounce} from "lodash";
-import {useRequestQueryMutation} from "@lib/axios";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {Editor} from "@tinymce/tinymce-react";
@@ -31,16 +31,25 @@ import {tinymcePlugins} from "@lib/constants";
 import {useAppSelector} from "@lib/redux/hooks";
 import {PatientDetail} from "@features/dialog";
 import {configSelector} from "@features/base";
-import PresenceMessage = Types.PresenceMessage;
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import useUsers from "@lib/hooks/rest/useUsers";
+import PresenceMessage = Types.PresenceMessage;
 
 interface IPatient {
     uuid: string,
     firstName: string,
     lastName: string
 }
+
+interface IDiscussion {
+    uuid: string,
+    members: {uuid:string,name:string}[],
+    lastDate: number
+    lastSender:string,
+    lastMessage:string
+}
+
 
 const Chat = ({...props}) => {
 
@@ -77,8 +86,18 @@ const Chat = ({...props}) => {
     const [open, setOpen] = useState(false);
     const [placement, setPlacement] = useState<PopperPlacementType>();
     const [patients, setPatients] = useState<IPatient[]>([]);
+    const [discussions, setDiscussions] = useState<IDiscussion[]>([]);
+    const [selectedDiscussion, setSelectedDiscussion] = useState<IDiscussion | null >(null);
+
+    const {trigger: createDiscussion} = useRequestQueryMutation("/chat/new");
 
     const refList = document.getElementById("chat-list")
+
+    const {data: httpDiscussionsList} = useRequestQuery({
+            method: "GET",
+            url: `/-/chat/api/discussion/${medicalEntityHasUser}`
+        }
+    )
 
     const scrollToTop = () => {
         if (refList)
@@ -183,6 +202,12 @@ const Chat = ({...props}) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [localStorage.getItem("chat")]);
 
+    useEffect(()=>{
+        if (httpDiscussionsList)
+            setDiscussions(httpDiscussionsList)
+        console.log("discussions",httpDiscussionsList);
+    },[httpDiscussionsList])
+
     return (
         <ChatStyled>
             <Grid container>
@@ -222,6 +247,15 @@ const Chat = ({...props}) => {
                             </Stack>
                         ))}
 
+                        <Button onClick={()=>{
+                            const form = new FormData();
+                            form.append('members', JSON.stringify([{uuid:medicalEntityHasUser,name:`${general_information.firstName} ${general_information.lastName}`},{uuid:selectedUser.uuid,name:`${selectedUser?.FirstName} ${selectedUser?.lastName}`}]));
+                            createDiscussion({
+                                method: "POST",
+                                data: form,
+                                url: `/-/chat/api/discussion`
+                            });
+                        }}>new </Button>
                         <div style={{borderBottom: "1px solid #DDD"}}></div>
                         {lastMessages && Object.keys(lastMessages).sort((a, b) => comparerParDate(a, b)).map((user: string) => (
                             <Stack
@@ -229,13 +263,13 @@ const Chat = ({...props}) => {
                                 sx={{cursor: 'pointer'}}
                                 spacing={.5} key={user}
                                 onClick={() => {
-                                    setSelectedUser(users.find((_user: UserModel) => _user.uuid === user))
+                                    /*setSelectedUser(users.find((_user: UserModel) => _user.uuid === user))
                                     const localMsgs = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
                                     if (localMsgs) {
                                         const _msgs = Object.keys(localMsgs).find(key => key === user)
                                         if (_msgs) updateMessages(localMsgs[user])
                                         else updateMessages([])
-                                    }
+                                    }*/
                                 }
                                 }>
                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
@@ -249,9 +283,9 @@ const Chat = ({...props}) => {
                                 </Stack>
 
                                 <Typography variant='caption' fontSize={9}
-                                            color="text.secondary">{getLastMessage(user, "data").replace(/<[^>]+>/g, '')}</Typography>
+                                            color="text.secondary">{"getLastMessage(user)".replace(/<[^>]+>/g, '')}</Typography>
                                 <Typography variant='caption' fontSize={9}
-                                            color="text.secondary">{getLastMessage(user, "date")}</Typography>
+                                            color="text.secondary">{'getLastMessage(user, "date")'}</Typography>
                             </Stack>
                         ))}
                     </Paper>
@@ -369,7 +403,8 @@ const Chat = ({...props}) => {
                                                 date: new Date()
                                             }, selectedUser.uuid)
                                             channel.publish(selectedUser.uuid, JSON.stringify({
-                                                data: message,
+                                                message,
+                                                from: medicalEntityHasUser,
                                                 user: `${general_information.firstName} ${general_information.lastName}`
                                             }))
                                             setMessage("")
