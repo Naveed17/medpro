@@ -22,10 +22,8 @@ import {documentButtonList} from "@features/toolbar/components/appToolbar/config
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import {useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
+import {useProfilePhoto} from "@lib/hooks/rest";
 import {useAppDispatch} from "@lib/redux/hooks";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {useRouter} from "next/router";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
@@ -45,8 +43,6 @@ function AppToolbar({...props}) {
         setOpenDialogSave,
         tabsData,
         selectedDialog,
-        agenda,
-        app_uuid,
         patient,
         handleChangeTab,
         isMobile,
@@ -62,28 +58,16 @@ function AppToolbar({...props}) {
         prescription, checkUp, imagery,
         showDocument, setShowDocument
     } = props;
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
-    const {trigger: invalidateQueries} = useInvalidateQueries();
-    const {trigger: triggerNotificationPush} = useSendNotification();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
-    const open = Boolean(anchorEl);
-
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
-    const {jti} = session?.user as any;
-
-    const mutateDoc = async () => {
-        await invalidateQueries([docUrl]);
-        refreshDocSession();
-    }
+    const open = Boolean(anchorEl);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -93,18 +77,6 @@ function AppToolbar({...props}) {
         dispatch(resetAppointment());
         dispatch(setAppointmentPatient(patient));
         dispatch(openDrawer({type: "add", open: true}));
-    }
-
-    const refreshDocSession = () => {
-        triggerNotificationPush({
-            action: "push",
-            root: "all",
-            message: " ",
-            content: JSON.stringify({
-                mutate: docUrl,
-                fcm_session: jti
-            })
-        });
     }
 
     const handleClose = (action: string) => {
@@ -414,10 +386,10 @@ function AppToolbar({...props}) {
                                 "aria-labelledby": "basic-button",
                             }}>
                             {documentButtonList.map((item, index) => (
-                                <Can I={"manage"} a={item.feature as any}
+                                <Can key={`document-button-list-${index}`} I={"manage"} a={item.feature as any}
                                      {...(item.permission && {field: item.permission})}>
                                     <MenuItem
-                                        key={`document-button-list-${index}`}
+
                                         onClick={() => handleClose(item.label)}>
                                         <Icon path={item.icon}/>
                                         {t(item.label)}
