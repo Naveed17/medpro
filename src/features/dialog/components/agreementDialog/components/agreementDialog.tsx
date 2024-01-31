@@ -92,7 +92,7 @@ function AgreementDialog({...props}) {
                                                 checked={values.selected === item ?? false}
                                                 sx={{svg: {width: 24}}}
                                                 checkedIcon={
-                                                    <IconUrl path="ic-check-circle" width={24}/>
+                                                    <IconUrl path="ic-check-circle-padding" width={24}/>
                                                 }
                                             />
                                             <Typography variant="subtitle1" fontWeight={700}>
