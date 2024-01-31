@@ -33,11 +33,12 @@ function AgreementDialog({...props}) {
             agreement: {},
         },
 
-        onSubmit: async (values) => {
+        onSubmit: async () => {
+            return undefined
         },
         validationSchema,
     });
-    const {values, setFieldValue, handleSubmit, errors} = formik;
+    const {values, setFieldValue, handleSubmit} = formik;
     return (
         <Stack>
             <Paper
