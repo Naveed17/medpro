@@ -32,7 +32,6 @@ function AgreementDialog({...props}) {
             insurance: {},
             agreement: {},
         },
-
         onSubmit: async () => {
             return undefined
         },
