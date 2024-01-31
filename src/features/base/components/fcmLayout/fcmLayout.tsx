@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { firebaseCloudSdk } from "@lib/firebase";
-import { getMessaging, onMessage } from "firebase/messaging";
+import React, {useEffect, useMemo, useState} from "react";
+import {firebaseCloudSdk} from "@lib/firebase";
+import {getMessaging, onMessage} from "firebase/messaging";
 import {
     Avatar,
     Badge,
@@ -16,9 +16,9 @@ import {
     useTheme
 } from "@mui/material";
 import axios from "axios";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { Session } from "next-auth";
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
+import {Session} from "next-auth";
 import {
     agendaSelector,
     AppointmentStatus,
@@ -27,29 +27,29 @@ import {
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { AgendaPopupAction, ConsultationPopupAction } from "@features/popup";
-import { setAppointmentPatient, setAppointmentType } from "@features/tabPanel";
-import { Dialog as CustomDialog, setMoveDateTime } from "@features/dialog";
-import { SnackbarKey, useSnackbar } from "notistack";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {AgendaPopupAction, ConsultationPopupAction} from "@features/popup";
+import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
+import {Dialog as CustomDialog, setMoveDateTime} from "@features/dialog";
+import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
-import { resetTimer } from "@features/card";
-import { configSelector, dashLayoutSelector, setOngoing } from "@features/base";
-import { tableActionSelector } from "@features/table";
-import { DefaultCountry, EnvPattern } from "@lib/constants";
+import {resetTimer} from "@features/card";
+import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
+import {tableActionSelector} from "@features/table";
+import {DefaultCountry, EnvPattern} from "@lib/constants";
 import smartlookClient from "smartlook-client";
-import { setProgress } from "@features/progressUI";
-import { setUserId, setUserProperties } from "@firebase/analytics";
-import { useInvalidateQueries, useMedicalEntitySuffix } from "@lib/hooks";
-import { fetchAndActivate, getRemoteConfig, getString } from "firebase/remote-config";
-import { useRequestQueryMutation } from "@lib/axios";
+import {setProgress} from "@features/progressUI";
+import {setUserId, setUserProperties} from "@firebase/analytics";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
+import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
-import { buildAbilityFor } from "@lib/rbac/casl/ability";
-import { AbilityContext } from "@features/casl/can";
-import { useChannel, useConnectionStateListener, usePresence } from "ably/react";
+import {buildAbilityFor} from "@lib/rbac/casl/ability";
+import {AbilityContext} from "@features/casl/can";
+import {useChannel, useConnectionStateListener, usePresence} from "ably/react";
 import IconUrl from "@themes/urlIcon";
-import { Chat } from "@features/chat";
-import { caslSelector } from "@features/casl";
+import {Chat} from "@features/chat";
+import {caslSelector} from "@features/casl";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -57,21 +57,22 @@ function PaperComponent(props: PaperProps) {
     );
 }
 
-function FcmLayout({ ...props }) {
-    const { data: session, update } = useSession();
-    const { jti } = session?.user as any;
+function FcmLayout({...props}) {
+    const {data: session, update} = useSession();
+    const {jti} = session?.user as any;
     const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { trigger: mutateOnGoing } = useMutateOnGoing();
-    const { trigger: invalidateQueries } = useInvalidateQueries();
+    const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+    const audio = useMemo(() => new Audio("/static/sound/beep.mp3"), []);
 
-    const { appointmentTypes } = useAppSelector(dashLayoutSelector);
-    const { config: agendaConfig } = useAppSelector(agendaSelector);
-    const { importData } = useAppSelector(tableActionSelector);
-    const { direction } = useAppSelector(configSelector);
+    const {appointmentTypes} = useAppSelector(dashLayoutSelector);
+    const {config: agendaConfig} = useAppSelector(agendaSelector);
+    const {importData} = useAppSelector(tableActionSelector);
+    const {direction} = useAppSelector(configSelector);
     const permissions = useAppSelector(caslSelector);
 
     const [openDialog, setOpenDialog] = useState(false);
@@ -87,7 +88,7 @@ function FcmLayout({ ...props }) {
     const [hasMessage, setHasMessage] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
 
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
     const roles = (user as UserDataResponse)?.general_information.roles;
@@ -97,10 +98,10 @@ function FcmLayout({ ...props }) {
     const devise = doctor_country.currency?.name;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
-    const audio = new Audio("/sound/beep.mp3");
+
     const ability = buildAbilityFor(features ?? [], permissions);
 
-    const { trigger: updateAppointmentStatus } = useRequestQueryMutation("/agenda/appointment/update/status");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
 
     const handleClose = () => {
         setOpenDialog(false);
@@ -114,7 +115,7 @@ function FcmLayout({ ...props }) {
             if (fcmSession !== jti) {
                 if (data.type === "no_action") {
                     if (data.mode === "foreground") {
-                        enqueueSnackbar(message.notification.body, { variant: "info" });
+                        enqueueSnackbar(message.notification.body, {variant: "info"});
                     } else if (data.body.hasOwnProperty('progress')) {
                         if (data.body.progress === -1 || data.body.progress === 100) {
                             localStorage.removeItem("import-data");
@@ -124,15 +125,15 @@ function FcmLayout({ ...props }) {
                             mutateOnGoing();
                             closeSnackbar();
                             enqueueSnackbar((data.body.progress === -1 ?
-                                translationCommon.import_data.failed : translationCommon.import_data.end),
-                                { variant: data.body.progress === -1 ? "error" : "success" });
+                                    translationCommon.import_data.failed : translationCommon.import_data.end),
+                                {variant: data.body.progress === -1 ? "error" : "success"});
                         } else {
                             localStorage.setItem("import-data-progress", data.body.progress.toString());
                             dispatch(setProgress(parseFloat(data.body.progress)));
                         }
                     }
                 } else if (data.type === "session") {
-                    update({ [message.data.root]: data.body });
+                    update({[message.data.root]: data.body});
                 } else {
                     switch (message.data.root) {
                         case "agenda":
@@ -152,7 +153,7 @@ function FcmLayout({ ...props }) {
                                 }];
                                 localStorage.setItem("notifications", JSON.stringify(notifications));
                                 // Update notifications popup
-                                dispatch(setOngoing({ notifications }));
+                                dispatch(setOngoing({notifications}));
                             } else if (data.body.action === "update") {
                                 // update pending notifications status
                                 invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
@@ -173,7 +174,7 @@ function FcmLayout({ ...props }) {
                             mutateOnGoing();
                             break;
                         case "documents":
-                            enqueueSnackbar(translationCommon.alerts["speech-text"].title, { variant: "success" });
+                            enqueueSnackbar(translationCommon.alerts["speech-text"].title, {variant: "success"});
                             invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
                             break;
                         default:
@@ -187,7 +188,7 @@ function FcmLayout({ ...props }) {
 
     const setToken = async () => {
         try {
-            const { token, analytics } = await firebaseCloudSdk.init() as any;
+            const {token, analytics} = await firebaseCloudSdk.init() as any;
             if (token) {
                 getFcmMessage();
                 subscribeToTopic(token, `${roles[0]}-${general_information.uuid}`);
@@ -208,7 +209,7 @@ function FcmLayout({ ...props }) {
 
     const setRefreshToken = async (topicName: string, fcm_api_key: string) => {
         localStorage.removeItem("fcm_token");
-        const { token: refreshToken } = await firebaseCloudSdk.init() as any;
+        const {token: refreshToken} = await firebaseCloudSdk.init() as any;
         if (refreshToken) {
             localStorage.setItem("fcm_token", refreshToken);
             const topicURL = `https://iid.googleapis.com/iid/v1/${refreshToken}/rel/topics/${topicName}`;
@@ -224,7 +225,7 @@ function FcmLayout({ ...props }) {
 
     const subscribeToTopic = async (fcmToken: string, topicName: string) => {
         if (fcmToken) {
-            const { data: fcm_api_key } = await axios({
+            const {data: fcm_api_key} = await axios({
                 url: "/api/helper/server_env",
                 method: "POST",
                 data: {
@@ -256,8 +257,8 @@ function FcmLayout({ ...props }) {
         if (_local) {
             const msgs = [..._local[userUuid], msg];
             if (_local[userUuid]) _local[userUuid] = msgs
-            else _local = { ..._local, [userUuid]: msgs }
-        } else _local = { [userUuid]: [msg] };
+            else _local = {..._local, [userUuid]: msgs}
+        } else _local = {[userUuid]: [msg]};
 
         localStorage.setItem("chat", JSON.stringify(_local))
     }
@@ -305,7 +306,7 @@ function FcmLayout({ ...props }) {
         if (localStorageNotifications) {
             const notifications = JSON.parse(localStorageNotifications).filter(
                 (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day"));
-            dispatch(setOngoing({ notifications }))
+            dispatch(setOngoing({notifications}))
         }
     }, [dispatch]);
 
@@ -333,7 +334,7 @@ function FcmLayout({ ...props }) {
                 setNoConnection(enqueueSnackbar('Aucune connexion internet!', {
                     key: "offline",
                     variant: 'error',
-                    anchorOrigin: { horizontal: "center", vertical: "bottom" },
+                    anchorOrigin: {horizontal: "center", vertical: "bottom"},
                     persist: true
                 }));
             });
@@ -345,9 +346,9 @@ function FcmLayout({ ...props }) {
         console.log("error", stateChange.reason);  // the new connection state
     });
 
-    const { channel } = useChannel(medical_entity?.uuid, (message) => {
+    const {channel} = useChannel(medical_entity?.uuid, (message) => {
         if (message.name === medicalEntityHasUser) {
-            audio.play()
+            audio.play();
             const payload = JSON.parse(message.data);
             saveInbox({
                 from: message.clientId,
@@ -355,13 +356,13 @@ function FcmLayout({ ...props }) {
                 data: payload.data,
                 date: new Date(message.timestamp)
             }, message.clientId)
-            setMessage({ user: payload.user, message: payload.data })
+            setMessage({user: payload.user, message: payload.data})
             setTimeout(() => setMessage(null), 3000)
             setHasMessage(true)
         }
     });
 
-    const { presenceData } = usePresence(medical_entity?.uuid, 'actif');
+    const {presenceData} = usePresence(medical_entity?.uuid, 'actif');
 
     return (
         <AbilityContext.Provider value={ability}>
@@ -373,7 +374,7 @@ function FcmLayout({ ...props }) {
                 dir={direction}
                 PaperProps={{
                     sx: {
-                        width: { xs: "100%", md: 800 },
+                        width: {xs: "100%", md: 800},
                     },
 
                 }}
@@ -433,38 +434,38 @@ function FcmLayout({ ...props }) {
                 }}
                 aria-labelledby="draggable-dialog-title">
                 {dialogAction !== "confirm-dialog" ? <>
-                    <DialogTitle sx={{ m: 0, p: 2, backgroundColor: theme.palette.primary.main }}>
-                        Fin de consultation
-                    </DialogTitle>
-                    <DialogContent>
-                        <ConsultationPopupAction
-                            data={{
-                                id: notificationData?.patient.uuid,
-                                appUuid: notificationData?.appUuid,
-                                name: `${notificationData?.patient.firstName} ${notificationData?.patient.lastName}`,
-                                fees: notificationData?.fees,
-                                instruction: notificationData?.instruction,
-                                devise,
-                                nextAppointment: notificationData?.nextApp,
-                                control: notificationData?.control,
-                                restAmount: notificationData?.patient.restAmount,
-                                payed: notificationData?.patient.restAmount === 0
-                            }}
-                            OnPay={() => {
-                                handleClose();
-                                setOpenPaymentDialog(true);
-                            }}
-                            OnSchedule={() => {
-                                handleClose();
-                                router.push("/dashboard/agenda").then(() => {
-                                    dispatch(setStepperIndex(1));
-                                    dispatch(setAppointmentPatient(notificationData?.patient));
-                                    (appointmentTypes && appointmentTypes.length > 1) && dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
-                                    dispatch(openDrawer({ type: "add", open: true }));
-                                });
-                            }} />
-                    </DialogContent>
-                </> :
+                        <DialogTitle sx={{m: 0, p: 2, backgroundColor: theme.palette.primary.main}}>
+                            Fin de consultation
+                        </DialogTitle>
+                        <DialogContent>
+                            <ConsultationPopupAction
+                                data={{
+                                    id: notificationData?.patient.uuid,
+                                    appUuid: notificationData?.appUuid,
+                                    name: `${notificationData?.patient.firstName} ${notificationData?.patient.lastName}`,
+                                    fees: notificationData?.fees,
+                                    instruction: notificationData?.instruction,
+                                    devise,
+                                    nextAppointment: notificationData?.nextApp,
+                                    control: notificationData?.control,
+                                    restAmount: notificationData?.patient.restAmount,
+                                    payed: notificationData?.patient.restAmount === 0
+                                }}
+                                OnPay={() => {
+                                    handleClose();
+                                    setOpenPaymentDialog(true);
+                                }}
+                                OnSchedule={() => {
+                                    handleClose();
+                                    router.push("/dashboard/agenda").then(() => {
+                                        dispatch(setStepperIndex(1));
+                                        dispatch(setAppointmentPatient(notificationData?.patient));
+                                        (appointmentTypes && appointmentTypes.length > 1) && dispatch(setAppointmentType(appointmentTypes[1]?.uuid));
+                                        dispatch(openDrawer({type: "add", open: true}));
+                                    });
+                                }}/>
+                        </DialogContent>
+                    </> :
                     <AgendaPopupAction
                         data={{
                             id: notificationData?.appointment.patient.uuid,
@@ -495,7 +496,7 @@ function FcmLayout({ ...props }) {
                                     action: "move",
                                     selected: false
                                 }));
-                                dispatch(openDrawer({ type: "move", open: true }));
+                                dispatch(openDrawer({type: "move", open: true}));
                             });
                         }}
                         OnConfirm={() => {
@@ -512,36 +513,36 @@ function FcmLayout({ ...props }) {
             </Dialog>
 
             <Stack direction={"row"}
-                spacing={2}
-                alignItems={'center'}
-                sx={{ position: "fixed", bottom: 75, right: 40, zIndex: 99 }}>
+                   spacing={2}
+                   alignItems={'center'}
+                   sx={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>
                 {message && <Stack direction={"row"}
-                    padding={1}
-                    spacing={2}
-                    borderRadius={2}
-                    alignItems={"center"}
-                    style={{
-                        background: theme.palette.info.main,
-                        width: 300,
-                        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px"
-                    }}>
-                    <Avatar sx={{ bgcolor: theme.palette.primary.main }}>W</Avatar>
+                                   padding={1}
+                                   spacing={2}
+                                   borderRadius={2}
+                                   alignItems={"center"}
+                                   style={{
+                                       background: theme.palette.info.main,
+                                       width: 300,
+                                       boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px"
+                                   }}>
+                    <Avatar sx={{bgcolor: theme.palette.primary.main}}>W</Avatar>
                     <Stack spacing={0} width={"100%"}>
                         <Stack direction={"row"} justifyContent={"space-between"}>
                             <Typography fontSize={12}>{message.user}</Typography>
                             <Typography fontSize={11} color={"#7C878E"}
-                                fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
+                                        fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
                         </Stack>
                         <Typography>{message.message.replace(/<[^>]+>/g, '')}</Typography>
                     </Stack>
                 </Stack>}
                 <Fab color="info"
-                    style={{ boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px" }}
-                    onClick={() => {
-                        setOpen(true)
-                    }}>
+                     style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
+                     onClick={() => {
+                         setOpen(true)
+                     }}>
                     <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
-                        <IconUrl path={"chat"} width={30} height={30} />
+                        <IconUrl path={"chat"} width={30} height={30}/>
                     </Badge>
                 </Fab>
             </Stack>
