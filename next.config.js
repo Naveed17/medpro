@@ -34,12 +34,12 @@ const nextConfig = {
                 port: '',
                 pathname: '**',
             },
-            {
+/*            {
                 protocol: 'https',
                 hostname: process.env.S3_PUBLIC_API || '',
                 port: '',
                 pathname: '**',
-            },
+            },*/
             {
                 protocol: 'https',
                 hostname: process.env.S3_URL || '',
