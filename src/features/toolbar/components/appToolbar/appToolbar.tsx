@@ -390,18 +390,22 @@ function AppToolbar({...props}) {
                                             ml: -0.5,
                                             mr: 1,
                                         },
-                                        '&:before': {
-                                            content: '""',
-                                            display: 'block',
-                                            position: 'absolute',
-                                            top: 0,
-                                            right: 14,
-                                            width: 10,
-                                            height: 10,
-                                            bgcolor: 'text.primary',
-                                            transform: 'translateY(-50%) rotate(45deg)',
-                                            zIndex: 0,
-                                        },
+                                        ...(theme.direction !== 'rtl' && {
+                                            '&:before': {
+                                                content: '""',
+                                                display: 'block',
+                                                position: 'absolute',
+                                                top: 0,
+                                                right: 14,
+                                                width: 10,
+                                                height: 10,
+                                                bgcolor: 'text.primary',
+                                                transform: 'translateY(-50%) rotate(45deg)',
+                                                zIndex: 0,
+
+                                            },
+                                        }),
+
                                     },
                                 }
                             }}

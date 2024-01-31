@@ -12,13 +12,13 @@ import {
 } from "@mui/material";
 import RootStyled from "./overrides/rootStyled";
 import CalendarStyled from "./overrides/calendarStyled";
-import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin, {DateClickTouchArg} from "@fullcalendar/interaction";
+import interactionPlugin, { DateClickTouchArg } from "@fullcalendar/interaction";
 import Typography from "@mui/material/Typography";
 import moment from "moment-timezone";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
 import {
     AddAppointmentCardData,
     agendaSelector,
@@ -31,24 +31,24 @@ import {
     TableHead
 } from "@features/calendar";
 import dynamic from "next/dynamic";
-import {NoDataCard} from "@features/card";
-import {uniqueId} from "lodash";
-import {BusinessHoursInput, DatesSetArg} from "@fullcalendar/core";
-import {useSwipeable} from "react-swipeable";
+import { NoDataCard } from "@features/card";
+import { uniqueId } from "lodash";
+import { BusinessHoursInput, DatesSetArg } from "@fullcalendar/core";
+import { useSwipeable } from "react-swipeable";
 import FastForwardOutlinedIcon from "@mui/icons-material/FastForwardOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import {StyledMenu} from "@features/buttons";
-import {alpha} from "@mui/material/styles";
-import {MobileContainer} from "@lib/constants";
-import {motion} from "framer-motion";
-import {useTranslation} from "next-i18next";
-import {batch} from "react-redux";
-import {prepareContextMenu} from "@lib/hooks";
-import Can, {AbilityContext} from "@features/casl/can";
+import { StyledMenu } from "@features/buttons";
+import { alpha } from "@mui/material/styles";
+import { MobileContainer } from "@lib/constants";
+import { motion } from "framer-motion";
+import { useTranslation } from "next-i18next";
+import { batch } from "react-redux";
+import { prepareContextMenu } from "@lib/hooks";
+import Can, { AbilityContext } from "@features/casl/can";
 
 const Otable = dynamic(() => import('@features/table/components/table'));
 
-function Calendar({...props}) {
+function Calendar({ ...props }) {
     const {
         isBeta,
         calendarRef,
@@ -74,7 +74,7 @@ function Calendar({...props}) {
 
     const dispatch = useAppDispatch();
     const theme = useTheme();
-    const {t} = useTranslation('common');
+    const { t } = useTranslation('common');
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const isLgScreen = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'));
     const ability = useContext(AbilityContext);
@@ -139,7 +139,7 @@ function Calendar({...props}) {
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.prev();
-            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+            dispatch(setCurrentDate({ date: calendarApi.getDate(), fallback: false }));
         }
     };
 
@@ -148,7 +148,7 @@ function Calendar({...props}) {
         if (calendarEl) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             calendarApi.next();
-            dispatch(setCurrentDate({date: calendarApi.getDate(), fallback: false}));
+            dispatch(setCurrentDate({ date: calendarApi.getDate(), fallback: false }));
         }
     };
 
@@ -160,10 +160,10 @@ function Calendar({...props}) {
                 calendarApi.gotoDate(date);
                 batch(() => {
                     dispatch(setView("timeGridDay"));
-                    dispatch(setCurrentDate({date, fallback: false}));
+                    dispatch(setCurrentDate({ date, fallback: false }));
                 });
             } else {
-                dispatch(setCurrentDate({date, fallback: false}));
+                dispatch(setCurrentDate({ date, fallback: false }));
             }
         }
     }
@@ -195,8 +195,8 @@ function Calendar({...props}) {
                     mouseY: event.clientY - 6,
                 }
                 : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-                  // Other native context menus might behave different.
-                  // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+                // Other native context menus might behave different.
+                // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
                 null,
         );
     };
@@ -290,15 +290,15 @@ function Calendar({...props}) {
                 }
             }}>
                 <Backdrop className={"backdrop-calendar"}
-                          sx={{zIndex: 100, backgroundColor: alpha(theme.palette.common.white, 0.9)}}
-                          open={!!slotInfoPopover}/>
+                    sx={{ zIndex: 100, backgroundColor: alpha(theme.palette.common.white, 0.9) }}
+                    open={!!slotInfoPopover} />
             </ClickAwayListener>}
             <RootStyled>
                 <CalendarStyled>
                     {(view === "listWeek" && !isMobile) ? (
                         <Box className="container">
                             <Otable
-                                {...{spinner, refs, mutateAgenda}}
+                                {...{ spinner, refs, mutateAgenda }}
                                 maxHeight={`calc(100vh - 180px)`}
                                 headers={TableHead}
                                 rows={eventGroupByDay}
@@ -309,13 +309,13 @@ function Calendar({...props}) {
                                 t={translation}
                             />
                             {(!spinner && eventGroupByDay.length === 0) && (
-                                <NoDataCard t={translation} data={AddAppointmentCardData}/>
+                                <NoDataCard t={translation} data={AddAppointmentCardData} />
                             )}
                         </Box>
                     ) : (!loading && view !== "listWeek") && (
-                        <Box position="relative" {...handlers} style={{touchAction: 'pan-y'}}>
+                        <Box position="relative" {...handlers} style={{ touchAction: 'pan-y' }}>
                             <FullCalendar
-                                {...{hiddenDays}}
+                                {...{ hiddenDays }}
                                 weekends
                                 editable
                                 direction={isRTL ? "rtl" : "ltr"}
@@ -340,9 +340,9 @@ function Calendar({...props}) {
                                 moreLinkContent={(event) => `${event.shortText} plus`}
                                 eventContent={(event) =>
                                     <motion.div
-                                        initial={{opacity: 0}}
-                                        animate={{opacity: 1}}
-                                        transition={{ease: "easeOut", duration: .2}}>
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ ease: "easeOut", duration: .2 }}>
                                         <Event
                                             {...{
                                                 isBeta,
@@ -353,7 +353,7 @@ function Calendar({...props}) {
                                                 roles,
                                                 view
                                             }}
-                                            t={translation}/>
+                                            t={translation} />
                                     </motion.div>
                                 }
                                 eventClassNames={(arg) => {
@@ -407,12 +407,12 @@ function Calendar({...props}) {
                                 eventClick={(eventArg) => (eventArg.event._def.ui.display !== "background" && !eventArg.event._def.extendedProps.patient?.isArchived) && handleOnSelectEvent(eventArg.event._def)}
                                 eventChange={(info) => !info.event._def.allDay && OnEventChange(info)}
                                 {...(ability.can('manage', 'agenda', 'agenda__appointment__create') && {
-                                        dateClick: (info) => {
-                                            setSlotInfo(info as DateClickTouchArg);
-                                            OnAddAppointment("add-quick");
-                                            OnSelectDate(info);
-                                        }
+                                    dateClick: (info) => {
+                                        setSlotInfo(info as DateClickTouchArg);
+                                        OnAddAppointment("add-quick");
+                                        OnSelectDate(info);
                                     }
+                                }
                                 )}
                                 select={(eventArg) => OnRangeDateSelect(eventArg)}
                                 showNonCurrentDates={true}
@@ -430,7 +430,7 @@ function Calendar({...props}) {
                                 headerToolbar={false}
                                 nowIndicator={true}
                                 eventResizableFromStart
-                                slotLabelInterval={{minutes: 30}}
+                                slotLabelInterval={{ minutes: 30 }}
                                 slotDuration="00:15:00"
                                 slotLabelFormat={SlotFormat}
                                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -489,7 +489,7 @@ function Calendar({...props}) {
                                     OnAddAppointment("add-quick");
                                     OnSelectDate(slotInfo);
                                 }} disableRipple>
-                                    <FastForwardOutlinedIcon/>
+                                    <FastForwardOutlinedIcon />
                                     {translation('add-quick')}
                                 </MenuItem>
                                 <MenuItem onClick={() => {
@@ -497,7 +497,7 @@ function Calendar({...props}) {
                                     OnAddAppointment("add-complete");
                                     OnSelectDate(slotInfo);
                                 }} disableRipple>
-                                    <AddOutlinedIcon/>
+                                    <AddOutlinedIcon />
                                     {translation('add-complete')}
                                 </MenuItem>
                             </StyledMenu>}
@@ -516,7 +516,7 @@ function Calendar({...props}) {
                                         padding: theme.spacing(2),
                                         display: "flex",
                                         alignItems: "center",
-                                        svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
+                                        svg: { color: "#fff", marginRight: theme.spacing(1), fontSize: 20 },
                                         cursor: "pointer",
                                     }
                                 }
@@ -524,7 +524,7 @@ function Calendar({...props}) {
                         }}
                         anchorPosition={
                             contextMenu !== null
-                                ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
+                                ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
                                 : undefined
                         }
                         anchorOrigin={{
@@ -539,30 +539,30 @@ function Calendar({...props}) {
                             !prepareContextMenu(data.action,
                                 (view === "listWeek" ? eventGroupByDay.reduce((eventsData: EventCalendarModel[], data) =>
                                     [...(eventsData ?? []), ...data?.events], []) : events).find(event =>
-                                    event.id === eventMenu) as EventModal, roles)).map((context: ContextMenuModel) => (
-                                <Can key={uniqueId()}
-                                     I={"manage"} a={context.feature as any} field={context.permission}>
-                                    <IconButton
-                                        onClick={() => {
-                                            const appointment = events.find(event => event.id === eventMenu) as EventModal;
-                                            const event = {
-                                                publicId: appointment.id,
-                                                extendedProps: {
-                                                    ...appointment
-                                                }
-                                            }
-                                            OnMenuActions(context.action, event);
-                                            handleClose();
-                                        }}
-                                        className="popover-item">
-                                        {context.icon}
-                                        <Typography fontSize={15} sx={{color: "#fff"}}>
-                                            {translation(`${context.title}`, {ns: 'common'})}
-                                        </Typography>
-                                    </IconButton>
-                                </Can>
-                            )
-                        )}
+                                        event.id === eventMenu) as EventModal, roles)).map((context: ContextMenuModel) => (
+                                            <Can key={uniqueId()}
+                                                I={"manage"} a={context.feature as any} field={context.permission}>
+                                                <IconButton
+                                                    onClick={() => {
+                                                        const appointment = events.find(event => event.id === eventMenu) as EventModal;
+                                                        const event = {
+                                                            publicId: appointment.id,
+                                                            extendedProps: {
+                                                                ...appointment
+                                                            }
+                                                        }
+                                                        OnMenuActions(context.action, event);
+                                                        handleClose();
+                                                    }}
+                                                    className="popover-item">
+                                                    {context.icon}
+                                                    <Typography fontSize={15} sx={{ color: "#fff" }}>
+                                                        {translation(`${context.title}`, { ns: 'common' })}
+                                                    </Typography>
+                                                </IconButton>
+                                            </Can>
+                                        )
+                                        )}
                     </Menu>
                 </CalendarStyled>
             </RootStyled>

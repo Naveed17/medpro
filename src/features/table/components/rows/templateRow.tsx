@@ -1,16 +1,16 @@
 import React from "react";
 import Switch from "@mui/material/Switch";
 import TableCell from "@mui/material/TableCell";
-import {IconButton, Typography, Skeleton, Box} from "@mui/material";
+import { IconButton, Typography, Skeleton, Box, useTheme } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
-import {TableRowStyled} from "@features/table";
-import {uniqueId} from "lodash";
-import {ModelDot} from "@features/modelDot";
+import { TableRowStyled } from "@features/table";
+import { uniqueId } from "lodash";
+import { ModelDot } from "@features/modelDot";
 import Can from "@features/casl/can";
 
-function MotifRow({...props}) {
-    const {row, handleChange, editMotif} = props;
-
+function MotifRow({ ...props }) {
+    const { row, handleChange, editMotif } = props;
+    const theme = useTheme();
     return (
         <TableRowStyled key={uniqueId}>
             <TableCell>
@@ -24,14 +24,19 @@ function MotifRow({...props}) {
                         <ModelDot
                             color={row.color}
                             selected={false}
-                            marginRight={15}></ModelDot>
+                            {...(theme.direction === 'rtl' && {
+                                style: {
+                                    marginLeft: 15
+                                }
+                            })}
+                            marginRight={theme.direction === "rtl" ? 0 : 15}></ModelDot>
 
                         <Typography variant="body1" color="text.primary">
                             {row.label}
                         </Typography>
                     </Box>
                 ) : (
-                    <Skeleton variant="text" width={100}/>
+                    <Skeleton variant="text" width={100} />
                 )}
             </TableCell>
             <TableCell align="center">
@@ -47,38 +52,38 @@ function MotifRow({...props}) {
                     <>
                         <IconButton
                             size="small"
-                            sx={{mr: {md: 1}}}
+                            sx={{ mr: { md: 1 } }}
                             onClick={() => editMotif(row, "see")}>
-                            <IconUrl path="setting/ic-voir"/>
+                            <IconUrl path="setting/ic-voir" />
                         </IconButton>
                         {!row.hasData &&
                             <>
                                 <Can I={"manage"} a={"settings"} field={"settings__patient-file-templates__update"}>
                                     <IconButton
                                         size="small"
-                                        sx={{mr: {md: .5}}}
+                                        sx={{ mr: { md: .5 } }}
                                         onClick={() => editMotif(row, "edit")}>
-                                        <IconUrl path="setting/edit"/>
+                                        <IconUrl path="setting/edit" />
                                     </IconButton>
                                 </Can>
                                 <Can I={"manage"} a={"settings"} field={"settings__patient-file-templates__delete"}>
                                     <IconButton
                                         size="small"
                                         sx={{
-                                            mr: {md: 1},
+                                            mr: { md: 1 },
                                             '& .react-svg svg': {
                                                 width: 20,
                                                 height: 20
                                             }
                                         }}
                                         onClick={() => editMotif(row, "delete")}>
-                                        <IconUrl path="setting/icdelete"/>
+                                        <IconUrl path="setting/icdelete" />
                                     </IconButton>
                                 </Can>
                             </>}
                     </>
                 ) : (
-                    <Skeleton width={30} height={40} sx={{m: "auto"}}/>
+                    <Skeleton width={30} height={40} sx={{ m: "auto" }} />
                 )}
             </TableCell>
         </TableRowStyled>
