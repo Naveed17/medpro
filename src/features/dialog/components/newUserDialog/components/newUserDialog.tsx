@@ -311,7 +311,7 @@ function NewUserDialog({...props}) {
                                 }
                             }}
                             variant='text-black'>
-                            {t("dialog.cancel")}
+                            {t(`dialog.${currentStep > 0 ? 'back' : 'cancel'}`)}
                         </Button>
                         <LoadingButton
                             loading={loading}
