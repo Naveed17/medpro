@@ -41,7 +41,7 @@ function AppointmentListMobile({...props}) {
     };
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
-    const [time, setTime] = useState<number>(
+    const [time] = useState<number>(
         moment()
             .utc()
             .seconds(parseInt(localInitTimer.format("ss"), 0))
@@ -129,7 +129,7 @@ function AppointmentListMobile({...props}) {
                                         {...(event.status?.key === "WAITING_ROOM" && {pl: 0.5})}
                                         variant="body2"
                                         fontWeight={600}>
-                                        {event.patient.lastName} {event.patient.firstName}
+                                        {event.patient.firstName} {event.patient.lastName}
                                     </Typography>}
                                 </Stack>
                             </Stack>
