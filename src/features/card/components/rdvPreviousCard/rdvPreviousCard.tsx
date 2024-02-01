@@ -48,7 +48,7 @@ function RdvCard({...props}) {
 
     const handleContextMenu = (event: any) => {
         event.stopPropagation();
-        setPopoverActions(CalendarContextMenu.filter(dataFilter => !["onReschedule", "onMove"].includes(dataFilter.action) && !prepareContextMenu(dataFilter.action, {
+        setPopoverActions(CalendarContextMenu.filter(dataFilter => !["onReschedule", "onMove", "onPatientDetail"].includes(dataFilter.action) && !prepareContextMenu(dataFilter.action, {
             ...inner,
             status: AppointmentStatus[inner?.status]
         } as EventModal, roles)));
@@ -201,7 +201,7 @@ function RdvCard({...props}) {
                         onClick={() => OnMenuActions(v.action)}>
                         {v.icon}
                         <Typography fontSize={15} sx={{color: "#fff"}}>
-                            {t(v.title)}
+                            {t(v.title, {ns: "common"})}
                         </Typography>
                     </MenuItem>
                 ))}

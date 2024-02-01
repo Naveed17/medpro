@@ -1,7 +1,7 @@
 import {styled} from "@mui/material/styles";
 import {Stack} from "@mui/material";
 
-const RecondingBoxStyle = styled(Stack)(({theme}) => ({
+const RecondingBoxStyled = styled(Stack)(({theme}) => ({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -70,4 +70,4 @@ const RecondingBoxStyle = styled(Stack)(({theme}) => ({
         '100%': {backgroundColor: 'white'}
     }
 }));
-export default RecondingBoxStyle;
+export default RecondingBoxStyled;

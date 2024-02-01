@@ -66,7 +66,6 @@ import {
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
-import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
@@ -208,11 +207,9 @@ function WaitingRoom() {
                     ...row
                 }
             } as EventDef;
-            batch(() => {
-                dispatch(setSelectedEvent(defEvent));
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-            });
+            dispatch(setSelectedEvent(defEvent));
+            dispatch(openDrawer({type: "view", open: false}));
+            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
         }
     }
 

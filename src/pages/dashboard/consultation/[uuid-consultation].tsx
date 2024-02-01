@@ -23,7 +23,15 @@ import {
     useTheme
 } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {ConsultationDetailCard, PendingDocumentCard, resetTimer, timerSelector} from "@features/card";
+import {
+    ConsultationDetailCard,
+    PendingDocumentCard,
+    resetTimer,
+    timerSelector,
+    HistoryAppointementContainer,
+    AppointHistoryContainerStyled,
+    RecondingBoxStyled
+} from "@features/card";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
 import {getBirthdayFormat, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
@@ -31,7 +39,6 @@ import {useRouter} from "next/router";
 import {alpha, Theme} from "@mui/material/styles";
 import {AppToolbar} from "@features/toolbar/components/appToolbar";
 import {MyCardStyled, SubHeader} from "@features/subHeader";
-import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {
     appointmentSelector,
@@ -44,13 +51,18 @@ import {
     TabPanel,
     TimeSchedule
 } from "@features/tabPanel";
-import AppointHistoryContainerStyled
-    from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {SubFooter} from "@features/subFooter";
 import {consultationSelector, SetPatient, SetRecord, SetSelectedDialog} from "@features/toolbar";
-import {Dialog, DialogProps, handleDrawerAction, PatientDetail} from "@features/dialog";
+import {
+    Dialog,
+    DialogProps,
+    handleDrawerAction,
+    PatientDetail,
+    ChatDiscussionDialog,
+    ObservationHistoryDialog
+} from "@features/dialog";
 import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
 import {useSession} from "next-auth/react";
@@ -59,22 +71,19 @@ import {ConsultationFilter} from "@features/leftActionBar";
 import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
-import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useSendNotification, useWidgetModels} from "@lib/hooks/rest";
-import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import Draggable from "react-draggable";
-import {DocumentPreview} from "@features/tabPanel/components/consultationTabs/documentPreview";
+import {DocumentPreview} from "@features/tabPanel";
 import DialogTitle from "@mui/material/DialogTitle";
 import {CustomIconButton, SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
-import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
 import {motion} from "framer-motion";
 import MicIcon from "@mui/icons-material/Mic";
 import useStopwatch from "@lib/hooks/useStopwatch";
@@ -82,7 +91,6 @@ import {useAudioRecorder} from "react-audio-voice-recorder";
 import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
 import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
-import ObservationHistoryDialog from "@features/dialog/components/observationHistoryDialog/observationHistoryDialog";
 import {AbilityContext} from "@features/casl/can";
 
 const grid = 5;
@@ -537,10 +545,8 @@ function ConsultationInProgress() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(resetTimer());
-                    dispatch(openDrawer({type: "view", open: false}));
-                });
+                dispatch(resetTimer());
+                dispatch(openDrawer({type: "view", open: false}));
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
             }
@@ -586,21 +592,21 @@ function ConsultationInProgress() {
 
     const DialogAction = () => {
         return (
-            <DialogActions style={{ justifyContent: "space-between", width: "100%" }}>
+            <DialogActions style={{justifyContent: "space-between", width: "100%"}}>
                 <LoadingButton
                     loading={loading}
                     loadingPosition="start"
                     variant="text"
                     color={"black"}
                     onClick={leave}
-                    startIcon={<IconUrl path="ic-temps" />}>
-                    <Typography sx={{ display: { xs: "none", md: "flex" } }}>
+                    startIcon={<IconUrl path="ic-temps"/>}>
+                    <Typography sx={{display: {xs: "none", md: "flex"}}}>
                         {t("later_on")}
                     </Typography>
                 </LoadingButton>
                 <Stack direction={"row"} spacing={2} sx={{
                     ".MuiButton-startIcon": {
-                        mr: { xs: 0, md: 1 }
+                        mr: {xs: 0, md: 1}
                     }
                 }}>
                     {/*<Button
@@ -615,9 +621,9 @@ function ConsultationInProgress() {
                         disabled={checkedNext}
                         onClick={() => setAddFinishAppointment(!addFinishAppointment)}
                         startIcon={addFinishAppointment ?
-                            <KeyboardBackspaceIcon htmlColor={theme.palette.text.primary} /> :
-                            <IconUrl width={20} height={20} path={"agenda/ic-agenda-+"} />}>
-                        <Typography sx={{ display: { xs: "none", md: "flex" } }} color={"text.primary"}>
+                            <KeyboardBackspaceIcon htmlColor={theme.palette.text.primary}/> :
+                            <IconUrl width={20} height={20} path={"agenda/ic-agenda-+"}/>}>
+                        <Typography sx={{display: {xs: "none", md: "flex"}}} color={"text.primary"}>
                             {t(addFinishAppointment ? "back" : "add_&_finish_appointment")}
                         </Typography>
                     </Button>
@@ -630,8 +636,8 @@ function ConsultationInProgress() {
                         onClick={() => {
                             saveConsultation();
                         }}
-                        startIcon={<IconUrl path="ic-check" />}>
-                        <Typography sx={{ display: { xs: "none", md: "flex" } }}>
+                        startIcon={<IconUrl path="ic-check"/>}>
+                        <Typography sx={{display: {xs: "none", md: "flex"}}}>
                             {t("end_consultation_btn")}
                         </Typography>
                     </LoadingButton>
@@ -697,11 +703,9 @@ function ConsultationInProgress() {
             data: form
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(resetTimer());
-                    dispatch(resetAppointment());
-                    dispatch(openDrawer({type: "view", open: false}));
-                });
+                dispatch(resetTimer());
+                dispatch(resetAppointment());
+                dispatch(openDrawer({type: "view", open: false}));
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
@@ -1288,18 +1292,18 @@ function ConsultationInProgress() {
                         borderTopLeftRadius: 5,
                         borderTopRightRadius: 5
                     }}>
-                        <IconUrl color={"white"} path={'history'} />
+                        <IconUrl color={"white"} path={'history'}/>
                         <Typography fontSize={18}
-                            color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
-                        <IconButton sx={{ width: 30, height: 30 }} onClick={() => setOpenHistoryDialog(false)}><IconUrl
-                            width={15} height={15} path={"close"} /></IconButton>
+                                    color={"#FFFFFF"}>{t("consultationIP.patient_observation_history")}</Typography>
+                        <IconButton sx={{width: 30, height: 30}} onClick={() => setOpenHistoryDialog(false)}><IconUrl
+                            width={15} height={15} path={"close"}/></IconButton>
                     </Stack>
                     <div style={{
                         overflow: 'auto',
                         height: 400,
                         padding: 20
                     }}>
-                        <ObservationHistoryDialog data={{ patient_uuid: sheet.patient, t }} />
+                        <ObservationHistoryDialog data={{patient_uuid: sheet.patient, t}}/>
                     </div>
 
                 </div>
@@ -1307,9 +1311,9 @@ function ConsultationInProgress() {
 
             {isHistory && <AppointHistoryContainerStyled> <Toolbar>
                 <Stack spacing={1.5} direction="row" alignItems="center" paddingTop={1} justifyContent={"space-between"}
-                    width={"100%"}>
+                       width={"100%"}>
                     <Stack spacing={1.5} direction="row" alignItems="center">
-                        <IconUrl path={'ic-speaker'} />
+                        <IconUrl path={'ic-speaker'}/>
                         {!isMobile &&
                             <Typography>{t('consultationIP.updateHistory')} {patient?.firstName} {patient?.lastName}, <b>{sheet?.date}</b>.</Typography>}
                     </Stack>
@@ -1321,7 +1325,7 @@ function ConsultationInProgress() {
                         className="btn-action"
                         color="warning"
                         size="small"
-                        startIcon={<IconUrl path="ic-retour" />}>
+                        startIcon={<IconUrl path="ic-retour"/>}>
                         {t('consultationIP.back')}
                     </LoadingButton>
                 </Stack>
@@ -1362,10 +1366,10 @@ function ConsultationInProgress() {
             </SubHeader>}
 
 
-            {<HistoryAppointementContainer {...{ isHistory, loading }}>
-                <Box style={{ paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : "" }}
-                    id={"container-tab"}
-                    className="container-scroll">
+            {<HistoryAppointementContainer {...{isHistory, loading}}>
+                <Box style={{paddingBottom: 60, backgroundColor: !isHistory ? theme.palette.info.main : ""}}
+                     id={"container-tab"}
+                     className="container-scroll">
                     <TabPanel padding={1} value={selectedTab} index={"patient_history"}>
                         <HistoryTab
                             {...{
@@ -1394,7 +1398,7 @@ function ConsultationInProgress() {
                         />
                     </TabPanel>
                     <TabPanel padding={1} value={selectedTab} index={"consultation_form"}>
-                        {sheetExam && fullOb && <Card><MyCardStyled style={{ border: 0 }}>
+                        {sheetExam && fullOb && <Card><MyCardStyled style={{border: 0}}>
                             <ConsultationDetailCard
                                 {...{
                                     changes,
@@ -1534,7 +1538,7 @@ function ConsultationInProgress() {
                         <LinearProgress sx={{
                             marginTop: '-0.5rem',
                             visibility: !httpDocumentResponse || isDocumentLoading ? "visible" : "hidden"
-                        }} color="warning" />
+                        }} color="warning"/>
                         <DocumentsTab
                             {...{
                                 documents,
@@ -1569,13 +1573,13 @@ function ConsultationInProgress() {
                     handleClose={() => setFilterDrawer(false)}
                     open={filterdrawer}
                     title={null}>
-                    <ConsultationFilter />
+                    <ConsultationFilter/>
                 </DrawerBottom>
 
                 <Stack
-                    direction={{ md: "row", xs: "column" }}
+                    direction={{md: "row", xs: "column"}}
                     position="fixed"
-                    sx={{ right: 10, bottom: 70, zIndex: 999 }}
+                    sx={{right: 10, bottom: 70, zIndex: 999}}
                     spacing={2}>
                     {pendingDocuments?.map((item: any) => (
                         <React.Fragment key={item.id}>
@@ -1600,18 +1604,18 @@ function ConsultationInProgress() {
                     open={openAddDrawer}
                     dir={direction}
                     onClose={() => {
-                        dispatch(openDrawer({ type: "add", open: false }));
+                        dispatch(openDrawer({type: "add", open: false}));
                     }}>
                     <Box height={"100%"}>
                         <CustomStepper
-                            {...{ currentStepper, t }}
+                            {...{currentStepper, t}}
                             modal={"consultation"}
                             OnTabsChange={handleStepperChange}
                             OnSubmitStepper={submitStepper}
                             OnCustomAction={handleTableActions}
                             stepperData={EventStepper}
                             scroll
-                            minWidth={726} />
+                            minWidth={726}/>
                     </Box>
                 </Drawer>
 
@@ -1621,16 +1625,16 @@ function ConsultationInProgress() {
                     dir={direction}
                     sx={{
                         "& .MuiPaper-root": {
-                            width: { xs: "100%", sm: "40%" }
+                            width: {xs: "100%", sm: "40%"}
                         }
                     }}
                     onClose={() => {
                         setOpenChat(false)
                     }}>
                     <ChatDiscussionDialog data={{
-                        session, app_uuid, setOpenChat, patient: { ...patient, uuid: sheet?.patient },
+                        session, app_uuid, setOpenChat, patient: {...patient, uuid: sheet?.patient},
                         setInfo, setOpenDialog, router, setState, mutateDoc
-                    }} />
+                    }}/>
                 </Drawer>
 
             </HistoryAppointementContainer>}
@@ -1638,9 +1642,9 @@ function ConsultationInProgress() {
             <SubFooter>
                 <Stack
                     width={1}
-                    spacing={{ xs: 1, md: 0 }}
-                    padding={{ xs: 1, md: 0 }}
-                    direction={{ xs: "column", md: "row" }}
+                    spacing={{xs: 1, md: 0}}
+                    padding={{xs: 1, md: 0}}
+                    direction={{xs: "column", md: "row"}}
                     alignItems="flex-end"
                     justifyContent={
                         selectedTab === "medical_procedures" ? "space-between" : "flex-end"
@@ -1677,13 +1681,13 @@ function ConsultationInProgress() {
                                             name: "Honoraire",
                                             info: acts.filter(act => act.selected),
                                             createdAt: moment().format("DD/MM/YYYY"),
-                                            age: patient?.birthdate ? getBirthdayFormat({ birthdate: patient.birthdate }, t) : "",
+                                            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
                                             patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
                                         });
                                         setOpenDialog(true);
 
                                     }}
-                                    startIcon={<IconUrl path="menu/ic-print" width={20} height={20} />}>
+                                    startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
                                     {t("consultationIP.print")}
                                 </Button>}
 
@@ -1695,7 +1699,7 @@ function ConsultationInProgress() {
                                 }}>
                                     <Checkbox onChange={(ev) => {
                                         changeCoveredBy(ev.target.checked)
-                                    }} checked={insuranceGenerated} />
+                                    }} checked={insuranceGenerated}/>
                                     <Typography>{t("covred")}</Typography>
                                 </Stack>}
                             </Stack>
@@ -1713,9 +1717,9 @@ function ConsultationInProgress() {
                         }}
                         color={"error"}
                         className="btn-action"
-                        startIcon={<IconUrl path="ic-check" />}
+                        startIcon={<IconUrl path="ic-check"/>}
                         variant="contained"
-                        sx={{ ".react-svg": { mr: 1 } }}>
+                        sx={{".react-svg": {mr: 1}}}>
                         {t("end_of_consultation")}
                     </LoadingButton>}
                 </Stack>
@@ -1728,11 +1732,11 @@ function ConsultationInProgress() {
                 fullWidth={true}
                 aria-labelledby="scroll-dialog-title"
                 aria-describedby="scroll-dialog-description">
-                <DialogTitle sx={{ backgroundColor: theme.palette.primary.main }} id="scroll-dialog-title">
+                <DialogTitle sx={{backgroundColor: theme.palette.primary.main}} id="scroll-dialog-title">
                     {t('consultationIP.patient_observation_history')}
                 </DialogTitle>
                 <DialogContent dividers={true}>
-                    <ObservationHistoryDialog data={{ patient_uuid: sheet?.patient, t }} />
+                    <ObservationHistoryDialog data={{patient_uuid: sheet?.patient, t}}/>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => {
@@ -1776,7 +1780,7 @@ function ConsultationInProgress() {
                 }}
                 size={"lg"}
                 color={theme.palette.error.main}
-                actionDialog={<DialogAction />}
+                actionDialog={<DialogAction/>}
             />
 
 
@@ -1786,7 +1790,7 @@ function ConsultationInProgress() {
                     open={openDialog}
                     PaperProps={{
                         sx: {
-                            overflow:'hidden'
+                            overflow: 'hidden'
                         }
                     }}
                     data={{
@@ -1803,11 +1807,11 @@ function ConsultationInProgress() {
                     }}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
                     direction={direction}
-                    sx={{ height: info === "insurance_document_print" ? 600 : 480 }}
+                    sx={{height: info === "insurance_document_print" ? 600 : 480}}
                     {...(info === "document_detail" && {
-                        sx: { height: 480, p: 0 },
+                        sx: {height: 480, p: 0},
                     })}
-                    {...(info === "write_certif" && { enableFullScreen: true })}
+                    {...(info === "write_certif" && {enableFullScreen: true})}
                     title={t(`consultationIP.${info === "document_detail" ? "doc_detail_title" : info}`)}
                     {...(info === "document_detail" && {
                         onClose: handleCloseDialog,
@@ -1815,17 +1819,17 @@ function ConsultationInProgress() {
                     dialogClose={handleCloseDialog}
                     {...(["medical_prescription", "medical_prescription_cycle"].includes(info) && {
                         headerDialog: (<DialogTitle
-                            sx={{
-                                backgroundColor: (theme: Theme) => theme.palette.primary.main,
-                                position: "relative",
-                            }}
-                            id="scroll-dialog-title">
-                            <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent={"space-between"}
-                                alignItems={{ xs: 'flex-start', sm: 'center' }}>
-                                {t(`consultationIP.${info}`)}
-                                <SwitchPrescriptionUI {...{ t, keyPrefix: "consultationIP", handleSwitchUI }} />
-                            </Stack>
-                        </DialogTitle>
+                                sx={{
+                                    backgroundColor: (theme: Theme) => theme.palette.primary.main,
+                                    position: "relative",
+                                }}
+                                id="scroll-dialog-title">
+                                <Stack direction={{xs: 'column', sm: 'row'}} justifyContent={"space-between"}
+                                       alignItems={{xs: 'flex-start', sm: 'center'}}>
+                                    {t(`consultationIP.${info}`)}
+                                    <SwitchPrescriptionUI {...{t, keyPrefix: "consultationIP", handleSwitchUI}} />
+                                </Stack>
+                            </DialogTitle>
                         ),
                         sx: {
                             p: 1.5,
@@ -1836,15 +1840,15 @@ function ConsultationInProgress() {
                     })}
                     {...(info === 'write_certif' && {
                         actionDialog: (
-                            <Stack sx={{ width: "100%" }} direction={"row"} justifyContent={"flex-end"}>
-                                <Button onClick={handleCloseDialog} startIcon={<CloseIcon />}>
+                            <Stack sx={{width: "100%"}} direction={"row"} justifyContent={"flex-end"}>
+                                <Button onClick={handleCloseDialog} startIcon={<CloseIcon/>}>
                                     {t("consultationIP.cancel")}
                                 </Button>
                                 <Button
                                     variant="contained"
                                     onClick={handleSaveCertif}
                                     disabled={info.includes("medical_prescription") && state?.length === 0}
-                                    startIcon={<SaveRoundedIcon />}>
+                                    startIcon={<SaveRoundedIcon/>}>
                                     {t("consultationIP.save")}
                                 </Button>
                             </Stack>
@@ -1852,29 +1856,29 @@ function ConsultationInProgress() {
                     })}
                     actionDialog={
                         info ? (
-                            <Stack sx={{ width: "100%" }}
-                                direction={"row"}
-                                {...(info === "medical_prescription_cycle" && {
-                                    direction: { xs: 'column', sm: 'row' },
+                            <Stack sx={{width: "100%"}}
+                                   direction={"row"}
+                                   {...(info === "medical_prescription_cycle" && {
+                                       direction: {xs: 'column', sm: 'row'},
 
-                                })}
-                                justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
+                                   })}
+                                   justifyContent={info === "medical_prescription_cycle" ? "space-between" : "flex-end"}>
                                 {info === "medical_prescription_cycle" &&
-                                    <Button sx={{ alignSelf: 'flex-start' }} startIcon={<AddIcon />} onClick={() => {
+                                    <Button sx={{alignSelf: 'flex-start'}} startIcon={<AddIcon/>} onClick={() => {
                                         dispatch(handleDrawerAction("addDrug"));
                                     }}>
                                         {t("consultationIP.add_drug")}
                                     </Button>}
-                                <Stack direction={"row"} justifyContent={{ xs: 'space-between', sm: 'flex-start' }}
-                                    spacing={1.2}
-                                    {...(info === "medical_prescription_cycle" && {
-                                        mt: { xs: 1, md: 0 }
-                                    })}>
+                                <Stack direction={"row"} justifyContent={{xs: 'space-between', sm: 'flex-start'}}
+                                       spacing={1.2}
+                                       {...(info === "medical_prescription_cycle" && {
+                                           mt: {xs: 1, md: 0}
+                                       })}>
                                     <Button
                                         color={"black"}
                                         variant={"text"}
                                         onClick={handleCloseDialog}
-                                        startIcon={<CloseIcon />}>
+                                        startIcon={<CloseIcon/>}>
                                         {t("consultationIP.cancel")}
                                     </Button>
                                     {(info !== "insurance_document_print" && openDialogSave) && <>
@@ -1885,15 +1889,15 @@ function ConsultationInProgress() {
                                             disabled={info.includes("medical_prescription") && state?.length === 0}
                                             startIcon={
                                                 <IconUrl
-                                                    {...(info.includes("medical_prescription") && state?.length === 0 && { color: "white" })}
-                                                    path={"iconfinder_save"} />}>
+                                                    {...(info.includes("medical_prescription") && state?.length === 0 && {color: "white"})}
+                                                    path={"iconfinder_save"}/>}>
                                             {t("consultationIP.save")}
                                         </Button>
                                         {info !== "add_a_document" && <Button
                                             variant="contained"
                                             onClick={() => handleSaveDialog()}
                                             disabled={info.includes("medical_prescription") && state?.length === 0}
-                                            startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"} />}>
+                                            startIcon={<IconUrl width={20} height={20} path={"menu/ic-print"}/>}>
                                             {t("consultationIP.save_print")}
                                         </Button>}
                                     </>}
@@ -1909,13 +1913,13 @@ function ConsultationInProgress() {
                 open={patientDetailDrawer}
                 dir={direction}
                 onClose={() => {
-                    dispatch(onOpenPatientDrawer({ patientId: "" }));
+                    dispatch(onOpenPatientDrawer({patientId: ""}));
                     setPatientDetailDrawer(false);
                 }}>
                 <PatientDetail
-                    {...{ isAddAppointment, mutate: mutatePatient }}
+                    {...{isAddAppointment, mutate: mutatePatient}}
                     onCloseDialog={() => {
-                        dispatch(onOpenPatientDrawer({ patientId: "" }));
+                        dispatch(onOpenPatientDrawer({patientId: ""}));
                         setPatientDetailDrawer(false);
                     }}
                     onAddAppointment={() => console.log("onAddAppointment")}
@@ -1936,7 +1940,7 @@ function ConsultationInProgress() {
                 />
             )}
 
-           {/* {!isMobile && <Draggable bounds="body">
+            {/* {!isMobile && <Draggable bounds="body">
                 <Fab sx={{
                     position: "fixed",
                     bottom: 82,
@@ -1960,21 +1964,21 @@ function ConsultationInProgress() {
                         bottom: 76,
                         right: 85
                     }}>
-                    <RecondingBoxStyle
+                    <RecondingBoxStyled
                         id={"record"}
                         direction={"row"}
                         spacing={1}
-                        style={{ width: "100%", padding: 10 }}>
+                        style={{width: "100%", padding: 10}}>
                         {selectedAudio === null ?
                             <>
                                 {!saveAudioSection ?
                                     <Stack className={'record-container'} direction={"row"} alignItems={"center"}
-                                        {...((isPaused || saveAudio) && { sx: { "& .record-button .react-svg": { height: 16 } } })}
-                                        spacing={2}>
+                                           {...((isPaused || saveAudio) && {sx: {"& .record-button .react-svg": {height: 16}}})}
+                                           spacing={2}>
                                         <Fab
                                             size={"small"}
                                             component={motion.div}
-                                            {...((isPaused || saveAudio) && { className: "is-paused" })}
+                                            {...((isPaused || saveAudio) && {className: "is-paused"})}
                                             sx={{
                                                 height: 30,
                                                 minHeight: 30,
@@ -1991,8 +1995,8 @@ function ConsultationInProgress() {
                                             layout
                                             transition={{
                                                 delay: 0.5,
-                                                x: { duration: 0.2 },
-                                                default: { ease: "linear" },
+                                                x: {duration: 0.2},
+                                                default: {ease: "linear"},
                                             }}
                                             color={(isPaused || saveAudio) ? "white" : "error"}
                                             variant={"extended"}>
@@ -2003,10 +2007,10 @@ function ConsultationInProgress() {
                                                     width: 20,
                                                     height: 20,
                                                     borderRadius: 20
-                                                }} /> : <MicIcon />}
+                                                }}/> : <MicIcon/>}
                                             <div className={"recording-text"}
-                                                id={'timer'}
-                                                style={{ fontSize: 14, ...((isPaused || saveAudio) && { color: theme.palette.text.primary }) }}>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</div>
+                                                 id={'timer'}
+                                                 style={{fontSize: 14, ...((isPaused || saveAudio) && {color: theme.palette.text.primary})}}>{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}</div>
                                             {(!isPaused && !saveAudio) && <div className="recording-circle"></div>}
                                         </Fab>
 
@@ -2024,7 +2028,7 @@ function ConsultationInProgress() {
                                             variant="filled"
                                             color={(isPaused || saveAudio) ? "error" : "primary"}
                                             size={"small"}>
-                                            <IconUrl path={(isPaused || saveAudio) ? 'ic-record-circle' : 'ic-pause'} />
+                                            <IconUrl path={(isPaused || saveAudio) ? 'ic-record-circle' : 'ic-pause'}/>
                                         </CustomIconButton>
                                         {(isPaused || saveAudio) && <LoadingButton
                                             className={"btn-action"}
@@ -2038,7 +2042,7 @@ function ConsultationInProgress() {
                                             variant='contained'
                                             size={"small"}
                                             color={"error"}
-                                            startIcon={<IconUrl path={'ic-stop-record'} color={'white'} />}
+                                            startIcon={<IconUrl path={'ic-stop-record'} color={'white'}/>}
                                             sx={{
                                                 "& .MuiSvgIcon-root": {
                                                     width: 16,
@@ -2057,7 +2061,7 @@ function ConsultationInProgress() {
                                                 dispatch(SetRecord(false));
                                                 resetWatch();
                                             }}>
-                                            <IconUrl width={24} height={24} path={'ic-trash'} />
+                                            <IconUrl width={24} height={24} path={'ic-trash'}/>
                                         </IconButton>
                                         <IconButton
                                             className={"close-button btn-action"}
@@ -2065,7 +2069,7 @@ function ConsultationInProgress() {
                                                 event.stopPropagation();
                                                 setSaveAudioSection(true);
                                             }}>
-                                            <CloseIcon htmlColor={"white"} />
+                                            <CloseIcon htmlColor={"white"}/>
                                         </IconButton>
                                     </Stack>
                                     :
@@ -2075,7 +2079,7 @@ function ConsultationInProgress() {
                                                 className={"btn-action"}
                                                 loading={loadingRequest}
                                                 loadingPosition={"start"}
-                                                startIcon={<IconUrl width={20} height={20} path={'iconfinder_save'} />}
+                                                startIcon={<IconUrl width={20} height={20} path={'iconfinder_save'}/>}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     setSaveAudio(true);
@@ -2122,7 +2126,7 @@ function ConsultationInProgress() {
                                                 resetWatch();
                                                 setSaveAudioSection(false);
                                             }}>
-                                            <CloseIcon htmlColor={"white"} />
+                                            <CloseIcon htmlColor={"white"}/>
                                         </IconButton>
                                     </>
                                 }
@@ -2130,73 +2134,73 @@ function ConsultationInProgress() {
                             :
                             <>
                                 {!deleteAudio ? <AudioPlayer
-                                    autoPlay
-                                    showDownloadProgress={false}
-                                    hasDefaultKeyBindings={false}
-                                    customProgressBarSection={
-                                        [
-                                            RHAP_UI.PROGRESS_BAR,
-                                            RHAP_UI.CURRENT_TIME,
-                                            <IconButton
+                                        autoPlay
+                                        showDownloadProgress={false}
+                                        hasDefaultKeyBindings={false}
+                                        customProgressBarSection={
+                                            [
+                                                RHAP_UI.PROGRESS_BAR,
+                                                RHAP_UI.CURRENT_TIME,
+                                                <IconButton
+                                                    className={"btn-action"}
+                                                    key={"close-icon"}
+                                                    sx={{ml: 1}}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setSelectedAudio(null);
+                                                    }}>
+                                                    <CloseIcon htmlColor={"white"}/>
+                                                </IconButton>
+                                            ]
+                                        }
+                                        customControlsSection={
+                                            [
+                                                RHAP_UI.MAIN_CONTROLS,
+                                                <IconButton
+                                                    className={"btn-action"}
+                                                    key={"ic-ia-document"}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleSpeechToText();
+                                                    }}>
+                                                    <IconUrl width={20} height={20} path={'ic-ia-document'}/>
+                                                </IconButton>,
+                                                <IconButton
+                                                    className={"btn-action"}
+                                                    key={"ic-trash"}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        setDeleteAudio(true)
+                                                    }}>
+                                                    <IconUrl width={20} height={20} path={'ic-trash'}/>
+                                                </IconButton>
+                                            ]
+                                        }
+                                        customIcons={{
+                                            play: <CustomIconButton
                                                 className={"btn-action"}
-                                                key={"close-icon"}
-                                                sx={{ ml: 1 }}
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    setSelectedAudio(null);
-                                                }}>
-                                                <CloseIcon htmlColor={"white"} />
-                                            </IconButton>
-                                        ]
-                                    }
-                                    customControlsSection={
-                                        [
-                                            RHAP_UI.MAIN_CONTROLS,
-                                            <IconButton
+                                                variant="filled"
+                                                color={"primary"}
+                                                size={"small"}>
+                                                <IconUrl path={'ic-play-audio'}/>
+                                            </CustomIconButton>,
+                                            pause: <CustomIconButton
                                                 className={"btn-action"}
-                                                key={"ic-ia-document"}
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    handleSpeechToText();
-                                                }}>
-                                                <IconUrl width={20} height={20} path={'ic-ia-document'} />
+                                                variant="filled"
+                                                color={"primary"}
+                                                size={"small"}>
+                                                <IconUrl path={'ic-pause'}/>
+                                            </CustomIconButton>,
+                                            rewind: <IconButton className={"btn-action"}>
+                                                <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-back'}/>
                                             </IconButton>,
-                                            <IconButton
-                                                className={"btn-action"}
-                                                key={"ic-trash"}
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    setDeleteAudio(true)
-                                                }}>
-                                                <IconUrl width={20} height={20} path={'ic-trash'} />
+                                            forward: <IconButton className={"btn-action"}>
+                                                <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-forward'}/>
                                             </IconButton>
-                                        ]
-                                    }
-                                    customIcons={{
-                                        play: <CustomIconButton
-                                            className={"btn-action"}
-                                            variant="filled"
-                                            color={"primary"}
-                                            size={"small"}>
-                                            <IconUrl path={'ic-play-audio'} />
-                                        </CustomIconButton>,
-                                        pause: <CustomIconButton
-                                            className={"btn-action"}
-                                            variant="filled"
-                                            color={"primary"}
-                                            size={"small"}>
-                                            <IconUrl path={'ic-pause'} />
-                                        </CustomIconButton>,
-                                        rewind: <IconButton className={"btn-action"}>
-                                            <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-back'} />
-                                        </IconButton>,
-                                        forward: <IconButton className={"btn-action"}>
-                                            <IconUrl width={20} height={20} path={'ic-rewind-10-seconds-forward'} />
-                                        </IconButton>
-                                    }}
-                                    style={{ marginTop: 10 }}
-                                    src={selectedAudio.uri.url}
-                                />
+                                        }}
+                                        style={{marginTop: 10}}
+                                        src={selectedAudio.uri.url}
+                                    />
                                     :
                                     <>
                                         <Stack direction={"row"} spacing={1}>
@@ -2204,7 +2208,7 @@ function ConsultationInProgress() {
                                                 className={"btn-action"}
                                                 loading={loadingRequest}
                                                 loadingPosition={"start"}
-                                                startIcon={<IconUrl width={20} height={20} path={'ic-trash'} />}
+                                                startIcon={<IconUrl width={20} height={20} path={'ic-trash'}/>}
                                                 onClick={(event) => {
                                                     event.stopPropagation();
                                                     removeAudioDoc();
@@ -2247,20 +2251,20 @@ function ConsultationInProgress() {
                                                 setSelectedAudio(null);
                                                 setTimeout(() => setDeleteAudio(false));
                                             }}>
-                                            <CloseIcon htmlColor={"white"} />
+                                            <CloseIcon htmlColor={"white"}/>
                                         </IconButton>
                                     </>
                                 }
                             </>
                         }
-                    </RecondingBoxStyle>
+                    </RecondingBoxStyled>
                 </CardMedia>
             </Draggable>}
         </>
     );
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
+export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
