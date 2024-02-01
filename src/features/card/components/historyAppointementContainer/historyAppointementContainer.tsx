@@ -1,5 +1,4 @@
-import AppointHistoryContainerStyled
-    from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
+import {AppointHistoryContainerStyled} from "@features/card";
 import React from "react";
 
 export default function HistoryAppointementContainer({...props}) {

@@ -11,7 +11,6 @@ import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
 import {useRouter} from "next/router";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {AppointmentPopoverCard, timerSelector} from "@features/card";
-import {batch} from "react-redux";
 import {openDrawer, setSelectedEvent} from "@features/calendar";
 import {setDialog} from "@features/topNavBar";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
@@ -34,11 +33,9 @@ function Event({...props}) {
                 query: {inProgress: true}
             }, slugConsultation, {locale: router.locale});
         } else {
-            batch(() => {
-                dispatch(setSelectedEvent(event));
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-            })
+            dispatch(setSelectedEvent(event));
+            dispatch(openDrawer({type: "view", open: false}));
+            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
         }
     }
 

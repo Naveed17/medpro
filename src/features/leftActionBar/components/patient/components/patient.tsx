@@ -20,7 +20,6 @@ import {useAppDispatch} from "@lib/redux/hooks";
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {setSelectedRows} from "@features/table";
-import {batch} from "react-redux";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 
@@ -40,10 +39,8 @@ function Patient() {
             as: "/dashboard/patient?page=1",
             url: "/dashboard/patient?page=1"
         }, '', "/dashboard/patient?page=1");
-        batch(() => {
-            dispatch(setSelectedRows([]));
-            dispatch(setFilter(data));
-        });
+        dispatch(setSelectedRows([]));
+        dispatch(setFilter(data));
     }
 
     const [dataPatient, setDataPatient] = useState([

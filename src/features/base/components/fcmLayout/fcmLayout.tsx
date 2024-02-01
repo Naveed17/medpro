@@ -110,7 +110,7 @@ function FcmLayout({...props}) {
     const getFcmMessage = () => {
         const messaging = getMessaging(firebaseCloudSdk.firebase);
         onMessage(messaging, (message: any) => {
-            const data = JSON.parse(message.data.detail);
+            const data = JSON.parse(message.data.details);
             const fcmSession = data.body?.fcm_session ?? "";
             if (fcmSession !== jti) {
                 if (data.type === "no_action") {
@@ -316,7 +316,7 @@ function FcmLayout({...props}) {
             // Event listener that listens for the push notification event in the background
             if ("serviceWorker" in navigator && process.env.NODE_ENV === "development") {
                 navigator.serviceWorker.addEventListener("message", (event) => {
-                    console.log("event for the service worker", JSON.parse(event.data.data.detail));
+                    console.log("event for the service worker", JSON.parse(event.data.data.details));
                 });
             }
         }

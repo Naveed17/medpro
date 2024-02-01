@@ -198,7 +198,7 @@ function BoardItem({...props}) {
                                     <Stack direction={"column"}
                                            spacing={.5}>
                                         {quote.content.startTime !== "00:00" &&
-                                            <Stack direction={"row"}  spacing={.5} alignItems={"center"}>
+                                            <Stack direction={"row"} spacing={.5} alignItems={"center"}>
                                                 <IconUrl path={'ic-time'} width={16}
                                                          height={16} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
                                                 <Typography
@@ -215,7 +215,7 @@ function BoardItem({...props}) {
                                         }
 
                                         {quote.content?.estimatedStartTime &&
-                                            <Stack direction={"row"}  spacing={.5} alignItems={"center"}>
+                                            <Stack direction={"row"} spacing={.5} alignItems={"center"}>
                                                 <IconUrl path={'ic-attendre'} width={15}
                                                          height={15} color={theme.palette.expire.main}/>
                                                 <Typography
@@ -315,25 +315,27 @@ function BoardItem({...props}) {
                                 {(quote.content.status === 3) && <>
                                     <Tooltip
                                         title={commonTranslation("config.next", {ns: "waitingRoom"})}>
-                                        <IconButton
-                                            onClick={(event) => handleEvent({
-                                                action: "NEXT_CONSULTATION",
-                                                row: {...quote.content, is_next: !!is_next},
-                                                event
-                                            })}
-                                            size={"small"}
-                                            disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
-                                            sx={{
-                                                border: `1px solid ${theme.palette.divider}`,
-                                                borderRadius: 1,
-                                                ...(is_next && {
-                                                    background: theme.palette.primary.main,
-                                                    border: "none"
-                                                }),
-                                            }}>
-                                            {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
-                                            {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
-                                        </IconButton>
+                                        <span>
+                                            <IconButton
+                                                onClick={(event) => handleEvent({
+                                                    action: "NEXT_CONSULTATION",
+                                                    row: {...quote.content, is_next: !!is_next},
+                                                    event
+                                                })}
+                                                size={"small"}
+                                                disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
+                                                sx={{
+                                                    border: `1px solid ${theme.palette.divider}`,
+                                                    borderRadius: 1,
+                                                    ...(is_next && {
+                                                        background: theme.palette.primary.main,
+                                                        border: "none"
+                                                    }),
+                                                }}>
+                                                {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
+                                                {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
+                                            </IconButton>
+                                        </span>
                                     </Tooltip>
                                     {!roles.includes('ROLE_SECRETARY') &&
                                         <Tooltip

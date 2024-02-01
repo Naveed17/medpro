@@ -60,3 +60,4 @@ export * from './holidaysMobileCard';
 export * from './analysisMobileCard';
 export * from './medicalImagingMobileCard';
 export * from './featurePermissionsCard';
+export * from './appointHistoryContainer';
