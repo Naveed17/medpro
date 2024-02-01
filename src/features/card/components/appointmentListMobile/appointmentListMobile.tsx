@@ -41,7 +41,7 @@ function AppointmentListMobile({...props}) {
     };
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
-    const [time, setTime] = useState<number>(
+    const [time] = useState<number>(
         moment()
             .utc()
             .seconds(parseInt(localInitTimer.format("ss"), 0))
