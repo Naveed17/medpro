@@ -24,7 +24,6 @@ import {useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
-
 const humanizeDuration = require("humanize-duration");
 import FullCalendar from "@fullcalendar/react";
 import {DateSelectArg, DatesSetArg, EventChangeArg} from "@fullcalendar/core";

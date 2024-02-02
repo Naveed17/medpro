@@ -349,7 +349,7 @@ function PatientDetail({...props}) {
         }] : []),
         ...(ability.can('manage', 'patients', 'patients__patient__details__appointment') ? [{
             title: "tabs.appointment",
-            children: <GroupTable from="patient" data={{patient, translate: t}}/>
+            children: <GroupTable from="patient" data={{patient, translate: t, closePatientDialog}}/>
         }] : []),
         ...(ability.can('manage', 'patients', 'patients__patient__details__documents') ? [{
             title: "tabs.documents",

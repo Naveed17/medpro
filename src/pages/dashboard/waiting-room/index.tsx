@@ -121,6 +121,7 @@ function WaitingRoom() {
     const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
+
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
