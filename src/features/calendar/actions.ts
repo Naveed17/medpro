@@ -13,3 +13,4 @@ export const setGroupedByDayAppointments = createAction<GroupEventsModel[]>("age
 export const setAbsences = createAction<AppointmentModel[]>("agenda/setAbsences");
 export const setAppointmentTypes = createAction<AppointmentTypeModel[]>("agenda/setAppointmentTypes");
 export const setLastUpdate = createAction<{ title: string, body: string } | null>("agenda/setLastUpdate");
+export const setMessagesRefresh = createAction<string>("messages/refresh");

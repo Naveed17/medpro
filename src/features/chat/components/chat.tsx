@@ -10,7 +10,6 @@ import {
     List,
     ListItem,
     ListItemAvatar,
-    ListItemText,
     Paper,
     Stack,
     TextField,
@@ -37,6 +36,7 @@ import {configSelector} from "@features/base";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import useUsers from "@lib/hooks/rest/useUsers";
+import {agendaSelector} from "@features/calendar";
 import PresenceMessage = Types.PresenceMessage;
 
 interface IPatient {
@@ -69,6 +69,7 @@ const Chat = ({...props}) => {
     const theme = useTheme();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {messagesRefresh} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
@@ -97,10 +98,9 @@ const Chat = ({...props}) => {
     const refList = document.getElementById("chat-list")
 
     const {data: httpDiscussionsList, mutate} = useRequestQuery({
-            method: "GET",
-            url: `/-/chat/api/discussion/${medicalEntityHasUser}`
-        }
-    )
+        method: "GET",
+        url: `/-/chat/api/discussion/${medicalEntityHasUser}`
+    })
 
     const scrollToTop = () => {
         if (refList)
@@ -176,7 +176,7 @@ const Chat = ({...props}) => {
 
     }
 
-    const getMessages = (id:string) => {
+    const getMessages = (id: string) => {
         getDiscussion({
             method: "GET",
             url: `/-/chat/api/message/${id}`
@@ -185,6 +185,10 @@ const Chat = ({...props}) => {
                 setMessages(res.data.reverse())
             }
         })
+    }
+
+    const getDiscMember = (disc: IDiscussion) => {
+        return disc.members.filter(m => m.uuid !== medicalEntityHasUser)[0]
     }
 
     useEffect(() => {
@@ -213,6 +217,13 @@ const Chat = ({...props}) => {
         if (httpDiscussionsList)
             setDiscussions(httpDiscussionsList)
     }, [httpDiscussionsList])
+
+    useEffect(() => {
+        setTimeout(()=>{
+            mutate();
+            selectedDiscussion && getMessages(selectedDiscussion);
+        },1000)
+    }, [messagesRefresh]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <ChatStyled>
@@ -267,12 +278,12 @@ const Chat = ({...props}) => {
                                 }}>
                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                     <Typography fontWeight={500}
-                                                variant='body2'>{disc.members.filter(m => m.uuid !== medicalEntityHasUser)[0].name}</Typography>
+                                                variant='body2'>{getDiscMember(disc).name}</Typography>
                                     <div style={{
                                         width: 5,
                                         height: 5,
                                         borderRadius: 10,
-                                        background: `${presenceData.find((data: PresenceMessage) => data.clientId === disc.members.filter(m => m.uuid !== medicalEntityHasUser)[0].uuid) && presenceData.find((data: PresenceMessage) => data.clientId === disc.members.filter(m => m.uuid !== medicalEntityHasUser)[0].uuid).data === "actif" ? "#1BC47D" : "#DDD"}`,
+                                        background: `${presenceData.find((data: PresenceMessage) => data.clientId === getDiscMember(disc).uuid) && presenceData.find((data: PresenceMessage) => data.clientId === getDiscMember(disc).uuid).data === "actif" ? "#1BC47D" : "#DDD"}`,
                                     }}/>
                                 </Stack>
 
@@ -330,31 +341,31 @@ const Chat = ({...props}) => {
                                     {messages.map((message: Message, index: number) => (
                                         <ListItem key={index} alignItems="flex-start"
                                                   className={message?.from !== medicalEntityHasUser ? "left" : "right"}>
-                                            {message.from !== medicalEntityHasUser && <ListItemAvatar>
-                                                <Avatar sx={{bgcolor: theme.palette.primary.main}}>{'X'}</Avatar>
+                                            {
+                                                message.from !== medicalEntityHasUser && <ListItemAvatar>
+                                                    <Avatar
+                                                        sx={{bgcolor: theme.palette.primary.main}}>{getDiscMember(discussions.find(d => d.id === selectedDiscussion) as IDiscussion).name.charAt(0)}</Avatar>
+                                                </ListItemAvatar>
+                                            }
 
-                                            </ListItemAvatar>}
-                                            <ListItemText
-                                                primary={
-                                                    <Typography fontSize={8} gutterBottom>
-                                                        {message?.from === medicalEntityHasUser ? t("you") : <>{'selectedUser?.FirstName'}</>}
-                                                        {
-                                                            message.date && <span
-                                                                className='time'>{moment.duration(moment().diff(message.date)).humanize()}</span>
-                                                        }
+                                            <Stack>
+                                                <Typography fontSize={8} gutterBottom>
+                                                    {message?.from === medicalEntityHasUser ? t("you") : <>{getDiscMember(discussions.find(d => d.id === selectedDiscussion) as IDiscussion).name}</>}
+                                                    {
+                                                        message.timestamp && <span
+                                                            className='time'>{moment.duration(moment().diff(new Date(message.timestamp))).humanize()}</span>
+                                                    }
+                                                </Typography>
+                                                <Stack spacing={1}>
+                                                    <Typography
+                                                        sx={{display: 'inline', wordWrap: "break-word"}}
+                                                        component="span"
+                                                        color="text.primary"
+                                                    >
+                                                        <div dangerouslySetInnerHTML={{__html: message.data}}></div>
+
                                                     </Typography>
-                                                }
-                                                secondary={
-                                                    <Stack spacing={1}>
-                                                        <Typography
-                                                            sx={{display: 'inline', wordWrap: "break-word"}}
-                                                            component="span"
-                                                            color="text.primary"
-                                                        >
-                                                            <div dangerouslySetInnerHTML={{__html: message.data}}></div>
-
-                                                        </Typography>
-                                                        {/*{message?.from === medicalEntityHasUser ?
+                                                    {/*{message?.from === medicalEntityHasUser ?
                                                             <Typography variant="caption" component={Stack} direction='row' alignItems='center' spacing={.5}>
                                                                 <DoneAllIcon color='primary' sx={{ fontSize: 12 }} />
                                                                 <Typography fontSize={9} color="text.secondary">{t("seen")}</Typography>
@@ -365,9 +376,8 @@ const Chat = ({...props}) => {
                                                                 <span style={{ marginLeft: 8 }}>1</span>
                                                             </Fab>
                                                         }*/}
-                                                    </Stack>
-                                                }
-                                            />
+                                                </Stack>
+                                            </Stack>
                                         </ListItem>
                                     ))}
                                 </List>
@@ -426,12 +436,13 @@ const Chat = ({...props}) => {
                                             channel.publish(selectedDiscussion, JSON.stringify({
                                                 message,
                                                 from: medicalEntityHasUser,
+                                                to: getDiscMember(discussions.find(d => d.id === selectedDiscussion) as IDiscussion).uuid,
                                                 user: `${general_information.firstName} ${general_information.lastName}`
                                             }))
-                                            setTimeout(()=>{
+                                            setTimeout(() => {
                                                 mutate()
                                                 getMessages(selectedDiscussion)
-                                            },2000)
+                                            }, 1000)
                                             setMessage("")
                                         }
                                         }

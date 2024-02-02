@@ -3,7 +3,7 @@ import * as Ably from 'ably';
 
 const client = new Ably.Realtime.Promise({authUrl: '/api/token', authMethod: 'POST'})
 
-function AblyClient({children, ...pageProps}: any) {
+function AblyClient({children}: any) {
 
     return (<AblyProvider {...{client}}>
         {children}
