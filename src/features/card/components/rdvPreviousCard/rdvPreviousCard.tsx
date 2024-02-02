@@ -2,73 +2,24 @@
 import {
     Box,
     IconButton,
-    Menu,
-    MenuItem,
     Skeleton,
     Stack,
     TableCell,
     Typography,
-    useTheme
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
 import Icon from '@themes/urlIcon'
-import {useRouter} from "next/router";
-import {AppointmentStatus, CalendarContextMenu} from "@features/calendar";
-import {useAppDispatch} from "@lib/redux/hooks";
+import {AppointmentStatus} from "@features/calendar";
 import RootStyled from "./overrides/rootStyled";
 import {Label} from "@features/label";
-import React, {useState} from "react";
+import React from "react";
 import {ModelDot} from "@features/modelDot";
 import {LoadingScreen} from "@features/loadingScreen";
-import {prepareContextMenu} from "@lib/hooks";
-import {Session} from "next-auth";
-import {useSession} from "next-auth/react";
 
 function RdvCard({...props}) {
-    const {inner, patient, loading, handlePreConsultationDialog} = props;
-    const dispatch = useAppDispatch();
-    const router = useRouter();
-    const {data: session} = useSession();
-    const theme = useTheme();
+    const {inner, loading, handleContextMenu} = props;
 
     const {t, ready} = useTranslation(["patient", "common"]);
-
-    const [contextMenu, setContextMenu] = useState<{
-        mouseX: number;
-        mouseY: number;
-    } | null>(null);
-    const [popoverActions, setPopoverActions] = useState<any[]>([]);
-
-    const {data: user} = session as Session;
-    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
-
-    const handleClose = () => {
-        setContextMenu(null);
-    };
-
-    const handleContextMenu = (event: any) => {
-        event.stopPropagation();
-        setPopoverActions(CalendarContextMenu.filter(dataFilter => !["onReschedule", "onMove", "onPatientDetail"].includes(dataFilter.action) && !prepareContextMenu(dataFilter.action, {
-            ...inner,
-            status: AppointmentStatus[inner?.status]
-        } as EventModal, roles)));
-        setContextMenu(
-            contextMenu === null
-                ? {
-                    mouseX: event.clientX + 2,
-                    mouseY: event.clientY - 6,
-                }
-                : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-                // Other native context menus might behave different.
-                // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-                null,
-        );
-    };
-
-    const OnMenuActions = (action: string) => {
-        console.log("action", action);
-        handleClose();
-    }
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -152,7 +103,7 @@ function RdvCard({...props}) {
                     ) : (
                         <IconButton
                             disabled={loading}
-                            onClick={handleContextMenu}
+                            onClick={event => handleContextMenu(event, inner)}
                             sx={{display: "block", ml: "auto"}}
                             size="small">
                             <Icon path="more-vert"/>
@@ -160,52 +111,6 @@ function RdvCard({...props}) {
                     )}
                 </TableCell>
             </RootStyled>
-
-            <Menu
-                open={contextMenu !== null}
-                onClose={handleClose}
-                anchorReference="anchorPosition"
-                slotProps={{
-                    paper: {
-                        elevation: 0,
-                        sx: {
-                            minWidth: 200,
-                            backgroundColor: theme.palette.text.primary,
-                            "& .popover-item": {
-                                padding: theme.spacing(2),
-                                display: "flex",
-                                alignItems: "center",
-                                svg: {color: "#fff", marginRight: theme.spacing(1), fontSize: 20},
-                                cursor: "pointer",
-                            }
-                        }
-                    }
-                }}
-                anchorPosition={
-                    contextMenu !== null
-                        ? {top: contextMenu.mouseY, left: contextMenu.mouseX}
-                        : undefined
-                }
-                anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                }}>
-                {popoverActions.map((v: any, index) => (
-                    <MenuItem
-                        key={index}
-                        className="popover-item"
-                        onClick={() => OnMenuActions(v.action)}>
-                        {v.icon}
-                        <Typography fontSize={15} sx={{color: "#fff"}}>
-                            {t(v.title, {ns: "common"})}
-                        </Typography>
-                    </MenuItem>
-                ))}
-            </Menu>
         </>
     );
 }
