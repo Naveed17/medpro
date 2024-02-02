@@ -149,7 +149,7 @@ function UserRow({...props}) {
                     name="active"
                     onChange={(e) => {
                         setHasDocPermission(e.target.checked);
-                        handleChange("DOC_PERMISSION", row, e)
+                        handleChange("ACCESS", row, e)
                     }}
                     checked={hasDocPermission}
                 /> : (

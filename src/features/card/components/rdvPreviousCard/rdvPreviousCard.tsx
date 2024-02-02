@@ -13,21 +13,22 @@ import {
 import {useTranslation} from "next-i18next";
 import Icon from '@themes/urlIcon'
 import {useRouter} from "next/router";
-import {AppointmentStatus} from "@features/calendar";
+import {AppointmentStatus, CalendarContextMenu} from "@features/calendar";
 import {useAppDispatch} from "@lib/redux/hooks";
 import RootStyled from "./overrides/rootStyled";
 import {Label} from "@features/label";
 import React, {useState} from "react";
 import {ModelDot} from "@features/modelDot";
-import {onAppointmentView} from "@lib/hooks/onAppointmentView";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
+import {prepareContextMenu} from "@lib/hooks";
+import {Session} from "next-auth";
+import {useSession} from "next-auth/react";
 
 function RdvCard({...props}) {
     const {inner, patient, loading, handlePreConsultationDialog} = props;
     const dispatch = useAppDispatch();
     const router = useRouter();
+    const {data: session} = useSession();
     const theme = useTheme();
 
     const {t, ready} = useTranslation(["patient", "common"]);
@@ -36,6 +37,10 @@ function RdvCard({...props}) {
         mouseX: number;
         mouseY: number;
     } | null>(null);
+    const [popoverActions, setPopoverActions] = useState<any[]>([]);
+
+    const {data: user} = session as Session;
+    const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
     const handleClose = () => {
         setContextMenu(null);
@@ -43,7 +48,10 @@ function RdvCard({...props}) {
 
     const handleContextMenu = (event: any) => {
         event.stopPropagation();
-        //setAnchorEl(event.currentTarget);
+        setPopoverActions(CalendarContextMenu.filter(dataFilter => !["onReschedule", "onMove", "onPatientDetail"].includes(dataFilter.action) && !prepareContextMenu(dataFilter.action, {
+            ...inner,
+            status: AppointmentStatus[inner?.status]
+        } as EventModal, roles)));
         setContextMenu(
             contextMenu === null
                 ? {
@@ -57,9 +65,9 @@ function RdvCard({...props}) {
         );
     };
 
-    const onConsultationView = (appointmentUuid: string) => {
-        const slugConsultation = `/dashboard/consultation/${appointmentUuid}`;
-        router.push(slugConsultation, slugConsultation, {locale: router.locale});
+    const OnMenuActions = (action: string) => {
+        console.log("action", action);
+        handleClose();
     }
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
@@ -186,35 +194,17 @@ function RdvCard({...props}) {
                     vertical: 'top',
                     horizontal: 'right',
                 }}>
-                <MenuItem
-                    className="popover-item"
-                    onClick={() => {
-                        if (inner?.status === 5) {
-                            onConsultationView(inner?.uuid)
-                        } else {
-                            handleClose();
-                            onAppointmentView({
-                                dispatch,
-                                patient,
-                                inner
-                            })
-                        }
-                    }}>
-                    <Typography fontSize={15} sx={{color: "#fff"}}>
-                        {t(`patient-details.${inner?.status === 5 ? "view_the_consultation" : "see-details"}`)}
-                    </Typography>
-                </MenuItem>
-                {/*<MenuItem
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        handleClose();
-                        handlePreConsultationDialog(inner);
-                    }}
-                    className="popover-item">
-                    <Typography fontSize={15} sx={{color: "#fff"}}>
-                        {t("patient-details.pre_consultation_data")}
-                    </Typography>
-                </MenuItem>*/}
+                {popoverActions.map((v: any, index) => (
+                    <MenuItem
+                        key={index}
+                        className="popover-item"
+                        onClick={() => OnMenuActions(v.action)}>
+                        {v.icon}
+                        <Typography fontSize={15} sx={{color: "#fff"}}>
+                            {t(v.title, {ns: "common"})}
+                        </Typography>
+                    </MenuItem>
+                ))}
             </Menu>
         </>
     );

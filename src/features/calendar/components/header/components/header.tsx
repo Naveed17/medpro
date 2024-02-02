@@ -5,9 +5,7 @@ import {ActionMenu} from "@features/menu";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {capitalizeFirst} from "@lib/hooks";
 import {BadgeStyled, openDrawer} from "@features/calendar";
-import {batch} from "react-redux";
 import {setAbsenceData} from "@features/drawer";
-
 
 function Header({...props}) {
     const {
@@ -48,13 +46,11 @@ function Header({...props}) {
                 OnDeleteAbsence();
                 break;
             case "onAddLeave":
-                batch(() => {
-                    dispatch(setAbsenceData({
-                        startDate: moment(currentDate.date).toDate(),
-                        endDate: moment(currentDate.date).endOf("day").toDate()
-                    }));
-                    dispatch(openDrawer({type: "absence", open: true}));
-                });
+                dispatch(setAbsenceData({
+                    startDate: moment(currentDate.date).toDate(),
+                    endDate: moment(currentDate.date).endOf("day").toDate()
+                }));
+                dispatch(openDrawer({type: "absence", open: true}));
                 break;
         }
     }

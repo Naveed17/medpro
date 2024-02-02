@@ -19,7 +19,6 @@ import {CipCard2nd, NoDataCard, timerSelector} from "@features/card";
 import Icon from "@themes/icon";
 import {EventDef} from "@fullcalendar/core/internal";
 import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
-import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRouter} from "next/router";
@@ -62,10 +61,8 @@ function PausedConsultationPopover({...props}) {
                 query: {inProgress: true}
             }, slugConsultation, {locale: router.locale})
         } else {
-            batch(() => {
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-            })
+            dispatch(openDrawer({type: "view", open: false}));
+            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
         }
         onClose();
     }

@@ -34,8 +34,6 @@ import {FormikProvider, useFormik} from "formik";
 import * as Yup from "yup";
 import {onOpenPatientDrawer} from "@features/table";
 import {CustomStepper} from "@features/customStepper";
-import {batch} from "react-redux";
-
 import {LoadingScreen} from "@features/loadingScreen";
 
 function Document() {
@@ -142,17 +140,15 @@ function Document() {
 
     const handleOnClick = () => {
         const [before, after] = splitLastOccurrence(query, " ");
-        batch(() => {
-            dispatch(onResetPatient());
-            dispatch(onAddPatient({
-                ...stepsData,
-                step1: {
-                    ...stepsData.step1,
-                    first_name: before ?? "",
-                    last_name: after ?? ""
-                }
-            }));
-        });
+        dispatch(onResetPatient());
+        dispatch(onAddPatient({
+            ...stepsData,
+            step1: {
+                ...stepsData.step1,
+                first_name: before ?? "",
+                last_name: after ?? ""
+            }
+        }));
         setPatientDrawer(true);
     }
 

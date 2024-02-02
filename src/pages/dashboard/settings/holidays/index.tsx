@@ -13,7 +13,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {agendaSelector, openDrawer} from "@features/calendar";
-import {batch} from "react-redux";
 import {AbsenceDrawer, absenceDrawerSelector, resetAbsenceData, setAbsenceData} from "@features/drawer";
 import {LoadingButton} from "@mui/lab";
 import {HolidaysMobileCard, NoDataCard} from "@features/card";
@@ -80,10 +79,8 @@ function Holidays() {
             data: params
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(openDrawer({type: "absence", open: false}));
-                    dispatch(resetAbsenceData());
-                });
+                dispatch(openDrawer({type: "absence", open: false}));
+                dispatch(resetAbsenceData());
                 mutateAbsences();
             },
             onSettled: () => setLoadingRequest(false)
@@ -94,15 +91,13 @@ function Holidays() {
         switch (action) {
             case "onEditAbsence":
                 setSelectedAbsence(event);
-                batch(() => {
-                    dispatch(setAbsenceData({
-                        title: event.title,
-                        mode: "edit",
-                        startDate: moment(event.startDate, "DD-MM-YYYY HH:mm").toDate(),
-                        endDate: moment(event.endDate, "DD-MM-YYYY HH:mm").toDate()
-                    }));
-                    dispatch(openDrawer({type: "absence", open: true}));
-                });
+                dispatch(setAbsenceData({
+                    title: event.title,
+                    mode: "edit",
+                    startDate: moment(event.startDate, "DD-MM-YYYY HH:mm").toDate(),
+                    endDate: moment(event.endDate, "DD-MM-YYYY HH:mm").toDate()
+                }));
+                dispatch(openDrawer({type: "absence", open: true}));
                 break;
             case "onDeleteAbsence":
                 handleDeleteAbsence(event?.uuid);
@@ -212,10 +207,8 @@ function Holidays() {
                 open={openAbsenceDrawer}
                 dir={direction}
                 onClose={() => {
-                    batch(() => {
-                        dispatch(openDrawer({type: "absence", open: false}));
-                        dispatch(resetAbsenceData());
-                    });
+                    dispatch(openDrawer({type: "absence", open: false}));
+                    dispatch(resetAbsenceData());
                 }}>
                 <AbsenceDrawer {...{t}} main={true}/>
                 <Paper
@@ -233,10 +226,8 @@ function Holidays() {
                         }}
                         variant="text-primary"
                         onClick={() => {
-                            batch(() => {
-                                dispatch(openDrawer({type: "absence", open: false}));
-                                dispatch(resetAbsenceData());
-                            });
+                            dispatch(openDrawer({type: "absence", open: false}));
+                            dispatch(resetAbsenceData());
                         }}>
                         {t(`dialogs.absence-dialog.cancel`)}
                     </Button>

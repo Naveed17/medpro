@@ -32,12 +32,12 @@ function AgreementDialog({...props}) {
             insurance: {},
             agreement: {},
         },
-
-        onSubmit: async (values) => {
+        onSubmit: async () => {
+            return undefined
         },
         validationSchema,
     });
-    const {values, setFieldValue, handleSubmit, errors} = formik;
+    const {values, setFieldValue, handleSubmit} = formik;
     return (
         <Stack>
             <Paper
@@ -92,7 +92,7 @@ function AgreementDialog({...props}) {
                                                 checked={values.selected === item ?? false}
                                                 sx={{svg: {width: 24}}}
                                                 checkedIcon={
-                                                    <IconUrl path="ic-check-circle" width={24}/>
+                                                    <IconUrl path="ic-check-circle-padding" width={24}/>
                                                 }
                                             />
                                             <Typography variant="subtitle1" fontWeight={700}>

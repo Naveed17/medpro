@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 // utils
 import Icon from "@themes/icon";
 import Link from "@themes/Link";
@@ -17,73 +17,72 @@ import {
     useMediaQuery, useTheme
 } from "@mui/material";
 // components
-import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
-import { ProfilMenu, sideBarSelector, siteHeader, toggleMobileBar, toggleSideBar } from "@features/menu";
-import { navBarSelector, NavbarStepperStyled, NavbarStyled, setDialog } from "@features/topNavBar";
-import { useRouter } from "next/router";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {ProfilMenu, sideBarSelector, siteHeader, toggleMobileBar, toggleSideBar} from "@features/menu";
+import {navBarSelector, NavbarStepperStyled, NavbarStyled, setDialog} from "@features/topNavBar";
+import {useRouter} from "next/router";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { CipCard, resetTimer, setTimer, timerSelector } from "@features/card";
-import { configSelector, dashLayoutSelector } from "@features/base";
-import { AppointmentStatsPopover, NotificationPopover, PausedConsultationPopover } from "@features/popover";
-import { EmotionJSX } from "@emotion/react/types/jsx-namespace";
-import { appLockSelector } from "@features/appLock";
-import { agendaSelector, AppointmentStatus, openDrawer } from "@features/calendar";
+import {CipCard, resetTimer, setTimer, timerSelector} from "@features/card";
+import {configSelector, dashLayoutSelector} from "@features/base";
+import {AppointmentStatsPopover, NotificationPopover, PausedConsultationPopover} from "@features/popover";
+import {EmotionJSX} from "@emotion/react/types/jsx-namespace";
+import {appLockSelector} from "@features/appLock";
+import {agendaSelector, AppointmentStatus, openDrawer} from "@features/calendar";
 import IconUrl from "@themes/urlIcon";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import { onOpenPatientDrawer } from "@features/table";
-import { Dialog, PatientDetail } from "@features/dialog";
-import { useRequestQueryMutation } from "@lib/axios";
-import { useSession } from "next-auth/react";
-import { Session } from "next-auth";
-import { LoadingButton } from "@mui/lab";
-import { LinearProgressWithLabel, progressUISelector } from "@features/progressUI";
-import { WarningTooltip } from "./warningTooltip";
-import { useMedicalEntitySuffix, useMutateOnGoing, useInvalidateQueries } from "@lib/hooks";
-import { useTranslation } from "next-i18next";
-import { MobileContainer } from "@lib/constants";
+import {onOpenPatientDrawer} from "@features/table";
+import {Dialog, PatientDetail} from "@features/dialog";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useSession} from "next-auth/react";
+import {Session} from "next-auth";
+import {LoadingButton} from "@mui/lab";
+import {LinearProgressWithLabel, progressUISelector} from "@features/progressUI";
+import {WarningTooltip} from "./warningTooltip";
+import {useMedicalEntitySuffix, useMutateOnGoing, useInvalidateQueries} from "@lib/hooks";
+import {useTranslation} from "next-i18next";
+import {MobileContainer} from "@lib/constants";
 import CloseIcon from "@mui/icons-material/Close";
-import { batch } from "react-redux";
-import { resetAppointment } from "@features/tabPanel";
-import { partition } from "lodash";
+import {resetAppointment} from "@features/tabPanel";
+import {partition} from "lodash";
 import Can from "@features/casl/can";
 
 let deferredPrompt: any;
 
-function TopNavBar({ ...props }) {
-    const { dashboard } = props;
-    const { topBar } = siteHeader;
+function TopNavBar({...props}) {
+    const {dashboard} = props;
+    const {topBar} = siteHeader;
 
     const theme = useTheme();
-    const { data: session } = useSession();
+    const {data: session} = useSession();
     const dispatch = useAppDispatch();
     const isMobile = useMediaQuery(`(max-width:${MobileContainer}px)`);
     const router = useRouter();
-    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-    const { trigger: mutateOnGoing } = useMutateOnGoing();
-    const { trigger: invalidateQueries } = useInvalidateQueries();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: mutateOnGoing} = useMutateOnGoing();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const { t: commonTranslation } = useTranslation("common");
-    const { opened, mobileOpened } = useAppSelector(sideBarSelector);
-    const { lock } = useAppSelector(appLockSelector);
+    const {t: commonTranslation} = useTranslation("common");
+    const {opened, mobileOpened} = useAppSelector(sideBarSelector);
+    const {lock} = useAppSelector(appLockSelector);
     const {
         config: agendaConfig,
         selectedEvent
     } = useAppSelector(agendaSelector);
-    const { isActive, event } = useAppSelector(timerSelector);
+    const {isActive, event} = useAppSelector(timerSelector);
     const {
         ongoing, next, notifications,
         import_data, allowNotification, pending: nbPendingAppointment
     } = useAppSelector(dashLayoutSelector);
-    const { direction } = useAppSelector(configSelector);
-    const { progress } = useAppSelector(progressUISelector);
-    const { switchConsultationDialog } = useAppSelector(navBarSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {progress} = useAppSelector(progressUISelector);
+    const {switchConsultationDialog} = useAppSelector(navBarSelector);
 
-    const { data: user } = session as Session;
+    const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
 
-    const { trigger: triggerAppointmentUpdate } = useRequestQueryMutation("/agenda/appointment/update");
-    const { trigger: updateAppointmentStatus } = useRequestQueryMutation("/agenda/appointment/update/status");
-    const { trigger: triggerAppointmentEdit } = useRequestQueryMutation("/agenda/appointment/edit");
+    const {trigger: triggerAppointmentUpdate} = useRequestQueryMutation("/agenda/appointment/update");
+    const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
+    const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("/agenda/appointment/edit");
 
     const [patientId, setPatientId] = useState("");
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
@@ -172,12 +171,10 @@ function TopNavBar({ ...props }) {
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId}/status/${router.locale}`
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(openDrawer({ type: "view", open: false }));
-                    dispatch(setDialog({ dialog: "switchConsultationDialog", value: false }));
-                });
+                dispatch(openDrawer({type: "view", open: false}));
+                dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
                 if (selectedEvent) {
-                    handleStartConsultation({ uuid: selectedEvent?.publicId }).then(() => setLoadingReq(false));
+                    handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
                 } else {
                     refreshAgendaData();
                 }
@@ -214,14 +211,12 @@ function TopNavBar({ ...props }) {
             data: form
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(resetTimer());
-                    dispatch(resetAppointment());
-                    dispatch(setDialog({ dialog: "switchConsultationDialog", value: false }));
-                });
+                dispatch(resetTimer());
+                dispatch(resetAppointment());
+                dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
 
                 if (selectedEvent) {
-                    handleStartConsultation({ uuid: selectedEvent?.publicId }).then(() => setLoadingReq(false));
+                    handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
                 } else {
                     refreshAgendaData();
                 }
@@ -235,8 +230,8 @@ function TopNavBar({ ...props }) {
         const slugConsultation = `/dashboard/consultation/${nextPatient.uuid}`;
         return router.push({
             pathname: slugConsultation,
-            query: { inProgress: true }
-        }, slugConsultation, { locale: router.locale });
+            query: {inProgress: true}
+        }, slugConsultation, {locale: router.locale});
     }
 
     const requestNotificationPermission = () => {
@@ -264,7 +259,7 @@ function TopNavBar({ ...props }) {
                         patient: {
                             lastName: firstName,
                             firstName: lastName.join(" "),
-                            ...(eventsOngoing[0]?.patient_uuid && { uuid: eventsOngoing[0]?.patient_uuid })
+                            ...(eventsOngoing[0]?.patient_uuid && {uuid: eventsOngoing[0]?.patient_uuid})
                         },
                     },
                 };
@@ -288,7 +283,7 @@ function TopNavBar({ ...props }) {
                     patient: {
                         lastName: event?.patient.split(" ")[1],
                         firstName: event?.patient.split(" ")[0],
-                        ...(event?.patient_uuid && { uuid: event?.patient_uuid })
+                        ...(event?.patient_uuid && {uuid: event?.patient_uuid})
                     },
                 },
             }));
@@ -316,7 +311,7 @@ function TopNavBar({ ...props }) {
             localStorage.setItem('Medlink-install', "true");
         });
 
-        window.matchMedia('(display-mode: standalone)').addEventListener('change', ({ matches }) => {
+        window.matchMedia('(display-mode: standalone)').addEventListener('change', ({matches}) => {
             if (matches) {
                 setInstallable(false);
             }
@@ -330,8 +325,8 @@ function TopNavBar({ ...props }) {
     const popovers: {
         [key: string]: EmotionJSX.Element
     } = {
-        "appointment-stats": <AppointmentStatsPopover />,
-        notification: <NotificationPopover {...{ setOpenPaymentDialog }} onClose={() => setAnchorEl(null)} />,
+        "appointment-stats": <AppointmentStatsPopover/>,
+        notification: <NotificationPopover {...{setOpenPaymentDialog}} onClose={() => setAnchorEl(null)}/>,
         paused: <PausedConsultationPopover
             {...{
                 pausedConsultation,
@@ -344,7 +339,7 @@ function TopNavBar({ ...props }) {
                 handleStartConsultation
             }}
             refresh={refreshAgendaData}
-            onClose={() => setAnchorEl(null)} />,
+            onClose={() => setAnchorEl(null)}/>,
     };
 
     return (
@@ -363,7 +358,7 @@ function TopNavBar({ ...props }) {
                                     edge="start"
                                     className="btn"
                                     onClick={() => router.push("/dashboard/settings")}>
-                                    <ArrowBackIcon />
+                                    <ArrowBackIcon/>
                                 </IconButton>
                             ) : (
                                 <IconButton
@@ -371,7 +366,7 @@ function TopNavBar({ ...props }) {
                                     edge="start"
                                     className="btn"
                                     onClick={() => dispatch(toggleMobileBar(mobileOpened))}>
-                                    <Icon path="ic-toggle" />
+                                    <Icon path="ic-toggle"/>
                                 </IconButton>
                             ) :
                             (!router.pathname.includes("/statistics") && <IconButton
@@ -380,7 +375,7 @@ function TopNavBar({ ...props }) {
                                 edge="start"
                                 className="btn"
                                 onClick={() => dispatch(toggleSideBar(opened))}>
-                                <Icon path="ic-toggle" />
+                                <Icon path="ic-toggle"/>
                             </IconButton>)
                         }
 
@@ -400,11 +395,11 @@ function TopNavBar({ ...props }) {
                                 color="primary"
                                 edge="start"
                                 className="btn">
-                                <Icon path="ic-fullscreen" />
+                                <Icon path="ic-fullscreen"/>
                             </IconButton>
                             {(import_data && import_data.length > 0) &&
-                                <Box sx={{ width: '16%' }}>
-                                    <LinearProgressWithLabel value={progress} />
+                                <Box sx={{width: '16%'}}>
+                                    <LinearProgressWithLabel value={progress}/>
                                 </Box>}
                         </Hidden>
 
@@ -413,15 +408,15 @@ function TopNavBar({ ...props }) {
                                 <WarningTooltip
                                     title={commonTranslation("notif_alert")}>
                                     <Avatar
-                                        sx={{ mr: 3 }}
+                                        sx={{mr: 3}}
                                         className={`Custom-MuiAvatar-root ${!isActive ? 'active' : ''}`}
                                         onClick={() => requestNotificationPermission()}>
-                                        <IconUrl path={"ic-notification-off"} width={25} height={25} color={"black"} />
+                                        <IconUrl path={"ic-notification-off"} width={25} height={25} color={"black"}/>
                                     </Avatar>
                                 </WarningTooltip>}
                             {next &&
                                 <LoadingButton
-                                    {...{ loading }}
+                                    {...{loading}}
                                     disableRipple
                                     color={"black"}
                                     onClick={() => {
@@ -444,7 +439,7 @@ function TopNavBar({ ...props }) {
                                     loadingPosition={"start"}
                                     startIcon={<Badge
                                         overlap="circular"
-                                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                        anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
                                         badgeContent={
                                             <Avatar alt="Small avatar" sx={{
                                                 pt: .2,
@@ -453,7 +448,7 @@ function TopNavBar({ ...props }) {
                                                 borderRadius: 20,
                                                 border: `2px solid ${theme.palette.background.paper}`
                                             }}>
-                                                <IconUrl width={14} height={16} path={"ic-next"} />
+                                                <IconUrl width={14} height={16} path={"ic-next"}/>
                                             </Avatar>
                                         }>
                                         <Avatar
@@ -463,7 +458,7 @@ function TopNavBar({ ...props }) {
                                                 borderRadius: 20,
                                                 border: `2px solid ${theme.palette.background.paper}`
                                             }} variant={"circular"}
-                                            src={`/static/icons/men-avatar.svg`} />
+                                            src={`/static/icons/men-avatar.svg`}/>
                                     </Badge>}
                                     variant={"contained"}>
                                     <Stack direction={"row"} alignItems={"center"}>
@@ -487,7 +482,7 @@ function TopNavBar({ ...props }) {
                                                     color: theme.palette.text.primary,
                                                     width: 20,
                                                     height: 20
-                                                }} />
+                                                }}/>
                                         </Avatar>
                                     </Stack>
                                 </LoadingButton>
@@ -497,25 +492,25 @@ function TopNavBar({ ...props }) {
                                     openPatientDialog={(uuid: string) => {
                                         setPatientId(uuid);
                                         setPatientDetailDrawer(true);
-                                    }} />
+                                    }}/>
                             }
                             <Can I={"read"} a={"consultation"}>
                                 <Badge
                                     color="warning"
                                     badgeContent={pausedConsultation.length}
-                                    sx={{ ml: 1 }}
+                                    sx={{ml: 1}}
                                     onClick={(event) => handleClick(event, "paused")}
                                     className="custom-badge badge">
                                     <IconButton color="primary" edge="start">
-                                        <Icon path={"ic-consultation-pause"} />
+                                        <Icon path={"ic-consultation-pause"}/>
                                     </IconButton>
                                 </Badge>
                             </Can>
                             {(installable && !isMobile) &&
-                                <Button sx={{ mr: 2, p: "6px 12px" }}
-                                    onClick={handleInstallClick}
-                                    startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"} />}
-                                    variant={"contained"}>
+                                <Button sx={{mr: 2, p: "6px 12px"}}
+                                        onClick={handleInstallClick}
+                                        startIcon={<IconUrl width={20} height={20} path={"Med-logo_white"}/>}
+                                        variant={"contained"}>
                                     {commonTranslation("install_app")}
                                 </Button>
                             }
@@ -531,7 +526,7 @@ function TopNavBar({ ...props }) {
                                     key={`topbar-${index}`}>
                                     <MenuItem disableRipple>
                                         <IconButton color="primary" edge="start">
-                                            <Icon path={item.icon} />
+                                            <Icon path={item.icon}/>
                                         </IconButton>
                                     </MenuItem>
                                 </Badge>
@@ -580,15 +575,15 @@ function TopNavBar({ ...props }) {
                                         },
                                     }
                                 }}
-                                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}>
+                                transformOrigin={{horizontal: 'right', vertical: 'top'}}
+                                anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}>
                                 {popovers[popoverAction]}
                             </Menu>
                         </MenuList>
                         {/*<LangButton/>*/}
                         {!isMobile && <MenuList className="topbar-account">
-                            <MenuItem sx={{ pr: 0, pl: 1 }} disableRipple>
-                                <ProfilMenu />
+                            <MenuItem sx={{pr: 0, pl: 1}} disableRipple>
+                                <ProfilMenu/>
                             </MenuItem>
                         </MenuList>}
                     </Toolbar>
@@ -596,7 +591,7 @@ function TopNavBar({ ...props }) {
                     <Dialog
                         color={theme.palette.error.main}
                         contrastText={theme.palette.error.contrastText}
-                        dialogClose={() => dispatch(setDialog({ dialog: "switchConsultationDialog", value: false }))}
+                        dialogClose={() => dispatch(setDialog({dialog: "switchConsultationDialog", value: false}))}
                         sx={{
                             direction
                         }}
@@ -608,14 +603,14 @@ function TopNavBar({ ...props }) {
                         title={commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.title`)}
                         actionDialog={
                             <Stack direction={isMobile ? "column" : "row"} justifyContent={"space-between"}
-                                sx={{ width: "100%" }}>
+                                   sx={{width: "100%"}}>
                                 <Button
                                     variant="text-primary"
                                     onClick={() => dispatch(setDialog({
                                         dialog: "switchConsultationDialog",
                                         value: false
                                     }))}
-                                    startIcon={<CloseIcon />}>
+                                    startIcon={<CloseIcon/>}>
                                     {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.cancel`)}
                                 </Button>
                                 <Stack direction={isMobile ? "column" : "row"} spacing={2}>
@@ -624,7 +619,7 @@ function TopNavBar({ ...props }) {
                                         loadingPosition="start"
                                         onClick={handlePauseStartConsultation}
                                         startIcon={<IconUrl height={"18"} width={"18"}
-                                            path="ic-pause-mate"></IconUrl>}>
+                                                            path="ic-pause-mate"></IconUrl>}>
                                         <Typography color={"text.primary"}>
                                             {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.pause`)}
                                         </Typography>
@@ -636,7 +631,7 @@ function TopNavBar({ ...props }) {
                                         variant="contained"
                                         color={"error"}
                                         startIcon={<IconUrl height={"18"} width={"18"}
-                                            path="ic-check-circle"></IconUrl>}>
+                                                            path="ic-check-circle"></IconUrl>}>
                                         {commonTranslation(`dialogs.${selectedEvent ? 'switch-consultation-dialog' : 'manage-consultation-dialog'}.finish`)}
                                     </LoadingButton>
                                 </Stack>
@@ -660,7 +655,7 @@ function TopNavBar({ ...props }) {
                         }}
                         size={"lg"}
                         fullWidth
-                        title={commonTranslation("payment_dialog_title", { ns: "payment" })}
+                        title={commonTranslation("payment_dialog_title", {ns: "payment"})}
                         dialogClose={() => setOpenPaymentDialog(false)}
                     />
 
@@ -669,13 +664,13 @@ function TopNavBar({ ...props }) {
                         open={patientDetailDrawer}
                         dir={direction}
                         onClose={() => {
-                            dispatch(onOpenPatientDrawer({ patientId: "" }));
+                            dispatch(onOpenPatientDrawer({patientId: ""}));
                             setPatientDetailDrawer(false);
                         }}>
                         <PatientDetail
-                            {...{ patientId }}
+                            {...{patientId}}
                             onCloseDialog={() => {
-                                dispatch(onOpenPatientDrawer({ patientId: "" }));
+                                dispatch(onOpenPatientDrawer({patientId: ""}));
                                 setPatientDetailDrawer(false);
                             }}
                             onConsultation={(event: string) => console.log(event)}
@@ -703,8 +698,8 @@ function TopNavBar({ ...props }) {
                         </MenuList>*/}
 
                         <MenuList className="topbar-account">
-                            <MenuItem sx={{ pr: 0, pl: 0 }} disableRipple>
-                                <ProfilMenu />
+                            <MenuItem sx={{pr: 0, pl: 0}} disableRipple>
+                                <ProfilMenu/>
                             </MenuItem>
                         </MenuList>
                     </Toolbar>

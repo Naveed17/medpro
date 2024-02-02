@@ -195,22 +195,38 @@ function BoardItem({...props}) {
                                        alignItems={"center"}
                                        minWidth={100}
                                        {...(quote.content.status === 3 && {pl: .5})}>
-                                    {quote.content.startTime !== "00:00" &&
-                                        <>
-                                            <IconUrl path={'ic-time'} width={16}
-                                                     height={16} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
-                                            <Typography
-                                                variant="body2"
-                                                fontWeight={700}
-                                                color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
-                                                {quote.content.status === 4 && time ?
-                                                    moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
-                                                    quote.content.status !== 3 ?
-                                                        quote.content.startTime :
-                                                        `${quote.content.startTime} - ${getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}`}
-                                            </Typography>
-                                        </>
-                                    }
+                                    <Stack direction={"column"}
+                                           spacing={.5}>
+                                        {quote.content.startTime !== "00:00" &&
+                                            <Stack direction={"row"} spacing={.5} alignItems={"center"}>
+                                                <IconUrl path={'ic-time'} width={16}
+                                                         height={16} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
+                                                <Typography
+                                                    variant="body2"
+                                                    fontWeight={700}
+                                                    color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
+                                                    {quote.content.status === 4 && time ?
+                                                        moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
+                                                        quote.content.status !== 3 ?
+                                                            quote.content.startTime :
+                                                            `${quote.content.startTime} - ${getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}`}
+                                                </Typography>
+                                            </Stack>
+                                        }
+
+                                        {quote.content?.estimatedStartTime &&
+                                            <Stack direction={"row"} spacing={.5} alignItems={"center"}>
+                                                <IconUrl path={'ic-attendre'} width={15}
+                                                         height={15} color={theme.palette.expire.main}/>
+                                                <Typography
+                                                    variant="body2"
+                                                    fontWeight={700}
+                                                    color={"expire.main"}>
+                                                    {quote.content?.estimatedStartTime}
+                                                </Typography>
+                                            </Stack>
+                                        }
+                                    </Stack>
                                     {quote.content.status === 5 &&
                                         <Label
                                             color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
@@ -299,25 +315,27 @@ function BoardItem({...props}) {
                                 {(quote.content.status === 3) && <>
                                     <Tooltip
                                         title={commonTranslation("config.next", {ns: "waitingRoom"})}>
-                                        <IconButton
-                                            onClick={(event) => handleEvent({
-                                                action: "NEXT_CONSULTATION",
-                                                row: {...quote.content, is_next: !!is_next},
-                                                event
-                                            })}
-                                            size={"small"}
-                                            disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
-                                            sx={{
-                                                border: `1px solid ${theme.palette.divider}`,
-                                                borderRadius: 1,
-                                                ...(is_next && {
-                                                    background: theme.palette.primary.main,
-                                                    border: "none"
-                                                }),
-                                            }}>
-                                            {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
-                                            {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
-                                        </IconButton>
+                                        <span>
+                                            <IconButton
+                                                onClick={(event) => handleEvent({
+                                                    action: "NEXT_CONSULTATION",
+                                                    row: {...quote.content, is_next: !!is_next},
+                                                    event
+                                                })}
+                                                size={"small"}
+                                                disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
+                                                sx={{
+                                                    border: `1px solid ${theme.palette.divider}`,
+                                                    borderRadius: 1,
+                                                    ...(is_next && {
+                                                        background: theme.palette.primary.main,
+                                                        border: "none"
+                                                    }),
+                                                }}>
+                                                {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
+                                                {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
+                                            </IconButton>
+                                        </span>
                                     </Tooltip>
                                     {!roles.includes('ROLE_SECRETARY') &&
                                         <Tooltip
@@ -378,7 +396,8 @@ function BoardItem({...props}) {
                 </CardContent>
             </Card>
         </Container>
-    );
+    )
+        ;
 }
 
 export default React.memo<any>(BoardItem);
