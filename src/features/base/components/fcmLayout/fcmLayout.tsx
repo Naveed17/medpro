@@ -23,7 +23,7 @@ import {
     agendaSelector,
     AppointmentStatus,
     openDrawer,
-    setLastUpdate,
+    setLastUpdate, setMessagesRefresh,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -86,7 +86,6 @@ function FcmLayout({...props}) {
     const [messages, updateMessages] = useState<any[]>([]);
     const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
     const [hasMessage, setHasMessage] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -247,22 +246,6 @@ function FcmLayout({...props}) {
         }
     };
 
-    const saveInbox = (msg: Message, userUuid: string) => {
-        if (selectedUser?.uuid === userUuid)
-            updateMessages((prev) => [...prev, msg])
-
-        let _local = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
-
-
-        if (_local) {
-            const msgs = [..._local[userUuid], msg];
-            if (_local[userUuid]) _local[userUuid] = msgs
-            else _local = {..._local, [userUuid]: msgs}
-        } else _local = {[userUuid]: [msg]};
-
-        localStorage.setItem("chat", JSON.stringify(_local))
-    }
-
     useEffect(() => {
         if (general_information) {
             const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
@@ -347,18 +330,13 @@ function FcmLayout({...props}) {
     });
 
     const {channel} = useChannel(medical_entity?.uuid, (message) => {
-        if (message.name === medicalEntityHasUser) {
+        if (JSON.parse(message.data).to === medicalEntityHasUser){
             audio.play();
             const payload = JSON.parse(message.data);
-            saveInbox({
-                from: message.clientId,
-                to: medicalEntityHasUser,
-                data: payload.data,
-                date: new Date(message.timestamp)
-            }, message.clientId)
-            setMessage({user: payload.user, message: payload.data})
+            setMessage({user: payload.user, message: payload.message})
             setTimeout(() => setMessage(null), 3000)
             setHasMessage(true)
+            dispatch(setMessagesRefresh(payload.message))
         }
     });
 
@@ -382,11 +360,8 @@ function FcmLayout({...props}) {
                 <Chat {...{
                     channel,
                     messages,
-                    selectedUser,
-                    setSelectedUser,
                     updateMessages,
                     medicalEntityHasUser,
-                    saveInbox,
                     medical_entity,
                     presenceData,
                     setHasMessage

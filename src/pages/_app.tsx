@@ -29,7 +29,14 @@ import RootLayout from "@features/base/components/rootLayout/rootLayout";
 import {ConditionalWrapper} from "@lib/hooks";
 import {CloseSnackbarAction} from "@features/popup";
 import StoreProvider from "@lib/redux/storeProvider";
-import AblyClient from "@lib/ably/ablyClient";
+
+import dynamic from "next/dynamic";
+const AblyClient = dynamic(
+    () => import("@lib/ably/ablyClient"),
+    {
+        ssr: false, // this ensures that server side rendering is never used for this component
+    },
+);
 import nextI18NextConfig from '../../next-i18next.config.js';
 
 interface MyAppProps extends AppProps {
