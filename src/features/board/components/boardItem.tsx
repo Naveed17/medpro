@@ -182,8 +182,6 @@ function BoardItem({...props}) {
                                         size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button>}
                                     <Typography
                                         {...(quote.content.status === 3 && {pl: 1})}
-                                        className={"ellipsis"}
-                                        width={100}
                                         variant='body2' fontWeight={600}>
                                         {quote.content.patient.firstName} {quote.content.patient.lastName}
                                     </Typography>
