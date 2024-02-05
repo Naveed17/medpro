@@ -230,7 +230,7 @@ function BoardItem({...props}) {
                                                     variant="body2"
                                                     fontWeight={700}
                                                     color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
-                                                    - {getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}
+                                                    {quote.content?.estimatedStartTime && " - "} {getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}
                                                 </Typography>}
                                         </Stack>
                                     </Stack>
