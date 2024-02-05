@@ -25,9 +25,9 @@
   "agenda-mode": "وضع الجدول",
   "agenda-view": {
     "timeGridDay": "اليوم",
-    "timeGridWeek": "الأسابيع",
-    "dayGridMonth": "الشهور",
-    "listWeek": "الجدول"
+    "timeGridWeek": "الأسبوع",
+    "dayGridMonth": "الشهر",
+    "listWeek": "القائمة"
   },
   "side-bar": {
     "all": "الكل",
@@ -158,7 +158,7 @@
     },
     "stepper-2": {
       "title": "اختيار المريض",
-      "sub-title": "يجب عليك إضافة مريض",
+      "sub-title": "يجب عليك إختيار مريض",
       "add_button": "إضافة مريض جديد",
       "search_placeholder": "البحث عن مريض",
       "patient": {

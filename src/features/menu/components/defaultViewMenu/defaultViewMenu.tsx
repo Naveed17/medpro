@@ -208,9 +208,17 @@ function DefaultViewMenu() {
                         <Divider/>
                         <ListItemButton>
                             <FormControlLabel
-                                sx={{"& .MuiTypography-root": {fontSize: 13}}}
+                                sx={{
+                                    "& .MuiTypography-root": {fontSize: 13},
+                                    '& .MuiSwitch-thumb': {
+                                        boxShadow: theme => theme.customShadows.filterButton,
+                                        width: 16,
+                                        height: 16,
+                                    }
+                                }}
                                 control={<Switch
                                     checked={autoConfirm}
+                                    size="small"
                                     onChange={e => {
                                         setAutoConfirm(e.target.checked)
                                         const form = new FormData();
