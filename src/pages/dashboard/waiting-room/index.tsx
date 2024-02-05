@@ -121,6 +121,7 @@ function WaitingRoom() {
     const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
+
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
@@ -523,7 +524,6 @@ function WaitingRoom() {
                     </DesktopContainer>
                     <TabPanel padding={.1} value={tabIndex} index={1}>
                         {!!waitingRoomsGroup[1]?.length ? <>
-
                                 <DesktopContainer>
                                     <Otable
                                         sx={{mt: 2}}
@@ -588,6 +588,7 @@ function WaitingRoom() {
                                 {...{t}}
                                 sx={{mt: 8}}
                                 onHandleClick={() => {
+                                    setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
                                     setTimeout(() => setQuickAddAppointmentTab(1));
                                 }}
@@ -644,6 +645,7 @@ function WaitingRoom() {
                                 {...{t}}
                                 sx={{mt: 8}}
                                 onHandleClick={() => {
+                                    setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
                                     setTimeout(() => setQuickAddAppointmentTab(3));
                                 }}

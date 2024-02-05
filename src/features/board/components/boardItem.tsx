@@ -90,7 +90,7 @@ function BoardItem({...props}) {
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
-    const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
+    const localInitTimer = moment(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
     const [duration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote.content.dayDate} ${quote.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
 
@@ -182,8 +182,6 @@ function BoardItem({...props}) {
                                         size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button>}
                                     <Typography
                                         {...(quote.content.status === 3 && {pl: 1})}
-                                        className={"ellipsis"}
-                                        width={100}
                                         variant='body2' fontWeight={600}>
                                         {quote.content.patient.firstName} {quote.content.patient.lastName}
                                     </Typography>
@@ -214,18 +212,28 @@ function BoardItem({...props}) {
                                             </Stack>
                                         }
 
-                                        {quote.content?.estimatedStartTime &&
+                                        {![4, 5].includes(quote.content.status) &&
                                             <Stack direction={"row"} spacing={.5} alignItems={"center"}>
-                                                <IconUrl path={'ic-attendre'} width={15}
-                                                         height={15} color={theme.palette.expire.main}/>
-                                                <Typography
-                                                    variant="body2"
-                                                    fontWeight={700}
-                                                    color={"expire.main"}>
-                                                    {quote.content?.estimatedStartTime}
-                                                </Typography>
-                                            </Stack>
-                                        }
+                                                {quote.content?.estimatedStartTime &&
+                                                    <Stack direction={"row"} spacing={.5} alignItems={"center"}>
+                                                        <IconUrl path={'ic-attendre'} width={15}
+                                                                 height={15} color={theme.palette.expire.main}/>
+                                                        <Typography
+                                                            variant="body2"
+                                                            fontWeight={700}
+                                                            color={"expire.main"}>
+                                                            {quote.content?.estimatedStartTime}
+                                                        </Typography>
+                                                    </Stack>
+                                                }
+                                                {quote.content.startTime === "00:00" &&
+                                                    <Typography
+                                                        variant="body2"
+                                                        fontWeight={700}
+                                                        color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
+                                                        {quote.content?.estimatedStartTime && " - "} {getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}
+                                                    </Typography>}
+                                            </Stack>}
                                     </Stack>
                                     {quote.content.status === 5 &&
                                         <Label

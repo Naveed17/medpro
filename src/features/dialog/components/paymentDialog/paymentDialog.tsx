@@ -579,7 +579,7 @@ function PaymentDialog({...props}) {
                 backgroundColor: "white",
                 padding: "15px 0"
             }} justifyContent={"flex-end"} spacing={1}>
-                <Button onClick={() => setOpenPaymentDialog(false)}>{t('close')}</Button>
+                <Button variant={"text-black"} onClick={() => setOpenPaymentDialog(false)}>{t('close')}</Button>
                 {!(getTotalPayments() == 0) ?
                     <Button
                         startIcon={<IconUrl path={'ic-argent'} color={'white'}/>}
