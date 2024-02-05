@@ -212,18 +212,27 @@ function BoardItem({...props}) {
                                             </Stack>
                                         }
 
-                                        {quote.content?.estimatedStartTime &&
-                                            <Stack direction={"row"} spacing={.5} alignItems={"center"}>
-                                                <IconUrl path={'ic-attendre'} width={15}
-                                                         height={15} color={theme.palette.expire.main}/>
+                                        <Stack direction={"row"} spacing={.5} alignItems={"center"}>
+                                            {quote.content?.estimatedStartTime &&
+                                                <Stack direction={"row"} spacing={.5} alignItems={"center"}>
+                                                    <IconUrl path={'ic-attendre'} width={15}
+                                                             height={15} color={theme.palette.expire.main}/>
+                                                    <Typography
+                                                        variant="body2"
+                                                        fontWeight={700}
+                                                        color={"expire.main"}>
+                                                        {quote.content?.estimatedStartTime}
+                                                    </Typography>
+                                                </Stack>
+                                            }
+                                            {quote.content.startTime === "00:00" &&
                                                 <Typography
                                                     variant="body2"
                                                     fontWeight={700}
-                                                    color={"expire.main"}>
-                                                    {quote.content?.estimatedStartTime}
-                                                </Typography>
-                                            </Stack>
-                                        }
+                                                    color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
+                                                    - {getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}
+                                                </Typography>}
+                                        </Stack>
                                     </Stack>
                                     {quote.content.status === 5 &&
                                         <Label
