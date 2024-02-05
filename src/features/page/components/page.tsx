@@ -538,6 +538,7 @@ function Page({...props}) {
                                  style={{background: selectedElement === "content" ? theme.palette.success.main : theme.palette.info.main}}>
                                 <div onClick={() => {
                                     setSelectedElement(selectedElement !== "content" ? "content" : "")
+                                    selectedElement === "content" && interact(".content").draggable(false);
                                 }}>
                                     {selectedElement === "content" ?
                                         <Icon path={"ic-check"}/> :
