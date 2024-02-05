@@ -19,7 +19,7 @@ Sentry.init({
     // sessions when an error occurs.
     replaysOnErrorSampleRate: 1.0,
     // Session Replay
-    integrations: [new Sentry.Replay()],
+    integrations: [Sentry.replayIntegration()],
     // ...
     // Note: if you want to override the automatic release value, do not set a
     // `release` value here - use the environment variable `SENTRY_RELEASE`, so
