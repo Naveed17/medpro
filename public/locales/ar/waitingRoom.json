@@ -35,7 +35,7 @@
     "pending": "قيد الانتظار",
     "cancel": "تم الإلغاء",
     "expired": "منتهي",
-    "no_show": "المريض لم يظهر",
+    "no_show": "المريض لم يأت",
     "cancel_patient": "تم الإلغاء بواسطة المريض",
     "note": "ملاحظات"
   },
@@ -47,7 +47,7 @@
     "add-quick-drawer": "إضافة سريعة لموعد",
     "doc_detail_title": "المستند",
     "view_the_consultation": "فتح الاستشارة",
-    "patient_no_show": "المريض لم يظهر",
+    "patient_no_show": "المريض لم يأت",
     "addsuccess": "تمت إضافة الدفع",
     "start": "بداية",
     "more": "المزيد",

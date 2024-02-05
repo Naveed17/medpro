@@ -135,7 +135,7 @@ function CalendarToolbar({...props}) {
                             <Typography variant="body2" component={"span"} fontWeight={"bold"}>
                                 {view === 'timeGridWeek' ?
                                     `${moment(timeRange.start, "DD/MM/YYYY").format(`DD ${timeRange.start.split('-')[1] !== moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("MM") ? 'MMM' : ''} ${timeRange.start.split('-')[2] !== moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("YYYY") ? 'YYYY' : ''}`)} - ${moment(timeRange.end, "DD/MM/YYYY").subtract(1, "day").format("DD MMM YYYY")}` :
-                                    moment(currentDate.date.toLocaleDateString("fr"), "DD/MM/YYYY").format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM YYYY' : 'Do MMMM, YYYY')}
+                                    (typeof currentDate.date === "string" ? moment(currentDate.date) : moment(currentDate.date.toLocaleDateString("fr"), "DD/MM/YYYY")).format(view === 'dayGridMonth' || view === 'timeGridWeek' ? 'MMMM YYYY' : 'Do MMMM, YYYY')}
                             </Typography>
                         </Button>
 

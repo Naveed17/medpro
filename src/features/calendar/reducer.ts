@@ -5,12 +5,13 @@ import {
     setConfig,
     setCurrentDate,
     setGroupedByDayAppointments,
-    setLastUpdate,
+    setLastUpdate, setMessagesRefresh,
     setSelectedEvent,
     setStepperIndex,
     setView
 } from './actions';
 import {EventDef} from "@fullcalendar/core/internal";
+import moment from "moment-timezone";
 
 export type CalendarProps = {
     view: string | undefined;
@@ -29,6 +30,7 @@ export type CalendarProps = {
     sortedData: GroupEventsModel[];
     absences: AppointmentModel[];
     appointmentTypes: AppointmentTypeModel[];
+    messagesRefresh:string,
     lastUpdateNotification: { title: string, body: string } | null;
 };
 
@@ -44,11 +46,12 @@ const initialState: CalendarProps = {
     config: null,
     actionSet: null,
     agendas: [],
-    currentDate: {date: new Date(), fallback: false},
+    currentDate: {date: moment().toDate(), fallback: false},
     selectedEvent: null,
     sortedData: [],
     absences: [],
     appointmentTypes: [],
+    messagesRefresh:"",
     lastUpdateNotification: null
 };
 
@@ -96,5 +99,7 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.lastUpdateNotification = action.payload;
     }).addCase(setAppointmentTypes, (state, action) => {
         state.appointmentTypes = action.payload;
+    }).addCase(setMessagesRefresh, (state, action) => {
+        state.messagesRefresh = action.payload;
     });
 });

@@ -42,7 +42,6 @@ import {alpha} from "@mui/material/styles";
 import {MobileContainer} from "@lib/constants";
 import {motion} from "framer-motion";
 import {useTranslation} from "next-i18next";
-import {batch} from "react-redux";
 import {prepareContextMenu} from "@lib/hooks";
 import Can, {AbilityContext} from "@features/casl/can";
 
@@ -158,10 +157,8 @@ function Calendar({...props}) {
             const calendarApi = (calendarEl as FullCalendar).getApi();
             if (!['path', 'svg'].includes((jsEvent.target as any)?.nodeName)) {
                 calendarApi.gotoDate(date);
-                batch(() => {
-                    dispatch(setView("timeGridDay"));
-                    dispatch(setCurrentDate({date, fallback: false}));
-                });
+                dispatch(setView("timeGridDay"));
+                dispatch(setCurrentDate({date, fallback: false}));
             } else {
                 dispatch(setCurrentDate({date, fallback: false}));
             }
@@ -195,8 +192,8 @@ function Calendar({...props}) {
                     mouseY: event.clientY - 6,
                 }
                 : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-                  // Other native context menus might behave different.
-                  // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+                // Other native context menus might behave different.
+                // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
                 null,
         );
     };

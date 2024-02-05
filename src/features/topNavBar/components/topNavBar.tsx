@@ -42,7 +42,6 @@ import {useMedicalEntitySuffix, useMutateOnGoing, useInvalidateQueries} from "@l
 import {useTranslation} from "next-i18next";
 import {MobileContainer} from "@lib/constants";
 import CloseIcon from "@mui/icons-material/Close";
-import {batch} from "react-redux";
 import {resetAppointment} from "@features/tabPanel";
 import {partition} from "lodash";
 import Can from "@features/casl/can";
@@ -172,10 +171,8 @@ function TopNavBar({...props}) {
             url: `${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${event?.publicId}/status/${router.locale}`
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(openDrawer({type: "view", open: false}));
-                    dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
-                });
+                dispatch(openDrawer({type: "view", open: false}));
+                dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
                 if (selectedEvent) {
                     handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
                 } else {
@@ -214,11 +211,9 @@ function TopNavBar({...props}) {
             data: form
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(resetTimer());
-                    dispatch(resetAppointment());
-                    dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
-                });
+                dispatch(resetTimer());
+                dispatch(resetAppointment());
+                dispatch(setDialog({dialog: "switchConsultationDialog", value: false}));
 
                 if (selectedEvent) {
                     handleStartConsultation({uuid: selectedEvent?.publicId}).then(() => setLoadingReq(false));
@@ -326,7 +321,6 @@ function TopNavBar({...props}) {
             setInstallable(false);
         }
     }, []);
-
 
     const popovers: {
         [key: string]: EmotionJSX.Element
@@ -563,18 +557,21 @@ function TopNavBar({...props}) {
                                                 ml: -0.5,
                                                 mr: 1,
                                             },
-                                            '&:before': {
-                                                content: '""',
-                                                display: 'block',
-                                                position: 'absolute',
-                                                top: 0,
-                                                right: 8,
-                                                width: 10,
-                                                height: 10,
-                                                bgcolor: 'background.paper',
-                                                transform: 'translateY(-50%) rotate(45deg)',
-                                                zIndex: 0,
-                                            },
+                                            ...(direction !== 'rtl' && {
+                                                '&:before': {
+                                                    content: '""',
+                                                    display: 'block',
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    right: 8,
+                                                    width: 10,
+                                                    height: 10,
+                                                    bgcolor: 'background.paper',
+                                                    transform: 'translateY(-50%) rotate(45deg)',
+                                                    zIndex: 0,
+                                                },
+                                            })
+
                                         },
                                     }
                                 }}

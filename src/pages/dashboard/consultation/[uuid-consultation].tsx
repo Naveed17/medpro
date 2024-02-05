@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useContext, useEffect, useState} from "react";
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
@@ -23,16 +23,22 @@ import {
     useTheme
 } from "@mui/material";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {ConsultationDetailCard, PendingDocumentCard, resetTimer, timerSelector} from "@features/card";
+import {
+    ConsultationDetailCard,
+    PendingDocumentCard,
+    resetTimer,
+    timerSelector,
+    HistoryAppointementContainer,
+    AppointHistoryContainerStyled,
+    RecondingBoxStyled
+} from "@features/card";
 import {agendaSelector, openDrawer, setStepperIndex} from "@features/calendar";
 import {useTranslation} from "next-i18next";
 import {getBirthdayFormat, useMedicalEntitySuffix, useMutateOnGoing} from "@lib/hooks";
 import {useRouter} from "next/router";
-import {tabs} from "@features/toolbar/components/appToolbar/config";
 import {alpha, Theme} from "@mui/material/styles";
 import {AppToolbar} from "@features/toolbar/components/appToolbar";
 import {MyCardStyled, SubHeader} from "@features/subHeader";
-import HistoryAppointementContainer from "@features/card/components/historyAppointementContainer";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {
     appointmentSelector,
@@ -45,13 +51,18 @@ import {
     TabPanel,
     TimeSchedule
 } from "@features/tabPanel";
-import AppointHistoryContainerStyled
-    from "@features/appointHistoryContainer/components/overrides/appointHistoryContainerStyle";
 import IconUrl from "@themes/urlIcon";
 import {LoadingButton} from "@mui/lab";
 import {SubFooter} from "@features/subFooter";
 import {consultationSelector, SetPatient, SetRecord, SetSelectedDialog} from "@features/toolbar";
-import {Dialog, DialogProps, handleDrawerAction, PatientDetail} from "@features/dialog";
+import {
+    Dialog,
+    DialogProps,
+    handleDrawerAction,
+    PatientDetail,
+    ChatDiscussionDialog,
+    ObservationHistoryDialog
+} from "@features/dialog";
 import moment from "moment/moment";
 import CloseIcon from "@mui/icons-material/Close";
 import {useSession} from "next-auth/react";
@@ -60,22 +71,19 @@ import {ConsultationFilter} from "@features/leftActionBar";
 import {CustomStepper} from "@features/customStepper";
 import ImageViewer from "react-simple-image-viewer";
 import {onOpenPatientDrawer, tableActionSelector} from "@features/table";
-import ChatDiscussionDialog from "@features/dialog/components/chatDiscussion/chatDiscussion";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {useSendNotification, useWidgetModels} from "@lib/hooks/rest";
-import {batch} from "react-redux";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import Draggable from "react-draggable";
-import {DocumentPreview} from "@features/tabPanel/components/consultationTabs/documentPreview";
+import {DocumentPreview} from "@features/tabPanel";
 import DialogTitle from "@mui/material/DialogTitle";
 import {CustomIconButton, SwitchPrescriptionUI} from "@features/buttons";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
-import RecondingBoxStyle from "@features/card/components/consultationDetailCard/overrides/recordingBoxStyle";
 import {motion} from "framer-motion";
 import MicIcon from "@mui/icons-material/Mic";
 import useStopwatch from "@lib/hooks/useStopwatch";
@@ -83,7 +91,7 @@ import {useAudioRecorder} from "react-audio-voice-recorder";
 import AudioPlayer, {RHAP_UI} from "react-h5-audio-player";
 import {ConsultationCard} from "@features/consultationCard";
 import {useSnackbar} from "notistack";
-import ObservationHistoryDialog from "@features/dialog/components/observationHistoryDialog/observationHistoryDialog";
+import {AbilityContext} from "@features/casl/can";
 
 const grid = 5;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
@@ -128,13 +136,11 @@ function ConsultationInProgress() {
         recordingBlob,
         isPaused
     } = useAudioRecorder();
+    const ability = useContext(AbilityContext);
+
     const {t} = useTranslation("consultation");
     //***** SELECTORS ****//
-    const {
-        medicalEntityHasUser,
-        medicalProfessionalData
-    } = useAppSelector(dashLayoutSelector);
-
+    const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
     const {isActive, event} = useAppSelector(timerSelector);
     const {selectedDialog, record} = useAppSelector(consultationSelector);
@@ -237,21 +243,30 @@ function ConsultationInProgress() {
     const [addFinishAppointment, setAddFinishAppointment] = useState<boolean>(false);
     const [showDocument, setShowDocument] = useState(false);
     const [nbDoc, setNbDoc] = useState(0);
-    const [cards, setCards] = useState([[
-        {
-            id: 'item-1',
-            content: 'widget',
-            expanded: cardPositions ? cardPositions.widget : false,
-            config: false,
-            icon: "ic-edit-file-pen"
-        },
-        {id: 'item-2', content: 'history', expanded: false, icon: "ic-historique"}
-    ], [{
-        id: 'item-3',
-        content: 'exam',
-        expanded: cardPositions ? cardPositions.exam : true,
-        icon: "ic-edit-file-pen"
-    }]]);
+    const [cards, setCards] = useState([
+        [
+            {
+                id: 'item-1',
+                content: 'widget',
+                expanded: cardPositions ? cardPositions.widget : false,
+                config: false,
+                icon: "ic-edit-file-pen"
+            },
+            ...(ability.can("manage", "consultation", "consultation__consultation__history__show") ? [{
+                id: 'item-2',
+                content: 'history',
+                expanded: false,
+                icon: "ic-historique"
+            }] : [])
+        ],
+        [
+            {
+                id: 'item-3',
+                content: 'exam',
+                expanded: cardPositions ? cardPositions.exam : true,
+                icon: "ic-edit-file-pen"
+            }
+        ]]);
     const [mobileCards, setMobileCards] = useState([[
         {id: 'item-1', content: 'widget', expanded: false, config: false, icon: "ic-edit-file-pen"},
         {id: 'item-3', content: 'exam', expanded: true, icon: "ic-edit-file-pen"}
@@ -289,11 +304,28 @@ function ConsultationInProgress() {
     const sheetModal = sheet?.modal;
 
     const hasDataHistory = sheet?.hasDataHistory
-    const tabsData = [...sheet?.hasHistory ? [{
-        label: "patient_history",
-        label_mobile: "patient_history",
-        value: "patient history"
-    }] : [], ...tabs]
+    const tabsData = [
+        ...sheet?.hasHistory && ability.can("manage", "consultation", "consultation__consultation__history__show") ? [{
+            label: "patient_history",
+            label_mobile: "patient_history",
+            value: "patient history"
+        }] : [],
+        ...(ability.can("manage", "consultation", "consultation__consultation__fiche__show") ? [{
+            label: "consultation_form",
+            label_mobile: "cfiche",
+            value: "consultation form"
+        }] : []),
+        ...(ability.can("manage", "consultation", "consultation__consultation__documents__show") ? [{
+            label: "documents",
+            label_mobile: "docs",
+            value: "documents"
+        }] : []),
+        ...(ability.can("manage", "consultation", "consultation__consultation__fees__show") ? [{
+            label: "medical_procedures",
+            label_mobile: "fees",
+            value: "medical procedures"
+        }] : [])
+    ]
 
     const {data: httpPatientPreview, mutate: mutatePatient} = useRequestQuery(sheet?.patient && medicalEntityHasUser ? {
         method: "GET",
@@ -513,10 +545,8 @@ function ConsultationInProgress() {
             url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/status/${router.locale}`
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(resetTimer());
-                    dispatch(openDrawer({type: "view", open: false}));
-                });
+                dispatch(resetTimer());
+                dispatch(openDrawer({type: "view", open: false}));
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
             }
@@ -673,11 +703,9 @@ function ConsultationInProgress() {
             data: form
         }, {
             onSuccess: () => {
-                batch(() => {
-                    dispatch(resetTimer());
-                    dispatch(resetAppointment());
-                    dispatch(openDrawer({type: "view", open: false}));
-                });
+                dispatch(resetTimer());
+                dispatch(resetAppointment());
+                dispatch(openDrawer({type: "view", open: false}));
                 clearData();
                 mutateOnGoing();
                 router.push("/dashboard/agenda");
@@ -1441,7 +1469,7 @@ function ConsultationInProgress() {
                                     fullOb,
                                     setFullOb,
                                     patient
-                                }}/>
+                                }} />
                             </Grid>}
                             <Grid item md={showDocument ? 2 : 0}>
                                 {showDocument && <DocumentPreview {...{
@@ -1452,7 +1480,7 @@ function ConsultationInProgress() {
                                     theme,
                                     showPreview,
                                     t,
-                                }}/>}
+                                }} />}
                             </Grid>
                             {isMobile && <Grid item xs={12}>
                                 <ConsultationCard {...{
@@ -1502,7 +1530,7 @@ function ConsultationInProgress() {
                                     fullOb,
                                     setFullOb,
                                     patient
-                                }}/>
+                                }} />
                             </Grid>}
                         </Grid>}
                     </TabPanel>
@@ -1537,7 +1565,7 @@ function ConsultationInProgress() {
                             devise,
                             mutatePatient,
                             t
-                        }}/>
+                        }} />
                     </TabPanel>
                 </Box>
 
@@ -1700,6 +1728,7 @@ function ConsultationInProgress() {
             <DialogMui
                 open={openHistoryDialog && isMobile}
                 scroll={'paper'}
+                dir={direction}
                 fullWidth={true}
                 aria-labelledby="scroll-dialog-title"
                 aria-describedby="scroll-dialog-description">
@@ -1761,7 +1790,7 @@ function ConsultationInProgress() {
                     open={openDialog}
                     PaperProps={{
                         sx: {
-                            overflow:'hidden'
+                            overflow: 'hidden'
                         }
                     }}
                     data={{
@@ -1777,7 +1806,7 @@ function ConsultationInProgress() {
                         setPrescription
                     }}
                     size={["add_vaccin"].includes(info) ? "sm" : "xl"}
-                    direction={"ltr"}
+                    direction={direction}
                     sx={{height: info === "insurance_document_print" ? 600 : 480}}
                     {...(info === "document_detail" && {
                         sx: {height: 480, p: 0},
@@ -1911,7 +1940,7 @@ function ConsultationInProgress() {
                 />
             )}
 
-           {/* {!isMobile && <Draggable bounds="body">
+            {/* {!isMobile && <Draggable bounds="body">
                 <Fab sx={{
                     position: "fixed",
                     bottom: 82,
@@ -1935,7 +1964,7 @@ function ConsultationInProgress() {
                         bottom: 76,
                         right: 85
                     }}>
-                    <RecondingBoxStyle
+                    <RecondingBoxStyled
                         id={"record"}
                         direction={"row"}
                         spacing={1}
@@ -2228,7 +2257,7 @@ function ConsultationInProgress() {
                                 }
                             </>
                         }
-                    </RecondingBoxStyle>
+                    </RecondingBoxStyled>
                 </CardMedia>
             </Draggable>}
         </>

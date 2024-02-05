@@ -21,7 +21,12 @@ const RootStyled = styled(Paper)(({theme}) => ({
         borderTopRightRadius: 6,
         "& .MuiTypography-root": {
             color: "#fff"
-        }
+        },
+        ...(theme.direction === 'rtl' && {
+            left:'unset',
+            right:'calc(100% - 24px)'
+
+        })
     },
     "& .MuiChip-label": {
         fontSize: 11,

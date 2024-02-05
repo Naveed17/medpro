@@ -34,7 +34,6 @@ import {LoadingButton} from "@mui/lab";
 import {setSelectedRows} from "@features/table";
 import ArchiveRoundedIcon from "@mui/icons-material/ArchiveRounded";
 import {setPaymentTypesList} from "@features/leftActionBar/components/cashbox";
-import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {pdfjs} from "react-pdf";
 import {NewFeaturesCarousel} from "@features/carousels";
@@ -209,11 +208,9 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
         }, {
             onSuccess: () => {
                 setLoading(false);
-                batch(() => {
-                    dispatch(setSelectedRows([]));
-                    dispatch(setDuplicated({openDialog: false}));
-                    dispatch(resetDuplicated());
-                });
+                dispatch(setSelectedRows([]));
+                dispatch(setDuplicated({openDialog: false}));
+                dispatch(resetDuplicated());
                 setTimeout(() => setMergeDialog(false));
                 mutateDuplicationSource && mutateDuplicationSource();
             }
@@ -286,7 +283,9 @@ function DashLayout({children}: LayoutProps, ref: PageTransitionRef) {
     }, [dispatch, permission]);
 
     useEffect(() => {
-        if (general_information && general_information?.agendaDefaultFormat) {
+        if (isMobile) {
+            dispatch(setView("listWeek"));
+        } else if (general_information && general_information?.agendaDefaultFormat) {
             // Set default calendar view
             dispatch(setView(general_information.agendaDefaultFormat));
         }

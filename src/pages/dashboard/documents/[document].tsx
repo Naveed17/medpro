@@ -21,7 +21,6 @@ import {
 import {instanceAxios, useRequestQueryMutation} from "@lib/axios";
 import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
-import {batch} from "react-redux";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {MobileContainer} from "@themes/mobileContainer";
 import {DrawerBottom} from "@features/drawerBottom";
@@ -99,11 +98,9 @@ function Document() {
     }
 
     useLeavePageConfirm(() => {
-        batch(() => {
-            dispatch(onResetPatient());
-            dispatch(resetAppointment());
-            dispatch(resetOcrData());
-        });
+        dispatch(onResetPatient());
+        dispatch(resetAppointment());
+        dispatch(resetOcrData());
     });
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);

@@ -66,7 +66,6 @@ import {
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
-import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
@@ -122,6 +121,7 @@ function WaitingRoom() {
     const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
+
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
@@ -208,11 +208,9 @@ function WaitingRoom() {
                     ...row
                 }
             } as EventDef;
-            batch(() => {
-                dispatch(setSelectedEvent(defEvent));
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-            });
+            dispatch(setSelectedEvent(defEvent));
+            dispatch(openDrawer({type: "view", open: false}));
+            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
         }
     }
 
@@ -526,7 +524,6 @@ function WaitingRoom() {
                     </DesktopContainer>
                     <TabPanel padding={.1} value={tabIndex} index={1}>
                         {!!waitingRoomsGroup[1]?.length ? <>
-
                                 <DesktopContainer>
                                     <Otable
                                         sx={{mt: 2}}
@@ -591,6 +588,7 @@ function WaitingRoom() {
                                 {...{t}}
                                 sx={{mt: 8}}
                                 onHandleClick={() => {
+                                    setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
                                     setTimeout(() => setQuickAddAppointmentTab(1));
                                 }}
@@ -647,6 +645,7 @@ function WaitingRoom() {
                                 {...{t}}
                                 sx={{mt: 8}}
                                 onHandleClick={() => {
+                                    setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
                                     setTimeout(() => setQuickAddAppointmentTab(3));
                                 }}

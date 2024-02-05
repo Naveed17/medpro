@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {firebaseCloudSdk} from "@lib/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
@@ -23,7 +23,7 @@ import {
     agendaSelector,
     AppointmentStatus,
     openDrawer,
-    setLastUpdate,
+    setLastUpdate, setMessagesRefresh,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -49,7 +49,6 @@ import {AbilityContext} from "@features/casl/can";
 import {useChannel, useConnectionStateListener, usePresence} from "ably/react";
 import IconUrl from "@themes/urlIcon";
 import {Chat} from "@features/chat";
-import useUsers from "@lib/hooks/rest/useUsers";
 import {caslSelector} from "@features/casl";
 
 function PaperComponent(props: PaperProps) {
@@ -66,9 +65,9 @@ function FcmLayout({...props}) {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar, closeSnackbar} = useSnackbar();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {users} = useUsers();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const audio = useMemo(() => new Audio("/static/sound/beep.mp3"), []);
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
@@ -87,7 +86,6 @@ function FcmLayout({...props}) {
     const [messages, updateMessages] = useState<any[]>([]);
     const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
     const [hasMessage, setHasMessage] = useState(false);
-    const [selectedUser, setSelectedUser] = useState<UserModel | null>(null);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -99,7 +97,7 @@ function FcmLayout({...props}) {
     const devise = doctor_country.currency?.name;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
-    const audio = new Audio("/sound/beep.mp3");
+
     const ability = buildAbilityFor(features ?? [], permissions);
 
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
@@ -111,7 +109,7 @@ function FcmLayout({...props}) {
     const getFcmMessage = () => {
         const messaging = getMessaging(firebaseCloudSdk.firebase);
         onMessage(messaging, (message: any) => {
-            const data = JSON.parse(message.data.detail);
+            const data = JSON.parse(message.data.details);
             const fcmSession = data.body?.fcm_session ?? "";
             if (fcmSession !== jti) {
                 if (data.type === "no_action") {
@@ -248,22 +246,6 @@ function FcmLayout({...props}) {
         }
     };
 
-    const saveInbox = (msg: Message, userUuid: string) => {
-        if (selectedUser?.uuid === userUuid)
-            updateMessages((prev) => [...prev, msg])
-
-        let _local = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
-
-
-        if (_local) {
-            const msgs = [..._local[userUuid], msg];
-            if (_local[userUuid]) _local[userUuid] = msgs
-            else _local = {..._local, [userUuid]: msgs}
-        } else _local = {[userUuid]: [msg]};
-
-        localStorage.setItem("chat", JSON.stringify(_local))
-    }
-
     useEffect(() => {
         if (general_information) {
             const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
@@ -317,7 +299,7 @@ function FcmLayout({...props}) {
             // Event listener that listens for the push notification event in the background
             if ("serviceWorker" in navigator && process.env.NODE_ENV === "development") {
                 navigator.serviceWorker.addEventListener("message", (event) => {
-                    console.log("event for the service worker", JSON.parse(event.data.data.detail));
+                    console.log("event for the service worker", JSON.parse(event.data.data.details));
                 });
             }
         }
@@ -348,20 +330,13 @@ function FcmLayout({...props}) {
     });
 
     const {channel} = useChannel(medical_entity?.uuid, (message) => {
-        if (message.name === medicalEntityHasUser) {
-            audio.play()
-
-            saveInbox({
-                from: message.clientId,
-                to: medicalEntityHasUser,
-                data: message.data,
-                date: new Date(message.timestamp)
-            }, message.clientId)
-            const _user = users.find(user => user.uuid === message.clientId)
-            setMessage({user: `${_user?.FirstName} ${_user?.lastName}`, message: message.data})
+        if (JSON.parse(message.data).to === medicalEntityHasUser){
+            audio.play();
+            const payload = JSON.parse(message.data);
+            setMessage({user: payload.user, message: payload.message})
             setTimeout(() => setMessage(null), 3000)
             setHasMessage(true)
-
+            dispatch(setMessagesRefresh(payload.message))
         }
     });
 
@@ -374,23 +349,21 @@ function FcmLayout({...props}) {
             <Drawer
                 anchor={"right"}
                 open={open}
+                dir={direction}
                 PaperProps={{
                     sx: {
                         width: {xs: "100%", md: 800},
-                    }
+                    },
+
                 }}
                 onClose={() => setOpen(false)}>
                 <Chat {...{
                     channel,
                     messages,
-                    selectedUser,
-                    setSelectedUser,
                     updateMessages,
                     medicalEntityHasUser,
-                    saveInbox,
                     medical_entity,
                     presenceData,
-                    users,
                     setHasMessage
                 }} />
             </Drawer>
@@ -517,7 +490,7 @@ function FcmLayout({...props}) {
             <Stack direction={"row"}
                    spacing={2}
                    alignItems={'center'}
-                   style={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>
+                   sx={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>
                 {message && <Stack direction={"row"}
                                    padding={1}
                                    spacing={2}

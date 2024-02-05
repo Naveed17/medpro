@@ -20,7 +20,6 @@ import {useAppDispatch} from "@lib/redux/hooks";
 
 import {LoadingScreen} from "@features/loadingScreen";
 import {setSelectedRows} from "@features/table";
-import {batch} from "react-redux";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 
@@ -40,10 +39,8 @@ function Patient() {
             as: "/dashboard/patient?page=1",
             url: "/dashboard/patient?page=1"
         }, '', "/dashboard/patient?page=1");
-        batch(() => {
-            dispatch(setSelectedRows([]));
-            dispatch(setFilter(data));
-        });
+        dispatch(setSelectedRows([]));
+        dispatch(setFilter(data));
     }
 
     const [dataPatient, setDataPatient] = useState([
@@ -55,39 +52,37 @@ function Patient() {
             },
             expanded: true,
             children: (
-                <FilterRootStyled>
-                    <PatientFilter
-                        {...{t}}
-                        OnSearch={(data: { query: ActionBarState }) => {
-                            handleFilterChange({patient: data.query});
-                        }}
-                        item={{
-                            heading: {
-                                icon: "ic-patient",
-                                title: "patient",
-                            },
-                            textField: {
-                                labels: [
-                                    {label: "name", placeholder: "search"},
-                                    {label: "birthdate", placeholder: "--/--/----"},
-                                ],
-                            },
-                            gender: {
-                                heading: "gender",
-                                genders: ["male", "female"],
-                            },
-                            hasDouble: {
-                                heading: "duplication"
-                            },
-                            ...(isBeta && {
-                                rest: {
-                                    heading: "unPayed"
-                                }
-                            })
-                        }}
-                        keyPrefix={"filter."}
-                    />
-                </FilterRootStyled>
+                <PatientFilter
+                    {...{t}}
+                    OnSearch={(data: { query: ActionBarState }) => {
+                        handleFilterChange({patient: data.query});
+                    }}
+                    item={{
+                        heading: {
+                            icon: "ic-patient",
+                            title: "patient",
+                        },
+                        textField: {
+                            labels: [
+                                {label: "name", placeholder: "search"},
+                                {label: "birthdate", placeholder: "--/--/----"},
+                            ],
+                        },
+                        gender: {
+                            heading: "gender",
+                            genders: ["male", "female"],
+                        },
+                        hasDouble: {
+                            heading: "duplication"
+                        },
+                        ...(isBeta && {
+                            rest: {
+                                heading: "unPayed"
+                            }
+                        })
+                    }}
+                    keyPrefix={"filter."}
+                />
             ),
         },
         {
@@ -137,10 +132,7 @@ function Patient() {
             children: (<AppointmentDisease OnSearch={(data: any) => {
                 handleFilterChange(data);
             }}/>)
-        }
-    ]);
-
-    const [dataPlace, setDataPlace] = useState([
+        },
         {
             heading: {
                 id: collapse[1].heading.title,
@@ -160,7 +152,7 @@ function Patient() {
                     />
                 </FilterRootStyled>
             ),
-        },
+        }
     ]);
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
@@ -180,11 +172,6 @@ function Patient() {
                     translate={{t, ready}}
                     data={dataPatient}
                     setData={setDataPatient}
-                />
-                <Accordion
-                    translate={{t, ready}}
-                    data={dataPlace}
-                    setData={setDataPlace}
                 />
             </FilterContainerStyles>
         </>

@@ -1,5 +1,5 @@
 import type {AppProps} from "next/app";
-import {appWithTranslation} from "next-i18next";
+import {appWithTranslation, UserConfig} from "next-i18next";
 import {GlobleStyles} from "@themes/globalStyle";
 import React, {ReactElement, ReactNode, useMemo} from "react";
 import {NextPage} from "next";
@@ -29,8 +29,15 @@ import RootLayout from "@features/base/components/rootLayout/rootLayout";
 import {ConditionalWrapper} from "@lib/hooks";
 import {CloseSnackbarAction} from "@features/popup";
 import StoreProvider from "@lib/redux/storeProvider";
-import moment from "moment-timezone";
-import AblyClient from "@lib/ably/ablyClient";
+
+import dynamic from "next/dynamic";
+const AblyClient = dynamic(
+    () => import("@lib/ably/ablyClient"),
+    {
+        ssr: false, // this ensures that server side rendering is never used for this component
+    },
+);
+import nextI18NextConfig from '../../next-i18next.config.js';
 
 interface MyAppProps extends AppProps {
     Component: AppProps["Component"] & NextPageWithLayout;
@@ -38,6 +45,13 @@ interface MyAppProps extends AppProps {
 
 type NextPageWithLayout = NextPage & {
     getLayout?: (page: ReactElement) => ReactNode;
+};
+
+const emptyInitialI18NextConfig: UserConfig = {
+    i18n: {
+        defaultLocale: nextI18NextConfig.i18n.defaultLocale,
+        locales: nextI18NextConfig.i18n.locales,
+    },
 };
 
 function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
@@ -82,4 +96,4 @@ function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
 
 App.displayName = "Med Link";
 
-export default appWithTranslation(App);
+export default appWithTranslation(App, emptyInitialI18NextConfig);

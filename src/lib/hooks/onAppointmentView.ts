@@ -1,6 +1,5 @@
 import moment from "moment";
 import {AppointmentStatus, openDrawer, setSelectedEvent} from "@features/calendar";
-import {batch} from "react-redux";
 
 export const onAppointmentView = ({...props}) => {
     const {dispatch, patient, inner} = props;
@@ -18,8 +17,6 @@ export const onAppointmentView = ({...props}) => {
         }
     }
 
-    batch(() => {
-        dispatch(setSelectedEvent(event));
-        dispatch(openDrawer({type: "view", open: true}));
-    });
+    dispatch(setSelectedEvent(event));
+    dispatch(openDrawer({type: "view", open: true}));
 }

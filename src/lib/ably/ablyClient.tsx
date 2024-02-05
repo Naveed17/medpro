@@ -1,9 +1,9 @@
 import {AblyProvider} from 'ably/react';
 import * as Ably from 'ably';
-import {useMemo} from "react";
 
-function AblyClient({children, ...pageProps}: any) {
-    const client = useMemo(() => new Ably.Realtime.Promise({authUrl: '/api/token', authMethod: 'POST'}), []);
+const client = new Ably.Realtime.Promise({authUrl: '/api/token', authMethod: 'POST'})
+
+function AblyClient({children}: any) {
 
     return (<AblyProvider {...{client}}>
         {children}
