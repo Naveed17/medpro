@@ -67,7 +67,6 @@ function CalendarViewButton({...props}) {
                 aria-haspopup="true"
                 onClick={handleClick}>
                 <Typography fontSize={12} fontWeight={600}> {t(`agenda-view.${selected.value}`)}</Typography>
-
             </Button>
             <Menu
                 id="simple-menu"
@@ -98,8 +97,7 @@ function CalendarViewButton({...props}) {
                             fontSize: 16,
                         }
                     }
-                }}
-            >
+                }}>
                 {views.map((item: any) => (
                     <MenuItem onClick={() => handleClose(item)} key={item.value}>
                         {item.icon && <ListItemIcon>
