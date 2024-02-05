@@ -47,7 +47,6 @@ function Page({...props}) {
                             move(event) {
                                 if (!blockDrag) {
                                     let index = selectedElement.replace('other', '')
-                                    console.log(data["other"])
                                     data["other"][index].x += event.dx
                                     data["other"][index].y += event.dy
                                     setData({...data})
@@ -112,7 +111,7 @@ function Page({...props}) {
                 data.background.show = true;
                 setData({...data})*/
             }
-            console.log(acceptedFiles[0])
+            //console.log(acceptedFiles[0])
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         []
