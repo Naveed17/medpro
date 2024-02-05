@@ -524,7 +524,6 @@ function WaitingRoom() {
                     </DesktopContainer>
                     <TabPanel padding={.1} value={tabIndex} index={1}>
                         {!!waitingRoomsGroup[1]?.length ? <>
-
                                 <DesktopContainer>
                                     <Otable
                                         sx={{mt: 2}}
@@ -589,6 +588,7 @@ function WaitingRoom() {
                                 {...{t}}
                                 sx={{mt: 8}}
                                 onHandleClick={() => {
+                                    setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
                                     setTimeout(() => setQuickAddAppointmentTab(1));
                                 }}
@@ -645,6 +645,7 @@ function WaitingRoom() {
                                 {...{t}}
                                 sx={{mt: 8}}
                                 onHandleClick={() => {
+                                    setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
                                     setTimeout(() => setQuickAddAppointmentTab(3));
                                 }}
