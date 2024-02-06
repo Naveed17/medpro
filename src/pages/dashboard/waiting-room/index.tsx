@@ -475,7 +475,7 @@ function WaitingRoom() {
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
             let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) =>
-                moment(a.startTime === "00:00" ? b.createdAt : `${a.dayDate} ${a.startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(b.startTime === "00:00" ? a.createdAt : `${b.dayDate} ${b.startTime}`, "DD-MM-YYYY HH:mm").valueOf()
+                moment(a.startTime === "00:00" ? b.createdAt : `${a.dayDate} ${a.estimatedStartTime ?? a.startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(b.startTime === "00:00" ? a.createdAt : `${b.dayDate} ${b.estimatedStartTime ?? b.startTime}`, "DD-MM-YYYY HH:mm").valueOf()
             ).group((diag: any) => diag.status);
             const onGoingAppointment = partition(groupedData[3], (event: any) => event.startTime === "00:00");
             groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0].reverse()]
