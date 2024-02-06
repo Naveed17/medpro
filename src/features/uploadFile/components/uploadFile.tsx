@@ -16,7 +16,7 @@ import {LoadingScreen} from "@features/loadingScreen";
 
 export default function UploadMultiFile({...props}) {
     const {t, ready} = useTranslation();
-    const {styleprops, singleFile, error, sx, ...other} = props;
+    const {styleprops, singleFile, error, sx,style, ...other} = props;
     const {getRootProps, getInputProps, isDragActive, isDragReject} =
         useDropzone({
             ...other,
@@ -29,6 +29,7 @@ export default function UploadMultiFile({...props}) {
             <UploadFileStyled
                 {...getRootProps()}
                 {...{styleprops: singleFile?.toString()}}
+                style={{...style}}
                 sx={{
                     ...(isDragActive && {opacity: 0.72}),
                     ...((isDragReject || error) && {
@@ -40,9 +41,7 @@ export default function UploadMultiFile({...props}) {
                 <input {...getInputProps()} />
                 {!singleFile ? (
                     <Box sx={{p: 1}}>
-                        <Typography sx={{color: "text.secondary"}}>
-                            {t("click_or_drop_files_to_upload")}
-                        </Typography>
+                        <Icon path="ic-gallery" width={20} height={20}/>
                     </Box>
                 ) : (
                     <Stack direction={"row"} spacing={1} alignItems="center">
