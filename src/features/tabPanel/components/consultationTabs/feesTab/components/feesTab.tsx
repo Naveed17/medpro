@@ -1,15 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {
-    Box,
-    Card,
-    CardContent,
-    Collapse,
-    InputAdornment,
-    LinearProgress,
-    Stack,
-    TextField,
-    Typography
-} from "@mui/material";
+import {Box, Button, Card, CardContent, Collapse, LinearProgress, Stack, Typography} from "@mui/material";
 import {Otable} from "@features/table";
 import {CipMedicProCard} from '@features/card'
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
@@ -17,7 +7,7 @@ import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useMutateOnGoing} from "@lib/hooks";
-import IconUrl from "@themes/urlIcon";
+import {Add} from "@mui/icons-material";
 
 function FeesTab({...props}) {
     const router = useRouter();
@@ -31,7 +21,7 @@ function FeesTab({...props}) {
             id: "select",
             numeric: false,
             disablePadding: true,
-            label: "#",
+            label: "empty",
             sortable: false,
             align: "left",
         },
@@ -39,17 +29,26 @@ function FeesTab({...props}) {
             id: "acts",
             numeric: false,
             disablePadding: true,
-            label: "title",
+            label: "acts",
             sortable: true,
             align: "left",
         },
         {
-            id: "code",
+            id: "fees",
             numeric: false,
             disablePadding: true,
-            label: "code",
+            label: "fees",
             sortable: true,
             align: "left",
+        },
+
+        {
+            id: "amount",
+            numeric: true,
+            disablePadding: false,
+            label: "rem_amount",
+            sortable: true,
+            align: "center",
         },
         {
             id: "contribution",
@@ -64,14 +63,6 @@ function FeesTab({...props}) {
             numeric: true,
             disablePadding: true,
             label: "quality",
-            sortable: true,
-            align: "center",
-        },
-        {
-            id: "amount",
-            numeric: true,
-            disablePadding: false,
-            label: "amount",
             sortable: true,
             align: "center",
         },
@@ -221,22 +212,13 @@ function FeesTab({...props}) {
                                    justifyContent="space-between" mb={2} pb={1} borderBottom={1}
                                    borderColor='divider'>
                                 <Typography fontWeight={700} mt={1} mb={1}>
-                                    {t("consultationIP.medical_procedures")}
+                                    {t("consultationIP.service")}
                                 </Typography>
                                 <Stack direction={'row'} alignItems="center" spacing={1}>
                                     {!isQuoteRequest && <Stack alignItems={"flex-end"}>
-                                        <TextField
-                                            placeholder={t("exempleFees")}
-                                            value={search}
-                                            onChange={(ev) => {
-                                                setSearch(ev.target.value);
-                                            }}
-                                            sx={{width: '15rem'}}
-                                            InputProps={{
-                                                endAdornment: <InputAdornment position="end">
-                                                    <IconUrl path={"search"}/>
-                                                </InputAdornment>,
-                                            }}/>
+                                        <Button variant="contained" startIcon={<Add/>}>
+                                            {t("consultationIP.add_act")}
+                                        </Button>
                                     </Stack>}
                                 </Stack>
                             </Stack>
@@ -257,7 +239,48 @@ function FeesTab({...props}) {
                                     handleChange={setTotal}/>
                             </Collapse>
 
-                        </CardContent></Card>
+                        </CardContent>
+                    </Card>
+                    {!loading && (
+                        <Stack direction='row' spacing={2} mt={2}>
+                            <Card sx={{border: 'none', width: 1}}>
+                                <CardContent>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
+                                        <Typography variant="body2">
+                                            {t("table.fees")}
+                                        </Typography>
+                                        <Typography fontWeight={700}>
+                                            35.00 {devise}
+                                        </Typography>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{border: 'none', width: 1}}>
+                                <CardContent>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
+                                        <Typography variant="body2">
+                                            {t("table.rem_amount")}
+                                        </Typography>
+                                        <Typography fontWeight={700}>
+                                            35.00 {devise}
+                                        </Typography>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{border: 'none', width: 1}}>
+                                <CardContent>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between' width={1}>
+                                        <Typography variant="body2">
+                                            {t("table.total")}
+                                        </Typography>
+                                        <Typography fontWeight={700}>
+                                            35.00 {devise}
+                                        </Typography>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        </Stack>
+                    )}
 
                 </DesktopContainer>
                 <MobileContainer>
@@ -281,10 +304,7 @@ function FeesTab({...props}) {
 
                         </Stack>
                     }
-
                 </MobileContainer>
-
-
             </Box>
 
             <Box pt={4}/>

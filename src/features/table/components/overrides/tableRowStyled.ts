@@ -309,6 +309,13 @@ const TableRowStyled = styled(TableRow)<any>(
                 border:`1px solid ${theme.palette.divider}`,
                 padding:theme.spacing(1),
             }
+        },
+        "&.cip-medical-proce-row":{
+            ".counter-btn":{
+            ".MuiButtonBase-root":{
+                backgroundColor: "transparent"
+
+            }}
         }
     })
 );
