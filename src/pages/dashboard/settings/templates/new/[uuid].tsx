@@ -233,13 +233,20 @@ function DocsConfig() {
         if (used) {
             setOpenReset(true)
             setPaperSize({target, value})
+            let _data: any = {...defaultData}
+            if (_data[target])
+                _data[target] = value;
+            else _data ={...data,[target]:value}
+            setData({..._data})
         } else
             resetNow(target, value)
     }
 
     const resetNow = (target: string, value: string) => {
         let _data: any = {...defaultData}
+        if (_data[target])
         _data[target] = value;
+        else _data ={...data,[target]:value}
         _data.content.width = "90%"
         setOnResize(true)
         _data.content.maxHeight = 100

@@ -7,6 +7,7 @@ import {useTheme} from "@mui/material";
 import {DocHeader} from "@features/files";
 import {DocHeaderEditor} from "@features/files/components/docHeaderEditor";
 import {useQRCode} from 'next-qrcode';
+import {UploadFile} from "@features/uploadFile";
 
 function Page({...props}) {
 
@@ -98,6 +99,23 @@ function Page({...props}) {
                 })
         }
     }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const handleDrop = React.useCallback((acceptedFiles: File[], index: number) => {
+            let reader = new FileReader();
+            reader.onload = (ev) => {
+                //console.log(ev.target?.result as string)
+                console.log(data.other[index])
+                data.other[index].content = ev.target?.result
+                setData({...data})
+                /*data.background.content.url = (ev.target?.result as string)
+                data.background.show = true;
+                setData({...data})*/
+            }
+            //console.log(acceptedFiles[0])
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        []
+    );
 
     // @ts-ignore
     return (
@@ -453,13 +471,24 @@ function Page({...props}) {
                                          }}>
                                         <Icon path={"ic-delete"}/>
                                     </div>
-                                    {selectedElement === `other${index}` && <div className={"btnMenu"}>
-                                        <div onClick={() => {
-                                            setValue(`other${index}`)
-                                        }}>
-                                            <Icon path={"focus"} width={20} height={20}/>
+                                    {
+                                        selectedElement === `other${index}` && other.type !== "image" &&
+                                        <div className={"btnMenu"}>
+                                            <div onClick={() => {
+                                                setValue(`other${index}`)
+                                            }}>
+                                                <Icon path={"focus"} width={20} height={20}/>
+                                            </div>
                                         </div>
-                                    </div>}
+                                    }
+                                    {selectedElement === `other${index}` && other.type === "image" &&
+                                        <div className={"btnMenu"}>
+                                            <UploadFile
+                                                accept={{'image/jpeg': ['.png', '.jpeg', '.jpg']}}
+                                                style={{height:30}}
+                                                onDrop={(ev: File[]) => handleDrop(ev, index)}
+                                                singleFile={false}/>
+                                        </div>}
                                     <div className={"btnMenu"}
                                          style={{backgroundColor: selectedElement === `other${index}` ? theme.palette.success.main : theme.palette.info.main}}
                                          onClick={() => {
@@ -524,8 +553,8 @@ function Page({...props}) {
 
                         <div
                             id={`content${id}`}
-                             style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
-                             dangerouslySetInnerHTML={{__html: data.content.content}}></div>
+                            style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
+                            dangerouslySetInnerHTML={{__html: data.content.content}}/>
                         <div className={"menuTop"} style={{top: 0}}>
                             <div className={"btnMenu"}>
                                 <div onClick={() => {
@@ -538,6 +567,7 @@ function Page({...props}) {
                                  style={{background: selectedElement === "content" ? theme.palette.success.main : theme.palette.info.main}}>
                                 <div onClick={() => {
                                     setSelectedElement(selectedElement !== "content" ? "content" : "")
+                                    selectedElement === "content" && interact(".content").draggable(false);
                                 }}>
                                     {selectedElement === "content" ?
                                         <Icon path={"ic-check"}/> :

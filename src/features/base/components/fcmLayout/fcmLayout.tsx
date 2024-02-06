@@ -23,7 +23,8 @@ import {
     agendaSelector,
     AppointmentStatus,
     openDrawer,
-    setLastUpdate, setMessagesRefresh,
+    setLastUpdate,
+    setMessagesRefresh,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
@@ -46,7 +47,7 @@ import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
 import {buildAbilityFor} from "@lib/rbac/casl/ability";
 import {AbilityContext} from "@features/casl/can";
-import {useChannel, useConnectionStateListener, usePresence} from "ably/react";
+import {useAbly, useChannel, useConnectionStateListener, usePresence} from "ably/react";
 import IconUrl from "@themes/urlIcon";
 import {Chat} from "@features/chat";
 import {caslSelector} from "@features/casl";
@@ -324,13 +325,17 @@ function FcmLayout({...props}) {
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const client = useAbly();
+
     useConnectionStateListener((stateChange) => {
         console.log("current", stateChange.current);  // the new connection state
-        console.log("error", stateChange.reason);  // the new connection state
+        //console.log("error", stateChange.reason);  // the new connection state
+        if (["closing", "closed"].includes(stateChange.current))
+            client.connect()
     });
 
     const {channel} = useChannel(medical_entity?.uuid, (message) => {
-        if (JSON.parse(message.data).to === medicalEntityHasUser){
+        if (JSON.parse(message.data).to === medicalEntityHasUser) {
             audio.play();
             const payload = JSON.parse(message.data);
             setMessage({user: payload.user, message: payload.message})
