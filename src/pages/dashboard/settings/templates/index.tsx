@@ -330,7 +330,7 @@ function TemplatesConfig() {
                                     <Can I={"manage"} a={"settings"} field={"settings__templates__layout__create"}>
                                         <Button
                                             onClick={() => {
-                                                router.push(`/dashboard/settings/templates/new`);
+                                                router.push(`/dashboard/settings/templates/new/new`);
                                             }}
                                             variant="contained"
                                             startIcon={<IconUrl path={"ic-doc-add"} />}>
