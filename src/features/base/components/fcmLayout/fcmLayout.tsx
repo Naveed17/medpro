@@ -106,84 +106,88 @@ function FcmLayout({...props}) {
     const handleClose = () => {
         setOpenDialog(false);
     }
+
+    const isObject = (obj: any) => obj === Object(obj);
+
+    const handleBroadcastMessages = (message: any) => {
+        const data = isObject(message.data.details) ? message.data.details : JSON.parse(message.data.details);
+        const fcmSession = data.body?.fcm_session ?? "";
+        if (fcmSession !== jti) {
+            if (data.type === "no_action") {
+                if (data.mode === "foreground") {
+                    enqueueSnackbar(message.notification.body, {variant: "info"});
+                } else if (data.body.hasOwnProperty('progress')) {
+                    if (data.body.progress === -1 || data.body.progress === 100) {
+                        localStorage.removeItem("import-data");
+                        localStorage.removeItem("import-data-progress");
+                        importData.mutate && importData.mutate();
+                        // refresh on going api
+                        mutateOnGoing();
+                        closeSnackbar();
+                        enqueueSnackbar((data.body.progress === -1 ?
+                                translationCommon.import_data.failed : translationCommon.import_data.end),
+                            {variant: data.body.progress === -1 ? "error" : "success"});
+                    } else {
+                        localStorage.setItem("import-data-progress", data.body.progress.toString());
+                        dispatch(setProgress(parseFloat(data.body.progress)));
+                    }
+                }
+            } else if (data.type === "session") {
+                update({[message.data.root]: data.body});
+            } else {
+                switch (message.data.root) {
+                    case "agenda":
+                        dispatch(setLastUpdate(data));
+                        if (data.type === "popup") {
+                            if (!data.body.appointment) {
+                                dispatch(resetTimer());
+                            }
+                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
+                            setOpenDialog(true);
+                            setNotificationData(data.body);
+                            const localStorageNotifications = localStorage.getItem("notifications");
+                            const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
+                                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
+                                appointment: data.body,
+                                action: "end-consultation"
+                            }];
+                            localStorage.setItem("notifications", JSON.stringify(notifications));
+                            // Update notifications popup
+                            dispatch(setOngoing({notifications}));
+                        } else if (data.body.action === "update") {
+                            // update pending notifications status
+                            invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
+                            // refresh on going api
+                            mutateOnGoing();
+                        }
+                        break;
+                    case "waiting-room":
+                        // refresh agenda
+                        dispatch(setLastUpdate(data));
+                        // refresh on going api
+                        mutateOnGoing();
+                        break;
+                    case "consultation":
+                        // refresh agenda
+                        dispatch(setLastUpdate(data));
+                        // refresh on going api
+                        mutateOnGoing();
+                        break;
+                    case "documents":
+                        enqueueSnackbar(translationCommon.alerts["speech-text"].title, {variant: "success"});
+                        invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
+                        break;
+                    default:
+                        data.body.mutate && invalidateQueries([data.body.mutate]);
+                        break;
+                }
+            }
+        }
+    }
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
         const messaging = getMessaging(firebaseCloudSdk.firebase);
-        onMessage(messaging, (message: any) => {
-            const data = JSON.parse(message.data.details);
-            const fcmSession = data.body?.fcm_session ?? "";
-            if (fcmSession !== jti) {
-                if (data.type === "no_action") {
-                    if (data.mode === "foreground") {
-                        enqueueSnackbar(message.notification.body, {variant: "info"});
-                    } else if (data.body.hasOwnProperty('progress')) {
-                        if (data.body.progress === -1 || data.body.progress === 100) {
-                            localStorage.removeItem("import-data");
-                            localStorage.removeItem("import-data-progress");
-                            importData.mutate && importData.mutate();
-                            // refresh on going api
-                            mutateOnGoing();
-                            closeSnackbar();
-                            enqueueSnackbar((data.body.progress === -1 ?
-                                    translationCommon.import_data.failed : translationCommon.import_data.end),
-                                {variant: data.body.progress === -1 ? "error" : "success"});
-                        } else {
-                            localStorage.setItem("import-data-progress", data.body.progress.toString());
-                            dispatch(setProgress(parseFloat(data.body.progress)));
-                        }
-                    }
-                } else if (data.type === "session") {
-                    update({[message.data.root]: data.body});
-                } else {
-                    switch (message.data.root) {
-                        case "agenda":
-                            dispatch(setLastUpdate(data));
-                            if (data.type === "popup") {
-                                if (!data.body.appointment) {
-                                    dispatch(resetTimer());
-                                }
-                                setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
-                                setOpenDialog(true);
-                                setNotificationData(data.body);
-                                const localStorageNotifications = localStorage.getItem("notifications");
-                                const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
-                                    (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
-                                    appointment: data.body,
-                                    action: "end-consultation"
-                                }];
-                                localStorage.setItem("notifications", JSON.stringify(notifications));
-                                // Update notifications popup
-                                dispatch(setOngoing({notifications}));
-                            } else if (data.body.action === "update") {
-                                // update pending notifications status
-                                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
-                                // refresh on going api
-                                mutateOnGoing();
-                            }
-                            break;
-                        case "waiting-room":
-                            // refresh agenda
-                            dispatch(setLastUpdate(data));
-                            // refresh on going api
-                            mutateOnGoing();
-                            break;
-                        case "consultation":
-                            // refresh agenda
-                            dispatch(setLastUpdate(data));
-                            // refresh on going api
-                            mutateOnGoing();
-                            break;
-                        case "documents":
-                            enqueueSnackbar(translationCommon.alerts["speech-text"].title, {variant: "success"});
-                            invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
-                            break;
-                        default:
-                            data.body.mutate && invalidateQueries([data.body.mutate]);
-                            break;
-                    }
-                }
-            }
-        });
+        onMessage(messaging, (message: any) => handleBroadcastMessages(message));
     }
 
     const setToken = async () => {
@@ -323,6 +327,25 @@ function FcmLayout({...props}) {
                 }));
             });
         }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+
+    useEffect(() => {
+        const eventSource = new EventSource(`/api/sse`, {
+            withCredentials: true,
+        });
+        eventSource.onopen = () => {
+            console.log('Open SSE connection');
+        };
+        eventSource.onmessage = (message) => handleBroadcastMessages({data: JSON.parse(message.data)});
+        eventSource.onerror = (e) => {
+            console.log("onerror", e);
+        };
+
+        return () => {
+            console.log('Close SSE connection');
+            eventSource.close();
+        };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const client = useAbly();
