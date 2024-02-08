@@ -338,7 +338,7 @@ function FcmLayout({...props}) {
             console.log('Open SSE connection');
         };
         eventSource.onmessage = (message) => {
-            if (message.data) {
+            if (message?.data) {
                 handleBroadcastMessages({data: JSON.parse(message.data)});
             }
         };
