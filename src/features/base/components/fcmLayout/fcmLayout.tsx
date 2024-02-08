@@ -329,18 +329,32 @@ function FcmLayout({...props}) {
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-
-    useEffect(() => {
+    const connectToStream = () => {
+        // Connect to /api/stream as the SSE API source
         const eventSource = new EventSource(`/api/sse`, {
             withCredentials: true,
-        });
+        })
         eventSource.onopen = () => {
             console.log('Open SSE connection');
         };
-        eventSource.onmessage = (message) => handleBroadcastMessages({data: JSON.parse(message.data)});
-        eventSource.onerror = (e) => {
-            console.log("onerror", e);
+        eventSource.onmessage = (message) => {
+            if (message.data) {
+                handleBroadcastMessages({data: JSON.parse(message.data)});
+            }
         };
+        // In case of any error, close the event source
+        // So that it attempts to connect again
+        eventSource.onerror = (e) => {
+            eventSource.close();
+            setTimeout(connectToStream, 1);
+        };
+
+        return eventSource;
+    }
+
+    useEffect(() => {
+        // Initiate the first call to connect to SSE API
+        const eventSource = connectToStream()
 
         return () => {
             console.log('Close SSE connection');

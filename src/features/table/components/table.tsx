@@ -141,7 +141,7 @@ function Otable({...props}) {
 
     return (
         <Box className="table-wrapper" sx={tableWrapperStyle as SxProps}>
-            {toolbar && toolbar}
+            {!!toolbar && toolbar}
             <TableContainer sx={{maxHeight}}>
                 <Table
                     {...{size}}

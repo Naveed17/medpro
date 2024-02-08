@@ -352,7 +352,7 @@ const Chat = ({...props}) => {
                                                 <Typography fontSize={8} gutterBottom>
                                                     {message?.from === medicalEntityHasUser ? t("you") : <>{getDiscMember(discussions.find(d => d.id === selectedDiscussion) as IDiscussion).name}</>}
                                                     {
-                                                        message.timestamp && <span
+                                                        !!message?.timestamp && <span
                                                             className='time'>{moment.duration(moment().diff(new Date(message.timestamp))).humanize()}</span>
                                                     }
                                                 </Typography>
@@ -360,8 +360,7 @@ const Chat = ({...props}) => {
                                                     <Typography
                                                         sx={{display: 'inline', wordWrap: "break-word"}}
                                                         component="span"
-                                                        color="text.primary"
-                                                    >
+                                                        color="text.primary">
                                                         <div dangerouslySetInnerHTML={{__html: message.data}}></div>
 
                                                     </Typography>
