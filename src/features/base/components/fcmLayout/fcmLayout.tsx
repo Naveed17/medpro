@@ -344,7 +344,7 @@ function FcmLayout({...props}) {
         };
         // In case of any error, close the event source
         // So that it attempts to connect again
-        eventSource.onerror = (e) => {
+        eventSource.onerror = () => {
             eventSource.close();
             setTimeout(connectToStream, 1);
         };
