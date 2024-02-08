@@ -400,5 +400,19 @@
     "father": "Père",
     "mother": "Mère",
     "both": "Les deux"
+  },
+  "insurance": {
+    "agreement": "Assurance / Convention",
+    "select": "Sélectionner l'assurance / convention",
+    "member": "N° d'adhérent",
+    "member_placeholder": "Tapez le numéro d'adhérent",
+    "cashbox": "Caisse",
+    "cashbox_placeholder": "Sélectionner la caisse",
+    "insured":"Assuré",
+    "insured_placeholder": "Sélectionner l'assuré",
+    "apci": "APCI",
+    "apci_placeholder": "Sélectionner APCI",
+    "startDate": "Date de début",
+    "endDate": "Date de fin"
   }
 }

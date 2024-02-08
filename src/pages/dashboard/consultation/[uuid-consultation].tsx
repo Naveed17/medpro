@@ -1564,7 +1564,12 @@ function ConsultationInProgress() {
                             setTotal,
                             devise,
                             mutatePatient,
-                            t
+                            t,
+                            setOpenDialogSave,
+                            patient,
+                            setInfo,
+                            setOpenDialog,
+                            setState
                         }} />
                     </TabPanel>
                 </Box>
@@ -1651,46 +1656,10 @@ function ConsultationInProgress() {
                     }>
                     {selectedTab === "medical_procedures" && (
                         <Stack direction="row" alignItems={"center"}>
-                            <Typography variant="subtitle1">
-                                <span>{t("total")} : </span>
-                            </Typography>
-                            <Typography fontWeight={600} variant="h6" ml={1} mr={1}>
-                                {isNaN(total) || total < 0 ? "-" : total} {devise}
-                            </Typography>
                             <Stack
                                 direction="row"
                                 alignItems="center"
                                 spacing={2}>
-                                <span>|</span>
-                                {!isMobile && <Button
-                                    variant="text-black"
-                                    sx={{
-                                        border: `1px solid ${theme.palette.grey["200"]}`,
-                                        bgcolor: theme => theme.palette.grey['A500'],
-                                    }}
-                                    onClick={(event) => {
-                                        setOpenDialogSave(true);
-                                        let type = "";
-                                        if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
-                                            type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
-
-                                        event.stopPropagation();
-                                        setInfo("document_detail");
-                                        setState({
-                                            type: "fees",
-                                            name: "Honoraire",
-                                            info: acts.filter(act => act.selected),
-                                            createdAt: moment().format("DD/MM/YYYY"),
-                                            age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
-                                            patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
-                                        });
-                                        setOpenDialog(true);
-
-                                    }}
-                                    startIcon={<IconUrl path="menu/ic-print" width={20} height={20}/>}>
-                                    {t("consultationIP.print")}
-                                </Button>}
-
                                 {!isMobile && <Stack direction="row" alignItems='center' sx={{
                                     border: `1px dashed ${theme.palette.grey["200"]}`,
                                     borderRadius: 1,

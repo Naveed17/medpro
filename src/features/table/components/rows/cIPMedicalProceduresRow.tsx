@@ -23,7 +23,7 @@ function CIPMedicalProceduresRow({ ...props }) {
         document.getElementById(uuid)?.blur()
     }
     const debouncedOnChange = debounce(lostFocus, 1500);
-    console.log(row)
+
     return (
         <TableRowStyled
             className={"cip-medical-proce-row"}
@@ -53,7 +53,7 @@ function CIPMedicalProceduresRow({ ...props }) {
                     sx={{
                         fontSize: 13, fontWeight: 600, input: {
                             p: .5,
-                            textAlign: "left"
+                            textAlign: "center"
                         }
                     }}
                     readOnly={!row.selected}
@@ -92,7 +92,7 @@ function CIPMedicalProceduresRow({ ...props }) {
                     sx={{
                         fontSize: 13, fontWeight: 600, input: {
                             p: .5,
-                            textAlign: 'left'
+                            textAlign: 'center'
                         }
                     }}
                     readOnly={!row.selected}
@@ -125,7 +125,7 @@ function CIPMedicalProceduresRow({ ...props }) {
 
             </TableCell>
             <TableCell align="center">
-                <InputBaseStyled
+                {/*<InputBaseStyled
                     size="small"
                     sx={{
                         fontSize: 13, fontWeight: 600, input: {
@@ -158,7 +158,7 @@ function CIPMedicalProceduresRow({ ...props }) {
                             debouncedOnChange(row.uuid)
                         }
                     }}
-                />
+                />*/}
 
 
             </TableCell>

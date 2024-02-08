@@ -289,7 +289,7 @@ function Profile() {
                                     </Stack>
                                 </Stack>
                             </ListItem>
-                            <ListItem>
+                            {/*<ListItem>
                                 <Stack
                                     spacing={2.3}
                                     direction="row"
@@ -322,15 +322,15 @@ function Profile() {
                                             </Typography>
                                         )}
                                     </Stack>
-                                    {/*<IconButton
+                                    <IconButton
                                         size="small"
                                         color="primary"
                                         onClick={() => dialogOpen("qualification")}>
                                         <IconUrl path="ic-edit"/>
-                                    </IconButton>*/}
+                                    </IconButton>
                                 </Stack>
-                            </ListItem>
-                            <ListItem>
+                            </ListItem>*/}
+                            {/*<ListItem>
                                 <Stack
                                     spacing={2.3}
                                     direction="row"
@@ -389,7 +389,7 @@ function Profile() {
                                         </IconButton>
                                     </Can>
                                 </Stack>
-                            </ListItem>
+                            </ListItem>*/}
                             <Can I={"manage"} a={"settings"} field={"settings__profile__sms_reminder__edit"}>
                                 <ListItem>
                                     <Stack
@@ -567,7 +567,7 @@ function Profile() {
                                             fontWeight={600}>
                                             {t("profile.actes")}
                                         </Typography>
-                                        <Stack
+                                        {/*<Stack
                                             flexWrap="wrap"
                                             direction={{xs: "column", md: "row"}}
                                             alignItems={{xs: "stretch", md: "flex-start"}}
@@ -611,7 +611,7 @@ function Profile() {
                                                     {t("profile.noActes")}
                                                 </Typography>
                                             )}
-                                        </Stack>
+                                        </Stack>*/}
                                     </Stack>
                                     <Can I={"manage"} a={"settings"} field={"settings__actfees__show"}>
                                         <IconButton
@@ -631,12 +631,12 @@ function Profile() {
                                         alignItems="flex-start"
                                         width={1}>
                                         <Stack spacing={1} alignItems="flex-start" width={1}>
-                                            <Typography
+                                            {/*<Typography
                                                 variant="subtitle2"
                                                 gutterBottom
                                                 fontWeight={600}>
                                                 {t("profile.actesSec")}
-                                            </Typography>
+                                            </Typography>*/}
                                             <Stack
                                                 flexWrap="wrap"
                                                 direction={{xs: "column", md: "row"}}

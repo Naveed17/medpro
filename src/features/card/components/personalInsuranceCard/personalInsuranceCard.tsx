@@ -40,6 +40,7 @@ import {ImageHandler} from "@features/image";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import {PatientInsurance} from "@features/patientInsurance";
 
 function PersonalInsuranceCard({...props}) {
     const {
@@ -332,93 +333,7 @@ function PersonalInsuranceCard({...props}) {
                                 </LoadingButton>
                             </Toolbar>
                         </AppBar>
-                        {patientInsurances?.map((insurance: any, index: number) => (
-                            <Grid container key={`${index}-${insurance.uuid}`}>
-                                <Stack sx={{
-                                    ...(index === 0 && {
-                                        marginTop: 1
-                                    }),
-                                    width: "inherit"
-                                }} direction="row" alignItems="center">
-                                    <Grid item md={12} sm={12} xs={12}>
-                                        {loading ? (
-                                            <Skeleton variant="text"/>
-                                        ) : (
-                                            <>
-                                                <Grid container spacing={1.2}>
-                                                    <Grid item xs={6} md={3}>
-                                                        {(() => {
-                                                            const insuranceItem = insurances?.find(ins => ins.uuid === insurance.insurance.uuid);
-                                                            return (<Stack direction={"row"}>
-                                                                {insuranceItem?.logoUrl &&
-                                                                    <ImageHandler
-                                                                        alt={insuranceItem?.name}
-                                                                        src={insuranceItem?.logoUrl.url}
-                                                                    />}
-                                                                <Typography
-                                                                    ml={1}>{insuranceItem?.name}</Typography>
-                                                            </Stack>)
-                                                        })()}
-                                                    </Grid>
-                                                    <Grid item xs={6} md={2}>
-                                                        <Stack direction={"row"}
-                                                               justifyContent={"space-between"}
-                                                               alignItems={"center"}>
-                                                            <Typography
-                                                                variant={"body2"}
-                                                            >
-                                                                {insurance.insuranceNumber}
-                                                            </Typography>
-                                                        </Stack>
-                                                    </Grid>
-                                                    <Grid item xs={6} md={3}>
-                                                        <Stack direction={"row"}
-                                                               justifyContent={"space-between"}
-                                                               alignItems={"center"}>
-                                                            <Typography
-                                                                variant={"body2"}
-                                                            >
-                                                                {t(`social_insured.${SocialInsured.find(insur => insur.value === insurance.type.toString())?.label}`, {ns: "common"})}
-                                                            </Typography>
-                                                        </Stack>
-                                                    </Grid>
-                                                    {!editable.personalInsuranceCard &&
-                                                        <Grid pt={.5} pb={.5} item xs={6} md={4}>
-                                                            <Stack direction={"row"} alignItems={"start"} spacing={1}
-                                                                   justifyContent={"flex-end"}>
-                                                                <IconButton
-                                                                    disabled={loadingRequest}
-                                                                    className='btn-add'
-                                                                    onClick={() => handleEditInsurance(insurance)}
-                                                                    size="small">
-                                                                    <IconUrl path={"setting/edit"}/>
-                                                                </IconButton>
-                                                                <IconButton
-                                                                    disabled={loadingRequest}
-                                                                    className='icon-button'
-                                                                    color={"error"}
-                                                                    sx={{
-                                                                        paddingTop: .4,
-                                                                        "& svg": {
-                                                                            width: 18,
-                                                                            height: 18
-                                                                        },
-                                                                    }}
-                                                                    onClick={() => handleDeleteInsurance(insurance)}
-                                                                    size="small">
-                                                                    <DeleteIcon/>
-                                                                </IconButton>
-                                                            </Stack>
-                                                        </Grid>}
-                                                </Grid>
-                                                {(patientInsurances.length - 1) !== index &&
-                                                    <Divider sx={{marginBottom: 1}}/>}
-                                            </>
-                                        )}
-                                    </Grid>
-                                </Stack>
-                            </Grid>))
-                        }
+                        <PatientInsurance {...{patientInsurances,t}}/>
                     </Paper>
                 </PersonalInfoStyled>
                 <Dialog

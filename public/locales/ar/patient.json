@@ -408,5 +408,19 @@
     "father": "Father",
     "mother": "Mother",
     "both": "Both"
+  },
+  "insurance": {
+    "agreement": "التأمين / الاتفاقية",
+    "select": "اختر التأمين / الاتفاقية",
+    "member": "رقم العضوية",
+    "member_placeholder": "أدخل رقم العضوية",
+    "cashbox": "صندوق",
+    "cashbox_placeholder": "حدد الصندوق",
+    "insured":"المؤمن عليه",
+    "insured_placeholder": "اختر المؤمن عليه",
+    "apci": "الرعاية الشاملة",
+    "apci_placeholder": "اختر الرعاية الشاملة",
+    "startDate": "تاريخ البدء",
+    "endDate": "تاريخ الانتهاء"
   }
 }

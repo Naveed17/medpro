@@ -401,5 +401,19 @@
     "father": "الأب",
     "mother": "الأم",
     "both": "الاثنين"
+  },
+  "insurance": {
+    "agreement": "Insurance / Agreement",
+    "select": "Select insurance / agreement",
+    "member": "Membership number",
+    "member_placeholder": "Enter the membership number",
+    "cashbox": "Box",
+    "cashbox_placeholder": "Select checkout",
+    "insured":"Insured",
+    "insured_placeholder": "Select the insured",
+    "apci": "APCI",
+    "apci_placeholder": "Select APCI",
+    "startDate": "Start date",
+    "endDate": "End date"
   }
 }

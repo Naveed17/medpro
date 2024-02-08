@@ -571,10 +571,10 @@
     "see_details": "Voir détails",
     "empty": "",
     "fees": "Honoraires",
-    "rem_amount": "Montant de Remb."
+    "rem_amount": "Mnt de Remb."
   },
   "tracking_data": "Données de suivi",
-  "exempleFees": "Exemple: Suivi ...",
+  "exempleFees": "Recherche...",
   "consultation_reason": "Motif",
   "diagnostics": "Diagnostique",
   "disease": "Maladie",

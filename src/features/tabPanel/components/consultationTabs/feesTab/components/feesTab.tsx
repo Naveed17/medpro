@@ -1,16 +1,30 @@
 import React, {useEffect, useState} from "react";
-import {Box, Button, Card, CardContent, Collapse, LinearProgress, Stack, Typography} from "@mui/material";
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Collapse,
+    IconButton, InputAdornment,
+    LinearProgress,
+    Stack, TextField,
+    Typography,
+    useTheme
+} from "@mui/material";
 import {Otable} from "@features/table";
 import {CipMedicProCard} from '@features/card'
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
-import {useMutateOnGoing} from "@lib/hooks";
+import {getBirthdayFormat, useMutateOnGoing} from "@lib/hooks";
 import {Add} from "@mui/icons-material";
+import IconUrl from "@themes/urlIcon";
+import moment from "moment";
 
 function FeesTab({...props}) {
     const router = useRouter();
+    const theme = useTheme()
     const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const [search, setSearch] = useState<string>("");
@@ -85,11 +99,17 @@ function FeesTab({...props}) {
         agenda,
         urlMedicalEntitySuffix,
         app_uuid,
+        total,
         devise,
         editAct = null,
         t,
         mutatePatient,
-        isQuoteRequest
+        isQuoteRequest,
+        setOpenDialogSave,
+        patient,
+        setInfo,
+        setOpenDialog,
+        setState
     } = props;
 
 
@@ -206,16 +226,37 @@ function FeesTab({...props}) {
 
                 <DesktopContainer>
 
-                    <Card>
-                        <CardContent>
-                            <Stack direction='row' alignItems={{xs: 'flex-start', md: 'center'}}
+                    <Card style={{height:"57vh"}}>
+                        <CardContent style={{padding:0}}>
+                            <Stack direction='row' pt={1} pl={2} pr={2} alignItems={{xs: 'flex-start', md: 'center'}}
                                    justifyContent="space-between" mb={2} pb={1} borderBottom={1}
                                    borderColor='divider'>
                                 <Typography fontWeight={700} mt={1} mb={1}>
                                     {t("consultationIP.service")}
                                 </Typography>
                                 <Stack direction={'row'} alignItems="center" spacing={1}>
-                                    {!isQuoteRequest && <Stack alignItems={"flex-end"}>
+                                    {!isQuoteRequest && <Stack direction={'row'} spacing={1} alignItems={"flex-end"}>
+                                        <IconButton onClick={(event)=>{
+                                            setOpenDialogSave(true);
+                                            let type = "";
+                                            if (!(patient?.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
+                                                type = patient?.gender === "F" ? "Mme " : patient?.gender === "U" ? "" : "Mr "
+
+                                            event.stopPropagation();
+                                            setInfo("document_detail");
+                                            setState({
+                                                type: "fees",
+                                                name: "Honoraire",
+                                                info: acts.filter((act: { selected:boolean }) => act.selected),
+                                                createdAt: moment().format("DD/MM/YYYY"),
+                                                age: patient?.birthdate ? getBirthdayFormat({birthdate: patient.birthdate}, t) : "",
+                                                patient: `${type} ${patient?.firstName} ${patient?.lastName}`,
+                                            });
+                                            setOpenDialog(true);
+
+                                        }} style={{width:40,height:40,borderRadius:10,background:theme.palette.grey['A500']}}>
+                                            <IconUrl  width={16} height={16} path="menu/ic-print"/>
+                                        </IconButton>
                                         <Button variant="contained" startIcon={<Add/>}>
                                             {t("consultationIP.add_act")}
                                         </Button>
@@ -223,7 +264,21 @@ function FeesTab({...props}) {
                                 </Stack>
                             </Stack>
                             {loading && <LinearProgress/>}
-                            <Collapse in={!loading}>
+                            <Collapse in={!loading} style={{maxHeight:"47vh",overflow:"auto",padding:0}}>
+
+                                {!isQuoteRequest && <Stack pl={2} pr={2}>
+                                    <TextField
+                                        placeholder={t("exempleFees")}
+                                        value={search}
+                                        onChange={(ev) => {
+                                            setSearch(ev.target.value);
+                                        }}
+                                        InputProps={{
+                                            endAdornment: <InputAdornment position="end">
+                                                <IconUrl path={"ic-search"}/>
+                                            </InputAdornment>,
+                                        }}/>
+                                </Stack>}
                                 <Otable
                                     headers={headCells}
                                     rows={acts?.filter((act: any) => {
@@ -241,7 +296,7 @@ function FeesTab({...props}) {
 
                         </CardContent>
                     </Card>
-                    {!loading && (
+                    {!loading && !isQuoteRequest && (
                         <Stack direction='row' spacing={2} mt={2}>
                             <Card sx={{border: 'none', width: 1}}>
                                 <CardContent>
@@ -250,7 +305,7 @@ function FeesTab({...props}) {
                                             {t("table.fees")}
                                         </Typography>
                                         <Typography fontWeight={700}>
-                                            35.00 {devise}
+                                            {isNaN(total) || total < 0 ? "-" : total} {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -262,7 +317,7 @@ function FeesTab({...props}) {
                                             {t("table.rem_amount")}
                                         </Typography>
                                         <Typography fontWeight={700}>
-                                            35.00 {devise}
+                                            0 {devise}
                                         </Typography>
                                     </Stack>
                                 </CardContent>
@@ -307,7 +362,7 @@ function FeesTab({...props}) {
                 </MobileContainer>
             </Box>
 
-            <Box pt={4}/>
+            {isQuoteRequest && <Box pt={4}/>}
         </>
     );
 }

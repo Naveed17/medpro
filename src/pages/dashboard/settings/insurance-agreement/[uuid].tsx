@@ -201,7 +201,7 @@ function Actes() {
                 </MobileContainer>
                 <Box p={4}>
                     <SubFooter sx={{ ".MuiToolbar-root": { justifyContent: 'flex-end' } }}>
-                        <Button startIcon={<IconUrl path="ic-check-circle" />} variant="contained">
+                        <Button startIcon={<IconUrl path="ic-check"/>} variant="contained">
                             {t("save")}
                         </Button>
 
