@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     evtSource.onerror = (e: Event) => {
         evtSource.close()
-        res.write(`event: message\nerror: ${JSON.stringify(e)}\n\n`)
+        res.write(`event: error\ndata: ${JSON.stringify(e)}\n\n`)
     }
 
     req.socket.on("close", () => {
