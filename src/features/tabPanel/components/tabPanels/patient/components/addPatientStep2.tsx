@@ -75,11 +75,12 @@ function AddPatientStep2({...props}) {
     const {contacts} = useContactType();
     const {countries} = useCountries("nationality=true");
     const {trigger: mutateOnGoing} = useMutateOnGoing();
-    const [collapse,setCollapse] = useState<String[]>(["patient-info"])
+
     const {t: commonTranslation} = useTranslation("common");
     const {stepsData} = useAppSelector(addPatientSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
+    const [collapse,setCollapse] = useState<String[]>(["patient-info"])
     const [loading, setLoading] = useState<boolean>(status === "loading");
     const [countriesData, setCountriesData] = useState<CountryModel[]>([]);
     const [socialInsurances] = useState(SocialInsured?.map((Insured: any) => ({

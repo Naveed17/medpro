@@ -211,7 +211,7 @@ function Patients() {
             action: "onDeletePatient",
         }] : [])
     ]);
-    const stepperData = [
+    const [stepperData] = useState([
         {
             title: "tabs.personal-info",
             children: AddPatientStep1,
@@ -227,7 +227,7 @@ function Patients() {
             children: AddPatientStep3,
             disabled: true,
         },
-    ];
+    ]);
     const [loading] = useState<boolean>(false);
     const [rows, setRows] = useState<PatientModel[]>([]);
     const {collapse} = RightActionData.filter;
