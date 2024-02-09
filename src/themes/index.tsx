@@ -1,25 +1,25 @@
-import {useEffect, useMemo, useState} from "react";
+import { useEffect, useMemo, useState } from "react";
 // material
-import {CssBaseline} from "@mui/material";
+import { CssBaseline, useTheme } from "@mui/material";
 import {
     createTheme,
     ThemeProvider
 } from "@mui/material/styles";
 import palette from "@themes/palette";
 import typography from "@themes/typography";
-import {shadows, customShadows} from "@themes/shadows";
+import { shadows, customShadows } from "@themes/shadows";
 import componentsOverride from "./overrides";
-import {CacheProvider} from "@emotion/react";
-import {useRouter} from "next/router";
+import { CacheProvider } from "@emotion/react";
+import { useRouter } from "next/router";
 import createCache from "@emotion/cache";
-import {prefixer} from "stylis";
+import { prefixer } from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
-import {configSelector, setDirection, setLocalization} from "@features/base";
-import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {Localization} from "@lib/localization";
+import { configSelector, setDirection, setLocalization } from "@features/base";
+import { useAppDispatch, useAppSelector } from "@lib/redux/hooks";
+import { Localization } from "@lib/localization";
 import * as locales from "@mui/material/locale";
 import moment from "moment-timezone";
-import {Poppins} from 'next/font/google';
+import { Poppins } from 'next/font/google';
 
 const poppins = Poppins({
     subsets: ['latin'],
@@ -30,9 +30,10 @@ const poppins = Poppins({
 
 type SupportedLocales = keyof typeof locales;
 
-function ThemeConfig({children}: LayoutProps) {
-    const {mode} = useAppSelector(configSelector);
+function ThemeConfig({ children }: LayoutProps) {
+    const { mode } = useAppSelector(configSelector);
     const router = useRouter();
+    const theme = useTheme();
     const lang: string | undefined = router.locale;
     const locale: SupportedLocales = Localization(lang);
     const dir = lang === 'ar' ? 'rtl' : 'ltr';
@@ -65,7 +66,7 @@ function ThemeConfig({children}: LayoutProps) {
                     },
                 },
             },
-            palette: {...palette, mode: mode},
+            palette: { ...palette, mode: mode },
             typography,
             direction: dir,
             shadows: shadows,
@@ -73,6 +74,12 @@ function ThemeConfig({children}: LayoutProps) {
             shape: {
                 borderRadius: 6
             },
+            breakpoints: {
+                values: {
+                    ...theme.breakpoints.values,
+                    xl: 1440
+                }
+            }
         }, locales[locale]),
         [dir, locale, mode],
     );
@@ -81,7 +88,7 @@ function ThemeConfig({children}: LayoutProps) {
     return (
         <CacheProvider value={styleCache}>
             <ThemeProvider theme={themeWithLocale}>
-                <CssBaseline/>
+                <CssBaseline />
                 <main dir={dir} className={`${poppins.className}`}>
                     {children}
                 </main>

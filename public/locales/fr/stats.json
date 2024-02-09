@@ -1,6 +1,12 @@
 {
   "sub-header": {
-    "title": "Statistiques"
+    "title": "Statistiques",
+    "tabs": {
+      "tab_all": "Toutes les statistiques",
+      "tab_rdv": "Consultations & Rendez-vous",
+      "tab_patients": "Patients",
+      "tab_working_time": "Temps de travail"
+    }
   },
   "filter": {
     "title": "Filtre"
@@ -8,15 +14,24 @@
   "agenda-view": {
     "day": "Jour",
     "week": "Semaine",
-    "month": "Mois"
+    "month": "Mois",
+    "numbers": "Numbers"
   },
   "see-more": "voir plus",
   "see-less": "voir moins",
   "activity": "Activité",
-  "patients": "Patients",
+  "patients": "Total patients",
   "new-patients": "Nouveaux patients",
   "appointments": "Rendez-vous",
   "new-appointments": "Nouveaux rendez-vous",
+  "avg_time_patient": "Average patient wait time",
   "Reason": "Motif par Consultations",
-  "act": "Acte par Consultations"
+  "act": "Acte par Consultations",
+  "rdv_per-min": "Consultations par jour.",
+  "rdv_type": "Types de Consultation",
+  "consultation": "Consultation",
+  "apci": "APCI",
+  "next": "Suivie",
+  "check": "Contrôle",
+  "echo": "Echo"
 }
