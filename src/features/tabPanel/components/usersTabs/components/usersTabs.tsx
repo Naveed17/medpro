@@ -174,7 +174,7 @@ function UsersTabs({...props}) {
         const features: any = {};
 
         form.append("name", selectedProfile?.name ?? values.role_name);
-        Object.entries(values.roles).map((role: any) => {
+        Object.entries(values.roles).forEach((role: any) => {
             const hasFeaturePermissions = role[1].reduce((features: any[], feature: FeatureModel) => {
                 const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
                     [...(permissions ?? []),
