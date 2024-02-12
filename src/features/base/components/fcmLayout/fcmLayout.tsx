@@ -330,7 +330,7 @@ function FcmLayout({...props}) {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const connectToStream = () => {
-        // Connect to /api/stream as the SSE API source
+        // Connect to /api/sse as the SSE API source
         const eventSource = new EventSource(`/api/sse`, {
             withCredentials: true,
         })
