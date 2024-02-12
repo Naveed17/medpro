@@ -9,7 +9,6 @@ import {useSession} from "next-auth/react";
 import {capitalizeFirst, getMilliseconds, shortEnglishHumanizer, useTimer} from "@lib/hooks";
 import {setDialog} from "@features/topNavBar";
 import {setSelectedEvent} from "@features/calendar";
-import {batch} from "react-redux";
 import {MobileContainer} from "@lib/constants";
 import {minMaxWindowSelector} from "@features/buttons";
 
@@ -60,10 +59,8 @@ function CipCard({...props}) {
                     src={'/static/icons/ic-stop.svg'}
                     onClick={event => {
                         event.stopPropagation();
-                        batch(() => {
-                            dispatch(setSelectedEvent(null));
-                            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-                        });
+                        dispatch(setSelectedEvent(null));
+                        dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
                     }}
                     sx={{
                         width: 30,
@@ -81,10 +78,8 @@ function CipCard({...props}) {
                     {...((!isMobile && !roles.includes('ROLE_SECRETARY') && !isWindowMax) && {
                         onClick: (event: any) => {
                             event.stopPropagation();
-                            batch(() => {
-                                dispatch(setSelectedEvent(null));
-                                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-                            });
+                            dispatch(setSelectedEvent(null));
+                            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
                         }
                     })}
                     sx={{

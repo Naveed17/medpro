@@ -5,7 +5,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {useTranslation} from "next-i18next";
 import dynamic from "next/dynamic";
 import {SubHeader} from "@features/subHeader";
-import {Box, Button, Card, CardContent, Grid, IconButton, Stack, Typography, useTheme} from "@mui/material";
+import {Box, Button, Card, CardContent, Grid, Stack, Typography, useTheme} from "@mui/material";
 import {StatsToolbar} from "@features/toolbar";
 import {merge} from 'lodash';
 import {ChartsOption, ChartStyled} from "@features/charts";
@@ -50,7 +50,7 @@ function Statistics() {
 
     const {data: statsPatientHttp} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patient-per-period/${router.locale}?format=month`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patient-per-period/${router.locale}?format=month`
     } : null, ReactQueryNoValidateConfig);
 
     const increasePercentage = (newVal: number, oldVAl: number) => {
@@ -73,6 +73,7 @@ function Statistics() {
         {value: "week", label: "Weeks", text: "Semaine", icon: DayIcon, format: "wo"},
         {value: "month", label: "Months", text: "Mois", icon: WeekIcon, format: "MMM"}
     ];
+
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
     return (
@@ -232,17 +233,17 @@ function Statistics() {
                                     <Chart
                                         type="area"
                                         series={[
-                                            {name: 'patients', data: patientPerPeriod.splice(0, 12)},
+                                            {name: 'patients', data: patientPerPeriod.slice(-12)},
                                             {
                                                 name: 'appointments',
-                                                data: appointmentPerPeriod.splice(0, 12)
+                                                data: appointmentPerPeriod.slice(-12)
                                             },
                                         ]}
                                         options={merge(ChartsOption(), {
                                             xaxis: {
                                                 position: "top",
                                                 categories: appointmentPerPeriodKeys.map(date =>
-                                                    startCase(moment(date, "DD-MM-YYYY HH:mm").format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', ''))).splice(0, 12)
+                                                    startCase(moment(date, "DD-MM-YYYY HH:mm").format(VIEW_OPTIONS.find(view => view.value === viewChart)?.format).replace('.', ''))).slice(-12)
                                             },
                                             tooltip: {x: {show: false}, marker: {show: false}},
                                             colors: ['#1BC47D', '#FEC400'],

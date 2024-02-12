@@ -53,7 +53,7 @@ const dialogData = [
         action: "createCashBox",
         component: dynamic((): any =>
             import(
-                "@features/dialog/components/createCashBox/createCashBoxDialog"
+                "@features/dialog/components/createCashBox/components/createCashBoxDialog"
                 ).then((mod) => mod)
         ),
     },
@@ -69,6 +69,14 @@ const dialogData = [
         action: "remove",
         component: dynamic((): any =>
             import("@features/dialog/components/removeDialog/removeDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        action: "used",
+        component: dynamic((): any =>
+            import("@features/dialog/components/unusedDialog/unusedDialog").then(
                 (mod) => mod
             )
         ),
@@ -286,6 +294,14 @@ const dialogData = [
         ),
     },
     {
+        action: "pending_Appointment",
+        component: dynamic((): any =>
+            import("@features/dialog/components/pendingAppointmentDialog/pendingAppointmentDialog").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
         action: "write_certif",
         component: dynamic((): any =>
             import("@features/dialog/components/certifDialog/certifDialog").then(
@@ -338,6 +354,14 @@ const dialogData = [
         ),
     },
     {
+        action: "add-feature-profile",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/addFeatureProfileDialog/components/addFeatureProfileDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
         action: "add-visitor",
         component: dynamic((): any =>
             import(
@@ -360,7 +384,31 @@ const dialogData = [
                 "@features/dialog/components/deleteModalDialog/components/deleteTransactionDialog"
                 ).then((mod) => mod)
         ),
-    }
+    },
+     {
+        action: "new-user",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/newUserDialog/components/newUserDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
+        action: "agreement",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/agreementDialog/components/agreementDialog"
+                ).then((mod) => mod)
+        ),
+    },
+    {
+        action: "create-act",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/createActDialog/components/createActDialog"
+                ).then((mod) => mod)
+        ),
+    },
 ];
 
 export default dialogData;

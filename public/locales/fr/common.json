@@ -161,7 +161,7 @@
     }
   },
   "click_or_drop_files_to_upload": "Cliquez ou déposez les fichiers à uploader",
-  "drag_and_drop_file_here_or_click": "Glissez et déposez le fichier ici ou cliquez",
+  "drag_and_drop_file_here_or_click": "Télécharger",
   "drag_3": "Faites glisser les bilans ici ou cliquez pour les télécharger.",
   "qr_title": "Qr-Code",
   "qr_des": "Veuillez scanner le Qr-Code pour compléter votre profil.",
@@ -230,17 +230,19 @@
   "notif_alert": "Pour améliorer l'expérience utilisateur, il est recommandé d'activer les notifications.",
   "install_app": "Installer l'app",
   "login": {
-    "sign_in": "Connecté en tant que",
+    "sign_in": "Choisir un espace de travail",
     "sign_title": "Avez-vous déjà utilisé med.tn ?",
     "sign_sub_title_1": "Connectez-vous en un seul clic",
     "sign_sub_title_2": "avec votre réseau social préféré",
     "sign_med_connect": "Se connecter avec Med",
-    "sign_divider": "or",
+    "sign_divider": "ou",
     "sign_email_placeholder": "Email ou Numéro de téléphone",
     "sign_pass_placeholder": "Mot de passe",
     "sign_reset_pass": "Mot de passe oublié ?",
     "sign_forget_pass": "Rester connecté",
-    "sign_connect_btn": "Connexion"
+    "sign_connect_btn": "Connexion",
+    "sign_in_desc_1": "Vous avez été ajouté aux espaces de travail.",
+    "sign_in_desc_2": "Vous pouvez passer d'un espace de travail à l'autre à tout moment."
   },
   "schedule": {
     "add": "Ajouter",
@@ -437,6 +439,11 @@
     "desc": "Lorsque vous recevrez des notification, elles apparaîtront ici",
     "button": "Actualiser"
   },
+  "loading-error-404-reset": {
+    "title": "Utilisateur non valide",
+    "description": "Essayez de vérifier votre utilisateur.",
+    "button": "Actualiser"
+  },
   "paused-consultation-notification": {
     "empty": "Aucune consultation en pause pour le moment",
     "desc": "Lorsque vous mettez les consultations en pause, elles apparaissent ici"
@@ -492,5 +499,15 @@
   "big": "Fichier trop gros max 40 mo",
   "long": "Nom de fichier trop long",
   "Male": "Homme",
-  "Female": "Femme"
+  "Female": "Femme",
+  "chat": {
+    "prev_msgs": "Messages précédents",
+    "you": "Vous",
+    "seen": "Vu",
+    "send": "Envoyer",
+    "msg_placeholder": "Tapez votre message ici...",
+    "noDes": "Pas de discussion en cours",
+    "chooseUser1": "Choisissez une personne dans le menu de gauche",
+    "chooseUser2": "et entamez une conversation."
+  }
 }

@@ -29,12 +29,12 @@ function CalendarPickers({...props}) {
     const [startOfMonth, setStartOfMonth] = useState(moment(initData.date).startOf('month').format('DD-MM-YYYY'));
     const [endOfMonth, setEndOfMonth] = useState(moment(initData.date).endOf('month').format('DD-MM-YYYY'));
 
-    const {data: httpAppCountResponse} = useRequestQuery(medicalEntityHasUser && agendaConfig ? {
+    const {data: httpAppCountResponse} = useRequestQuery(medicalEntityHasUser && agendaConfig?.uuid ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agendaConfig.uuid}/appointments/count/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
-        ...((medicalEntityHasUser && agendaConfig) && {variables: {query: `?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`}})
+        ...((medicalEntityHasUser && agendaConfig?.uuid) && {variables: {query: `?start_date=${startOfMonth}&end_date=${endOfMonth}&format=week`}})
     });
 
     const handleDateChange = useCallback((date: Date | null) => {

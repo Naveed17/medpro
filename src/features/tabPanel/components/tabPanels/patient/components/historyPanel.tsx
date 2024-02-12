@@ -165,7 +165,7 @@ function HistoryPanel({...props}) {
                         if (medicalEntityHasUser) {
                             triggerConsultationPrevious({
                                 method: "GET",
-                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`
+                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/history/${router.locale}?page=${pagesLa + 1}&limit=5`
                             }, {
                                 onSuccess: (r: any) => {
                                     const res = r?.data.data;

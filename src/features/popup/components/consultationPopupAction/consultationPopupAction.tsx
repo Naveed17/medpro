@@ -78,7 +78,7 @@ function ConsultationPopupAction({...props}) {
                                         variant="outlined"
                                         color="info"
                                         onClick={OnPay}>
-                                        <Typography>{t("pay")}</Typography>
+                                        <Typography>{t("consultation_pay")}</Typography>
                                         {data.restAmount > 0 &&
                                             <>
                                                 <Typography component='span'

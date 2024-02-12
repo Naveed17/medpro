@@ -105,8 +105,8 @@ function HistoryContainer({...props}) {
             onSuccess: () => {
                 if (medicalEntityHasUser) {
                     invalidateQueries([
-                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/antecedents/${router.locale}`,
-                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/analysis/${router.locale}`]);
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/antecedents/${router.locale}`,
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/analysis/${router.locale}`]);
                 }
             }
         });
@@ -125,7 +125,7 @@ function HistoryContainer({...props}) {
         capps[appID].appointment.requestedAnalyses[sheetID].hasAnalysis[sheetAnalysisID] = data
 
         setApps && setApps(capps)
-        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/history-list/${router.locale}`]);
+        medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/history-list/${router.locale}`]);
     }
 
     return (

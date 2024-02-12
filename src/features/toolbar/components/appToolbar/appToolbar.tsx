@@ -10,7 +10,8 @@ import {
     Tabs,
     tabsClasses,
     Tooltip,
-    Typography, useTheme,
+    Typography,
+    useTheme,
     Zoom,
 } from "@mui/material";
 import AppToolbarStyled from "./overrides/appToolbarStyle";
@@ -21,10 +22,8 @@ import {documentButtonList} from "@features/toolbar/components/appToolbar/config
 import Icon from "@themes/urlIcon";
 import IconUrl from "@themes/urlIcon";
 import {useTranslation} from "next-i18next";
-import {useProfilePhoto, useSendNotification} from "@lib/hooks/rest";
+import {useProfilePhoto} from "@lib/hooks/rest";
 import {useAppDispatch} from "@lib/redux/hooks";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
-import {useRouter} from "next/router";
 import {getPrescriptionUI} from "@lib/hooks/setPrescriptionUI";
 import {resetAppointment, setAppointmentPatient} from "@features/tabPanel";
 import {openDrawer} from "@features/calendar";
@@ -32,6 +31,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
+import Can from "@features/casl/can";
 
 function AppToolbar({...props}) {
 
@@ -43,8 +43,6 @@ function AppToolbar({...props}) {
         setOpenDialogSave,
         tabsData,
         selectedDialog,
-        agenda,
-        app_uuid,
         patient,
         handleChangeTab,
         isMobile,
@@ -60,28 +58,16 @@ function AppToolbar({...props}) {
         prescription, checkUp, imagery,
         showDocument, setShowDocument
     } = props;
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const router = useRouter();
     const theme = useTheme();
     const dispatch = useAppDispatch();
     const {data: session} = useSession();
     const {patientPhoto} = useProfilePhoto({patientId: patient?.uuid, hasPhoto: patient?.hasPhoto});
-    const {trigger: invalidateQueries} = useInvalidateQueries();
-    const {trigger: triggerNotificationPush} = useSendNotification();
 
     const {t} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-    const docUrl = `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/documents/${router.locale}`;
-    const open = Boolean(anchorEl);
-
     const {data: user} = session as Session;
     const general_information = (user as UserDataResponse).general_information;
-    const {jti} = session?.user as any;
-
-    const mutateDoc = async () => {
-        await invalidateQueries([docUrl]);
-        refreshDocSession();
-    }
+    const open = Boolean(anchorEl);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -91,18 +77,6 @@ function AppToolbar({...props}) {
         dispatch(resetAppointment());
         dispatch(setAppointmentPatient(patient));
         dispatch(openDrawer({type: "add", open: true}));
-    }
-
-    const refreshDocSession = () => {
-        triggerNotificationPush({
-            action: "push",
-            root: "all",
-            message: " ",
-            content: JSON.stringify({
-                mutate: docUrl,
-                fcm_session: jti
-            })
-        });
     }
 
     const handleClose = (action: string) => {
@@ -254,7 +228,7 @@ function AppToolbar({...props}) {
                         sx={{width: {xs: "30%", md: "30%"}}}>
                         <Button
                             sx={{minWidth: 35}}
-                            size={isMobile ? "small" : "medium"}
+                            size={"medium"}
                             onClick={handleClick}
                             variant="contained"
                             color="warning">
@@ -318,13 +292,13 @@ function AppToolbar({...props}) {
                         textColor="primary"
                         indicatorColor="primary"
                         aria-label="patient_history">
-                        {tabsData.map((tab: { label: string; }) => (
+                        {tabsData.map((tab: { label: string; label_mobile: string }) => (
                             <Tab
                                 className="custom-tab"
                                 key={tab.label}
                                 value={tab.label}
                                 disabled={loading}
-                                label={t(tab.label)}
+                                label={t(isMobile ? tab.label_mobile : tab.label)}
                             />
                         ))}
                     </Tabs>
@@ -388,18 +362,22 @@ function AppToolbar({...props}) {
                                             ml: -0.5,
                                             mr: 1,
                                         },
-                                        '&:before': {
-                                            content: '""',
-                                            display: 'block',
-                                            position: 'absolute',
-                                            top: 0,
-                                            right: 14,
-                                            width: 10,
-                                            height: 10,
-                                            bgcolor: 'text.primary',
-                                            transform: 'translateY(-50%) rotate(45deg)',
-                                            zIndex: 0,
-                                        },
+                                        ...(theme.direction !== 'rtl' && {
+                                            '&:before': {
+                                                content: '""',
+                                                display: 'block',
+                                                position: 'absolute',
+                                                top: 0,
+                                                right: 14,
+                                                width: 10,
+                                                height: 10,
+                                                bgcolor: 'text.primary',
+                                                transform: 'translateY(-50%) rotate(45deg)',
+                                                zIndex: 0,
+
+                                            },
+                                        }),
+
                                     },
                                 }
                             }}
@@ -408,18 +386,21 @@ function AppToolbar({...props}) {
                                 "aria-labelledby": "basic-button",
                             }}>
                             {documentButtonList.map((item, index) => (
-                                <MenuItem
-                                    key={`document-button-list-${index}`}
-                                    onClick={() => handleClose(item.label)}>
-                                    <Icon path={item.icon}/>
-                                    {t(item.label)}
-                                    {changes.find((ch: {
-                                            index: number;
-                                        }) => ch.index === index) && changes.find((ch: {
-                                            index: number;
-                                        }) => ch.index === index).checked &&
-                                        <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
-                                </MenuItem>
+                                <Can key={`document-button-list-${index}`} I={"manage"} a={item.feature as any}
+                                     {...(item.permission && {field: item.permission})}>
+                                    <MenuItem
+
+                                        onClick={() => handleClose(item.label)}>
+                                        <Icon path={item.icon}/>
+                                        {t(item.label)}
+                                        {changes.find((ch: {
+                                                index: number;
+                                            }) => ch.index === index) && changes.find((ch: {
+                                                index: number;
+                                            }) => ch.index === index).checked &&
+                                            <CheckCircleIcon color={"success"} sx={{width: 15, ml: 1}}/>}
+                                    </MenuItem>
+                                </Can>
                             ))}
                         </StyledMenu>
                     </Stack>}

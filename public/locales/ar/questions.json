@@ -1,10 +1,10 @@
 {
-    "weight": "points",
-    "answers": "réponses",
-    "publish": "publier ma réponse",
-    "write_answer": "écrire une réponse",
-    "in_progress": "en cours",
-    "closed": "fermé",
-    "category": "catégorie",
-    "height": "taille"
+  "weight": "الوزن",
+  "answers": "الردود",
+  "publish": "نشر إجابتي",
+  "write_answer": "كتابة إجابة",
+  "in_progress": "قيد التنفيذ",
+  "closed": "مغلق",
+  "category": "الفئة",
+  "height": "الطول"
 }

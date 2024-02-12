@@ -3,9 +3,16 @@
   "start": "Start by editing",
   "powered_by": "All rights reserved",
   "default-view": "Default view",
+  "auto-confirm": "Enable automatic appointment confirmation",
   "trash": "Trash",
+  "payment_dialog_title": "Payment",
   "empty-trash": "Empty trash",
+  "add-payment": "Add payment",
+  "not-payed": "Not payed",
+  "paid": "Payed",
+  "cash": "Cash",
   "lang": "Language",
+  "rows_per-page": "Rows per page",
   "sms-languages": {
     "fr": "French",
     "en": "English",
@@ -14,13 +21,17 @@
   "light": "Light mode",
   "dark": "Dark mode",
   "dashboard": "Dashboard",
+  "deleted-patient": "Deleted patient",
   "search": "Search",
   "stats": "Statistics",
   "wallet": "Wallet",
   "credit": "Credit",
   "settings": "Settings",
+  "duplication": "Duplication",
+  "unpaid": "Unpaid",
   "loading": "Please wait a moment while loading",
   "noOption": "No results found",
+  "doc_detail_title": "Document",
   "loading-error": {
     "title": "Refresh the page !",
     "description": "An error occurred during initialization. Click the button to retry.",
@@ -150,7 +161,7 @@
     }
   },
   "click_or_drop_files_to_upload": "Click or drop files to upload",
-  "drag_and_drop_file_here_or_click": "Drag and drop file here or click",
+  "drag_and_drop_file_here_or_click": "Upload",
   "drag_3": "Drag and drop the reports here or click to upload.",
   "qr_title": "Qr-Code",
   "qr_des": "Please scan the Qr-Code to complete your profile.",
@@ -171,6 +182,7 @@
   "pending": "Pending",
   "online": "Online appointment",
   "request-appointment": "requested a new appointment online for the",
+  "next-appointment-control": "Medical check-up after",
   "consultation_reson": "Reason for Consultation",
   "reason-consultation-placeholder": "Choose your reason for consultation",
   "acts-consultation-placeholder": "Choose your act for consultation",
@@ -181,12 +193,16 @@
   "pre_consultation_data": "Fill in the pre-consultation data",
   "pre_consultation_dialog_title": "Fill in the pre-consultation data",
   "view_the_consultation": "View the consultation",
+  "consultation_pay": "Pay",
   "patient_no_show": "Patient did not show up",
   "add_patient_to_waiting_room": "Add patient to waiting room",
   "leave_waiting_room": "Leave waiting room",
   "see_patient_form": "View Patient Form",
   "send_a_message": "Send a Message",
   "delete": "Delete",
+  "edit": "Edit",
+  "view": "View",
+  "move": "Move",
   "cancel": "Cancel",
   "save": "Save",
   "share": "Share",
@@ -198,7 +214,18 @@
   "analyse": "Analysis",
   "rapport": "Report",
   "today": "Today",
-  "permission": "You do not have permission to access this resource",
+  "calendar_view": "View calendar",
+  "display_workdays": "display workdays",
+  "program": "program",
+  "add_blocked_day": "Add blocked day",
+  "delete_blocked_day": "Delete blocked day",
+  "add_leave": "Add leave",
+  "to": "to",
+  "permission": {
+    "title": "Permission to access",
+    "description": "You do not have permission to access this resource",
+    "button": "Return"
+  },
   "back": "Back",
   "notif_alert": "To enhance the user experience, we recommend enabling notifications.",
   "install_app": "Install app",
@@ -213,7 +240,9 @@
     "sign_pass_placeholder": "Password",
     "sign_reset_pass": "Forgot Password?",
     "sign_forget_pass": "Remember me",
-    "sign_connect_btn": "Log In"
+    "sign_connect_btn": "Log In",
+    "sign_in_desc_1": "You have been added to workspaces.",
+    "sign_in_desc_2": "You can switch between workspaces at any time."
   },
   "schedule": {
     "add": "Add",
@@ -333,6 +362,22 @@
       "cancel": "Cancel",
       "confirm": "Confirm"
     },
+    "switch-consultation-dialog": {
+      "title": "Confirmation of New Consultation",
+      "sub-title": "Are you sure you want to start a new consultation?",
+      "description": "To start a new consultation, you must end or pause the current consultation.",
+      "cancel": "Cancel",
+      "finish": "Finish & Start new",
+      "pause": "Pause & Start new"
+    },
+    "manage-consultation-dialog": {
+      "title": "Consultation",
+      "sub-title": "Are you sure you want to end or pause the current consultation?",
+      "description": "You must end or pause the current consultation.",
+      "cancel": "Cancel",
+      "finish": "Finish",
+      "pause": "Pause"
+    },
     "alert": {
       "cancel-appointment": "The appointment has been successfully canceled",
       "delete-appointment": "The appointment has been successfully deleted",
@@ -341,6 +386,15 @@
       "patient-no-show": "The appointment has been successfully modified",
       "confirm-appointment": "The appointment has been successfully confirmed",
       "consultation-finish": "Consultation completed for patient"
+    },
+    "new_features": {
+      "title": "What's new ?",
+      "close": "Close"
+    }
+  },
+  "alerts": {
+    "speech-text": {
+      "title": "Audio processing is successfully completed"
     }
   },
   "filter": {
@@ -348,6 +402,7 @@
     "patient": "Patient",
     "date-of-birth": "Date of Birth",
     "gender": "Gender",
+    "applied-filters": "Filters applied",
     "male": "Male",
     "female": "Female",
     "name": "Name",
@@ -363,9 +418,9 @@
     "status": "Status",
     "meetingType": "Meeting Type",
     "meetingActs": "Act RDV",
-    "disease": "Disease",
+    "meetingDisease": "Disease",
     "meeting": {
-      "cabinet": "Cabinet",
+      "cabinet": "Office",
       "home": "Home",
       "teleconsultation": "Teleconsultation"
     },
@@ -383,6 +438,15 @@
     "empty": "No notifications at the moment",
     "desc": "When you receive notifications, they will appear here",
     "button": "Refresh"
+  },
+  "loading-error-404-reset": {
+    "title": "Invalid user",
+    "description": "Try to verify your user.",
+    "button": "Refresh"
+  },
+  "paused-consultation-notification": {
+    "empty": "No consultations paused at the moment",
+    "desc": "When you pause consultations, they appear here"
   },
   "popover-info": {
     "title": "Appointment Status",
@@ -435,5 +499,15 @@
   "big": "File too big max 40 mb",
   "long": "File name too long",
   "Male": "Male",
-  "Female": "Famale"
+  "Female": "Famale",
+  "chat": {
+    "prev_msgs": "Previous messages",
+    "you": "You",
+    "seen": "Seen",
+    "send": "Send",
+    "msg_placeholder": "Type your message here...",
+    "noDes": "No current discussion",
+    "chooseUser1": "Choose a person from the left menu",
+    "chooseUser2": "and start a conversation."
+  }
 }

@@ -1,3 +1,36 @@
+# [4.23.0](https://github.com/SmartMedSA/med-pro/compare/v4.22.0...v4.23.0) (2024-01-11)
+
+
+### Bug Fixes
+
+* CIP responsive ([205fde2](https://github.com/SmartMedSA/med-pro/commit/205fde2ad23ca96232d9a569dd5607884e167832))
+* observation old value ([46961d1](https://github.com/SmartMedSA/med-pro/commit/46961d1dcc7a0e8f774cf3972832c68b7f0e521e))
+* smartlook init issue ([d821c3c](https://github.com/SmartMedSA/med-pro/commit/d821c3c0b7e794c28064000cdeba3dedf21eab68))
+* status chart issue ([7ac0195](https://github.com/SmartMedSA/med-pro/commit/7ac0195e7ab4b2d395df5c336d1e45dbd4fb6b1f))
+
+
+### Features
+
+* editor self hosting ([070a148](https://github.com/SmartMedSA/med-pro/commit/070a1480a79b3a7c6c5345314125c02b63a609cb))
+* local build for tinymce ([fa0b5d3](https://github.com/SmartMedSA/med-pro/commit/fa0b5d3f9875241040902469b1b8a4c09cbedc22))
+* total appointment ([341292f](https://github.com/SmartMedSA/med-pro/commit/341292fc25ac884ffe7d3e5b43da9ebbb6183e37))
+
+# [4.22.0](https://github.com/SmartMedSA/med-pro/compare/v4.21.1...v4.22.0) (2024-01-04)
+
+
+### Features
+
+* ca ([17f3f75](https://github.com/SmartMedSA/med-pro/commit/17f3f75a805a15a8d8910a23b9f63ab58a08ea93))
+
+## [4.21.1](https://github.com/SmartMedSA/med-pro/compare/v4.21.0...v4.21.1) (2024-01-03)
+
+
+### Bug Fixes
+
+* new feature dialog update ([12d570b](https://github.com/SmartMedSA/med-pro/commit/12d570be2ae6d34c7b0bf828a530d9b9d93749c1))
+* Statistics page icons ([6864896](https://github.com/SmartMedSA/med-pro/commit/6864896b227c4b9e553cfe722edc662f5d96d48d))
+* translation issues ([8402f5b](https://github.com/SmartMedSA/med-pro/commit/8402f5b88f9276ca28978eb70b6107c19aa13f3d))
+
 # [4.21.0](https://github.com/SmartMedSA/med-pro/compare/v4.20.7...v4.21.0) (2023-12-30)
 
 

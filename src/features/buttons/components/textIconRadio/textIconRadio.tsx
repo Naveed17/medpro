@@ -1,4 +1,4 @@
-import { Box, Radio, Typography } from "@mui/material";
+import { Box, Radio, Typography, useTheme } from "@mui/material";
 import CheckRadioIcon from "@themes/overrides/icons/checkRadioIcon";
 import CheckedRadioIcon from "@themes/overrides/icons/checkedRadioIcon";
 import RadioButtonStyled from "./overrides/radioButtonStyled";
@@ -8,6 +8,7 @@ import { ModelDot } from "@features/modelDot";
 function TextIconRadio({ ...props }) {
   const { item, title, color, icon, disabled, selectedValue, onChangeValue } =
     props;
+  const theme = useTheme()
   return (
     <RadioButtonStyled
       disabled={disabled}
@@ -38,7 +39,13 @@ function TextIconRadio({ ...props }) {
         <ModelDot
           {...{ color, icon }}
           selected={false}
-          marginRight={10}></ModelDot>
+          marginRight={theme.direction === "rtl" ? 0 : 10}
+          {...(theme.direction === "rtl" && {
+            style: {
+              marginLeft: 10
+            }
+          })}
+        ></ModelDot>
         <Typography sx={{ fontSize: "16px" }}>{title}</Typography>
       </Box>
     </RadioButtonStyled>

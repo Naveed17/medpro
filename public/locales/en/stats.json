@@ -1,22 +1,22 @@
 {
   "sub-header": {
-    "title": "Statistiques"
+    "title": "Statistics"
   },
   "filter": {
-    "title": "Filtre"
+    "title": "Filter"
   },
   "agenda-view": {
-    "day": "Jour",
-    "week": "Semaine",
-    "month": "Mois"
+    "day": "Day",
+    "week": "Week",
+    "month": "Month"
   },
-  "see-more": "voir plus",
-  "see-less": "voir moins",
-  "activity": "Activité",
+  "see-more": "See More",
+  "see-less": "See Less",
+  "activity": "Activity",
   "patients": "Patients",
-  "new-patients": "Nouveaux patients",
-  "appointments": "Rendez-vous",
-  "new-appointments": "Nouveaux rendez-vous",
-  "Reason": "Motif par Consultations",
-  "act": "Acte par Consultations"
+  "new-patients": "New Patients",
+  "appointments": "Appointments",
+  "new-appointments": "New Appointments",
+  "Reason": "Reason per Consultations",
+  "act": "Act per Consultations"
 }

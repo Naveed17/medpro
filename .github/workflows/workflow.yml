@@ -62,7 +62,7 @@ jobs:
               },
                 "refs/pull/.*": {
                 "enable_cd": "${{ contains(github.event.pull_request.labels.*.name, 'preview') }}",
-                "environments": "{\"envs\":[{\"name\": \"preview\",\"ws\": \"pr-${{ github.event.number }}\" , \"host\": \"med-pro-pr-${{ github.event.number }}.med.ovh\"}]}"
+                "environments": "{\"envs\":[{\"name\": \"preview\",\"ws\": \"preview\" , \"host\": \"med-pro-preview.med.ovh\"}]}"
               },
               ".*": {
                 "enable_cd": "false"
@@ -91,6 +91,7 @@ jobs:
         SKAFFOLD_NAMESPACE=${{ secrets.SKAFFOLD_NAMESPACE }}
         SKAFFOLD_CACHE_ARTIFACTS=false
         WORKSPACE=${{ matrix.envs.ws }}
+        NODE_OPTIONS='--max-old-space-size=2500'
 
   sonar:
     if: ${{ github.ref == 'refs/heads/develop' }}

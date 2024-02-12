@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {
     Autocomplete,
     Box,
@@ -33,198 +33,205 @@ import IconUrl from "@themes/urlIcon";
 import NotesComponent from "@features/card/components/consultationDetailCard/notesComponent";
 
 import {LoadingScreen} from "@features/loadingScreen";
+import Can from "@features/casl/can";
 
 const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
-        const {
-            exam: defaultExam,
-            changes,
-            setChanges,
-            app_uuid,
-            hasDataHistory,
-            seeHistory,
-            closed,
-            isClose,
-            agenda,
-            mutateSheetData,
-            fullOb, setFullOb,
-            trigger: triggerAppointmentEdit,
-            loading
-        } = props;
-        const router = useRouter();
-        const theme = useTheme();
+    const {
+        exam: defaultExam,
+        changes,
+        setChanges,
+        app_uuid,
+        hasDataHistory,
+        seeHistory,
+        closed,
+        isClose,
+        agenda,
+        mutateSheetData,
+        fullOb, setFullOb,
+        trigger: triggerAppointmentEdit,
+        loading
+    } = props;
+    const router = useRouter();
+    const theme = useTheme();
 
-        const dispatch = useAppDispatch();
-        const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const dispatch = useAppDispatch();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
 
-        const {exam} = useAppSelector(consultationSelector);
-        const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
-        const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
+    const {exam} = useAppSelector(consultationSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {t, ready} = useTranslation("consultation", {keyPrefix: "consultationIP"})
 
-        const app_data = defaultExam?.appointment_data;
+    const app_data = defaultExam?.appointment_data;
 
 
-        const [loadingReq, setLoadingReq] = useState(false);
-        let [oldNote, setOldNote] = useState(app_data?.notes ? app_data?.notes.value : "");
-        let [diseases, setDiseases] = useState<string[]>([]);
-        const [hide, setHide] = useState<boolean>(false);
-        const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
-        const [isStarted, setIsStarted] = useState(false);
-        const [loadChanges, setLoadChanges] = useState(false);
+    const [loadingReq, setLoadingReq] = useState(false);
+    let [diseases, setDiseases] = useState<string[]>([]);
+    const [hide, setHide] = useState<boolean>(false);
+    const [editDiagnosic, setEditDiagnosic] = useState<boolean>(false);
+    const [isStarted, setIsStarted] = useState(false);
+    const [loadChanges, setLoadChanges] = useState(false);
 
-        const modelContent = useRef(app_data?.notes ? app_data?.notes.value : "");
+    const modelContent = useRef(app_data?.notes ? app_data?.notes.value : "");
+    const oldNote = useRef(app_data?.notes ? app_data?.notes.value : "");
 
-        const {trigger: triggerAddReason} = useRequestQueryMutation("/motif/add");
-        const {trigger: triggerDiseases} = useRequestQueryMutation("/diseases");
+    const {trigger: triggerAddReason} = useRequestQueryMutation("/motif/add");
+    const {trigger: triggerDiseases} = useRequestQueryMutation("/diseases");
 
-        const {
-            data: httpConsultReasonResponse,
-            mutate: mutateReasonsData
-        } = useRequestQuery(medicalEntityHasUser ? {
-            method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
-        } : null, {
-            ...ReactQueryNoValidateConfig,
-            ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
+    const {
+        data: httpConsultReasonResponse,
+        mutate: mutateReasonsData
+    } = useRequestQuery(medicalEntityHasUser ? {
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
+    } : null, {
+        ...ReactQueryNoValidateConfig,
+        ...(medicalEntityHasUser && {variables: {query: '?sort=true'}})
+    });
+
+
+    const reasons = (httpConsultReasonResponse as HttpResponse)?.data;
+
+
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: {
+            motif: app_data?.consultation_reason ? app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : [],
+            notes: app_data?.notes ? app_data?.notes.value : "",
+            diagnosis: app_data?.diagnostics ? app_data?.diagnostics.value : "",
+            disease: app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : [],
+            treatment: exam.treatment,
+        },
+        onSubmit: async () => {
+        }
+    });
+
+    const {handleSubmit, values, setFieldValue} = formik;
+    const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
+        handleOnChange('consultation_reason', reasons.map(reason => reason.uuid))
+        setFieldValue("motif", reasons.map(reason => reason.uuid));
+        // set data data from local storage to redux
+        dispatch(
+            SetExam({
+                motif: reasons.map(reason => reason.uuid)
+            })
+        );
+    }
+    const addNewReason = (name: string) => {
+        setLoadingReq(true);
+        const params = new FormData();
+        params.append("color", "#0696D6");
+        params.append("duration", "15");
+        params.append("isEnabled", "true");
+        params.append("translations", JSON.stringify({
+            [router.locale as string]: name
+        }));
+
+        medicalEntityHasUser && triggerAddReason({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`,
+            data: params
+        }, {
+            onSuccess: () => mutateReasonsData().then((result: any) => {
+                const {status, data} = result?.data?.data;
+                const reasonsUpdated = data as ConsultationReasonModel[];
+                if (status === "success") {
+                    handleReasonChange([...reasons.filter((reason: {
+                        uuid: any;
+                    }) => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
+                }
+                setLoadingReq(false);
+            })
         });
+    }
+
+    const findDiseases = (name: string) => {
+        triggerDiseases({
+            method: "GET",
+            url: `/api/private/diseases/${router.locale}?name=${name}`
+        }, {
+            onSuccess: res => {
+                let resultats: any[] = [];
+                (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {
+                    resultats.push(r.data.title['@value']);
+                });
+                setDiseases(resultats);
+            }
+        });
+    }
+
+    const handleOnChange = (event: string, newValue: any) => {
+        setFieldValue(event, newValue);
+        // set data data from local storage to redux
+        dispatch(
+            SetExam({
+                [`${event}`]: newValue
+            })
+        );
+        saveChanges(event, newValue);
+    }
+
+    const saveChanges = (ev: string, newValue: any) => {
+        const form = new FormData();
+        if (ev === 'notes') {
+            modelContent.current = newValue
+            if (!isStarted) oldNote.current = newValue;
+        }
+        form.append(ev === 'diagnosis' ? 'diagnostic' : ev, newValue);
+
+        triggerAppointmentEdit({
+                method: "PUT",
+                url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
+                data: form
+            }, {
+                onSuccess: () => {
+                    setLoadChanges(false)
+                }
+            }
+        )
+    }
+    const debouncedOnChange = debounce(saveChanges, 1000);
 
 
-        const reasons = (httpConsultReasonResponse as HttpResponse)?.data;
+    useEffect(() => {
+        setHide(closed && !isClose)
+    }, [isClose, closed])
 
-
-        const formik = useFormik({
-            enableReinitialize: true,
-            initialValues: {
-                motif: app_data?.consultation_reason ? app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : [],
+    useEffect(() => {
+        dispatch(
+            SetExam({
+                motif: app_data?.consultation_reason ?
+                    app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : [],
                 notes: app_data?.notes ? app_data?.notes.value : "",
                 diagnosis: app_data?.diagnostics ? app_data?.diagnostics.value : "",
                 disease: app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : [],
-                treatment: exam.treatment,
-            },
-            onSubmit: async () => {
-            }
-        });
-
-        const {handleSubmit, values, setFieldValue} = formik;
-        const handleReasonChange = (reasons: ConsultationReasonModel[]) => {
-            handleOnChange('consultation_reason', reasons.map(reason => reason.uuid))
-            setFieldValue("motif", reasons.map(reason => reason.uuid));
-            // set data data from local storage to redux
-            dispatch(
-                SetExam({
-                    motif: reasons.map(reason => reason.uuid)
-                })
-            );
-        }
-        const addNewReason = (name: string) => {
-            setLoadingReq(true);
-            const params = new FormData();
-            params.append("color", "#0696D6");
-            params.append("duration", "15");
-            params.append("isEnabled", "true");
-            params.append("translations", JSON.stringify({
-                [router.locale as string]: name
-            }));
-
-            medicalEntityHasUser && triggerAddReason({
-                method: "POST",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
-                data: params
-            }, {
-                onSuccess: () => mutateReasonsData().then((result: any) => {
-                    const {status, data} = result?.data?.data;
-                    const reasonsUpdated = data as ConsultationReasonModel[];
-                    if (status === "success") {
-                        handleReasonChange([...reasons.filter((reason: {
-                            uuid: any;
-                        }) => exam.motif.includes(reason.uuid)), reasonsUpdated[0]]);
-                    }
-                    setLoadingReq(false);
-                })
-            });
-        }
-
-        const findDiseases = (name: string) => {
-            triggerDiseases({
-                method: "GET",
-                url: `/api/private/diseases/${router.locale}?name=${name}`
-            }, {
-                onSuccess: res => {
-                    let resultats: any[] = [];
-                    (res as any).data.data.map((r: { data: { title: { [x: string]: any; }; }; }) => {
-                        resultats.push(r.data.title['@value']);
-                    });
-                    setDiseases(resultats);
-                }
-            });
-        }
-
-        const handleOnChange = (event: string, newValue: any) => {
-            setFieldValue(event, newValue);
-            // set data data from local storage to redux
-            dispatch(
-                SetExam({
-                    [`${event}`]: newValue
-                })
-            );
-            saveChanges(event, newValue);
-        }
-
-        const saveChanges = (ev: string, newValue: any) => {
-            const form = new FormData();
-            if (ev === 'notes') {
-                modelContent.current = newValue
-                !isStarted && setOldNote(newValue);
-            }
-            form.append(ev === 'diagnosis' ? 'diagnostic' : ev, newValue);
-
-            triggerAppointmentEdit({
-                    method: "PUT",
-                    url: `${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${app_uuid}/data/${router.locale}`,
-                    data: form
-                },{onSuccess: ()=>{setLoadChanges(false)}}
-            )
-        }
-        const debouncedOnChange = debounce(saveChanges, 1000);
+                treatment: exam.treatment
+            })
+        );
+    }, [app_data])// eslint-disable-line react-hooks/exhaustive-deps
 
 
-        useEffect(() => {
-            setHide(closed && !isClose)
-        }, [isClose, closed])
+    useEffect(() => {
+        const item = changes.find((change: { name: string }) => change.name === "fiche")
+        item.checked = Object.values(values).filter(val => val !== '').length > 0;
+        setChanges([...changes])
+    }, [values])// eslint-disable-line react-hooks/exhaustive-deps
 
-        useEffect(() => {
-            dispatch(
-                SetExam({
-                    motif: app_data?.consultation_reason ?
-                        app_data?.consultation_reason.map((reason: ConsultationReasonModel) => reason.uuid) : [],
-                    notes: app_data?.notes ? app_data?.notes.value : "",
-                    diagnosis: app_data?.diagnostics ? app_data?.diagnostics.value : "",
-                    disease: app_data?.disease && app_data?.disease.value.length > 0 ? app_data?.disease.value.split(',') : [],
-                    treatment: exam.treatment
-                })
-            );
-        }, [app_data])// eslint-disable-line react-hooks/exhaustive-deps
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
+    return (
+        <ConsultationDetailCardStyled style={{border: fullOb ? 0 : ""}}>
+            <CardContent style={{padding: 20}}>
+                <FormikProvider value={formik}>
+                    <Stack
+                        spacing={2}
+                        component={Form}
+                        autoComplete="off"
+                        noValidate
+                        style={{display: hide ? "none" : "block"}}
+                        onSubmit={handleSubmit}>
 
-        useEffect(() => {
-            const item = changes.find((change: { name: string }) => change.name === "fiche")
-            item.checked = Object.values(values).filter(val => val !== '').length > 0;
-            setChanges([...changes])
-        }, [values])// eslint-disable-line react-hooks/exhaustive-deps
-
-        if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
-
-        return (
-            <ConsultationDetailCardStyled style={{border: fullOb ? 0 : ""}}>
-                <CardContent style={{padding: 20}}>
-                    <FormikProvider value={formik}>
-                        <Stack
-                            spacing={2}
-                            component={Form}
-                            autoComplete="off"
-                            noValidate
-                            style={{display: hide ? "none" : "block"}}
-                            onSubmit={handleSubmit}>
-
+                        <Can I={"manage"} a={"consultation"}
+                             field={"consultation__consultation__fiche__consultation_reason__show"}>
                             {!fullOb && <Box width={1}>
                                 <Typography variant="body2" paddingBottom={1} fontWeight={500}>
                                     {t("reason_for_consultation")}
@@ -304,7 +311,9 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                                                       sx={{paddingLeft: 0}}
                                                                       variant="outlined" fullWidth/>}/>
                             </Box>}
-
+                        </Can>
+                        <Can I={"manage"} a={"consultation"}
+                             field={"consultation__consultation__fiche__observation__show"}>
                             <NotesComponent{...{
                                 saveChanges,
                                 values,
@@ -322,6 +331,9 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                 modelContent,
                                 loading
                             }}/>
+                        </Can>
+                        <Can I={"manage"} a={"consultation"}
+                             field={"consultation__consultation__fiche__diagnosis__show"}>
                             {!fullOb && <Box width={1}>
                                 <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}
                                        mb={1}>
@@ -342,7 +354,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                 {
                                     !editDiagnosic && <Editor
                                         initialValue={values.diagnosis}
-                                        apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                        tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                         onEditorChange={(event) => {
                                             debouncedOnChange("diagnosis", event)
                                         }}
@@ -358,7 +370,7 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                 {
                                     editDiagnosic && <Editor
                                         initialValue={values.diagnosis}
-                                        apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                                        tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                         onEditorChange={(event) => {
                                             debouncedOnChange("diagnosis", event)
                                         }}
@@ -374,6 +386,9 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                         }}/>
                                 }
                             </Box>}
+                        </Can>
+                        <Can I={"manage"} a={"consultation"}
+                             field={"consultation__consultation__fiche__diseases__show"}>
                             {!fullOb && <Box width={1}>
                                 <Typography variant="body2" paddingBottom={1} fontWeight={500}>
                                     {t("disease")}
@@ -419,12 +434,13 @@ const CIPPatientHistoryCard: any = ({src, ...props}: any) => {
                                                                       }}
                                                                       variant="outlined" fullWidth/>}/>
                             </Box>}
-                        </Stack>
-                    </FormikProvider>
-                </CardContent>
-            </ConsultationDetailCardStyled>
-        )
-    }
+                        </Can>
+                    </Stack>
+                </FormikProvider>
+            </CardContent>
+        </ConsultationDetailCardStyled>
+    )
+}
 
 CIPPatientHistoryCard.displayName = "consultation-file";
 

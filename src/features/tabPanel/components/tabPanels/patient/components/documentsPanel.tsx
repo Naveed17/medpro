@@ -187,7 +187,7 @@ function DocumentsPanel({...props}) {
 
     const {data: httpAppDocPatientResponse} = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/appointments/documents/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/appointments/documents/${router.locale}`
     } : null);
 
     const {data: httpQuotesResponse, mutate: mutateQuotes} = useRequestQuery(patient ? {
@@ -234,7 +234,7 @@ function DocumentsPanel({...props}) {
                              }
                          })}>
                         {documents.length > 0 ?
-                            documents.sort( (a:any,b:any) => {
+                            documents.sort((a: any, b: any) => {
                                 return moment(b.createdAt, 'DD-MM-YYYY HH:mm').diff(moment(a.createdAt, 'DD-MM-YYYY HH:mm'))
                             }).filter((doc: {
                                 title: string
@@ -245,7 +245,7 @@ function DocumentsPanel({...props}) {
                                         onClick={() => {
                                             showDoc(card)
                                         }}
-                                        {...{t, data: card, date: true, time: true, title: true,width:"13rem"}}/>
+                                        {...{t, data: card, date: true, time: true, title: true, width: "13rem"}}/>
                                 </React.Fragment>
                             )
                             :
@@ -287,7 +287,7 @@ function DocumentsPanel({...props}) {
                                             onClick={() => {
                                                 showDoc(card)
                                             }}
-                                            {...{t, data: card, date: true, time: true, title: true,width:"13rem"}}/>
+                                            {...{t, data: card, date: true, time: true, title: true, width: "13rem"}}/>
                                     </React.Fragment>
                                 </Grid>
                             )
@@ -395,7 +395,7 @@ function DocumentsPanel({...props}) {
 
             triggerQuoteUpdate({
                 method: "POST",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/quotes/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/quotes/${router.locale}`,
                 data: form
             }, {
                 onSuccess: () => {
@@ -513,14 +513,20 @@ function DocumentsPanel({...props}) {
                                 <DocumentCardStyled style={{width: "100%"}}>
                                     <Stack direction={"row"} spacing={2} onClick={() => {
                                         let _acts: any[] = [];
-                                        acts.map(act => _acts = [..._acts, {
-                                            ...act,
-                                            selected: card.quotes_items.findIndex((qi: {
+                                        acts.map(act => {
+                                            const _el = card.quotes_items.find((qi: {
                                                 act_item: { uuid: string; };
-                                            }) => qi.act_item && qi.act_item.uuid === act.act.uuid) !== -1
-                                        }])
-                                        showQuote(card.uuid, _acts.filter(act => act.selected), card.notes)
-                                    }} alignItems={"center"}
+                                            }) => qi.act_item && qi.act_item.uuid === act.act.uuid)
+                                            if (_el)
+                                                _acts = [..._acts, {
+                                                    ...act,
+                                                    qte: _el.qty_item,
+                                                    fees: _el.price_item
+                                                }];
+                                            showQuote(card.uuid, _acts, card.notes)
+                                        })
+                                    }}
+                                           alignItems={"center"}
                                            padding={2}>
                                         <IconUrl width={25} height={25} path={"ic-quote"}/>
                                         <Stack>

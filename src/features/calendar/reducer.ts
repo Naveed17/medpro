@@ -5,12 +5,13 @@ import {
     setConfig,
     setCurrentDate,
     setGroupedByDayAppointments,
-    setLastUpdate, setPendingAppointments,
+    setLastUpdate, setMessagesRefresh,
     setSelectedEvent,
     setStepperIndex,
     setView
 } from './actions';
 import {EventDef} from "@fullcalendar/core/internal";
+import moment from "moment-timezone";
 
 export type CalendarProps = {
     view: string | undefined;
@@ -23,13 +24,13 @@ export type CalendarProps = {
     currentStepper: number;
     config: AgendaConfigurationModel | null;
     agendas: AgendaConfigurationModel[];
-    pendingAppointments: AppointmentModel[];
     currentDate: { date: Date, fallback: boolean };
     selectedEvent: EventDef | null;
     actionSet: any | null;
     sortedData: GroupEventsModel[];
     absences: AppointmentModel[];
     appointmentTypes: AppointmentTypeModel[];
+    messagesRefresh:string,
     lastUpdateNotification: { title: string, body: string } | null;
 };
 
@@ -45,12 +46,12 @@ const initialState: CalendarProps = {
     config: null,
     actionSet: null,
     agendas: [],
-    pendingAppointments: [],
-    currentDate: {date: new Date(), fallback: false},
+    currentDate: {date: moment().toDate(), fallback: false},
     selectedEvent: null,
     sortedData: [],
     absences: [],
     appointmentTypes: [],
+    messagesRefresh:"",
     lastUpdateNotification: null
 };
 
@@ -86,8 +87,6 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.actionSet = action.payload;
     }).addCase(setAgendas, (state, action) => {
         state.agendas = action.payload;
-    }).addCase(setPendingAppointments, (state, action) => {
-        state.pendingAppointments = action.payload;
     }).addCase(setCurrentDate, (state, action) => {
         state.currentDate = action.payload;
     }).addCase(setSelectedEvent, (state, action) => {
@@ -100,5 +99,7 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.lastUpdateNotification = action.payload;
     }).addCase(setAppointmentTypes, (state, action) => {
         state.appointmentTypes = action.payload;
+    }).addCase(setMessagesRefresh, (state, action) => {
+        state.messagesRefresh = action.payload;
     });
 });

@@ -1,12 +1,19 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {firebaseCloudSdk} from "@lib/firebase";
 import {getMessaging, onMessage} from "firebase/messaging";
 import {
+    Avatar,
+    Badge,
     Dialog,
     DialogContent,
     DialogTitle,
+    Drawer,
+    Fab,
     Paper,
-    PaperProps, useTheme
+    PaperProps,
+    Stack,
+    Typography,
+    useTheme
 } from "@mui/material";
 import axios from "axios";
 import {useSession} from "next-auth/react";
@@ -17,20 +24,20 @@ import {
     AppointmentStatus,
     openDrawer,
     setLastUpdate,
+    setMessagesRefresh,
     setSelectedEvent,
     setStepperIndex
 } from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {ConsultationPopupAction, AgendaPopupAction} from "@features/popup";
+import {AgendaPopupAction, ConsultationPopupAction} from "@features/popup";
 import {setAppointmentPatient, setAppointmentType} from "@features/tabPanel";
-import {Dialog as CustomDialog} from "@features/dialog";
+import {Dialog as CustomDialog, setMoveDateTime} from "@features/dialog";
 import {SnackbarKey, useSnackbar} from "notistack";
 import moment from "moment-timezone";
 import {resetTimer} from "@features/card";
 import {configSelector, dashLayoutSelector, setOngoing} from "@features/base";
 import {tableActionSelector} from "@features/table";
 import {DefaultCountry, EnvPattern} from "@lib/constants";
-import {setMoveDateTime} from "@features/dialog";
 import smartlookClient from "smartlook-client";
 import {setProgress} from "@features/progressUI";
 import {setUserId, setUserProperties} from "@firebase/analytics";
@@ -38,6 +45,12 @@ import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {fetchAndActivate, getRemoteConfig, getString} from "firebase/remote-config";
 import {useRequestQueryMutation} from "@lib/axios";
 import useMutateOnGoing from "@lib/hooks/useMutateOnGoing";
+import {buildAbilityFor} from "@lib/rbac/casl/ability";
+import {AbilityContext} from "@features/casl/can";
+import {useAbly, useChannel, useConnectionStateListener, usePresence} from "ably/react";
+import IconUrl from "@themes/urlIcon";
+import {Chat} from "@features/chat";
+import {caslSelector} from "@features/casl";
 
 function PaperComponent(props: PaperProps) {
     return (
@@ -46,7 +59,7 @@ function PaperComponent(props: PaperProps) {
 }
 
 function FcmLayout({...props}) {
-    const {data: session} = useSession();
+    const {data: session, update} = useSession();
     const {jti} = session?.user as any;
     const router = useRouter();
     const theme = useTheme();
@@ -55,11 +68,13 @@ function FcmLayout({...props}) {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
+    const audio = useMemo(() => new Audio("/static/sound/beep.mp3"), []);
 
     const {appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {config: agendaConfig} = useAppSelector(agendaSelector);
     const {importData} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
+    const permissions = useAppSelector(caslSelector);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
@@ -68,96 +83,111 @@ function FcmLayout({...props}) {
     const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
+    const [open, setOpen] = React.useState(false);
+    const [messages, updateMessages] = useState<any[]>([]);
+    const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
+    const [hasMessage, setHasMessage] = useState(false);
+
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const general_information = (user as UserDataResponse).general_information;
     const roles = (user as UserDataResponse)?.general_information.roles;
+    const default_medical_entity = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default);
+    const features = default_medical_entity?.features;
     const doctor_country = (medical_entity.country ? medical_entity.country : DefaultCountry);
     const devise = doctor_country.currency?.name;
+    const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
+    const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
+
+    const ability = buildAbilityFor(features ?? [], permissions);
 
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/appointment/update/status");
-
-    const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
 
     const handleClose = () => {
         setOpenDialog(false);
     }
+
+    const isObject = (obj: any) => obj === Object(obj);
+
+    const handleBroadcastMessages = (message: any) => {
+        const data = isObject(message.data.details) ? message.data.details : JSON.parse(message.data.details);
+        const fcmSession = data.body?.fcm_session ?? "";
+        if (fcmSession !== jti) {
+            if (data.type === "no_action") {
+                if (data.mode === "foreground") {
+                    enqueueSnackbar(message.notification.body, {variant: "info"});
+                } else if (data.body.hasOwnProperty('progress')) {
+                    if (data.body.progress === -1 || data.body.progress === 100) {
+                        localStorage.removeItem("import-data");
+                        localStorage.removeItem("import-data-progress");
+                        importData.mutate && importData.mutate();
+                        // refresh on going api
+                        mutateOnGoing();
+                        closeSnackbar();
+                        enqueueSnackbar((data.body.progress === -1 ?
+                                translationCommon.import_data.failed : translationCommon.import_data.end),
+                            {variant: data.body.progress === -1 ? "error" : "success"});
+                    } else {
+                        localStorage.setItem("import-data-progress", data.body.progress.toString());
+                        dispatch(setProgress(parseFloat(data.body.progress)));
+                    }
+                }
+            } else if (data.type === "session") {
+                update({[message.data.root]: data.body});
+            } else {
+                switch (message.data.root) {
+                    case "agenda":
+                        dispatch(setLastUpdate(data));
+                        if (data.type === "popup") {
+                            if (!data.body.appointment) {
+                                dispatch(resetTimer());
+                            }
+                            setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
+                            setOpenDialog(true);
+                            setNotificationData(data.body);
+                            const localStorageNotifications = localStorage.getItem("notifications");
+                            const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
+                                (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
+                                appointment: data.body,
+                                action: "end-consultation"
+                            }];
+                            localStorage.setItem("notifications", JSON.stringify(notifications));
+                            // Update notifications popup
+                            dispatch(setOngoing({notifications}));
+                        } else if (data.body.action === "update") {
+                            // update pending notifications status
+                            invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
+                            // refresh on going api
+                            mutateOnGoing();
+                        }
+                        break;
+                    case "waiting-room":
+                        // refresh agenda
+                        dispatch(setLastUpdate(data));
+                        // refresh on going api
+                        mutateOnGoing();
+                        break;
+                    case "consultation":
+                        // refresh agenda
+                        dispatch(setLastUpdate(data));
+                        // refresh on going api
+                        mutateOnGoing();
+                        break;
+                    case "documents":
+                        enqueueSnackbar(translationCommon.alerts["speech-text"].title, {variant: "success"});
+                        invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
+                        break;
+                    default:
+                        data.body.mutate && invalidateQueries([data.body.mutate]);
+                        break;
+                }
+            }
+        }
+    }
     // Get the push notification message and triggers a toast to display it
     const getFcmMessage = () => {
         const messaging = getMessaging(firebaseCloudSdk.firebase);
-        onMessage(messaging, (message: any) => {
-            const data = JSON.parse(message.data.detail);
-            const fcmSession = data.body?.fcm_session ?? "";
-            if (fcmSession !== jti) {
-                if (data.type === "no_action") {
-                    if (data.mode === "foreground") {
-                        enqueueSnackbar(message.notification.body, {variant: "info"});
-                    } else if (data.body.hasOwnProperty('progress')) {
-                        if (data.body.progress === -1 || data.body.progress === 100) {
-                            localStorage.removeItem("import-data");
-                            localStorage.removeItem("import-data-progress");
-                            importData.mutate && importData.mutate();
-                            // refresh on going api
-                            mutateOnGoing();
-                            closeSnackbar();
-                            enqueueSnackbar((data.body.progress === -1 ?
-                                    translationCommon.import_data.failed : translationCommon.import_data.end),
-                                {variant: data.body.progress === -1 ? "error" : "success"});
-                        } else {
-                            localStorage.setItem("import-data-progress", data.body.progress.toString());
-                            dispatch(setProgress(parseFloat(data.body.progress)));
-                        }
-                    }
-                } else {
-                    switch (message.data.root) {
-                        case "agenda":
-                            dispatch(setLastUpdate(data));
-                            if (data.type === "popup") {
-                                if (!data.body.appointment) {
-                                    dispatch(resetTimer());
-                                }
-                                setDialogAction(data.body.appointment ? "confirm-dialog" : "finish-dialog");
-                                setOpenDialog(true);
-                                setNotificationData(data.body);
-                                const localStorageNotifications = localStorage.getItem("notifications");
-                                const notifications = [...(localStorageNotifications ? JSON.parse(localStorageNotifications).filter(
-                                    (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day")) : []), {
-                                    appointment: data.body,
-                                    action: "end-consultation"
-                                }];
-                                localStorage.setItem("notifications", JSON.stringify(notifications));
-                                // Update notifications popup
-                                dispatch(setOngoing({notifications}));
-                            } else if (data.body.action === "update") {
-                                // update pending notifications status
-                                invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/get/pending/${router.locale}`]);
-                                // refresh on going api
-                                mutateOnGoing();
-                            }
-                            break;
-                        case "waiting-room":
-                            // refresh agenda
-                            dispatch(setLastUpdate(data));
-                            // refresh on going api
-                            mutateOnGoing();
-                            break;
-                        case "consultation":
-                            // refresh agenda
-                            dispatch(setLastUpdate(data));
-                            // refresh on going api
-                            mutateOnGoing();
-                            break;
-                        case "documents":
-                            enqueueSnackbar(translationCommon.alerts["speech-text"].title, {variant: "success"});
-                            invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
-                            break;
-                        default:
-                            data.body.mutate && invalidateQueries([data.body.mutate]);
-                            break;
-                    }
-                }
-            }
-        });
+        onMessage(messaging, (message: any) => handleBroadcastMessages(message));
     }
 
     const setToken = async () => {
@@ -242,13 +272,19 @@ function FcmLayout({...props}) {
     }, [general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
+        const remoteConfig = getRemoteConfig(firebaseCloudSdk.firebase);
         if (typeof window !== "undefined" && window?.usetifulInit && general_information && process.env.NODE_ENV !== 'development') {
-            window.usetifulTags = {
-                userId: general_information.uuid,
-                role: roles[0],
-                name: `${general_information.firstName} ${general_information.lastName}`
-            };
-            window.usetifulInit(window, document, "/static/files/usetiful.js", process.env.NEXT_PUBLIC_USETIFUL_TOKEN ?? "");
+            fetchAndActivate(remoteConfig).then(() => {
+                const config = JSON.parse(getString(remoteConfig, 'medlink_remote_config'));
+                if (config.usetiful) {
+                    window.usetifulTags = {
+                        userId: general_information.uuid,
+                        role: roles[0],
+                        name: `${general_information.firstName} ${general_information.lastName}`
+                    };
+                    window.usetifulInit(window, document, "/static/files/usetiful.js", process.env.NEXT_PUBLIC_USETIFUL_TOKEN ?? "");
+                }
+            });
         }
     }, [window?.usetifulInit, general_information]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -260,7 +296,7 @@ function FcmLayout({...props}) {
                 (notification: any) => moment().isSameOrBefore(moment(notification.appointment.dayDate, "DD-MM-YYYY"), "day"));
             dispatch(setOngoing({notifications}))
         }
-    }, [dispatch])
+    }, [dispatch]);
 
     useEffect(() => {
         if (agendaConfig) {
@@ -268,7 +304,7 @@ function FcmLayout({...props}) {
             // Event listener that listens for the push notification event in the background
             if ("serviceWorker" in navigator && process.env.NODE_ENV === "development") {
                 navigator.serviceWorker.addEventListener("message", (event) => {
-                    console.log("event for the service worker", JSON.parse(event.data.data.detail));
+                    console.log("event for the service worker", JSON.parse(event.data.data.details));
                 });
             }
         }
@@ -293,9 +329,86 @@ function FcmLayout({...props}) {
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const connectToStream = () => {
+        // Connect to /api/sse as the SSE API source
+        const eventSource = new EventSource(`/api/sse`, {
+            withCredentials: true,
+        })
+        eventSource.onopen = () => {
+            console.log('Open SSE connection');
+        };
+        eventSource.onmessage = (message) => {
+            if (message?.data) {
+                handleBroadcastMessages({data: JSON.parse(message.data)});
+            }
+        };
+        // In case of any error, close the event source
+        // So that it attempts to connect again
+        eventSource.onerror = () => {
+            eventSource.close();
+            setTimeout(connectToStream, 1);
+        };
+
+        return eventSource;
+    }
+
+    useEffect(() => {
+        // Initiate the first call to connect to SSE API
+        const eventSource = connectToStream()
+
+        return () => {
+            console.log('Close SSE connection');
+            eventSource.close();
+        };
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const client = useAbly();
+
+    useConnectionStateListener((stateChange) => {
+        console.log("current", stateChange.current);  // the new connection state
+        //console.log("error", stateChange.reason);  // the new connection state
+        if (["closing", "closed"].includes(stateChange.current))
+            client.connect()
+    });
+
+    const {channel} = useChannel(medical_entity?.uuid, (message) => {
+        if (JSON.parse(message.data).to === medicalEntityHasUser) {
+            audio.play();
+            const payload = JSON.parse(message.data);
+            setMessage({user: payload.user, message: payload.message})
+            setTimeout(() => setMessage(null), 3000)
+            setHasMessage(true)
+            dispatch(setMessagesRefresh(payload.message))
+        }
+    });
+
+    const {presenceData} = usePresence(medical_entity?.uuid, 'actif');
+
     return (
-        <>
+        <AbilityContext.Provider value={ability}>
             {props.children}
+
+            <Drawer
+                anchor={"right"}
+                open={open}
+                dir={direction}
+                PaperProps={{
+                    sx: {
+                        width: {xs: "100%", md: 800},
+                    },
+
+                }}
+                onClose={() => setOpen(false)}>
+                <Chat {...{
+                    channel,
+                    messages,
+                    updateMessages,
+                    medicalEntityHasUser,
+                    medical_entity,
+                    presenceData,
+                    setHasMessage
+                }} />
+            </Drawer>
 
             <CustomDialog
                 action={"payment_dialog"}
@@ -415,7 +528,43 @@ function FcmLayout({...props}) {
                         }}
                     />}
             </Dialog>
-        </>
+
+            <Stack direction={"row"}
+                   spacing={2}
+                   alignItems={'center'}
+                   sx={{position: "fixed", bottom: 75, right: 40, zIndex: 99}}>
+                {message && <Stack direction={"row"}
+                                   padding={1}
+                                   spacing={2}
+                                   borderRadius={2}
+                                   alignItems={"center"}
+                                   style={{
+                                       background: theme.palette.info.main,
+                                       width: 300,
+                                       boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px"
+                                   }}>
+                    <Avatar sx={{bgcolor: theme.palette.primary.main}}>W</Avatar>
+                    <Stack spacing={0} width={"100%"}>
+                        <Stack direction={"row"} justifyContent={"space-between"}>
+                            <Typography fontSize={12}>{message.user}</Typography>
+                            <Typography fontSize={11} color={"#7C878E"}
+                                        fontWeight={"bold"}>{moment().format('HH:mm')}</Typography>
+                        </Stack>
+                        <Typography>{message.message.replace(/<[^>]+>/g, '')}</Typography>
+                    </Stack>
+                </Stack>}
+                <Fab color="info"
+                     style={{boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}
+                     onClick={() => {
+                         setOpen(true)
+                     }}>
+                    <Badge color="error" overlap="circular" badgeContent={hasMessage ? 1 : 0} variant="dot">
+                        <IconUrl path={"chat"} width={30} height={30}/>
+                    </Badge>
+                </Fab>
+            </Stack>
+
+        </AbilityContext.Provider>
     );
 }
 

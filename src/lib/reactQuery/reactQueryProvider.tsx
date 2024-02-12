@@ -11,7 +11,7 @@ function ReactQueryProvider({children, ...pageProps}: LayoutProps) {
             <Hydrate state={pageProps.dehydratedState}>
                 {children}
             </Hydrate>
-            <ReactQueryDevtools/>
+            <ReactQueryDevtools position={"bottom-right"}/>
         </QueryClientProvider>
     )
 }

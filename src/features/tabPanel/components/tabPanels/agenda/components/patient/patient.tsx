@@ -32,7 +32,7 @@ function Patient({...props}) {
 
     const {data: httpPatientResponse, mutate: mutatePatients, isLoading} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${router.locale}?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${router.locale}?${query.length > 0 ? `filter=${query}&` : ""}withPagination=false`
     } : null, ReactQueryNoValidateConfig);
 
     const {trigger: triggerAddPatient} = useRequestQueryMutation("agenda/patient/add");
@@ -93,7 +93,7 @@ function Patient({...props}) {
 
         medicalEntityHasUser && triggerAddPatient({
             method: selectedPatient ? "PUT" : "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${selectedPatient ? selectedPatient.uuid + '/' : ''}${router.locale}`,
             data: form
         }, {
             onSuccess: (res: any) => {

@@ -14,7 +14,6 @@ import {Dialog} from "@features/dialog";
 import Icon from "@themes/urlIcon";
 import React, {useState} from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import moment from "moment-timezone";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
@@ -26,7 +25,7 @@ import {getDiffDuration} from "@lib/hooks";
 
 function WaitingRoomRow({...props}) {
     const {index: key, row, t, handleEvent, data, loading} = props;
-    const {doctor_country, roles, setLoading} = data;
+    const {roles, setLoading} = data;
 
     const theme = useTheme();
 
@@ -146,14 +145,10 @@ function WaitingRoomRow({...props}) {
                                     fontSize: 13,
                                     fontWeight: 600,
                                     color: "text.primary",
-                                    svg: {
-
-                                        mr: 0.5,
-
-                                    },
+                                    svg: {mr: 0.5}
                                 }}>
                                 <Icon path="ic-time" width={12} height={12} color={theme.palette.text.primary}/>
-                                {row.arrivalTime ? getDiffDuration(`${row.dayDate} ${row.arrivalTime}`, 1) : " -- "}
+                                {row.arrivalTime && row.status !== 5 ? getDiffDuration(`${row.dayDate} ${row.arrivalTime}`, 1) : " -- "}
                             </Typography>
                         </Box>
                     ) : (

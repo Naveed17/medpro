@@ -82,7 +82,7 @@ function CashBoxMobileCard({...props}) {
 
     const mutatePatientWallet = () => {
         medicalEntityHasUser && invalidateQueries(
-            [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${data.appointment.patient?.uuid}/wallet/${router.locale}`]);
+            [`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${data.appointment.patient?.uuid}/wallet/${router.locale}`]);
     }
 
     const handleSubmit = () => {
@@ -280,12 +280,7 @@ function CashBoxMobileCard({...props}) {
                                             sx={{cursor: "pointer", minWidth: {xs: 0, sm: 100}}}
                                             onClick={(event) => {
                                                 event.stopPropagation();
-                                                router
-                                                    .push(
-                                                        `/dashboard/consultation/${data.appointment.uuid}`
-                                                    )
-                                                    .then(() => {
-                                                    });
+                                                router.push(`/dashboard/consultation/${data.appointment.uuid}`);
                                             }}
                                             underline="none">
                                             {data.appointment.type.name}

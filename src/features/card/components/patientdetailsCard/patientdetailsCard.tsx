@@ -35,12 +35,10 @@ import {agendaSelector, setSelectedEvent} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {getBirthdayFormat, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {configSelector, dashLayoutSelector} from "@features/base";
-
 import {Label} from "@features/label";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import moment from "moment-timezone";
 import {timerSelector} from "@features/card";
-
 import {LoadingScreen} from "@features/loadingScreen";
 import {Dialog} from "@features/dialog";
 
@@ -64,6 +62,9 @@ function PatientDetailsCard({...props}) {
     const theme = useTheme();
     const ref = useRef(null);
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {trigger: invalidateQueries} = useInvalidateQueries();
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -75,19 +76,17 @@ function PatientDetailsCard({...props}) {
             name: !loading ? `${patient.firstName.charAt(0).toUpperCase()}${patient.firstName.slice(1).toLowerCase()} ${patient.lastName}` : "",
             birthdate: !loading && patient.birthdate ? patient.birthdate : "",
         },
-        onSubmit: async (values) => {
-            console.log("ok", values);
-        },
+        onSubmit: () => {
+            return undefined
+        }
     });
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {trigger: invalidateQueries} = useInvalidateQueries();
-    const {direction} = useAppSelector(configSelector);
 
     const {t, ready} = useTranslation("patient", {keyPrefix: "patient-details"});
     const {t: commonTranslation} = useTranslation("common");
     const {selectedEvent: appointment, config: agendaConfig} = useAppSelector(agendaSelector);
     const {medicalEntityHasUser, appointmentTypes} = useAppSelector(dashLayoutSelector);
     const {isActive} = useAppSelector(timerSelector);
+    const {direction} = useAppSelector(configSelector);
 
     const {values, getFieldProps, setFieldValue} = formik;
 
@@ -148,14 +147,14 @@ function PatientDetailsCard({...props}) {
 
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`,
                 data: params
             }, {
                 onSuccess: () => {
                     setRequestLoading(false);
                     mutatePatientList && mutatePatientList();
                     mutateAgenda && mutateAgenda();
-                    invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`]);
+                    invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/infos/${router.locale}`]);
                     if (appointment) {
                         const event = {
                             ...appointment,
@@ -189,7 +188,7 @@ function PatientDetailsCard({...props}) {
 
             medicalEntityHasUser && triggerPatientUpdate({
                 method: "PATCH",
-                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`,
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`,
                 data: params
             }, {
                 onSuccess: () => {
@@ -197,8 +196,8 @@ function PatientDetailsCard({...props}) {
                     mutatePatientList && mutatePatientList();
                     mutateAgenda && mutateAgenda();
                     invalidateQueries([
-                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
-                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/infos/${router.locale}`]);
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/documents/profile-photo/${router.locale}`,
+                        `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/infos/${router.locale}`]);
                     if (appointment) {
                         const event = {
                             ...appointment,
@@ -217,10 +216,13 @@ function PatientDetailsCard({...props}) {
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
-        <FormikProvider value={formik}>
-            <Form autoComplete="off" noValidate>
-                <RootStyled direction={"row"} justifyContent={"space-between"}>
-                    <Grid container spacing={1.2}>
+        <RootStyled>
+            <FormikProvider value={formik}>
+                <Form autoComplete="off" noValidate>
+                    <Grid container
+                          spacing={1.2}
+                          direction="row"
+                          justifyContent="space-between">
                         <Grid item md={9}>
                             <Stack direction={"row"} spacing={1.2}>
                                 {loading ? (
@@ -270,7 +272,7 @@ function PatientDetailsCard({...props}) {
                                             justifyContent="space-between">
                                             <InputBase
                                                 readOnly
-                                                {...(patient?.nationality && {
+                                                {...(patient?.nationality?.code && {
                                                     startAdornment: <Tooltip title={patient.nationality.nationality}>
                                                         <Avatar
                                                             sx={{
@@ -589,15 +591,9 @@ function PatientDetailsCard({...props}) {
                                 </Box>
                             )}
                         </Grid>
-
-                        {/*{patient && (
-                        <Box ml={{lg: onConsultation ? "1rem" : "auto", xs: 0}}>
-                            <QrCodeScanner value={patient?.uuid} width={100} height={100}/>
-                        </Box>
-                    )}*/}
                     </Grid>
-                </RootStyled>
-            </Form>
+                </Form>
+            </FormikProvider>
             <CropImage
                 {...{setFieldValue}}
                 filedName={"picture.url"}
@@ -634,7 +630,7 @@ function PatientDetailsCard({...props}) {
                     setOpenPaymentDialog(false)
                 }}
             />
-        </FormikProvider>
+        </RootStyled>
     );
 }
 

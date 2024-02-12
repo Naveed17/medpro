@@ -11,11 +11,10 @@ const BadgeStyled = styled(Badge)(({theme, ...props}: any) => ({
         padding: 10,
         marginLeft: "2rem",
         borderRadius: 20,
-         "@media (max-width: 1100px)": {
-        display:'none'
-    },
-    },
-    
+        "@media (max-width: 1100px)": {
+            display: 'none'
+        }
+    }
 }))
 
 export default BadgeStyled;

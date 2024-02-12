@@ -87,7 +87,7 @@ function Consultation() {
     const editPatientInfo = () => {
         const params = new FormData();
         if (patient && medicalEntityHasUser) {
-            const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/${router.locale}`;
+            const url = `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/${router.locale}`;
 
             params.append('attribute', 'note');
             params.append('value', note);
@@ -308,7 +308,7 @@ function Consultation() {
                         <IconButton
                             size={"small"}
                             sx={{position: "absolute", top: 20, right: 10}}>
-                            <Icon path={"ic-edit-patient"}/>
+                            <Icon color={"primary"} path={"ic-edit-patient"}/>
                         </IconButton>
                     </Box>
                 </Stack>
@@ -364,7 +364,7 @@ function Consultation() {
                             }}>
                             {upperFirst(t("ficheID"))}{" "}
                             <span style={{
-                                fontWeight: "bold", maxWidth: 150, whiteSpace: "nowrap",
+                                fontWeight: "bold", maxWidth: 130, whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis"
                             }}>{patient?.fiche_id}</span>
@@ -384,7 +384,7 @@ function Consultation() {
                         </ListItemIcon>
                         <Typography fontWeight={700}>{upperFirst(t("note"))}</Typography>
                         <IconButton size="small" sx={{ml: "auto"}}>
-                            <Icon path={isNote ? "arrow-up-table" : "ic-expand-more"}/>
+                            <Icon path={isNote ? "iconfinder_save" : "ic-expand-more"}/>
                         </IconButton>
                     </ListItem>
 
@@ -481,7 +481,7 @@ function Consultation() {
                                     <Box px={1.5}>
                                         {collapse === col.id && <Content  {...{
                                             id: col.id,
-                                            url: medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/preview/${router.locale}`,
+                                            url: medicalEntityHasUser && `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/preview/${router.locale}`,
                                             patient
                                         }}/>}
                                     </Box>

@@ -27,7 +27,7 @@ import {useSession} from "next-auth/react";
 import {useRequestQueryMutation} from "@lib/axios";
 import {Session} from "next-auth";
 import {useTranslation} from "next-i18next";
-import {useCallback, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {dashLayoutSelector} from "@features/base";
 import SettingsViewIcon from "@themes/overrides/icons/settingsViewIcon";
 import IconUrl from "@themes/urlIcon";
@@ -39,8 +39,7 @@ const VIEW_OPTIONS = [
     {value: "listWeek", label: "agenda", text: "List", icon: GridIcon}
 ];
 
-function DefaultViewMenu({...props}) {
-    const {onViewChange} = props;
+function DefaultViewMenu() {
     const theme = useTheme();
     const router = useRouter();
     const {data: session, update} = useSession();
@@ -199,7 +198,8 @@ function DefaultViewMenu({...props}) {
                                     selected={index === VIEW_OPTIONS.findIndex(view => view.value === general_information?.agendaDefaultFormat)}
                                     onClick={(event) => handleMenuItemClick(event, option)}>
                                     <SvgIcon component={option.icon} fontSize={"small"}/>
-                                    <Typography fontSize={12} fontWeight={600} ml={1} variant={"body2"}>{t(`times.${option.label}`)}</Typography>
+                                    <Typography fontSize={12} fontWeight={600} ml={1}
+                                                variant={"body2"}>{t(`times.${option.label}`)}</Typography>
                                 </MenuItem>
                             ))}
                         </List>
@@ -208,9 +208,17 @@ function DefaultViewMenu({...props}) {
                         <Divider/>
                         <ListItemButton>
                             <FormControlLabel
-                                sx={{"& .MuiTypography-root": {fontSize: 13}}}
+                                sx={{
+                                    "& .MuiTypography-root": {fontSize: 13},
+                                    '& .MuiSwitch-thumb': {
+                                        boxShadow: theme => theme.customShadows.filterButton,
+                                        width: 16,
+                                        height: 16,
+                                    }
+                                }}
                                 control={<Switch
                                     checked={autoConfirm}
+                                    size="small"
                                     onChange={e => {
                                         setAutoConfirm(e.target.checked)
                                         const form = new FormData();
@@ -218,10 +226,10 @@ function DefaultViewMenu({...props}) {
                                         form.append("value", e.target.checked.toString());
                                         medicalEntityHasUser && triggerAutoConfirmEdit({
                                             method: "PATCH",
-                                            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/config/${router.locale}`,
+                                            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/config/${router.locale}`,
                                             data: form
                                         }, {
-                                            onSuccess: () => invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${router.locale}`]),
+                                            onSuccess: () => invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${router.locale}`]),
                                         });
                                     }}/>}
                                 label={t("auto-confirm")}/>

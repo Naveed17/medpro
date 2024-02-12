@@ -57,7 +57,7 @@ function PreConsultationDialog({...props}) {
 
     const {data: httpSheetResponse} = useRequestQuery(medicalEntityHasUser && agenda && uuid ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/appointments/${uuid}/consultation-sheet/${router.locale}`
     } : null, {refetchOnWindowFocus: false});
 
     const {data: httpModelResponse} = useRequestQuery(urlMedicalProfessionalSuffix ? {

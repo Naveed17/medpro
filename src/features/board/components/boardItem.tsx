@@ -90,7 +90,7 @@ function BoardItem({...props}) {
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
-    const localInitTimer = moment.utc(`${initTimer}`, "HH:mm");
+    const localInitTimer = moment(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
     const [duration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote.content.dayDate} ${quote.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
 
@@ -122,23 +122,35 @@ function BoardItem({...props}) {
             data-testid={quote?.id}
             data-index={index}
             aria-label={`${quote?.column?.name} quote ${quote?.content}`}>
-            <Card sx={{
-                width: '100%',
-                ...([1, 2, 3].includes(quote.content.status) && {
-                    borderLeft: 6,
-                    borderRight: quote.content.consultationReasons.length > 0 ? 10 : 1,
-                    borderRightColor: quote.content.consultationReasons.length > 0 ? quote.content.consultationReasons[0].color : 'divider',
-                    borderLeftColor: quote.content.type.color ?? theme.palette.primary.main
-                }),
-                bgcolor: [0].includes(quote.content.status) ? alpha(theme.palette.warning.lighter, .7) : theme.palette.common.white,
-                ".MuiCardContent-root": {
-               "&.MuiCardContent-root":{     
-                    "&:last-child":{
-                     paddingBottom: 1,
+            <Card
+                {...(quote.content.status === 4 && {
+                    onClick: (event: React.MouseEvent<any>) => {
+                        event.stopPropagation();
+                        handleEvent({
+                            action: roles.includes('ROLE_SECRETARY') ? "PATIENT_DETAILS" : "OPEN_CONSULTATION",
+                            row: quote.content,
+                            event
+                        })
                     }
-                } 
-           }
-            }}>
+                })}
+                sx={{
+                    width: '100%',
+                    ...(quote.content.status === 4 && {cursor: 'pointer'}),
+                    ...([1, 2, 3].includes(quote.content.status) && {
+                        borderLeft: 6,
+                        borderRight: quote.content.consultationReasons.length > 0 ? 10 : 1,
+                        borderRightColor: quote.content.consultationReasons.length > 0 ? quote.content.consultationReasons[0].color : 'divider',
+                        borderLeftColor: quote.content.type.color ?? theme.palette.primary.main
+                    }),
+                    bgcolor: [0].includes(quote.content.status) ? alpha(theme.palette.warning.lighter, .7) : theme.palette.common.white,
+                    ".MuiCardContent-root": {
+                        "&.MuiCardContent-root": {
+                            "&:last-child": {
+                                paddingBottom: 1,
+                            }
+                        }
+                    }
+                }}>
                 <CardContent sx={{
                     p: 1
                 }}>
@@ -170,8 +182,6 @@ function BoardItem({...props}) {
                                         size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button>}
                                     <Typography
                                         {...(quote.content.status === 3 && {pl: 1})}
-                                        className={"ellipsis"}
-                                        width={100}
                                         variant='body2' fontWeight={600}>
                                         {quote.content.patient.firstName} {quote.content.patient.lastName}
                                     </Typography>
@@ -183,25 +193,51 @@ function BoardItem({...props}) {
                                        alignItems={"center"}
                                        minWidth={100}
                                        {...(quote.content.status === 3 && {pl: .5})}>
-                                    {quote.content.startTime !== "00:00" &&
-                                        <>
-                                            <IconUrl path={'ic-time'} width={16}
-                                                     height={16} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
-                                            <Typography
-                                                variant="body2"
-                                                fontWeight={700}
-                                                color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
-                                                {quote.content.status === 4 && time ?
-                                                    moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
-                                                    quote.content.status !== 3 ?
-                                                        quote.content.startTime :
-                                                        `${quote.content.startTime} - ${getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}`}
-                                            </Typography>
-                                        </>
-                                    }
+                                    <Stack direction={"column"}
+                                           spacing={.5}>
+                                        {quote.content.startTime !== "00:00" &&
+                                            <Stack direction={"row"} spacing={.5} alignItems={"center"}>
+                                                <IconUrl path={'ic-time'} width={16}
+                                                         height={16} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
+                                                <Typography
+                                                    variant="body2"
+                                                    fontWeight={700}
+                                                    color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
+                                                    {quote.content.status === 4 && time ?
+                                                        moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
+                                                        quote.content.status !== 3 ?
+                                                            quote.content.startTime :
+                                                            `${quote.content.startTime} - ${getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}`}
+                                                </Typography>
+                                            </Stack>
+                                        }
+
+                                        {![4, 5].includes(quote.content.status) &&
+                                            <Stack direction={"row"} spacing={.5} alignItems={"center"}>
+                                                {quote.content?.estimatedStartTime &&
+                                                    <Stack direction={"row"} spacing={.5} alignItems={"center"}>
+                                                        <IconUrl path={'ic-attendre'} width={15}
+                                                                 height={15} color={theme.palette.expire.main}/>
+                                                        <Typography
+                                                            variant="body2"
+                                                            fontWeight={700}
+                                                            color={"expire.main"}>
+                                                            {quote.content?.estimatedStartTime}
+                                                        </Typography>
+                                                    </Stack>
+                                                }
+                                                {quote.content.startTime === "00:00" &&
+                                                    <Typography
+                                                        variant="body2"
+                                                        fontWeight={700}
+                                                        color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
+                                                        {quote.content?.estimatedStartTime && " - "} {getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}
+                                                    </Typography>}
+                                            </Stack>}
+                                    </Stack>
                                     {quote.content.status === 5 &&
-                                        <Label variant={"ghost"}
-                                               color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
+                                        <Label
+                                            color={quote?.content.restAmount === 0 ? "success" : "error"}>{commonTranslation(quote?.content.restAmount === 0 ? "paid" : "not-payed")}</Label>
                                     }
                                 </Stack>
                             </Stack>
@@ -287,25 +323,27 @@ function BoardItem({...props}) {
                                 {(quote.content.status === 3) && <>
                                     <Tooltip
                                         title={commonTranslation("config.next", {ns: "waitingRoom"})}>
-                                        <IconButton
-                                            onClick={(event) => handleEvent({
-                                                action: "NEXT_CONSULTATION",
-                                                row: {...quote.content, is_next: !!is_next},
-                                                event
-                                            })}
-                                            size={"small"}
-                                            disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
-                                            sx={{
-                                                border: `1px solid ${theme.palette.divider}`,
-                                                borderRadius: 1,
-                                                ...(is_next && {
-                                                    background: theme.palette.primary.main,
-                                                    border: "none"
-                                                }),
-                                            }}>
-                                            {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
-                                            {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
-                                        </IconButton>
+                                        <span>
+                                            <IconButton
+                                                onClick={(event) => handleEvent({
+                                                    action: "NEXT_CONSULTATION",
+                                                    row: {...quote.content, is_next: !!is_next},
+                                                    event
+                                                })}
+                                                size={"small"}
+                                                disabled={is_next !== null && is_next?.uuid !== quote.content.uuid}
+                                                sx={{
+                                                    border: `1px solid ${theme.palette.divider}`,
+                                                    borderRadius: 1,
+                                                    ...(is_next && {
+                                                        background: theme.palette.primary.main,
+                                                        border: "none"
+                                                    }),
+                                                }}>
+                                                {!is_next && <ArrowForwardRoundedIcon fontSize={"small"}/>}
+                                                {is_next && <CloseRoundedIcon htmlColor={"white"} fontSize={"small"}/>}
+                                            </IconButton>
+                                        </span>
                                     </Tooltip>
                                     {!roles.includes('ROLE_SECRETARY') &&
                                         <Tooltip
@@ -346,11 +384,14 @@ function BoardItem({...props}) {
                                         title={commonTranslation("plus", {ns: "waitingRoom"})}>
                                         <IconButton
                                             disableRipple
-                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                                action: "OPEN-POPOVER",
-                                                row: quote.content,
-                                                event
-                                            })}
+                                            onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                                                event.stopPropagation();
+                                                handleEvent({
+                                                    action: "OPEN-POPOVER",
+                                                    row: quote.content,
+                                                    event
+                                                })
+                                            }}
                                             sx={{display: "block", borderRadius: 1, mr: .5}}
                                             size="small">
                                             <Icon path="more-vert" width={16} height={16}/>
@@ -363,8 +404,8 @@ function BoardItem({...props}) {
                 </CardContent>
             </Card>
         </Container>
-    );
+    )
+        ;
 }
 
-export default React.memo
-< any > (BoardItem);
+export default React.memo<any>(BoardItem);

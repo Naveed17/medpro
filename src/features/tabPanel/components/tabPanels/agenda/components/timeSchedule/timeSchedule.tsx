@@ -5,27 +5,21 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
-import DeleteIcon from '@mui/icons-material/Delete';
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {agendaSelector, CalendarPickers, setStepperIndex} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/router";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
-
 import moment from "moment-timezone";
 import {
     appointmentSelector, setAppointmentDate,
     setAppointmentDuration, setAppointmentMotif, setAppointmentRecurringDates
 } from "@features/tabPanel";
 import {TimeSlot} from "@features/timeSlot";
-import {StaticDatePicker} from "@features/staticDatePicker";
 import {PatientCardMobile} from "@features/card";
 import {
     Autocomplete, Badge, Collapse,
@@ -53,7 +47,6 @@ import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
 function TimeSchedule({...props}) {
     const {onNext, onBack, select} = props;
-
     const dispatch = useAppDispatch();
     const router = useRouter();
     const theme = useTheme();
@@ -92,16 +85,12 @@ function TimeSchedule({...props}) {
     const [customTime, setCustomTime] = useState<Date | null>(null);
     const [openTime, setOpenTime] = useState(initRecurringDates.length === 0);
 
-    const {data: user} = session as Session;
-    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
-    const locations = agendaConfig?.locations;
-
     const {
         data: httpConsultReasonResponse,
         mutate: mutateReasonsData
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}?sort=true`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}?sort=true`
     } : null, ReactQueryNoValidateConfig);
 
     const {trigger: triggerSlots} = useRequestQueryMutation("/agenda/slots");
@@ -119,9 +108,9 @@ function TimeSchedule({...props}) {
 
     const getSlots = useCallback((date: Date, duration: string, timeSlot: string) => {
         setLoading(true);
-        (medicalEntityHasUser && medical_professional) && triggerSlots({
+        medicalEntityHasUser && triggerSlots({
             method: "GET",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agendaConfig?.uuid}/locations/${agendaConfig?.locations[0]}/professionals/${medical_professional.uuid}?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agendaConfig?.uuid}/slots?day=${moment(date).format('DD-MM-YYYY')}&duration=${duration}`
         }, {
             onSuccess: (result) => {
                 const weekTimeSlots = (result?.data as HttpResponse)?.data as WeekTimeSlotsModel[];
@@ -141,7 +130,7 @@ function TimeSchedule({...props}) {
                 setLoading(false);
             }
         });
-    }, [triggerSlots, medical_professional, medical_entity.uuid, agendaConfig?.uuid, agendaConfig?.locations, session?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [triggerSlots, medical_professional, agendaConfig?.uuid, session?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
 
     const onChangeReason = (reasons: ConsultationReasonModel[]) => {
         const reasonsUuid = reasons.map(reason => reason.uuid);
@@ -235,7 +224,7 @@ function TimeSchedule({...props}) {
 
         medicalEntityHasUser && triggerAddReason({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`,
             data: params
         }, {
             onSuccess: () => mutateReasonsData().then((result: any) => {
@@ -254,13 +243,6 @@ function TimeSchedule({...props}) {
             }
         }
     }, [date, duration, getSlots]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (locations && locations.length === 1) {
-            setLocation(locations[0] as string)
-        }
-    }, [locations]);
-
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -425,13 +407,32 @@ function TimeSchedule({...props}) {
                                         shouldDisableDate={(date: Date) => disabledDay.includes(moment(date).weekday() + 1)}
                                     />
                                 </Grid>}
-                                <Grid item
-                                      {...((!changeTime || isMobile) && {mt: 0})} md={changeTime ? 12 : 6} xs={12}>
+                                <Grid
+                                    item
+                                    {...((!changeTime || isMobile) && {mt: 0})} md={changeTime ? 12 : 6} xs={12}>
                                     {!changeTime &&
                                         <>
-                                            <Typography variant="body1" align={"center"} color="text.primary" my={2}>
-                                                {t("stepper-1.time-message")}
-                                            </Typography>
+                                            <Stack direction={"row"} alignItems={"center"}
+                                                   justifyContent={"space-between"}>
+                                                <Typography variant="body1" align={"center"} color="text.primary"
+                                                            ml={2}
+                                                            my={2}>
+                                                    {t("stepper-1.time-message")}
+                                                </Typography>
+
+                                                <IconButton
+                                                    sx={{mt: -.5}}
+                                                    size="small"
+                                                    disabled={!date}
+                                                    color="primary"
+                                                    onClick={() => {
+                                                        changeDateRef.current = true;
+                                                        setChangeTime(true);
+                                                    }}>
+                                                    <IconUrl color={theme.palette.primary.main} path="ic-edit-patient"/>
+                                                </IconButton>
+                                            </Stack>
+
                                             <TimeSlot
                                                 {...{t}}
                                                 sx={{width: 248, margin: "auto"}}
@@ -447,7 +448,7 @@ function TimeSchedule({...props}) {
                                         </>
                                     }
 
-                                    {changeTime ?
+                                    {changeTime &&
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                                             <StaticTimePicker
                                                 {...(!isMobile && {orientation: "landscape"})}
@@ -493,21 +494,6 @@ function TimeSchedule({...props}) {
                                                 renderInput={(params) => <TextField {...params} />}
                                             />
                                         </LocalizationProvider>
-                                        :
-                                        <Button
-                                            sx={{fontSize: 12, mt: 1}}
-                                            disabled={!date}
-                                            onClick={() => {
-                                                changeDateRef.current = true;
-                                                setChangeTime(true);
-                                            }}
-                                            startIcon={
-                                                <IconUrl
-                                                    width={"14"}
-                                                    height={"14"}
-                                                    {...(!date && {color: "white"})}
-                                                    path="ic-edit"/>}
-                                            variant="text">{t("stepper-1.change-time")}</Button>
                                     }
                                 </Grid>
                             </Grid>
@@ -533,13 +519,13 @@ function TimeSchedule({...props}) {
                                         button={
                                             <IconButton
                                                 sx={{
-                                                    p: 0, "& svg": {
-                                                        p: "2px"
+                                                    "& svg": {
+                                                        width: 20,
+                                                        height: 20
                                                     }
                                                 }}
-                                                size="small"
-                                            >
-                                                <DeleteIcon color={"error"}/>
+                                                size="small">
+                                                <IconUrl color={theme.palette.error.main} path="ic-trash"/>
                                             </IconButton>
                                         }
                                         key={index.toString()} item={recurringDate} size="small"/>

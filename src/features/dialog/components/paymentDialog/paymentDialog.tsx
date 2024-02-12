@@ -25,7 +25,7 @@ import {useSession} from "next-auth/react";
 import {useAppSelector} from "@lib/redux/hooks";
 import {cashBoxSelector} from "@features/leftActionBar/components/cashbox";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import PaymentCard from "@features/dialog/components/paymentDialog/paymentCard";
 import PaymentDialogStyled from "./overrides/paymentDialogStyle";
@@ -37,6 +37,9 @@ import Icon from "@themes/urlIcon";
 import moment from "moment/moment";
 import {Box} from "@mui/system";
 import {LottiePlayer} from "@features/card/components/successCard/successCard";
+import {useCashBox} from "@lib/hooks/rest";
+import Can from "@features/casl/can";
+import {agendaSelector} from "@features/calendar";
 
 const LoadingScreen = dynamic(
     () => import("@features/loadingScreen/components/loadingScreen")
@@ -50,7 +53,9 @@ function PaymentDialog({...props}) {
     const {data: session} = useSession();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter();
+    const {cashboxes} = useCashBox();
     const apps = useRef<any[]>([])
+    const {trigger: invalidateQueries} = useInvalidateQueries();
 
     const [payments, setPayments] = useState<any>([]);
     const [appointments, setAppointments] = useState<any[]>([]);
@@ -63,20 +68,20 @@ function PaymentDialog({...props}) {
     const [allApps, setAllApps] = useState<any[]>([]);
 
     const {t, ready} = useTranslation("payment");
-    const {paymentTypesList} = useAppSelector(cashBoxSelector);
-    const {selectedBoxes} = useAppSelector(cashBoxSelector);
-    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
+    const {paymentTypesList, selectedBoxes} = useAppSelector(cashBoxSelector);
+    const {config: agenda} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const open = Boolean(anchorEl);
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const devise = doctor_country.currency?.name;
+    const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
 
-    const {data: httpPatientTransactions, mutate} = useRequestQuery({
+    const {data: httpPatientTransactions, mutate} = useRequestQuery(cashboxes.length > 0 ? {
         method: "GET",
         url: `${urlMedicalEntitySuffix}/patients/${patient.uuid}/transactions/${router.locale}`
-    });
+    } : null);
 
     const {trigger: triggerAppointmentEdit} = useRequestQueryMutation("appointment/edit");
 
@@ -164,8 +169,13 @@ function PaymentDialog({...props}) {
             onSuccess: () => {
                 mutate().then(() => {
                     mutatePatient && mutatePatient();
+                    if (router.pathname === '/dashboard/waiting-room') {
+                        setTimeout(() => {
+                            invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agenda?.uuid}/appointments/${router.locale}`])
+                        }, 2000);
+                    }
                     setOpenPaymentDialog(false);
-                    setLoading(false)
+                    setLoading(false);
                 });
             },
         });
@@ -369,17 +379,18 @@ function PaymentDialog({...props}) {
                             <Typography fontWeight={600} mb={1}>
                                 {t("payment")}
                             </Typography>
-                            <Button startIcon={<AddIcon/>}
-                                    endIcon={<UnfoldMoreRoundedIcon/>}
-                                    id="basic-button"
-                                    variant="contained"
-                                    aria-controls={open ? "basic-menu" : undefined}
-                                    aria-haspopup="true"
-                                    aria-expanded={open ? "true" : undefined}
-                                    onClick={handleClick}
-                            >
-                                {t("add_payment")}
-                            </Button>
+                            <Can I={"manage"} a={"cashbox"} field={"cash_box__transaction__create"}>
+                                <Button startIcon={<AddIcon/>}
+                                        endIcon={<UnfoldMoreRoundedIcon/>}
+                                        id="basic-button"
+                                        variant="contained"
+                                        aria-controls={open ? "basic-menu" : undefined}
+                                        aria-haspopup="true"
+                                        aria-expanded={open ? "true" : undefined}
+                                        onClick={handleClick}>
+                                    {t("add_payment")}
+                                </Button>
+                            </Can>
                             <Menu
                                 id="basic-menu"
                                 anchorEl={anchorEl}
@@ -568,7 +579,7 @@ function PaymentDialog({...props}) {
                 backgroundColor: "white",
                 padding: "15px 0"
             }} justifyContent={"flex-end"} spacing={1}>
-                <Button onClick={() => setOpenPaymentDialog(false)}>{t('close')}</Button>
+                <Button variant={"text-black"} onClick={() => setOpenPaymentDialog(false)}>{t('close')}</Button>
                 {!(getTotalPayments() == 0) ?
                     <Button
                         startIcon={<IconUrl path={'ic-argent'} color={'white'}/>}

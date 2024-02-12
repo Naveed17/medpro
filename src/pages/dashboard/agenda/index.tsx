@@ -24,7 +24,6 @@ import {useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
-
 const humanizeDuration = require("humanize-duration");
 import FullCalendar from "@fullcalendar/react";
 import {DateSelectArg, DatesSetArg, EventChangeArg} from "@fullcalendar/core";
@@ -79,7 +78,6 @@ import {DrawerBottom} from "@features/drawerBottom";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {MobileContainer as smallScreen} from "@lib/constants";
 import {useSendNotification} from "@lib/hooks/rest";
-import {batch} from "react-redux";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {dehydrate, QueryClient} from "@tanstack/query-core";
 import {setDialog} from "@features/topNavBar";
@@ -283,10 +281,8 @@ function Agenda() {
         // Edit: to add it in the array format instead
         const groupArrays = appointmentGroupByDate(events.current);
 
-        batch(() => {
-            dispatch(setGroupedByDayAppointments(groupArrays));
-            dispatch(setAbsences(absences));
-        })
+        dispatch(setGroupedByDayAppointments(groupArrays));
+        dispatch(setAbsences(absences));
 
         if (isMobile || query?.view === "listWeek") {
             // sort grouped data
@@ -397,10 +393,8 @@ function Agenda() {
     }
 
     const handleRangeSelect = (event: DateSelectArg) => {
-        batch(() => {
-            dispatch(setAbsenceData({startDate: event.start, endDate: event.end}));
-            dispatch(openDrawer({type: "absence", open: true}));
-        })
+        dispatch(setAbsenceData({startDate: event.start, endDate: event.end}));
+        dispatch(openDrawer({type: "absence", open: true}));
     }
 
     const handleAddAbsence = (currentDate?: Date) => {
@@ -421,10 +415,8 @@ function Agenda() {
         }, {
             onSuccess: () => {
                 if (openAbsenceDrawer) {
-                    batch(() => {
-                        dispatch(openDrawer({type: "absence", open: false}));
-                        dispatch(resetAbsenceData());
-                    });
+                    dispatch(openDrawer({type: "absence", open: false}));
+                    dispatch(resetAbsenceData());
                 }
                 refreshData();
             },
@@ -446,10 +438,8 @@ function Agenda() {
     const onSelectEvent = (event: EventDef) => {
         setLoadingRequest(true);
         setTimeout(() => setEvent(event));
-        batch(() => {
-            dispatch(setSelectedEvent(event));
-            dispatch(openDrawer({type: "view", open: true}));
-        });
+        dispatch(setSelectedEvent(event));
+        dispatch(openDrawer({type: "view", open: true}));
         const query = `?mode=details&appointment=${event.publicId}&start_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&end_date=${moment(event.extendedProps.time).format("DD-MM-YYYY")}&format=week`
         triggerAppointmentDetails({
             method: "GET",
@@ -744,10 +734,8 @@ function Agenda() {
                 query: {inProgress: true}
             }, slugConsultation, {locale: router.locale})
         } else {
-            batch(() => {
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-            });
+            dispatch(openDrawer({type: "view", open: false}));
+            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
         }
     }
 
@@ -901,7 +889,6 @@ function Agenda() {
                     },
                     ...eventStepper.slice(2)]);
         }
-        // dispatch(openDrawer({type: "add", open: true}));
     }
 
     const handleStepperChange = (index: number) => {
@@ -960,7 +947,7 @@ function Agenda() {
                 setLoadingRequest(false);
                 localStorage.removeItem(`Modeldata${event?.publicId}`);
                 setTimeout(() => setOpenPreConsultationDialog(false));
-                medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`]);
+                medicalEntityHasUser && invalidateQueries([`${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/agendas/${agenda?.uuid}/appointments/${event?.publicId}/consultation-sheet/${router.locale}`]);
             }
         });
     }
@@ -1200,7 +1187,6 @@ function Agenda() {
                             </Typography>
                             <Stack spacing={1}>
                                 {row.events.map((event, idx) => (
-
                                     <AppointmentListMobile
                                         {...{roles, event}}
                                         key={event.id}
@@ -1274,13 +1260,11 @@ function Agenda() {
                     open={openAddDrawer}
                     dir={direction}
                     onClose={() => {
-                        batch(() => {
-                            dispatch(openDrawer({type: "add", open: false}));
-                            dispatch(setStepperIndex(0));
-                            if (submitted) {
-                                dispatch(resetSubmitAppointment());
-                            }
-                        })
+                        dispatch(openDrawer({type: "add", open: false}));
+                        dispatch(setStepperIndex(0));
+                        if (submitted) {
+                            dispatch(resetSubmitAppointment());
+                        }
 
                         eventStepper[0].disabled = false;
 
@@ -1328,10 +1312,8 @@ function Agenda() {
                     open={openAbsenceDrawer}
                     dir={direction}
                     onClose={() => {
-                        batch(() => {
-                            dispatch(openDrawer({type: "absence", open: false}));
-                            dispatch(resetAbsenceData());
-                        });
+                        dispatch(openDrawer({type: "absence", open: false}));
+                        dispatch(resetAbsenceData());
                     }}>
                     <AbsenceDrawer main={true} {...{t}}/>
                     <Paper
@@ -1349,10 +1331,8 @@ function Agenda() {
                             }}
                             variant="text-primary"
                             onClick={() => {
-                                batch(() => {
-                                    dispatch(openDrawer({type: "absence", open: false}));
-                                    dispatch(resetAbsenceData());
-                                });
+                                dispatch(openDrawer({type: "absence", open: false}));
+                                dispatch(resetAbsenceData());
                             }}>
                             {t(`steppers.back`)}
                         </Button>
@@ -1701,9 +1681,5 @@ export default Agenda
 Agenda.auth = true
 
 Agenda.getLayout = function getLayout(page: ReactElement) {
-    return (
-        <DashLayout>
-            {page}
-        </DashLayout>
-    )
+    return <DashLayout>{page}</DashLayout>;
 }

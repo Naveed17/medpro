@@ -38,6 +38,7 @@ import {MobileContainer} from "@themes/mobileContainer";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import Can from "@features/casl/can";
 
 const PatientDetail = dynamic(
     () =>
@@ -190,22 +191,23 @@ function Data() {
                     width={1}
                     alignItems="center">
                     <Typography>{t("path")}</Typography>
-
-                    {(process.env.NODE_ENV === "development" ||
-                        (importData &&
-                            (importData.list.length === 0 ||
-                                (importData.list.length > 0 &&
-                                    importData.list[0].status === 3)))) && (
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            onClick={() => {
-                                router.push("/dashboard/settings/data/import");
-                            }}
-                            color="success">
-                            {t("add")}
-                        </Button>
-                    )}
+                    <Can I={"manage"} a={"settings"} field={"settings__data__import"}>
+                        {(process.env.NODE_ENV === "development" ||
+                            (importData &&
+                                (importData.list.length === 0 ||
+                                    (importData.list.length > 0 &&
+                                        importData.list[0].status === 3)))) && (
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                onClick={() => {
+                                    router.push("/dashboard/settings/data/import");
+                                }}
+                                color="success">
+                                {t("add")}
+                            </Button>
+                        )}
+                    </Can>
                 </Stack>
             </SubHeader>
             <Box className="container">

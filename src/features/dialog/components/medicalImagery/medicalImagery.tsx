@@ -76,7 +76,7 @@ function MedicalImageryDialog({...props}) {
         mutate: mutateImagingFavorites
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/imaging/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/imaging/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const imagingFavorites = ((httpImagingFavoritesResponse as HttpResponse)?.data ?? []) as MIModel[];
@@ -121,7 +121,7 @@ function MedicalImageryDialog({...props}) {
         medicalImagery?.uuid && form.append('imaging', medicalImagery.uuid);
         medicalEntityHasUser && triggerFavoriteAdd({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/imaging/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/imaging/${router.locale}`,
             data: form,
         }, {
             onSuccess: () => mutateImagingFavorites()
@@ -266,7 +266,7 @@ function MedicalImageryDialog({...props}) {
                                             onDelete={() => {
                                                 medicalEntityHasUser && triggerFavoriteDelete({
                                                     method: "DELETE",
-                                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/imaging/${item.uuid}/${router.locale}`,
+                                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/imaging/${item.uuid}/${router.locale}`,
                                                 }, {
                                                     onSuccess: () => {
                                                         enqueueSnackbar(t(`alerts.favorite.delete`), {variant: "success"});

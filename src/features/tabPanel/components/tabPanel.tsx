@@ -1,9 +1,8 @@
-import {Box} from "@mui/material";
+import { Box } from "@mui/material";
 import React from "react";
 
-function TabPanel({...props}) {
-    const {children, value, index, padding, ...other} = props;
-
+function TabPanel({ ...props }) {
+    const { children, value, index, padding, ...other } = props;
     return (
         <div
             role="tabpanel"
@@ -11,7 +10,7 @@ function TabPanel({...props}) {
             id={`simple-tabpanel-${index}`}
             aria-labelledby={`simple-tab-${index}`}
             {...other}>
-            {value === index && <Box sx={{p: padding || 3}}>{children}</Box>}
+            {value === index && <Box sx={{ p: padding ?? 3 }}>{children}</Box>}
         </div>
     );
 }

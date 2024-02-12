@@ -33,6 +33,7 @@ import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import Icon from "@themes/urlIcon";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import Can from "@features/casl/can";
 
 const MotifListMobile = lazy(
     (): any => import("@features/card/components/motifListMobile/motifListMobile")
@@ -68,7 +69,7 @@ function Motif() {
 
     const {data: httpConsultReasonResponse, mutate: mutateConsultReason} = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${router.locale}`
     } : null, {
         ...ReactQueryNoValidateConfig,
         ...(medicalEntityHasUser && {variables: {query: !isMobile ? `?page=${router.query.page || 1}&limit=10&withPagination=true&sort=true` : "?sort=true"}})
@@ -158,7 +159,7 @@ function Motif() {
 
         medicalEntityHasUser && triggerMotifUpdate({
             method: "PATCH",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${props.uuid}/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${props.uuid}/${router.locale}`,
             data: form
         }, {
             onSuccess: () => {
@@ -195,7 +196,7 @@ function Motif() {
         setLoading(true);
         medicalEntityHasUser && triggerMotifDelete({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/consultation-reasons/${uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/consultation-reasons/${uuid}/${router.locale}`
         }, {
             onSuccess: () => {
                 enqueueSnackbar(t("alert.delete-reason"), {variant: "success"});
@@ -249,15 +250,17 @@ function Motif() {
                     width={1}
                     alignItems="center">
                     <Typography color="text.primary">{t("path")}</Typography>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => {
-                            editMotif(null as any, "add");
-                        }}
-                        sx={{ml: "auto"}}>
-                        {t("add")}
-                    </Button>
+                    <Can I={"manage"} a={"settings"} field={"settings__motif__create"}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() => {
+                                editMotif(null as any, "add");
+                            }}
+                            sx={{ml: "auto"}}>
+                            {t("add")}
+                        </Button>
+                    </Can>
                 </Stack>
             </SubHeader>
 

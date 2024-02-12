@@ -45,13 +45,6 @@ function AntecedentsCard({...props}) {
 
     const {trigger: triggerAntecedentUpdate} = useRequestQueryMutation("/patient/antecedent");
 
-    const isObject = (val: any) => {
-        if (val === null) {
-            return false;
-        }
-        return typeof val === 'object' && !Array.isArray(val)
-    }
-
     const handleClickDialog = () => {
         setOpenDialog(true);
     };
@@ -72,7 +65,7 @@ function AntecedentsCard({...props}) {
         form.append("patient_uuid", patient.uuid);
         medicalEntityHasUser && triggerAntecedentUpdate({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/antecedents/${antecedentsType?.find((ant: {
                 slug: any;
             }) => ant.slug === infoDynamic).uuid}/${router.locale}`,
             data: form
@@ -210,7 +203,7 @@ function AntecedentsCard({...props}) {
                                                 >
                                                     {loading ? <Skeleton variant="text"/> : item &&
                                                         <span style={{cursor: 'pointer', marginLeft: 4}}>
-                                                            {item.name}{" "}{item?.note ?`(${item?.note})`:""}
+                                                            {item.name}{" "}{item?.note ? `(${item?.note})` : ""}
                                                             {item.startDate ? " / " + item.startDate : ""}{" "}
                                                             {item.endDate ? " - " + item.endDate : ""}
                                                             {(item as any).ascendantOf && `(${t((item as any).ascendantOf)})`}

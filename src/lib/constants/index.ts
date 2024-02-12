@@ -141,7 +141,7 @@ export const UrlMedicalProfessionalSuffix: string = '/api/medical-professional';
 
 export const MedicalFormUnit = data;
 
-export const PrescriptionMultiUnits = MedicalFormUnit.filter(medic => medic.multiple).map(medic => medic.unit);
+export const PrescriptionMultiUnits = MedicalFormUnit.reduce((medics: any[], medic: any) => [...(medics ?? []), ...(medic.multiple ? [medic.unit] : [])], []);
 
 export const TransactionType = [
     // Add Payment ( ajout caisse/ Alimenter )
@@ -185,7 +185,7 @@ export const TransactionStatus = [
     },
 ];
 
-export const iconDocument = (data:string) => {
+export const iconDocument = (data: string) => {
     return data === "prescription" && "docs/ic-prescription" ||
         data == "requested-analysis" && "docs/ic-analyse" ||
         data == "analyse" && "docs/ic-analyse" ||
@@ -199,7 +199,7 @@ export const iconDocument = (data:string) => {
         data !== "prescription" && "ic-quote" || ""
 }
 
-export const tinymcePlugins = "advlist anchor autolink autosave charmap codesample directionality  emoticons help image insertdatetime link  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount table"
+export const tinymcePlugins = "advlist anchor autosave charmap codesample directionality  emoticons help image insertdatetime  lists media   nonbreaking pagebreak searchreplace table visualblocks visualchars wordcount table"
 export const tinymceToolbar = "blocks fontfamily fontsize | bold italic underline forecolor backcolor | align lineheight checklist bullist numlist | table tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol "
 export const tinymceToolbarNotes = " bold italic underline forecolor backcolor | align lineheight checklist bullist numlist | blocks fontfamily fontsize"
 

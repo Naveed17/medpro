@@ -79,6 +79,7 @@ function NotesComponent({...props}) {
             SpeechRecognition.stopListening();
             setLoadChanges(true)
             saveChanges("notes", values.notes)
+            oldNote.current = values.notes;
             resetTranscript();
             setIsStarted(false)
             dispatch(SetListen(''));
@@ -128,7 +129,7 @@ function NotesComponent({...props}) {
 
     useEffect(() => {
         if (isStarted) {
-            const notes = `${(oldNote ? oldNote : "")}  ${transcript}`;
+            const notes = `${(oldNote.current ? oldNote.current : "")}  ${transcript}`;
             setFieldValue("notes", notes);
             dispatch(
                 SetExam({
@@ -262,7 +263,7 @@ function NotesComponent({...props}) {
 
             {showToolbar && <Editor
                 initialValue={values.notes}
-                apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                 onEditorChange={(event) => {
                     debouncedOnChange("notes", event)
                 }}
@@ -281,7 +282,7 @@ function NotesComponent({...props}) {
             {
                 !showToolbar && <Editor
                     initialValue={values.notes}
-                    apiKey={process.env.NEXT_PUBLIC_EDITOR_KEY}
+                    tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                     onEditorChange={(event) => {
                         debouncedOnChange("notes", event)
                     }}

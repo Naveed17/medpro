@@ -6,13 +6,14 @@ export type dashLayoutState = {
     allowNotification?: boolean;
     import_data?: string[];
     newCashBox?: boolean;
-    medicalEntityHasUser?: MedicalEntityHasUsersModel[];
+    medicalEntityHasUser?: string;
     medicalProfessionalData?: MedicalProfessionalDataModel;
     secretaryAccess?: boolean;
     appointmentTypes?: AppointmentTypeModel[];
     notifications?: any[];
     last_fiche_id?: string;
     nb_appointment?: number;
+    pending?: number;
     ongoing?: {
         "uuid": "string";
         "start_time": "string";

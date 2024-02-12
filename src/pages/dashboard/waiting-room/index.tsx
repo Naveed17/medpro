@@ -31,15 +31,13 @@ import {DesktopContainer} from "@themes/desktopConainter";
 import {MobileContainer} from "@themes/mobileContainer";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import moment from "moment-timezone";
-import {ActionMenu, toggleSideBar} from "@features/menu";
+import {ActionMenu} from "@features/menu";
 import {
     prepareContextMenu,
     prepareSearchKeys,
-    useIsMountedRef,
     useMedicalEntitySuffix,
     useMutateOnGoing
 } from "@lib/hooks";
-import {appLockSelector} from "@features/appLock";
 import {Dialog, PatientDetail, preConsultationSelector, QuickAddAppointment} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
 import IconUrl from "@themes/urlIcon";
@@ -68,7 +66,6 @@ import {
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import {leftActionBarSelector, resetFilter} from "@features/leftActionBar";
 import {LoadingScreen} from "@features/loadingScreen";
-import {batch} from "react-redux";
 import {setDialog} from "@features/topNavBar";
 import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
@@ -79,15 +76,13 @@ function WaitingRoom() {
     const {data: session, status} = useSession();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const isMounted = useIsMountedRef();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
-    const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
 
+    const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
     const {config: agenda} = useAppSelector(agendaSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
-    const {lock} = useAppSelector(appLockSelector);
     const {direction} = useAppSelector(configSelector);
     const {tableState} = useAppSelector(tableActionSelector);
     const {isActive} = useAppSelector(timerSelector);
@@ -126,6 +121,7 @@ function WaitingRoom() {
     const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
+
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
     const {trigger: handlePreConsultationData} = useRequestQueryMutation("/pre-consultation/update");
@@ -212,11 +208,9 @@ function WaitingRoom() {
                     ...row
                 }
             } as EventDef;
-            batch(() => {
-                dispatch(setSelectedEvent(defEvent));
-                dispatch(openDrawer({type: "view", open: false}));
-                dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
-            });
+            dispatch(setSelectedEvent(defEvent));
+            dispatch(openDrawer({type: "view", open: false}));
+            dispatch(setDialog({dialog: "switchConsultationDialog", value: true}));
         }
     }
 
@@ -338,6 +332,10 @@ function WaitingRoom() {
                 break;
             case "START_CONSULTATION":
                 startConsultation(data.row);
+                break;
+            case "OPEN_CONSULTATION":
+                const slugConsultation = `/dashboard/consultation/${data.row?.uuid}`;
+                router.push(slugConsultation, slugConsultation, {locale: router.locale});
                 break;
             case "CANCEL_APPOINTMENT":
                 handleAppointmentStatus(data.row?.uuid as string, '6');
@@ -477,27 +475,13 @@ function WaitingRoom() {
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
             let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) =>
-                moment(a.startTime === "00:00" ? b.createdAt : `${a.dayDate} ${a.startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(b.startTime === "00:00" ? a.createdAt : `${b.dayDate} ${b.startTime}`, "DD-MM-YYYY HH:mm").valueOf()
+                moment(`${a.dayDate} ${a.estimatedStartTime ?? a.startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${b.dayDate} ${b.estimatedStartTime ?? b.startTime}`, "DD-MM-YYYY HH:mm").valueOf()
             ).group((diag: any) => diag.status);
-            const onGoingAppointment = partition(groupedData[3], (event: any) => event.startTime === "00:00");
+            const onGoingAppointment = partition(groupedData[3], (event: any) => event.estimatedStartTime === null);
             groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0].reverse()]
             setWaitingRoomsGroup(groupedData);
         }
     }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (isMounted.current && !lock) {
-            dispatch(toggleSideBar(false));
-        }
-    }, [dispatch, isMounted]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        if (!openPaymentDialog) {
-            setTimeout(() => {
-                mutateWaitingRoom();
-            }, 300);
-        }
-    }, [openPaymentDialog]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
         dispatch(resetFilter());
@@ -540,7 +524,6 @@ function WaitingRoom() {
                     </DesktopContainer>
                     <TabPanel padding={.1} value={tabIndex} index={1}>
                         {!!waitingRoomsGroup[1]?.length ? <>
-
                                 <DesktopContainer>
                                     <Otable
                                         sx={{mt: 2}}
@@ -605,6 +588,7 @@ function WaitingRoom() {
                                 {...{t}}
                                 sx={{mt: 8}}
                                 onHandleClick={() => {
+                                    setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
                                     setTimeout(() => setQuickAddAppointmentTab(1));
                                 }}
@@ -661,6 +645,7 @@ function WaitingRoom() {
                                 {...{t}}
                                 sx={{mt: 8}}
                                 onHandleClick={() => {
+                                    setWithoutDateTime(false);
                                     setQuickAddAppointment(true);
                                     setTimeout(() => setQuickAddAppointmentTab(3));
                                 }}
@@ -795,8 +780,6 @@ function WaitingRoom() {
                         ))}
                     </ActionMenu>
                 </Box>
-
-
             </Box>
 
             <Drawer
@@ -839,7 +822,7 @@ function WaitingRoom() {
                             event.stopPropagation();
                             handleAddAppointment();
                         }}
-                        disabled={type === "" || !patient}>
+                        disabled={type === "" || !patient || (!withoutDateTime && recurringDates?.length === 0)}>
                         {t("save", {ns: "common"})}
                     </LoadingButton>
                 </Paper>
@@ -969,7 +952,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
             "agenda",
             "consultation",
             "payment",
-            "waitingRoom",
+            "waitingRoom"
         ])),
     },
 });

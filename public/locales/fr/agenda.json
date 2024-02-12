@@ -86,9 +86,9 @@
       "action": "Action"
     },
     "body": {
-      "add-appointment": "Add appointment",
-      "edit": "Edit",
-      "see-card": "See card"
+      "add-appointment": "Ajouter un RDV",
+      "edit": "Modifier",
+      "see-card": "Voir"
     },
     "pagination": {
       "of": "of"

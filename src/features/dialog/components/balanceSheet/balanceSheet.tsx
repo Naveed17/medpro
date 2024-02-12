@@ -25,13 +25,10 @@ import {useRouter} from "next/router";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {Dialog} from "@features/dialog";
 import CloseIcon from "@mui/icons-material/Close";
-
-import SaveRoundedIcon from '@mui/icons-material/SaveRounded';
 import {NoDataCard, NoteCardCollapse} from "@features/card";
 import {a11yProps, arrayUniqueByKey, useMedicalEntitySuffix, useMedicalProfessionalSuffix} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {useSnackbar} from "notistack";
-import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import {debounce} from "lodash";
 import SearchIcon from "@mui/icons-material/Search";
@@ -58,7 +55,7 @@ function BalanceSheetDialog({...props}) {
 
     const [model, setModel] = useState<string>('');
     const [openDialog, setOpenDialog] = useState<boolean>(false);
-    const [balanceValue, setBalanceValue] = useState<AnalysisModel | null>(null);
+    const [balanceValue] = useState<AnalysisModel | null>(null);
     const [searchAnalysis, setSearchAnalysis] = useState<AnalysisModel[]>([]);
     const [analysis, setAnalysis] = useState<AnalysisModel[]>(data.state);
     const [analysisList, setAnalysisList] = useState<AnalysisModel[]>([]);
@@ -94,7 +91,7 @@ function BalanceSheetDialog({...props}) {
         mutate: mutateAnalysisFavorites
     } = useRequestQuery(medicalEntityHasUser ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/analyses/${router.locale}`
     } : null);
 
     const modals = ((httpModelResponse as HttpResponse)?.data ?? []) as any[];
@@ -227,7 +224,7 @@ function BalanceSheetDialog({...props}) {
         medicalImagery?.uuid && form.append('analyse', medicalImagery.uuid);
         medicalEntityHasUser && triggerFavoriteAdd({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/analyses/${router.locale}`,
             data: form,
         }, {
             onSuccess: () => mutateAnalysisFavorites()
@@ -368,7 +365,7 @@ function BalanceSheetDialog({...props}) {
                                             onDelete={() => {
                                                 medicalEntityHasUser && triggerFavoriteDelete({
                                                     method: "DELETE",
-                                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/favorite/analyses/${analysisItem.uuid}/${router.locale}`,
+                                                    url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/favorite/analyses/${analysisItem.uuid}/${router.locale}`,
                                                 }, {
                                                     onSuccess: () => {
                                                         enqueueSnackbar(t(`alerts.favorite.delete`), {variant: "success"});

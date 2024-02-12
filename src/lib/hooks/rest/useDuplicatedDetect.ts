@@ -13,7 +13,7 @@ function useDuplicatedDetect({...props}) {
 
     const {data: httpPatientDuplicationResponse, isLoading} = useRequestQuery(medicalEntityHasUser && patientId ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patientId}/duplications/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patientId}/duplications/${router.locale}`
     } : null);
 
     return {duplications: ((httpPatientDuplicationResponse as HttpResponse)?.data ?? []) as PatientModel[], isLoading}

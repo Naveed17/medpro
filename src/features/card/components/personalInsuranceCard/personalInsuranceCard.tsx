@@ -72,7 +72,7 @@ function PersonalInsuranceCard({...props}) {
         mutate: mutatePatientInsurances
     } = useRequestQuery(medicalEntityHasUser && patient ? {
         method: "GET",
-        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient.uuid}/insurances/${router.locale}`
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient.uuid}/insurances/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const RegisterPatientSchema = Yup.object().shape({
@@ -178,7 +178,7 @@ function PersonalInsuranceCard({...props}) {
         setLoadingRequest(true);
         medicalEntityHasUser && triggerPatientUpdate({
             method: "DELETE",
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${insurance.uuid}/${router.locale}`
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/insurances/${insurance.uuid}/${router.locale}`
         }, {
             onSuccess: () => {
                 setLoadingRequest(false);
@@ -269,7 +269,7 @@ function PersonalInsuranceCard({...props}) {
 
         medicalEntityHasUser && triggerPatientUpdate({
             method: requestAction,
-            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser[0].uuid}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${values.insurances[0].insurance_key}/` : ""}${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/patients/${patient?.uuid}/insurances/${requestAction === "PUT" ? `${values.insurances[0].insurance_key}/` : ""}${router.locale}`,
             data: params
         }, {
             onSuccess: () => {
