@@ -413,6 +413,8 @@
     "apci": "APCI",
     "apci_placeholder": "Sélectionner APCI",
     "startDate": "Date de début",
-    "endDate": "Date de fin"
+    "endDate": "Date de fin",
+    "noInsurance": "Aucune assurance pour ce patient",
+    "addInsurance": "Cliquez sur le bouton « + » pour ajouter assurance"
   }
 }

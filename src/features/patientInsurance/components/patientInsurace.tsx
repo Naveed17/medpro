@@ -1,39 +1,72 @@
-import React from 'react';
+import React, {useState} from 'react';
 import InsuranceStyled from "@features/patientInsurance/components/overrides/insuranceStyled";
-import {TextField, Typography} from "@mui/material";
+import {Box, Chip, Collapse, IconButton, Stack, TextField, Typography} from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+import IconUrl from "@themes/urlIcon";
+import {NoDataCard} from "@features/card";
+import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
+import AddIcon from "@mui/icons-material/Add";
+import AddInsurance from "@features/patientInsurance/components/addInsurance";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import CardInsurance from "@features/patientInsurance/components/cardInsurance";
 
 const PatientInsurance = ({...props}) => {
     const {patientInsurances, t} = props;
 
+    const noAppData = {
+        mainIcon: "ic-assurance",
+        title: "insurance.noInsurance",
+        description: "insurance.addInsurance"
+    };
+
+    const [addNew, setAddNew] = useState(false);
+    const [selectedInsurance, setSelectedInsurance] = useState("");
+
+
+
     console.log(patientInsurances)
+
     return (
-        <InsuranceStyled>
-            <Typography
-                className="label"
-                variant="body2"
-                color="text.secondary">
-                {t("insurance.agreement")}
-            </Typography>
+        <InsuranceStyled spacing={1}>
+            <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} pt={2} pb={1}>
+                <Typography className={"title"}>{t('insurance.agreement')}</Typography>
+                <IconButton
+                    onClick={()=>setAddNew(!addNew)}
+                    color={"success"}
+                    className="success-light"
+                    sx={{
+                        mr: 1.5,
+                        "& svg": {
+                            width: 20,
+                            height: 20,
+                        },
+                    }}>
+                    {addNew ? <CloseRoundedIcon/>: <AddIcon/> }
+                </IconButton>
+            </Stack>
 
-            <TextField
-                variant="outlined"
-                placeholder={t("insurance.select")}
-                size="small"
-                fullWidth
-            />
+            <Collapse in={addNew}>
+                <Box className={"insurance-box"}>
+                    <AddInsurance {...{t,setAddNew}}/>
+                </Box>
+            </Collapse>
 
-            <Typography
-                className="label"
-                variant="body2"
-                color="text.secondary">
-                {t("insurance.member")}
-            </Typography>
-            <TextField
-                variant="outlined"
-                placeholder={t("insurance.member_placeholder")}
-                size="small"
-                fullWidth
-            />
+            {patientInsurances?.map(pi =>(
+                <Box key={pi.uuid} className={"insurance-box"}>
+                    <Collapse in={selectedInsurance !== pi.insurance.uuid}>
+                        <CardInsurance {...{pi,setSelectedInsurance}}/>
+                    </Collapse>
+                    <Collapse in={selectedInsurance === pi.insurance.uuid}>
+                        <AddInsurance {...{t,setAddNew}}/>
+                    </Collapse>
+                </Box>
+            ))}
+
+            <Collapse in={!addNew && patientInsurances?.length === 0}>
+                {patientInsurances?.length === 0 && <Stack justifyContent={"center"}>
+                    <NoDataCard t={t} ns={"patient"} data={noAppData}/>
+                </Stack>}
+            </Collapse>
         </InsuranceStyled>
     );
 }

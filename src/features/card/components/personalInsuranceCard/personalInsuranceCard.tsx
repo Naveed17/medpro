@@ -3,19 +3,7 @@ import React, {useState} from "react";
 import {useTranslation} from "next-i18next";
 import {Form, FormikProvider, useFormik} from "formik";
 // material
-import {
-    AppBar,
-    Box,
-    Button, DialogActions,
-    Divider,
-    Grid,
-    IconButton,
-    Paper,
-    Skeleton,
-    Stack,
-    Toolbar,
-    Typography, useTheme
-} from "@mui/material";
+import {Button, DialogActions, Paper, Stack, useTheme} from "@mui/material";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
@@ -25,17 +13,15 @@ import {useSnackbar} from "notistack";
 import {LoadingButton} from "@mui/lab";
 import PersonalInfoStyled from "./overrides/personalInfoStyled";
 import CloseIcon from "@mui/icons-material/Close";
-import {DefaultCountry, SocialInsured} from "@lib/constants";
+import {DefaultCountry} from "@lib/constants";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import AddIcon from '@mui/icons-material/Add';
 import {Dialog} from "@features/dialog";
 import IconUrl from "@themes/urlIcon";
-import DeleteIcon from '@mui/icons-material/Delete';
 import {useAppSelector} from "@lib/redux/hooks";
 import {dashLayoutSelector} from "@features/base";
-import {useMedicalEntitySuffix, prepareInsurancesData} from "@lib/hooks";
+import {prepareInsurancesData, useMedicalEntitySuffix} from "@lib/hooks";
 import {useInsurances} from "@lib/hooks/rest";
-import {ImageHandler} from "@features/image";
 
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 
@@ -305,35 +291,7 @@ function PersonalInsuranceCard({...props}) {
                                 pb: 0
                             })
                         }}>
-                        <AppBar position="static" color={"transparent"}>
-                            <Toolbar variant="dense">
-                                <Box sx={{flexGrow: 1}}>
-                                    <Typography
-                                        variant="body1"
-                                        sx={{fontWeight: "bold"}}
-                                        gutterBottom>
-                                        {loading ? (
-                                            <Skeleton variant="text" sx={{maxWidth: 200}}/>
-                                        ) : (
-                                            t("config.add-patient.assurance")
-                                        )}
-                                    </Typography>
-                                </Box>
-                                <LoadingButton
-                                    disabled={editable.personalInfoCard || editable.patientDetailContactCard}
-                                    loading={loadingRequest}
-                                    className='btn-add'
-                                    onClick={() => {
-                                        handleAddInsurance();
-                                        setInsuranceDialog(true);
-                                    }}
-                                    startIcon={<AddIcon/>}
-                                    size="small">
-                                    {t("config.add-patient.add")}
-                                </LoadingButton>
-                            </Toolbar>
-                        </AppBar>
-                        <PatientInsurance {...{patientInsurances,t}}/>
+                        <PatientInsurance {...{patientInsurances, t}}/>
                     </Paper>
                 </PersonalInfoStyled>
                 <Dialog
