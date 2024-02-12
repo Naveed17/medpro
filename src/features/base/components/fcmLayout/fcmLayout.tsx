@@ -347,7 +347,7 @@ function FcmLayout({...props}) {
         eventSource.onerror = (error) => {
             eventSource.close();
             const errorData = JSON.parse((error as any)?.data)
-            if (errorData?.status < 500) {
+            if (![500, 502, 503, 504].includes(errorData?.status)) {
                 setTimeout(connectToStream, 1);
             }
         };
