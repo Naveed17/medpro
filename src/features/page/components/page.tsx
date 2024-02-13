@@ -8,18 +8,22 @@ import {DocHeader} from "@features/files";
 import {DocHeaderEditor} from "@features/files/components/docHeaderEditor";
 import {useQRCode} from 'next-qrcode';
 import {UploadFile} from "@features/uploadFile";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
 
 function Page({...props}) {
 
-    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue} = props
+    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue, urlMedicalProfessionalSuffix,docs,setDocs} = props
     const {Canvas} = useQRCode();
 
     const theme = useTheme();
-
+    const router = useRouter();
     const [selectedElement, setSelectedElement] = useState("")
     const [blockDrag, setBlockDrag] = useState(false)
     const [backgroundImg, setBackgroundImg] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const {trigger: triggerUpload} = useRequestQueryMutation("/documents/upload");
 
     const getMarginTop = () => {
         let _margin = 0;
@@ -100,18 +104,33 @@ function Page({...props}) {
         }
     }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const getFile = (uuid:string) =>{
+        const _file = docs.find((doc:{uuid:string}) => doc.uuid === uuid)
+        console.log(_file)
+       return _file ? _file.file : "/static/icons/Med-logo.png";
+    }
+
     const handleDrop = React.useCallback((acceptedFiles: File[], index: number) => {
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                //console.log(ev.target?.result as string)
-                console.log(data.other[index])
-                data.other[index].content = ev.target?.result
-                setData({...data})
-                /*data.background.content.url = (ev.target?.result as string)
-                data.background.show = true;
-                setData({...data})*/
+
+            var fr = new FileReader();
+            fr.onload = function () {
+
+                const form = new FormData();
+                form.append("files[0]", acceptedFiles[0]);
+                triggerUpload({
+                    method: "POST",
+                    url: `${urlMedicalProfessionalSuffix}/documents/${router.locale}`,
+                    data: form
+                }, {
+                    onSuccess: (res) => {
+                        data.other[index].content = res.data.data[0]
+                        setDocs((prev:any) => [...prev,{uuid:res.data.data[0],file:fr.result}])
+                        setData({...data})
+                    },
+                });
             }
-            //console.log(acceptedFiles[0])
+            fr.readAsDataURL(acceptedFiles[0]);
+
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         []
@@ -433,7 +452,7 @@ function Page({...props}) {
                                                                     setSelectedElement(`other${index}`)
                                                                 }}>
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={other.content} style={{width: other.width, height: other.height}}
+                                    <img src={getFile(other.content)} style={{width: other.width, height: other.height}}
                                          alt={"logo"}/>
                                 </div>}
                                 {other.type === "qrcode" && <div id={`other${index}`}
@@ -485,7 +504,7 @@ function Page({...props}) {
                                         <div className={"btnMenu"}>
                                             <UploadFile
                                                 accept={{'image/jpeg': ['.png', '.jpeg', '.jpg']}}
-                                                style={{height:30}}
+                                                style={{height: 30}}
                                                 onDrop={(ev: File[]) => handleDrop(ev, index)}
                                                 singleFile={false}/>
                                         </div>}
