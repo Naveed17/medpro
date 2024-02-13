@@ -16,7 +16,7 @@ function Doc({...props}) {
     const [loading, setLoading] = useState(true);
     const [value, setValue] = useState("");
 
-    const {data, setData, state, date, header, setHeader, onReSize, setOnResize,urlMedicalProfessionalSuffix} = props
+    const {data, setData, state, date, header, setHeader, onReSize, setOnResize,urlMedicalProfessionalSuffix,docs,setDocs} = props
     const {data: session} = useSession();
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -213,7 +213,8 @@ function Doc({...props}) {
                         date,
                         header,
                         setHeader,
-                        urlMedicalProfessionalSuffix
+                        urlMedicalProfessionalSuffix,
+                        docs,setDocs
                     }}/>
                 ))
             }

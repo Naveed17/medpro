@@ -120,6 +120,7 @@ function DocsConfig() {
     const [onReSize, setOnResize] = useState(true)
     const [used, setUsed] = useState(false)
     const [openReset, setOpenReset] = useState(false)
+    const [docs, setDocs] = useState([])
     const [paperSize, setPaperSize] = useState({target: "", value: ""})
 
     const uuid = router.query.uuid;
@@ -165,10 +166,16 @@ function DocsConfig() {
         form.append('document_header', JSON.stringify({header: header, data}));
         form.append('title', title);
         form.append('isDefault', JSON.stringify(isDefault));
+
+        let _docsUuids = ""
+        docs.map((doc:{uuid:string}, index) => _docsUuids + doc.uuid + (index === docs.length - 1 ? "" : ","))
+        form.append('files', _docsUuids);
+
         if (file)
             form.append('file', file);
         if (typeUuids.length > 0)
             form.append('types', typeUuids);
+
 
         const url = uuid === 'new' ? `${urlMedicalProfessionalSuffix}/header/${router.locale}` : `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`
         triggerHeaderUpdate({
@@ -237,7 +244,7 @@ function DocsConfig() {
             let _data: any = {...data}
             if (_data[target])
                 _data[target] = value;
-            else _data ={...data,[target]:value}
+            else _data = {...data, [target]: value}
             setData({..._data})
         } else
             resetNow(target, value)
@@ -246,8 +253,8 @@ function DocsConfig() {
     const resetNow = (target: string, value: string) => {
         let _data: any = {...defaultData}
         if (_data[target])
-        _data[target] = value;
-        else _data ={...data,[target]:value}
+            _data[target] = value;
+        else _data = {...data, [target]: value}
         _data.content.width = "90%"
         setOnResize(true)
         _data.content.maxHeight = 100
@@ -529,8 +536,14 @@ function DocsConfig() {
                                                     padding: 10,
                                                     borderRadius: 6
                                                 }}>
-                                                <Typography textAlign={"center"} width={"100%"}
-                                                            style={{cursor: "pointer"}}>{t(key)}</Typography>
+                                                <Typography textAlign={"center"}
+                                                            style={{
+                                                                textOverflow: "ellipsis",
+                                                                whiteSpace: "nowrap",
+                                                                overflow: "hidden",
+                                                                width: 100,
+                                                                cursor: "pointer"
+                                                            }}>{t(key)}</Typography>
                                                 <IconUrl path={"ic-plus"} width={20} height={20}/>
                                             </Stack>
                                         </div>
@@ -671,7 +684,18 @@ function DocsConfig() {
 
                         <Box ref={componentRef}>
                             {!loading &&
-                                <Doc {...{data, setData, state: undefined, header, setHeader, onReSize, setOnResize,urlMedicalProfessionalSuffix}}/>}
+                                <Doc {...{
+                                    data,
+                                    setData,
+                                    state: undefined,
+                                    header,
+                                    setHeader,
+                                    onReSize,
+                                    setOnResize,
+                                    urlMedicalProfessionalSuffix,
+                                    docs,
+                                    setDocs
+                                }}/>}
                         </Box>
                     </Box>
                 </Grid>

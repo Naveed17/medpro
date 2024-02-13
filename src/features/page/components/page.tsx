@@ -13,7 +13,7 @@ import {useRouter} from "next/router";
 
 function Page({...props}) {
 
-    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue, urlMedicalProfessionalSuffix} = props
+    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue, urlMedicalProfessionalSuffix,docs,setDocs} = props
     const {Canvas} = useQRCode();
 
     const theme = useTheme();
@@ -104,22 +104,33 @@ function Page({...props}) {
         }
     }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const getFile = (uuid:string) =>{
+        const _file = docs.find((doc:{uuid:string}) => doc.uuid === uuid)
+        console.log(_file)
+       return _file ? _file.file : "/static/icons/Med-logo.png";
+    }
+
     const handleDrop = React.useCallback((acceptedFiles: File[], index: number) => {
 
-            const form = new FormData();
-            form.append('files', acceptedFiles[0]);
+            var fr = new FileReader();
+            fr.onload = function () {
 
-            triggerUpload({
-                method: "POST",
-                url: `${urlMedicalProfessionalSuffix}/documents/${router.locale}`,
-                data: form
-            }, {
-                onSuccess: (res) => {
-                    console.log(res.data)
-                    data.other[index].content = res.data.data
-                    setData({...data})
-                },
-            });
+                const form = new FormData();
+                form.append("files[0]", acceptedFiles[0]);
+                triggerUpload({
+                    method: "POST",
+                    url: `${urlMedicalProfessionalSuffix}/documents/${router.locale}`,
+                    data: form
+                }, {
+                    onSuccess: (res) => {
+                        data.other[index].content = res.data.data[0]
+                        setDocs((prev:any) => [...prev,{uuid:res.data.data[0],file:fr.result}])
+                        setData({...data})
+                    },
+                });
+            }
+            fr.readAsDataURL(acceptedFiles[0]);
+
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         []
@@ -441,7 +452,7 @@ function Page({...props}) {
                                                                     setSelectedElement(`other${index}`)
                                                                 }}>
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={other.content} style={{width: other.width, height: other.height}}
+                                    <img src={getFile(other.content)} style={{width: other.width, height: other.height}}
                                          alt={"logo"}/>
                                 </div>}
                                 {other.type === "qrcode" && <div id={`other${index}`}
