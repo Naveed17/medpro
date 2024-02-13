@@ -1,0 +1,35 @@
+{
+  "config": {
+    "sub-header": {
+      "title": "Liste des médecins",
+      "invite": "Invité",
+      "invite-placeholder": "Inviter par Email",
+      "department-placeholder": "Department",
+      "no-department-placeholder": "Aucun département trouvé"
+    },
+    "filter": {
+      "title": "Filtre",
+      "doctors": "Médecin",
+      "search": "Nom & prénom/Tél/N° fiche",
+      "birthdate": "Date de naissance",
+      "gender": "Genre",
+      "male": "Homme",
+      "female": "Femme",
+      "name": "Recherche",
+      "phone": "Numéro de téléphone"
+    },
+    "table": {
+      "empty": "",
+      "name": "Nom",
+      "department": "Département",
+      "speciality": "Spécialisation",
+      "contact": "Contact",
+      "email": "Email",
+      "status": "Statut",
+      "join-date": "Date d'entrée en service",
+      "active": "Active",
+      "function": "Fonction",
+      "inactive": "Inactive"
+    }
+  }
+}

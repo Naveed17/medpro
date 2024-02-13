@@ -23,7 +23,7 @@ import {useRouter} from 'next/router';
 
 const stepperData = [
     {
-        title: "dialog.user"
+        title: "dialog.info"
     },
     {
         title: "dialog.role_permissions"
@@ -173,6 +173,8 @@ function NewUserDialog({...props}) {
             email: Yup.string().email().required(),
             first_name: Yup.string().required(),
             password: Yup.string().required(),
+            generatePassword: Yup.boolean().required(),
+            resetPassword: Yup.boolean().required(),
             phones: Yup.array().of(
                 Yup.object().shape({
                     dial: Yup.object().shape({
@@ -240,11 +242,12 @@ function NewUserDialog({...props}) {
             ],
             email: '',
             selectedRole: "",
+            generatePassword: false,
+            resetPassword: true,
             roles: initFormData(),
             role_name: '',
             password: '',
-            confirm_password: '',
-
+            confirm_password: ''
         },
         onSubmit: () => {
             if (currentStep === stepperData.length - 1) {
@@ -277,9 +280,8 @@ function NewUserDialog({...props}) {
             </DialogTitle>
             <Box px={{xs: 0, sm: 2}} py={3} bgcolor="background.default">
                 <Stepper
-                    {...{stepperData}}
+                    {...{t, stepperData}}
                     tabIndex={currentStep}
-                    t={t}
                     minWidth={660}
                     padding={0}
                 />

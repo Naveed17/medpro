@@ -98,6 +98,22 @@ const LeftActionsData = [
             )
         ),
     },
+    {
+        pathname: path(ROOTS.admin, "/doctors"),
+        component: dynamic((): any =>
+            import("@features/leftActionBar/components/doctors/components/doctors").then(
+                (mod) => mod
+            )
+        ),
+    },
+    {
+        pathname: path(ROOTS.admin, "/staff"),
+        component: dynamic((): any =>
+            import("@features/leftActionBar/components/staff/components/staff").then(
+                (mod) => mod
+            )
+        ),
+    }
 ];
 
 export default LeftActionsData;

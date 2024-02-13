@@ -3,6 +3,8 @@
   "lang": "اللغة",
   "main-menu": {
     "agenda": "الأجندة",
+    "doctors": "الأطباء",
+    "staff": "طاقم العمل",
     "waiting-room": "غرفة الانتظار",
     "patient": "المرضى",
     "message": "رسالة",

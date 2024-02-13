@@ -6,7 +6,7 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import React, {useEffect, useState} from "react";
 import {setAgendas, setConfig, setView} from "@features/calendar";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {configSelector, dashLayoutState, setOngoing, PageTransition} from "@features/base";
+import {configSelector, dashLayoutState, setOngoing, PageTransition, PageTransitionRef} from "@features/base";
 import {
     Box,
     Button,
@@ -42,8 +42,6 @@ import {useFeaturePermissions} from "@lib/hooks/rest";
 import {setPermissions} from "@features/casl";
 
 const SideBarMenu = dynamic(() => import("@features/menu/components/sideBarMenu/components/sideBarMenu"));
-
-type PageTransitionRef = React.ForwardedRef<HTMLDivElement>
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 

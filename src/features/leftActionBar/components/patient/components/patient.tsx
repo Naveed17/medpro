@@ -36,9 +36,9 @@ function Patient() {
     const handleFilterChange = (data: any) => {
         window.history.replaceState({
             ...window.history.state,
-            as: "/dashboard/patient?page=1",
-            url: "/dashboard/patient?page=1"
-        }, '', "/dashboard/patient?page=1");
+            as: "/dashboard/patients?page=1",
+            url: "/dashboard/patients?page=1"
+        }, '', "/dashboard/patients?page=1");
         dispatch(setSelectedRows([]));
         dispatch(setFilter(data));
     }

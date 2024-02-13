@@ -58,7 +58,7 @@ function PaperComponent(props: PaperProps) {
     );
 }
 
-function FcmLayout({...props}) {
+function MainLayout({...props}) {
     const {data: session, update} = useSession();
     const {jti} = session?.user as any;
     const router = useRouter();
@@ -571,4 +571,4 @@ function FcmLayout({...props}) {
     );
 }
 
-export default FcmLayout;
+export default MainLayout;

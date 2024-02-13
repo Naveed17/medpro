@@ -7,6 +7,22 @@ export const siteHeader = {
             action: "notification"
         }
     ],
+    adminSidebarItems: [
+        {
+            icon: "ic-doctors",
+            name: "doctors",
+            href: '/admin/doctors',
+            badge: 0,
+            enabled: true
+        },
+        {
+            icon: "ic-staff",
+            name: "staff",
+            href: '/admin/staff',
+            badge: 0,
+            enabled: true
+        }
+    ],
     sidebarItems: [
         {
             icon: "ic-agenda",

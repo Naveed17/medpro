@@ -110,7 +110,7 @@ function Step2({...props}) {
                         className='role-input-group'
                         {...getFieldProps("selectedRole")}>
                         {profiles.map((profile: ProfileModel, index: number) => (
-                            <FormControlLabel className='role-label' value={profile.uuid} key={index}
+                            <FormControlLabel className='role-label' value={profile.uuid} key={profile.uuid}
                                               control={<Radio disableRipple
                                                               checkedIcon={<IconUrl path="ic-radio-check"/>}/>}
                                               label={startCase(profile.name)}/>
@@ -141,7 +141,7 @@ function Step2({...props}) {
                     />
                 </Stack>
                 <List sx={{pb: 0}}>
-                    {Object.entries(values?.roles)?.map((role: any) => (
+                    {Object.entries(values?.roles)?.map((role: any, index: number) => (
                         <ListItem
                             key={role[0]}
                             className={`motif-list ${openCollapseFeature === role[0] ? "selected" : ""}`}

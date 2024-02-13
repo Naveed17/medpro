@@ -530,6 +530,9 @@
     "add_new_feature_profile": "Ajouter un nouveau profil de fonctionnalité",
     "config": {
       "add": "Ajouter",
+      "auto-password": "Génération automatique du mot de passe",
+      "manual-password": "Laissez-moi créer le mot de passe",
+      "reset-password": "Demander à l'utilisateur de changer son mot de passe lorsqu'il se connecte",
       "features": {
         "appointment": "Rendez-vous",
         "patient": "Patient",
@@ -583,6 +586,7 @@
         "delete-profile-desc": "Voulez-vous supprimer le profil ?",
         "delete-user-desc": "Voulez-vous supprimer le utilisateur ?",
         "ntc": "Nom est trop court",
+        "info": "Informations",
         "delete": "Supprimer",
         "cancel": "Annuler",
         "back": "Retour",

@@ -33,16 +33,9 @@ function CustomStepper({...props}) {
                 sx={{
                     minWidth: {md: minWidth ? minWidth : "100%", xs: "100%"},
                     maxWidth: {md: minWidth ? minWidth : "100%", xs: "100%"},
-                }}
-            >
+                }}>
                 <Stepper activeStep={index} alternativeLabel>
-                    {stepperData.map(
-                        (
-                            v: {
-                                title: string;
-                            },
-                            i: number
-                        ) => (
+                    {stepperData.map((v: { title: string; }, i: number) => (
                             <Step
                                 key={v.title}
                                 className={

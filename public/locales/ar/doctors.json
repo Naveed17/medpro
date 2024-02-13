@@ -1,0 +1,35 @@
+{
+  "config": {
+    "sub-header": {
+      "title": "قائمة الأطباء",
+      "add-doctor": "دعوة"
+    },
+    "filter": {
+      "title": "الفلتر",
+      "doctors": "الطبيب",
+      "search": "اللقب والاسم الأول/رقم الهاتف/رقم الملف.",
+      "birthdate": "تاريخ الولادة",
+      "gender": "الجنس",
+      "male": "الذكور",
+      "female": "امرأة",
+      "name": "بحث",
+      "phone": "رقم الهاتف"
+    },
+    "table": {
+      "accessSetting": "الإعدادات",
+      "name": "الاسم",
+      "agenda": "الأجندة",
+      "function": "وظيفة",
+      "profile": "الملف الشخصي",
+      "access": "الوصول",
+      "action": "الإجراء",
+      "remove": "حذف",
+      "update": "تحرير",
+      "role_professional": "الدور المهني",
+      "secretary": "سكرتير",
+      "active": "نشط",
+      "status": "الحالة",
+      "lastActive": "آخر نشاط"
+    }
+  }
+}

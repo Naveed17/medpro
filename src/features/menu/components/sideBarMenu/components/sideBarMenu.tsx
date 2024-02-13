@@ -49,7 +49,7 @@ import Can from "@features/casl/can";
 import {minMaxWindowSelector} from "@features/buttons";
 import NewFeatureIcon from "@themes/overrides/icons/newFeatureIcon";
 
-const {sidebarItems} = siteHeader;
+const {sidebarItems, adminSidebarItems} = siteHeader;
 
 const LoadingScreen = dynamic(() => import("@features/loadingScreen/components/loadingScreen"));
 
@@ -69,7 +69,7 @@ function SideBarMenu({children}: LayoutProps) {
     const {waiting_room, newCashBox, nb_appointment} = useAppSelector(dashLayoutSelector);
 
     let container: any = useRef<HTMLDivElement>(null);
-    const [menuItems, setMenuItems] = useState(sidebarItems);
+    const [menuItems, setMenuItems] = useState(router.pathname.includes("/admin") ? adminSidebarItems : sidebarItems);
 
     const handleRouting = (path: string) => {
         // Always do navigations after the first render
@@ -113,7 +113,7 @@ function SideBarMenu({children}: LayoutProps) {
                 onMouseLeave={() => setCurrentIndex(null)}
                 sx={{overflow: 'hidden', px: 1.5}}>
                 {menuItems?.map((item, i) => (
-                    <Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
+                    //<Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
                         <Hidden key={item.name} smUp={item.name === "wallet"}>
                             <a onClick={() => handleRouting(item.href)}>
                                 <ListItem
@@ -167,7 +167,7 @@ function SideBarMenu({children}: LayoutProps) {
                                 </ListItem>
                             </a>
                         </Hidden>
-                    </Can>
+                    //</Can>
                 ))}
             </List>
             <List className="list-bottom">
@@ -239,12 +239,14 @@ function SideBarMenu({children}: LayoutProps) {
     });
 
     useEffect(() => {
-        let demo = user.medical_entity.hasDemo;
-        if (localStorage.getItem("newCashbox")) {
-            demo = localStorage.getItem("newCashbox") === "1";
+        if (menuItems[3]) {
+            let demo = user.medical_entity.hasDemo;
+            if (localStorage.getItem("newCashbox")) {
+                demo = localStorage.getItem("newCashbox") === "1";
+            }
+            menuItems[3].href = demo ? "/dashboard/cashbox" : "/dashboard/payment";
+            setMenuItems([...menuItems]);
         }
-        menuItems[3].href = demo ? "/dashboard/cashbox" : "/dashboard/payment";
-        setMenuItems([...menuItems]);
     }, [newCashBox]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {

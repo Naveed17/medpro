@@ -1058,7 +1058,7 @@ function Agenda() {
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
-        <div>
+        <>
             <SubHeader
                 sx={{
                     "& .MuiToolbar-root": {
@@ -1655,7 +1655,7 @@ function Agenda() {
                     <AgendaFilter/>
                 </DrawerBottom>
             </Box>
-        </div>
+        </>
     )
 }
 
