@@ -68,7 +68,7 @@ function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
         }],
         [AppThemeProvider],
         [GlobleStyles],
-        [KeycloakSession, {session: pageProps.session}],
+        [KeycloakSession, {session}],
         [ReactQueryProvider, {...pageProps}],
         [RootLayout]
     ]), []); // eslint-disable-line react-hooks/exhaustive-deps

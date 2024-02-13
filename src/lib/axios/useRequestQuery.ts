@@ -37,6 +37,7 @@ function useRequestQuery<Data = unknown, Error = unknown>(request: GetRequest, {
             return Promise.reject(error);
         }) : null, {
             enabled: (request?.url?.length ?? 0) > 0 && queryKey.length > 0,
+            retry: 2,
             ...config
         }
     );

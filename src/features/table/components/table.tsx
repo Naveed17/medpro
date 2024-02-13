@@ -17,8 +17,6 @@ function descendingComparator(a: any, b: any, orderBy: any) {
     return 0;
 }
 
-type Order = "asc" | "desc";
-
 function getComparator(order: any, orderBy: any) {
     return order === "desc"
         ? (a: any, b: any) => descendingComparator(a, b, orderBy)
@@ -141,7 +139,7 @@ function Otable({...props}) {
 
     return (
         <Box className="table-wrapper" sx={tableWrapperStyle as SxProps}>
-            {toolbar && toolbar}
+            {!!toolbar && toolbar}
             <TableContainer sx={{maxHeight}}>
                 <Table
                     {...{size}}
