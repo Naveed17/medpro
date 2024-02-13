@@ -8,18 +8,22 @@ import {DocHeader} from "@features/files";
 import {DocHeaderEditor} from "@features/files/components/docHeaderEditor";
 import {useQRCode} from 'next-qrcode';
 import {UploadFile} from "@features/uploadFile";
+import {useRequestQueryMutation} from "@lib/axios";
+import {useRouter} from "next/router";
 
 function Page({...props}) {
 
-    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue} = props
+    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue, urlMedicalProfessionalSuffix} = props
     const {Canvas} = useQRCode();
 
     const theme = useTheme();
-
+    const router = useRouter();
     const [selectedElement, setSelectedElement] = useState("")
     const [blockDrag, setBlockDrag] = useState(false)
     const [backgroundImg, setBackgroundImg] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const {trigger: triggerUpload} = useRequestQueryMutation("/documents/upload");
 
     const getMarginTop = () => {
         let _margin = 0;
@@ -101,17 +105,21 @@ function Page({...props}) {
     }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleDrop = React.useCallback((acceptedFiles: File[], index: number) => {
-            let reader = new FileReader();
-            reader.onload = (ev) => {
-                //console.log(ev.target?.result as string)
-                console.log(data.other[index])
-                data.other[index].content = ev.target?.result
-                setData({...data})
-                /*data.background.content.url = (ev.target?.result as string)
-                data.background.show = true;
-                setData({...data})*/
-            }
-            //console.log(acceptedFiles[0])
+
+            const form = new FormData();
+            form.append('files', acceptedFiles[0]);
+
+            triggerUpload({
+                method: "POST",
+                url: `${urlMedicalProfessionalSuffix}/documents/${router.locale}`,
+                data: form
+            }, {
+                onSuccess: (res) => {
+                    console.log(res.data)
+                    data.other[index].content = res.data.data
+                    setData({...data})
+                },
+            });
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
         []
@@ -485,7 +493,7 @@ function Page({...props}) {
                                         <div className={"btnMenu"}>
                                             <UploadFile
                                                 accept={{'image/jpeg': ['.png', '.jpeg', '.jpg']}}
-                                                style={{height:30}}
+                                                style={{height: 30}}
                                                 onDrop={(ev: File[]) => handleDrop(ev, index)}
                                                 singleFile={false}/>
                                         </div>}

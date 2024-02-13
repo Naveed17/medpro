@@ -365,9 +365,9 @@ function FcmLayout({...props}) {
     const client = useAbly();
 
     useConnectionStateListener((stateChange) => {
-        console.log("current", stateChange.current);  // the new connection state
+        //console.log("current", stateChange.current);  // the new connection state
         //console.log("error", stateChange.reason);  // the new connection state
-        if (["closing", "closed"].includes(stateChange.current))
+        if (["closing", "closed","disconnected"].includes(stateChange.current))
             client.connect()
     });
 

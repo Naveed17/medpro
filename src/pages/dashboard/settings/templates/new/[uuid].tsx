@@ -1,7 +1,7 @@
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
-import {configSelector, DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {
     Box,
@@ -78,6 +78,7 @@ function DocsConfig() {
     }
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
     const {direction} = useAppSelector(configSelector);
+    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
     const componentRef = useRef<HTMLDivElement>(null);
 
@@ -233,7 +234,7 @@ function DocsConfig() {
         if (used) {
             setOpenReset(true)
             setPaperSize({target, value})
-            let _data: any = {...defaultData}
+            let _data: any = {...data}
             if (_data[target])
                 _data[target] = value;
             else _data ={...data,[target]:value}
@@ -632,7 +633,7 @@ function DocsConfig() {
                                                     y: 0,
                                                     width: 80,
                                                     height: 80,
-                                                    content: "/static/icons/Med-logo.png"
+                                                    content: medicalProfessionalData?.medical_professional.webUrl
                                                 }]
                                             else
                                                 data.other = [{
@@ -641,7 +642,7 @@ function DocsConfig() {
                                                     y: 0,
                                                     width: 80,
                                                     height: 80,
-                                                    content: "text..."
+                                                    content: medicalProfessionalData?.medical_professional.webUrl
                                                 }]
                                             setData({...data})
                                         }}
@@ -670,7 +671,7 @@ function DocsConfig() {
 
                         <Box ref={componentRef}>
                             {!loading &&
-                                <Doc {...{data, setData, state: undefined, header, setHeader, onReSize, setOnResize}}/>}
+                                <Doc {...{data, setData, state: undefined, header, setHeader, onReSize, setOnResize,urlMedicalProfessionalSuffix}}/>}
                         </Box>
                     </Box>
                 </Grid>
