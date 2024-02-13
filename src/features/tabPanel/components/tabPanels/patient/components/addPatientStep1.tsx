@@ -45,7 +45,7 @@ import {useRequestQueryMutation} from "@lib/axios";
 import {getBirthday, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 
-export const PhoneCountry: any = memo(({...props}) => {
+const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
 });
 PhoneCountry.displayName = "Phone country";
@@ -286,7 +286,7 @@ function AddPatientStep1({...props}) {
                                                     zIndex: 1,
                                                     pointerEvents: "none",
                                                     bgcolor: "#fff !important",
-                                                
+
                                                 }}
                                                 style={{
                                                     minWidth:32,
@@ -363,7 +363,7 @@ function AddPatientStep1({...props}) {
                                         </Stack>
                                     </Grid>
                                 </Grid>
-                               
+
                             </Box>
                         </>
                     )}
@@ -436,7 +436,7 @@ function AddPatientStep1({...props}) {
                                                         />
                                                     </Box>
                                                 </Grid>
-                                            
+
                             <Grid item xs={6} md={8}>
                                 <Typography
                                     variant="body2"
@@ -557,7 +557,7 @@ function AddPatientStep1({...props}) {
                                             onChange={value => setFieldValue(`phones[${index}].phone`, value)}
                                             inputComponent={CustomInput as any}
                                         />}
-                                        
+
                                     </Grid>
                                     <Grid item xs={12} md={1}>
                                         {index === 0 ? (
@@ -593,7 +593,7 @@ function AddPatientStep1({...props}) {
                                         )}
                                     </Grid>
                                 </Grid>
-                               
+
                             </Box>
                         ))}
                     </Box>
