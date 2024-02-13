@@ -22,10 +22,6 @@ const PatientInsurance = ({...props}) => {
     const [addNew, setAddNew] = useState(false);
     const [selectedInsurance, setSelectedInsurance] = useState("");
 
-
-
-    console.log(patientInsurances)
-
     return (
         <InsuranceStyled spacing={1}>
             <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} pt={2} pb={1}>
@@ -57,7 +53,7 @@ const PatientInsurance = ({...props}) => {
                         <CardInsurance {...{pi,setSelectedInsurance}}/>
                     </Collapse>
                     <Collapse in={selectedInsurance === pi.insurance.uuid}>
-                        <AddInsurance {...{t,setAddNew}}/>
+                        <AddInsurance {...{t,pi,setAddNew}}/>
                     </Collapse>
                 </Box>
             ))}

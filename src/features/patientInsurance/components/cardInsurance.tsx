@@ -7,7 +7,7 @@ const CardInsurance = ({...props}) => {
 
     const {pi, setSelectedInsurance} = props;
     const {insurances} = useInsurances()
-    console.log(insurances)
+
     const theme = useTheme();
     return (
         <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
