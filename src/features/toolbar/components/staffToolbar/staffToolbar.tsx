@@ -4,7 +4,7 @@ import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 
 function StaffToolbar({...props}) {
-    const {t} = props;
+    const {t, handleAddStaff} = props;
 
     return (
         <Stack
@@ -17,6 +17,7 @@ function StaffToolbar({...props}) {
             </Typography>
 
             <CustomIconButton
+                onClick={handleAddStaff}
                 variant="filled"
                 sx={{p: .8}}
                 color={"primary"}

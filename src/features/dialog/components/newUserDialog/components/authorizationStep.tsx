@@ -28,7 +28,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import {FacebookCircularProgress} from '@features/progressUI';
 import {startCase} from "lodash";
 
-function Step2({...props}) {
+function AuthorizationStep({...props}) {
     const {t, formik, profiles, openFeatureCollapse, setFeatureCollapse} = props;
     const {getFieldProps, touched, errors, values, setFieldValue} = formik;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
@@ -187,10 +187,11 @@ function Step2({...props}) {
                         </ListItem>
                     ))}
                 </List>
+
             </Paper>
 
         </DialogStyled>
     )
 }
 
-export default Step2
+export default AuthorizationStep

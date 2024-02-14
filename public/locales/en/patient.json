@@ -389,17 +389,17 @@
     }
   },
   "background": {
-    "title": "الخلفية",
-    "way_of_life": "نمط الحياة",
-    "allergic": "الحساسيات",
-    "family_antecedents": "الأنساب العائلية",
-    "medical_antecedents": "الأنساب الطبية",
-    "surgical_antecedents": "الأنساب الجراحية",
-    "add-background": "إضافة خلفية",
-    "register": "تسجيل",
-    "cancel": "إلغاء",
-    "father": "الأب",
-    "mother": "الأم",
-    "both": "الاثنين"
+    "title": "Background",
+    "way_of_life": "Risk factors",
+    "allergic": "Allergies",
+    "family_antecedents": "Family history",
+    "medical_antecedents": "Medical history",
+    "surgical_antecedents": "Surgical history",
+    "add-background": "Add Background",
+    "register": "Register",
+    "cancel": "Cancel",
+    "father": "Father",
+    "mother": "Mother",
+    "both": "Both"
   }
 }

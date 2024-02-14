@@ -4,8 +4,9 @@ import DialogStyled from './overrides/dialogStyle'
 import {Stepper, stepperSelector, setStepperIndex} from '@features/stepper'
 import {useAppDispatch, useAppSelector} from '@lib/redux/hooks';
 import CloseIcon from "@mui/icons-material/Close";
-import Step1 from './step1';
-import Step2 from './step2';
+import InfoStep from './infoStep';
+import AuthorizationStep from './authorizationStep';
+import AssignmentStep from "./assignmentStep";
 import {DefaultCountry} from '@lib/constants';
 import {Session} from 'next-auth';
 import {useSession} from 'next-auth/react';
@@ -20,21 +21,11 @@ import {useInvalidateQueries, useMedicalEntitySuffix} from '@lib/hooks';
 import {useSnackbar} from 'notistack';
 import {useRequestQueryMutation} from '@lib/axios';
 import {useRouter} from 'next/router';
-
-const stepperData = [
-    {
-        title: "dialog.info"
-    },
-    {
-        title: "dialog.role_permissions"
-    },
-    {
-        title: "dialog.end"
-    }
-];
+import {useTranslation} from "next-i18next";
+import {LoadingScreen} from "@features/loadingScreen";
 
 function NewUserDialog({...props}) {
-    const {t, profiles, onNextPreviStep, onClose} = props
+    const {profiles, onNextPreviStep, onClose, type = "authorization"} = props
     const {contacts} = useContactType();
     const router = useRouter();
     const {data: session} = useSession();
@@ -44,12 +35,23 @@ function NewUserDialog({...props}) {
     const dispatch = useAppDispatch();
     const {enqueueSnackbar} = useSnackbar();
 
+    const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
     const {agendas} = useAppSelector(agendaSelector);
     const {currentStep} = useAppSelector(stepperSelector);
 
     const [openFeatureCollapse, setFeatureCollapse] = useState(false);
     const [loading, setLoading] = useState(false);
-
+    const [stepperData] = useState([
+        {
+            title: "dialog.info"
+        },
+        {
+            title: `dialog.${type === "authorization" ? "role_permissions" : "role_assignments"}`
+        },
+        {
+            title: "dialog.end"
+        }
+    ]);
     const {data: userSession} = session as Session;
     const medical_entity = (userSession as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
@@ -202,34 +204,40 @@ function NewUserDialog({...props}) {
             selectedRole: Yup.string().when("$condition", (condition, schema) =>
                 openFeatureCollapse ? schema : schema.required()
             ),
-            role_name: Yup.string().when("$condition", (condition, schema) =>
-                !openFeatureCollapse ? schema : schema.required()
-            ),
-            roles: Yup.object().shape(
-                features?.reduce((features: any, feature: any) => ({
-                    ...(features ?? {}), ...{
-                        [feature.slug]: Yup.array().of(Yup.object().shape({
-                            name: Yup.string(),
-                            hasProfile: Yup.boolean(),
-                            featureEntity: Yup.object().shape({
+            ...(type === "authorization" ? {
+                role_name: Yup.string().when("$condition", (condition, schema) =>
+                    !openFeatureCollapse ? schema : schema.required()
+                ),
+                roles: Yup.object().shape(
+                    features?.reduce((features: any, feature: any) => ({
+                        ...(features ?? {}), ...{
+                            [feature.slug]: Yup.array().of(Yup.object().shape({
                                 name: Yup.string(),
-                                uuid: Yup.string()
-                            }),
-                            uuid: Yup.string(),
-                            slug: Yup.string(),
-                            root: Yup.string(),
-                            permissions: Yup.array().of(
-                                Yup.object().shape({
+                                hasProfile: Yup.boolean(),
+                                featureEntity: Yup.object().shape({
                                     name: Yup.string(),
                                     uuid: Yup.string()
-                                })
-                            )
-                        }))
-                    }
-                }), {})
-            )
+                                }),
+                                uuid: Yup.string(),
+                                slug: Yup.string(),
+                                root: Yup.string(),
+                                permissions: Yup.array().of(
+                                    Yup.object().shape({
+                                        name: Yup.string(),
+                                        uuid: Yup.string()
+                                    })
+                                )
+                            }))
+                        }
+                    }), {})
+                )
+            } : {
+                department: Yup.string(),
+                assigned_doctors: Yup.array().of(Yup.string())
+            })
         })
     ];
+
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -246,6 +254,8 @@ function NewUserDialog({...props}) {
             resetPassword: true,
             roles: initFormData(),
             role_name: '',
+            department: "",
+            assigned_doctors: [],
             password: '',
             confirm_password: ''
         },
@@ -267,7 +277,9 @@ function NewUserDialog({...props}) {
         validationSchema: validationSchema[currentStep]
     });
     const {handleSubmit, errors, values} = formik
-    console.log(errors, values);
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+
     return (
         <DialogStyled>
             <DialogTitle bgcolor="primary.main" component={Stack} direction='row' justifyContent='space-between'>
@@ -290,9 +302,23 @@ function NewUserDialog({...props}) {
             <FormikProvider value={formik}>
                 <Form noValidate onSubmit={handleSubmit}>
                     <Box px={{xs: 2, sm: 4}} py={2}>
-                        {currentStep === 0 && <Step1 {...{formik, t, doctor_country}} />}
+                        {currentStep === 0 && <InfoStep {...{formik, t, doctor_country}} />}
                         {currentStep === 1 &&
-                            <Step2 {...{formik, t, profiles, openFeatureCollapse, setFeatureCollapse}} />}
+                            (type === 'authorization' ?
+                                    <AuthorizationStep {...{
+                                        formik,
+                                        t,
+                                        profiles,
+                                        openFeatureCollapse,
+                                        setFeatureCollapse
+                                    }} />
+                                    :
+                                    <AssignmentStep {...{
+                                        formik,
+                                        t
+                                    }} />
+                            )
+                        }
                         {currentStep === 2 &&
                             <Stack alignItems='center' sx={{'.MuiTypography-root': {textAlign: 'center'}}}>
                                 <SuccessCard

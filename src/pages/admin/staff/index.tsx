@@ -1,17 +1,20 @@
-import React, {ReactElement} from "react";
+import React, {ReactElement, useState} from "react";
 import {AdminLayout} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
 import {StaffToolbar} from "@features/toolbar";
-import {Box} from "@mui/material";
+import {Box, Dialog} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
-import {Otable} from "@features/table";
+import {Otable, resetUser} from "@features/table";
 import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {useTranslation} from "next-i18next";
 import {useRequestQuery} from "@lib/axios";
 import {LoadingScreen} from "@features/loadingScreen";
+import {NewUserDialog} from "@features/dialog";
+import {setStepperIndex, stepperSelector} from "@features/stepper";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 
 const headCells = [
     {
@@ -83,13 +86,35 @@ const headCells = [
 function Staff() {
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const dispatch = useAppDispatch();
 
     const {t, ready} = useTranslation("staff", {keyPrefix: "config"});
+    const {currentStep} = useAppSelector(stepperSelector);
+
+    const [newUserDialog, setNewUserDialog] = useState<boolean>(false)
 
     const {data: httpUsersResponse} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
     }, {refetchOnWindowFocus: false});
+
+    const handleAddStaff = () => {
+        dispatch(resetUser());
+        setNewUserDialog(true);
+    }
+
+    const handleCloseNewUserDialog = () => {
+        setNewUserDialog(false)
+        dispatch(setStepperIndex(0))
+    }
+
+    const handleNextPreviStep = () => {
+        if (currentStep == 0) {
+            setNewUserDialog(false)
+        } else {
+            dispatch(setStepperIndex(currentStep - 1))
+        }
+    }
 
     const users = ((httpUsersResponse as HttpResponse)?.data?.filter((user: UserModel) => !user.isProfessional) ?? []) as UserModel[];
 
@@ -104,7 +129,7 @@ function Staff() {
                         py: {md: 0, xs: 2},
                     },
                 }}>
-                <StaffToolbar {...{t}}/>
+                <StaffToolbar {...{t, handleAddStaff}}/>
             </SubHeader>
             <Box className="container">
                 <DesktopContainer>
@@ -115,6 +140,22 @@ function Staff() {
                         {...{t}}
                     />
                 </DesktopContainer>
+                <Dialog
+                    maxWidth="md"
+                    PaperProps={{
+                        sx: {
+                            width: '100%',
+                            m: 1
+                        }
+                    }}
+                    open={newUserDialog}
+                    onClose={handleCloseNewUserDialog}>
+                    <NewUserDialog
+                        {...{t}}
+                        type={"assignment"}
+                        onNextPreviStep={handleNextPreviStep}
+                        onClose={handleCloseNewUserDialog}/>
+                </Dialog>
             </Box>
         </>
     )
@@ -123,7 +164,7 @@ function Staff() {
 export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         fallback: false,
-        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'staff']))
+        ...(await serverSideTranslations(locale as string, ['common', 'menu', 'staff', 'settings']))
     }
 })
 

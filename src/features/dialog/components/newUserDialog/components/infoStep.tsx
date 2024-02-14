@@ -24,7 +24,7 @@ const PhoneCountry: any = memo(({...props}) => {
 });
 PhoneCountry.displayName = "Phone country";
 
-function Step1({...props}) {
+function InfoStep({...props}) {
     const {formik, t, doctor_country} = props;
     const {getFieldProps, values, setFieldValue, setValues, errors, touched} = formik;
     const phoneInputRef = useRef(null);
@@ -210,4 +210,4 @@ function Step1({...props}) {
     )
 }
 
-export default Step1
+export default InfoStep
