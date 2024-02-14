@@ -39,7 +39,7 @@ function AssignmentStep({...props}) {
                 className='role-input-group'
                 {...getFieldProps("selectedRole")}>
                 {profiles.map((profile: ProfileModel, index: number) => (
-                    <FormControlLabel className='role-label' value={profile.uuid} key={profile.uuid}
+                    <FormControlLabel className='role-label' value={profile.uuid} key={`${index}-${profile.uuid}`}
                                       control={<Radio disableRipple
                                                       checkedIcon={<IconUrl path="ic-radio-check"/>}/>}
                                       label={startCase(profile.name)}/>
