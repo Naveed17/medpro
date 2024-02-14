@@ -1,7 +1,7 @@
 import {GetStaticPaths, GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useRef, useState} from "react";
-import {configSelector, DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {useTranslation} from "next-i18next";
 import {
     Box,
@@ -78,6 +78,7 @@ function DocsConfig() {
     }
     const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "documents.config"});
     const {direction} = useAppSelector(configSelector);
+    const {medicalProfessionalData} = useAppSelector(dashLayoutSelector);
 
     const componentRef = useRef<HTMLDivElement>(null);
 
@@ -119,6 +120,7 @@ function DocsConfig() {
     const [onReSize, setOnResize] = useState(true)
     const [used, setUsed] = useState(false)
     const [openReset, setOpenReset] = useState(false)
+    const [docs, setDocs] = useState([])
     const [paperSize, setPaperSize] = useState({target: "", value: ""})
 
     const uuid = router.query.uuid;
@@ -164,6 +166,11 @@ function DocsConfig() {
         form.append('document_header', JSON.stringify({header: header, data}));
         form.append('title', title);
         form.append('isDefault', JSON.stringify(isDefault));
+
+        let _docsUuids = "";
+        docs.map((doc:{uuid:string}, index) => {_docsUuids += doc.uuid + (index === docs.length - 1 ? "" : ",")})
+        form.append('files', _docsUuids);
+
         if (file)
             form.append('file', file);
         if (typeUuids.length > 0)
@@ -233,10 +240,10 @@ function DocsConfig() {
         if (used) {
             setOpenReset(true)
             setPaperSize({target, value})
-            let _data: any = {...defaultData}
+            let _data: any = {...data}
             if (_data[target])
                 _data[target] = value;
-            else _data ={...data,[target]:value}
+            else _data = {...data, [target]: value}
             setData({..._data})
         } else
             resetNow(target, value)
@@ -245,8 +252,8 @@ function DocsConfig() {
     const resetNow = (target: string, value: string) => {
         let _data: any = {...defaultData}
         if (_data[target])
-        _data[target] = value;
-        else _data ={...data,[target]:value}
+            _data[target] = value;
+        else _data = {...data, [target]: value}
         _data.content.width = "90%"
         setOnResize(true)
         _data.content.maxHeight = 100
@@ -306,7 +313,7 @@ function DocsConfig() {
         } else
             setHeader({left1: "", left2: "", left3: "", right1: "", right2: "", right3: ""})
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        setLoading(false)
+        setTimeout(()=>setLoading(false),2000)
     }, [docHeader])
 
     useEffect(() => {
@@ -528,8 +535,14 @@ function DocsConfig() {
                                                     padding: 10,
                                                     borderRadius: 6
                                                 }}>
-                                                <Typography textAlign={"center"} width={"100%"}
-                                                            style={{cursor: "pointer"}}>{t(key)}</Typography>
+                                                <Typography textAlign={"center"}
+                                                            style={{
+                                                                textOverflow: "ellipsis",
+                                                                whiteSpace: "nowrap",
+                                                                overflow: "hidden",
+                                                                width: 100,
+                                                                cursor: "pointer"
+                                                            }}>{t(key)}</Typography>
                                                 <IconUrl path={"ic-plus"} width={20} height={20}/>
                                             </Stack>
                                         </div>
@@ -632,7 +645,7 @@ function DocsConfig() {
                                                     y: 0,
                                                     width: 80,
                                                     height: 80,
-                                                    content: "/static/icons/Med-logo.png"
+                                                    content: medicalProfessionalData?.medical_professional.webUrl
                                                 }]
                                             else
                                                 data.other = [{
@@ -641,7 +654,7 @@ function DocsConfig() {
                                                     y: 0,
                                                     width: 80,
                                                     height: 80,
-                                                    content: "text..."
+                                                    content: medicalProfessionalData?.medical_professional.webUrl
                                                 }]
                                             setData({...data})
                                         }}
@@ -670,7 +683,18 @@ function DocsConfig() {
 
                         <Box ref={componentRef}>
                             {!loading &&
-                                <Doc {...{data, setData, state: undefined, header, setHeader, onReSize, setOnResize}}/>}
+                                <Doc {...{
+                                    data,
+                                    setData,
+                                    state: undefined,
+                                    header,
+                                    setHeader,
+                                    onReSize,
+                                    setOnResize,
+                                    urlMedicalProfessionalSuffix,
+                                    docs,
+                                    setDocs
+                                }}/>}
                         </Box>
                     </Box>
                 </Grid>

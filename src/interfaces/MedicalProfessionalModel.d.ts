@@ -11,4 +11,5 @@ interface MedicalProfessionalModel {
     languages: MedicalProfessionalLanguageModel[];
     specialities: MedicalProfessionalSpecialityModel[];
     country: CountryModel;
+    webUrl?:string
 }
