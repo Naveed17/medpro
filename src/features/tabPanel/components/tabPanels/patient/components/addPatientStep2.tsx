@@ -44,6 +44,7 @@ import {useContactType, useCountries, useInsurances} from "@lib/hooks/rest";
 import {useTranslation} from "next-i18next";
 import {setDuplicated} from "@features/duplicateDetected";
 import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {PatientInsurance} from "@features/patientInsurance";
 
 const GroupHeader = styled('div')(({theme}) => ({
     position: 'sticky',
@@ -636,6 +637,9 @@ function AddPatientStep2({...props}) {
                         </Stack>
                     </Collapse>
                     <Divider/>
+
+                    <PatientInsurance {...{patientInsurances:values.insurance, t}}/>
+
                     <Stack my={2} sx={{cursor: 'pointer'}} onClick={() => {
                         const newCollapse = [...collapse];
                         if (collapse.includes("insurance-info")) {

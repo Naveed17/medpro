@@ -1,10 +1,7 @@
 import React, {useState} from 'react';
 import InsuranceStyled from "@features/patientInsurance/components/overrides/insuranceStyled";
-import {Box, Chip, Collapse, IconButton, Stack, TextField, Typography} from "@mui/material";
-import Autocomplete from "@mui/material/Autocomplete";
-import IconUrl from "@themes/urlIcon";
+import {Box, Collapse, IconButton, Stack, Typography} from "@mui/material";
 import {NoDataCard} from "@features/card";
-import AddIcCallTwoToneIcon from "@mui/icons-material/AddIcCallTwoTone";
 import AddIcon from "@mui/icons-material/Add";
 import AddInsurance from "@features/patientInsurance/components/addInsurance";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
@@ -27,7 +24,7 @@ const PatientInsurance = ({...props}) => {
             <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"} pt={2} pb={1}>
                 <Typography className={"title"}>{t('insurance.agreement')}</Typography>
                 <IconButton
-                    onClick={()=>setAddNew(!addNew)}
+                    onClick={() => setAddNew(!addNew)}
                     color={"success"}
                     className="success-light"
                     sx={{
@@ -37,23 +34,23 @@ const PatientInsurance = ({...props}) => {
                             height: 20,
                         },
                     }}>
-                    {addNew ? <CloseRoundedIcon/>: <AddIcon/> }
+                    {addNew ? <CloseRoundedIcon/> : <AddIcon/>}
                 </IconButton>
             </Stack>
 
             <Collapse in={addNew}>
                 <Box className={"insurance-box"}>
-                    <AddInsurance {...{t,setAddNew}}/>
+                    <AddInsurance {...{t, setAddNew}}/>
                 </Box>
             </Collapse>
 
-            {patientInsurances?.map(pi =>(
+            {patientInsurances?.map((pi: any) => (
                 <Box key={pi.uuid} className={"insurance-box"}>
                     <Collapse in={selectedInsurance !== pi.insurance.uuid}>
-                        <CardInsurance {...{pi,setSelectedInsurance}}/>
+                        <CardInsurance {...{pi, setSelectedInsurance}}/>
                     </Collapse>
                     <Collapse in={selectedInsurance === pi.insurance.uuid}>
-                        <AddInsurance {...{t,pi,setAddNew}}/>
+                        <AddInsurance {...{t, pi, setAddNew}}/>
                     </Collapse>
                 </Box>
             ))}
