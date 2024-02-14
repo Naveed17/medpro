@@ -1,4 +1,4 @@
-import React, {memo, useRef, useState} from 'react'
+import React, {memo, useRef} from 'react'
 import DialogStyled from './overrides/dialogStyle';
 import {
     Box,

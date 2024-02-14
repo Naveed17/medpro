@@ -110,10 +110,13 @@ function AuthorizationStep({...props}) {
                         className='role-input-group'
                         {...getFieldProps("selectedRole")}>
                         {profiles.map((profile: ProfileModel, index: number) => (
-                            <FormControlLabel className='role-label' value={profile.uuid} key={profile.uuid}
-                                              control={<Radio disableRipple
-                                                              checkedIcon={<IconUrl path="ic-radio-check"/>}/>}
-                                              label={startCase(profile.name)}/>
+                            <FormControlLabel
+                                className='role-label'
+                                value={profile.uuid}
+                                key={`${index}--${profile.uuid}`}
+                                control={<Radio disableRipple
+                                                checkedIcon={<IconUrl path="ic-radio-check"/>}/>}
+                                label={startCase(profile.name)}/>
                         ))}
                     </RadioGroup>
                     <Button
@@ -141,7 +144,7 @@ function AuthorizationStep({...props}) {
                     />
                 </Stack>
                 <List sx={{pb: 0}}>
-                    {Object.entries(values?.roles)?.map((role: any, index: number) => (
+                    {Object.entries(values?.roles)?.map((role: any) => (
                         <ListItem
                             key={role[0]}
                             className={`motif-list ${openCollapseFeature === role[0] ? "selected" : ""}`}

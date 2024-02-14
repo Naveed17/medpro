@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React from 'react'
 import DialogStyled from './overrides/dialogStyle';
 import {
     Avatar,
@@ -19,10 +19,10 @@ import Autocomplete from "@mui/material/Autocomplete";
 
 function AssignmentStep({...props}) {
     const {t, formik} = props;
-    const {getFieldProps, touched, errors, values, setFieldValue} = formik;
+    const {getFieldProps} = formik;
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const router = useRouter()
-    const {data: httpProfilesResponse, mutate: mutateProfiles} = useRequestQuery({
+    const {data: httpProfilesResponse} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/profile/${router.locale}`
     }, {refetchOnWindowFocus: false});

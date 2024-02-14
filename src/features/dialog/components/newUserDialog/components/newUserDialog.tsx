@@ -276,7 +276,7 @@ function NewUserDialog({...props}) {
         },
         validationSchema: validationSchema[currentStep]
     });
-    const {handleSubmit, errors, values} = formik
+    const {handleSubmit, values} = formik
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
