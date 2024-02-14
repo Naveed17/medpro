@@ -31,6 +31,7 @@ function Settings() {
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
     const locations = medical_entity?.location ?? null;
+    const hasAdminAccess = router.pathname.includes("/admin");
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -42,7 +43,7 @@ function Settings() {
                 </Typography>
                 <nav aria-label="main mailbox folders">
                     <List>
-                        {settingsData.data.map((item: any) => (
+                        {settingsData[hasAdminAccess ? "admin" : "dashboard"].map((item: any) => (
                             <Can key={item.name} I={"read"} a={"settings"}
                                  field={`settings__${item.href.split('/')[3]}__show` as any}>
                                 <ListItem

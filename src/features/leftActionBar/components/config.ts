@@ -113,6 +113,14 @@ const LeftActionsData = [
                 (mod) => mod
             )
         ),
+    },
+    {
+        pathname: path(ROOTS.admin, "/settings"),
+        component: dynamic((): any =>
+            import("@features/leftActionBar/components/settings/settings").then(
+                (mod) => mod
+            )
+        ),
     }
 ];
 
