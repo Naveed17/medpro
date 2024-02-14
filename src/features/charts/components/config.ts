@@ -22,7 +22,7 @@ function ChartsOption() {
         colors: [
             theme.palette.primary.main,
             theme.palette.warning.main,
-            theme.palette.info.main,
+            theme.palette.grey["B900"],
             theme.palette.error.main,
             theme.palette.success.main
         ],

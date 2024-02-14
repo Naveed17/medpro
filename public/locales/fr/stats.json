@@ -15,7 +15,8 @@
     "day": "Jour",
     "week": "Semaine",
     "month": "Mois",
-    "numbers": "Numbers"
+    "numbers": "Numbers",
+    "duration": "Durée"
   },
   "see-more": "voir plus",
   "see-less": "voir moins",
@@ -25,7 +26,7 @@
   "appointments": "Rendez-vous",
   "new-appointments": "Nouveaux rendez-vous",
   "avg_time_patient": "Average patient wait time",
-  "Reason": "Motif par Consultations",
+  "reason": "Motif par Consultations",
   "act": "Acte par Consultations",
   "rdv_per-min": "Consultations par jour.",
   "rdv_type": "Types de Consultation",
@@ -33,5 +34,21 @@
   "apci": "APCI",
   "next": "Suivie",
   "check": "Contrôle",
-  "echo": "Echo"
+  "echo": "Echo",
+  "act_per_visit": "Acte par consultation",
+  "angina": "Angine",
+  "flu": "Grippe",
+  "respiratory_infections": "Infection respiratoire",
+  "ecg": "ECG",
+  "migraine": "Migraine",
+  "working_hours": "Temps de travail",
+  "start_time": "Heures de début prévue.",
+  "end_time": "Heures de fin prévue.",
+  "patient_by_location": "Patient par lieu",
+  "national": "Nationales",
+  "inter_national": "International",
+  "patient_by_age": "Patient by age",
+  "patient_by_gender": "Patient by gender",
+  "male": "Homme",
+  "female": "Femmes"
 }
