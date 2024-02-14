@@ -92,7 +92,7 @@ function BoardItem({...props}) {
     const {next: is_next} = useAppSelector(dashLayoutSelector);
     const localInitTimer = moment(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
-    const [duration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote.content.dayDate} ${quote.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
+    const [duration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote?.content.dayDate} ${quote?.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse)?.general_information.roles as Array<string>;
