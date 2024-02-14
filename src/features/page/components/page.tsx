@@ -42,6 +42,37 @@ function Page({...props}) {
         }, 2000)
     }, [])
 
+    const getFile = (uuid:string) =>{
+        const _file = docs?.find((doc:{uuid:string}) => doc.uuid === uuid)
+       return _file ? _file.file : "/static/icons/Med-logo.png";
+    }
+
+    const handleDrop = React.useCallback((acceptedFiles: File[], index: number) => {
+            let fr = new FileReader();
+            fr.onload = function () {
+
+                const form = new FormData();
+                form.append("files[0]", acceptedFiles[0]);
+                triggerUpload({
+                    method: "POST",
+                    url: `${urlMedicalProfessionalSuffix}/documents/${router.locale}`,
+                    data: form
+                }, {
+                    onSuccess: (res) => {
+                        console.log(data)
+                        data.other[index].content = res.data.data[0]
+                        setDocs((prev:any) => [...prev,{uuid:res.data.data[0],file:fr.result}])
+                        setData({...data})
+                    },
+                });
+            }
+            fr.readAsDataURL(acceptedFiles[0]);
+
+        },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        []
+    );
+
     useEffect(() => {
         if (selectedElement !== "") {
             if (selectedElement.includes("other")) {
@@ -103,38 +134,6 @@ function Page({...props}) {
                 })
         }
     }, [data.background.content.url]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const getFile = (uuid:string) =>{
-        const _file = docs.find((doc:{uuid:string}) => doc.uuid === uuid)
-        console.log(_file)
-       return _file ? _file.file : "/static/icons/Med-logo.png";
-    }
-
-    const handleDrop = React.useCallback((acceptedFiles: File[], index: number) => {
-
-            var fr = new FileReader();
-            fr.onload = function () {
-
-                const form = new FormData();
-                form.append("files[0]", acceptedFiles[0]);
-                triggerUpload({
-                    method: "POST",
-                    url: `${urlMedicalProfessionalSuffix}/documents/${router.locale}`,
-                    data: form
-                }, {
-                    onSuccess: (res) => {
-                        data.other[index].content = res.data.data[0]
-                        setDocs((prev:any) => [...prev,{uuid:res.data.data[0],file:fr.result}])
-                        setData({...data})
-                    },
-                });
-            }
-            fr.readAsDataURL(acceptedFiles[0]);
-
-        },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        []
-    );
 
     // @ts-ignore
     return (
