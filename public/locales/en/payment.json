@@ -199,7 +199,10 @@
     "no_transaction": "No consultation to pay",
     "add_now": "you have the option to add an advance payment",
     "addavance": "Add advance",
-    "later": "Complete procedure later"
+    "later": "Complete procedure later",
+    "appointments":"Appointments",
+    "insurance": "Insurance / agreement"
+
   },
   "noTransaction":"No transaction",
   "addTransaction": "Click on the + button to add a transaction"

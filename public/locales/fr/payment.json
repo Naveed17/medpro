@@ -199,7 +199,9 @@
     "no_transaction": "Aucune consultation à payer",
     "add_now": "vous avez la possibilité d'ajouter un paiement anticipé",
     "addavance": "Ajouter avance",
-    "later": "Terminer plus tard"
+    "later": "Terminer plus tard",
+    "appointments":"Consultations",
+    "insurance": "Assurance / Convention"
   },
   "noTransaction": "Aucune transaction",
   "addTransaction": "Cliquez sur le bouton + pour ajouter une transaction"
