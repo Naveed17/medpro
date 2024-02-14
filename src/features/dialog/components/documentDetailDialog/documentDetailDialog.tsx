@@ -607,6 +607,7 @@ function DocumentDetailDialog({...props}) {
                         header, setHeader,
                         date,
                         onReSize, setOnResize,
+                        urlMedicalProfessionalSuffix,
                         state: (state?.type === "fees" || state?.type == 'quote') && state?.info.length === 0 ? {
                             ...state,
                             info: [{
