@@ -167,15 +167,14 @@ function DocsConfig() {
         form.append('title', title);
         form.append('isDefault', JSON.stringify(isDefault));
 
-        let _docsUuids = ""
-        docs.map((doc:{uuid:string}, index) => _docsUuids + doc.uuid + (index === docs.length - 1 ? "" : ","))
+        let _docsUuids = "";
+        docs.map((doc:{uuid:string}, index) => {_docsUuids += doc.uuid + (index === docs.length - 1 ? "" : ",")})
         form.append('files', _docsUuids);
 
         if (file)
             form.append('file', file);
         if (typeUuids.length > 0)
             form.append('types', typeUuids);
-
 
         const url = uuid === 'new' ? `${urlMedicalProfessionalSuffix}/header/${router.locale}` : `${urlMedicalProfessionalSuffix}/header/${uuid}/${router.locale}`
         triggerHeaderUpdate({
@@ -314,7 +313,7 @@ function DocsConfig() {
         } else
             setHeader({left1: "", left2: "", left3: "", right1: "", right2: "", right3: ""})
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        setLoading(false)
+        setTimeout(()=>setLoading(false),2000)
     }, [docHeader])
 
     useEffect(() => {
