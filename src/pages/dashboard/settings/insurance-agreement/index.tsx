@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
 import {useTranslation} from "next-i18next";
@@ -122,6 +122,9 @@ function InsuranceAndAgreement() {
     const [openAgreementDialog, setAgreementDialog] = useState(false);
     const [collapse, setCollapse] = useState(false);
 
+    useEffect(()=>{
+        console.log("agreement",openAgreementDialog)
+    },[openAgreementDialog])
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         const query = event.target.value;
         setSearch(query);

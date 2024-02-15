@@ -10,7 +10,7 @@ function InsuranceAgreementRow({...props}) {
     const {row, handleEvent} = props;
 
     return (
-        <TableRowStyled key={uniqueId} onClick={(e: any) => handleEvent({action: 'ON_ROUTE', event: e, data: row})}>
+        <TableRowStyled key={uniqueId} >
             <TableCell>
                 {row ? (
                     <Stack direction='row' alignItems='center' spacing={1}>
@@ -65,6 +65,7 @@ function InsuranceAgreementRow({...props}) {
                 {row ? (
                     <Stack direction='row' alignItems='center' spacing={1} justifyContent='flex-end'>
                         <Button
+                            onClick={(e: any) => handleEvent({action: 'ON_ROUTE', event: e, data: row})}
                             sx={{
                                 bgcolor: theme => theme.palette.grey["A500"],
                                 border: 'none'

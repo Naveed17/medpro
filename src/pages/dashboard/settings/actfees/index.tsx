@@ -21,7 +21,6 @@ import {
     MenuItem,
     Paper,
     Stack,
-    Switch,
     TextField,
     Theme,
     Typography,
@@ -47,11 +46,10 @@ import Icon from "@themes/urlIcon";
 import CloseIcon from "@mui/icons-material/Close";
 import {useInvalidateQueries, useMedicalEntitySuffix, useMedicalProfessionalSuffix,} from "@lib/hooks";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
 import {ActionMenu} from "@features/menu";
 import {Dialog as MedDialog} from "@features/dialog";
-import {setStepperIndex, stepperSelector} from "@features/stepper";
 import AddIcon from "@mui/icons-material/Add";
+import useMPActs from "@lib/hooks/rest/useMPacts";
 
 const filter = createFilterOptions<any>();
 
@@ -104,6 +102,7 @@ function ActFees() {
     const {data: user} = session as Session;
     const router = useRouter();
     const theme = useTheme();
+    const {acts, mutateActs} = useMPActs()
 
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) =>
@@ -135,7 +134,6 @@ function ActFees() {
         mouseX: number;
         mouseY: number;
     } | null>(null);
-    const [openAgreementDialog, setAgreementDialog] = useState(false);
     const [popoverChildData, setPopoverChildData] = useState(false);
     const medical_entity = (user as UserDataResponse)
         .medical_entity as MedicalEntityModel;
@@ -166,26 +164,6 @@ function ActFees() {
             : null
     );
 
-    const {data: httpProfessionalsActs, mutate: mutateActs} = useRequestQuery(
-        medical_professional
-            ? {
-                method: "GET",
-                url: `${urlMedicalEntitySuffix}/professionals/${medical_professional?.uuid}/acts/${router.locale}`,
-            }
-            : null,
-        {
-            ...ReactQueryNoValidateConfig,
-            ...(medical_professional && {
-                variables: {
-                    query: !isMobile
-                        ? `?page=${router.query.page || 1
-                        }&limit=10&withPagination=true&sort=true`
-                        : "?sort=true",
-                },
-            }),
-        }
-    );
-
     useEffect(() => {
         if (medicalProfessionalData) {
             setConsultationFees(Number(medicalProfessionalData?.consultation_fees));
@@ -197,19 +175,17 @@ function ActFees() {
 
     useEffect(() => {
         setLoading(true);
-        if (httpProfessionalsActs !== undefined) {
+        if (acts) {
             if (isMobile) {
-                const response = (httpProfessionalsActs as HttpResponse).data;
-                setMainActes(response as ActModel[]);
+                setMainActes(acts);
                 setLoading(false);
             } else {
-                const response =
-                    (httpProfessionalsActs as HttpResponse)?.data?.list ?? [];
+                const response = acts?.list ?? [];
                 setMainActes(response as ActModel[]);
                 setLoading(false);
             }
         }
-    }, [httpProfessionalsActs]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [acts]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleCreate = () => {
         setCreate(true);
@@ -369,7 +345,7 @@ function ActFees() {
         setSelected(prop);
     };
     const handleScroll = () => {
-        const total = (httpProfessionalsActs as HttpResponse)?.data.length;
+        const total = acts.length;
         if (window.innerHeight + window.scrollY > document.body.offsetHeight - 50) {
             setLoading(true);
             if (total > displayedItems) {
@@ -380,15 +356,7 @@ function ActFees() {
             }
         }
     };
-    const handleTableActions = ({
-                                    action,
-                                    event,
-                                    row,
-                                }: {
-        action: string;
-        event: any;
-        row: any;
-    }) => {
+    const handleTableActions = ({action, event}: { action: string; event: any; }) => {
         switch (action) {
             case "OPEN-POPOVER":
                 event.preventDefault();
@@ -414,10 +382,6 @@ function ActFees() {
                         : null
                 );
                 break;
-            case "OPEN-AGREEMENT-DIALOG":
-                event.preventDefault();
-                setAgreementDialog(true);
-                dispatch(setStepperIndex(0));
         }
     };
     const handleCloseMenu = () => {
@@ -438,9 +402,9 @@ function ActFees() {
             });
         }
         return () => window.removeEventListener("scroll", handleScroll);
-    }, [httpProfessionalsActs, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [acts, displayedItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const acts = (httpActSpeciality as HttpResponse)?.data as ActModel[];
+    const actsSpeciality = (httpActSpeciality as HttpResponse)?.data as ActModel[];
     if (!ready) return <LoadingScreen button text={"loading-error"}/>;
 
     return (
@@ -606,9 +570,9 @@ function ActFees() {
                             edit={handleEdit}
                             handleEvent={handleTableActions}
                             {...{t, loading, handleSelected}}
-                            total={(httpProfessionalsActs as HttpResponse)?.data?.total}
+                            total={acts?.total}
                             totalPages={
-                                (httpProfessionalsActs as HttpResponse)?.data?.totalPages
+                                acts?.totalPages
                             }
                             pagination
                         />
@@ -694,7 +658,7 @@ function ActFees() {
                 title={t("dialog.create_act")}
                 size={"sm"}
                 open={create}
-                data={{acts, theme, t, isMobile, newFees, setNewFees, filter, devise}}
+                data={{acts: actsSpeciality, theme, t, isMobile, newFees, setNewFees, filter, devise}}
                 direction={direction}
                 onClose={() => {
                     setCreate(false);
