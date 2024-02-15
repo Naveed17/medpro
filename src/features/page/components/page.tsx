@@ -44,7 +44,7 @@ function Page({...props}) {
 
     const getFile = (uuid:string) =>{
         const _file = docs?.find((doc:{uuid:string}) => doc.uuid === uuid)
-       return _file ? _file.file : "/static/icons/Med-logo.png";
+       return _file ? _file.file.url : "/static/icons/Med-logo.png";
     }
 
     const handleDrop = React.useCallback((acceptedFiles: File[], index: number) => {
@@ -59,9 +59,8 @@ function Page({...props}) {
                     data: form
                 }, {
                     onSuccess: (res) => {
-                        console.log(data)
                         data.other[index].content = res.data.data[0]
-                        setDocs((prev:any) => [...prev,{uuid:res.data.data[0],file:fr.result}])
+                        setDocs((prev:any) => [...prev,{uuid:res.data.data[0],file: {url: fr.result}}])
                         setData({...data})
                     },
                 });

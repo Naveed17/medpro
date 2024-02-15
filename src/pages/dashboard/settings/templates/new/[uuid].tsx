@@ -120,7 +120,7 @@ function DocsConfig() {
     const [onReSize, setOnResize] = useState(true)
     const [used, setUsed] = useState(false)
     const [openReset, setOpenReset] = useState(false)
-    const [docs, setDocs] = useState([])
+    const [docs, setDocs] = useState<any[]>([])
     const [paperSize, setPaperSize] = useState({target: "", value: ""})
 
     const uuid = router.query.uuid;
@@ -287,7 +287,7 @@ function DocsConfig() {
             });
             const _header = dh.header.header
             setHeader(_header)
-
+            setDocs(dh.documentsUrl)
             const data = dh.header.data
             if (data) {
                 if (data.footer === undefined)
