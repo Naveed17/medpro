@@ -98,6 +98,7 @@ function MainLayout({...props}) {
     const devise = doctor_country.currency?.name;
     const prodEnv = !EnvPattern.some(element => window.location.hostname.includes(element));
     const medicalEntityHasUser = (user as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.user;
+    const slugFeature = router.pathname.split('/')[2];
 
     const ability = buildAbilityFor(features ?? [], permissions);
 
@@ -134,7 +135,7 @@ function MainLayout({...props}) {
                 }
             } else if (data.type === "session") {
                 update({[message.data.root]: data.body});
-            } else {
+            } else if (slugFeature === message.data.root) {
                 switch (message.data.root) {
                     case "agenda":
                         dispatch(setLastUpdate(data));
@@ -370,7 +371,7 @@ function MainLayout({...props}) {
     useConnectionStateListener((stateChange) => {
         //console.log("current", stateChange.current);  // the new connection state
         //console.log("error", stateChange.reason);  // the new connection state
-        if (["closing", "closed","disconnected"].includes(stateChange.current))
+        if (["closing", "closed", "disconnected"].includes(stateChange.current))
             client.connect()
     });
 

@@ -348,7 +348,7 @@ function Profile() {
                                         {t("organization-locale")}
                                     </Typography>
 
-                                    <Stack spacing={1.4}>
+                                    <Grid spacing={1.4}>
                                         <Stack>
                                             <Typography gutterBottom>
                                                 {t("address")}
@@ -362,8 +362,8 @@ function Profile() {
                                             />
                                         </Stack>
 
-                                        <Stack direction={"row"} spacing={1.2}>
-                                            <Stack>
+                                        <Grid container spacing={1.2} mt={.5}>
+                                            <Grid item md={4} sm={12}>
                                                 <Typography gutterBottom>
                                                     {t("pays")}
                                                     <Typography color='error' variant='caption'>*</Typography>
@@ -427,8 +427,8 @@ function Profile() {
                                                                           placeholder={t("add-patient.country-placeholder")}
                                                                           variant="outlined" fullWidth/>;
                                                     }}/>
-                                            </Stack>
-                                            <Stack>
+                                            </Grid>
+                                            <Grid item md={4} sm={12}>
                                                 <Typography gutterBottom>
                                                     {t("address")}
                                                     <Typography color='error' variant='caption'>*</Typography>
@@ -439,8 +439,8 @@ function Profile() {
                                                     {...getFieldProps('address')}
                                                     error={Boolean(errors.address && touched.address)}
                                                 />
-                                            </Stack>
-                                            <Stack>
+                                            </Grid>
+                                            <Grid item md={4} sm={12}>
                                                 <Typography gutterBottom>
                                                     {t("address")}
                                                     <Typography color='error' variant='caption'>*</Typography>
@@ -451,9 +451,9 @@ function Profile() {
                                                     {...getFieldProps('address')}
                                                     error={Boolean(errors.address && touched.address)}
                                                 />
-                                            </Stack>
-                                        </Stack>
-                                    </Stack>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
                                 </CardContent>
                             </Card>
                         </Grid>
