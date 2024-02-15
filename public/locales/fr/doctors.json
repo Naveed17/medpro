@@ -1,7 +1,8 @@
 {
   "config": {
     "sub-header": {
-      "title": "Liste des médecins",
+      "list_title": "Liste des médecins",
+      "doctor_title": "Profil des médecins",
       "invite": "Invité",
       "invite-placeholder": "Inviter par Email",
       "department-placeholder": "Department",
@@ -30,6 +31,25 @@
       "active": "Active",
       "function": "Fonction",
       "inactive": "Inactive"
+    },
+    "send_msg": "Envoyer un message",
+    "profil_status": "Statut du profil",
+    "personal_info": "Personnel information",
+    "full_name": "Nom et prénom",
+    "cin": "CIN",
+    "birthdate": "Date de naissance",
+    "mobile": "Mobile",
+    "email": "Email",
+    "doctor_location": "Situation du médecin",
+    "pro_qualifications": "Qualification professionnelle",
+    "specialist_in": "Spécialiste en",
+    "spoken_lang": "Langues parlées",
+    "acts_&_care": "Actes et soins",
+    "scheduled_shifts": "Postes programmés",
+    "price_list": "Liste des prix",
+    "tabs": {
+      "about": "A propos de",
+      "settings": "Paramètres"
     }
   }
 }
