@@ -282,7 +282,7 @@ function Statistics() {
                                             <IconUrl path={"stats/ic-document-card"} />
                                             <Stack>
                                                 <Typography fontWeight={700} fontSize={24} variant="subtitle1">
-                                                    {appointmentPerPeriod.reduce((total: number, val: number) => total + val, 0)}
+                                                    {appointmentPerPeriod[appointmentPerPeriod.length - 1]}
                                                 </Typography>
                                                 <Typography fontWeight={500} variant="body2">
                                                     {t("rdv_per-min")}
