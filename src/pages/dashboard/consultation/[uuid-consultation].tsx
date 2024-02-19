@@ -384,7 +384,7 @@ function ConsultationInProgress() {
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
         setInfo("document_detail");
-        if (card.documentType === "medical-certificate") {
+        if (card?.documentType === "medical-certificate") {
             setState({
                 uuid: card.uuid,
                 certifUuid: card.certificate[0].uuid,
@@ -411,7 +411,7 @@ function ConsultationInProgress() {
         } else {
             let info = card;
             let uuidDoc = "";
-            switch (card.documentType) {
+            switch (card?.documentType) {
                 case "prescription":
                     info = card.prescription[0].prescription_has_drugs;
                     uuidDoc = card.prescription[0].uuid;
@@ -429,7 +429,7 @@ function ConsultationInProgress() {
                 uuid: card.uuid,
                 uri: card.uri,
                 name: card.title,
-                type: card.documentType,
+                type: card?.documentType,
                 createdAt: card.createdAt,
                 description: card.description,
                 info: info,
@@ -1100,7 +1100,7 @@ function ConsultationInProgress() {
     }
 
     const showCheckedDoc = (name: string) => {
-        showDoc(documents.filter((doc: MedicalDocuments) => doc.documentType === name)[0]);
+        showDoc(documents.filter((doc: MedicalDocuments) => doc?.documentType === name)[0]);
     }
 
     const changeCoveredBy = (insuranceGenerated: boolean) => {
