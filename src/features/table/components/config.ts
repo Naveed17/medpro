@@ -250,6 +250,14 @@ const rowsActionsData = [
             )
         ),
     },
+     {
+        action: "rest-pass",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/restPassRow").then(
+                (mod) => mod
+            )
+        ),
+    },
 
 ];
 

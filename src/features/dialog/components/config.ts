@@ -409,6 +409,14 @@ const dialogData = [
                 ).then((mod) => mod)
         ),
     },
+    {
+        action: "rest-password",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/restPasswordDialog/components/restPasswordDialog"
+                ).then((mod) => mod)
+        ),
+    },
 ];
 
 export default dialogData;
