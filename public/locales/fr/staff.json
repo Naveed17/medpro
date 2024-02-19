@@ -1,7 +1,12 @@
 {
   "config": {
     "sub-header": {
-      "title": "Liste des personnels"
+      "title": "Liste des personnels",
+      "profile_title": "Profil du personnel",
+      "invite": "Invité",
+      "invite-placeholder": "Inviter par Email",
+      "department-placeholder": "Department",
+      "no-department-placeholder": "Aucun département trouvé"
     },
     "filter": {
       "title": "Filtre",
@@ -26,6 +31,24 @@
       "active": "Active",
       "function": "Fonction",
       "inactive": "Inactive"
-    }
+    },
+    "personal_info": "Personnel information",
+    "full_name": "Nom et prénom",
+    "cin": "CIN",
+    "birthdate": "Date de naissance",
+    "mobile": "Mobile",
+    "email": "Email",
+    "address": "Adresse",
+    "employment_details": "Informations sur l'emploi",
+    "start_date": "Date de début",
+    "end_date": "Date de fin",
+    "role": "Rôle",
+    "reset_pass": "Réinitialiser le mot de passe",
+    "department": "Département",
+    "work_for": "Travailler pour",
+    "scheduled_shifts": "Postes programmés",
+    "recent_activities": "Activités récentes",
+    "activities": "Activités",
+    "working_hours": "Temps de travail"
   }
 }
