@@ -404,8 +404,7 @@ function BoardItem({...props}) {
                 </CardContent>
             </Card>
         </Container>
-    )
-        ;
+    );
 }
 
-export default React.memo<any>(BoardItem);
+export default React.memo(BoardItem);
