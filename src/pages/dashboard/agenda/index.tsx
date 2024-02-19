@@ -24,6 +24,7 @@ import {useRequestQueryMutation, useRequestQuery} from "@lib/axios";
 import {useSnackbar} from 'notistack';
 import {Session} from "next-auth";
 import moment, {Moment} from "moment-timezone";
+
 const humanizeDuration = require("humanize-duration");
 import FullCalendar from "@fullcalendar/react";
 import {DateSelectArg, DatesSetArg, EventChangeArg} from "@fullcalendar/core";
@@ -103,7 +104,7 @@ function Agenda() {
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {t, ready} = useTranslation(['agenda', 'common', 'patient']);
+    const {t, i18n, ready} = useTranslation(['agenda', 'common', 'patient'], {bindI18n: 'languageChanged loaded'});
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {
@@ -318,6 +319,12 @@ function Agenda() {
             localMaxSlot
         }
     }
+
+    // bindI18n: loaded is needed because of the reloadResources call
+    // if all pages use the reloadResources mechanism, the bindI18n option can also be defined in next-i18next.config.js
+    useEffect(() => {
+        i18n.reloadResources(i18n.resolvedLanguage, ['agenda', 'common', 'patient'])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (lastUpdateNotification) {

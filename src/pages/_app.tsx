@@ -96,4 +96,4 @@ function App({Component, pageProps: {session, ...pageProps}}: MyAppProps) {
 
 App.displayName = "Med Link";
 
-export default appWithTranslation(App, emptyInitialI18NextConfig);
+export default appWithTranslation(App, nextI18NextConfig);
