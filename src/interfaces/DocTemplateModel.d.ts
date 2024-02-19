@@ -5,5 +5,6 @@ interface DocTemplateModel {
   header:any;
   types:string[];
   file:string;
-  hasData:boolean
+  hasData:boolean;
+  documentsUrl:any[];
 }
