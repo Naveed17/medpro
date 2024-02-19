@@ -348,7 +348,7 @@ function Profile() {
                                         {t("organization-locale")}
                                     </Typography>
 
-                                    <Grid spacing={1.4}>
+                                    <Stack spacing={1.4}>
                                         <Stack>
                                             <Typography gutterBottom>
                                                 {t("address")}
@@ -453,10 +453,11 @@ function Profile() {
                                                 />
                                             </Grid>
                                         </Grid>
-                                    </Grid>
+                                    </Stack>
                                 </CardContent>
                             </Card>
                         </Grid>
+
                         <Grid item xs={12} md={6}>
                             <Card
                                 sx={{
@@ -465,6 +466,15 @@ function Profile() {
                                     boxShadow: (theme) => theme.shadows[5]
                                 }}>
                                 <CardContent sx={{pb: 0}}>
+                                    <Typography
+                                        mt={1}
+                                        variant="body2"
+                                        fontWeight={600}
+                                        fontSize={18}
+                                        color="text.primary"
+                                        sx={{mb: 2}}>
+                                        {t("time-settings")}
+                                    </Typography>
                                 </CardContent>
                             </Card>
                         </Grid>
@@ -473,7 +483,8 @@ function Profile() {
             </Box>
 
         </>
-    );
+    )
+        ;
 }
 
 export const getStaticProps: GetStaticProps = async (context) => ({
