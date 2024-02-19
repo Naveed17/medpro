@@ -12,7 +12,7 @@ import {
     Box,
     IconButton,
     Card,
-    CardContent, TextField, Theme, MenuItem, InputAdornment, Autocomplete
+    CardContent, TextField, Theme, MenuItem, InputAdornment, Autocomplete, FormControl
 } from "@mui/material";
 import {RootStyled} from "@features/toolbar";
 import {SubHeader} from "@features/subHeader";
@@ -32,6 +32,9 @@ import {DefaultCountry} from "@lib/constants";
 import {CountrySelect} from "@features/countrySelect";
 import {useCountries} from "@lib/hooks/rest";
 import {countries as dialCountries} from "@features/countrySelect/countries";
+import {useRequestQuery} from "@lib/axios";
+import {ReactQueryNoValidateConfig} from "@lib/axios/useRequestQuery";
+import {useRouter} from "next/router";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -43,6 +46,7 @@ function Profile() {
     const dispatch = useAppDispatch();
     const {countries} = useCountries("nationality=true");
     const phoneInputRef = useRef(null);
+    const router = useRouter();
 
     const {t, ready} = useTranslation("settings", {keyPrefix: "profile"});
     const {lock} = useAppSelector(appLockSelector);
@@ -67,6 +71,9 @@ function Profile() {
                     phone: "", dial: doctor_country
                 }
             ],
+            country: "",
+            state: "",
+            zip_code: "",
             address: "",
             email: ""
         },
@@ -74,6 +81,20 @@ function Profile() {
             console.log("values", values)
         },
     })
+
+    const {
+        handleSubmit,
+        values,
+        touched,
+        errors,
+        getFieldProps,
+        setFieldValue,
+    } = formik;
+
+    const {data: httpStatesResponse} = useRequestQuery(values.country ? {
+        method: "GET",
+        url: `/api/public/places/countries/${values.country}/state/${router.locale}`
+    } : null, ReactQueryNoValidateConfig);
 
     const handleDrop = (acceptedFiles: FileList) => {
         const file = acceptedFiles[0];
@@ -101,14 +122,7 @@ function Profile() {
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const {
-        handleSubmit,
-        values,
-        touched,
-        errors,
-        getFieldProps,
-        setFieldValue,
-    } = formik;
+    const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -365,7 +379,7 @@ function Profile() {
                                         <Grid container spacing={1.2} mt={.5}>
                                             <Grid item md={4} sm={12}>
                                                 <Typography gutterBottom>
-                                                    {t("pays")}
+                                                    {t("country")}
                                                     <Typography color='error' variant='caption'>*</Typography>
                                                 </Typography>
                                                 <Autocomplete
@@ -421,35 +435,69 @@ function Profile() {
                                                             </InputAdornment>
                                                         );
 
-                                                        return <TextField color={"info"}
-                                                                          {...params}
-                                                                          sx={{paddingLeft: 0}}
-                                                                          placeholder={t("add-patient.country-placeholder")}
-                                                                          variant="outlined" fullWidth/>;
+                                                        return <FormControl component="form" fullWidth
+                                                                            onSubmit={e => e.preventDefault()}>
+                                                            <TextField color={"info"}
+                                                                       {...params}
+                                                                       sx={{paddingLeft: 0}}
+                                                                       placeholder={t("country-placeholder")}
+                                                                       variant="outlined" fullWidth/>
+                                                        </FormControl>;
                                                     }}/>
                                             </Grid>
                                             <Grid item md={4} sm={12}>
                                                 <Typography gutterBottom>
-                                                    {t("address")}
+                                                    {t("region")}
                                                     <Typography color='error' variant='caption'>*</Typography>
                                                 </Typography>
-                                                <TextField
-                                                    placeholder={t("address-placeholder")}
-                                                    fullWidth
-                                                    {...getFieldProps('address')}
-                                                    error={Boolean(errors.address && touched.address)}
-                                                />
+                                                <Autocomplete
+                                                    id={"region"}
+                                                    disabled={!states}
+                                                    autoHighlight
+                                                    disableClearable
+                                                    size="small"
+                                                    value={states?.find(country => country.uuid === getFieldProps("region").value) ?
+                                                        states.find(country => country.uuid === getFieldProps("region").value) : ""}
+                                                    onChange={(e, state: any) => {
+                                                        setFieldValue("region", state.uuid);
+                                                        setFieldValue("zip_code", state.zipCode);
+                                                    }}
+                                                    sx={{color: "text.secondary"}}
+                                                    options={states ? states : []}
+                                                    loading={states?.length === 0}
+                                                    getOptionLabel={(option) => option?.name ? option.name : ""}
+                                                    isOptionEqualToValue={(option: any, value) => option.name === value.name}
+                                                    renderOption={(props, option) => (
+                                                        <Stack key={`region-${option.uuid}`}>
+                                                            <MenuItem
+                                                                {...props}
+                                                                key={option.uuid}
+                                                                value={option.uuid}>
+                                                                <Typography sx={{ml: 1}}>{option.name}</Typography>
+                                                            </MenuItem>
+                                                        </Stack>
+                                                    )}
+                                                    renderInput={params =>
+                                                        <FormControl component="form" fullWidth
+                                                                     onSubmit={e => e.preventDefault()}>
+                                                            <TextField color={"info"}
+                                                                       {...params}
+                                                                       placeholder={t("region-placeholder")}
+                                                                       sx={{paddingLeft: 0}}
+                                                                       variant="outlined" fullWidth/>
+                                                        </FormControl>}/>
+
                                             </Grid>
                                             <Grid item md={4} sm={12}>
                                                 <Typography gutterBottom>
-                                                    {t("address")}
-                                                    <Typography color='error' variant='caption'>*</Typography>
+                                                    {t("zip")}
                                                 </Typography>
                                                 <TextField
-                                                    placeholder={t("address-placeholder")}
+                                                    variant="outlined"
+                                                    placeholder="10004"
+                                                    size="small"
                                                     fullWidth
-                                                    {...getFieldProps('address')}
-                                                    error={Boolean(errors.address && touched.address)}
+                                                    {...getFieldProps("zip_code")}
                                                 />
                                             </Grid>
                                         </Grid>

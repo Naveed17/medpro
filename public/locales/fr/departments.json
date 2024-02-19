@@ -1,0 +1,20 @@
+{
+  "config": {
+    "sub-header": {
+      "title": "Liste des départements"
+    },
+    "filter": {
+      "title": "Filtre",
+      "departments": "Department",
+      "search": "Recherche",
+      "search-input": "Nom du département"
+    },
+    "table": {
+      "empty": "",
+      "department": "Département",
+      "department-head": "chef de service",
+      "status": "Statut",
+      "date": "Date"
+    }
+  }
+}

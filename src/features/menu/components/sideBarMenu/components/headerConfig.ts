@@ -21,6 +21,13 @@ export const siteHeader = {
             href: '/admin/staff',
             badge: 0,
             enabled: true
+        },
+        {
+            icon: "ic-departments",
+            name: "departments",
+            href: '/admin/departments',
+            badge: 0,
+            enabled: true
         }
     ],
     sidebarItems: [
