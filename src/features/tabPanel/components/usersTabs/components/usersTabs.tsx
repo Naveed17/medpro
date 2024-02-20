@@ -434,7 +434,19 @@ function UsersTabs({...props}) {
                                                             sx={{paddingTop: 2}}
                                                             control={<CustomSwitch
                                                                 checked={featurePermission?.featureEntity?.checked ?? false}/>}
-                                                            onChange={(event: any) => setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked)}
+                                                            onChange={(event: any) => {
+                                                                setFieldValue(`roles[${role[0]}][${index}].featureEntity.checked`, event.target.checked);
+                                                                if (!event.target.checked) {
+                                                                    setFieldValue(`roles[${role[0]}][${index}].permissions[0]`, {
+                                                                        ...values.roles[role[0]][index].permissions[0],
+                                                                        checked: false,
+                                                                        children: featurePermission.permissions[0].children.map((permission: PermissionModel) => ({
+                                                                            ...permission,
+                                                                            checked: false
+                                                                        }))
+                                                                    });
+                                                                }
+                                                            }}
                                                             label={featurePermission?.featureEntity?.name}/>
                                                         {featurePermission.root === "cashbox" &&
                                                             (index === 0 ?

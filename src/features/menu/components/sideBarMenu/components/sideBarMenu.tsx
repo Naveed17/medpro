@@ -8,7 +8,7 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
-    Toolbar,
+    Toolbar, Tooltip,
     useMediaQuery
 } from "@mui/material";
 // utils
@@ -39,7 +39,7 @@ import {LeftActionBar} from "@features/leftActionBar";
 import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
 import dynamic from "next/dynamic";
-import {unsubscribeTopic} from "@lib/hooks";
+import {ConditionalWrapper, unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
 import {MobileContainer} from "@lib/constants";
@@ -114,8 +114,14 @@ function SideBarMenu({children}: LayoutProps) {
                 onMouseLeave={() => setCurrentIndex(null)}
                 sx={{overflow: 'hidden', px: 1.5}}>
                 {menuItems?.map((item, i) => (
-                    <Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
-                        <Hidden key={item.name} smUp={item.name === "wallet"}>
+                    <ConditionalWrapper
+                        key={item.name}
+                        condition={!hasAdminAccess}
+                        wrapper={(children: any) =>
+                            <Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
+                                {children}
+                            </Can>}>
+                        <Hidden smUp={item.name === "wallet"}>
                             <a onClick={() => handleRouting(item.href)}>
                                 <ListItem
                                     sx={{
@@ -168,7 +174,7 @@ function SideBarMenu({children}: LayoutProps) {
                                 </ListItem>
                             </a>
                         </Hidden>
-                    </Can>
+                    </ConditionalWrapper>
                 ))}
             </List>
             <List className="list-bottom">
