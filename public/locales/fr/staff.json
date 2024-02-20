@@ -49,6 +49,32 @@
     "scheduled_shifts": "Postes programmés",
     "recent_activities": "Activités récentes",
     "activities": "Activités",
-    "working_hours": "Temps de travail"
+    "working_hours": "Temps de travail",
+    "user_information": "Informations sur l'utilisateur",
+    "dialog": {
+      "family_name": "Nom de famille",
+      "first_name": "Prénom",
+      "idNumberPlaceholder": "Tapez votre ID",
+      "idNumber": "ID Number",
+      "birthday": "Date de naissance",
+      "email": "Adresse mail",
+      "password": "Mot de passe",
+      "confirm_password": "confirmer le mot de passe",
+      "reset-password": "Demander à l'utilisateur de changer son mot de passe lorsqu'il se connecte",
+      "auto-password": "Génération automatique du mot de passe",
+      "manual-password": "Laissez-moi créer le mot de passe",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "phone": "Numéro de téléphone",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "validation": {
+        "familyName": "Le nom de famille est obligatoire",
+        "idNumber": "Le numéro d'identification est obligatoire",
+        "birthday": "La date de naissance est obligatoire",
+        "firstName": "Le prénom est obligatoire",
+        "email": "Veuillez entrer une adresse email valide"
+      }
+    }
   }
 }

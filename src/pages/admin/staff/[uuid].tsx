@@ -23,10 +23,17 @@ import { ChartsOption, ChartStyled } from "@features/charts";
 import { merge } from 'lodash';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { Dialog } from "@features/dialog";
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 function StaffDetails() {
     const router = useRouter();
     const { t, ready } = useTranslation("staff", { keyPrefix: "config" });
+    const [openPersonalInfo, setOpenPersonalInfo] = useState(false);
+    const [openEmploymentDetails, setOpenEmploymentDetails] = useState(false);
+    const [openScheduledShifts, setOpenScheduledShifts] = useState(false);
+    const handleCloseEmploymentDetails = () => setOpenEmploymentDetails(false);
+    const handleClosePersonalInfo = () => setOpenPersonalInfo(false);
+    const handleCloseScheduledShifts = () => setOpenScheduledShifts(false);
     const error = false
     if (!ready || error) {
         return <LoadingScreen
@@ -131,9 +138,8 @@ function StaffDetails() {
                                             <Typography gutterBottom variant="subtitle1" fontWeight={600}>
                                                 {t("personal_info")}
                                             </Typography>
-                                            <IconButton size="small" sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}>
+                                            <IconButton onClick={() => setOpenPersonalInfo(true)} size="small" sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}>
                                                 <IconUrl width={20} height={20} path="ic-edit-pen" />
-
                                             </IconButton>
                                         </Stack>
                                         <List disablePadding>
@@ -222,7 +228,7 @@ function StaffDetails() {
                                         <Typography gutterBottom variant="subtitle1" fontWeight={600}>
                                             {t("employment_details")}
                                         </Typography>
-                                        <IconButton size="small" sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}>
+                                        <IconButton onClick={() => setOpenEmploymentDetails(true)} size="small" sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}>
                                             <IconUrl width={20} height={20} path="ic-edit-pen" />
                                         </IconButton>
                                     </Stack>
@@ -315,7 +321,7 @@ function StaffDetails() {
                                         <Typography gutterBottom variant="subtitle1" fontWeight={600}>
                                             {t("scheduled_shifts")}
                                         </Typography>
-                                        <IconButton size="small" sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}>
+                                        <IconButton onClick={() => setOpenScheduledShifts(true)} size="small" sx={{ border: 1, borderColor: "divider", borderRadius: 1 }}>
                                             <IconUrl width={20} height={20} path="ic-edit-pen" />
                                         </IconButton>
                                     </Stack>
@@ -532,6 +538,52 @@ function StaffDetails() {
                     </Grid>
                 </Grid>
             </Box >
+            <Dialog
+                title={t("personal_info")}
+                action="personal-info"
+                open={openPersonalInfo}
+                data={{ t, handleClose: handleClosePersonalInfo }}
+                dialogClose={handleClosePersonalInfo}
+                onClose={handleClosePersonalInfo}
+            />
+            <Dialog
+                title={t("employment_details")}
+                action="employment-details"
+                size="sm"
+                open={openEmploymentDetails}
+                data={{ t, handleClose: handleCloseEmploymentDetails }}
+                dialogClose={handleCloseEmploymentDetails}
+                onClose={handleCloseEmploymentDetails}
+                actionDialog={
+                    <>
+                        <Button onClick={handleCloseEmploymentDetails} sx={{ mr: 'auto' }} variant="text-black">
+                            {t("dialog.cancel")}
+                        </Button>
+                        <Button variant="contained">
+                            {t("dialog.save")}
+                        </Button>
+                    </>
+                }
+            />
+            <Dialog
+                title={t("scheduled_shifts")}
+                action="scheduled-shifts"
+                size="sm"
+                open={openScheduledShifts}
+                data={{ t, handleClose: handleCloseScheduledShifts }}
+                dialogClose={handleCloseScheduledShifts}
+                onClose={handleCloseScheduledShifts}
+                actionDialog={
+                    <>
+                        <Button onClick={handleCloseScheduledShifts} sx={{ mr: 'auto' }} variant="text-black">
+                            {t("dialog.cancel")}
+                        </Button>
+                        <Button variant="contained">
+                            {t("dialog.save")}
+                        </Button>
+                    </>
+                }
+            />
         </>
     );
 }
