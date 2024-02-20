@@ -80,7 +80,10 @@ function WaitingRoom() {
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
 
-    const {t, ready} = useTranslation(["waitingRoom", "common"], {keyPrefix: "config"});
+    const {t, i18n, ready} = useTranslation(["waitingRoom", "common"], {
+        keyPrefix: "config",
+        bindI18n: 'languageChanged loaded'
+    });
     const {config: agenda} = useAppSelector(agendaSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {direction} = useAppSelector(configSelector);
@@ -482,6 +485,12 @@ function WaitingRoom() {
             setWaitingRoomsGroup(groupedData);
         }
     }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // bindI18n: loaded is needed because of the reloadResources call
+    // if all pages use the reloadResources mechanism, the bindI18n option can also be defined in next-i18next.config.js
+    useEffect(() => {
+        i18n.reloadResources(i18n.resolvedLanguage, ["waitingRoom", "common"])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useLeavePageConfirm(() => {
         dispatch(resetFilter());

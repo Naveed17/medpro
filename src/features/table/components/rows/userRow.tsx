@@ -27,10 +27,10 @@ function UserRow({...props}) {
     const theme = useTheme();
     const router = useRouter();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
-    const {row, handleChange, t, editMotif, data} = props;
+    const {row, handleChange, handleEvent, t, editMotif, data} = props;
     const {currentUser} = data;
 
-    const [hasDocPermission, setHasDocPermission] = useState(row.canSeeDoc);
+    const [isActive, setIsActive] = useState(row.isActive);
     const [profiles, setpProfiles] = useState([]);
     const [openAutoComplete, setOpenAutoComplete] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -58,8 +58,10 @@ function UserRow({...props}) {
             });
         })();
     }, [loadingReq]); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
-        <TableRowStyled key={uniqueId} className="user-row">
+        <TableRowStyled key={uniqueId}
+                        className="user-row" {...(!row.isProfessional && {onClick: () => handleEvent("onUserDetail", row)})}>
             <TableCell>
                 {row ? (
                     <>
@@ -148,10 +150,10 @@ function UserRow({...props}) {
                     className="custom-switch"
                     name="active"
                     onChange={(e) => {
-                        setHasDocPermission(e.target.checked);
+                        setIsActive(e.target.checked);
                         handleChange("ACCESS", row, e)
                     }}
-                    checked={hasDocPermission}
+                    checked={isActive}
                 /> : (
                     <Skeleton width={50} height={40} sx={{m: "auto"}}/>
                 )}

@@ -287,6 +287,15 @@ function Users() {
         }
     }
 
+    const handleTableEvent = (action: string, data: any) => {
+        console.log("action", action, data);
+        switch (action) {
+            case "onUserDetail":
+                router.push(`/dashboard/settings/users/${data.ssoId}`);
+                break;
+        }
+    }
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     if (roles.includes('ROLE_SECRETARY')) {
@@ -325,6 +334,7 @@ function Users() {
                             <DesktopContainer>
                                 <Otable
                                     headers={headCells}
+                                    handleEvent={(action: string, eventData: EventModal) => handleTableEvent(action, eventData)}
                                     rows={users}
                                     from={"users"}
                                     {...{t, currentUser, profiles, handleChange}}

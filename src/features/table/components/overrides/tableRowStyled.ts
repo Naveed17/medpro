@@ -4,6 +4,7 @@ import TableRow from "@mui/material/TableRow";
 const TableRowStyled = styled(TableRow)<any>(
     ({theme, styleprops, ...rest}) => ({
         "& .MuiTableCell-root": {
+            cursor: "pointer",
             div: {
                 color: "black",
             },
@@ -296,18 +297,18 @@ const TableRowStyled = styled(TableRow)<any>(
                 },
             },
         },
-        "&.user-row":{
-            ".role-select":{
-                ".MuiOutlinedInput-root":{
+        "&.user-row": {
+            ".role-select": {
+                ".MuiOutlinedInput-root": {
                     backgroundColor: 'transparent',
-                    fontSize:13,
-                    fontWeight:700
+                    fontSize: 13,
+                    fontWeight: 700
                 },
-                fieldset: { border: 'none !important',boxShadow:'none !important' },
+                fieldset: {border: 'none !important', boxShadow: 'none !important'},
             },
-            ".btn-edit":{
-                border:`1px solid ${theme.palette.divider}`,
-                padding:theme.spacing(1),
+            ".btn-edit": {
+                border: `1px solid ${theme.palette.divider}`,
+                padding: theme.spacing(1),
             }
         }
     })

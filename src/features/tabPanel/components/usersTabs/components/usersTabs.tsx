@@ -23,7 +23,7 @@ import {useCashBox,} from "@lib/hooks/rest";
 import {useAppSelector} from '@lib/redux/hooks';
 import {agendaSelector} from '@features/calendar';
 import {Form, FormikProvider, useFormik} from 'formik';
-import RootSyled from './overrides/rootStyle';
+import RootSyled from './overrides/rootUserStyled';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import {CustomIconButton, CustomSwitch} from '@features/buttons';
@@ -31,7 +31,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useTranslation} from "next-i18next";
 import {useRequestQueryMutation} from "@lib/axios";
-import {useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {groupPermissionsByFeature, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {startCase} from "lodash";
 import {LoadingButton} from "@mui/lab";
@@ -111,17 +111,6 @@ function UsersTabs({...props}) {
     )
 
     const {getFieldProps, values, errors, touched, setFieldValue, setValues, handleSubmit} = formik;
-
-    const groupPermissionsByFeature = (permissions: PermissionModel[]) => {
-        const groupedPermissions = permissions.group((permission: PermissionModel) => permission.slug?.split("__")[1]);
-        return Object.entries(groupedPermissions).reduce((groups: any[], group: any) => [...(groups ?? []), {
-            name: group[0],
-            uuid: group[0],
-            checkAll: false,
-            collapseIn: false,
-            children: group[1]
-        }], []);
-    }
 
     const handleSelectedRole = (props: any) => {
         setValues({

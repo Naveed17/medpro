@@ -15,7 +15,7 @@ module.exports = {
         backendOptions: [{
             expirationTime: 60 * 60 * 1000 // 1 hour
         }, {
-            projectId: '3ed51cc5-43b7-44da-8a05-9f62c09f910a', version: 'latest'
+            projectId: '5f545f61-16a5-4006-80cd-c072b823269c', version: 'latest'
         }], backends: isBrowser ? [LocalStorageBackend, LocizeBackend] : [],
     },
     serializeConfig: false,

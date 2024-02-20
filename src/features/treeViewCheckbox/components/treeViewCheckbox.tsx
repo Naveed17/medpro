@@ -2,9 +2,11 @@ import {FormControlLabel, Checkbox, IconButton, Collapse, List, Stack} from '@mu
 import IconUrl from '@themes/urlIcon';
 import React from 'react'
 import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
+import {useTranslation} from "next-i18next";
 
 function TreeViewCheckbox({...props}) {
-    const {t, data, disabled, onNodeCheck, onCollapseIn} = props;
+    const {data, disabled, onNodeCheck, onCollapseIn} = props;
+    const {t} = useTranslation("settings", {keyPrefix: "users.config"});
 
     const renderNode = (node: any) => {
         const hasChildren = node.children && node.children.length > 0;

@@ -18,7 +18,7 @@ import {
 import IconUrl from '@themes/urlIcon';
 import {Add} from '@mui/icons-material';
 import {useRouter} from 'next/router';
-import {useMedicalEntitySuffix} from '@lib/hooks';
+import {groupPermissionsByFeature, useMedicalEntitySuffix} from '@lib/hooks';
 import {useRequestQueryMutation} from '@lib/axios';
 import {useTranslation} from 'next-i18next';
 import {CustomSwitch} from '@features/buttons';
@@ -37,17 +37,6 @@ function AuthorizationStep({...props}) {
     const router = useRouter()
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const {trigger: featurePermissionsTrigger} = useRequestQueryMutation("/feature/permissions/all");
-
-    const groupPermissionsByFeature = (permissions: PermissionModel[]) => {
-        const groupedPermissions = permissions.group((permission: PermissionModel) => permission.slug?.split("__")[1]);
-        return Object.entries(groupedPermissions).reduce((groups: any[], group: any) => [...(groups ?? []), {
-            name: group[0],
-            uuid: group[0],
-            checkAll: false,
-            collapseIn: false,
-            children: group[1]
-        }], []);
-    }
 
     const HandleFeatureCollapse = (slug: string, roles: any) => {
         if (openCollapseFeature !== slug) {
