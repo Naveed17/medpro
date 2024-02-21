@@ -385,7 +385,7 @@ const dialogData = [
                 ).then((mod) => mod)
         ),
     },
-     {
+    {
         action: "new-user",
         component: dynamic((): any =>
             import(
@@ -417,7 +417,7 @@ const dialogData = [
                 ).then((mod) => mod)
         ),
     },
-     {
+    {
         action: "employment-details",
         component: dynamic((): any =>
             import(
@@ -441,7 +441,14 @@ const dialogData = [
                 ).then((mod) => mod)
         ),
     },
-    
+    {
+        action: "rest-password",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/restPasswordDialog/components/restPasswordDialog"
+                ).then((mod) => mod)
+        ),
+    }
 ];
 
 export default dialogData;
