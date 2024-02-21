@@ -12,7 +12,7 @@ import {
     Box,
     IconButton,
     Card,
-    CardContent, TextField, Theme, MenuItem, InputAdornment, Autocomplete, FormControl
+    CardContent, TextField, Theme, MenuItem, InputAdornment, Autocomplete, FormControl, ListItem, List, Link, useTheme
 } from "@mui/material";
 import { RootStyled } from "@features/toolbar";
 import { SubHeader } from "@features/subHeader";
@@ -35,23 +35,29 @@ import { countries as dialCountries } from "@features/countrySelect/countries";
 import { useRequestQuery } from "@lib/axios";
 import { ReactQueryNoValidateConfig } from "@lib/axios/useRequestQuery";
 import { useRouter } from "next/router";
-
+import { ConditionalWrapper } from "@lib/hooks";
+import Zoom from "react-medium-image-zoom";
 const PhoneCountry: any = memo(({ ...props }) => {
     return <CountrySelect {...props} />;
 });
 PhoneCountry.displayName = "Phone country";
-
+import dynamic from 'next/dynamic';
+import { LatLngBoundsExpression } from "leaflet";
+const Maps = dynamic(() => import("@features/maps/components/maps"), {
+    ssr: false,
+});
 function Profile() {
     const { data: session } = useSession();
     const dispatch = useAppDispatch();
     const { countries } = useCountries("nationality=true");
     const phoneInputRef = useRef(null);
     const router = useRouter();
-
+    const theme = useTheme()
     const { t, ready } = useTranslation("settings", { keyPrefix: "profile" });
     const { lock } = useAppSelector(appLockSelector);
     const { medicalProfessionalData } = useAppSelector(dashLayoutSelector);
-
+    const [outerBounds, setOuterBounds] = useState<LatLngBoundsExpression>([]);
+    const [cords, setCords] = useState<any[]>([]);
     const [name, setName] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
     const [openUploadPicture, setOpenUploadPicture] = useState(false);
@@ -121,6 +127,21 @@ function Profile() {
                 dialCountries.find(dial => dial.code.toLowerCase() === country.code.toLowerCase() && dial.suggested) ? 1 : -1).reverse());
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        const bounds: any[] = []
+        navigator.geolocation.getCurrentPosition(function (position) {
+            bounds.push([position.coords.latitude, position.coords.longitude]);
+        });
+        setOuterBounds(bounds);
+        setCords([{
+            "name": "Cabinet",
+            "points": [
+                "36.8142971",
+                "10.1820436"
+            ]
+        }])
+
+    }, [])
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[];
 
@@ -157,9 +178,135 @@ function Profile() {
             <Box className="container">
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={5}>
-                        <Card>
-                            <CardContent></CardContent>
-                        </Card>
+                        <Stack spacing={2}>
+                            <Card sx={{ overflow: 'visible' }}>
+                                <CardContent>
+                                    <Stack alignItems={"center"} spacing={2} mb={2}>
+                                        <ConditionalWrapper
+                                            condition={false}
+                                            wrapper={(children: any) => <Zoom>{children}</Zoom>}>
+                                            <Avatar
+                                                {...(true && { className: "zoom" })}
+                                                src={"/static/icons/men-avatar.svg"}
+                                                sx={{
+                                                    "& .injected-svg": {
+                                                        margin: 0
+                                                    },
+                                                    width: 75,
+                                                    height: 75,
+                                                    borderRadius: 2
+
+                                                }}>
+                                                <IconUrl width={75} height={75} path="men-avatar" />
+                                            </Avatar>
+
+                                        </ConditionalWrapper>
+                                        <Stack spacing={.5}>
+                                            <Typography variant="subtitle2" fontWeight={700} color="primary">
+                                                Soukra medical
+                                            </Typography>
+                                        </Stack>
+                                    </Stack>
+                                    <Stack direction='row' alignItems='center' justifyContent='space-between'>
+                                        <Typography gutterBottom variant="subtitle1" fontWeight={600}>
+                                            {t("contact_info")}
+                                        </Typography>
+                                        <IconButton size="small" sx={{ border: 1, borderColor: 'divider', borderRadius: 1 }}>
+                                            <IconUrl path="ic-edit-pen" />
+                                        </IconButton>
+                                    </Stack>
+                                    <List disablePadding>
+                                        <ListItem disablePadding sx={{ py: .5 }}>
+                                            <Typography width={140} variant="body2" color='text.secondary'>
+                                                {t("full_name")}
+                                            </Typography>
+                                            <Typography fontWeight={500}>
+                                                Dr Ghassen BOULAHIA
+                                            </Typography>
+                                        </ListItem>
+                                        <ListItem disablePadding sx={{ py: .5 }}>
+                                            <Typography width={140} variant="body2" color='text.secondary'>
+                                                {t("cin")}
+                                            </Typography>
+                                            <Typography fontWeight={500}>
+                                                02165102
+                                            </Typography>
+                                        </ListItem>
+                                        <ListItem disablePadding sx={{ py: .5 }}>
+                                            <Typography width={140} variant="body2" color='text.secondary'>
+                                                {t("birthdate")}
+                                            </Typography>
+                                            <Typography fontWeight={500}>
+                                                29 juin 1972
+                                            </Typography>
+                                        </ListItem>
+                                        <ListItem disablePadding sx={{ py: .5, alignItems: 'flex-start' }}>
+                                            <Typography width={140} variant="body2" color='text.secondary'>
+                                                {t("mobile")}
+                                            </Typography>
+                                            <Stack spacing={1.25}>
+                                                <Stack direction='row' alignItems='center' spacing={1}>
+                                                    <Avatar
+                                                        sx={{
+                                                            width: 27,
+                                                            height: 18,
+                                                            borderRadius: 0
+                                                        }}
+                                                        alt={"flags"}
+                                                        src={`https://flagcdn.com/tn.svg`}
+                                                    />
+                                                    <Typography fontWeight={500}>
+                                                        +216 22 469 495
+                                                    </Typography>
+                                                </Stack>
+                                                <Stack direction='row' alignItems='center' spacing={1}>
+                                                    <Avatar
+                                                        sx={{
+                                                            width: 27,
+                                                            height: 18,
+                                                            borderRadius: 0
+                                                        }}
+                                                        alt={"flags"}
+                                                        src={`https://flagcdn.com/tn.svg`}
+                                                    />
+                                                    <Typography fontWeight={500}>
+                                                        +216 22 469 495
+                                                    </Typography>
+                                                </Stack>
+                                            </Stack>
+                                        </ListItem>
+                                        <ListItem disablePadding sx={{ py: .5 }}>
+                                            <Typography width={140} variant="body2" color='text.secondary'>
+                                                {t("email")}
+                                            </Typography>
+                                            <Typography fontWeight={500}>
+                                                ghassen.boulahia@med.com
+                                            </Typography>
+                                        </ListItem>
+                                    </List>
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardContent>
+                                    <Typography gutterBottom variant="subtitle1" fontWeight={600}>
+                                        {t("org_location")}
+                                    </Typography>
+                                    <Stack spacing={2}>
+                                        <Stack direction='row' spacing={1}>
+                                            <IconUrl width={16} height={16} path="ic-pin-2" color={theme.palette.primary.main} />
+                                            <Link underline="none" fontWeight={500} fontSize={12}>
+                                                Centre médical clinique les Jasmins - 6ème Étage Centre Urbain Nord 1082 Tunis Tunisie
+                                            </Link>
+                                        </Stack>
+                                        <Stack maxHeight={300}>
+                                            <Maps data={cords}
+                                                outerBounds={outerBounds}
+                                                draggable={false} />
+                                        </Stack>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        </Stack>
                     </Grid>
                     <Grid item xs={12} md={7}></Grid>
                 </Grid>
