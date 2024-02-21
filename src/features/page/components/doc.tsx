@@ -155,7 +155,7 @@ function Doc({...props}) {
 
     useEffect(() => {
         if (onReSize) {
-            splitContent(state && state.content ? state.content : data.content.content ? data.content.content : "OK")
+            splitContent(state && state.content ? state.content : data.content.content ? data.content.content : "change me...")
             setOnResize(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
