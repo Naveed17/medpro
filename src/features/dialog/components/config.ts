@@ -433,6 +433,14 @@ const dialogData = [
                 ).then((mod) => mod)
         ),
     },
+    {
+        action: "assignment",
+        component: dynamic((): any =>
+            import(
+                "@features/dialog/components/assignmentDialog/components/assignmentDialog"
+                ).then((mod) => mod)
+        ),
+    },
     
 ];
 

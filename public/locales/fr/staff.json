@@ -68,6 +68,12 @@
       "phone": "Numéro de téléphone",
       "startDate": "Date de début",
       "endDate": "Date de fin",
+      "assignment": "Affectation",
+      "assigned-to": "Assignation à un nouveau médecin",
+      "assigned-to-placeholder": "Sélectionner un ou plusieurs médecins",
+      "no-assigned-to-placeholder": "Aucun médecin n'a été trouvé",
+      "assigned-to-heading": "Médecins désignés",
+      "un-assign": "Désaffecter",
       "validation": {
         "familyName": "Le nom de famille est obligatoire",
         "idNumber": "Le numéro d'identification est obligatoire",

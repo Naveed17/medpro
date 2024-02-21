@@ -30,10 +30,12 @@ function StaffDetails() {
     const { t, ready } = useTranslation("staff", { keyPrefix: "config" });
     const [openPersonalInfo, setOpenPersonalInfo] = useState(false);
     const [openEmploymentDetails, setOpenEmploymentDetails] = useState(false);
-    const [openScheduledShifts, setOpenScheduledShifts] = useState(false);
+    const [openScheduledShifts, setOpenScheduledShifts] = useState<boolean>(false);
+    const [openAssignment, setOpenAssignment] = useState<boolean>(false)
     const handleCloseEmploymentDetails = () => setOpenEmploymentDetails(false);
     const handleClosePersonalInfo = () => setOpenPersonalInfo(false);
     const handleCloseScheduledShifts = () => setOpenScheduledShifts(false);
+    const handleCloseAssignment = () => setOpenAssignment(false)
     const error = false
     if (!ready || error) {
         return <LoadingScreen
@@ -51,26 +53,27 @@ function StaffDetails() {
         <>
             <SubHeader>
                 <Stack
-                    direction="row"
+                    direction={{ xs: 'column', md: 'row' }}
                     justifyContent="space-between"
                     width={1}
-                    alignItems="center">
+                    alignItems={{ xs: 'flex-start', md: 'center' }}>
                     <Typography variant="subtitle1" fontWeight={600} color="text.primary">
                         {t("sub-header.profile_title")}
                     </Typography>
-                    <Stack direction="row" alignItems="center" spacing={2}>
-                        <FormControl>
-                            <TextField
-                                type={"email"}
-                                sx={{ minWidth: 200 }}
-                                className={'search-input'}
-                                fullWidth
-                                placeholder={t("sub-header.invite-placeholder")}
-                            />
-                        </FormControl>
+                    <Stack width={{ xs: 1, sm: 'auto' }} direction={{ xs: 'column', sm: 'row' }} mb={{ xs: 1, md: 0 }} alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2}>
+
+                        <TextField
+                            type={"email"}
+                            sx={{ minWidth: 200 }}
+                            className={'search-input'}
+                            fullWidth
+                            placeholder={t("sub-header.invite-placeholder")}
+                        />
+
 
                         <Autocomplete
                             size={"small"}
+                            sx={{ width: { xs: 1, sm: 'auto' } }}
                             id={""}
                             autoHighlight
                             filterSelectedOptions
@@ -80,6 +83,7 @@ function StaffDetails() {
                             renderInput={(params) => (
                                 <FormControl component="form" fullWidth onSubmit={e => e.preventDefault()}>
                                     <TextField color={"info"}
+
                                         {...params}
                                         sx={{ paddingLeft: 0, minWidth: 140 }}
                                         placeholder={t("sub-header.department-placeholder")}
@@ -89,7 +93,8 @@ function StaffDetails() {
                         />
 
                         <Button
-                            type="submit"
+                            sx={{ alignSelf: { xs: 'center', sm: 'stretch' } }}
+                            onClick={() => setOpenAssignment(true)}
                             variant="contained"
                             color="primary">
                             {t("sub-header.invite")}
@@ -576,6 +581,25 @@ function StaffDetails() {
                 actionDialog={
                     <>
                         <Button onClick={handleCloseScheduledShifts} sx={{ mr: 'auto' }} variant="text-black">
+                            {t("dialog.cancel")}
+                        </Button>
+                        <Button variant="contained">
+                            {t("dialog.save")}
+                        </Button>
+                    </>
+                }
+            />
+            <Dialog
+                title={t("dialog.assignment")}
+                action="assignment"
+                size="sm"
+                open={openAssignment}
+                data={{ t, handleClose: handleCloseAssignment }}
+                dialogClose={handleCloseAssignment}
+                onClose={handleCloseAssignment}
+                actionDialog={
+                    <>
+                        <Button onClick={handleCloseAssignment} sx={{ mr: 'auto' }} variant="text-black">
                             {t("dialog.cancel")}
                         </Button>
                         <Button variant="contained">
