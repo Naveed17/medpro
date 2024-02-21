@@ -29,7 +29,7 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {DatePicker} from "@features/datepicker";
 import {LoadingButton} from "@mui/lab";
-import {a11yProps, groupPermissionsByFeature, useMedicalEntitySuffix} from "@lib/hooks";
+import {a11yProps, getPermissionsCount, groupPermissionsByFeature, useMedicalEntitySuffix} from "@lib/hooks";
 import {useSnackbar} from "notistack";
 import {CountrySelect} from "@features/countrySelect";
 import {DefaultCountry} from "@lib/constants";
@@ -48,6 +48,7 @@ import {CustomIconButton, CustomSwitch} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import {TreeCheckbox} from "@features/treeViewCheckbox";
 import {useCashBox} from "@lib/hooks/rest";
+import {NoDataCard} from "@features/card";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -70,6 +71,7 @@ function ModifyUser() {
     const [tabIndex, setTabIndex] = useState(0);
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
+    const [selectedFeatureEntity, setSelectedFeatureEntity] = useState<any>(null);
     const [loadingReq, setLoadingReq] = useState(false);
 
     const {cashboxes} = useCashBox(tabIndex === 1);
@@ -243,8 +245,6 @@ function ModifyUser() {
     }
 
     const HandleFeatureSelect = (slug: string, roles: any, hasProfile?: boolean, entity?: any) => {
-        console.log("openCollapseFeature", openCollapseFeature);
-        console.log("entity", entity);
         if (!hasProfile) {
             setLoadingReq(true);
             featurePermissionsTrigger({
@@ -296,6 +296,7 @@ function ModifyUser() {
     } = formik;
 
     console.log("roles", values.roles);
+    console.log("selectedFeature", selectedFeature);
 
     if (!ready || error) {
         return <LoadingScreen
@@ -312,7 +313,7 @@ function ModifyUser() {
             <SubHeader sx={{borderBottom: 1, borderColor: 'divider'}}>
                 <Stack direction="row" alignItems="center" mt={2} justifyContent="space-between" width={1}>
                     <Tabs value={tabIndex} onChange={handleChangeTabs} aria-label="">
-                        <Tab disableRipple label={t("user")} {...a11yProps(0)} />
+                        <Tab disableRipple label={t("users.config.personal-info")} {...a11yProps(0)} />
                         <Tab disableRipple label={t("users.config.roles_permissons")} {...a11yProps(1)} />
                     </Tabs>
                 </Stack>
@@ -683,6 +684,7 @@ function ModifyUser() {
                                     {Object.entries(values?.roles)?.map((role: any) => (
                                         <ListItem
                                             onClick={() => {
+                                                setSelectedFeatureEntity(null);
                                                 HandleFeatureSelect(role[0], role[1], role[1][0].hasProfile);
                                             }}
                                             className={`motif-list`}
@@ -721,14 +723,17 @@ function ModifyUser() {
                                                 in={openCollapseFeature.includes(role[0])}
                                                 onClick={(e) => e.stopPropagation()}>
                                                 {role[1].map((featurePermission: any, index: number) =>
-                                                    <Box key={`${index}-${featurePermission?.uuid}`} p={2}
-                                                         className="motif-list">
+                                                    <Box
+                                                        key={`${index}-${featurePermission?.uuid}`}
+                                                        p={2}
+                                                        onClick={event => {
+                                                            event.stopPropagation();
+                                                            setSelectedFeatureEntity(featurePermission.featureEntity);
+                                                            setSelectedFeature(role[0]);
+                                                            HandleFeatureSelect(role[0], role[1], false, featurePermission.featureEntity);
+                                                        }}
+                                                        className={`motif-list ${selectedFeatureEntity?.uuid === featurePermission?.featureEntity?.uuid ? "selected" : ""}`}>
                                                         <Stack direction={"row"} alignItems={"center"}
-                                                               onClick={event => {
-                                                                   event.stopPropagation();
-                                                                   HandleFeatureSelect(role[0], role[1], false, featurePermission.featureEntity);
-                                                                   setSelectedFeature(role[0]);
-                                                               }}
                                                                justifyContent={"space-between"}>
                                                             <Typography fontSize={14} fontWeight={600}
                                                                         variant='subtitle1'>
@@ -750,9 +755,23 @@ function ModifyUser() {
                                     direction={{xs: 'column', md: 'row'}}
                                     justifyContent={"space-between"}
                                     alignItems={{xs: 'stretch', md: 'center'}}>
-                                    <Typography fontSize={16} fontWeight={800}>
-                                        {startCase(selectedFeature)}
-                                    </Typography>
+                                    <Stack direction={"row"} alignItems={"center"} spacing={1} width={"100%"}>
+                                        <Typography fontSize={16} fontWeight={800}>
+                                            {startCase(selectedFeature)}
+                                        </Typography>
+                                        {!!selectedFeatureEntity &&
+                                            <Stack direction={"row"} alignItems={"center"} spacing={.5}>
+                                                <span>{"=>"}</span>
+                                                <Typography pb={.05} fontSize={14} fontWeight={600}>
+                                                    {startCase(selectedFeatureEntity.name)}
+                                                </Typography>
+                                            </Stack>
+                                        }
+                                        <Badge sx={{pl: 1}}
+                                               badgeContent={getPermissionsCount(values.roles[selectedFeature] ?? [])}
+                                               color="primary"/>
+                                    </Stack>
+
                                     <LoadingButton
                                         {...{loading}}
                                         loadingPosition={"start"}
@@ -760,14 +779,14 @@ function ModifyUser() {
                                         sx={{minWidth: 130}}
                                         variant="contained"
                                         startIcon={<IconUrl path="iconfinder_save"/>}>
-                                        {t("save")}
+                                        {t("users.config.save")}
                                     </LoadingButton>
                                 </Stack>
                                 <Divider sx={{mt: 2}}/>
                                 <ListItem className={"motif-list"}>
                                     <Collapse in={true}>
                                         {values.roles[selectedFeature]?.map((featurePermission: any, index: number) =>
-                                            featurePermission?.featureEntity.checked &&
+                                            (featurePermission?.featureEntity?.checked || !featurePermission.hasProfile) &&
                                             <Box key={`${index}-${featurePermission?.uuid}`} pr={4}
                                                  className={"collapse-wrapper permissions-wrapper"}>
                                                 <TreeCheckbox
@@ -777,6 +796,15 @@ function ModifyUser() {
                                                     onNodeCheck={(uuid: string, value: boolean, hasChildren: boolean, group: string) => handleTreeCheck(uuid, value, hasChildren, group, featurePermission, index)}
                                                 />
                                             </Box>)}
+                                        {!selectedFeature && <NoDataCard
+                                            {...{t}}
+                                            ns={"settings"}
+                                            data={{
+                                                mainIcon: "setting/ic-users",
+                                                title: "users.config.no-data.permissions.title",
+                                                description: "users.config.no-data.permissions.description"
+                                            }}/>}
+
                                     </Collapse>
                                 </ListItem>
                             </Paper>

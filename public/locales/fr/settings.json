@@ -556,6 +556,8 @@
       "no-assigned-to-placeholder": "Aucun médecin n'a été trouvé",
       "auto-password": "Génération automatique du mot de passe",
       "un-assign": "Désassigner",
+      "select-all": "Sélectionner tout",
+      "personal-info": "Informations",
       "manual-password": "Laissez-moi créer le mot de passe",
       "reset-password": "Demander à l'utilisateur de changer son mot de passe lorsqu'il se connecte",
       "features": {
@@ -646,6 +648,10 @@
           "title": "Ajouter votre premier profil",
           "description": "Gérez votre accès et créez votre premier profil",
           "button-text": "Ajouter un profil"
+        },
+        "permissions": {
+          "title": "Veuillez sélectionner les fonctionnalités et les autorisations",
+          "description": "Gérez votre accès et créez votre premier profil"
         }
       },
       "table": {

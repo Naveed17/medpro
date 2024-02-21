@@ -3,6 +3,7 @@ import IconUrl from '@themes/urlIcon';
 import React from 'react'
 import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox';
 import {useTranslation} from "next-i18next";
+import {ConditionalWrapper} from "@lib/hooks";
 
 function TreeViewCheckbox({...props}) {
     const {data, disabled, onNodeCheck, onCollapseIn} = props;
@@ -23,13 +24,14 @@ function TreeViewCheckbox({...props}) {
 
         return (
             <React.Fragment key={node.uuid}>
+
                 <Stack direction={"row"}
                        sx={{
                            cursor: "pointer",
                            ...(!node.collapseIn && {mb: 1})
                        }}
                        alignItems={"center"}
-                       onClick={handleCollapseIn}>
+                       onClick={data.length === 1 && hasChildren ? handleNodeCheck : handleCollapseIn}>
                     <FormControlLabel
                         {
                             ...(hasChildren && {
@@ -53,10 +55,10 @@ function TreeViewCheckbox({...props}) {
                                 })}
                             />
                         }
-                        label={hasChildren ? t(`features.${node.name}`) : node.name}
+                        label={hasChildren ? t(data.length === 1 ? "select-all" : `features.${node.name}`) : node.name}
                     />
 
-                    <IconButton
+                    {data.length > 1 && <IconButton
                         sx={{
                             display: hasChildren ? "block" : "none",
                             ".react-svg": {
@@ -66,14 +68,20 @@ function TreeViewCheckbox({...props}) {
                         disableRipple
                         className="collapse-icon">
                         <IconUrl path="setting/ic-down-arrow" width={12} height={12}/>
-                    </IconButton>
+                    </IconButton>}
                 </Stack>
+
                 {hasChildren &&
-                    <Collapse in={node.collapseIn} className="inner-collapse">
+                    <ConditionalWrapper
+                        condition={data.length > 1}
+                        wrapper={(children: any) =>
+                            <Collapse in={node.collapseIn} className="inner-collapse">
+                                {children}
+                            </Collapse>}>
                         <List className="inside-list">
                             {node.children.map((childNode: any) => renderNode(childNode))}
                         </List>
-                    </Collapse>}
+                    </ConditionalWrapper>}
             </React.Fragment>
         )
     }

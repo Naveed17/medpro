@@ -31,7 +31,7 @@ import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
 import {useTranslation} from "next-i18next";
 import {useRequestQueryMutation} from "@lib/axios";
-import {groupPermissionsByFeature, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
+import {getPermissionsCount, groupPermissionsByFeature, useInvalidateQueries, useMedicalEntitySuffix} from "@lib/hooks";
 import {useRouter} from "next/router";
 import {startCase} from "lodash";
 import {LoadingButton} from "@mui/lab";
@@ -138,14 +138,6 @@ function UsersTabs({...props}) {
                 setFieldValue(`roles[${slug}][${currentIndex}].profile`, data?.profile?.uuid);
             });
         }
-    }
-
-    const handleSelectedPermissionCount = (role: FeatureModel[]) => {
-        return role.reduce((features: any[], feature: FeatureModel) =>
-            [...(features ?? []),
-                ...(feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
-                    [...(permissions ?? []),
-                        ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [])], [])?.length;
     }
 
     const resetFormData = () => {
@@ -409,7 +401,7 @@ function UsersTabs({...props}) {
                                         </Typography>
 
                                         <Badge sx={{ml: 2}}
-                                               badgeContent={handleSelectedPermissionCount(role[1])}
+                                               badgeContent={getPermissionsCount(role[1])}
                                                color="primary"/>
                                     </Stack>
                                     <Collapse in={role[0] === openCollapseFeature} onClick={(e) => e.stopPropagation()}>
