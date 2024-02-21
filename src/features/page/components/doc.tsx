@@ -205,8 +205,7 @@ function Doc({...props}) {
             if (data.content.pages) {
                 let _rest = contentDiv.clientHeight
                 let nbPage = 0
-                while (_rest > 0) {
-                    console.log(_rest)
+                while (_rest > 10) {
                     const _h = data.content.pages.find((page: { id: number }) => page.id === nbPage)
                     _rest -= _h ? _h.height : data.content.maxHeight
                     nbPage++
