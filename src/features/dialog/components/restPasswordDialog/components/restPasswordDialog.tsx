@@ -71,12 +71,11 @@ function RestPasswordDialog({ ...props }) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
-            password_type: "",
             password: "",
             confirm_password: "",
-            stay_signin: false,
             doPassSentToEmail: false,
-            email_the_pass: ""
+            email_the_pass: "",
+            resetPassword: ""
         },
         onSubmit: async (values) => {
             if (currentStep === stepperData.length - 1) {

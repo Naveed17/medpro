@@ -14,18 +14,18 @@ function DoctorToolbar({ ...props }) {
             <Typography variant="subtitle2" color="text.primary" fontWeight={600}>
                 {t(title)}
             </Typography>
-            <Stack direction="row" alignItems="center" spacing={2}>
-                <FormControl>
-                    <TextField
-                        type={"email"}
-                        sx={{ minWidth: 200 }}
-                        className={'search-input'}
-                        fullWidth
-                        placeholder={t("sub-header.invite-placeholder")}
-                    />
-                </FormControl>
+            <Stack width={{ xs: 1, sm: 'auto' }} direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={2}>
+                <TextField
+                    type={"email"}
+                    sx={{ minWidth: 200 }}
+                    className={'search-input'}
+                    fullWidth
+                    placeholder={t("sub-header.invite-placeholder")}
+                />
+
 
                 <Autocomplete
+                    fullWidth
                     size={"small"}
                     id={""}
                     autoHighlight
@@ -45,6 +45,7 @@ function DoctorToolbar({ ...props }) {
                 />
 
                 <Button
+                    sx={{ alignSelf: { xs: 'center', sm: 'flex-start' } }}
                     type="submit"
                     variant="contained"
                     color="primary">

@@ -1,19 +1,47 @@
 import { Label } from '@features/label';
-import { Grid, Stack, Card, CardContent, Typography, List, ListItem, Avatar, Link, ListItemText } from '@mui/material'
+import { ConditionalWrapper } from '@lib/hooks';
+import { Grid, Stack, Card, CardContent, Typography, List, ListItem, Avatar, ListItemText, Button, ListItemIcon, IconButton } from '@mui/material'
 import IconUrl from '@themes/urlIcon'
-import dynamic from 'next/dynamic';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Zoom from "react-medium-image-zoom";
 import React from 'react'
-const Maps = dynamic(() => import("@features/maps/components/maps"), {
-    ssr: false,
-});
 function AboutTab({ ...props }) {
-    const { t, cords, outerBounds, theme } = props
+    const { t, theme, handleOpenRestPass, handleOpenMeun } = props
     return (
         <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
                 <Stack spacing={2}>
                     <Card>
                         <CardContent>
+                            <Stack alignItems={"center"} spacing={2} mb={2}>
+                                <ConditionalWrapper
+                                    condition={false}
+                                    wrapper={(children: any) => <Zoom>{children}</Zoom>}>
+                                    <Avatar
+                                        {...(true && { className: "zoom" })}
+                                        src={"/static/icons/men-avatar.svg"}
+                                        sx={{
+                                            "& .injected-svg": {
+                                                margin: 0
+                                            },
+                                            width: 75,
+                                            height: 75,
+                                            borderRadius: 2
+
+                                        }}>
+                                        <IconUrl width={75} height={75} path="men-avatar" />
+                                    </Avatar>
+
+                                </ConditionalWrapper>
+                                <Stack spacing={.5}>
+                                    <Typography variant="subtitle2" fontWeight={700} color="primary">
+                                        Dr Ghassen BOULAHIA
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        Gynécologue Obstétricien
+                                    </Typography>
+                                </Stack>
+                            </Stack>
                             <Typography gutterBottom variant="subtitle1" fontWeight={600}>
                                 {t("personal_info")}
                             </Typography>
@@ -90,21 +118,65 @@ function AboutTab({ ...props }) {
                     </Card>
                     <Card>
                         <CardContent>
-                            <Typography gutterBottom variant="subtitle1" fontWeight={600}>
-                                {t("doctor_location")}
-                            </Typography>
-                            <Stack spacing={2}>
-                                <Stack direction='row' spacing={1}>
-                                    <IconUrl width={16} height={16} path="ic-pin-2" color={theme.palette.primary.main} />
-                                    <Link underline="none" fontWeight={500} fontSize={12}>
-                                        Centre médical clinique les Jasmins - 6ème Étage Centre Urbain Nord 1082 Tunis Tunisie
-                                    </Link>
-                                </Stack>
-                                <Stack maxHeight={300}>
-                                    <Maps data={cords}
-                                        outerBounds={outerBounds}
-                                        draggable={false} />
-                                </Stack>
+                            <Stack spacing={1} alignItems='flex-start'>
+                                <Typography variant='subtitle2' fontWeight={600}>
+                                    {t("role")}
+                                </Typography>
+                                <Button variant="google" sx={{ bgcolor: theme.palette.info.main, border: 'none' }}>
+                                    {t("doctor")}
+                                </Button>
+                                <Typography variant='subtitle1' fontWeight={600}>
+                                    {t("assigned_staff")}
+                                </Typography>
+                                <List disablePadding sx={{ width: 1 }}>
+                                    <ListItem sx={{ px: 1, mb: .5, border: 1, borderColor: 'divider', borderRadius: 1.6 }}
+                                        secondaryAction={
+                                            <IconButton
+                                                disableRipple
+                                                size="small"
+                                                onClick={handleOpenMeun}
+                                            >
+                                                <MoreVertIcon fontSize='small' />
+                                            </IconButton>
+                                        }
+                                    >
+                                        <ListItemIcon>
+                                            <Avatar
+                                                src={"/static/icons/men-avatar.svg"}
+                                                sx={{
+                                                    width: 45,
+                                                    height: 45,
+                                                    borderRadius: 2
+
+                                                }}>
+                                                <IconUrl width={45} height={45} path="men-avatar" />
+                                            </Avatar>
+                                        </ListItemIcon>
+                                        <Stack spacing={.2}>
+                                            <Typography fontSize={13} fontWeight={600} color='primary'>
+                                                Mme Salme Rezgui
+                                            </Typography>
+                                            <Typography variant='body2' fontWeight={600}>
+                                                Secretaire
+                                            </Typography>
+                                        </Stack>
+                                    </ListItem>
+                                </List>
+                                <Typography variant='subtitle1' fontWeight={600}>
+                                    {t("rest_pass")}
+                                </Typography>
+                                <Button
+                                    variant='google'
+                                    onClick={handleOpenRestPass}
+                                    disableRipple
+                                    sx={{
+                                        bgcolor: theme.palette.grey["A500"],
+                                        alignSelf: 'flex-start',
+                                        border: 'none'
+
+                                    }}>
+                                    {t("rest_pass")}
+                                </Button>
                             </Stack>
                         </CardContent>
                     </Card>
