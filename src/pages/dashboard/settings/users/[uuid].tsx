@@ -4,7 +4,7 @@ import React, {ReactElement, useState, memo, useRef} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
-import {useFormik, FormikProvider, Form} from "formik";
+import {useFormik, FormikProvider} from "formik";
 import {
     Typography,
     Card,
@@ -14,7 +14,7 @@ import {
     TextField,
     Grid,
     Button,
-    IconButton, Tab, Tabs, Paper, List, ListItem, Theme, Divider, Badge, Collapse
+    IconButton, Tab, Tabs, Paper, List, ListItem, Divider, Badge, Collapse
 } from "@mui/material";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
@@ -226,7 +226,7 @@ function ModifyUser() {
                 const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
                     [...(permissions ?? []),
                         ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
-                
+
                 console.log("permissions", [{
                     object: feature?.featureEntity?.uuid,
                     featureProfile: feature?.profile,
