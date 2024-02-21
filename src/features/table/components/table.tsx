@@ -135,6 +135,7 @@ function Otable({...props}) {
         if (rowsSelected?.length === 0) {
             setSelected([]);
         } else setSelected(select)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rowsSelected]);
 
     return (

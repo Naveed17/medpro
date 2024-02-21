@@ -399,13 +399,15 @@ function PaymentDialog({...props}) {
                                 width:"fit-content"
                             }}>
                                 <Checkbox checked={true}/>
+{/*
                                 <img src={''} alt={'insurance icon'}/>
+*/}
                                 <Stack >
                                     <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                         <Typography fontSize={16} fontWeight={"bold"}>CNAM</Typography>
                                         <Label color={"info"} variant="filled" sx={{borderRadius:1}}>Lui même</Label>
                                     </Stack>
-                                    <Typography color={"#B5B5C3"}>l'assurance expire le 24/09/2024</Typography>
+                                    <Typography color={"#B5B5C3"}>Assurance expire le 24/09/2024</Typography>
                                 </Stack>
                             </Stack>
                         </Stack>
