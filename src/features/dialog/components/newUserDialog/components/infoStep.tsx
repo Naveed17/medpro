@@ -37,11 +37,11 @@ function InfoStep({...props}) {
             <Stack direction={{xs: 'column', sm: 'row'}} alignItems='center' spacing={1.25} width={1}>
                 <Stack width={1}>
                     <Typography gutterBottom>
-                        {t("dialog.family_name")}
+                        {t("dialog.user_name")}
                         <Typography color='error' variant='caption'>*</Typography>
                     </Typography>
                     <TextField
-                        placeholder={t("dialog.family_name")}
+                        placeholder={t("dialog.user_name")}
                         fullWidth
                         {...getFieldProps('name')}
                         error={Boolean(errors.name && touched.name)}

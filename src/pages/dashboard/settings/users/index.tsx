@@ -288,7 +288,6 @@ function Users() {
     }
 
     const handleTableEvent = (action: string, data: any) => {
-        console.log("action", action, data);
         switch (action) {
             case "onUserDetail":
                 router.push(`/dashboard/settings/users/${data.ssoId}`);

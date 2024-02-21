@@ -14,12 +14,11 @@ import {
     TextField,
     Grid,
     Button,
-    IconButton, Tab, Tabs, Paper, List, ListItem, Theme, Divider, Badge, Collapse, FormControlLabel,
+    IconButton, Tab, Tabs, Paper, List, ListItem, Theme, Divider, Badge, Collapse
 } from "@mui/material";
-import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
-import {DashLayout} from "@features/base";
+import {ContainerLayoutStyled, DashLayout} from "@features/base";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {addUser} from "@features/table";
 import {agendaSelector} from "@features/calendar";
@@ -39,13 +38,9 @@ import PhoneInput from "react-phone-number-input/input";
 import {TabPanel, CustomInput, RootUserStyled} from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
 import AddIcon from "@mui/icons-material/Add";
-import MoreVert from "@mui/icons-material/MoreVert";
 import {startCase} from "lodash";
-import {FacebookCircularProgress} from "@features/progressUI";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import {CustomIconButton, CustomSwitch} from "@features/buttons";
-import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
 import {TreeCheckbox} from "@features/treeViewCheckbox";
 import {useCashBox} from "@lib/hooks/rest";
 import {NoDataCard} from "@features/card";
@@ -80,6 +75,7 @@ function ModifyUser() {
     const medical_entity = (userData as UserDataResponse).medical_entity as MedicalEntityModel;
     const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
     const {uuid} = router.query;
+    const {id: currentUser} = session?.user as any;
 
     const {data: httpUserResponse, error} = useRequestQuery({
         method: "GET",
@@ -96,6 +92,7 @@ function ModifyUser() {
 
     const user = (httpUserResponse as HttpResponse)?.data ?? null;
     const features = (userData as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features ?? [];
+    const readOnly = user?.ssoId !== currentUser
 
     const validationSchema = Yup.object().shape({
         name: Yup.string()
@@ -182,46 +179,61 @@ function ModifyUser() {
         },
         validationSchema,
         onSubmit: async (values) => {
-            setLoading(true);
-            const form = new FormData();
-            form.append('username', values.name);
-            form.append('email', values.email);
-            form.append('is_owner', values.admin);
-            form.append('is_active', 'true');
-            form.append('is_professional', values.isProfessional);
-            form.append('is_accepted', 'true');
-            form.append('is_public', "true");
-            form.append('is_default', "true");
-            values.birthdate && form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
-            form.append('firstname', values.FirstName);
-            form.append('lastname', values.lastName);
-            values.phones.length > 0 && form.append('phone', JSON.stringify(values.phones.map((phoneData: any) => ({
-                code: phoneData.dial?.phone,
-                value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
-                type: "phone",
-                is_public: false,
-                is_support: false
-            }))));
-            form.append('profile', values.profile);
-            form.append('oldPassword', values.oldPassword);
-            form.append('password', values.password);
+            //setLoading(true);
 
-            triggerUserUpdate({
-                method: "PUT",
-                url: `${urlMedicalEntitySuffix}/edit/user/${uuid}/${router.locale}`,
-                data: form
-            }, {
-                onSuccess: () => {
-                    enqueueSnackbar(t("users.alert.update"), {variant: "error"});
-                    setLoading(false)
-                    dispatch(addUser({...values}));
-                    router.push("/dashboard/settings/users");
-                },
-                onError: () => {
-                    setLoading(false);
-                    enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
-                }
-            });
+            if (tabIndex === 0) {
+                const form = new FormData();
+                form.append('username', values.name);
+                form.append('email', values.email);
+                form.append('is_owner', values.admin);
+                form.append('is_active', 'true');
+                form.append('is_professional', values.isProfessional);
+                form.append('is_accepted', 'true');
+                form.append('is_public', "true");
+                form.append('is_default', "true");
+                values.birthdate && form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
+                form.append('firstname', values.FirstName);
+                form.append('lastname', values.lastName);
+                values.phones.length > 0 && form.append('phone', JSON.stringify(values.phones.map((phoneData: any) => ({
+                    code: phoneData.dial?.phone,
+                    value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
+                    type: "phone",
+                    is_public: false,
+                    is_support: false
+                }))));
+                form.append('profile', values.profile);
+                form.append('oldPassword', values.oldPassword);
+                form.append('password', values.password);
+
+                triggerUserUpdate({
+                    method: "PUT",
+                    url: `${urlMedicalEntitySuffix}/edit/user/${uuid}/${router.locale}`,
+                    data: form
+                }, {
+                    onSuccess: () => {
+                        enqueueSnackbar(t("users.alert.update"), {variant: "error"});
+                        setLoading(false)
+                        dispatch(addUser({...values}));
+                        router.push("/dashboard/settings/users");
+                    },
+                    onError: () => {
+                        setLoading(false);
+                        enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
+                    }
+                });
+            } else {
+                const feature = selectedFeatureEntity ? values.roles[selectedFeature].find((feature: FeatureModel) => feature.featureEntity?.uuid === selectedFeatureEntity.uuid) : values.roles[selectedFeature][0];
+                const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
+                    [...(permissions ?? []),
+                        ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
+                
+                console.log("permissions", [{
+                    object: feature?.featureEntity?.uuid,
+                    featureProfile: feature?.profile,
+                    permissions: permissions.map((permission: PermissionModel) => permission.uuid)
+                }]);
+
+            }
         }
     });
 
@@ -295,9 +307,6 @@ function ModifyUser() {
         setFieldValue,
     } = formik;
 
-    console.log("roles", values.roles);
-    console.log("selectedFeature", selectedFeature);
-
     if (!ready || error) {
         return <LoadingScreen
             button
@@ -314,15 +323,16 @@ function ModifyUser() {
                 <Stack direction="row" alignItems="center" mt={2} justifyContent="space-between" width={1}>
                     <Tabs value={tabIndex} onChange={handleChangeTabs} aria-label="">
                         <Tab disableRipple label={t("users.config.personal-info")} {...a11yProps(0)} />
-                        <Tab disableRipple label={t("users.config.roles_permissons")} {...a11yProps(1)} />
+                        {readOnly && <Tab disableRipple label={t("users.config.roles_permissons")} {...a11yProps(1)} />}
                     </Tabs>
                 </Stack>
             </SubHeader>
 
-            <Box className="container">
-                <TabPanel value={tabIndex} index={0} padding={0}>
-                    <FormikProvider value={formik}>
-                        <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
+            <ContainerLayoutStyled className="container">
+                <FormikProvider value={formik}>
+                    <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
+
+                        <TabPanel value={tabIndex} index={0} padding={0}>
                             <Typography marginBottom={2} gutterBottom>
                                 {t("users.user")}
                             </Typography>
@@ -347,6 +357,7 @@ function ModifyUser() {
                                             </Grid>
                                             <Grid item xs={12} lg={10}>
                                                 <TextField
+                                                    disabled={readOnly}
                                                     variant="outlined"
                                                     placeholder={t("exemple@mail.com")}
                                                     fullWidth
@@ -441,6 +452,7 @@ function ModifyUser() {
                                             </Grid>
                                             <Grid item xs={12} lg={10}>
                                                 <TextField
+                                                    disabled={readOnly}
                                                     variant="outlined"
                                                     placeholder={t("users.firstname")}
                                                     fullWidth
@@ -470,6 +482,7 @@ function ModifyUser() {
                                             </Grid>
                                             <Grid item xs={12} lg={10}>
                                                 <TextField
+                                                    disabled={readOnly}
                                                     {...getFieldProps("lastName")}
                                                     variant="outlined"
                                                     placeholder={t("users.lastname")}
@@ -538,7 +551,7 @@ function ModifyUser() {
                                             </Grid>
                                         </Box>
                                     ))}
-                                    <Box mb={4} ml={5}>
+                                    {!readOnly && <Box mb={4} ml={5}>
                                         <Button
                                             size={"small"}
                                             onClick={() => {
@@ -551,108 +564,114 @@ function ModifyUser() {
                                             startIcon={<AddIcon/>}>
                                             {t("lieux.new.addNumber")}
                                         </Button>
-                                    </Box>
+                                    </Box>}
 
                                 </CardContent>
                             </Card>
 
-                            <Typography marginBottom={2} gutterBottom>
-                                {t("users.password")}
-                            </Typography>
-                            <Card className="venue-card">
-                                <CardContent>
-                                    <Box mb={2}>
-                                        <Grid
-                                            container
-                                            spacing={{lg: 2, xs: 1}}
-                                            alignItems="center">
-                                            <Grid item xs={12} lg={2}>
-                                                <Typography
-                                                    textAlign={{lg: "right", xs: "left"}}
-                                                    color="text.secondary"
-                                                    variant="body2"
-                                                    fontWeight={400}>
-                                                    {t("users.oldPassword")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
+                            {!readOnly && <>
+                                <Typography marginBottom={2} gutterBottom>
+                                    {t("users.password")}
+                                </Typography>
+                                <Card className="venue-card">
+                                    <CardContent>
+                                        <Box mb={2}>
+                                            <Grid
+                                                container
+                                                spacing={{lg: 2, xs: 1}}
+                                                alignItems="center">
+                                                <Grid item xs={12} lg={2}>
+                                                    <Typography
+                                                        textAlign={{lg: "right", xs: "left"}}
+                                                        color="text.secondary"
+                                                        variant="body2"
+                                                        fontWeight={400}>
+                                                        {t("users.oldPassword")}{" "}
+                                                        <Typography component="span" color="error">
+                                                            *
+                                                        </Typography>
                                                     </Typography>
-                                                </Typography>
+                                                </Grid>
+                                                <Grid item xs={12} lg={10}>
+                                                    <TextField
+                                                        disabled={readOnly}
+                                                        type="password"
+                                                        variant="outlined"
+                                                        placeholder={t("users.oldPassword")}
+                                                        fullWidth
+                                                        required
+                                                        error={Boolean(touched.oldPassword && errors.oldPassword)}
+                                                        {...getFieldProps("oldPassword")}
+                                                    />
+                                                </Grid>
                                             </Grid>
-                                            <Grid item xs={12} lg={10}>
-                                                <TextField
-                                                    type="password"
-                                                    variant="outlined"
-                                                    placeholder={t("users.oldPassword")}
-                                                    fullWidth
-                                                    required
-                                                    error={Boolean(touched.oldPassword && errors.oldPassword)}
-                                                    {...getFieldProps("oldPassword")}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                    <Box mb={2}>
-                                        <Grid
-                                            container
-                                            spacing={{lg: 2, xs: 1}}
-                                            alignItems="center">
-                                            <Grid item xs={12} lg={2}>
-                                                <Typography
-                                                    textAlign={{lg: "right", xs: "left"}}
-                                                    color="text.secondary"
-                                                    variant="body2"
-                                                    fontWeight={400}>
-                                                    {t("users.password")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
+                                        </Box>
+                                        <Box mb={2}>
+                                            <Grid
+                                                container
+                                                spacing={{lg: 2, xs: 1}}
+                                                alignItems="center">
+                                                <Grid item xs={12} lg={2}>
+                                                    <Typography
+                                                        textAlign={{lg: "right", xs: "left"}}
+                                                        color="text.secondary"
+                                                        variant="body2"
+                                                        fontWeight={400}>
+                                                        {t("users.password")}{" "}
+                                                        <Typography component="span" color="error">
+                                                            *
+                                                        </Typography>
                                                     </Typography>
-                                                </Typography>
+                                                </Grid>
+                                                <Grid item xs={12} lg={10}>
+                                                    <TextField
+                                                        disabled={readOnly}
+                                                        type="password"
+                                                        variant="outlined"
+                                                        placeholder={t("users.password")}
+                                                        fullWidth
+                                                        required
+                                                        error={Boolean(touched.password && errors.password)}
+                                                        {...getFieldProps("password")}
+                                                    />
+                                                </Grid>
                                             </Grid>
-                                            <Grid item xs={12} lg={10}>
-                                                <TextField
-                                                    type="password"
-                                                    variant="outlined"
-                                                    placeholder={t("users.password")}
-                                                    fullWidth
-                                                    required
-                                                    error={Boolean(touched.password && errors.password)}
-                                                    {...getFieldProps("password")}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                    <Box mb={2}>
-                                        <Grid
-                                            container
-                                            spacing={{lg: 2, xs: 1}}
-                                            alignItems="center">
-                                            <Grid item xs={12} lg={2}>
-                                                <Typography
-                                                    textAlign={{lg: "right", xs: "left"}}
-                                                    color="text.secondary"
-                                                    variant="body2"
-                                                    fontWeight={400}>
-                                                    {t("users.confirm_password")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
+                                        </Box>
+                                        <Box mb={2}>
+                                            <Grid
+                                                container
+                                                spacing={{lg: 2, xs: 1}}
+                                                alignItems="center">
+                                                <Grid item xs={12} lg={2}>
+                                                    <Typography
+                                                        textAlign={{lg: "right", xs: "left"}}
+                                                        color="text.secondary"
+                                                        variant="body2"
+                                                        fontWeight={400}>
+                                                        {t("users.confirm_password")}{" "}
+                                                        <Typography component="span" color="error">
+                                                            *
+                                                        </Typography>
                                                     </Typography>
-                                                </Typography>
+                                                </Grid>
+                                                <Grid item xs={12} lg={10}>
+                                                    <TextField
+                                                        disabled={readOnly}
+                                                        type="password"
+                                                        variant="outlined"
+                                                        placeholder={t("users.confirm_password")}
+                                                        fullWidth
+                                                        required
+                                                        error={Boolean(touched.confirmPassword && errors.confirmPassword)}
+                                                        {...getFieldProps("confirmPassword")}
+                                                    />
+                                                </Grid>
                                             </Grid>
-                                            <Grid item xs={12} lg={10}>
-                                                <TextField
-                                                    type="password"
-                                                    variant="outlined"
-                                                    placeholder={t("users.confirm_password")}
-                                                    fullWidth
-                                                    required
-                                                    error={Boolean(touched.confirmPassword && errors.confirmPassword)}
-                                                    {...getFieldProps("confirmPassword")}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                </CardContent>
-                            </Card>
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </>}
+
 
                             <div style={{paddingBottom: "50px"}}></div>
                             <Stack
@@ -663,155 +682,168 @@ function ModifyUser() {
                                 <Button onClick={() => router.back()}>
                                     {t("motif.dialog.cancel")}
                                 </Button>
-                                <LoadingButton
+                                {!readOnly && <LoadingButton
                                     {...{loading}}
                                     disabled={Object.keys(errors).length > 0}
                                     type="submit" variant="contained" color="primary">
                                     {t("motif.dialog.save")}
-                                </LoadingButton>
+                                </LoadingButton>}
                             </Stack>
-                        </FormStyled>
-                    </FormikProvider>
-                </TabPanel>
-                <TabPanel value={tabIndex} index={1} padding={0}>
-                    <RootUserStyled container spacing={2}>
-                        <Grid item xs={12} md={3}>
-                            <Paper sx={{px: 2, pb: 2, pt: 1, borderRadius: 1}}>
-                                <Typography my={2} fontSize={16} fontWeight={800} variant="body2">
-                                    {startCase(t("features"))}
-                                </Typography>
-                                <List disablePadding>
-                                    {Object.entries(values?.roles)?.map((role: any) => (
-                                        <ListItem
-                                            onClick={() => {
-                                                setSelectedFeatureEntity(null);
-                                                HandleFeatureSelect(role[0], role[1], role[1][0].hasProfile);
-                                            }}
-                                            className={`motif-list`}
-                                            sx={{
-                                                py: 1,
-                                                borderRadius: 2,
-                                                cursor: 'pointer',
-                                                ".MuiListItemSecondaryAction-root": {right: 0}
-                                            }}
-                                            {...(role[1][0]?.hasProfile && {
-                                                    secondaryAction:
-                                                        <Stack direction={"row"}>
-                                                            {openCollapseFeature.includes(role[0]) ? <ExpandLess/> :
-                                                                <ExpandMore/>}
-                                                        </Stack>
-                                                }
-                                            )}
-                                            key={role[0]}>
-                                            <Stack direction={"row"} alignItems={"center"} width={"100%"}
-                                                   justifyContent={"space-between"} spacing={2}>
-                                                <Typography fontSize={14} fontWeight={600} variant='caption'>
-                                                    {startCase(role[0])}
-                                                </Typography>
+                        </TabPanel>
+                        <TabPanel value={tabIndex} index={1} padding={0}>
+                            <RootUserStyled container spacing={2}>
+                                <Grid item xs={12} md={3}>
+                                    <Paper sx={{px: 2, pb: 2, pt: 1, borderRadius: 1}}>
+                                        <Typography my={2} fontSize={16} fontWeight={800} variant="body2">
+                                            {startCase(t("features"))}
+                                        </Typography>
+                                        <List disablePadding>
+                                            {Object.entries(values?.roles)?.map((role: any) => (
+                                                <ListItem
+                                                    onClick={() => {
+                                                        setSelectedFeatureEntity(null);
+                                                        HandleFeatureSelect(role[0], role[1], role[1][0].hasProfile);
+                                                    }}
+                                                    className={`motif-list`}
+                                                    sx={{
+                                                        py: 1,
+                                                        borderRadius: 2,
+                                                        cursor: 'pointer',
+                                                        ".MuiListItemSecondaryAction-root": {right: 0}
+                                                    }}
+                                                    {...(role[1][0]?.hasProfile && {
+                                                            secondaryAction:
+                                                                <Stack direction={"row"}>
+                                                                    {openCollapseFeature.includes(role[0]) ?
+                                                                        <ExpandLess/> :
+                                                                        <ExpandMore/>}
+                                                                </Stack>
+                                                        }
+                                                    )}
+                                                    key={role[0]}>
+                                                    <Stack direction={"row"} alignItems={"center"} width={"100%"}
+                                                           justifyContent={"space-between"} spacing={2}>
+                                                        <Typography fontSize={14} fontWeight={600} variant='caption'>
+                                                            {startCase(role[0])}
+                                                        </Typography>
 
-                                                {role[1][0]?.hasProfile && <Badge sx={{ml: 2}}
-                                                                                  badgeContent={role[1].length}
-                                                                                  color="info"/>}
+                                                        {role[1][0]?.hasProfile && <Badge sx={{ml: 2}}
+                                                                                          badgeContent={role[1].length}
+                                                                                          color="info"/>}
+                                                    </Stack>
+                                                    <Collapse
+                                                        {...(openCollapseFeature.includes(role[0]) && {
+                                                            sx: {
+                                                                marginTop: "1rem",
+                                                                width: 200
+                                                            }
+                                                        })}
+                                                        in={openCollapseFeature.includes(role[0])}
+                                                        onClick={(e) => e.stopPropagation()}>
+                                                        {role[1].map((featurePermission: any, index: number) =>
+                                                            <Box
+                                                                key={`${index}-${featurePermission?.uuid}`}
+                                                                p={2}
+                                                                onClick={event => {
+                                                                    event.stopPropagation();
+                                                                    setSelectedFeatureEntity(featurePermission.featureEntity);
+                                                                    setSelectedFeature(role[0]);
+                                                                    HandleFeatureSelect(role[0], role[1], false, featurePermission.featureEntity);
+                                                                }}
+                                                                className={`motif-list ${selectedFeatureEntity?.uuid === featurePermission?.featureEntity?.uuid ? "selected" : ""}`}>
+                                                                <Stack direction={"row"} alignItems={"center"}
+                                                                       justifyContent={"space-between"}>
+                                                                    <Typography fontSize={14} fontWeight={600}
+                                                                                variant='subtitle1'>
+                                                                        {featurePermission.featureEntity?.name}
+                                                                    </Typography>
+                                                                </Stack>
+                                                            </Box>
+                                                        )}
+                                                    </Collapse>
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    </Paper>
+                                </Grid>
+                                <Grid item xs={12} md={9}>
+                                    <Paper sx={{p: 2, borderRadius: 2}}>
+                                        <Stack
+                                            spacing={{xs: 1, md: 2}}
+                                            direction={{xs: 'column', md: 'row'}}
+                                            justifyContent={"space-between"}
+                                            alignItems={{xs: 'stretch', md: 'center'}}>
+                                            <Stack direction={"row"} alignItems={"center"} spacing={1} width={"100%"}>
+                                                <Typography fontSize={16} fontWeight={600}>
+                                                    {startCase(selectedFeature)}
+                                                </Typography>
+                                                {!!selectedFeatureEntity &&
+                                                    <Stack direction={"row"} pt={.36} alignItems={"center"}
+                                                           spacing={.5}>
+                                                        <span>{"=>"}</span>
+                                                        <Typography fontSize={14} fontWeight={600}>
+                                                            {startCase(selectedFeatureEntity.name)}
+                                                        </Typography>
+                                                    </Stack>
+                                                }
+                                                <Badge sx={{pl: 1}}
+                                                       badgeContent={getPermissionsCount(values.roles[selectedFeature] ?? [])}
+                                                       color="primary"/>
                                             </Stack>
-                                            <Collapse
-                                                {...(openCollapseFeature.includes(role[0]) && {
-                                                    sx: {
-                                                        marginTop: "1rem",
-                                                        width: 200
-                                                    }
-                                                })}
-                                                in={openCollapseFeature.includes(role[0])}
-                                                onClick={(e) => e.stopPropagation()}>
-                                                {role[1].map((featurePermission: any, index: number) =>
-                                                    <Box
-                                                        key={`${index}-${featurePermission?.uuid}`}
-                                                        p={2}
-                                                        onClick={event => {
-                                                            event.stopPropagation();
-                                                            setSelectedFeatureEntity(featurePermission.featureEntity);
-                                                            setSelectedFeature(role[0]);
-                                                            HandleFeatureSelect(role[0], role[1], false, featurePermission.featureEntity);
-                                                        }}
-                                                        className={`motif-list ${selectedFeatureEntity?.uuid === featurePermission?.featureEntity?.uuid ? "selected" : ""}`}>
-                                                        <Stack direction={"row"} alignItems={"center"}
-                                                               justifyContent={"space-between"}>
-                                                            <Typography fontSize={14} fontWeight={600}
-                                                                        variant='subtitle1'>
-                                                                {featurePermission.featureEntity?.name}
-                                                            </Typography>
-                                                        </Stack>
-                                                    </Box>
-                                                )}
+
+                                            <LoadingButton
+                                                {...{loading}}
+                                                loadingPosition={"start"}
+                                                disabled={getPermissionsCount(values.roles[selectedFeature] ?? []) === 0}
+                                                type="submit"
+                                                sx={{minWidth: 130}}
+                                                variant="contained"
+                                                startIcon={<IconUrl path="iconfinder_save"/>}>
+                                                {t("users.config.save")}
+                                            </LoadingButton>
+                                        </Stack>
+                                        <Divider sx={{mt: 2}}/>
+                                        <ListItem className={"motif-list"}>
+                                            <Collapse in={true}>
+                                                {values.roles[selectedFeature]?.map((featurePermission: any, index: number) =>
+                                                    (featurePermission?.featureEntity?.checked || !featurePermission.hasProfile) &&
+                                                    <Box key={`${index}-${featurePermission?.uuid}`} pr={4}
+                                                         className={"collapse-wrapper permissions-wrapper"}>
+                                                        <TreeCheckbox
+                                                            {...{t}}
+                                                            data={featurePermission?.permissions ?? []}
+                                                            onCollapseIn={(uuid: string, value: boolean) => setFieldValue(`roles[${selectedFeature}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].collapseIn`, value)}
+                                                            onNodeCheck={(uuid: string, value: boolean, hasChildren: boolean, group: string) => handleTreeCheck(uuid, value, hasChildren, group, featurePermission, index)}
+                                                        />
+                                                    </Box>)}
+                                                {!selectedFeature && <NoDataCard
+                                                    {...{t}}
+                                                    ns={"settings"}
+                                                    data={{
+                                                        mainIcon: "setting/ic-users",
+                                                        title: "users.config.no-data.permissions.title",
+                                                        description: "users.config.no-data.permissions.description"
+                                                    }}/>}
+
                                             </Collapse>
                                         </ListItem>
-                                    ))}
-                                </List>
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={12} md={9}>
-                            <Paper sx={{p: 2, borderRadius: 2}}>
-                                <Stack
-                                    spacing={{xs: 1, md: 2}}
-                                    direction={{xs: 'column', md: 'row'}}
-                                    justifyContent={"space-between"}
-                                    alignItems={{xs: 'stretch', md: 'center'}}>
-                                    <Stack direction={"row"} alignItems={"center"} spacing={1} width={"100%"}>
-                                        <Typography fontSize={16} fontWeight={800}>
-                                            {startCase(selectedFeature)}
-                                        </Typography>
-                                        {!!selectedFeatureEntity &&
-                                            <Stack direction={"row"} alignItems={"center"} spacing={.5}>
-                                                <span>{"=>"}</span>
-                                                <Typography pb={.05} fontSize={14} fontWeight={600}>
-                                                    {startCase(selectedFeatureEntity.name)}
-                                                </Typography>
-                                            </Stack>
-                                        }
-                                        <Badge sx={{pl: 1}}
-                                               badgeContent={getPermissionsCount(values.roles[selectedFeature] ?? [])}
-                                               color="primary"/>
-                                    </Stack>
-
-                                    <LoadingButton
-                                        {...{loading}}
-                                        loadingPosition={"start"}
-                                        type="submit"
-                                        sx={{minWidth: 130}}
-                                        variant="contained"
-                                        startIcon={<IconUrl path="iconfinder_save"/>}>
-                                        {t("users.config.save")}
-                                    </LoadingButton>
-                                </Stack>
-                                <Divider sx={{mt: 2}}/>
-                                <ListItem className={"motif-list"}>
-                                    <Collapse in={true}>
-                                        {values.roles[selectedFeature]?.map((featurePermission: any, index: number) =>
-                                            (featurePermission?.featureEntity?.checked || !featurePermission.hasProfile) &&
-                                            <Box key={`${index}-${featurePermission?.uuid}`} pr={4}
-                                                 className={"collapse-wrapper permissions-wrapper"}>
-                                                <TreeCheckbox
-                                                    {...{t}}
-                                                    data={featurePermission?.permissions ?? []}
-                                                    onCollapseIn={(uuid: string, value: boolean) => setFieldValue(`roles[${selectedFeature}][${index}].permissions[${featurePermission?.permissions.findIndex((permission: PermissionModel) => permission.uuid === uuid)}].collapseIn`, value)}
-                                                    onNodeCheck={(uuid: string, value: boolean, hasChildren: boolean, group: string) => handleTreeCheck(uuid, value, hasChildren, group, featurePermission, index)}
-                                                />
-                                            </Box>)}
-                                        {!selectedFeature && <NoDataCard
-                                            {...{t}}
-                                            ns={"settings"}
-                                            data={{
-                                                mainIcon: "setting/ic-users",
-                                                title: "users.config.no-data.permissions.title",
-                                                description: "users.config.no-data.permissions.description"
-                                            }}/>}
-
-                                    </Collapse>
-                                </ListItem>
-                            </Paper>
-                        </Grid>
-                    </RootUserStyled>
-                </TabPanel>
-            </Box>
+                                    </Paper>
+                                </Grid>
+                            </RootUserStyled>
+                            <div style={{paddingBottom: "50px"}}></div>
+                            <Stack
+                                className="bottom-section"
+                                justifyContent="flex-end"
+                                spacing={2}
+                                direction={"row"}>
+                                <Button onClick={() => router.back()}>
+                                    {t("motif.dialog.cancel")}
+                                </Button>
+                            </Stack>
+                        </TabPanel>
+                    </FormStyled>
+                </FormikProvider>
+            </ContainerLayoutStyled>
         </>
     );
 }

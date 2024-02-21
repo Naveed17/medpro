@@ -60,8 +60,10 @@ function UserRow({...props}) {
     }, [loadingReq]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <TableRowStyled key={uniqueId}
-                        className="user-row" {...(!row.isProfessional && {onClick: () => handleEvent("onUserDetail", row)})}>
+        <TableRowStyled
+            key={uniqueId}
+            className="user-row"
+            onClick={() => handleEvent("onUserDetail", row)}>
             <TableCell>
                 {row ? (
                     <>
