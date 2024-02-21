@@ -102,7 +102,7 @@ function ActFees() {
     const {data: user} = session as Session;
     const router = useRouter();
     const theme = useTheme();
-    const {acts, mutateActs} = useMPActs()
+    const {acts, mutateActs} = useMPActs({noPagination: false})
 
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery((theme: Theme) =>

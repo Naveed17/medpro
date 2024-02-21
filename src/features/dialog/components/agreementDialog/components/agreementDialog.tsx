@@ -1,5 +1,5 @@
-import {Stepper, stepperSelector,} from "@features/stepper";
-import {useAppSelector} from "@lib/redux/hooks";
+import {SetAgreement, Stepper, stepperSelector,} from "@features/stepper";
+import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {Card, CardContent, Paper, Radio, Stack, Typography,} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {Form, FormikProvider, useFormik} from "formik";
@@ -7,22 +7,20 @@ import * as Yup from "yup";
 import {AnimatePresence} from "framer-motion";
 import {useRef} from "react";
 import {Insurance} from "@features/stepper/components/insurance";
-import {Agreement} from "@features/stepper/components/agreement";
+import {useInsurances} from "@lib/hooks/rest";
 
 function AgreementDialog({...props}) {
-    const {
-        data: {t, devise, stepperData, collapse = false},
-    } = props;
+    const {data: {t, devise, stepperData, collapse = false}} = props;
+
+    const {insurances} = useInsurances();
+
+    const dispatch = useAppDispatch();
+    const {agreement} = useAppSelector(stepperSelector);
+
     const validationSchema = Yup.object().shape({
         select_insurance: Yup.string().required("requried"),
     });
     const formRef = useRef(null) as any;
-
-    const handleSubmitThroughRef = () => {
-        formRef.current.dispatchEvent(
-            new Event("submit", {cancelable: true, bubbles: true})
-        );
-    };
 
     const {currentStep} = useAppSelector(stepperSelector);
     const formik = useFormik({
@@ -40,22 +38,19 @@ function AgreementDialog({...props}) {
     const {values, setFieldValue, handleSubmit} = formik;
     return (
         <Stack>
-            <Paper
-                sx={{
-                    px: 2,
-                    py: 3,
-                    border: "none",
-                    borderRadius: 0,
-                    bgcolor: (theme) => theme.palette.background.default,
-                }}
-            >
+            <Paper sx={{
+                px: 2,
+                py: 3,
+                border: "none",
+                borderRadius: 0,
+                bgcolor: (theme) => theme.palette.background.default,
+            }}>
                 <Stepper
                     {...{stepperData}}
                     tabIndex={currentStep}
                     t={t}
                     minWidth={662}
-                    padding={0}
-                />
+                    padding={0}/>
             </Paper>
             <Paper
                 sx={{px: 2, py: 3, border: "none", mx: -3, mb: -2, borderRadius: 0}}
@@ -80,16 +75,19 @@ function AgreementDialog({...props}) {
                                         width: 1,
                                         cursor: "pointer",
                                         borderColor:
-                                            values.selected === item ? "primary.main" : "divider",
+                                            agreement.type === item ? "primary.main" : "divider",
                                     }}
                                     onClick={() => {
                                         setFieldValue("selected", item);
+                                        let _agreement = {...agreement}
+                                        _agreement.type = item
+                                        dispatch(SetAgreement(_agreement))
                                     }}
                                 >
                                     <CardContent sx={{"&:last-of-type": {pb: 2}}}>
                                         <Stack direction="row" alignItems="center" spacing={0.5}>
                                             <Radio
-                                                checked={values.selected === item ?? false}
+                                                checked={agreement.type === item ?? false}
                                                 sx={{svg: {width: 24}}}
                                                 checkedIcon={
                                                     <IconUrl path="ic-check-circle-padding" width={24}/>
@@ -105,12 +103,7 @@ function AgreementDialog({...props}) {
                         </Stack>
                         <Stack>
                             <AnimatePresence mode="wait">
-                                {values.selected === "insurance" && (
-                                    <Insurance {...{t, devise, formik, collapse}} />
-                                )}
-                                {values.selected === "agreement" && (
-                                    <Agreement {...{t, devise, formik}} />
-                                )}
+                                <Insurance {...{t, devise, formik, collapse, selected: values.selected, insurances}} />
                             </AnimatePresence>
                         </Stack>
                     </Form>

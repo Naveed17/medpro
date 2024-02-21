@@ -134,7 +134,7 @@ function Otable({...props}) {
     useEffect(() => {
         if (rowsSelected?.length === 0) {
             setSelected([]);
-        }
+        } else setSelected(select)
     }, [rowsSelected]);
 
     return (

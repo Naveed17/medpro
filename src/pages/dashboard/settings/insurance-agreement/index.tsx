@@ -16,7 +16,7 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import {configSelector, DashLayout} from "@features/base";
+import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {Otable} from "@features/table";
 import {Dialog as MedDialog} from "@features/dialog";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
@@ -31,23 +31,13 @@ import {LoadingScreen} from "@features/loadingScreen";
 import {Add} from "@mui/icons-material";
 import {ActionMenu} from "@features/menu";
 import IconUrl from "@themes/urlIcon";
-import {setStepperIndex, stepperSelector} from "@features/stepper";
+import {SetAgreement, setStepperIndex, stepperSelector} from "@features/stepper";
 import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
-
-const insuranceData = [
-    {
-        uuid: "01",
-        name: "assurance-1",
-        url: "/static/img/assurance-1.png"
-    },
-    {
-        uuid: "02",
-        name: "assurance-2",
-        url: "/static/img/assurance-2.png"
-    },
-]
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import moment from "moment/moment";
 
 const stepperData = [
     {
@@ -91,84 +81,6 @@ function InsuranceAndAgreement() {
         title: "no-data.title",
         description: "no-data.description"
     };
-
-    const {data: session} = useSession();
-    const {currentStep} = useAppSelector(stepperSelector);
-    const dispatch = useAppDispatch();
-
-    const {t, ready} = useTranslation("settings", {keyPrefix: "insurance.config"});
-    const {direction} = useAppSelector(configSelector);
-    const {data: user} = session as Session;
-
-    const medical_entity = (user as UserDataResponse)
-        .medical_entity as MedicalEntityModel;
-    const doctor_country = medical_entity.country
-        ? medical_entity.country
-        : DefaultCountry;
-    const devise = doctor_country.currency?.name;
-
-    const [rows, setRows] = useState<any>([
-        ...insuranceData
-    ]);
-    const router = useRouter();
-    const [search, setSearch] = React.useState("")
-    const [confirmDialog, setConfirmDialog] = useState(false);
-    const theme = useTheme();
-
-    const [contextMenu, setContextMenu] = React.useState<{
-        mouseX: number;
-        mouseY: number;
-    } | null>(null);
-    const [openAgreementDialog, setAgreementDialog] = useState(false);
-    const [collapse, setCollapse] = useState(false);
-
-    useEffect(()=>{
-        console.log("agreement",openAgreementDialog)
-    },[openAgreementDialog])
-    const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const query = event.target.value;
-        setSearch(query);
-        if (query.length === 0) return setRows(insuranceData)
-        const data = rows.filter((row: any) => {
-            return row.name.toLowerCase().includes(query.toLowerCase())
-        })
-        setRows(data);
-    }
-    const handleContextMenu = (event: MouseEvent) => {
-
-        event.preventDefault();
-        setContextMenu(
-            contextMenu === null
-                ? {
-                    mouseX: event.clientX + 2,
-                    mouseY: event.clientY - 6,
-                }
-                :
-                null,
-        );
-    };
-    const OnMenuActions = (props: any) => {
-        setContextMenu(null);
-    }
-    const handleTableActions = (props: { action: string, event: MouseEvent, data: any }) => {
-        const {action, event, data} = props;
-        switch (action) {
-            case "OPEN-POPOVER":
-                event.preventDefault();
-                handleContextMenu(event)
-                break;
-            case "ON_ROUTE":
-                event.preventDefault();
-                router.push(`${router.pathname}/${data.uuid}`, undefined, {locale: router.locale})
-
-        }
-    }
-    const handleCloseMenu = () => {
-        setContextMenu(null);
-    }
-
-
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
     const popoverActions = [{
         icon: <Add/>,
         title: "add",
@@ -218,6 +130,75 @@ function InsuranceAndAgreement() {
     ];
 
 
+    const {currentStep} = useAppSelector(stepperSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {direction} = useAppSelector(configSelector);
+    const {agreement} = useAppSelector(stepperSelector);
+
+    const {data: session} = useSession();
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const router = useRouter();
+    const dispatch = useAppDispatch();
+    const theme = useTheme();
+    const {trigger} = useRequestQueryMutation("/insurance");
+    const {t, ready} = useTranslation("settings", {keyPrefix: "insurance.config"});
+    const {data: user} = session as Session;
+
+    const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
+    const doctor_country = medical_entity.country ? medical_entity.country : DefaultCountry;
+    const devise = doctor_country.currency?.name;
+
+    const [search, setSearch] = React.useState("")
+    const [contextMenu, setContextMenu] = React.useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
+    const [openAgreementDialog, setAgreementDialog] = useState(false);
+    const [collapse, setCollapse] = useState(false);
+    const [agreements, setAgreements] = useState([]);
+
+    const {data: httpInsurances,mutate} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.locale}`,
+    });
+
+    const OnMenuActions = (props: any) => {
+        setContextMenu(null);
+    }
+    const handleTableActions = (props: { action: string, event: MouseEvent, data: any }) => {
+        const {action, event, data} = props;
+        switch (action) {
+            case "DELETE":
+                event.preventDefault();
+                trigger(
+                    {
+                        method: "DELETE",
+                        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${data.uuid}/${router.locale}`,
+                    },
+                    {
+                        onSuccess: () => {
+                            mutate()
+                        }
+                    }
+                );
+                break;
+            case "ON_ROUTE":
+                event.preventDefault();
+                router.push(`${router.pathname}/${data.uuid}`, undefined, {locale: router.locale})
+
+        }
+    }
+    const handleCloseMenu = () => {
+        setContextMenu(null);
+    }
+
+    useEffect(() => {
+        if (httpInsurances)
+            setAgreements(httpInsurances.data)
+    }, [httpInsurances])
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+
     return (
         <>
             <SubHeader>
@@ -235,13 +216,13 @@ function InsuranceAndAgreement() {
 
             <Box className="container">
 
-                {rows.length > 0 ? (
+                {agreements.length > 0 ? (
                     <>
                         <DesktopContainer>
                             <Otable
-                                toolbar={<Toolbar {...{t, search, handleSearch}} />}
+                                /*toolbar={<Toolbar {...{t, search, handleSearch}} />}*/
                                 headers={headCells}
-                                rows={rows}
+                                rows={agreements}
                                 handleEvent={handleTableActions}
                                 state={null}
                                 from={"insurance-agreement"}
@@ -252,9 +233,9 @@ function InsuranceAndAgreement() {
                         </DesktopContainer>
                         <MobileContainer>
                             <Paper component={Stack} spacing={1} sx={{p: 2, borderRadius: 1}}>
-                                <Toolbar {...{t, search, handleSearch}} />
+                                {/* <Toolbar {...{t, search, handleSearch}} />*/}
                                 {
-                                    rows.map((insurance: any) => (
+                                    agreements.map((insurance: any) => (
                                         <React.Fragment key={insurance.uuid}>
                                             <InsuranceMobileCard t={t} row={insurance}
                                                                  handleEvent={handleTableActions}/>
@@ -326,7 +307,15 @@ function InsuranceAndAgreement() {
                             variant="text-black"
                             onClick={() =>
                                 currentStep < 1
-                                    ? (setAgreementDialog(false), setCollapse(false))
+                                    ? (setAgreementDialog(false), setCollapse(false),
+                                        dispatch(SetAgreement({
+                                            type: 'insurance',
+                                            insurance: {name: ""},
+                                            label: '',
+                                            startDate: null,
+                                            endDate: null,
+                                            acts: []
+                                        })))
                                     : dispatch(setStepperIndex(currentStep - 1))
                             }
                         >
@@ -337,6 +326,7 @@ function InsuranceAndAgreement() {
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Button
                                 variant="contained"
+                                disabled={currentStep === 0 && ((agreement.type ==="insurance" &&!agreement.insurance?.uuid)|| (agreement.type === "agreement" && !agreement.name) ) }
                                 onClick={() => {
                                     if (stepperData.length - 1 > currentStep) {
                                         dispatch(setStepperIndex(currentStep + 1));
@@ -358,9 +348,37 @@ function InsuranceAndAgreement() {
                             {stepperData.length - 1 === currentStep && (
                                 <Button
                                     onClick={() => {
-                                        setAgreementDialog(false);
-                                        setCollapse(false);
-                                        setConfirmDialog(true);
+                                        const form = new FormData();
+                                        form.append("insurance", agreement.insurance.uuid)
+                                        form.append("name", agreement.label)
+                                        form.append("mutual", agreement.name ? agreement.name : "")
+                                        form.append("start_date", agreement.startDate ? moment(agreement.startDate).format("DD/MM/YYYY") : moment().format("DD/MM/YYYY"))
+                                        form.append("end_date", agreement.endDate ? moment(agreement.endDate).format("DD/MM/YYYY") : moment().add(1, "year").format("DD/MM/YYYY"))
+                                        form.append("acts", JSON.stringify(agreement.acts))
+                                        form.append("medicalEntityHasUsers", medicalEntityHasUser as string)
+                                        trigger(
+                                            {
+                                                method: "POST",
+                                                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.locale}`,
+                                                data: form
+                                            },
+                                            {
+                                                onSuccess: () => {
+                                                    setAgreementDialog(false);
+                                                    setCollapse(false);
+                                                    dispatch(SetAgreement({
+                                                        type: 'insurance',
+                                                        insurance: {name: ""},
+                                                        label: '',
+                                                        startDate: null,
+                                                        endDate: null,
+                                                        acts: []
+                                                    }))
+                                                    mutate()
+                                                    dispatch(setStepperIndex(0))
+                                                }
+                                            }
+                                        );
                                     }}
                                     variant="contained"
                                     sx={{

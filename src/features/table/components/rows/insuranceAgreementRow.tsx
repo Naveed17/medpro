@@ -2,26 +2,30 @@ import {TableRowStyled} from "@features/table";
 import React from "react";
 
 import TableCell from "@mui/material/TableCell";
-import {Button, Skeleton, Stack, Tooltip, Typography} from "@mui/material";
+import {Button, IconButton, Skeleton, Stack, Tooltip, Typography, useTheme} from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {uniqueId} from "lodash";
+import {useInsurances} from "@lib/hooks/rest";
 
 function InsuranceAgreementRow({...props}) {
     const {row, handleEvent} = props;
 
+    const {insurances} = useInsurances()
+    const theme = useTheme()
     return (
         <TableRowStyled key={uniqueId} >
             <TableCell>
                 {row ? (
                     <Stack direction='row' alignItems='center' spacing={1}>
-                        <Tooltip title={row.name}>
+                        {row.insurance && insurances.length> 0 &&<Tooltip title={row.name}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img style={{width: 30}}
-                                 alt={row.name}
-                                 src={row.url}/>
-                        </Tooltip>
+                             <img style={{width: 30}}
+                                  alt={row.name}
+                                  src={insurances.find(insc => insc.uuid === row.insurance.uuid)?.logoUrl.url}/>
+
+                        </Tooltip>}
                         <Typography fontWeight={600} color="text.primary">
-                            {row.name}
+                            {row.insurance ? row.insurance.name: row.mutual}
                         </Typography>
                     </Stack>
                 ) : (
@@ -31,7 +35,7 @@ function InsuranceAgreementRow({...props}) {
             <TableCell align="center">
                 {row ? (
                     <Typography fontSize={13} fontWeight={600} color="text.primary">
-                        Label
+                        {row.label}
                     </Typography>
                 ) : (
                     <Skeleton variant="text" width={100}/>
@@ -42,7 +46,7 @@ function InsuranceAgreementRow({...props}) {
                     <Stack direction='row' alignItems='center' justifyContent='center' spacing={1}>
                         <IconUrl path="ic-agenda-jour"/>
                         <Typography fontSize={13} fontWeight={600} color="text.primary">
-                            10/10/2022
+                            {row.startDate}
                         </Typography>
                     </Stack>
                 ) : (
@@ -54,7 +58,7 @@ function InsuranceAgreementRow({...props}) {
                     <Stack direction='row' alignItems='center' justifyContent='center' spacing={1}>
                         <IconUrl path="ic-agenda-jour"/>
                         <Typography fontSize={13} fontWeight={600} color="text.primary">
-                            10/10/2022
+                            {row.endDate}
                         </Typography>
                     </Stack>
                 ) : (
@@ -64,25 +68,13 @@ function InsuranceAgreementRow({...props}) {
             <TableCell align="center">
                 {row ? (
                     <Stack direction='row' alignItems='center' spacing={1} justifyContent='flex-end'>
-                        <Button
-                            onClick={(e: any) => handleEvent({action: 'ON_ROUTE', event: e, data: row})}
-                            sx={{
-                                bgcolor: theme => theme.palette.grey["A500"],
-                                border: 'none'
-                            }}
-                            endIcon={
-                                <Typography component='span' style={{fontSize: 10}}>
-                                    9
-                                </Typography>
-                            }
-                            variant="google">
-                            <Typography fontSize={14} component={'span'}>
-                                Ajouter un acte
-                            </Typography>
-                        </Button>
-                        {/* <IconButton disableRipple size="small" onClick={(e) => handleEvent({ event: e, data: row, action: "OPEN-POPOVER" })}>
-                            <IconUrl path="ic-autre" />
-                        </IconButton>*/}
+                        <IconButton disableRipple size="small" onClick={(e) => handleEvent({action: 'ON_ROUTE', event: e, data: row})}>
+                            <IconUrl path="ic-edit-pen" width={20} height={20}
+                                     color={theme.palette.text.secondary}/>
+                        </IconButton>
+                        <IconButton disableRipple size="small" onClick={(e) => handleEvent({ event: e, data: row, action: "DELETE" })}>
+                            <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>
+                        </IconButton>
                     </Stack>
                 ) : (
                     <Skeleton variant="text" width={100}/>

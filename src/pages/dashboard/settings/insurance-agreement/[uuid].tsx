@@ -54,7 +54,8 @@ function Actes() {
     const [mainActes, setMainActes] = useState<any>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const {acts, error} = useMPActs()
+    const {acts, error} = useMPActs({noPagination: false})
+    console.log(acts)
     const headCells = [
         {
             id: "select-all",

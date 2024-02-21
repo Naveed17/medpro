@@ -754,7 +754,9 @@
         "type": "Nature",
         "placeholder_type": "Tapez la nature de convention",
         "signed_agreement": "Avez-vous signé la convention ?",
-        "apci_placeholder": "Sélectionner ou tapez le code APCi"
+        "apci_placeholder": "Sélectionner ou tapez le code APCi",
+        "label": "Libellé",
+        "acts": "Actes"
       }
     },
     "alert": {
@@ -930,7 +932,9 @@
           "type": "Nature",
           "placeholder_type": "Tapez la nature de convention",
           "signed_agreement": "Avez-vous signé la convention ?",
-          "apci_placeholder": "Sélectionner ou tapez le code APCi"
+          "apci_placeholder": "Sélectionner ou tapez le code APCi",
+          "label": "Libellé",
+          "acts": "Actes"
         }
       },
       "no-data": {

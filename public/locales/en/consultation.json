@@ -564,7 +564,8 @@
     "#": "#",
     "send_the_link": "Send questionnaire link",
     "date_of_appointment": "Date of appointment",
-    "see_details": "See details"
+    "see_details": "See details",
+    "rem_amount": "Reimbursement"
   },
   "tracking_data": "Tracking data",
   "exempleFees": "Search ...",
