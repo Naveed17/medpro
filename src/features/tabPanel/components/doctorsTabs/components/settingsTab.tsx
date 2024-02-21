@@ -70,7 +70,7 @@ function SettingsTab({ ...props }) {
             email: "",
             role: "",
             department: "",
-            doctors: []
+            doctors: [] as any
 
         },
         validationSchema,
@@ -334,7 +334,7 @@ function SettingsTab({ ...props }) {
                                                         control={
                                                             <Checkbox
                                                                 checked={
-                                                                    values.doctors.indexOf('lll') > -1
+                                                                    values.doctors.includes('lll')
                                                                 }
 
 
