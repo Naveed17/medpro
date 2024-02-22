@@ -242,13 +242,16 @@ function Data() {
                             )}
                         </Can>
 
-                        <Button
+                        <LoadingButton
+                            disabled={importData?.list.findIndex(data => data?.type === 1) !== -1}
+                            {...{loading}}
+                            loadingPosition={"start"}
                             type="submit"
                             variant="contained"
                             onClick={handleExportData}
                             color="primary">
                             {t("export")}
-                        </Button>
+                        </LoadingButton>
                     </Stack>
                 </Stack>
             </SubHeader>
