@@ -3,7 +3,7 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useState} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
-import {Stack, Box, useTheme, MenuItem, Typography,} from "@mui/material";
+import {Box, useTheme, MenuItem, Typography,} from "@mui/material";
 import {useRouter} from "next/router";
 import {DashLayout} from "@features/base";
 import {LoadingScreen} from "@features/loadingScreen";

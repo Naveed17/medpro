@@ -32,7 +32,7 @@ function AboutTab({...props}) {
                                     condition={false}
                                     wrapper={(children: any) => <Zoom>{children}</Zoom>}>
                                     <Avatar
-                                        {...(true && {className: "zoom"})}
+                                        className={"zoom"}
                                         src={"/static/icons/men-avatar.svg"}
                                         sx={{
                                             "& .injected-svg": {
