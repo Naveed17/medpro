@@ -210,7 +210,8 @@ function BoardItem({...props}) {
                                                             quote.content.startTime :
                                                             <Stack direction={"row"} spacing={.5}
                                                                    alignItems={"center"}>
-                                                                <span>{quote.content.startTime}</span>
+                                                                <span
+                                                                    style={{marginLeft: 1}}>{quote.content.startTime}</span>
                                                                 <IconUrl path={'ic-duration'} width={14}
                                                                          height={14} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
                                                                 {getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}
