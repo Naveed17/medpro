@@ -407,8 +407,59 @@ function Page({...props}) {
                         </div>
                     </Resizable>}
 
+                    {/*Age*/}
+                    {data.age?.show && id == 0 && <Resizable
+                        defaultSize={{
+                            width: `${data.age?.width ? data.age?.width + "px" : 300}`,
+                            height: "fit-content",
+                        }}
+                        className={`${selectedElement === "age" ? "selected" : "notSelected"} age`}
+                        style={{
+                            transform: `translate(${data.age?.x}px, ${data.age?.y}px)`,
+                            width: `${data.age?.width ? data.age?.width + "px" : "fit-content"}`,
+                            height: `fit-content`
+                        }}
+                        bounds={"parent"}
+                        enable={{
+                            right: selectedElement === "age",
+                        }}
+                        onResizeStart={() => {
+                            setBlockDrag(true)
+                        }}
+                        onResizeStop={(e, direction, ref, d) => {
+                            data.cin.width = document.getElementById(`cin${id}`)?.clientWidth
+
+                            data.cin.maxHeight += d.height
+                            setData({...data})
+                            setBlockDrag(false)
+                        }}>
+
+                        <div id={`age${id}`} onClick={(ev) => {
+                            ev.stopPropagation()
+                            setSelectedElement("age")
+                        }}>
+                            {data.age?.prefix} {data.age?.content}
+                        </div>
+                        <div className={"menuTop"}>
+                            <div className={"btnMenu"}
+                                 onClick={() => {
+                                     data.age.show = false;
+                                     setData({...data})
+                                 }}>
+                                <Icon path={"ic-delete"}/>
+                            </div>
+                            <div className={"btnMenu"}
+                                 style={{backgroundColor: selectedElement === "age" ? theme.palette.success.main : theme.palette.info.main}}
+                                 onClick={() => {
+                                     setSelectedElement(selectedElement !== "age" ? "age" : "")
+                                 }}>
+                                <Icon path={selectedElement !== "age" ? "ic-edit-patient" : "ic-check"}/>
+                            </div>
+                        </div>
+                    </Resizable>}
+
                     {
-                        data.other && data.other.map((other: any, index: number) => (
+                        data.other && id == 0  && data.other.map((other: any, index: number) => (
 
                             <Resizable
                                 key={index}
@@ -595,7 +646,7 @@ function Page({...props}) {
                     </Resizable>
 
                     {/*footer*/}
-                    {data.footer.show && <Resizable
+                    {data.footer.show && id===0 && <Resizable
                         defaultSize={{
                             width: `${data.footer.width ? data.footer.width + "px" : 300}`,
                             height: `${data.footer.height ? data.footer.height + "px" : "fit-content"}`,
@@ -616,7 +667,7 @@ function Page({...props}) {
                             setBlockDrag(true)
                         }}
                         onResizeStop={(e, direction, ref, d) => {
-                            data.footer.width = document.getElementById(`footer${id}`)?.clientWidth
+                            data.footer.width = document.getElementById(`footer`)?.clientWidth
                             data.footer.maxHeight += d.height
                             setData({...data})
                             setBlockDrag(false)
