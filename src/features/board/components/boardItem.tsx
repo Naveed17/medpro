@@ -197,8 +197,8 @@ function BoardItem({...props}) {
                                            spacing={.5}>
                                         {quote.content.startTime !== "00:00" &&
                                             <Stack direction={"row"} spacing={.5} alignItems={"center"}>
-                                                <IconUrl path={'ic-time'} width={16}
-                                                         height={16} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
+                                                <IconUrl path={'ic-time'} width={14}
+                                                         height={14} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
                                                 <Typography
                                                     variant="body2"
                                                     fontWeight={700}
@@ -207,7 +207,15 @@ function BoardItem({...props}) {
                                                         moment().utc().hour(0).minute(0).second(time).format('HH : mm : ss') :
                                                         quote.content.status !== 3 ?
                                                             quote.content.startTime :
-                                                            `${quote.content.startTime} - ${getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}`}
+                                                            <Stack direction={"row"} spacing={.5}
+                                                                   alignItems={"center"}>
+                                                                <Typography ml={1}
+                                                                            variant="body2">{quote.content.startTime}</Typography>
+                                                                <IconUrl path={'ic-duration'} width={14}
+                                                                         height={14} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
+                                                                {getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}
+                                                            </Stack>
+                                                    }
                                                 </Typography>
                                             </Stack>
                                         }
@@ -216,7 +224,7 @@ function BoardItem({...props}) {
                                             <Stack direction={"row"} spacing={.5} alignItems={"center"}>
                                                 {quote.content?.estimatedStartTime &&
                                                     <Stack direction={"row"} spacing={.5} alignItems={"center"}>
-                                                        <IconUrl path={'ic-attendre'} width={15}
+                                                        <IconUrl path={'ic-estimated-time'} width={15}
                                                                  height={15} color={theme.palette.expire.main}/>
                                                         <Typography
                                                             variant="body2"

@@ -250,7 +250,7 @@ function AppointmentCard({...props}) {
                                     sx={{cursor: "pointer"}}
                                     direction="row" spacing={2} alignItems="center">
                                     <Typography fontWeight={400}>
-                                        {t("appintment_date")} :
+                                        {t("appointment_date")} :
                                     </Typography>
                                     <ConditionalWrapper
                                         condition={onMoveAppointment && !appointment?.extendedProps.patient?.isArchived && (!roles.includes("ROLE_SECRETARY") || (roles.includes("ROLE_SECRETARY") && data?.status?.key !== "ON_GOING"))}
