@@ -200,6 +200,7 @@ function BoardItem({...props}) {
                                                 <IconUrl path={'ic-time'} width={14}
                                                          height={14} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
                                                 <Typography
+                                                    component={"div"}
                                                     variant="body2"
                                                     fontWeight={700}
                                                     color={duration >= -1 && ![4, 5].includes(quote.content.status) ? "expire.main" : "text.primary"}>
@@ -209,8 +210,7 @@ function BoardItem({...props}) {
                                                             quote.content.startTime :
                                                             <Stack direction={"row"} spacing={.5}
                                                                    alignItems={"center"}>
-                                                                <Typography ml={1}
-                                                                            variant="body2">{quote.content.startTime}</Typography>
+                                                                <span>{quote.content.startTime}</span>
                                                                 <IconUrl path={'ic-duration'} width={14}
                                                                          height={14} {...((duration >= -1 && ![4, 5].includes(quote.content.status)) && {color: theme.palette.expire.main})}/>
                                                                 {getDiffDuration(`${quote.content.dayDate} ${quote.content.arrivalTime}`, 1)}
