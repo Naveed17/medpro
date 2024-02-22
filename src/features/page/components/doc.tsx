@@ -148,8 +148,9 @@ function Doc({...props}) {
         if (title && title !== "Titre") {
             data.title.content = title;
             setData({...data})
-        } else
-            data.title.content = state.title
+        }
+            if(state && state.title)
+                data.title.content = state.title
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [title])
 

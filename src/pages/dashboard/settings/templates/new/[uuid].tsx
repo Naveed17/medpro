@@ -55,7 +55,7 @@ function DocsConfig() {
     const isMobile = useMediaQuery("(max-width:669px)");
     const {enqueueSnackbar} = useSnackbar();
 
-    const defaultData = {
+    let defaultData:any = {
         background: {show: false, content: {url: ''}},
         header: {show: false, x: 0, y: 0},
         footer: {show: false, x: 0, y: 400, content: 'change me ...'},
@@ -240,7 +240,7 @@ function DocsConfig() {
         if (used) {
             setOpenReset(true)
             setPaperSize({target, value})
-            let _data: any = {...data}
+            let _data: any = data//{...data}
             if (_data[target])
                 _data[target] = value;
             else _data = {...data, [target]: value}
@@ -254,6 +254,10 @@ function DocsConfig() {
         if (_data[target])
             _data[target] = value;
         else _data = {...data, [target]: value}
+        if (defaultData[target])
+            defaultData[target] = value;
+        else defaultData = {...defaultData, [target]: value}
+
         _data.content.width = "90%"
         setOnResize(true)
         _data.content.maxHeight = 100
@@ -517,7 +521,7 @@ function DocsConfig() {
                                 container
                                 spacing={1}
                                 alignItems="center">
-                                {data && Object.keys(data).filter(key => !["content", "size", "background", "layout", "isNew", "other"].includes(key)).map(key => (
+                                {data && Object.keys(data).filter(key => !["content", "size", "background", "layout", "isNew", "other","header","footer"].includes(key)).map(key => (
                                     <Grid key={key} item xs={6}>
                                         <div style={{opacity: data[key].show === true ? 0.5 : 1}}>
                                             <Stack
@@ -555,6 +559,50 @@ function DocsConfig() {
                                 container
                                 spacing={1}
                                 alignItems="center">
+                                <Grid item xs={6}>
+                                    <Stack
+                                        direction={"row"}
+                                        spacing={1}
+                                        alignItems={"center"}
+                                        onClick={() => {
+                                            setUsed(true)
+                                            data.header.show = true
+                                            setData({...data})
+                                        }}
+                                        style={{
+                                            backgroundColor: "#F0FAFF",
+                                            height: 40,
+                                            padding: 10,
+                                            borderRadius: 6,
+                                            opacity: data.header.show === true ? 0.5 : 1
+                                        }}>
+                                        <Typography textAlign={"center"} width={"100%"}
+                                                    style={{cursor: "pointer"}}>{t('header')}</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                    </Stack>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Stack
+                                        direction={"row"}
+                                        spacing={1}
+                                        alignItems={"center"}
+                                        onClick={() => {
+                                            setUsed(true)
+                                            data.footer.show = true
+                                            setData({...data})
+                                        }}
+                                        style={{
+                                            backgroundColor: "#F0FAFF",
+                                            height: 40,
+                                            padding: 10,
+                                            borderRadius: 6,
+                                            opacity: data.footer.show === true ? 0.5 : 1
+                                        }}>
+                                        <Typography textAlign={"center"} width={"100%"}
+                                                    style={{cursor: "pointer"}}>{t('footer')}</Typography>
+                                        <IconUrl path={"ic-plus"} width={20} height={20}/>
+                                    </Stack>
+                                </Grid>
                                 <Grid item xs={6}>
                                     <Stack
                                         direction={"row"}
