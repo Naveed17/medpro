@@ -55,6 +55,9 @@ const TemplateStyled = styled(Card)(({theme}) => ({
             ".a5":{
                 zoom:"25%"
             },
+            ".landscapea4":{
+                zoom:"15% !important"
+            },
             [theme.breakpoints.down("md")]: {
                 width: '100%',
                 padding: 0,

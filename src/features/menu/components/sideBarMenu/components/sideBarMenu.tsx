@@ -8,7 +8,7 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
-    Toolbar,
+    Toolbar, Tooltip,
     useMediaQuery
 } from "@mui/material";
 // utils
@@ -39,7 +39,7 @@ import {LeftActionBar} from "@features/leftActionBar";
 import {dashLayoutSelector} from "@features/base";
 import {useSession} from "next-auth/react";
 import dynamic from "next/dynamic";
-import {unsubscribeTopic} from "@lib/hooks";
+import {ConditionalWrapper, unsubscribeTopic} from "@lib/hooks";
 import axios from "axios";
 import {Session} from "next-auth";
 import {MobileContainer} from "@lib/constants";
@@ -114,61 +114,67 @@ function SideBarMenu({children}: LayoutProps) {
                 onMouseLeave={() => setCurrentIndex(null)}
                 sx={{overflow: 'hidden', px: 1.5}}>
                 {menuItems?.map((item, i) => (
-                    //<Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
-                    <Hidden key={item.name} smUp={item.name === "wallet"}>
-                        <a onClick={() => handleRouting(item.href)}>
-                            <ListItem
-                                sx={{
-                                    margin: "0.5rem 0",
-                                    cursor: 'pointer'
-                                }}
-                                className={router.pathname === item.href ? "active" : ""}>
-                                <Badge
-                                    anchorOrigin={{
-                                        vertical: "bottom",
-                                        horizontal: "right",
+                    <ConditionalWrapper
+                        key={item.name}
+                        condition={!hasAdminAccess}
+                        wrapper={(children: any) =>
+                            <Can key={item.name} I={"read"} a={item.href.split('/')[2] as any}>
+                                {children}
+                            </Can>}>
+                        <Hidden smUp={item.name === "wallet"}>
+                            <a onClick={() => handleRouting(item.href)}>
+                                <ListItem
+                                    sx={{
+                                        margin: "0.5rem 0",
+                                        cursor: 'pointer'
                                     }}
-                                    invisible={item.badge === undefined || isMobile}
-                                    color="warning"
-                                    badgeContent={item.badge}>
-                                    <ListItemIcon
-                                        onMouseEnter={(e) => {
-                                            if (router.pathname === item.href) {
-                                                e.stopPropagation();
-                                                setCurrentIndex(null);
-                                                return;
-                                            }
-
-                                            setCurrentIndex(i);
-                                        }}>
-                                        <Icon path={item.icon}/>
-                                    </ListItemIcon>
-                                </Badge>
-                                <ListItemTextStyled primary={t("main-menu." + item.name)}/>
-                                {isMobile && item.badge !== undefined && item.badge > 0 && (
+                                    className={router.pathname === item.href ? "active" : ""}>
                                     <Badge
-                                        badgeContent={item.badge}
-                                        color="warning"
-                                        sx={{
-                                            ".MuiBadge-badge": {
-                                                right: 8,
-                                            },
+                                        anchorOrigin={{
+                                            vertical: "bottom",
+                                            horizontal: "right",
                                         }}
-                                    />
-                                )}
+                                        invisible={item.badge === undefined || isMobile}
+                                        color="warning"
+                                        badgeContent={item.badge}>
+                                        <ListItemIcon
+                                            onMouseEnter={(e) => {
+                                                if (router.pathname === item.href) {
+                                                    e.stopPropagation();
+                                                    setCurrentIndex(null);
+                                                    return;
+                                                }
 
-                                {i === currentIndex && (
-                                    <motion.div
-                                        className="icon-background"
-                                        layoutId="social"
-                                        key="social"
-                                        initial={false}
-                                    />
-                                )}
-                            </ListItem>
-                        </a>
-                    </Hidden>
-                    //</Can>
+                                                setCurrentIndex(i);
+                                            }}>
+                                            <Icon path={item.icon}/>
+                                        </ListItemIcon>
+                                    </Badge>
+                                    <ListItemTextStyled primary={t("main-menu." + item.name)}/>
+                                    {isMobile && item.badge !== undefined && item.badge > 0 && (
+                                        <Badge
+                                            badgeContent={item.badge}
+                                            color="warning"
+                                            sx={{
+                                                ".MuiBadge-badge": {
+                                                    right: 8,
+                                                },
+                                            }}
+                                        />
+                                    )}
+
+                                    {i === currentIndex && (
+                                        <motion.div
+                                            className="icon-background"
+                                            layoutId="social"
+                                            key="social"
+                                            initial={false}
+                                        />
+                                    )}
+                                </ListItem>
+                            </a>
+                        </Hidden>
+                    </ConditionalWrapper>
                 ))}
             </List>
             <List className="list-bottom">

@@ -556,6 +556,8 @@
       "no-assigned-to-placeholder": "Aucun médecin n'a été trouvé",
       "auto-password": "Génération automatique du mot de passe",
       "un-assign": "Désassigner",
+      "select-all": "Sélectionner tout",
+      "personal-info": "Informations",
       "manual-password": "Laissez-moi créer le mot de passe",
       "reset-password": "Demander à l'utilisateur de changer son mot de passe lorsqu'il se connecte",
       "features": {
@@ -620,8 +622,8 @@
         "role_permissions": "Rôle & Autorisations",
         "role_assignments": "Rôle & affectation",
         "end": "Fin",
-        "family_name": "Nom de famille",
-        "first_name": "Prénom",
+        "user_name": "Nom d'utilisateur",
+        "first_name": "Nom & Prénom",
         "phone": "Téléphone Mobile",
         "email": "Adresse mail",
         "password": "Mot de passe",
@@ -646,6 +648,10 @@
           "title": "Ajouter votre premier profil",
           "description": "Gérez votre accès et créez votre premier profil",
           "button-text": "Ajouter un profil"
+        },
+        "permissions": {
+          "title": "Veuillez sélectionner les fonctionnalités et les autorisations",
+          "description": "Gérez votre accès et créez votre premier profil"
         }
       },
       "table": {
@@ -811,6 +817,9 @@
       "empty": ""
     },
     "add": "Importer",
+    "export": "Exporter les données",
+    "export-data": "Exportation",
+    "import-data": "Importation",
     "path": "Paramètres > Importation de données",
     "path-import": "Paramètres > Importation de données > Nouveau",
     "title": "Données",
@@ -827,7 +836,8 @@
     "load-file": "Charger le fichier",
     "load-data": "importer les données",
     "alert": {
-      "delete-import": "L'importation de données a été réinitialisée avec succès."
+      "delete-import": "L'importation de données a été réinitialisée avec succès.",
+      "export": "La demande exportation de données a été effectué avec succès."
     },
     "dialogs": {
       "duplication-dialog": {
@@ -878,6 +888,7 @@
     "table": {
       "name": "Nom",
       "source": "Source de l'export",
+      "type": "Type",
       "status": "statut",
       "action": "Action",
       "reset": "Réinitialiser"

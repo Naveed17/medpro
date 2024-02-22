@@ -58,6 +58,14 @@ const headImportDataCells = [
         sortable: true,
     },
     {
+        id: "type",
+        numeric: false,
+        disablePadding: true,
+        label: "type",
+        align: "center",
+        sortable: true,
+    },
+    {
         id: "status",
         numeric: false,
         disablePadding: true,
@@ -163,6 +171,27 @@ function Data() {
         });
     };
 
+    const handleExportData = () => {
+        setLoading(true);
+        const params = new FormData();
+        params.append("type", "1");
+        params.append("method", "");
+
+        triggerDeleteImportData({
+            method: "POST",
+            url: `${urlMedicalEntitySuffix}/import/data/${router.locale}`,
+            data: params
+        }, {
+            onSuccess: (value) => {
+                if ((value?.data as any).status === "success") {
+                    mutateImportData();
+                    enqueueSnackbar(t(`alert.export`), {variant: "success"});
+                }
+                setLoading(false);
+            }
+        });
+    };
+
     useEffect(() => {
         if (importData) {
             dispatch(
@@ -191,23 +220,36 @@ function Data() {
                     width={1}
                     alignItems="center">
                     <Typography>{t("path")}</Typography>
-                    <Can I={"manage"} a={"settings"} field={"settings__data__import"}>
-                        {(process.env.NODE_ENV === "development" ||
-                            (importData &&
-                                (importData.list.length === 0 ||
-                                    (importData.list.length > 0 &&
-                                        importData.list[0].status === 3)))) && (
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                onClick={() => {
-                                    router.push("/dashboard/settings/data/import");
-                                }}
-                                color="success">
-                                {t("add")}
-                            </Button>
-                        )}
-                    </Can>
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center">
+                        <Can I={"manage"} a={"settings"} field={"settings__data__import"}>
+                            {(process.env.NODE_ENV === "development" ||
+                                (importData &&
+                                    (importData.list.length === 0 ||
+                                        (importData.list.length > 0 &&
+                                            importData.list[0].status === 3)))) && (
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    onClick={() => {
+                                        router.push("/dashboard/settings/data/import");
+                                    }}
+                                    color="success">
+                                    {t("add")}
+                                </Button>
+                            )}
+                        </Can>
+
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            onClick={handleExportData}
+                            color="primary">
+                            {t("export")}
+                        </Button>
+                    </Stack>
                 </Stack>
             </SubHeader>
             <Box className="container">

@@ -1,7 +1,7 @@
 import {styled} from "@mui/material/styles";
 import {Form} from "formik";
 
-const PaperStyled = styled(Form)(({theme}) => ({
+const CertifModalStyled = styled(Form)(({theme}) => ({
     backgroundColor: "#F0F7FA",
     borderRadius: 0,
     minWidth: "650px",
@@ -40,4 +40,4 @@ const PaperStyled = styled(Form)(({theme}) => ({
     },
 }));
 
-export default PaperStyled;
+export default CertifModalStyled;

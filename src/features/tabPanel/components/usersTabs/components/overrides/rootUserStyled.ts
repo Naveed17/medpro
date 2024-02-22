@@ -1,10 +1,10 @@
 import {Grid, styled} from "@mui/material";
 
-const RootSyled = styled(Grid)(({theme}) => ({
+const RootUserStyled = styled(Grid)(({theme}) => ({
     '.motif-list': {
         flexDirection: 'column',
         alignItems: 'flex-start',
-        borderBottom: `1px solid ${theme.palette.divider}`,
+        //borderBottom: `1px solid ${theme.palette.divider}`,
         paddingTop: theme.spacing(1.5),
         "&:not(:last-of-type)": {
             marginBottom: theme.spacing(.5),
@@ -19,6 +19,7 @@ const RootSyled = styled(Grid)(({theme}) => ({
         ".MuiCollapse-root": {
             cursor: 'default',
             width: '100%',
+            minWidth: 200,
             ".collapse-wrapper": {
                 paddingTop: 0,
                 width: 'calc(100% + 64px)',
@@ -84,4 +85,4 @@ const RootSyled = styled(Grid)(({theme}) => ({
     }
 }));
 
-export default RootSyled;
+export default RootUserStyled;

@@ -80,7 +80,7 @@ function MainLayout({...props}) {
     const [dialogAction, setDialogAction] = useState("confirm-dialog"); // confirm-dialog | finish-dialog
     const [notificationData, setNotificationData] = useState<any>(null);
     const [noConnection, setNoConnection] = useState<SnackbarKey | undefined>(undefined);
-    const [translationCommon] = useState(props._nextI18Next.initialI18nStore.fr.common);
+    const [translationCommon] = useState(props._nextI18Next?.initialI18nStore.fr.common);
     const [openPaymentDialog, setOpenPaymentDialog] = useState<boolean>(false);
 
     const [open, setOpen] = React.useState(false);
@@ -126,7 +126,7 @@ function MainLayout({...props}) {
                         mutateOnGoing();
                         closeSnackbar();
                         enqueueSnackbar((data.body.progress === -1 ?
-                                translationCommon.import_data.failed : translationCommon.import_data.end),
+                                translationCommon?.import_data.failed : translationCommon?.import_data.end),
                             {variant: data.body.progress === -1 ? "error" : "success"});
                     } else {
                         localStorage.setItem("import-data-progress", data.body.progress.toString());
@@ -175,7 +175,7 @@ function MainLayout({...props}) {
                         mutateOnGoing();
                         break;
                     case "documents":
-                        enqueueSnackbar(translationCommon.alerts["speech-text"].title, {variant: "success"});
+                        enqueueSnackbar(translationCommon?.alerts["speech-text"].title, {variant: "success"});
                         invalidateQueries([`${urlMedicalEntitySuffix}/agendas/${agendaConfig?.uuid}/appointments/${data.body.appointment}/documents/${router.locale}`]);
                         break;
                     default:
@@ -347,9 +347,11 @@ function MainLayout({...props}) {
         // So that it attempts to connect again
         eventSource.onerror = (error) => {
             eventSource.close();
-            const errorData = (error as any)?.data && JSON.parse((error as any)?.data);
-            if (![404, 500, 502, 503, 504].includes(errorData?.status)) {
-                setTimeout(connectToStream, 1);
+            if ((error as any)?.data) {
+                const errorData = (error as any).data && JSON.parse((error as any)?.data);
+                if (![404, 500, 502, 503, 504].includes(errorData?.status)) {
+                    setTimeout(connectToStream, 1);
+                }
             }
         };
 
@@ -430,7 +432,7 @@ function MainLayout({...props}) {
                 }}
                 size={"lg"}
                 fullWidth
-                title={translationCommon.payment_dialog_title}
+                title={translationCommon?.payment_dialog_title}
                 dialogClose={() => setOpenPaymentDialog(false)}
             />
             <Dialog

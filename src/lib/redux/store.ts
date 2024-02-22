@@ -27,13 +27,28 @@ import {CashboxReducer} from "@features/leftActionBar";
 import {absenceDrawerReducer} from "@features/drawer";
 import {minMaxWindowToggleReducer} from '@features/buttons';
 import {StepperReducer} from "@features/stepper";
-import storageSession from 'redux-persist/lib/storage/session'
 import {persistReducer} from 'redux-persist';
 import {CaslReducer} from "@features/casl";
 
+const createNoopStorage = () => {
+    return {
+        getItem(_key: string) {
+            return Promise.resolve(null)
+        },
+        setItem(_key: string, value: string) {
+            return Promise.resolve(value)
+        },
+        removeItem(_key: string) {
+            return Promise.resolve()
+        },
+    }
+}
+
+const storage = typeof window !== 'undefined' ? require("redux-persist/lib/storage/session").default : createNoopStorage()
+
 const persistConfig = {
     key: 'root',
-    storage: storageSession
+    storage
 }
 
 const rootReducer = combineReducers({

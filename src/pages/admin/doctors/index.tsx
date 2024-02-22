@@ -1,17 +1,17 @@
-import React, {ReactElement} from "react";
-import {AdminLayout} from "@features/base";
-import {GetStaticProps} from "next";
-import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import {SubHeader} from "@features/subHeader";
-import {Box} from "@mui/material";
-import {DesktopContainer} from "@themes/desktopConainter";
-import {useTranslation} from "next-i18next";
-import {LoadingScreen} from "@features/loadingScreen";
-import {Otable} from "@features/table";
-import {DoctorToolbar} from "@features/toolbar";
-import {useRequestQuery} from "@lib/axios";
-import {useRouter} from "next/router";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import React, { ReactElement } from "react";
+import { AdminLayout } from "@features/base";
+import { GetStaticProps } from "next";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { SubHeader } from "@features/subHeader";
+import { Box } from "@mui/material";
+import { DesktopContainer } from "@themes/desktopConainter";
+import { useTranslation } from "next-i18next";
+import { LoadingScreen } from "@features/loadingScreen";
+import { Otable } from "@features/table";
+import { DoctorToolbar } from "@features/toolbar";
+import { useRequestQuery } from "@lib/axios";
+import { useRouter } from "next/router";
+import { useMedicalEntitySuffix } from "@lib/hooks";
 
 const headCells = [
     {
@@ -82,29 +82,29 @@ const headCells = [
 
 function Doctors() {
     const router = useRouter();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
 
-    const {t, ready} = useTranslation("doctors", {keyPrefix: "config"});
+    const { t, ready } = useTranslation("doctors", { keyPrefix: "config" });
 
-    const {data: httpUsersResponse} = useRequestQuery({
+    const { data: httpUsersResponse } = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
-    }, {refetchOnWindowFocus: false});
+    }, { refetchOnWindowFocus: false });
 
     const users = ((httpUsersResponse as HttpResponse)?.data?.filter((user: UserModel) => user.isProfessional) ?? []) as UserModel[];
 
-    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+    if (!ready) return (<LoadingScreen button text={"loading-error"} />);
 
     return (
         <>
             <SubHeader
                 sx={{
                     ".MuiToolbar-root": {
-                        flexDirection: {xs: "column", md: "row"},
-                        py: {md: 0, xs: 2},
+                        flexDirection: { xs: "column", md: "row" },
+                        py: { md: 0, xs: 2 },
                     },
                 }}>
-                <DoctorToolbar {...{t}}/>
+                <DoctorToolbar {...{ t, title: "sub-header.list_title" }} />
             </SubHeader>
             <Box className="container">
                 <DesktopContainer>
@@ -112,7 +112,7 @@ function Doctors() {
                         headers={headCells}
                         rows={users}
                         from={"doctors"}
-                        {...{t}}
+                        {...{ t }}
                     />
                 </DesktopContainer>
             </Box>
@@ -120,7 +120,7 @@ function Doctors() {
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({locale}) => ({
+export const getStaticProps: GetStaticProps = async ({ locale }) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'doctors']))

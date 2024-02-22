@@ -154,7 +154,6 @@ function NewUserDialog({...props}) {
         });
 
         form.append("features", JSON.stringify(features));
-
         triggerProfileUpdate({
             method: "POST",
             url: `${urlMedicalEntitySuffix}/profile/${router.locale}`,

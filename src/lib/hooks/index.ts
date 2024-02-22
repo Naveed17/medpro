@@ -34,6 +34,8 @@ export * from "./a11yProps";
 export * from "./useStopwatch";
 export * from "./prepareContextMenu";
 export * from "./highlightedDays";
+export * from "./groupPermissionsByFeature";
+export * from "./getPermissionsCount";
 export * from "./prescriptionPreviewDosage";
 export * from './rest/useContactType';
 export * from './rest/useSendNotification';
