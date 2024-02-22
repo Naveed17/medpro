@@ -817,6 +817,9 @@
       "empty": ""
     },
     "add": "Importer",
+    "export": "Exporter les données",
+    "export-data": "Exportation",
+    "import-data": "Importation",
     "path": "Paramètres > Importation de données",
     "path-import": "Paramètres > Importation de données > Nouveau",
     "title": "Données",
@@ -833,7 +836,8 @@
     "load-file": "Charger le fichier",
     "load-data": "importer les données",
     "alert": {
-      "delete-import": "L'importation de données a été réinitialisée avec succès."
+      "delete-import": "L'importation de données a été réinitialisée avec succès.",
+      "export": "La demande exportation de données a été effectué avec succès."
     },
     "dialogs": {
       "duplication-dialog": {
@@ -884,6 +888,7 @@
     "table": {
       "name": "Nom",
       "source": "Source de l'export",
+      "type": "Type",
       "status": "statut",
       "action": "Action",
       "reset": "Réinitialiser"

@@ -197,6 +197,7 @@ function ImportData() {
         setLoading(true);
         const params = new FormData();
         params.append("method", values.source);
+        params.append("type", "0");
         params.append(
             "withAppointments",
             (values.source === "med-pro" && values.type === "2").toString()
