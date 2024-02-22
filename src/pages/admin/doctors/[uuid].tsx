@@ -1,23 +1,23 @@
-import { GetStaticProps, GetStaticPaths } from "next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useState } from "react";
-import { SubHeader } from "@features/subHeader";
-import { useTranslation } from "next-i18next";
-import { Stack, Box, useTheme, MenuItem, Typography, } from "@mui/material";
-import { useRouter } from "next/router";
-import { DashLayout } from "@features/base";
-import { LoadingScreen } from "@features/loadingScreen";
-import { DoctorToolbar } from "@features/toolbar";
-import { DoctorAboutTab } from "@features/tabPanel";
-import { Dialog } from "@features/dialog";
-import { ActionMenu } from "@features/menu";
+import {GetStaticProps, GetStaticPaths} from "next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useState} from "react";
+import {SubHeader} from "@features/subHeader";
+import {useTranslation} from "next-i18next";
+import {Stack, Box, useTheme, MenuItem, Typography,} from "@mui/material";
+import {useRouter} from "next/router";
+import {DashLayout} from "@features/base";
+import {LoadingScreen} from "@features/loadingScreen";
+import {DoctorToolbar} from "@features/toolbar";
+import {DoctorAboutTab} from "@features/tabPanel";
+import {Dialog} from "@features/dialog";
+import {ActionMenu} from "@features/menu";
 import IconUrl from "@themes/urlIcon";
 
 function DoctorDetails() {
     const router = useRouter();
     const theme = useTheme();
     const [open, setOpen] = useState<boolean>(false)
-    const { t, ready } = useTranslation("doctors", { keyPrefix: "config" });
+    const {t, ready} = useTranslation("doctors", {keyPrefix: "config"});
     const [contextMenu, setContextMenu] = useState<{
         mouseX: number;
         mouseY: number;
@@ -28,7 +28,7 @@ function DoctorDetails() {
     const popoverActions = [
         {
             title: "demoData",
-            icon: <IconUrl color={"white"} path="/ic-voir" />,
+            icon: <IconUrl color={"white"} path="/ic-voir"/>,
             action: "onDemoAction",
         },
 
@@ -62,27 +62,25 @@ function DoctorDetails() {
             <SubHeader
                 sx={{
                     ".MuiToolbar-root": {
-                        py: { md: 0, xs: 2 },
+                        py: {md: 0, xs: 2},
                     },
                 }}>
-                <DoctorToolbar {...{ t, title: "sub-header.doctor_title" }} />
+                <DoctorToolbar {...{t, title: "sub-header.doctor_title"}} />
             </SubHeader>
 
             <Box className="container">
-                <Stack spacing={2}>
-                    <DoctorAboutTab {...{ t, theme, handleOpenMeun, handleOpenRestPass: () => setOpen(true) }} />
-                </Stack>
+                <DoctorAboutTab {...{t, theme, handleOpenMeun, handleOpenRestPass: () => setOpen(true)}} />
             </Box>
             <Dialog
                 action="rest-password"
                 title={t("dialog.title")}
-                sx={{ p: 0 }}
+                sx={{p: 0}}
                 open={open}
-                data={{ t, theme, handleClose }}
+                data={{t, theme, handleClose}}
                 onClose={handleClose}
                 dialogClose={handleClose}
             />
-            <ActionMenu {...{ contextMenu, handleClose: handleCloseMenu }}>
+            <ActionMenu {...{contextMenu, handleClose: handleCloseMenu}}>
                 {popoverActions.map(
                     (v: any, index) => (
                         <MenuItem
@@ -92,7 +90,7 @@ function DoctorDetails() {
                                 OnMenuActions(v.action);
                             }}>
                             {v.icon}
-                            <Typography fontSize={15} sx={{ color: "#fff" }}>
+                            <Typography fontSize={15} sx={{color: "#fff"}}>
                                 {t(`popover-action.${v.title}`)}
                             </Typography>
                         </MenuItem>
@@ -109,7 +107,7 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
         fallback: "blocking", //indicates the type of fallback
     };
 };
-export const getStaticProps: GetStaticProps = async ({ locale }) => ({
+export const getStaticProps: GetStaticProps = async ({locale}) => ({
     props: {
         fallback: false,
         ...(await serverSideTranslations(locale as string, ['common', 'menu', 'doctors']))

@@ -1,12 +1,26 @@
-import { Label } from '@features/label';
-import { ConditionalWrapper } from '@lib/hooks';
-import { Grid, Stack, Card, CardContent, Typography, List, ListItem, Avatar, ListItemText, Button, ListItemIcon, IconButton } from '@mui/material'
+import {Label} from '@features/label';
+import {ConditionalWrapper} from '@lib/hooks';
+import {
+    Grid,
+    Stack,
+    Card,
+    CardContent,
+    Typography,
+    List,
+    ListItem,
+    Avatar,
+    ListItemText,
+    Button,
+    ListItemIcon,
+    IconButton
+} from '@mui/material'
 import IconUrl from '@themes/urlIcon'
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Zoom from "react-medium-image-zoom";
 import React from 'react'
-function AboutTab({ ...props }) {
-    const { t, theme, handleOpenRestPass, handleOpenMeun } = props
+
+function AboutTab({...props}) {
+    const {t, theme, handleOpenRestPass, handleOpenMeun} = props
     return (
         <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
@@ -18,7 +32,7 @@ function AboutTab({ ...props }) {
                                     condition={false}
                                     wrapper={(children: any) => <Zoom>{children}</Zoom>}>
                                     <Avatar
-                                        {...(true && { className: "zoom" })}
+                                        {...(true && {className: "zoom"})}
                                         src={"/static/icons/men-avatar.svg"}
                                         sx={{
                                             "& .injected-svg": {
@@ -29,7 +43,7 @@ function AboutTab({ ...props }) {
                                             borderRadius: 2
 
                                         }}>
-                                        <IconUrl width={75} height={75} path="men-avatar" />
+                                        <IconUrl width={75} height={75} path="men-avatar"/>
                                     </Avatar>
 
                                 </ConditionalWrapper>
@@ -46,7 +60,7 @@ function AboutTab({ ...props }) {
                                 {t("personal_info")}
                             </Typography>
                             <List disablePadding>
-                                <ListItem disablePadding sx={{ py: .5 }}>
+                                <ListItem disablePadding sx={{py: .5}}>
                                     <Typography width={140} variant="body2" color='text.secondary'>
                                         {t("full_name")}
                                     </Typography>
@@ -54,7 +68,7 @@ function AboutTab({ ...props }) {
                                         Dr Ghassen BOULAHIA
                                     </Typography>
                                 </ListItem>
-                                <ListItem disablePadding sx={{ py: .5 }}>
+                                <ListItem disablePadding sx={{py: .5}}>
                                     <Typography width={140} variant="body2" color='text.secondary'>
                                         {t("cin")}
                                     </Typography>
@@ -62,7 +76,7 @@ function AboutTab({ ...props }) {
                                         02165102
                                     </Typography>
                                 </ListItem>
-                                <ListItem disablePadding sx={{ py: .5 }}>
+                                <ListItem disablePadding sx={{py: .5}}>
                                     <Typography width={140} variant="body2" color='text.secondary'>
                                         {t("birthdate")}
                                     </Typography>
@@ -70,7 +84,7 @@ function AboutTab({ ...props }) {
                                         29 juin 1972
                                     </Typography>
                                 </ListItem>
-                                <ListItem disablePadding sx={{ py: .5, alignItems: 'flex-start' }}>
+                                <ListItem disablePadding sx={{py: .5, alignItems: 'flex-start'}}>
                                     <Typography width={140} variant="body2" color='text.secondary'>
                                         {t("mobile")}
                                     </Typography>
@@ -105,7 +119,7 @@ function AboutTab({ ...props }) {
                                         </Stack>
                                     </Stack>
                                 </ListItem>
-                                <ListItem disablePadding sx={{ py: .5 }}>
+                                <ListItem disablePadding sx={{py: .5}}>
                                     <Typography width={140} variant="body2" color='text.secondary'>
                                         {t("email")}
                                     </Typography>
@@ -122,23 +136,23 @@ function AboutTab({ ...props }) {
                                 <Typography variant='subtitle2' fontWeight={600}>
                                     {t("role")}
                                 </Typography>
-                                <Button variant="google" sx={{ bgcolor: theme.palette.info.main, border: 'none' }}>
+                                <Button variant="google" sx={{bgcolor: theme.palette.info.main, border: 'none'}}>
                                     {t("doctor")}
                                 </Button>
                                 <Typography variant='subtitle1' fontWeight={600}>
                                     {t("assigned_staff")}
                                 </Typography>
-                                <List disablePadding sx={{ width: 1 }}>
-                                    <ListItem sx={{ px: 1, mb: .5, border: 1, borderColor: 'divider', borderRadius: 1.6 }}
-                                        secondaryAction={
-                                            <IconButton
-                                                disableRipple
-                                                size="small"
-                                                onClick={handleOpenMeun}
-                                            >
-                                                <MoreVertIcon fontSize='small' />
-                                            </IconButton>
-                                        }
+                                <List disablePadding sx={{width: 1}}>
+                                    <ListItem sx={{px: 1, mb: .5, border: 1, borderColor: 'divider', borderRadius: 1.6}}
+                                              secondaryAction={
+                                                  <IconButton
+                                                      disableRipple
+                                                      size="small"
+                                                      onClick={handleOpenMeun}
+                                                  >
+                                                      <MoreVertIcon fontSize='small'/>
+                                                  </IconButton>
+                                              }
                                     >
                                         <ListItemIcon>
                                             <Avatar
@@ -149,7 +163,7 @@ function AboutTab({ ...props }) {
                                                     borderRadius: 2
 
                                                 }}>
-                                                <IconUrl width={45} height={45} path="men-avatar" />
+                                                <IconUrl width={45} height={45} path="men-avatar"/>
                                             </Avatar>
                                         </ListItemIcon>
                                         <Stack spacing={.2}>
@@ -195,27 +209,28 @@ function AboutTab({ ...props }) {
                             <Typography>
                                 Ancien praticien des hôpitaux de Paris Diplômé des universités françaises en :
                             </Typography>
-                            <List disablePadding sx={{ mb: 2 }}>
+                            <List disablePadding sx={{mb: 2}}>
                                 <ListItem disablePadding>
-                                    <ListItemText sx={{ m: .2 }} primary="* Infertilité et Assistance médicale à la procréation" />
+                                    <ListItemText sx={{m: .2}}
+                                                  primary="* Infertilité et Assistance médicale à la procréation"/>
                                 </ListItem>
                                 <ListItem disablePadding>
-                                    <ListItemText sx={{ m: 0.2 }} primary="* Échographie obstétricale et gynécologique" />
+                                    <ListItemText sx={{m: 0.2}} primary="* Échographie obstétricale et gynécologique"/>
                                 </ListItem>
                                 <ListItem disablePadding>
-                                    <ListItemText sx={{ m: 0.2 }} primary="* Chirurgie Vaginale" />
+                                    <ListItemText sx={{m: 0.2}} primary="* Chirurgie Vaginale"/>
                                 </ListItem>
                                 <ListItem disablePadding>
-                                    <ListItemText sx={{ m: 0.2 }} primary="* Traitement du Polapsus Urogénital" />
+                                    <ListItemText sx={{m: 0.2}} primary="* Traitement du Polapsus Urogénital"/>
                                 </ListItem>
                                 <ListItem disablePadding>
-                                    <ListItemText sx={{ m: 0.2 }} primary="* Hystéroscopie opératoire" />
+                                    <ListItemText sx={{m: 0.2}} primary="* Hystéroscopie opératoire"/>
                                 </ListItem>
                                 <ListItem disablePadding>
-                                    <ListItemText sx={{ m: 0.2 }} primary="* Colposcopie" />
+                                    <ListItemText sx={{m: 0.2}} primary="* Colposcopie"/>
                                 </ListItem>
                                 <ListItem disablePadding>
-                                    <ListItemText sx={{ m: 0.2 }} primary="* Maladies du Sein" />
+                                    <ListItemText sx={{m: 0.2}} primary="* Maladies du Sein"/>
                                 </ListItem>
                             </List>
                             <Typography gutterBottom variant="subtitle1" fontWeight={600}>
@@ -225,7 +240,7 @@ function AboutTab({ ...props }) {
                                 {
                                     ["Français", "Anglais"].map((lang, idx) =>
                                         <ListItem disablePadding key={idx}>
-                                            <ListItemText sx={{ m: .1 }} primary={lang} />
+                                            <ListItemText sx={{m: .1}} primary={lang}/>
                                         </ListItem>
                                     )
 
@@ -238,10 +253,10 @@ function AboutTab({ ...props }) {
                             <Typography gutterBottom variant="subtitle1" fontWeight={600}>
                                 {t("acts_&_care")}
                             </Typography>
-                            <Stack mt={1} direction='row' flexWrap="wrap" alignItems='center' sx={{ gap: 1 }}>
+                            <Stack mt={1} direction='row' flexWrap="wrap" alignItems='center' sx={{gap: 1}}>
                                 {
                                     ["Hystéroscopie thérapeutique", "Suivi de grossesse", "Hystérectomie", "Traitement des prolapsus du plancher pelvien", "Stérilité du couple", "Echographie 3D", "FIV (Fécondation in vitro)", "Plastie de la vulve et du périnée", "Frottis cervico-vaginal"].map((act, idx) =>
-                                        <Label key={idx} variant="filled" sx={{ bgcolor: theme.palette.grey["B905"] }}>
+                                        <Label key={idx} variant="filled" sx={{bgcolor: theme.palette.grey["B905"]}}>
                                             {act}
                                         </Label>
                                     )
@@ -265,10 +280,18 @@ function AboutTab({ ...props }) {
                                     ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day, idx) =>
                                         <ListItem disablePadding key={idx}
 
-                                            sx={{ py: .5 }}
+                                                  sx={{py: .5}}
                                         >
-                                            <ListItemText sx={{ m: 0, span: { fontWeight: 600 } }} primary={day} />
-                                            <Label variant="filled" sx={{ fontSize: 14, fontWeight: 600, bgcolor: theme.palette.background.default, borderRadius: 1, px: 1.5, py: 1, height: 37 }}>
+                                            <ListItemText sx={{m: 0, span: {fontWeight: 600}}} primary={day}/>
+                                            <Label variant="filled" sx={{
+                                                fontSize: 14,
+                                                fontWeight: 600,
+                                                bgcolor: theme.palette.background.default,
+                                                borderRadius: 1,
+                                                px: 1.5,
+                                                py: 1,
+                                                height: 37
+                                            }}>
                                                 10:00 AM - 01:00 PM
                                             </Label>
                                         </ListItem>
@@ -289,10 +312,20 @@ function AboutTab({ ...props }) {
                                     ["Consultation simple", "Consultation endométriose 1ere fois", "Echographie pelvienne", "Pose dispositif intra utérin (DIU)", "Retrait ou changement dispositif intra utérin (DIU)", "Colposcopie", "Hystéroscopie"].map((day, idx) =>
                                         <ListItem disablePadding key={idx}
 
-                                            sx={{ py: .5 }}
+                                                  sx={{py: .5}}
                                         >
-                                            <ListItemText sx={{ m: 0, maxWidth: 180, span: { fontWeight: 600 } }} primary={day} />
-                                            <Label variant="filled" sx={{ fontSize: 14, ml: 'auto', fontWeight: 600, bgcolor: theme.palette.background.default, borderRadius: 1, px: 1.5, py: 1, height: 37 }}>
+                                            <ListItemText sx={{m: 0, maxWidth: 180, span: {fontWeight: 600}}}
+                                                          primary={day}/>
+                                            <Label variant="filled" sx={{
+                                                fontSize: 14,
+                                                ml: 'auto',
+                                                fontWeight: 600,
+                                                bgcolor: theme.palette.background.default,
+                                                borderRadius: 1,
+                                                px: 1.5,
+                                                py: 1,
+                                                height: 37
+                                            }}>
                                                 70 TND - 100 TND
                                             </Label>
                                         </ListItem>
