@@ -12,7 +12,7 @@ import {
     Box,
     IconButton,
     Card,
-    CardContent, TextField, Theme, MenuItem, InputAdornment, Autocomplete, FormControl, ListItem, List, Link, useTheme
+    CardContent, TextField, Theme, MenuItem, InputAdornment, Autocomplete, FormControl, ListItem, List, Link, useTheme, Button
 } from "@mui/material";
 import { RootStyled } from "@features/toolbar";
 import { SubHeader } from "@features/subHeader";
@@ -172,6 +172,11 @@ function Profile() {
                                 {loading ? <Skeleton width={150} variant="text" /> : name}
                             </Typography>
                         </Grid>
+                        <Grid item ml="auto">
+                            <Button variant="contained">
+                                {t("save")}
+                            </Button>
+                        </Grid>
                     </Grid>
                 </RootStyled>
             </SubHeader>
@@ -308,7 +313,70 @@ function Profile() {
                             </Card>
                         </Stack>
                     </Grid>
-                    <Grid item xs={12} md={7}></Grid>
+                    <Grid item xs={12} md={7}>
+                        <Stack spacing={2}>
+                            <Card>
+                                <CardContent>
+                                    <Stack spacing={2}>
+                                        <Stack direction='row' alignItems='center' justifyContent='space-between'>
+                                            <Typography gutterBottom variant="subtitle1" fontWeight={600}>
+                                                {t("time_and_agenda_title")}
+                                            </Typography>
+                                            <IconButton size="small" sx={{ border: 1, borderColor: 'divider', borderRadius: 1 }}>
+                                                <IconUrl path="ic-edit-pen" />
+                                            </IconButton>
+                                        </Stack>
+                                        <List disablePadding>
+                                            <ListItem disablePadding sx={{ py: .5 }}>
+                                                <Typography width={140} variant="body2" color='text.secondary'>
+                                                    {t("time_zone")}
+                                                </Typography>
+                                                <Typography fontWeight={500}>
+                                                    (GMT +01:00) Tunis
+                                                </Typography>
+                                            </ListItem>
+                                            <ListItem disablePadding sx={{ py: .5 }}>
+                                                <Typography width={140} variant="body2" color='text.secondary'>
+                                                    {t("time_format")}
+                                                </Typography>
+                                                <Typography fontWeight={500}>
+                                                    24 hours (e.g. 21:00)
+                                                </Typography>
+                                            </ListItem>
+                                            <ListItem disablePadding sx={{ py: .5 }}>
+                                                <Typography width={140} variant="body2" color='text.secondary'>
+                                                    {t("week_start")}
+                                                </Typography>
+                                                <Typography fontWeight={500}>
+                                                    Monday
+                                                </Typography>
+                                            </ListItem>
+                                        </List>
+                                        <Stack spacing={1} alignItems='flex-start'>
+                                            <Typography gutterBottom variant="subtitle1" fontWeight={600}>
+                                                {t("lang")}
+                                            </Typography>
+                                            <Button variant="google" sx={{ bgcolor: theme => theme.palette.info.main, fontWeight: 600, border: "none" }}>
+                                                English
+                                            </Button>
+                                        </Stack>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardContent>
+                                    <Stack spacing={1} alignItems='flex-start'>
+                                        <Typography gutterBottom variant="subtitle1" fontWeight={600}>
+                                            {t("password")}
+                                        </Typography>
+                                        <Button variant="google" sx={{ bgcolor: theme => theme.palette.grey["A500"], border: "none" }}>
+                                            {t("change_password")}
+                                        </Button>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        </Stack>
+                    </Grid>
                 </Grid>
             </Box>
 
