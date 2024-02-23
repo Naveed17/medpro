@@ -10,6 +10,7 @@ import { RootStyled } from "@features/toolbar";
 import AddIcon from "@mui/icons-material/Add";
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { Otable } from "@features/table";
+import { DesktopContainer } from "@themes/desktopConainter";
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 7,
     borderRadius: 5,
@@ -92,7 +93,7 @@ function Billing() {
                                         {t("upgrade")}
                                     </Button>
                                 </Stack>
-                                <Stack direction='row' alignItems='center' spacing={3}>
+                                <Stack direction={{ xs: "column", sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={3}>
                                     <Stack direction='row' alignItems="center" justifyContent="space-between" width={1}>
                                         <Typography variant="subtitle2" fontWeight={600}>
                                             {t("plan")}
@@ -101,11 +102,11 @@ function Billing() {
                                             {t("medical_group_practice")}
                                         </Button>
                                     </Stack>
-                                    <Stack direction='row' alignItems="center" justifyContent="space-between" width={1}>
+                                    <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }} justifyContent="space-between" width={1}>
                                         <Typography variant="subtitle2" fontWeight={600}>
                                             {t("doctors")}
                                         </Typography>
-                                        <Stack spacing={.5} maxWidth={340} width={1} ml={1}>
+                                        <Stack spacing={.5} maxWidth={340} width={1} ml={{ xs: 0, sm: 1 }}>
                                             <Stack direction='row' alignItems="center" justifyContent='space-between'>
                                                 <Typography color="textSecondary">
                                                     {t("doctors_users")}
@@ -118,7 +119,7 @@ function Billing() {
                                         </Stack>
                                     </Stack>
                                 </Stack>
-                                <Stack direction='row' alignItems='center' spacing={3}>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: "center" }} spacing={3}>
                                     <Stack direction='row' alignItems="center" justifyContent="space-between" width={1}>
                                         <Typography variant="subtitle2" fontWeight={600}>
                                             {t("next_payment")}
@@ -127,11 +128,11 @@ function Billing() {
                                             4990 TND on Oct 31st, 2024
                                         </Typography>
                                     </Stack>
-                                    <Stack direction='row' alignItems="center" justifyContent="space-between" width={1}>
+                                    <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }} justifyContent="space-between" width={1}>
                                         <Typography variant="subtitle2" fontWeight={600}>
                                             {t("staff")}
                                         </Typography>
-                                        <Stack spacing={.5} maxWidth={340} width={1} ml={1}>
+                                        <Stack spacing={.5} maxWidth={340} width={1} ml={{ xs: 0, sm: 1 }}>
                                             <Stack direction='row' alignItems="center" justifyContent='space-between'>
                                                 <Typography color="textSecondary">
                                                     {t("staff_users")}
@@ -147,17 +148,19 @@ function Billing() {
                             </Stack>
                         </CardContent>
                     </Card>
-                    <Otable
-                        toolbar={<Typography mb={2} variant="subtitle1" fontWeight={600}>{t("table.table_heading")}</Typography>}
-                        headers={headCells}
-                        rows={[1, 2]}
-                        from={"billing-history"}
-                        {...{ t }}
+                    <DesktopContainer>
+                        <Otable
+                            toolbar={<Typography mb={2} variant="subtitle1" fontWeight={600}>{t("table.table_heading")}</Typography>}
+                            headers={headCells}
+                            rows={[1, 2]}
+                            from={"billing-history"}
+                            {...{ t }}
 
-                    />
+                        />
+                    </DesktopContainer>
                 </Stack>
             </Box>
-        </React.Fragment>
+        </React.Fragment >
     )
 }
 
