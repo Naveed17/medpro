@@ -21,7 +21,8 @@
     "app_lock": "Verrouillage",
     "drugs": "Médicaments",
     "analysis": "Analyse",
-    "medical_imaging": "Imagerie médicale"
+    "medical_imaging": "Imagerie médicale",
+    "billing": "Billing"
   },
   "profile": {
     "upload-logo": "Télécharger le logo",
@@ -61,7 +62,20 @@
     "noPaymentMean": "Aucun moyen de paiement sélectionné",
     "noQualification": "Aucune qualification sélectionnée",
     "noLanguage": "Aucune langue sélectionnée",
-    "noActes": "Aucun acte sélectionné"
+    "noActes": "Aucun acte sélectionné",
+    "contact_info": "Informations sur les contacts",
+    "full_name": "Nom et prénom",
+    "cin": "CIN",
+    "birthdate": "Date de naissance",
+    "mobile": "Mobile",
+    "org_location": "Localisation de l'organisation",
+    "time_and_agenda_title": "Réglages de l'heure et du calendrier",
+    "time_zone": "Fuseau horaire",
+    "time_format": "Format de l'heure",
+    "week_start": "Début de la semaine",
+    "lang": "Langue",
+    "password": "Mot de passe",
+    "change_password": "Modifier le mot de passe"
   },
   "dialogs": {
     "search_lang": "Commencez à taper pour rechercher les langues",
@@ -548,6 +562,8 @@
     "time-settings": "Paramètres de l'heure et du calendrier",
     "config": {
       "add": "Ajouter",
+      "users": "Utilisateurs",
+      "add_user": "Ajouter un utilisateur",
       "department": "Departement",
       "department-placeholder": "Tapez le nom du departement",
       "no-department-placeholder": "Aucun département trouvé",
@@ -1032,6 +1048,31 @@
       "change": "Le changement de format de page",
       "reset": "entraînera la suppression des configurations existantes",
       "doc": "document"
+    }
+  },
+  "billing": {
+    "config": {
+      "users": "Utilisateurs",
+      "add_user": "Ajouter un utilisateur",
+      "plan_details": "Détails du plan",
+      "upgrade": "Mise à niveau",
+      "plan": "Plan",
+      "medical_group_practice": "Cabinet médical de groupe",
+      "doctors": "Médecins",
+      "doctors_users": "Médecins utilisateurs",
+      "of": "de",
+      "next_payment": "Paiement suivant",
+      "staff": "Personnel",
+      "staff_users": "Utilisateurs personnels",
+      "table": {
+        "table_heading": "Historique de la facturation",
+        "date": "Date",
+        "invoice_no": "N° de la facture",
+        "description": "Description",
+        "amount": "Montant",
+        "status": "Statut",
+        "paid": "Payé"
+      }
     }
   }
 }

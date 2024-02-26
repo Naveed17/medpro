@@ -258,6 +258,14 @@ const rowsActionsData = [
             )
         ),
     },
+    {
+        action: "billing-history",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/billingHishtoryRow").then(
+                (mod) => mod
+            )
+        ),
+    },
 
 ];
 
