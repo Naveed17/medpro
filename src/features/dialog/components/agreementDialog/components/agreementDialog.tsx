@@ -75,7 +75,7 @@ function AgreementDialog({...props}) {
                                         width: 1,
                                         cursor: "pointer",
                                         borderColor:
-                                            agreement.type === item ? "primary.main" : "divider",
+                                            agreement?.type === item ? "primary.main" : "divider",
                                     }}
                                     onClick={() => {
                                         setFieldValue("selected", item);
@@ -87,7 +87,7 @@ function AgreementDialog({...props}) {
                                     <CardContent sx={{"&:last-of-type": {pb: 2}}}>
                                         <Stack direction="row" alignItems="center" spacing={0.5}>
                                             <Radio
-                                                checked={agreement.type === item ?? false}
+                                                checked={agreement?.type === item ?? false}
                                                 sx={{svg: {width: 24}}}
                                                 checkedIcon={
                                                     <IconUrl path="ic-check-circle-padding" width={24}/>

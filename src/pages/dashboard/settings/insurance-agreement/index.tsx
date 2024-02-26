@@ -326,7 +326,7 @@ function InsuranceAndAgreement() {
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <Button
                                 variant="contained"
-                                disabled={currentStep === 0 && ((agreement.type ==="insurance" &&!agreement.insurance?.uuid)|| (agreement.type === "agreement" && !agreement.name) ) }
+                                disabled={currentStep === 0 && ((agreement?.type ==="insurance" &&!agreement?.insurance?.uuid)|| (agreement?.type === "agreement" && !agreement?.name) ) }
                                 onClick={() => {
                                     if (stepperData.length - 1 > currentStep) {
                                         dispatch(setStepperIndex(currentStep + 1));
