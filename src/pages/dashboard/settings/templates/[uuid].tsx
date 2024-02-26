@@ -631,7 +631,7 @@ function DocsConfig() {
                                 {!loading && <Collapse in={data.footer.show} timeout="auto" unmountOnExit>
                                     <Editor
                                         value={data.footer.content}
-                                        apiKey={process.env.EDITOR_KEY}
+                                        tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                         onEditorChange={(res) => {
                                             data.footer.content = res;
                                             setData({...data});
