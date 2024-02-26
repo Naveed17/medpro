@@ -1,7 +1,7 @@
 import {Stack, TextField, Typography, useMediaQuery} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import FormControl from "@mui/material/FormControl";
-import React from "react";
+import React, {useEffect} from "react";
 import {DateTimePicker, LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {FormikProvider, useFormik} from "formik";
@@ -10,6 +10,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {setAbsenceData, absenceDrawerSelector} from "@features/drawer";
 import {NoDataCard} from "@features/card";
 import {MobileContainer as smallScreen} from "@lib/constants";
+import * as Yup from "yup";
 
 function AbsenceDrawer({...props}) {
     const {t, main = false} = props;
@@ -17,6 +18,27 @@ function AbsenceDrawer({...props}) {
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const {endDate, startDate, title} = useAppSelector(absenceDrawerSelector);
+
+    const validationSchema = Yup.object().shape({
+        title: Yup.string().required(),
+        repeat: Yup.boolean(),
+        startDate: Yup.date()
+            .min(new Date(), 'Start datetime cannot be in the past')
+            .required('Start datetime is required'),
+        endDate: Yup
+            .date()
+            .when('startDate', (startDate, schema) => {
+                if (startDate[0]) {
+                    const currentDay = new Date(startDate[0].getTime());
+                    const nextDay = new Date(startDate[0].getTime() + 86400000);
+                    return schema
+                        .min(currentDay, 'End time must be after start time')
+                        .max(nextDay, 'End time cannot be more than 24 hours after start time');
+                } else {
+                    return schema;
+                }
+            }).required('End datetime is required')
+    })
 
     const formik = useFormik({
         enableReinitialize: false,
@@ -26,12 +48,17 @@ function AbsenceDrawer({...props}) {
             endDate: endDate ? endDate : moment().toDate(),
             repeat: false
         },
+        validationSchema,
         onSubmit: async (values) => {
             console.log("ok", values);
         },
     });
 
-    const {values, setFieldValue} = formik;
+    const {values, errors, setFieldValue} = formik;
+
+    useEffect(() => {
+        dispatch(setAbsenceData({hasError: Object.keys(errors).length > 0}));
+    }, [dispatch, errors]);
 
     return (
         <Stack spacing={3}
@@ -64,7 +91,7 @@ function AbsenceDrawer({...props}) {
                                     fullWidth
                                     onChange={(e) => {
                                         setFieldValue("title", e.target.value);
-                                        dispatch(setAbsenceData({"title": e.target.value}));
+                                        dispatch(setAbsenceData({title: e.target.value}));
                                     }}
                                     placeholder={t("dialogs.absence-dialog.type-placeholder")} variant="outlined"/>
                             </FormControl>
@@ -83,7 +110,7 @@ function AbsenceDrawer({...props}) {
                                         label="Basic date time picker"
                                         onChange={event => {
                                             setFieldValue("startDate", event);
-                                            dispatch(setAbsenceData({"startDate": event}));
+                                            dispatch(setAbsenceData({startDate: event}));
                                         }}
                                         renderInput={(params) => <TextField size={"small"} {...params} />}
                                         value={values.startDate}/>

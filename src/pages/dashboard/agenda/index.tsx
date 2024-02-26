@@ -1346,7 +1346,7 @@ function Agenda() {
                         <LoadingButton
                             loading={loadingRequest}
                             onClick={() => handleAddAbsence()}
-                            disabled={absenceData.title.length === 0}
+                            disabled={absenceData.title.length === 0 || absenceData.hasError}
                             variant="contained"
                             color={"primary"}>
                             {t(`dialogs.quick_add_appointment-dialog.confirm`)}
