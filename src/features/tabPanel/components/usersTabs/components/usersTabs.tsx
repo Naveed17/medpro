@@ -299,7 +299,7 @@ function UsersTabs({...props}) {
                         {t("roles")}
                     </Typography>
                     <List disablePadding>
-                        {profiles.map((profile: ProfileModel) => (
+                        {profiles?.map((profile: ProfileModel) => (
                             <ListItem
                                 onClick={() => {
                                     setSelectedProfile(profile);

@@ -50,6 +50,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import {TreeCheckbox} from "@features/treeViewCheckbox";
 import {useCashBox} from "@lib/hooks/rest";
 import {NoDataCard} from "@features/card";
+import {FacebookCircularProgress} from "@features/progressUI";
 
 const PhoneCountry: any = memo(({...props}) => {
     return <CountrySelect {...props} />;
@@ -228,7 +229,7 @@ function ModifyUser() {
                         ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
 
                 form.append('permissions', JSON.stringify(Object.assign({}, permissions.map((permission: PermissionModel) => permission.uuid))));
-                form.append('user', medicalEntityHasUser as string);
+                form.append('user', user?.uuid);
                 if (selectedFeatureEntity) {
                     form.append('object', JSON.stringify({
                         uuid: selectedFeatureEntity.uuid,
@@ -244,7 +245,9 @@ function ModifyUser() {
                     onSuccess: () => {
                         enqueueSnackbar(t(`users.alert.updated-role`), {variant: "success"});
                         setLoading(false)
+                        if(!feature?.profile){
 
+                        }
                     },
                     onError: () => {
                         setLoading(false);
@@ -821,6 +824,7 @@ function ModifyUser() {
                                                        color="primary"/>
                                             </Stack>
 
+                                            {loadingReq && <FacebookCircularProgress size={24}/>}
                                             <LoadingButton
                                                 {...{loading}}
                                                 loadingPosition={"start"}
