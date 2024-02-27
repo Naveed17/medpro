@@ -288,8 +288,8 @@ export const CalendarContextMenu = tuple(
         title: "see_patient_form",
         icon: <Icon color={"white"} width={"20"} height={"20"} path="docs/antecedent"/>,
         action: "onPatientDetail",
-        feature: "patient",
-        permission: "*"
+        feature: "patients",
+        permission: "patients__patient__show"
     },
     {
         title: "reschedule_appointment",

@@ -16,10 +16,9 @@ const RootStyled = styled("div")(({theme}) => ({
         whiteSpace: "break-spaces"
     },
     "& .loading-text": {
-        fontWeight: 100,
-        fontFamily: "sans-serif, 'Poppins'",
+        fontFamily: "'Poppins-Light', sans-serif",
         fontSize: 18,
-        width: 350
+        minWidth: 380
     }
 }));
 

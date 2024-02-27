@@ -22,22 +22,20 @@ function AbsenceDrawer({...props}) {
     const validationSchema = Yup.object().shape({
         title: Yup.string().required(),
         repeat: Yup.boolean(),
-        startDate: Yup.date()
-            .min(new Date(), 'Start datetime cannot be in the past')
-            .required('Start datetime is required'),
+        startDate: Yup.date().required(t("dialogs.absence-dialog.datetime-required")),
         endDate: Yup
             .date()
             .when('startDate', (startDate, schema) => {
                 if (startDate[0]) {
                     const currentDay = new Date(startDate[0].getTime());
-                    const nextDay = new Date(startDate[0].getTime() + 86400000);
+                    //const nextDay = new Date(startDate[0].getTime() + 86400000);
                     return schema
-                        .min(currentDay, 'End time must be after start time')
-                        .max(nextDay, 'End time cannot be more than 24 hours after start time');
+                        .min(currentDay, t("dialogs.absence-dialog.end-after-start-time"));
+                    //.max(nextDay, 'End time cannot be more than 24 hours after start time');
                 } else {
                     return schema;
                 }
-            }).required('End datetime is required')
+            }).required(t("dialogs.absence-dialog.datetime-required"))
     })
 
     const formik = useFormik({
@@ -54,12 +52,12 @@ function AbsenceDrawer({...props}) {
         },
     });
 
-    const {values, errors, setFieldValue} = formik;
+    const {values, errors, touched, setFieldValue} = formik;
 
     useEffect(() => {
         dispatch(setAbsenceData({hasError: Object.keys(errors).length > 0}));
     }, [dispatch, errors]);
-
+    console.log(errors)
     return (
         <Stack spacing={3}
                sx={{
@@ -107,12 +105,18 @@ function AbsenceDrawer({...props}) {
                                         inputFormat="dd/MM/yyyy HH:mm"
                                         ampmInClock={false}
                                         ampm={false}
-                                        label="Basic date time picker"
+                                        label={t("dialogs.absence-dialog.startDate-placeholder")}
                                         onChange={event => {
                                             setFieldValue("startDate", event);
                                             dispatch(setAbsenceData({startDate: event}));
                                         }}
-                                        renderInput={(params) => <TextField size={"small"} {...params} />}
+                                        renderInput={(params) => <TextField
+                                            {...params}
+                                            {...((values.startDate !== null) && {
+                                                error: Boolean(errors.startDate),
+                                                helperText: t(errors.startDate)
+                                            })}
+                                            size={"small"}/>}
                                         value={values.startDate}/>
                                 </LocalizationProvider>
                             </FormControl>
@@ -128,12 +132,18 @@ function AbsenceDrawer({...props}) {
                                         inputFormat="dd/MM/yyyy HH:mm"
                                         ampmInClock={false}
                                         ampm={false}
-                                        label="Basic date time picker"
+                                        label={t("dialogs.absence-dialog.endDate-placeholder")}
                                         onChange={event => {
                                             setFieldValue("endDate", event);
                                             dispatch(setAbsenceData({"endDate": event}));
                                         }}
-                                        renderInput={(params) => <TextField size={"small"} {...params} />}
+                                        renderInput={(params) => <TextField
+                                            {...params}
+                                            {...((values.endDate !== null) && {
+                                                error: Boolean(errors.endDate),
+                                                helperText: t(errors.endDate)
+                                            })}
+                                            size={"small"}/>}
                                         value={values.endDate}/>
                                 </LocalizationProvider>
                             </FormControl>

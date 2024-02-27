@@ -482,8 +482,12 @@
           "sub-title": "Liste des congés et absences proches",
           "description": "Titre du congé",
           "type-placeholder": "Saisir le titre du congé",
+          "end-after-start-time": "L'heure de fin doit être antérieure à l'heure de début",
+          "datetime-required": "La date est obligatoire",
           "startDate": "Date début",
+          "startDate-placeholder": "Selectionner la Date début",
           "endDate": "Date fin",
+          "endDate-placeholder": "Sélectionner la date de fin",
           "vacation": {
             "yearly": "Congé annuel",
             "sick": "Congé de maladie",
