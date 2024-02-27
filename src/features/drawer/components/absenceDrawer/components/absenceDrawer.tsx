@@ -57,7 +57,7 @@ function AbsenceDrawer({...props}) {
     useEffect(() => {
         dispatch(setAbsenceData({hasError: Object.keys(errors).length > 0}));
     }, [dispatch, errors]);
-    console.log(errors)
+
     return (
         <Stack spacing={3}
                sx={{
