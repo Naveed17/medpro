@@ -69,9 +69,7 @@ function ModifyUser() {
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [loading, setLoading] = useState(false);
-    const [hasProfile, setHasProfile] = useState(false);
     const [agendaRoles] = useState(agendas);
-    const [roles, setRoles] = useState<any[]>([]);
     const [tabIndex, setTabIndex] = useState(0);
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
@@ -276,7 +274,7 @@ function ModifyUser() {
         }
     }
 
-    const HandleFeatureSelect = (slug: string, roles: any, hasProfile?: boolean, entity?: any) => {
+    const HandleFeatureSelect = (slug: string, hasProfile?: boolean, entity?: any) => {
         if (!hasProfile) {
             setLoadingReq(true);
             featurePermissionsTrigger({
@@ -331,7 +329,6 @@ function ModifyUser() {
             });
         } else {
             setOpenCollapseFeature(openCollapseFeature === slug ? "" : slug);
-            setRoles([]);
         }
     }
 
@@ -735,7 +732,7 @@ function ModifyUser() {
                                                 <ListItem
                                                     onClick={() => {
                                                         setSelectedFeatureEntity(null);
-                                                        HandleFeatureSelect(role[0], role[1], role[1][0].hasProfile);
+                                                        HandleFeatureSelect(role[0], role[1][0].hasProfile);
                                                     }}
                                                     className={`motif-list`}
                                                     sx={{
@@ -781,7 +778,7 @@ function ModifyUser() {
                                                                     event.stopPropagation();
                                                                     setSelectedFeatureEntity(featurePermission.featureEntity);
                                                                     setSelectedFeature(role[0]);
-                                                                    HandleFeatureSelect(role[0], role[1], false, featurePermission.featureEntity);
+                                                                    HandleFeatureSelect(role[0], false, featurePermission.featureEntity);
                                                                 }}
                                                                 className={`motif-list ${selectedFeatureEntity?.uuid === featurePermission?.featureEntity?.uuid ? "selected" : ""}`}>
                                                                 <Stack direction={"row"} alignItems={"center"}
