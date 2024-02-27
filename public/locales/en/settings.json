@@ -704,7 +704,8 @@
       "mtt": "Mtt t.m.",
       "tax": "Tax t.m.",
       "remb": "Reimbursement",
-      "tax_remb": "Tax Reimbursement"
+      "tax_remb": "Tax Reimbursement",
+      "action": "Action"
     },
     "dialog": {
       "editAct": "Edit Act",
@@ -917,6 +918,7 @@
       "title": "Insurances & Agreements",
       "search": "Search",
       "save": "Save",
+      "cancel": "Cancel",
       "path": {
         "root": "Settings > Insurances & agreements",
         "update": "Settings > Insurances & agreements > Actes"

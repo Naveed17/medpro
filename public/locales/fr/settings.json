@@ -861,6 +861,7 @@
       "title": "Assurance & Convention",
       "search": "Recherche",
       "save": "Enregistrer",
+      "cancel": "Annuler",
       "path": {
         "root": "Paramètres > Assurance & Convention",
         "update": "Paramètres > Assurance & Convention > Actes"
@@ -888,7 +889,8 @@
         "mtt": "Mtt t.m.",
         "tax": "Taux t.m.",
         "remb": "Remb.",
-        "tax_remb": "Taux Remb."
+        "tax_remb": "Taux Remb.",
+        "action": "Action"
       },
       "dialog": {
         "editAct": "Modifier acte",

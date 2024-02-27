@@ -3,18 +3,19 @@ import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import React, {ReactElement, useEffect, useState,} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
-import {Box, Button, InputAdornment, Paper, Stack, TextField, Typography, useMediaQuery, useTheme} from "@mui/material";
+import {Box, Button, InputAdornment, Paper, Stack, TextField, Typography} from "@mui/material";
 import {RootStyled} from "@features/toolbar";
 import {useRouter} from "next/router";
-import {DashLayout} from "@features/base";
-import {LoadingScreen} from "@features/loadingScreen";
+import {DashLayout, dashLayoutSelector} from "@features/base";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {Otable} from "@features/table";
 import IconUrl from "@themes/urlIcon";
 import {MobileContainer} from "@themes/mobileContainer";
 import {ActMobileCard} from "@features/card";
 import {SubFooter} from "@features/subFooter";
-import useMPActs from "@lib/hooks/rest/useMPacts";
+import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
+import {useMedicalEntitySuffix} from "@lib/hooks";
+import {useAppSelector} from "@lib/redux/hooks";
 
 const Toolbar = (props: any) => {
     const {t, search, handleSearch} = props
@@ -47,24 +48,21 @@ const Toolbar = (props: any) => {
 
 function Actes() {
     const router = useRouter();
-    const {t, ready} = useTranslation("settings", {keyPrefix: 'insurance.config'});
+    const {t} = useTranslation("settings", {keyPrefix: 'insurance.config'});
+
     const [search, setSearch] = React.useState("");
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'))
     const [mainActes, setMainActes] = useState<any>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const {acts, error} = useMPActs({noPagination: false})
-    console.log(acts)
+    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
+    const {trigger} = useRequestQueryMutation("/act/update");
+
+    const {data: httpActs, mutate} = useRequestQuery({
+        method: "GET",
+        url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.query.uuid}/act/${router.locale}`,
+    });
     const headCells = [
-        {
-            id: "select-all",
-            numeric: false,
-            disablePadding: true,
-            label: "select",
-            sortable: false,
-            align: "left",
-        },
         {
             id: "act",
             numeric: false,
@@ -104,6 +102,13 @@ function Actes() {
             label: "apci",
             align: "center",
             sortable: false,
+        }, {
+            id: "action",
+            numeric: false,
+            disablePadding: false,
+            label: "action",
+            align: "center",
+            sortable: false,
         },
     ];
     const handleChange = (row: ActModel) => {
@@ -118,34 +123,53 @@ function Actes() {
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
         const query = event.target.value;
         setSearch(query);
-        if (query.length === 0) return setMainActes(acts?.list)
+        if (query.length === 0) return setMainActes(httpActs?.data.acts)
         const data = mainActes.filter((row: any) => {
             return row?.act?.name.toLowerCase().includes(query.toLowerCase())
         })
         setMainActes(data);
     }
+    const handleEvent = ({...props}) => {
+        if (props.action === "DELETE")
+            trigger({
+                method: "DELETE",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.query.uuid}/act/${props.data.uuid}/${router.locale}`,
+            }, {
+                onSuccess: () => {
+                    mutate()
+                    setLoading(false);
+                },
+                onError: () => setLoading(false)
+            });
+        else {
+            const row = props.data;
+            const form = new FormData();
+            form.append("fees",row.fees)
+            form.append("refund",row.reimbursement)
+            form.append("patient_part",row.patient_part)
+            form.append("apcis",row.apci)
+            trigger({
+                method: "PUT",
+                url: `${urlMedicalEntitySuffix}/mehu/${medicalEntityHasUser}/insurances/${router.query.uuid}/act/${props.data.uuid}/${router.locale}`,
+                data:form
+            }, {
+                onSuccess: () => {
+                    mutate()
+                    setLoading(false);
+                },
+                onError: () => setLoading(false)
+            });
+        }
+    }
+
     useEffect(() => {
         setLoading(true);
-        if (acts) {
-            if (isMobile) {
-                setMainActes(acts as ActModel[]);
-                setLoading(false);
-            } else {
-                const response = acts?.list ?? [];
-                setMainActes(response as ActModel[]);
-                setLoading(false);
-            }
+        if (httpActs) {
+            setMainActes(httpActs.data.acts as ActModel[]);
+            setLoading(false);
         }
-    }, [acts]); // eslint-disable-line react-hooks/exhaustive-deps
-    if (!ready || error) {
-        return <LoadingScreen
-            button
-            {...(error ? {
-                OnClick: () => router.push('/dashboard/settings/users'),
-                text: 'loading-error-404-reset'
-            } : {})}
-        />;
-    }
+    }, [httpActs]); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <>
             <SubHeader>
@@ -160,10 +184,10 @@ function Actes() {
                         headers={headCells}
                         toolbar={<Toolbar {...{t, search, handleSearch}} />}
                         rows={mainActes}
-                        from={"act-row"}
-                        {...{t, loading, handleChange}}
-                        total={acts?.total}
-                        totalPages={acts.totalPages}
+                        from={"act-row-insurance"}
+                        {...{t, loading, handleChange, handleEvent}}
+                        total={httpActs?.data.currentPage}
+                        totalPages={httpActs?.data.totalPages}
                         pagination
                     />
                 </DesktopContainer>

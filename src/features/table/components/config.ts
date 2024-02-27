@@ -253,6 +253,13 @@ const rowsActionsData = [
                 (mod) => mod
             )
         ),
+    },{
+        action: "act-row-insurance",
+        component: dynamic((): any =>
+            import("@features/table/components/rows/actRowInsurance").then(
+                (mod) => mod
+            )
+        ),
     },
 ];
 

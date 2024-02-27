@@ -706,7 +706,8 @@
       "mtt": "المبلغ الإجمالي",
       "tax": "الضريبة الإجمالية",
       "remb": "الاسترداد",
-      "tax_remb": "نسبة الاسترداد الضريبي"
+      "tax_remb": "نسبة الاسترداد الضريبي",
+      "action": "العملية"
     },
     "dialog": {
       "editAct": "تحرير العمل",
@@ -988,6 +989,98 @@
       "change": "تغيير حجم الصفحة سيؤدي إلى حذف التكوينات الموجودة",
       "reset": "إعادة تعيين",
       "doc": "مستند"
+    }
+  },
+  "insurance": {
+    "config": {
+      "title": "التأمينات والاتفاقيات",
+      "search": "بحث",
+      "save": "الحفظ",
+      "cancel": "إلغاء",
+      "path": {
+        "root": "الإعدادات > التأمينات والاتفاقيات",
+        "update": "الإعدادات > التأمينات والاتفاقيات > الإجراءات الطبية"
+      },
+      "add": "إضافة",
+      "table": {
+        "name": "التأمين",
+        "label": "التسمية",
+        "start_date": "تاريخ البدء",
+        "end_date": "تاريخ الانتهاء",
+        "empty": "",
+        "act": "تصرف",
+        "fees": "الرسوم",
+        "rem_amount": "السداد",
+        "patient_share": "حصة المريض",
+        "apci": "مغطاة بالكامل",
+        "actions": "الإجراءات",
+        "action": "الإجراءات",
+        "code": "الكود",
+        "contribution": "المساهمة",
+        "amount": "المبلغ",
+        "btn_action_text": "التأمين/الاتفاق",
+        "title": "العنوان",
+        "type": "النوع",
+        "exp_date": "تاريخ انتهاء",
+        "mtt": "م.ت.م.",
+        "tax": "قيم ر.م.",
+        "remb": "السداد.",
+        "tax_remb": "معدل السداد"
+      },
+      "dialog": {
+        "editAct": "تحديث ",
+        "info": "المعلومات",
+        "name": "الاسم",
+        "price": "السعر",
+        "delete-act-title": "حذف ",
+        "delete-act-desc": "هل تريد حذف ",
+        "cancel": "إلغاء",
+        "delete": "حذف",
+        "back": "رجوع",
+        "next": "التالي",
+        "confirm": "تأكيد",
+        "confirm_add": "تأكيد وإضافة أخرى",
+        "confirm_save": "تأكيد وإضافة أخرى",
+        "title": "إضافة التأمين/الاتفاقية",
+        "create_act": "إضافة ",
+        "switch": "متقدم",
+        "contribution_placeholder": "اكتب الاقتباس",
+        "amount_placeholder": "أدخل المبلغ",
+        "confirm_dialog_title": "إنشاء التأمين / اتفاقية ناجحة",
+        "exit": "الخروج",
+        "add_an_other": "إضافة أخرى",
+        "confirm_dialog_desc": "تهانينا! تم إنشاء وثيقة أو اتفاقية التأمين الطبي الجديدة الخاصة بك بنجاح. تحقق من التفاصيل ولا تتردد في إضافة خطوط أخرى حسب الحاجة.",
+        "stepper": {
+          "step-1": "Information",
+          "step-2": "Payment Detail",
+          "step-3": "Confirmation",
+          "insurance": "Insurance",
+          "agreement": "Convention",
+          "select_insurance": "Select insurance",
+          "description": "Label",
+          "placeholer_description": "Type the label",
+          "start_date": "Start date",
+          "end_date": "End date",
+          "ticket_moderateur_amount": "Moderator ticket amount",
+          "ticket_moderateur_amount_placeholder": "Type the moderator ticket amount",
+          "refund_amount": "Reimbursement",
+          "mutual": "Mutual",
+          "select_mutual": "Select or add mutual insurance",
+          "type": "Nature",
+          "placeholder_type": "Type the nature of the agreement",
+          "signed_agreement": "Have you signed the agreement?",
+          "apci_placeholder": "Select or type the APCi code",
+          "label": "Label",
+          "acts": "Acts"
+        }
+      },
+      "no-data": {
+        "title": "إضافة تأمين",
+        "description": "الوصف"
+      },
+      "popover-actions": {
+        "add": "إضافة"
+      }
     }
   }
 }

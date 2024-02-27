@@ -68,10 +68,10 @@ function InsuranceAgreementRow({...props}) {
             <TableCell align="center">
                 {row ? (
                     <Stack direction='row' alignItems='center' spacing={1} justifyContent='flex-end'>
-                        <IconButton disableRipple size="small" onClick={(e) => handleEvent({action: 'ON_ROUTE', event: e, data: row})}>
-                            <IconUrl path="ic-edit-pen" width={20} height={20}
-                                     color={theme.palette.text.secondary}/>
-                        </IconButton>
+                        <Button variant={"contained"}
+                                onClick={(e) => handleEvent({action: 'ON_ROUTE', event: e, data: row})}
+                                color={"info"}
+                                size={"small"}>Ajouter acts ({row.acts})</Button>
                         <IconButton disableRipple size="small" onClick={(e) => handleEvent({ event: e, data: row, action: "DELETE" })}>
                             <IconUrl path="ic-delete" color={theme.palette.text.secondary}/>
                         </IconButton>

@@ -193,8 +193,9 @@ function InsuranceAndAgreement() {
     }
 
     useEffect(() => {
-        if (httpInsurances)
+        if (httpInsurances) {
             setAgreements(httpInsurances.data)
+        }
     }, [httpInsurances])
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
