@@ -5,59 +5,25 @@ import {
     Stack,
     Skeleton,
     useTheme,
-    Autocomplete,
-    ListItem,
-    ListItemText,
-    TextField, CircularProgress, IconButton
+    IconButton
 } from "@mui/material";
 import IconUrl from "@themes/urlIcon";
 import {useRouter} from "next/router";
 import {editUser, TableRowStyled} from "@features/table";
 import {useAppDispatch} from "@lib/redux/hooks";
 import {uniqueId} from "lodash";
-import React, {useEffect, useState} from "react";
-import {useRequestQueryMutation} from "@lib/axios";
-import {useMedicalEntitySuffix} from "@lib/hooks";
+import React, {useState} from "react";
 import {CustomSwitch} from "@features/buttons";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Can from "@features/casl/can";
 
 function UserRow({...props}) {
     const dispatch = useAppDispatch();
     const theme = useTheme();
     const router = useRouter();
-    const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {row, handleChange, handleEvent, t, editMotif, data} = props;
     const {currentUser} = data;
 
     const [isActive, setIsActive] = useState(row.isActive);
-    const [profiles, setpProfiles] = useState([]);
-    const [openAutoComplete, setOpenAutoComplete] = useState(false);
-    const [loading, setLoading] = useState(false);
-
-    const {trigger: drugsTrigger} = useRequestQueryMutation("/settings/drugs/get");
-
-    const loadingReq = openAutoComplete;
-
-    // Setting the logic for the asynchronous function on page reload
-    useEffect(() => {
-        if (!loadingReq) {
-            return undefined;
-        }
-
-        (async () => {
-            setLoading(true);
-            drugsTrigger({
-                method: "GET",
-                url: `${urlMedicalEntitySuffix}/profile/${router.locale}`
-            }, {
-                onSuccess: (result) => {
-                    setpProfiles((result?.data as HttpResponse)?.data);
-                    setLoading(false);
-                }
-            });
-        })();
-    }, [loadingReq]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <TableRowStyled
@@ -97,55 +63,6 @@ function UserRow({...props}) {
                         <Skeleton variant="text" width={100}/>
                     </Stack>
                 )}
-            </TableCell>
-            <TableCell align="center">
-                {!row?.isProfessional && <Autocomplete
-                    size={"small"}
-                    popupIcon={<KeyboardArrowDownIcon/>}
-                    className="role-select"
-                    value={profiles.find((profile: any) => profile.uuid === row?.profile?.uuid) ?? null}
-                    inputValue={row?.profile?.name ?? ""}
-                    disableClearable
-                    sx={{
-                        maxHeight: 35,
-                        width: 160,
-                        "& .MuiSelect-select": {
-                            background: "white",
-                        }
-                    }}
-                    id="profile-select"
-                    open={openAutoComplete}
-                    onOpen={() => setOpenAutoComplete(true)}
-                    onClose={() => setOpenAutoComplete(false)}
-                    onChange={(e, profile) => handleChange("PROFILE", row, profile?.uuid)}
-                    getOptionLabel={(option: any) => option?.name ? option.name : ""}
-                    isOptionEqualToValue={(option: any, value) => option?.name === value?.name}
-                    options={profiles}
-                    renderOption={(props, option) => (
-                        <ListItem {...props}>
-                            <ListItemText primary={option?.name}/>
-                        </ListItem>
-                    )}
-                    renderInput={params =>
-                        <TextField
-                            {...params}
-                            color={"info"}
-                            sx={{paddingLeft: 0}}
-                            placeholder={t("profile-placeholder")}
-                            InputProps={{
-                                ...params.InputProps,
-                                endAdornment: (
-                                    <React.Fragment>
-                                        {loading ?
-                                            <CircularProgress color="inherit" size={20}/> : null}
-                                        {params.InputProps.endAdornment}
-                                    </React.Fragment>
-                                ),
-
-                            }}
-                            variant="outlined"
-                            fullWidth/>}
-                />}
             </TableCell>
             <TableCell align="center">
                 {row ? !row?.isProfessional && <CustomSwitch

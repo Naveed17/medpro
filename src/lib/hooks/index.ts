@@ -31,6 +31,7 @@ export * from "./splitLastOccurrence";
 export * from "./generatePdfFromHtml";
 export * from "./shortEnglishHumanizer";
 export * from "./a11yProps";
+export * from "./mergeArrayByKey";
 export * from "./useStopwatch";
 export * from "./prepareContextMenu";
 export * from "./highlightedDays";

@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
-import {ContainerLayoutStyled, DashLayout} from "@features/base";
+import {ContainerLayoutStyled, DashLayout, dashLayoutSelector} from "@features/base";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {addUser} from "@features/table";
 import {agendaSelector} from "@features/calendar";
@@ -28,7 +28,13 @@ import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useSession} from "next-auth/react";
 import {DatePicker} from "@features/datepicker";
 import {LoadingButton} from "@mui/lab";
-import {a11yProps, getPermissionsCount, groupPermissionsByFeature, useMedicalEntitySuffix} from "@lib/hooks";
+import {
+    a11yProps,
+    getPermissionsCount,
+    groupPermissionsByFeature,
+    mergeArrayByKey,
+    useMedicalEntitySuffix
+} from "@lib/hooks";
 import {useSnackbar} from "notistack";
 import {CountrySelect} from "@features/countrySelect";
 import {DefaultCountry} from "@lib/constants";
@@ -60,9 +66,12 @@ function ModifyUser() {
 
     const {t, ready} = useTranslation("settings");
     const {agendas} = useAppSelector(agendaSelector);
+    const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
 
     const [loading, setLoading] = useState(false);
+    const [hasProfile, setHasProfile] = useState(false);
     const [agendaRoles] = useState(agendas);
+    const [roles, setRoles] = useState<any[]>([]);
     const [tabIndex, setTabIndex] = useState(0);
     const [openCollapseFeature, setOpenCollapseFeature] = useState('');
     const [selectedFeature, setSelectedFeature] = useState<any>(null);
@@ -82,13 +91,8 @@ function ModifyUser() {
         url: `${urlMedicalEntitySuffix}/users/${uuid}/${router.locale}`
     }, {refetchOnWindowFocus: false});
 
-    const {data: httpProfilesResponse} = useRequestQuery(tabIndex === 1 ? {
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/profile/${router.locale}`
-    } : null, {refetchOnWindowFocus: false});
-
     const {trigger: triggerUserUpdate} = useRequestQueryMutation("/user/update");
-    const {trigger: featurePermissionsTrigger} = useRequestQueryMutation("/feature/permissions/all");
+    const {trigger: featurePermissionsTrigger} = useRequestQueryMutation("/feature/permissions/update");
 
     const user = (httpUserResponse as HttpResponse)?.data ?? null;
     const features = (userData as UserDataResponse)?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features ?? [];
@@ -103,7 +107,7 @@ function ModifyUser() {
             .email(t("users.mailInvalid"))
             .required(t("users.mailReq")),
         birthdate: Yup.string().nullable(),
-        FirstName: Yup.string().required(),
+        firstName: Yup.string().required(),
         lastName: Yup.string().required(),
         phones: Yup.array().of(
             Yup.object().shape({
@@ -122,7 +126,6 @@ function ModifyUser() {
                     })
             })
         ),
-        profile: Yup.string().required(),
         oldPassword: Yup.string().when('password', {
             is: (val: string) => val && val.length > 0,
             then: (schema) => schema.required(t("password-error"))
@@ -168,8 +171,8 @@ function ModifyUser() {
             admin: user?.admin || false,
             consultation_fees: user?.ConsultationFees || "",
             birthdate: user?.birthDate || null,
-            FirstName: user?.FirstName || "",
-            lastName: user?.lastName || "",
+            firstName: user?.FirstName || " ",
+            lastName: user?.lastName || " ",
             phones: [],
             profile: user?.profile?.uuid || "",
             oldPassword: "",
@@ -179,10 +182,9 @@ function ModifyUser() {
         },
         validationSchema,
         onSubmit: async (values) => {
-            //setLoading(true);
-
+            setLoading(true);
+            const form = new FormData();
             if (tabIndex === 0) {
-                const form = new FormData();
                 form.append('username', values.name);
                 form.append('email', values.email);
                 form.append('is_owner', values.admin);
@@ -192,7 +194,7 @@ function ModifyUser() {
                 form.append('is_public', "true");
                 form.append('is_default', "true");
                 values.birthdate && form.append('birthdate', moment(values.birthdate).format("DD/MM/YYYY"));
-                form.append('firstname', values.FirstName);
+                form.append('firstname', values.firstName);
                 form.append('lastname', values.lastName);
                 values.phones.length > 0 && form.append('phone', JSON.stringify(values.phones.map((phoneData: any) => ({
                     code: phoneData.dial?.phone,
@@ -227,12 +229,30 @@ function ModifyUser() {
                     [...(permissions ?? []),
                         ...(permission.children?.filter(permission => permission?.checked) ?? [])], []) ?? [];
 
-                console.log("permissions", [{
-                    object: feature?.featureEntity?.uuid,
-                    featureProfile: feature?.profile,
-                    permissions: permissions.map((permission: PermissionModel) => permission.uuid)
-                }]);
+                form.append('permissions', JSON.stringify(Object.assign({}, permissions.map((permission: PermissionModel) => permission.uuid))));
+                form.append('user', medicalEntityHasUser as string);
+                if (selectedFeatureEntity) {
+                    form.append('object', JSON.stringify({
+                        uuid: selectedFeatureEntity.uuid,
+                        type: selectedFeature
+                    }));
+                }
 
+                triggerUserUpdate({
+                    method: feature?.profile ? "PUT" : "POST",
+                    url: `${urlMedicalEntitySuffix}/features/${selectedFeature}/profiles${feature?.profile ? `/${feature?.profile}` : ""}/${router.locale}`,
+                    data: form
+                }, {
+                    onSuccess: () => {
+                        enqueueSnackbar(t(`users.alert.updated-role`), {variant: "success"});
+                        setLoading(false)
+
+                    },
+                    onError: () => {
+                        setLoading(false);
+                        enqueueSnackbar(t("users.alert.went_wrong"), {variant: "error"});
+                    }
+                });
             }
         }
     });
@@ -267,34 +287,51 @@ function ModifyUser() {
                     setSelectedFeature(slug);
                     const permissions = (result?.data as HttpResponse)?.data;
                     const groupedPermissions = groupPermissionsByFeature(permissions);
+
                     if (entity) {
                         values.roles[slug].forEach((role: any, featureEntityIndex: number) =>
                             setFieldValue(
                                 `roles[${slug}][${featureEntityIndex}].featureEntity.checked`,
                                 role.featureEntity.uuid === entity.uuid));
                     }
-                    values.roles[slug].forEach((role: any, idx: number) => {
-                        setFieldValue(`roles[${slug}][${idx}].permissions`,
-                            groupedPermissions.map((permission: any) => {
-                                const featurePermissions = roles[idx].permissions;
-                                return {
+
+                    medicalEntityHasUser && featurePermissionsTrigger({
+                        method: "GET",
+                        url: `${urlMedicalEntitySuffix}/features/${slug}/mehu/${user?.uuid}/profiles/${router.locale}${entity ? `?object=${entity.uuid}` : ""}`
+                    }, {
+                        onSuccess: (result) => {
+                            const profiles = (result?.data as HttpResponse)?.data ?? [];
+                            const featureProfileIndex = entity ? values.roles[slug].findIndex((role: any) => role.featureEntity?.uuid === entity.uuid) : 0;
+                            const feature = values.roles[slug][featureProfileIndex];
+                            const allFeaturePermissions = feature.permissions;
+                            const permissionsGrouped = profiles.length > 0 ?
+                                groupPermissionsByFeature(mergeArrayByKey(permissions, profiles[0].permissions.map((permission: PermissionModel) => ({
                                     ...permission,
-                                    collapseIn: featurePermissions[0]?.collapseIn ?? false,
+                                    checked: true
+                                })), "uuid"))
+                                : allFeaturePermissions;
+                            setFieldValue(`roles[${slug}][${featureProfileIndex}].profile`, profiles[0]?.uuid);
+                            setFieldValue(`roles[${slug}][${featureProfileIndex}].permissions`,
+                                groupedPermissions.map((permission: any) => ({
+                                    ...permission,
+                                    collapseIn: permissionsGrouped[0]?.collapseIn ?? false,
                                     children: permission.children.map((item: PermissionModel) => {
-                                        const permissions = featurePermissions.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1]);
+                                        const permissions = permissionsGrouped.find((permission: PermissionModel) => permission.uuid === item.slug?.split("__")[1]);
                                         return {
                                             ...item,
                                             checked: permissions?.children.reduce((permissions: string[], permission: PermissionModel) => [...(permissions ?? []), ...(permission.checked ? [permission.uuid] : [])], []).includes(item.uuid) ?? false
                                         }
                                     })
-                                }
-                            }))
+                                })))
+                        },
+                        onSettled: () => setLoadingReq(false)
                     });
                 },
                 onSettled: () => setLoadingReq(false)
             });
         } else {
             setOpenCollapseFeature(openCollapseFeature === slug ? "" : slug);
+            setRoles([]);
         }
     }
 
@@ -308,13 +345,10 @@ function ModifyUser() {
     } = formik;
 
     if (!ready || error) {
-        return <LoadingScreen
-            button
-            {...(error ? {
-                OnClick: () => router.push('/dashboard/settings/users'),
-                text: 'loading-error-404-reset'
-            } : {})}
-        />;
+        return <LoadingScreen button {...(error ? {
+            OnClick: () => router.push('/dashboard/settings/users'),
+            text: 'loading-error-404-reset'
+        } : {})}/>;
     }
 
     return (
@@ -331,7 +365,6 @@ function ModifyUser() {
             <ContainerLayoutStyled className="container">
                 <FormikProvider value={formik}>
                     <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
-
                         <TabPanel value={tabIndex} index={0} padding={0}>
                             <Typography marginBottom={2} gutterBottom>
                                 {t("users.user")}
@@ -457,8 +490,8 @@ function ModifyUser() {
                                                     placeholder={t("users.firstname")}
                                                     fullWidth
                                                     required
-                                                    error={Boolean(touched.FirstName && errors.FirstName)}
-                                                    {...getFieldProps("FirstName")}
+                                                    error={Boolean(touched.firstName && errors.firstName)}
+                                                    {...getFieldProps("firstName")}
                                                 />
                                             </Grid>
                                         </Grid>

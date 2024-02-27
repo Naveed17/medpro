@@ -74,14 +74,6 @@ const headCells = [
         sortable: true,
     },
     {
-        id: "role",
-        numeric: false,
-        disablePadding: false,
-        label: "role",
-        align: "center",
-        sortable: true,
-    },
-    {
         id: "status",
         numeric: false,
         disablePadding: false,
@@ -153,13 +145,7 @@ function Users() {
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
     }, {refetchOnWindowFocus: false});
 
-    const {data: httpProfilesResponse, mutate: mutateProfiles} = useRequestQuery({
-        method: "GET",
-        url: `${urlMedicalEntitySuffix}/profile/${router.locale}`
-    }, {refetchOnWindowFocus: false});
-
     const users = ((httpUsersResponse as HttpResponse)?.data ?? []) as UserModel[];
-    const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as ProfileModel[];
     const popoverActions = [{
         icon: <IconUrl path="ic-trash" color="white"/>,
         title: "delete-role",
@@ -269,7 +255,6 @@ function Users() {
             onSuccess: () => {
                 setLoading(false);
                 setDeleteDialog(false);
-                mutateProfiles();
             }
         })
     }
@@ -336,7 +321,7 @@ function Users() {
                                     handleEvent={(action: string, eventData: EventModal) => handleTableEvent(action, eventData)}
                                     rows={users}
                                     from={"users"}
-                                    {...{t, currentUser, profiles, handleChange}}
+                                    {...{t, currentUser, handleChange}}
                                     edit={onDelete}
                                 />
                             </DesktopContainer>
@@ -355,7 +340,7 @@ function Users() {
                     )}
                 </TabPanel>
                 <TabPanel value={tabvalue} index={1} padding={0}>
-                    <UsersTabs {...{profiles, t, handleContextMenu}} />
+                    <UsersTabs {...{t, handleContextMenu}} />
                 </TabPanel>
             </Box>
             <Drawer
@@ -440,7 +425,7 @@ function Users() {
                 open={newUserDialog}
                 onClose={handleCloseNewUserDialog}>
                 <NewUserDialog
-                    {...{t, profiles}}
+                    {...{t}}
                     onNextPreviStep={handleNextPreviStep}
                     onClose={handleCloseNewUserDialog}/>
             </Dialog>

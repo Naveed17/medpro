@@ -695,7 +695,7 @@
       },
       "alert": {
         "add_user_success": "Ajouter un utilisateur avec succès",
-        "went_wrong": "Quelque chose n'a pas fonctionné"
+        "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment "
       }
     },
     "dialog": {
@@ -712,7 +712,7 @@
     "alert": {
       "success": "l'utilisateur a été ajouté avec succès",
       "updated-role": "Le profil a été mis à jour avec succès",
-      "went_wrong": "Quelque chose n'a pas fonctionné",
+      "went_wrong": "Une erreur s'est produite lors de l'envoi de la demande, réessayez à un autre moment",
       "update": "l'utilisateur a été mis à jour avec succès"
     }
   },

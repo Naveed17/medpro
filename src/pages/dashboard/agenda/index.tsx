@@ -62,7 +62,7 @@ import {CustomStepper} from "@features/customStepper";
 import {sideBarSelector} from "@features/menu";
 import {
     appointmentGroupByDate,
-    appointmentPrepareEvent,
+    appointmentPrepareEvent, mergeArrayByKey,
     prepareSearchKeys, useInvalidateQueries,
     useMedicalEntitySuffix,
     useMutateOnGoing
@@ -261,12 +261,8 @@ function Agenda() {
                 eventsUpdated.push(appointmentPrepareEvent(appointment, horsWork, hasErrors));
             });
         } else {
-            const filteredEvents = appointments.map(appointment => appointmentPrepareEvent(appointment, false, []))
-            const mergedMap = new Map();
-            filteredEvents.forEach((item) => mergedMap.set(item.id, {...item}));
-            events.current.forEach((item) => mergedMap.set(item.id, {...mergedMap.get(item.id), ...item}));
-            const mergedArray = Array.from(mergedMap.values());
-
+            const filteredEvents = appointments.map(appointment => appointmentPrepareEvent(appointment, false, []));
+            const mergedArray = mergeArrayByKey(filteredEvents, events.current, "id");
             eventsUpdated.push(...mergedArray.map(event => ({
                 ...event,
                 filtered: localFilter.length > 0 && !appointments?.find(appointment => appointment.uuid === event.id)
