@@ -52,7 +52,7 @@ function AbsenceDrawer({...props}) {
         },
     });
 
-    const {values, errors, touched, setFieldValue} = formik;
+    const {values, errors, setFieldValue} = formik;
 
     useEffect(() => {
         dispatch(setAbsenceData({hasError: Object.keys(errors).length > 0}));
