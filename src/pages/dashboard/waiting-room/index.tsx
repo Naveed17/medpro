@@ -12,11 +12,11 @@ import {
     Card,
     CardHeader,
     DialogActions,
-    Drawer,
-    LinearProgress,
+    Drawer, useTheme,
+    LinearProgress, Menu,
     MenuItem,
-    Paper,
-    Stack,
+    Paper, Popper, Radio,
+    Stack, ToggleButton,
     Typography,
     useMediaQuery
 } from "@mui/material";
@@ -71,10 +71,12 @@ import {useLeavePageConfirm} from "@lib/hooks/useLeavePageConfirm";
 import {Label} from "@features/label";
 import {partition} from "lodash";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
+import TripOriginRoundedIcon from '@mui/icons-material/TripOriginRounded';
 
 function WaitingRoom() {
     const {data: session, status} = useSession();
     const router = useRouter();
+    const theme = useTheme();
     const dispatch = useAppDispatch();
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: mutateOnGoing} = useMutateOnGoing();
@@ -124,6 +126,14 @@ function WaitingRoom() {
     const [openUploadDialog, setOpenUploadDialog] = useState({dialog: false, loading: false});
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [menuOptions, setMenuOptions] = useState<any[]>([
+        {key: "startTime", value: "start-time", checked: true},
+        {key: "arrivalTime", value: "arrival-time", checked: true},
+        {key: "estimatedStartTime", value: "smart-list", checked: true}
+    ]);
+    const [selectedSortIndex, setSelectedSortIndex] = useState("start-time");
+    const [orderSort, setOrderSort] = useState("asscending");
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
@@ -320,6 +330,23 @@ function WaitingRoom() {
         handleClose();
     }
 
+    const handleSortData = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleSortSelect = (value: string) => {
+        setSelectedSortIndex(value);
+        setAnchorEl(null);
+    };
+    const handleOrderSelect = (value: string) => {
+        setOrderSort(value);
+        setAnchorEl(null);
+    };
+
+    const handleCloseMenu = () => {
+        setAnchorEl(null);
+    };
+
     const handleDragEvent = (result: DropResult, item: BoardModel) => {
         handleAppointmentStatus(
             item.content.uuid,
@@ -384,7 +411,9 @@ function WaitingRoom() {
         });
     }
 
-    const columns: any[] = [
+    const columns
+        :
+        any[] = [
         {
             id: '1',
             name: 'today-rdv',
@@ -477,14 +506,17 @@ function WaitingRoom() {
 
     useEffect(() => {
         if (httpWaitingRoomsResponse) {
-            let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) =>
-                moment(`${a.dayDate} ${a.estimatedStartTime ?? a.startTime}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${b.dayDate} ${b.estimatedStartTime ?? b.startTime}`, "DD-MM-YYYY HH:mm").valueOf()
-            ).group((diag: any) => diag.status);
+            const sortKey = menuOptions.find(option => option.value === selectedSortIndex)?.key;
+            let groupedData = (httpWaitingRoomsResponse as HttpResponse).data?.sort((a: any, b: any) => {
+                const d1 = orderSort === "asscending" ? a : b;
+                const d2 = orderSort === "asscending" ? b : a;
+                return moment(`${d1.dayDate} ${d1[sortKey]}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, "DD-MM-YYYY HH:mm").valueOf()
+            }).group((diag: any) => diag.status);
             const onGoingAppointment = partition(groupedData[3], (event: any) => event.estimatedStartTime === null);
             groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0].reverse()]
             setWaitingRoomsGroup(groupedData);
         }
-    }, [httpWaitingRoomsResponse, is_next]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpWaitingRoomsResponse, is_next, selectedSortIndex, orderSort]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // bindI18n: loaded is needed because of the reloadResources call
     // if all pages use the reloadResources mechanism, the bindI18n option can also be defined in next-i18next.config.js
@@ -526,7 +558,7 @@ function WaitingRoom() {
                     <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
                             <Board
-                                {...{columns, handleDragEvent}}
+                                {...{columns, handleDragEvent, handleSortData}}
                                 handleEvent={handleTableActions}
                                 data={waitingRoomsGroup}/>
                         </TabPanel>
@@ -788,6 +820,78 @@ function WaitingRoom() {
                             </MenuItem>
                         ))}
                     </ActionMenu>
+
+                    <Menu
+                        id="sort-menu"
+                        {...{anchorEl}}
+                        open={anchorEl !== null}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}
+                        sx={{
+                            "& .MuiPaper-root": {
+                                borderRadius: 2,
+                                minWidth: 180
+                            }
+                        }}
+                        onClose={handleCloseMenu}>
+                        <Typography fontWeight={600} px={2} my={.5}>{t("sort.sort-by")} </Typography>
+
+                        {menuOptions.map((option, index) => (
+                            <MenuItem
+                                key={option.value}
+                                onClick={() => handleSortSelect(option.value)}>
+                                <Box
+                                    component={Radio}
+                                    checkedIcon={<TripOriginRoundedIcon/>}
+                                    checked
+                                    sx={{
+                                        width: 17, height: 17, mr: '5px', ml: '-2px',
+                                        '& .MuiSvgIcon-root': {
+                                            color: theme.palette.primary.main
+                                        }
+                                    }}
+                                    style={{
+                                        visibility: option.value === selectedSortIndex ? 'visible' : 'hidden',
+                                    }}
+                                />
+                                {t(`sort.${option.value}`)}
+                            </MenuItem>
+                        ))}
+                        <Stack mt={1} px={1} direction={"row"} alignItems={"center"} spacing={1}
+                               justifyContent={"center"}>
+                            <ToggleButton
+                                size={"small"}
+                                sx={{border: "none"}}
+                                color={"primary"}
+                                selected={orderSort === "asscending"}
+                                value="check"
+                                onChange={() => handleOrderSelect("asscending")}>
+                                <IconUrl {...(orderSort !== "asscending" && {color: theme.palette.text.primary})}
+                                         width={16} height={16}
+                                         path={"ic-linear-sort-descending"}/>
+                                {orderSort === "asscending" && <Typography ml={1}>{t("sort.ascending")}</Typography>}
+                            </ToggleButton>
+
+                            <ToggleButton
+                                size={"small"}
+                                sx={{border: "none"}}
+                                color={"primary"}
+                                selected={orderSort === "descending"}
+                                value="check"
+                                onChange={() => handleOrderSelect("descending")}>
+                                <IconUrl  {...(orderSort !== "descending" && {color: theme.palette.text.primary})}
+                                          width={16} height={16}
+                                          path={"ic-linear-sort-asscending"}/>
+                                {orderSort === "descending" && <Typography ml={1}>{t("sort.decreasing")}</Typography>}
+                            </ToggleButton>
+                        </Stack>
+                    </Menu>
                 </Box>
             </Box>
 

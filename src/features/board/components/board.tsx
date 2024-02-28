@@ -9,10 +9,12 @@ import {
 import React, {useCallback, useEffect, useState} from "react";
 import styled from '@emotion/styled';
 import {BoardList} from "@features/board";
-import {Card, CardHeader, Grid, Typography} from "@mui/material";
+import {Card, CardHeader, Grid, IconButton, Popper, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useAppSelector} from "@lib/redux/hooks";
 import {sideBarSelector} from "@features/menu";
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import IconUrl from "@themes/urlIcon";
 
 const ParentContainer = styled.div`
     margin-top: -1rem;
@@ -45,7 +47,7 @@ const Title = styled.h4`
 `;
 
 function Board({...props}) {
-    const {columns, data, handleEvent, handleDragEvent} = props;
+    const {columns, data, handleEvent, handleDragEvent, handleSortData} = props;
     const {opened} = useAppSelector(sideBarSelector);
 
     const {t} = useTranslation('waitingRoom', {keyPrefix: 'config.tabs'});
@@ -206,17 +208,29 @@ function Board({...props}) {
                                                                 minHeight: 60,
                                                                 ".MuiCardHeader-action": {alignSelf: 'center'}
                                                             }}
-                                                            title={<Typography
-                                                                color={"text.primary"} fontWeight={700}
-                                                                fontSize={14}
-                                                                sx={{
-                                                                    whiteSpace: "nowrap",
-                                                                    overflow: "hidden",
-                                                                    textOverflow: "ellipsis",
-                                                                    width: columns[index].action && opened ? 140 : "auto",
-                                                                }}>
-                                                                {t(key)} {boardData[key].length > 0 && index < 3 ? `(${boardData[key].length})` : ""}
-                                                            </Typography>}
+                                                            title={
+                                                                <Stack direction={"row"} alignItems={"center"}
+                                                                       spacing={.5}>
+                                                                    <Typography
+                                                                        color={"text.primary"} fontWeight={700}
+                                                                        fontSize={14}
+                                                                        sx={{
+                                                                            whiteSpace: "nowrap",
+                                                                            overflow: "hidden",
+                                                                            textOverflow: "ellipsis",
+                                                                            width: columns[index].action && opened ? (columns[index].id === "3" ? 115 : 140) : "auto",
+                                                                        }}>
+                                                                        {t(key)} {boardData[key].length > 0 && index < 3 ? `(${boardData[key].length})` : ""}
+                                                                    </Typography>
+                                                                    {columns[index].id === "3" &&
+                                                                        <IconButton
+                                                                            size={"small"}
+                                                                            onClick={event => handleSortData(event)}>
+                                                                            <IconUrl width={20} height={20} sx={{p: 0}}
+                                                                                     path={"sort"}/>
+                                                                        </IconButton>}
+                                                                </Stack>
+                                                            }
                                                         />
                                                     </Card>
                                                 </Title>

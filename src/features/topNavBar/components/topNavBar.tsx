@@ -501,7 +501,7 @@ function TopNavBar({...props}) {
                                     <Badge
                                         color="warning"
                                         badgeContent={pausedConsultation.length}
-                                        sx={{mr: 2}}
+                                        sx={{mr: 2, ml: 1}}
                                         onClick={(event) => handleClick(event, "paused")}
                                         className="custom-badge badge">
                                         <IconButton color="primary" edge="start">
