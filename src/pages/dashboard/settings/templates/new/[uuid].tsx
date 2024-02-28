@@ -233,14 +233,14 @@ function DocsConfig() {
             setFiles([...files, ...acceptedFiles]);
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [files]
+        [files,data]
     );
 
     const resetFormat = (target: string, value: string) => {
         if (used) {
             setOpenReset(true)
             setPaperSize({target, value})
-            let _data: any = data//{...data}
+            let _data: any = data
             if (_data[target])
                 _data[target] = value;
             else _data = {...data, [target]: value}
