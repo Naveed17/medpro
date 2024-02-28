@@ -13,7 +13,9 @@ import {useRouter} from "next/router";
 
 function Page({...props}) {
 
-    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue, urlMedicalProfessionalSuffix,docs,setDocs} = props
+    const {data, setData, id = 0, setOnResize, date, header, setHeader, setValue,
+        state,
+        urlMedicalProfessionalSuffix,docs,setDocs} = props
     const {Canvas} = useQRCode();
 
     const theme = useTheme();
@@ -69,7 +71,7 @@ function Page({...props}) {
 
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        []
+        [data]
     );
 
     useEffect(() => {
@@ -298,12 +300,19 @@ function Page({...props}) {
                                  }}>
                                 <Icon path={"ic-delete"}/>
                             </div>
+                            <div className={"btnMenu"}>
+                                <div onClick={() => {
+                                    setValue("date")
+                                }}>
+                                    <Icon path={"focus"} width={20} height={20}/>
+                                </div>
+                            </div>
                             <div className={"btnMenu"}
                                  style={{backgroundColor: selectedElement === "date" ? theme.palette.success.main : theme.palette.info.main}}
                                  onClick={() => {
                                      setSelectedElement(selectedElement !== "date" ? "date" : "")
                                  }}>
-                                <Icon path={selectedElement !== "date" ? "ic-edit-patient" : "ic-check"}/>
+                                <Icon path={selectedElement !== "date" ? "text-selection" : "ic-check"} width={20} height={20}/>
                             </div>
                         </div>
                     </Resizable>}
@@ -347,12 +356,19 @@ function Page({...props}) {
                                  }}>
                                 <Icon path={"ic-delete"}/>
                             </div>
+                            <div className={"btnMenu"}>
+                                <div onClick={() => {
+                                    setValue("patient")
+                                }}>
+                                    <Icon path={"focus"} width={20} height={20}/>
+                                </div>
+                            </div>
                             <div className={"btnMenu"}
                                  style={{backgroundColor: selectedElement === "patient" ? theme.palette.success.main : theme.palette.info.main}}
                                  onClick={() => {
                                      setSelectedElement(selectedElement !== "patient" ? "patient" : "")
                                  }}>
-                                <Icon path={selectedElement !== "patient" ? "ic-edit-patient" : "ic-check"}/>
+                                <Icon path={selectedElement !== "patient" ? "text-selection" : "ic-check" } width={20} height={20}/>
                             </div>
                         </div>
                     </Resizable>}
@@ -624,13 +640,13 @@ function Page({...props}) {
                             style={{marginTop: loading ? 0 : getMarginTop(), width: "100%", height: "100%"}}
                             dangerouslySetInnerHTML={{__html: data.content.content}}/>
                         <div className={"menuTop"} style={{top: 0}}>
-                            <div className={"btnMenu"}>
+                            {state &&<div className={"btnMenu"}>
                                 <div onClick={() => {
                                     setValue("content")
                                 }}>
                                     <Icon path={"focus"} width={20} height={20}/>
                                 </div>
-                            </div>
+                            </div>}
                             <div className={"btnMenu"}
                                  style={{background: selectedElement === "content" ? theme.palette.success.main : theme.palette.info.main}}>
                                 <div onClick={() => {
