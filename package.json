@@ -15,7 +15,7 @@
     "tinymce": "node ./postinstall.js",
     "locize:migrate": "locize migrate --api-key 323d9076-597a-478a-b372-b2775cfcbd2a --project-id 5f545f61-16a5-4006-80cd-c072b823269c --format json",
     "locize:sync": "locize sync --api-key 323d9076-597a-478a-b372-b2775cfcbd2a --project-id 5f545f61-16a5-4006-80cd-c072b823269c --format json",
-    "locize:save-missing": "locize save-missing --api-key 323d9076-597a-478a-b372-b2775cfcbd2a --project-id 5f545f61-16a5-4006-80cd-c072b823269c --format json"
+    "locize:save-missing": "locize save-missing --api-key 323d9076-597a-478a-b372-b2775cfcbd2a --project-id 5f545f61-16a5-4006-80cd-c072b823269c --format json --path ./public/locales"
   },
   "dependencies": {
     "@casl/ability": "^6.5.0",
