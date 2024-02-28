@@ -15,7 +15,7 @@ import {
     Drawer, useTheme,
     LinearProgress, Menu,
     MenuItem,
-    Paper, Popper, Radio,
+    Paper, Radio,
     Stack, ToggleButton,
     Typography,
     useMediaQuery
@@ -127,7 +127,7 @@ function WaitingRoom() {
     const [documentConfig, setDocumentConfig] = useState({name: "", description: "", type: "analyse", files: []});
     const [tabIndex, setTabIndex] = useState<number>(isMobile ? 1 : 0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [menuOptions, setMenuOptions] = useState<any[]>([
+    const [menuOptions] = useState<any[]>([
         {key: "startTime", value: "start-time", checked: true},
         {key: "arrivalTime", value: "arrival-time", checked: true},
         {key: "estimatedStartTime", value: "smart-list", checked: true}
@@ -842,7 +842,7 @@ function WaitingRoom() {
                         onClose={handleCloseMenu}>
                         <Typography fontWeight={600} px={2} my={.5}>{t("sort.sort-by")} </Typography>
 
-                        {menuOptions.map((option, index) => (
+                        {menuOptions.map((option) => (
                             <MenuItem
                                 key={option.value}
                                 onClick={() => handleSortSelect(option.value)}>

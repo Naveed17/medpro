@@ -20,7 +20,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {Label} from "@features/label";
 
 function ActfeesMobileCard({...props}) {
-    const {data, editMotif, t, handleSelected, handleEvent, theme} = props;
+    const {data, t, handleEvent, theme} = props;
     const [fees, setFees] = useState("");
     const [name, setName] = useState("");
     const [edit, setEdit] = useState("");

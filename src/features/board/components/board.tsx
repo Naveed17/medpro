@@ -9,11 +9,10 @@ import {
 import React, {useCallback, useEffect, useState} from "react";
 import styled from '@emotion/styled';
 import {BoardList} from "@features/board";
-import {Card, CardHeader, Grid, IconButton, Popper, Stack, Typography} from "@mui/material";
+import {Card, CardHeader, Grid, IconButton, Stack, Typography} from "@mui/material";
 import {useTranslation} from "next-i18next";
 import {useAppSelector} from "@lib/redux/hooks";
 import {sideBarSelector} from "@features/menu";
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import IconUrl from "@themes/urlIcon";
 
 const ParentContainer = styled.div`
