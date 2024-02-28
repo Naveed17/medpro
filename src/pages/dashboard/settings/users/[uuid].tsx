@@ -244,10 +244,7 @@ function ModifyUser() {
                 }, {
                     onSuccess: () => {
                         enqueueSnackbar(t(`users.alert.updated-role`), {variant: "success"});
-                        setLoading(false)
-                        if(!feature?.profile){
-
-                        }
+                        setLoading(false);
                     },
                     onError: () => {
                         setLoading(false);
@@ -306,7 +303,7 @@ function ModifyUser() {
                             const feature = values.roles[slug][featureProfileIndex];
                             const allFeaturePermissions = feature.permissions;
                             const permissionsGrouped = profiles.length > 0 ?
-                                groupPermissionsByFeature(mergeArrayByKey(permissions, profiles[0].permissions.map((permission: PermissionModel) => ({
+                                groupPermissionsByFeature(mergeArrayByKey(allFeaturePermissions.reduce((permissions: PermissionModel[], permission: PermissionModel) => [...(permissions ?? []), ...(permission?.children ?? [])], []), profiles[0].permissions.map((permission: PermissionModel) => ({
                                     ...permission,
                                     checked: true
                                 })), "uuid"))
