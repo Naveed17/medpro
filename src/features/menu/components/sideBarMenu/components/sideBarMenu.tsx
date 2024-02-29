@@ -8,7 +8,7 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
-    Toolbar, Tooltip,
+    Toolbar,
     useMediaQuery
 } from "@mui/material";
 // utils
