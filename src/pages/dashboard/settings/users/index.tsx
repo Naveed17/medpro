@@ -15,8 +15,6 @@ import {
     DialogTitle,
     Dialog,
     Theme,
-    Tabs,
-    Tab,
     MenuItem,
 } from "@mui/material";
 import {useTranslation} from "next-i18next";
@@ -39,7 +37,6 @@ import {useSendNotification} from "@lib/hooks/rest";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import {Redirect} from "@features/redirect";
-import {TabPanel, UsersTabs} from "@features/tabPanel";
 import {ActionMenu} from "@features/menu";
 import {CustomIconButton} from "@features/buttons";
 import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
@@ -98,13 +95,6 @@ const headCells = [
         sortable: false,
     },
 ];
-
-function a11yProps(index: number) {
-    return {
-        id: `simple-tab-${index}`,
-        'aria-controls': `simple-tabpanel-${index}`,
-    };
-}
 
 function Users() {
     const router = useRouter();
@@ -177,22 +167,6 @@ function Users() {
                 }
             }
         });
-    }
-
-    const handleChangeTabs = (event: React.SyntheticEvent, newValue: number) => {
-        setTabValue(newValue);
-    }
-
-    const handleContextMenu = (event: MouseEvent, profile: any) => {
-        event.preventDefault();
-        setSelectedProfile(profile);
-        setContextMenu(
-            contextMenu === null
-                ? {
-                    mouseX: event.clientX + 2,
-                    mouseY: event.clientY - 6,
-                } : null,
-        );
     }
 
     const handleClose = () => {
