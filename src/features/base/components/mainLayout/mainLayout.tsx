@@ -311,25 +311,6 @@ function MainLayout({...props}) {
         }
     }, [agendaConfig]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        if (typeof window !== "undefined") {
-            window.addEventListener("online", () => {
-                // when we're back online
-                closeSnackbar(noConnection);
-                setNoConnection(undefined);
-            });
-
-            window.addEventListener("offline", () => {
-                setNoConnection(enqueueSnackbar('Aucune connexion internet!', {
-                    key: "offline",
-                    variant: 'error',
-                    anchorOrigin: {horizontal: "center", vertical: "bottom"},
-                    persist: true
-                }));
-            });
-        }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
     const connectToStream = () => {
         // Connect to /api/sse as the SSE API source
         const eventSource = new EventSource(`/api/sse`, {
@@ -359,8 +340,26 @@ function MainLayout({...props}) {
     }
 
     useEffect(() => {
+        console.log("init")
         // Initiate the first call to connect to SSE API
         const eventSource = connectToStream()
+
+        if (typeof window !== "undefined") {
+            window.addEventListener("online", () => {
+                // when we're back online
+                closeSnackbar(noConnection);
+                setNoConnection(undefined);
+            });
+
+            window.addEventListener("offline", () => {
+                setNoConnection(enqueueSnackbar('Aucune connexion internet!', {
+                    key: "offline",
+                    variant: 'error',
+                    anchorOrigin: {horizontal: "center", vertical: "bottom"},
+                    persist: true
+                }));
+            });
+        }
 
         return () => {
             console.log('Close SSE connection');
