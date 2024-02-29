@@ -134,6 +134,7 @@ function WaitingRoom() {
     ]);
     const [selectedSortIndex, setSelectedSortIndex] = useState("start-time");
     const [orderSort, setOrderSort] = useState("asscending");
+    const [isUnpaidFilter, setIsUnpaidFilter] = useState(false);
 
     const {trigger: updateTrigger} = useRequestQueryMutation("/agenda/appointment/update");
     const {trigger: updateAppointmentStatus} = useRequestQueryMutation("/agenda/update/appointment/status");
@@ -334,6 +335,10 @@ function WaitingRoom() {
         setAnchorEl(event.currentTarget);
     };
 
+    const handleUnpaidFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setIsUnpaidFilter(event.target.checked);
+    };
+
     const handleSortSelect = (value: string) => {
         setSelectedSortIndex(value);
         setAnchorEl(null);
@@ -513,10 +518,18 @@ function WaitingRoom() {
                 return moment(`${d1.dayDate} ${d1[sortKey]}`, "DD-MM-YYYY HH:mm").valueOf() - moment(`${d2.dayDate} ${d2[sortKey]}`, "DD-MM-YYYY HH:mm").valueOf()
             }).group((diag: any) => diag.status);
             const onGoingAppointment = partition(groupedData[3], (event: any) => event.estimatedStartTime === null);
-            groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0].reverse()]
+            groupedData[3] = [...onGoingAppointment[1], ...onGoingAppointment[0]];
+            if (sortKey === "arrivalTime") {
+                groupedData[3].reverse();
+            } else if (sortKey === "startTime") {
+                groupedData[3].reverse().sort((a: any) => a.startTime === "00:00" ? 1 : -1);
+            }
+            if (isUnpaidFilter) {
+                groupedData[5] = groupedData[5].filter((data: any) => data.restAmount > 0);
+            }
             setWaitingRoomsGroup(groupedData);
         }
-    }, [httpWaitingRoomsResponse, is_next, selectedSortIndex, orderSort]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [httpWaitingRoomsResponse, is_next, selectedSortIndex, orderSort, isUnpaidFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // bindI18n: loaded is needed because of the reloadResources call
     // if all pages use the reloadResources mechanism, the bindI18n option can also be defined in next-i18next.config.js
@@ -558,7 +571,7 @@ function WaitingRoom() {
                     <DesktopContainer>
                         <TabPanel padding={.1} value={tabIndex} index={0}>
                             <Board
-                                {...{columns, handleDragEvent, handleSortData}}
+                                {...{columns, isUnpaidFilter, handleDragEvent, handleSortData, handleUnpaidFilter}}
                                 handleEvent={handleTableActions}
                                 data={waitingRoomsGroup}/>
                         </TabPanel>

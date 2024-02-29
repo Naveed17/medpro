@@ -64,13 +64,13 @@ function UserRow({...props}) {
                     </Stack>
                 )}
             </TableCell>
-            <TableCell align="center">
+            <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                 {row ? !row?.isProfessional && <CustomSwitch
                     className="custom-switch"
                     name="active"
                     onChange={(e) => {
                         setIsActive(e.target.checked);
-                        handleChange("ACCESS", row, e)
+                        handleChange("ACCESS", row, e);
                     }}
                     checked={isActive}
                 /> : (
@@ -109,7 +109,10 @@ function UserRow({...props}) {
                                 <IconButton
                                     className={"delete-icon"}
                                     size="small"
-                                    onClick={() => editMotif(row)}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        editMotif(row);
+                                    }}
                                     sx={{
                                         mr: {md: 1},
                                         '& .react-svg svg': {

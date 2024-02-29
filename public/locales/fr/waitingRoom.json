@@ -81,7 +81,8 @@
       "today-rdv": "Rdv aujourd'hui",
       "waiting-room": "Salle d’attente",
       "ongoing": "En Consultation",
-      "finished": "Terminé"
+      "finished": "Terminé",
+      "payed": "Impayé"
     },
     "table": {
       "Id": "N°",
