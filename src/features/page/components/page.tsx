@@ -443,9 +443,8 @@ function Page({...props}) {
                             setBlockDrag(true)
                         }}
                         onResizeStop={(e, direction, ref, d) => {
-                            data.cin.width = document.getElementById(`cin${id}`)?.clientWidth
-
-                            data.cin.maxHeight += d.height
+                            data.age.width = document.getElementById(`age${id}`)?.clientWidth
+                            data.age.maxHeight += d.height
                             setData({...data})
                             setBlockDrag(false)
                         }}>
