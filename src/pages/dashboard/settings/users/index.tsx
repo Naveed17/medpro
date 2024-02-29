@@ -290,10 +290,7 @@ function Users() {
         <>
             <SubHeader sx={{borderBottom: 1, borderColor: 'divider'}}>
                 <Stack direction="row" alignItems="center" mt={2} justifyContent="space-between" width={1}>
-                    <Tabs value={tabvalue} onChange={handleChangeTabs} aria-label="">
-                        <Tab disableRipple label={t("all_users")} {...a11yProps(0)} />
-                        <Tab disableRipple label={t("roles_permissons")} {...a11yProps(1)} />
-                    </Tabs>
+                    <Typography color="text.primary">{t("path")}</Typography>
                     <Can I={"manage"} a={"settings"} field={"settings__users__create"}>
                         {tabvalue === 0 &&
                             <CustomIconButton
@@ -312,36 +309,31 @@ function Users() {
                 </Stack>
             </SubHeader>
             <Box className="container">
-                <TabPanel value={tabvalue} index={0} padding={0}>
-                    {users && users.length > 0 ? (
-                        <>
-                            <DesktopContainer>
-                                <Otable
-                                    headers={headCells}
-                                    handleEvent={(action: string, eventData: EventModal) => handleTableEvent(action, eventData)}
-                                    rows={users}
-                                    from={"users"}
-                                    {...{t, currentUser, handleChange}}
-                                    edit={onDelete}
-                                />
-                            </DesktopContainer>
-                            <MobileContainer>
-                                <Stack spacing={1}>
-                                    {users.map((user) => (
-                                        <React.Fragment key={user.uuid}>
-                                            <UserMobileCard data={user} t={t}/>
-                                        </React.Fragment>
-                                    ))}
-                                </Stack>
-                            </MobileContainer>
-                        </>
-                    ) : (
-                        <NoDataCard t={t} ns={"settings"} data={CardData}/>
-                    )}
-                </TabPanel>
-                <TabPanel value={tabvalue} index={1} padding={0}>
-                    <UsersTabs {...{t, handleContextMenu}} />
-                </TabPanel>
+                {users && users.length > 0 ? (
+                    <>
+                        <DesktopContainer>
+                            <Otable
+                                headers={headCells}
+                                handleEvent={(action: string, eventData: EventModal) => handleTableEvent(action, eventData)}
+                                rows={users}
+                                from={"users"}
+                                {...{t, currentUser, handleChange}}
+                                edit={onDelete}
+                            />
+                        </DesktopContainer>
+                        <MobileContainer>
+                            <Stack spacing={1}>
+                                {users.map((user) => (
+                                    <React.Fragment key={user.uuid}>
+                                        <UserMobileCard data={user} t={t}/>
+                                    </React.Fragment>
+                                ))}
+                            </Stack>
+                        </MobileContainer>
+                    </>
+                ) : (
+                    <NoDataCard t={t} ns={"settings"} data={CardData}/>
+                )}
             </Box>
             <Drawer
                 PaperProps={{
