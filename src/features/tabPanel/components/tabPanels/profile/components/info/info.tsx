@@ -512,7 +512,7 @@ function Info({ ...props }) {
                                         }}
                                         sx={{ color: "text.secondary" }}
                                         options={states ? states : []}
-                                        loading={values.region && states?.length === 0}
+                                        loading={!!(values.region && states?.length === 0)}
                                         getOptionLabel={(option) => option?.name ? option.name : ""}
                                         isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                         renderOption={(props, option) => (
