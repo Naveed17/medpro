@@ -45,7 +45,8 @@ function NotesComponent({...props}) {
         modelContent,
         fullOb, setFullOb,
         loadChanges, setLoadChanges,
-        loading
+        loading,
+        typing, setTyping
     } = props
 
     const [showToolbar, setShowToolbar] = useState<boolean>(false);
@@ -139,6 +140,20 @@ function NotesComponent({...props}) {
         }
     }, [isStarted, setFieldValue, transcript])// eslint-disable-line react-hooks/exhaustive-deps
 
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            window.addEventListener("online", () => {
+                setTyping("online")
+                setTimeout(() => {
+                    setTyping("")
+                }, 2000)
+            });
+            window.addEventListener("offline", () => {
+                setTyping("offline")
+            });
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
     return (
         <Box>
             <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}
@@ -147,6 +162,16 @@ function NotesComponent({...props}) {
                     {t("notes")}
                 </Typography>
                 <Stack direction={"row"} spacing={1.2} alignItems={"center"}>
+
+                    {typing === "saved" &&
+                        <IconUrl width={20} height={20} path={"ic-saved"}/>}
+                    {typing === "typing" &&
+                        <IconUrl width={20} height={20} className={"image-clignote"} path={"typing"}/>}
+                    {typing === "offline" &&
+                        <IconUrl width={20} height={20} className={"image-clignote"} path={"no-wifi"}/>}
+                    {typing === "error" &&
+                        <IconUrl width={20} height={20} className={"image-clignote"} path={"ic-error-save"}/>}
+
                     {(listen === '' || listen === 'observation') &&
                         <Stack direction={"row"} alignItems={"center"} spacing={1.2} ml={1}>
                             {models && models.length > 0 && !isMobile && <Select
@@ -266,8 +291,9 @@ function NotesComponent({...props}) {
                 tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                 onEditorChange={(event) => {
                     debouncedOnChange("notes", event)
+                    setTyping("typing")
                 }}
-                disabled={isStarted || loading}
+                disabled={isStarted || loading || typing === "offline"}
                 init={{
                     branding: false,
                     statusbar: false,
@@ -285,8 +311,9 @@ function NotesComponent({...props}) {
                     tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                     onEditorChange={(event) => {
                         debouncedOnChange("notes", event)
+                        setTyping("typing")
                     }}
-                    disabled={isStarted || loading}
+                    disabled={isStarted || loading || typing === "offline"}
                     init={{
                         branding: false,
                         statusbar: false,
