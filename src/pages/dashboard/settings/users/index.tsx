@@ -1,4 +1,4 @@
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {DashLayout, dashLayoutSelector} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
@@ -104,7 +104,7 @@ function Users() {
     const {trigger: triggerNotificationPush} = useSendNotification();
     const dispatch = useAppDispatch();
 
-    const {t, ready} = useTranslation("settings", {keyPrefix: "users.config"});
+    const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "users.config"});
     const {direction} = useAppSelector(configSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {currentStep} = useAppSelector(stepperSelector);
@@ -253,6 +253,11 @@ function Users() {
                 break;
         }
     }
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
@@ -405,8 +410,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

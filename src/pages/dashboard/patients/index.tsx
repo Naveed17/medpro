@@ -593,7 +593,7 @@ function Patients() {
         //remove query params on load from url
         isMobile && router.replace(router.pathname, undefined, {shallow: true});
         //reload locize resources from cdn servers
-        i18n.reloadResources(i18n.resolvedLanguage, ["consultation"]);
+        i18n.reloadResources(i18n.resolvedLanguage, ["patient"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const patientData = (httpPatientsResponse as HttpResponse)?.data ?? []
@@ -1044,11 +1044,8 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
             fallback: false,
             ...(await serverSideTranslations(locale as string, [
                 "patient",
-                "agenda",
-                "consultation",
                 "menu",
-                "common",
-                'payment'
+                "common"
             ])),
         },
     }

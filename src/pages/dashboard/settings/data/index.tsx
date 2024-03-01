@@ -106,7 +106,7 @@ function Data() {
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {t, ready} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
+    const {t, ready, i18n} = useTranslation(["settings", "common"], {keyPrefix: "import-data"});
 
     const {trigger: triggerDeleteImportData} = useRequestQueryMutation("/import/data/delete");
 
@@ -202,6 +202,11 @@ function Data() {
             );
         }
     }, [dispatch, importData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready)
         return (
@@ -429,8 +434,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

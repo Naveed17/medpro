@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState, memo, useRef} from "react";
+import React, {ReactElement, useState, memo, useRef, useEffect} from "react";
 import {SubHeader} from "@features/subHeader";
 import {useTranslation} from "next-i18next";
 import moment from "moment-timezone";
@@ -61,7 +61,7 @@ function NewUser() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {cashboxes} = useCashBox();
 
-    const {t, ready} = useTranslation("settings");
+    const {t, ready, i18n} = useTranslation("settings");
     const {agendas} = useAppSelector(agendaSelector);
 
     const [loading, setLoading] = useState(false);
@@ -187,6 +187,12 @@ function NewUser() {
 
         },
     });
+
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["settings"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const profiles = ((httpProfilesResponse as HttpResponse)?.data ?? []) as ProfileModel[];
     const {
@@ -628,8 +634,7 @@ export const getStaticProps: GetStaticProps = async (context) => ({
         ...(await serverSideTranslations(context.locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });

@@ -1,5 +1,5 @@
 import {GetStaticPaths, GetStaticProps} from "next";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {configSelector, DashLayout, dashLayoutSelector} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {DocToolbar} from "@features/toolbar";
@@ -55,7 +55,7 @@ function Document() {
     const {urlMedicalEntitySuffix} = useMedicalEntitySuffix();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {t, ready} = useTranslation("docs");
+    const {t, ready, i18n} = useTranslation("docs");
     const ocrData = useAppSelector(ocrDocumentSelector);
     const {medicalEntityHasUser} = useAppSelector(dashLayoutSelector);
     const {patient} = useAppSelector(appointmentSelector);
@@ -102,6 +102,11 @@ function Document() {
         dispatch(resetAppointment());
         dispatch(resetOcrData());
     });
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["docs"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!ready) return (<LoadingScreen color={"error"} button text={"loading-error"}/>);
 
@@ -275,7 +280,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
         props: {
             dehydratedState: dehydrate(queryClient),
             fallback: false,
-            ...(await serverSideTranslations(locale as string, ["menu", "common", "docs", "agenda", "patient"])),
+            ...(await serverSideTranslations(locale as string, ["menu", "common", "docs"])),
         },
     };
 }

@@ -1,6 +1,6 @@
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
-import React, {ReactElement, useState} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {configSelector, DashLayout} from "@features/base";
 import {SubHeader} from "@features/subHeader";
 import {RootStyled} from "@features/toolbar";
@@ -9,15 +9,9 @@ import {useTranslation} from "next-i18next";
 import {Otable} from "@features/table";
 import {useAppSelector} from "@lib/redux/hooks";
 import {InsctructionDetails} from "@features/instructionDetails";
-import {useSession} from "next-auth/react";
-import {Session} from "next-auth";
-
-
 import {LoadingScreen} from "@features/loadingScreen";
 
-
 function Instructions() {
-
     const [edit, setEdit] = useState(false);
     const [rows, setRows] = useState([
         {
@@ -53,10 +47,7 @@ function Instructions() {
     ]);
     const {direction} = useAppSelector(configSelector);
 
-    const {t, ready} = useTranslation("settings", {
-        keyPrefix: "instructions.config",
-    });
-    if (!ready) return (<LoadingScreen  button text={"loading-error"}/>);
+    const {t, ready, i18n} = useTranslation("settings", {keyPrefix: "instructions.config"});
 
     const closeDraw = () => {
         setEdit(false);
@@ -94,6 +85,13 @@ function Instructions() {
         setRows([...rows]);
     };
 
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ['settings']);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
+
     return (
         <>
             <SubHeader>
@@ -107,8 +105,7 @@ function Instructions() {
                     onClick={() => {
                         setEdit(true);
                     }}
-                    color="success"
-                >
+                    color="success">
                     {t("add")}
                 </Button>
             </SubHeader>
@@ -140,8 +137,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => ({
         ...(await serverSideTranslations(locale as string, [
             "common",
             "menu",
-            "patient",
-            "settings",
+            "settings"
         ])),
     },
 });
