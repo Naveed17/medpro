@@ -44,7 +44,7 @@ const ChatStyled = styled("div")(({theme}) => ({
 
         },
         ".chat-list": {
-            margin: theme.spacing(3, 0),
+            margin: theme.spacing(3,0,0, 0),
             display: 'flex',
             flexDirection: 'column',
             height: 'calc(100vh - 245px)',
@@ -136,6 +136,9 @@ const ChatStyled = styled("div")(({theme}) => ({
         "&:hover": {
             backgroundColor: theme.palette.text.primary,
         }
+    },
+    ".tag:hover":{
+        textDecoration: "underline"
     }
 }));
 

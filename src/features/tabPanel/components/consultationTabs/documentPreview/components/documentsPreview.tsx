@@ -47,7 +47,7 @@ function DocumentsPreview({...props}) {
                        in={showDocument}
                        key={doc.uuid}>
                     <Card onClick={() => {
-                        showDoc(doc)
+                        showDoc(doc,true)
                     }} style={{borderColor: theme.palette.success.main}}>
                         <Stack direction={"row"} alignItems={"center"} spacing={1}
                                justifyContent={"space-between"} padding={1}>

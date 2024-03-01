@@ -379,7 +379,8 @@ function ConsultationInProgress() {
         setCards([..._cards])
     };
 
-    const showDoc = (card: any) => {
+    const showDoc = ({...props}) => {
+        const {card,print = false} = props;
         let type = "";
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
@@ -441,7 +442,8 @@ function ConsultationInProgress() {
                 } ${patient?.lastName}`,
                 cin: patient?.idCard ? patient?.idCard : "",
                 mutate: mutateDoc,
-                mutateDetails: mutatePatient
+                mutateDetails: mutatePatient,
+                print
             });
         }
         setOpenDialogSave(false);
