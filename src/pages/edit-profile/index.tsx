@@ -45,7 +45,7 @@ const stepperData = [
 ];
 
 function EditProfile() {
-    const {data: session, status} = useSession();
+    const {status} = useSession();
     const {currentStepper: stepperIndex} = useAppSelector(stepperProfileSelector);
     const router = useRouter();
     const theme = useTheme()
