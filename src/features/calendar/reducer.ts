@@ -5,7 +5,7 @@ import {
     setConfig,
     setCurrentDate,
     setGroupedByDayAppointments,
-    setLastUpdate, setMessagesRefresh,
+    setLastUpdate, setMessagesRefresh, setNavigatorMode,
     setSelectedEvent,
     setStepperIndex,
     setView
@@ -22,6 +22,7 @@ export type CalendarProps = {
     openPatientDrawer: boolean;
     openPayDialog: boolean;
     currentStepper: number;
+    mode: "discreet" | "normal",
     config: AgendaConfigurationModel | null;
     agendas: AgendaConfigurationModel[];
     currentDate: { date: Date, fallback: boolean };
@@ -30,7 +31,7 @@ export type CalendarProps = {
     sortedData: GroupEventsModel[];
     absences: AppointmentModel[];
     appointmentTypes: AppointmentTypeModel[];
-    messagesRefresh:string,
+    messagesRefresh: string,
     lastUpdateNotification: { title: string, body: string } | null;
 };
 
@@ -43,6 +44,7 @@ const initialState: CalendarProps = {
     openMoveDrawer: false,
     openPayDialog: false,
     currentStepper: 0,
+    mode: "normal",
     config: null,
     actionSet: null,
     agendas: [],
@@ -51,7 +53,7 @@ const initialState: CalendarProps = {
     sortedData: [],
     absences: [],
     appointmentTypes: [],
-    messagesRefresh:"",
+    messagesRefresh: "",
     lastUpdateNotification: null
 };
 
@@ -101,5 +103,7 @@ export const AgendaReducer = createReducer(initialState, builder => {
         state.appointmentTypes = action.payload;
     }).addCase(setMessagesRefresh, (state, action) => {
         state.messagesRefresh = action.payload;
+    }).addCase(setNavigatorMode, (state, action) => {
+        state.mode = action.payload;
     });
 });

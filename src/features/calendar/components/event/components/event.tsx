@@ -11,7 +11,7 @@ import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
 import {useRouter} from "next/router";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {AppointmentPopoverCard, timerSelector} from "@features/card";
-import {openDrawer, setSelectedEvent} from "@features/calendar";
+import {agendaSelector, openDrawer, setSelectedEvent} from "@features/calendar";
 import {setDialog} from "@features/topNavBar";
 import Tooltip, {tooltipClasses} from "@mui/material/Tooltip";
 import {MobileContainer as smallScreen} from "@lib/constants";
@@ -24,6 +24,7 @@ function Event({...props}) {
     const isMobile = useMediaQuery(`(max-width:${smallScreen}px)`);
 
     const {isActive} = useAppSelector(timerSelector);
+    const {mode} = useAppSelector(agendaSelector);
 
     const handleStartConsultation = (event: any) => {
         if (!isActive) {
@@ -168,7 +169,7 @@ function Event({...props}) {
                             color={"text.primary"}
                             fontWeight={600}
                             noWrap>
-                            {view === "timeGridDay" ? (
+                            {view === "timeGridDay" && mode === "normal" ? (
                                     <Stack spacing={.5} alignItems={"center"}
                                            direction={appointment?.dur > 15 ? "column" : "row"}>
                                         <span>{event.event._def.title}</span>
@@ -180,7 +181,7 @@ function Event({...props}) {
                                             <span {...(appointment?.dur > 15 && {style: {paddingBottom: 4}})}>{"Motif: "}{appointment?.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</span>}
                                     </Stack>
                                 )
-                                :
+                                : mode === "normal" &&
                                 <span
                                     style={{
                                         width: '100%',
@@ -210,7 +211,7 @@ function Event({...props}) {
                                     alignSelf: appointment?.dur > 15 ? "flex-end" : 'flex-start',
                                     mr: appointment?.motif?.length > 0 ? .5 : 0
                                 }}>
-                                <PlayCircleIcon/>
+                                <Icon path={"ic-play-audio-black"}/>
                             </IconButton>}
                     </Stack>
                 </Stack>
