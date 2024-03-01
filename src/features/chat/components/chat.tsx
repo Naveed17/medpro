@@ -1,8 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {
     Avatar,
-    Button,
+    Card,
+    CardContent,
     Collapse,
+    Dialog,
+    DialogContent,
     Drawer,
     Fab,
     Grid,
@@ -22,8 +25,6 @@ import {useTranslation} from "next-i18next";
 import IconUrl from '@themes/urlIcon';
 import moment from "moment/moment";
 import {Types} from "ably";
-import Fade from "@mui/material/Fade";
-import Popper, {PopperPlacementType} from '@mui/material/Popper';
 import {debounce} from "lodash";
 import {useRequestQuery, useRequestQueryMutation} from "@lib/axios";
 import {useRouter} from "next/router";
@@ -42,7 +43,9 @@ import PresenceMessage = Types.PresenceMessage;
 interface IPatient {
     uuid: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    fiche_id: string,
+    contact: string
 }
 
 interface IDiscussion {
@@ -57,7 +60,6 @@ const Chat = ({...props}) => {
 
     const {
         channel,
-
         medicalEntityHasUser,
         presenceData,
         setHasMessage
@@ -83,9 +85,7 @@ const Chat = ({...props}) => {
     const [patientDetailDrawer, setPatientDetailDrawer] = useState(false);
     const [patientId, setPatientId] = useState("");
     const [lastMessages, setLastMessages] = useState<any>(null);
-    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [open, setOpen] = useState(false);
-    const [placement, setPlacement] = useState<PopperPlacementType>();
     const [patients, setPatients] = useState<IPatient[]>([]);
     const [discussions, setDiscussions] = useState<IDiscussion[]>([]);
     const [selectedDiscussion, setSelectedDiscussion] = useState("");
@@ -125,7 +125,9 @@ const Chat = ({...props}) => {
                 res.data.data.map((p: PatientModel) => _patients.push({
                     uuid: p.uuid,
                     firstName: p.firstName,
-                    lastName: p.lastName
+                    lastName: p.lastName,
+                    fiche_id: p.fiche_id,
+                    contact: `${p.contact[0].code} ${p.contact[0].value}`
                 }));
                 setPatients(_patients)
             }
@@ -134,17 +136,10 @@ const Chat = ({...props}) => {
 
     const debouncedOnChange = debounce(handleOnChange, 500);
 
-    const handleClick = (newPlacement: PopperPlacementType) => (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-        setOpen((prev) => placement !== newPlacement || !prev);
-        setPlacement(newPlacement);
-    };
-
     const checkTags = () => {
         const tags = document.getElementsByClassName("tag");
         Array.from(tags).forEach((tag: any) => {
-            tag.style.background = "#b1e8ff";
-            tag.style.borderRadius = "5px";
+            tag.style.fontWeight = "bold";
             tag.style.cursor = "pointer";
             tag.onclick = () => {
                 setPatientDetailDrawer(true)
@@ -214,15 +209,21 @@ const Chat = ({...props}) => {
     }, [localStorage.getItem("chat")]);
 
     useEffect(() => {
-        if (httpDiscussionsList)
-            setDiscussions(httpDiscussionsList)
-    }, [httpDiscussionsList])
+        if (httpDiscussionsList) {
+            const msgs = httpDiscussionsList.sort((a: IDiscussion, b: IDiscussion) => b.lastMessageTimestamp - a.lastMessageTimestamp)
+            setDiscussions(msgs)
+            if (msgs.length > 0) {
+                setSelectedDiscussion(msgs[0].id)
+                getMessages(msgs[0].id)
+            } else setShowUsers(true)
+        }
+    }, [httpDiscussionsList]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        setTimeout(()=>{
+        setTimeout(() => {
             mutate();
             selectedDiscussion && getMessages(selectedDiscussion);
-        },1000)
+        }, 1000)
     }, [messagesRefresh]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
@@ -242,29 +243,31 @@ const Chat = ({...props}) => {
                             </Tooltip>
                         </Stack>
 
-                        <Collapse in={showUsers} style={{margin: 0}}>
-                            {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser && !hasMessages(user.uuid)).map((user: UserModel) => (
-                                <Stack
-                                    className={`user-item`}
-                                    sx={{cursor: 'pointer'}}
-                                    spacing={.5} key={user.uuid}
-                                    onClick={() => {
-                                        addDiscussion(user)
-                                        setShowUsers(false)
-                                    }}>
-                                    <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                        <Typography fontWeight={500}
-                                                    variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
-                                        <div style={{
-                                            width: 5,
-                                            height: 5,
-                                            background: `${presenceData.find((data: PresenceMessage) => data.clientId === user.uuid) && presenceData.find((data: PresenceMessage) => data.clientId === user.uuid).data === "actif" ? "#1BC47D" : "#DDD"}`,
-                                            borderRadius: 10
-                                        }}/>
+                        <Stack>
+                            <Collapse in={showUsers} style={{margin: 0}}>
+                                {users.filter((user: UserModel) => user.uuid !== medicalEntityHasUser && !hasMessages(user.uuid)).map((user: UserModel) => (
+                                    <Stack
+                                        className={`user-item`}
+                                        sx={{cursor: 'pointer'}}
+                                        spacing={.5} key={user.uuid}
+                                        onClick={() => {
+                                            addDiscussion(user)
+                                            setShowUsers(false)
+                                        }}>
+                                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                            <Typography fontWeight={500}
+                                                        variant='body2'>{`${user.FirstName} ${user.lastName}`}</Typography>
+                                            <div style={{
+                                                width: 5,
+                                                height: 5,
+                                                background: `${presenceData.find((data: PresenceMessage) => data.clientId === user.uuid) && presenceData.find((data: PresenceMessage) => data.clientId === user.uuid).data === "actif" ? "#1BC47D" : "#DDD"}`,
+                                                borderRadius: 10
+                                            }}/>
+                                        </Stack>
                                     </Stack>
-                                </Stack>
-                            ))}
-                        </Collapse>
+                                ))}
+                            </Collapse>
+                        </Stack>
 
                         <div style={{borderBottom: "1px solid #DDD"}}></div>
                         {discussions && discussions.map((disc) => (
@@ -293,40 +296,6 @@ const Chat = ({...props}) => {
                                             color="text.secondary">{disc.lastMessageTimestamp ? moment.duration(moment().diff(new Date(disc.lastMessageTimestamp))).humanize() : "New"}</Typography>
                             </Stack>
                         ))}
-
-                        {/*
-                        {lastMessages && Object.keys(lastMessages).sort((a, b) => comparerParDate(a, b)).map((user: string) => (
-                            <Stack
-                                className={`user-item ${user === selectedUser?.uuid ? "selected" : ""}`}
-                                sx={{cursor: 'pointer'}}
-                                spacing={.5} key={user}
-                                onClick={() => {
-                                    setSelectedUser(users.find((_user: UserModel) => _user.uuid === user))
-                                    const localMsgs = localStorage.getItem("chat") && JSON.parse(localStorage.getItem("chat") as string)
-                                    if (localMsgs) {
-                                        const _msgs = Object.keys(localMsgs).find(key => key === user)
-                                        if (_msgs) updateMessages(localMsgs[user])
-                                        else updateMessages([])
-                                    }
-                                }
-                                }>
-                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                    <Typography fontWeight={500} variant='body2'>{getUserName(user)}</Typography>
-                                    <div style={{
-                                        width: 5,
-                                        height: 5,
-                                        borderRadius: 10,
-                                        background: `${presenceData.find((data: PresenceMessage) => data.clientId === user) && presenceData.find((data: PresenceMessage) => data.clientId === user).data === "actif" ? "#1BC47D" : "#DDD"}`
-                                    }}/>
-                                </Stack>
-
-                                <Typography variant='caption' fontSize={9}
-                                            color="text.secondary">{getLastMessage(user, "data").replace(/<[^>]+>/g, '')}</Typography>
-                                <Typography variant='caption' fontSize={9}
-                                            color="text.secondary">{getLastMessage(user, "date")}</Typography>
-                            </Stack>
-                        ))}
-*/}
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={8}>
@@ -381,114 +350,60 @@ const Chat = ({...props}) => {
                                     ))}
                                 </List>
 
-                                <div style={{position: "relative"}}>
+                                <Stack spacing={1}>
                                     <Editor
                                         value={message}
                                         tinymceScriptSrc={'/tinymce/tinymce.min.js'}
                                         onEditorChange={(event) => {
                                             setMessage(event)
                                         }}
-
                                         init={{
                                             branding: false,
                                             statusbar: false,
                                             menubar: false,
-                                            height: 120,
+                                            height: 70,
                                             toolbar: false,
                                             plugins: tinymcePlugins,
                                             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
                                         }}/>
-                                    <Popper
-                                        // Note: The following zIndex style is specifically for documentation purposes and may not be necessary in your application.
-                                        sx={{zIndex: 1200,}}
-                                        open={open}
-                                        anchorEl={anchorEl}
-                                        placement={placement}
-                                        transition>
-                                        {({TransitionProps}) => (
-                                            <Fade {...TransitionProps} timeout={350}>
-                                                <Paper style={{padding: 10}}>
-                                                    <Stack spacing={1}>
-                                                        <Typography fontSize={11}
-                                                                    color={"grey"}>Patient</Typography>
-                                                        <TextField placeholder={"Aaa"} onChange={(ev) => {
-                                                            debouncedOnChange(ev.target.value)
-                                                        }}/>
-                                                        {patients.map(patient => (
-                                                            <Typography onClick={() => {
-                                                                setMessage((prev) => `${prev} <span class="tag" id="${patient.uuid}">@${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`)
-                                                                setOpen(false)
-                                                            }}
-                                                                        key={patient.uuid}>{`${patient.firstName} ${patient.lastName}`}</Typography>))}
-                                                    </Stack>
-                                                </Paper>
-                                            </Fade>
-                                        )}
-                                    </Popper>
-                                    <Button size={"small"}
-                                            style={{position: "absolute", bottom: 10, left: 10, fontStyle: "italic"}}
-                                            color={"black"} onClick={handleClick('top')}>@patient</Button>
 
-                                    <Fab
-                                        disabled={!message}
-                                        onClick={() => {
-                                            channel.publish(selectedDiscussion, JSON.stringify({
-                                                message,
-                                                from: medicalEntityHasUser,
-                                                to: getDiscMember(discussions.find(d => d.id === selectedDiscussion) as IDiscussion).uuid,
-                                                user: `${general_information.firstName} ${general_information.lastName}`
-                                            }))
-                                            setTimeout(() => {
-                                                mutate()
-                                                getMessages(selectedDiscussion)
-                                            }, 1000)
-                                            setMessage("")
-                                        }
-                                        }
-                                        size={"small"}
-                                        disableRipple
-                                        style={{position: "absolute", bottom: 10, right: 10}}
-                                        variant='extended' className='send-msg'>
-                                        <IconUrl path="ic-send-up"/>
-                                        <span>{t("send")}</span>
-                                    </Fab>
-                                </div>
+                                    <Stack direction={"row"} spacing={1} justifyContent={"flex-end"}>
+                                        <Fab
+                                            onClick={() => setOpen(true)}
+                                            size={"small"}
+                                            disableRipple
+                                            variant='extended'
+                                            className='send-msg'
+                                            style={{backgroundColor: theme.palette.primary.main,}}>
+                                            <IconUrl path="tag" width={16} height={16}/>
+                                            <span>{t("tag")}</span>
+                                        </Fab>
+                                        <Fab
+                                            disabled={!message}
+                                            onClick={() => {
+                                                channel.publish(selectedDiscussion, JSON.stringify({
+                                                    message,
+                                                    from: medicalEntityHasUser,
+                                                    to: getDiscMember(discussions.find(d => d.id === selectedDiscussion) as IDiscussion).uuid,
+                                                    user: `${general_information.firstName} ${general_information.lastName}`
+                                                }))
+                                                setTimeout(() => {
+                                                    mutate()
+                                                    getMessages(selectedDiscussion)
+                                                }, 1000)
+                                                setMessage("")
+                                            }
+                                            }
+                                            size={"small"}
+                                            disableRipple
+                                            variant='extended' className='send-msg'>
+                                            <IconUrl path="ic-send-up"/>
+                                            <span>{t("send")}</span>
+                                        </Fab>
 
-                                {/*<TextField
-                                    onChange={(ev) => {
-                                        setMessage(ev.target.value)
-                                    }}
-                                    InputProps={{
-                                        startAdornment: <InputAdornment position="start">
-                                            <Stack direction='row' alignItems='center' spacing={.3}>
+                                    </Stack>
 
-                                                <IconButton component="label" size='small'>
-                                                    <IconUrl path="ic-upload-chat" />
-                                                    <InputStyled
-                                                        id="contained-button-img"
-                                                        type="file"
-                                                    />
-                                                </IconButton>
-                                                <IconButton component="label" size='small'>
-                                                    <IconUrl path="ic-attach-file" />
-                                                    <InputStyled
-                                                        id="contained-button-file"
-                                                        type="file"
-                                                    />
-                                                </IconButton>
-
-                                            </Stack>
-                                        </InputAdornment>,
-                                        endAdornment:
-                                            <InputAdornment position="end">
-
-                                            </InputAdornment>
-                                    }}
-                                    multiline
-                                    rows={4}
-                                    fullWidth
-                                    placeholder={t("msg_placeholder")}
-                                    value={message}/>*/}
+                                </Stack>
                             </> : <div className='no-chat'>
                                 <Stack>
                                     <div style={{justifyContent: "center", display: "flex"}}>
@@ -522,6 +437,43 @@ const Chat = ({...props}) => {
                     patientId={patientId}
                 />
             </Drawer>
+
+            <Dialog onClose={() => setOpen(false)} open={open}>
+                <DialogContent style={{paddingTop: 20}}>
+                    <Stack spacing={1}>
+                        <Typography fontSize={11}
+                                    color={"grey"}>{t('search')}</Typography>
+                        <TextField placeholder={t('patientName')} onChange={(ev) => {
+                            debouncedOnChange(ev.target.value)
+                        }}/>
+                        {patients.map(patient => (
+                            <Card key={patient.uuid}>
+                                <CardContent>
+                                    <Stack style={{cursor:"pointer"}} onClick={() => {
+                                        setMessage((prev) => `${prev} <span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`)
+                                        setOpen(false)
+                                    }}>
+                                        <Typography color={"primary"}
+                                                    fontWeight={"bold"}>
+                                            {patient.firstName} {patient.lastName}
+                                        </Typography>
+                                        <Stack direction='row' alignItems='center' spacing={1}>
+                                            <IconUrl path="ic-phone" width={16} height={16}
+                                                     color={theme.palette.text.secondary}/>
+                                            <Typography fontSize={12}
+                                                        color={theme.palette.text.secondary}>{patient.contact}</Typography>
+                                            <IconUrl path="ic-folder" width={16} height={16}
+                                                     color={theme.palette.text.secondary}/>
+                                            <Typography fontSize={12}
+                                                        color={theme.palette.text.secondary}>{patient.fiche_id}</Typography>
+                                        </Stack>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </Stack>
+                </DialogContent>
+            </Dialog>
         </ChatStyled>
     );
 }
