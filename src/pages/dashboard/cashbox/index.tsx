@@ -205,7 +205,7 @@ function Cashbox() {
 
     const {tableState} = useAppSelector(tableActionSelector);
     const {direction} = useAppSelector(configSelector);
-    const {t, ready} = useTranslation(["payment", "common"]);
+    const {t, ready, i18n} = useTranslation(["payment", "common"]);
     const {filterCB, selectedBoxes} = useAppSelector(cashBoxSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
 
@@ -485,6 +485,13 @@ function Cashbox() {
         }
 
     }, [cashboxes])
+
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
@@ -804,9 +811,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
             fallback: false,
             ...(await serverSideTranslations(context.locale as string, [
                 "common",
-                "menu",
-                "consultation",
-                "patient",
                 "payment",
             ])),
         },

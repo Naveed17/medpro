@@ -123,7 +123,7 @@ function Payment() {
     const {trigger: mutateOnGoing} = useMutateOnGoing();
 
     const {tableState} = useAppSelector(tableActionSelector);
-    const {t} = useTranslation(["payment", "common"]);
+    const {t, i18n} = useTranslation(["payment", "common"]);
     const {currentDate} = useAppSelector(agendaSelector);
     const {config: agenda} = useAppSelector(agendaSelector);
     const {query: filterData} = useAppSelector(leftActionBarSelector);
@@ -269,6 +269,11 @@ function Payment() {
         filtredRows.map((row) => (total += parseFloat(row.amount)));
         setTotal(total);
     }, [filtredRows]);
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -451,9 +456,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
             fallback: false,
             ...(await serverSideTranslations(context.locale as string, [
                 "common",
-                "menu",
-                "consultation",
-                "patient",
                 "payment",
             ])),
         },

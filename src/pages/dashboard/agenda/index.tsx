@@ -104,7 +104,7 @@ function Agenda() {
     const {trigger: mutateOnGoing} = useMutateOnGoing();
     const {trigger: invalidateQueries} = useInvalidateQueries();
 
-    const {t, i18n, ready} = useTranslation(['agenda', 'common', 'patient'], {bindI18n: 'languageChanged loaded'});
+    const {t, ready, i18n} = useTranslation(['agenda', 'common', 'patient']);
     const {direction} = useAppSelector(configSelector);
     const {query: filter} = useAppSelector(leftActionBarSelector);
     const {
@@ -316,10 +316,9 @@ function Agenda() {
         }
     }
 
-    // bindI18n: loaded is needed because of the reloadResources call
-    // if all pages use the reloadResources mechanism, the bindI18n option can also be defined in next-i18next.config.js
     useEffect(() => {
-        i18n.reloadResources(i18n.resolvedLanguage, ['agenda', 'common', 'patient'])
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ['agenda', 'common', 'patient']);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
@@ -1674,7 +1673,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
         props: {
             dehydratedState: dehydrate(queryClient),
             fallback: false,
-            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient', 'consultation', 'payment']))
+            ...(await serverSideTranslations(locale as string, ['common', 'menu', 'agenda', 'patient']))
         }
     }
 }

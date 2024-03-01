@@ -138,7 +138,7 @@ function ConsultationInProgress() {
     } = useAudioRecorder();
     const ability = useContext(AbilityContext);
 
-    const {t} = useTranslation("consultation");
+    const {t, i18n} = useTranslation("consultation");
     //***** SELECTORS ****//
     const {medicalEntityHasUser, medicalProfessionalData} = useAppSelector(dashLayoutSelector);
     const {config: agenda, openAddDrawer, currentStepper} = useAppSelector(agendaSelector);
@@ -380,7 +380,7 @@ function ConsultationInProgress() {
     };
 
     const showDoc = ({...props}) => {
-        const {card,print = false} = props;
+        const {card, print = false} = props;
         let type = "";
         if (patient && !(patient.birthdate && moment().diff(moment(patient?.birthdate, "DD-MM-YYYY"), 'years') < 18))
             type = patient && patient.gender === "F" ? "Mme " : patient.gender === "U" ? "" : "Mr "
@@ -1273,6 +1273,11 @@ function ConsultationInProgress() {
             });
         }
     }, [inProgress]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        //reload locize resources from cdn servers
+        i18n.reloadResources(i18n.resolvedLanguage, ["consultation"]);
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
@@ -2273,10 +2278,7 @@ export const getStaticProps: GetStaticProps = async ({locale}) => {
             ...(await serverSideTranslations(locale as string, [
                 "consultation",
                 "menu",
-                "common",
-                "agenda",
-                "payment",
-                "patient",
+                "common"
             ])),
         },
     };
