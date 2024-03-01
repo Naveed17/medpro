@@ -6,26 +6,58 @@
       "tab-3": "Actes",
       "tab-4": "Cabinet"
     },
+    "steps": {
+      "step-1": "Complétez votre profil",
+      "subtitle-1": "Ajouter vos informations personnelles",
+      "subtitle-2": "Woah, nous sommes ici",
+      "step-2": "Complété"
+    },
+    "profile_status": "Statut du profil",
+    "title-complete": "Profil complété !",
+    "explore": "Explorer la plateforme",
+    "success_title": "Félicitations ! 🎉",
+    "success_desc": "Bienvenue à bord ! Votre profil est maintenant complet, marquant le début de votre voyage avec nous.Commencez à explorer la plateforme et tirez parti de ses fonctionnalités pour rationaliser vos tâches et améliorer votre efficacité.",
+    "sub-title-complete": "Woah, nous sommes ici",
     "stepper-0": {
       "title": "Configurer mon profil",
-      "sub-title": "Information personnelle",
+      "sub-title": "Vos coordonnées sont nécessaires à l'application de la réglementation sectorielle.",
       "info": "Vous êtes?",
-      "cancel":"Annuler",
-      "next":"Suivant",
+      "cancel": "Annuler",
+      "next": "Suivant",
       "genre": {
         "man": "Homme",
         "women": "Femme"
       },
       "pseudo": "Titre",
       "firstname": "Prénom",
-      "lastname": "Nom",
-      "specialty": "Votre spécialité",
-      "specialty-sec": "Spécialités secondaire",
-      "languages": {
-        "title": "Langues parlées",
-        "placeholder": "Commencez à taper pour rechercher les langues"
-      },
-      "type": "stepper"
+      "firstname_placeholder": "Tapez votre prénom",
+      "lastname": "Nom de famille",
+      "lastname_placeholder": "Tapez votre nom de famille",
+      "id_no": "ID Number",
+      "id_no_placeholder": "Tapez votre ID",
+      "birthdate": "Date de naissance",
+      "phone": "Téléphone Mobile",
+      "phone_placeholder": "Tapez votre numéro mobile",
+      "email": "Email Address",
+      "email_placeholder": "Tapez votre adresse email",
+      "address": "Adresse",
+      "address_placeholder": "Tapez votre adresse",
+      "country": "Pays",
+      "country-placeholder": "Sélectionner le pays",
+      "region": "Region",
+      "region-placeholder": "Sélectionner la région",
+      "zip": "Zip Code",
+      "type": "stepper",
+      "name-req-error": "Le nom est obligatoire",
+      "min-name-error": "Le nom doit contenir 3 lettres",
+      "max-name-error": "Le nom doit avoir moins de 50 lettres",
+      "first-name-req-error": "Le prénom est obligatoire",
+      "min-first-name-error": "Le prénom doit contenir 3 lettres",
+      "max-first-name-error": "Le prénom doit avoir moins de 50 lettres",
+      "id-no-error": "Le votre ID est obligatoire",
+      "email-error": "Format d'email non valide",
+      "email-req-error": "L'email est obligatoire",
+      "save_continue": "Sauvegarder et continuer"
     },
     "stepper-1": {
       "title": "Joindre document",
@@ -44,7 +76,7 @@
     },
     "stepper-3": {
       "title": "Cabinet",
-      "lieu":{
+      "lieu": {
         "title": "Lieu",
         "establishment": "Nom de l’etablissement",
         "address": "Adresse",
@@ -52,14 +84,14 @@
         "city": "Ville",
         "typing": "Commencez à taper"
       },
-      "info":{
+      "info": {
         "title": "Information pratique",
         "establishment": "Numéro de cabinet",
         "hide": "Masqué",
         "add": "Ajouter un numéro",
         "typing": ""
       },
-      "info-sup":{
+      "info-sup": {
         "title": "Informations pratiques",
         "establishment": "Informations d’accés",
         "typing": "Tapez ici les informations"
