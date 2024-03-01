@@ -5,7 +5,7 @@ import {
     Button,
     Hidden,
     IconButton,
-    Stack, ToggleButton,
+    Stack,
     Tooltip, Typography,
     useTheme
 } from "@mui/material";
@@ -21,7 +21,7 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {agendaSelector, setNavigatorMode, setView} from "@features/calendar";
 import Zoom from '@mui/material/Zoom';
 import moment from "moment-timezone";
-import {CalendarViewButton, CalendarAddButton, CustomIconButton} from "@features/buttons";
+import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -31,8 +31,6 @@ import {configSelector, dashLayoutSelector} from "@features/base";
 import {DefaultViewMenu} from "@features/menu";
 import Can from "@features/casl/can";
 import IconUrl from "@themes/urlIcon";
-import AgendaAddViewIcon from "@themes/overrides/icons/agendaAddViewIcon";
-import SettingsViewIcon from "@themes/overrides/icons/settingsViewIcon";
 
 function CalendarToolbar({...props}) {
     const {
