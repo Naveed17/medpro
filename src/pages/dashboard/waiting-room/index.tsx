@@ -524,7 +524,7 @@ function WaitingRoom() {
             } else if (sortKey === "startTime") {
                 groupedData[3].reverse().sort((a: any) => a.startTime === "00:00" ? 1 : -1);
             }
-            if (isUnpaidFilter) {
+            if (isUnpaidFilter && groupedData[5]) {
                 groupedData[5] = groupedData[5].filter((data: any) => data.restAmount > 0);
             }
             setWaitingRoomsGroup(groupedData);
