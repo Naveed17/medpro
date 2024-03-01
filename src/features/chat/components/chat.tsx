@@ -186,6 +186,20 @@ const Chat = ({...props}) => {
         return disc.members.filter(m => m.uuid !== medicalEntityHasUser)[0]
     }
 
+    const send = () => {
+        channel.publish(selectedDiscussion, JSON.stringify({
+            message,
+            from: medicalEntityHasUser,
+            to: getDiscMember(discussions.find(d => d.id === selectedDiscussion) as IDiscussion).uuid,
+            user: `${general_information.firstName} ${general_information.lastName}`
+        }))
+        setTimeout(() => {
+            mutate()
+            getMessages(selectedDiscussion)
+        }, 1000)
+        setMessage("")
+    }
+
     useEffect(() => {
         setHasMessage(false);
         checkTags()
@@ -291,7 +305,7 @@ const Chat = ({...props}) => {
                                 </Stack>
 
                                 <Typography variant='caption' fontSize={9}
-                                            color="text.secondary">{disc.lastMessage.replace(/<[^>]+>/g, '')}</Typography>
+                                            color="text.secondary">{disc.lastMessage.replace(/<[^>]+>/g, '').replace(/\&nbsp;/g, '')}</Typography>
                                 <Typography variant='caption' fontSize={9}
                                             color="text.secondary">{disc.lastMessageTimestamp ? moment.duration(moment().diff(new Date(disc.lastMessageTimestamp))).humanize() : "New"}</Typography>
                             </Stack>
@@ -357,6 +371,11 @@ const Chat = ({...props}) => {
                                         onEditorChange={(event) => {
                                             setMessage(event)
                                         }}
+                                        onKeyUp={(ev) => {
+                                            console.log(ev.keyCode)
+                                            if (ev.keyCode === 13 && message)
+                                                send()
+                                        }}
                                         init={{
                                             branding: false,
                                             statusbar: false,
@@ -380,20 +399,7 @@ const Chat = ({...props}) => {
                                         </Fab>
                                         <Fab
                                             disabled={!message}
-                                            onClick={() => {
-                                                channel.publish(selectedDiscussion, JSON.stringify({
-                                                    message,
-                                                    from: medicalEntityHasUser,
-                                                    to: getDiscMember(discussions.find(d => d.id === selectedDiscussion) as IDiscussion).uuid,
-                                                    user: `${general_information.firstName} ${general_information.lastName}`
-                                                }))
-                                                setTimeout(() => {
-                                                    mutate()
-                                                    getMessages(selectedDiscussion)
-                                                }, 1000)
-                                                setMessage("")
-                                            }
-                                            }
+                                            onClick={send}
                                             size={"small"}
                                             disableRipple
                                             variant='extended' className='send-msg'>
