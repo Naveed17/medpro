@@ -6,7 +6,6 @@ import Icon from "@themes/urlIcon";
 import moment from "moment-timezone";
 import {ConditionalWrapper, convertHexToRGBA} from "@lib/hooks";
 import {alpha, Theme} from "@mui/material/styles";
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import DeletedPatientIcon from "@themes/overrides/icons/deletedPatientIcon";
 import {useRouter} from "next/router";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
