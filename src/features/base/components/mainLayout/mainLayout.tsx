@@ -313,9 +313,8 @@ function MainLayout({...props}) {
 
     const connectToStream = () => {
         // Connect to /api/sse as the SSE API source
-        const eventSource = new EventSource(`/api/sse`, {
-            withCredentials: true,
-        })
+        const eventSource = new EventSource(`/api/sse`);
+
         eventSource.onopen = () => {
             console.log('Open SSE connection');
         };
