@@ -372,7 +372,6 @@ const Chat = ({...props}) => {
                                             setMessage(event)
                                         }}
                                         onKeyUp={(ev) => {
-                                            console.log(ev.keyCode)
                                             if (ev.keyCode === 13 && message)
                                                 send()
                                         }}
@@ -455,7 +454,7 @@ const Chat = ({...props}) => {
                         {patients.map(patient => (
                             <Card key={patient.uuid}>
                                 <CardContent>
-                                    <Stack style={{cursor:"pointer"}} onClick={() => {
+                                    <Stack style={{cursor: "pointer"}} onClick={() => {
                                         setMessage((prev) => `${prev} <span class="tag" id="${patient.uuid}">${patient.firstName} ${patient.lastName} </span><span class="afterTag">, </span>`)
                                         setOpen(false)
                                     }}>
