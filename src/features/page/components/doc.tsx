@@ -122,7 +122,6 @@ function Doc({...props}) {
         }
         data.content.content = elx
         setData({...data})
-
     }
 
     useEffect(() => {
@@ -133,7 +132,7 @@ function Doc({...props}) {
                 data.content.content = state.content;
                 setData({...data})
             }
-            //data.content.content = "x";
+            data.age.content = state.age
             setData({...data})
             data.patient.content = state.patient;
             if (data.cin)

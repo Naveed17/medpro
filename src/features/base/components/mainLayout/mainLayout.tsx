@@ -87,6 +87,7 @@ function MainLayout({...props}) {
     const [messages, updateMessages] = useState<any[]>([]);
     const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
     const [hasMessage, setHasMessage] = useState(false);
+    const [isOffline, setIsOffline] = useState(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -344,12 +345,13 @@ function MainLayout({...props}) {
     useEffect(() => {
         if (typeof window !== "undefined") {
             window.addEventListener("online", () => {
-                // when we're back online
+                setIsOffline(false)
                 closeSnackbar(noConnection);
                 setNoConnection(undefined);
             });
 
             window.addEventListener("offline", () => {
+                setIsOffline(true)
                 setNoConnection(enqueueSnackbar('Aucune connexion internet!', {
                     key: "offline",
                     variant: 'error',
@@ -370,10 +372,8 @@ function MainLayout({...props}) {
     const client = useAbly();
 
     useConnectionStateListener((stateChange) => {
-        //console.log("current", stateChange.current);  // the new connection state
-        //console.log("error", stateChange.reason);  // the new connection state
-        if (["closing", "closed", "disconnected"].includes(stateChange.current))
-            client.connect()
+        if (["closing", "closed","disconnected"].includes(stateChange.current))
+            !isOffline && client.connect()
     });
 
     const {channel} = useChannel(medical_entity?.uuid, (message) => {

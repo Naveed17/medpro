@@ -432,6 +432,9 @@
     "msg_placeholder": "Tapez votre message ici...",
     "noDes": "Pas de discussion en cours",
     "chooseUser1": "Choisissez une personne dans le menu de gauche",
-    "chooseUser2": "et entamez une conversation."
+    "chooseUser2": "et entamez une conversation.",
+    "tag": "Tag",
+    "search": "Recherche",
+    "patientName": "Tapez nom du patient"
   }
 }

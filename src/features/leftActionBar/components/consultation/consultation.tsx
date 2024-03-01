@@ -308,7 +308,7 @@ function Consultation() {
                         <IconButton
                             size={"small"}
                             sx={{position: "absolute", top: 20, right: 10}}>
-                            <Icon color={"primary"} path={"ic-edit-patient"}/>
+                            <Icon path={"ic-edit-patient"}/>
                         </IconButton>
                     </Box>
                 </Stack>

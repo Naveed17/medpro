@@ -508,6 +508,9 @@
     "msg_placeholder": "Type your message here...",
     "noDes": "No current discussion",
     "chooseUser1": "Choose a person from the left menu",
-    "chooseUser2": "and start a conversation."
+    "chooseUser2": "and start a conversation.",
+    "tag": "Tag",
+    "search": "Search",
+    "patientName": "Patient name"
   }
 }
