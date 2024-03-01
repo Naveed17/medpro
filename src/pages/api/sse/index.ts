@@ -27,6 +27,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
     })
 
+    evtSource.onopen = () => {
+        res.write(`event: message\nopenConnection: true\n\n`)
+    };
+
     evtSource.onmessage = (e: MessageEvent<any>) => {
         res.write(`event: message\ndata: ${e.data}\n\n`)
     }

@@ -326,12 +326,15 @@ function MainLayout({...props}) {
         // In case of any error, close the event source
         // So that it attempts to connect again
         eventSource.onerror = (error) => {
-            eventSource.close();
+            console.log("error", error);
             if ((error as any)?.data) {
+                eventSource.close();
                 const errorData = (error as any).data && JSON.parse((error as any)?.data);
                 if (![404, 500, 502, 503, 504].includes(errorData?.status)) {
                     setTimeout(connectToStream, 1);
                 }
+            } else if ((error as any)?.type === "error") {
+                console.log("eventSource", eventSource.readyState);
             }
         };
 
@@ -339,10 +342,6 @@ function MainLayout({...props}) {
     }
 
     useEffect(() => {
-        console.log("init")
-        // Initiate the first call to connect to SSE API
-        const eventSource = connectToStream()
-
         if (typeof window !== "undefined") {
             window.addEventListener("online", () => {
                 // when we're back online
@@ -359,6 +358,8 @@ function MainLayout({...props}) {
                 }));
             });
         }
+        // Initiate the first call to connect to SSE API
+        const eventSource = connectToStream()
 
         return () => {
             console.log('Close SSE connection');
