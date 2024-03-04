@@ -101,6 +101,7 @@ function NewUserDialog({...props}) {
         }))));
         form.append('password', values.password);
 
+        const features: any = {};
         Object.entries(values.roles).forEach((role: any) => {
             const hasFeaturePermissions = role[1].reduce((features: any[], feature: FeatureModel) => {
                 const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
@@ -111,7 +112,7 @@ function NewUserDialog({...props}) {
                     ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? permissions : []) : permissions) ?? [])]
             }, []).length > 0;
 
-            if (hasFeaturePermissions && features) {
+            if (hasFeaturePermissions) {
                 features[role[0]] = role[1].reduce((features: FeatureModel[], feature: FeatureModel) => {
                     const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
                         [...(permissions ?? []),
@@ -129,7 +130,7 @@ function NewUserDialog({...props}) {
                 }, [])
             }
         });
-
+        console.log("roles", values.roles)
         form.append("features", JSON.stringify(features));
         triggerUserAdd({
             method: "POST",
