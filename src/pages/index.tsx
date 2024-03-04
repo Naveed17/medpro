@@ -37,16 +37,24 @@ function Home() {
     const {t, ready} = useTranslation(['common', 'menu']);
 
     const [loading, setLoading] = useState(true);
+    const [selectedMedicalEntity, setSelectedMedicalEntity] = useState<MedicalEntityModel | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
     const open = Boolean(anchorEl);
     const dir = router.locale === 'ar' ? 'rtl' : 'ltr';
 
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    const handleClick = (event: React.MouseEvent<HTMLElement>, medicalEntity: MedicalEntityModel) => {
+        setSelectedMedicalEntity(medicalEntity);
         setAnchorEl(event.currentTarget);
     };
 
     const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleSelectUserRoot = (root: string) => {
+        console.log("root", root);
+        update({default_medical_entity: selectedMedicalEntity?.uuid, root}).then(() => router.push(`/${root}`));
         setAnchorEl(null);
     };
 
@@ -74,11 +82,13 @@ function Home() {
     const medical_entities = (session?.data?.medical_entities?.reduce((entites: MedicalEntityModel[], data: any) =>
         [...(entites ?? []), {...data?.medical_entity, isOwner: data.is_owner}], []) ?? []) as MedicalEntityModel[];
     const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
-    const hasSelectedEntity = session?.data?.medical_entity?.has_selected_entity ?? false;
+    const medicalEntity = session?.data?.medical_entity;
+    const hasSelectedEntity = medicalEntity?.has_selected_entity ?? false;
     const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
 
     return ((!hasMultiMedicalEntities || hasSelectedEntity) ?
-            <Redirect to={features?.length > 0 ? `/dashboard/${features[0].root}` : `/dashboard/agenda`}/>
+            <Redirect
+                to={medicalEntity?.root === "admin" ? "/admin" : (features?.length > 0 ? `/dashboard/${features[0].root}` : `/dashboard/agenda`)}/>
             :
             <Box className={styles.container} dir={dir}>
                 <main className={styles.main}>
@@ -179,23 +189,8 @@ function Home() {
                                     <Stack spacing={2}>
                                         {medical_entities?.map(medical_entity_data =>
                                             <Stack spacing={1} key={medical_entity_data.uuid}>
-                                                {/*{medical_entity_data.isOwner && ["doctor_office", "group_practice", "medical_center"].includes(medical_entity_data?.type?.slug as string) &&
-                                                    <a
-                                                        onClick={() => update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
-                                                        className={styles.card}>
-                                                        <Box component="img" ml={-.2} width={55} height={55}
-                                                             src="/static/icons/ic-user.svg"/>
-                                                        <p
-                                                            style={{
-                                                                fontSize: 16,
-                                                                fontWeight: 600,
-                                                                color: "#3F4254"
-                                                            }}>{medical_entity_data?.name}</p>
-                                                        <ChevronRightIcon sx={{ml: 'auto', color: "text.secondary"}}/>
-                                                    </a>}*/}
-
                                                 <a key={medical_entity_data.uuid}
-                                                   onClick={() => update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
+                                                   onClick={(event) => medical_entity_data.isOwner && ["doctor_office", "group_practice", "medical_center"].includes(medical_entity_data?.type?.slug as string) ? handleClick(event, medical_entity_data) : update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
                                                    className={styles.card}>
                                                     <Box component="img" width={50} height={50}
                                                          src="/static/icons/Med-logo_.svg"/>
@@ -250,11 +245,11 @@ function Home() {
                                         }}
                                         transformOrigin={{horizontal: 'right', vertical: 'top'}}
                                         anchorOrigin={{horizontal: 'right', vertical: 'bottom'}}>
-                                        <MenuItem onClick={handleClose}>
-
+                                        <MenuItem onClick={() => handleSelectUserRoot("admin")}>
+                                            {t("admin-access")}
                                         </MenuItem>
-                                        <MenuItem onClick={handleClose}>
-
+                                        <MenuItem onClick={() => handleSelectUserRoot("dashboard")}>
+                                            {t("user-access")}
                                         </MenuItem>
                                     </Menu>
                                 </CardContent>

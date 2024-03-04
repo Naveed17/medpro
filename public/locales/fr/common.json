@@ -13,6 +13,8 @@
   "cash": "Encaisse",
   "lang": "langue",
   "rows_per-page": "Rangées par page",
+  "admin-access": "Accès administrateur",
+  "user-access": "Accès de l'utilisateur",
   "sms-languages": {
     "fr": "Francais",
     "en": "Anglais",
