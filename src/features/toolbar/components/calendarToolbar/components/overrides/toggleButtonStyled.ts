@@ -1,7 +1,7 @@
 import {styled} from '@mui/material/styles';
 import {ToggleButton, ToggleButtonProps} from "@mui/material";
 
-const ToggleButtonStyled = styled(ToggleButton)<ToggleButtonProps>(({theme}) => ({
+const ToggleButtonStyled = styled(ToggleButton)<ToggleButtonProps>(() => ({
     width: 34,
     height: 34,
     padding: 0,

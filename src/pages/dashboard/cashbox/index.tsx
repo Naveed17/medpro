@@ -51,15 +51,6 @@ import {LoadingScreen} from "@features/loadingScreen";
 import Can, {AbilityContext} from "@features/casl/can";
 import {ToggleButtonStyled} from "@features/toolbar";
 
-interface HeadCell {
-    disablePadding: boolean;
-    id: string;
-    label: string;
-    numeric: boolean;
-    sortable: boolean;
-    align: "left" | "right" | "center";
-}
-
 const noCardData = {
     mainIcon: "ic-unpaid",
     title: "no-data.title",
@@ -493,7 +484,7 @@ function Cashbox() {
         i18n.reloadResources(i18n.resolvedLanguage, ["payment", "common"]);
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-    console.log("empty",t("table.empty"))
+    console.log("empty", t("table.empty"))
     if (!ready) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (

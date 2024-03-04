@@ -27,10 +27,6 @@ function OHead({...props}) {
         onRequestSort(event, property);
     };
 
-    const handleChange = (value: string | boolean, event: any) => {
-        handleConfig(value, event);
-    };
-
     return (
         <TableHead
             className={hideHeaderOnMobile ? "sm-none" : ""}
