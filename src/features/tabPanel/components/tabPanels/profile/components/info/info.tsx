@@ -500,7 +500,7 @@ function Info({ ...props }) {
                                     </Typography>
                                     <Autocomplete
                                         id={"region"}
-                                        disabled={!states}
+                                        disabled={isLoading}
                                         autoHighlight
                                         disableClearable
                                         size="small"
