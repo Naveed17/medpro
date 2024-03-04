@@ -8,7 +8,7 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
-    Toolbar, Tooltip,
+    Toolbar,
     useMediaQuery
 } from "@mui/material";
 // utils
@@ -192,7 +192,7 @@ function SideBarMenu({children}: LayoutProps) {
                             <StatsIcon/>
                         </ListItemIcon>
                         <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "stats")}/>
+                            <ListItemText primary={t("main-menu.statistics")}/>
                         </Hidden>
                     </ListItem>
                 </Can>
@@ -210,7 +210,7 @@ function SideBarMenu({children}: LayoutProps) {
                             <SettingsIcon/>
                         </ListItemIcon>
                         <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "settings")}/>
+                            <ListItemText primary={t("main-menu.settings")}/>
                         </Hidden>
                     </ListItem>
                 </Can>
@@ -225,7 +225,7 @@ function SideBarMenu({children}: LayoutProps) {
                             <NewFeatureIcon/>
                         </ListItemIcon>
                         <Hidden smUp>
-                            <ListItemText primary={t("main-menu." + "settings")}/>
+                            <ListItemText primary={t("main-menu.features")}/>
                         </Hidden>
                     </ListItem>
                 </Badge>

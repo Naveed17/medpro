@@ -1,4 +1,4 @@
-import {RootStyled} from "@features/toolbar";
+import {RootStyled, ToggleButtonStyled} from "@features/toolbar";
 import {
     Badge,
     Box,
@@ -18,7 +18,7 @@ import WeekIcon from "@themes/overrides/icons/weekIcon";
 import GridIcon from "@themes/overrides/icons/gridIcon";
 import CalendarIcon from "@themes/overrides/icons/calendarIcon";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
-import {agendaSelector, setView} from "@features/calendar";
+import {agendaSelector, setNavigatorMode, setView} from "@features/calendar";
 import Zoom from '@mui/material/Zoom';
 import moment from "moment-timezone";
 import {CalendarViewButton, CalendarAddButton} from "@features/buttons";
@@ -30,6 +30,7 @@ import {Dialog} from "@features/dialog";
 import {configSelector, dashLayoutSelector} from "@features/base";
 import {DefaultViewMenu} from "@features/menu";
 import Can from "@features/casl/can";
+import IconUrl from "@themes/urlIcon";
 
 function CalendarToolbar({...props}) {
     const {
@@ -49,7 +50,7 @@ function CalendarToolbar({...props}) {
 
     const {t, ready} = useTranslation('agenda');
     const {direction} = useAppSelector(configSelector);
-    const {view, currentDate} = useAppSelector(agendaSelector);
+    const {view, currentDate, mode} = useAppSelector(agendaSelector);
     const {pending: nbPendingAppointment} = useAppSelector(dashLayoutSelector);
 
     const [pendingDialog, setPendingDialog] = useState(false);
@@ -170,18 +171,15 @@ function CalendarToolbar({...props}) {
                                 svg: {
                                     transform: isRTL ? "rotate(180deg)" : "rotate(0deg)",
                                 },
-                            }}
-                        >
+                            }}>
                             <IconButton
                                 onClick={OnClickDatePrev}
-                                aria-label="back"
-                            >
+                                aria-label="back">
                                 <ArrowBackIosNewIcon fontSize="small"/>
                             </IconButton>
                             <IconButton
                                 onClick={OnClickDateNext}
-                                aria-label="next"
-                            >
+                                aria-label="next">
                                 <ArrowForwardIosIcon fontSize="small"/>
                             </IconButton>
                         </Box>
@@ -223,6 +221,19 @@ function CalendarToolbar({...props}) {
                     />
 
                     <DefaultViewMenu/>
+                    <ToggleButtonStyled
+                        id="toggle-button"
+                        value="toggle"
+                        onClick={() => dispatch(setNavigatorMode(mode === "normal" ? "discreet" : "normal"))}
+                        className={"toggle-button"}
+                        sx={{
+                            ...(mode !== "normal" && {border: "none"}),
+                            background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500']
+                        }}>
+                        <IconUrl width={19} height={19}
+                                 path={"ic-eye-slash"} {...(mode !== "normal" && {color: "white"})}/>
+                    </ToggleButtonStyled>
+
                     <Can I={"manage"} a={"agenda"} field={"agenda__appointment__create"}>
                         <CalendarAddButton
                             {...{t}}

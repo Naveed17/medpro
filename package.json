@@ -56,7 +56,7 @@
     "eventsource": "^2.0.2",
     "fast-fuzzy": "^1.12.0",
     "file-saver": "^2.0.5",
-    "firebase": "^10.8.0",
+    "firebase": "^10.8.1",
     "formik": "^2.4.3",
     "formiojs": "^4.15.1",
     "framer-motion": "^10.15.1",

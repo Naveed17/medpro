@@ -19,7 +19,8 @@
     "logout": "Se déconnecter",
     "cashbox": "Caisse",
     "inventory": "Inventaire",
-    "consultation": "Consultation"
+    "consultation": "Consultation",
+    "features": "Nouvelles fonctionnalités"
   },
   "doctor-dropdown": {
     "news": "Fil d'actualité",

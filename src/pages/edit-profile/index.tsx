@@ -1,21 +1,35 @@
-import { GetStaticProps } from "next";
-import { useTranslation } from "next-i18next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import React, { ReactElement, useState } from "react";
-import { Avatar, Box, Button, Card, CardContent, CardHeader, Container, Divider, Grid, List, ListItem, ListItemAvatar, ListItemText, Paper, Stack, Toolbar, Typography, useTheme } from "@mui/material";
-import { useSession } from "next-auth/react";
-import { TopNavBar } from "@features/topNavBar";
-import { MainMenuStyled } from "@features/menu";
-import { CheckProfileStatus } from "@features/checkProfileStatus";
-import { LoadingScreen } from "@features/loadingScreen";
-import { Session } from "next-auth";
-import { useRouter } from "next/router";
-import { Info, Document, Actes, Cabinet, stepperProfileSelector, TabPanel, LinearProgress } from "@features/tabPanel";
-import { useAppSelector } from "@lib/redux/hooks";
-import { CustomStepper } from "@features/customStepper";
+import {GetStaticProps} from "next";
+import {useTranslation} from "next-i18next";
+import {serverSideTranslations} from "next-i18next/serverSideTranslations";
+import React, {ReactElement, useState} from "react";
+import {
+    Avatar,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Divider,
+    Grid,
+    List,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    Stack,
+    Toolbar,
+    Typography,
+    useTheme
+} from "@mui/material";
+import {useSession} from "next-auth/react";
+import {TopNavBar} from "@features/topNavBar";
+import {MainMenuStyled} from "@features/menu";
+import {LoadingScreen} from "@features/loadingScreen";
+import {useRouter} from "next/router";
+import {Info, stepperProfileSelector, TabPanel, LinearProgress} from "@features/tabPanel";
+import {useAppSelector} from "@lib/redux/hooks";
 import Link from "next/link";
 import IconUrl from "@themes/urlIcon";
-import { SuccessCard } from "@features/card";
+import {SuccessCard} from "@features/card";
 
 const stepperData = [
     {
@@ -27,32 +41,29 @@ const stepperData = [
         title: "steps.step-2",
         subtitle: "steps.subtitle-2"
 
-    },
-
-
+    }
 ];
 
 function EditProfile() {
-    const { data: session, status } = useSession();
-    const { currentStepper: stepperIndex } = useAppSelector(stepperProfileSelector);
+    const {status} = useSession();
+    const {currentStepper: stepperIndex} = useAppSelector(stepperProfileSelector);
     const router = useRouter();
     const theme = useTheme()
     const loading = status === 'loading';
 
-    const { step } = router.query;
+    const {step} = router.query;
     const [currentStepper, setCurrentStepper] = useState(step ? (parseInt(step as string, 0) - 1) : stepperIndex);
-    const { t, ready } = useTranslation('editProfile', { keyPrefix: 'steppers' });
+    const {t, ready} = useTranslation('editProfile', {keyPrefix: 'steppers'});
     const profilePercentage = (100 / stepperData.length) * (currentStepper === 0 ? currentStepper : currentStepper + 1)
-    // get user session data
-    const { data: user } = session as Session;
-    if (!ready || loading) return (<LoadingScreen button text={"loading-error"} />);
+
+    if (!ready || loading) return (<LoadingScreen button text={"loading-error"}/>);
 
     return (
         <Box className="container"
-            sx={{
-                background: `linear-gradient(180deg, ${theme.palette.background.default} 60%, ${theme.palette.primary.main} 0%);`,
-                height: '100%'
-            }}
+             sx={{
+                 background: `linear-gradient(180deg, ${theme.palette.background.default} 60%, ${theme.palette.primary.main} 0%);`,
+                 height: '100%'
+             }}
         >
             <Grid container spacing={2}>
                 <Grid item xs={12} md={3}>
@@ -63,7 +74,7 @@ function EditProfile() {
                                     <Avatar
                                         alt="logo"
                                         src="/static/icons/Med-logo_.svg"
-                                        sx={{ width: 71, height: 71 }}
+                                        sx={{width: 71, height: 71}}
                                     />
                                 </Link>
                                 <List sx={{
@@ -89,7 +100,8 @@ function EditProfile() {
                                                         }}
 
                                                     >
-                                                        {currentStepper > i ? <IconUrl path="ic-check" color={theme.palette.primary.main} /> : i + 1}
+                                                        {currentStepper > i ? <IconUrl path="ic-check"
+                                                                                       color={theme.palette.primary.main}/> : i + 1}
                                                     </Avatar>
                                                 </ListItemAvatar>
                                                 <ListItemText
@@ -106,7 +118,7 @@ function EditProfile() {
                                                     secondary={
                                                         <React.Fragment>
                                                             <Typography
-                                                                sx={{ display: 'inline' }}
+                                                                sx={{display: 'inline'}}
                                                                 color={
                                                                     currentStepper === i ? "textSecondary" : currentStepper < i ? theme.palette.grey[300] : "textSecondary"
                                                                 }
@@ -134,22 +146,23 @@ function EditProfile() {
                     <Card>
                         <CardHeader
                             sx={{
-                                flexDirection: { xs: 'column', md: 'row' },
+                                flexDirection: {xs: 'column', md: 'row'},
                                 ".MuiCardHeader-action": {
-                                    alignSelf: { xs: 'flex-start', md: 'flex-end' },
+                                    alignSelf: {xs: 'flex-start', md: 'flex-end'},
                                     marginBottom: .5,
-                                    marginTop: { xs: 1, md: 0 }
+                                    marginTop: {xs: 1, md: 0}
                                 }
                             }}
                             action={
                                 <Stack spacing={.5} alignSelf="flex-end">
                                     <Stack direction="row" alignItems='center' justifyContent='space-between'>
-                                        <Typography fontWeight={500} color={theme.palette.grey["B904"]}>{t("profile_status")}</Typography>
+                                        <Typography fontWeight={500}
+                                                    color={theme.palette.grey["B904"]}>{t("profile_status")}</Typography>
                                         <Typography fontWeight={700} color={theme.palette.white.darker}>
                                             {profilePercentage} %
                                         </Typography>
                                     </Stack>
-                                    <LinearProgress variant="determinate" value={profilePercentage} />
+                                    <LinearProgress variant="determinate" value={profilePercentage}/>
                                 </Stack>
                             }
                             title={currentStepper === 0 ? t("stepper-0.title") : t("title-complete")}
@@ -160,10 +173,10 @@ function EditProfile() {
                             </Typography>
                             }
                         />
-                        <Divider />
+                        <Divider/>
                         <CardContent>
                             <TabPanel padding={0} value={currentStepper} index={0}>
-                                <Info {...{ handleNext: () => setCurrentStepper(currentStepper + 1) }} />
+                                <Info {...{handleNext: () => setCurrentStepper(currentStepper + 1)}} />
                             </TabPanel>
                             <TabPanel padding={0} value={currentStepper} index={1}>
                                 <SuccessCard
@@ -188,7 +201,7 @@ function EditProfile() {
     )
 }
 
-export const getStaticProps: GetStaticProps = async ({ locale }) => {
+export const getStaticProps: GetStaticProps = async ({locale}) => {
     return {
         props: {
             fallback: false,
@@ -204,9 +217,9 @@ EditProfile.auth = true;
 EditProfile.getLayout = function getLayout(page: ReactElement) {
     return (
         <MainMenuStyled className="header-main">
-            <TopNavBar />
+            <TopNavBar/>
             <Box className="body-main">
-                <Toolbar />
+                <Toolbar/>
                 <Box component="main">
                     {page}
                 </Box>

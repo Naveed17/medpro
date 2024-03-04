@@ -14,7 +14,7 @@ import {
     TextField,
     Grid,
     Button,
-    IconButton, Tab, Tabs, Paper, List, ListItem, Divider, Badge, Collapse
+    IconButton, Tab, Tabs, Paper, List, ListItem, Divider, Badge, Collapse, Avatar
 } from "@mui/material";
 import {useRouter} from "next/router";
 import * as Yup from "yup";
@@ -41,7 +41,7 @@ import {DefaultCountry} from "@lib/constants";
 import {Session} from "next-auth";
 import {isValidPhoneNumber} from "libphonenumber-js";
 import PhoneInput from "react-phone-number-input/input";
-import {TabPanel, CustomInput, RootUserStyled} from "@features/tabPanel";
+import {TabPanel, CustomInput, RootUserStyled, InputStyled} from "@features/tabPanel";
 import IconUrl from "@themes/urlIcon";
 import AddIcon from "@mui/icons-material/Add";
 import {startCase} from "lodash";
@@ -162,6 +162,7 @@ function ModifyUser() {
         enableReinitialize: true,
         initialValues: {
             role: "",
+            picture: {url: "", file: ""},
             agendas: agendaRoles.map(agenda => ({...agenda, role: ""})),
             isProfessional: user?.isProfessional || false,
             email: user?.email || "",
@@ -274,6 +275,12 @@ function ModifyUser() {
         }
     }
 
+    const handleDrop = (acceptedFiles: FileList) => {
+        const file = acceptedFiles[0];
+        setFieldValue("picture.url", URL.createObjectURL(file));
+        setFieldValue("picture.file", file);
+    }
+
     const HandleFeatureSelect = (slug: string, hasProfile?: boolean, entity?: any) => {
         if (!hasProfile) {
             setLoadingReq(true);
@@ -363,183 +370,196 @@ function ModifyUser() {
                 <FormikProvider value={formik}>
                     <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
                         <TabPanel value={tabIndex} index={0} padding={0}>
-                            <Typography marginBottom={2} gutterBottom>
-                                {t("users.user")}
-                            </Typography>
-                            <Card className="venue-card">
-                                <CardContent>
-                                    <Box mb={2}>
-                                        <Grid
-                                            container
-                                            spacing={{lg: 2, xs: 1}}
-                                            alignItems="center">
-                                            <Grid item xs={12} lg={2}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} md={6}>
+                                    <Card className="venue-card">
+                                        <CardContent>
+                                            <Stack spacing={2} mb={2} className="inner-section">
                                                 <Typography
-                                                    textAlign={{lg: "right", xs: "left"}}
-                                                    color="text.secondary"
+                                                    mt={1}
                                                     variant="body2"
-                                                    fontWeight={400}>
-                                                    {t("users.mail")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
-                                                    </Typography>
+                                                    fontWeight={600}
+                                                    fontSize={18}
+                                                    color="text.primary"
+                                                    sx={{mb: 2}}>
+                                                    {t("users.user")}
                                                 </Typography>
-                                            </Grid>
-                                            <Grid item xs={12} lg={10}>
-                                                <TextField
-                                                    disabled={readOnly}
-                                                    variant="outlined"
-                                                    placeholder={t("exemple@mail.com")}
-                                                    fullWidth
-                                                    error={Boolean(touched.email && errors.email)}
-                                                    required
-                                                    {...getFieldProps("email")}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                    <Box mb={2}>
-                                        <Grid
-                                            container
-                                            spacing={{lg: 2, xs: 1}}
-                                            alignItems="center">
-                                            <Grid item xs={12} lg={2}>
-                                                <Typography
-                                                    textAlign={{lg: "right", xs: "left"}}
-                                                    color="text.secondary"
-                                                    variant="body2"
-                                                    fontWeight={400}>
-                                                    {t("users.name")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
-                                                    </Typography>
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs={12} lg={10}>
-                                                <TextField
-                                                    disabled
-                                                    variant="outlined"
-                                                    placeholder={t("users.tname")}
-                                                    fullWidth
-                                                    required
-                                                    error={Boolean(touched.name && errors.name)}
-                                                    {...getFieldProps("name")}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                    <Box mb={2}>
-                                        <Grid
-                                            container
-                                            spacing={{lg: 2, xs: 1}}
-                                            alignItems="center">
-                                            <Grid item xs={12} lg={2}>
-                                                <Typography
-                                                    textAlign={{lg: "right", xs: "left"}}
-                                                    color="text.secondary"
-                                                    variant="body2"
-                                                    fontWeight={400}>
-                                                    {t("users.birthdate")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
-                                                    </Typography>
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs={12} lg={10}>
-                                                <DatePicker
-                                                    value={values.birthdate}
-                                                    onChange={(newValue: any) => {
-                                                        setFieldValue("birthdate", newValue);
-                                                    }}
-                                                    InputProps={{
-                                                        error: Boolean(touched.birthdate && errors.birthdate),
-                                                        sx: {
-                                                            button: {
-                                                                p: 0
-                                                            }
-                                                        }
-                                                    }}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                    <Box mb={2}>
-                                        <Grid
-                                            container
-                                            spacing={{lg: 2, xs: 1}}
-                                            alignItems="center">
-                                            <Grid item xs={12} lg={2}>
-                                                <Typography
-                                                    textAlign={{lg: "right", xs: "left"}}
-                                                    color="text.secondary"
-                                                    variant="body2"
-                                                    fontWeight={400}>
-                                                    {t("users.firstname")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
-                                                    </Typography>
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs={12} lg={10}>
-                                                <TextField
-                                                    disabled={readOnly}
-                                                    variant="outlined"
-                                                    placeholder={t("users.firstname")}
-                                                    fullWidth
-                                                    required
-                                                    error={Boolean(touched.firstName && errors.firstName)}
-                                                    {...getFieldProps("firstName")}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                    <Box mb={2}>
-                                        <Grid
-                                            container
-                                            spacing={{lg: 2, xs: 1}}
-                                            alignItems="center">
-                                            <Grid item xs={12} lg={2}>
-                                                <Typography
-                                                    textAlign={{lg: "right", xs: "left"}}
-                                                    color="text.secondary"
-                                                    variant="body2"
-                                                    fontWeight={400}>
-                                                    {t("users.lastname")}{" "}
-                                                    <Typography component="span" color="error">
-                                                        *
-                                                    </Typography>
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs={12} lg={10}>
-                                                <TextField
-                                                    disabled={readOnly}
-                                                    {...getFieldProps("lastName")}
-                                                    variant="outlined"
-                                                    placeholder={t("users.lastname")}
-                                                    fullWidth
-                                                    required
-                                                    error={Boolean(touched.lastName && errors.lastName)}
+                                                <Box>
+                                                    <Grid container spacing={2}>
+                                                        <Grid item md={3} xs={12} sx={{
+                                                            display: {xs: 'flex', md: 'block'},
+                                                            justifyContent: "center"
+                                                        }}>
+                                                            <label htmlFor="contained-button-file"
+                                                                   style={{
+                                                                       position: "relative",
+                                                                       zIndex: 1,
+                                                                       cursor: "pointer",
+                                                                       display: 'inline-flex',
+                                                                       width: 118,
+                                                                       height: 118,
+                                                                   }}>
+                                                                <InputStyled
+                                                                    id="contained-button-file"
+                                                                    onChange={(e) => handleDrop(e.target.files as FileList)}
+                                                                    type="file"
+                                                                />
+                                                                <Avatar
+                                                                    src={values.picture.url}
+                                                                    sx={{width: 118, height: 118}}>
+                                                                    <IconUrl path="ic-image"/>
+                                                                </Avatar>
+                                                                <IconButton
+                                                                    color="primary"
+                                                                    type="button"
+                                                                    sx={{
+                                                                        position: "absolute",
+                                                                        bottom: 6,
+                                                                        padding: .5,
+                                                                        right: 6,
+                                                                        zIndex: 1,
+                                                                        pointerEvents: "none",
+                                                                        bgcolor: "#fff !important",
 
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                    {values.phones.map((phoneObject: any, index: number) => (
-                                        <Box mb={2} key={index}>
-                                            <Grid
-                                                container
-                                                spacing={{lg: 2, xs: 1}}
-                                                alignItems="center">
-                                                <Grid item xs={12} lg={2}>
+                                                                    }}
+                                                                    style={{
+                                                                        minWidth: 32,
+                                                                        minHeight: 32,
+                                                                    }}>
+                                                                    <IconUrl path="ic-camera-add" width={18}
+                                                                             height={18}/>
+                                                                </IconButton>
+                                                            </label>
+                                                        </Grid>
+                                                    </Grid>
+                                                </Box>
+                                            </Stack>
+                                            <Box mb={2}>
+                                                <Grid
+                                                    container
+                                                    spacing={{lg: 2, xs: 1}}
+                                                    alignItems="center">
+                                                    <Grid item xs={12} md={6}>
+                                                        <Stack>
+                                                            <Typography
+                                                                color="text.secondary"
+                                                                variant="body2"
+                                                                fontWeight={400}>
+                                                                {t("users.name")}{" "}
+                                                                <Typography component="span" color="error">
+                                                                    *
+                                                                </Typography>
+                                                            </Typography>
+                                                            <TextField
+                                                                disabled
+                                                                variant="outlined"
+                                                                placeholder={t("users.tname")}
+                                                                fullWidth
+                                                                required
+                                                                error={Boolean(touched.name && errors.name)}
+                                                                {...getFieldProps("name")}
+                                                            />
+                                                        </Stack>
+                                                    </Grid>
+                                                    <Grid item xs={12} md={6}>
+                                                        <Stack>
+                                                            <Typography
+                                                                color="text.secondary"
+                                                                variant="body2"
+                                                                fontWeight={400}>
+                                                                {t("users.firstname")}{" "}
+                                                                <Typography component="span" color="error">
+                                                                    *
+                                                                </Typography>
+                                                            </Typography>
+                                                            <TextField
+                                                                disabled={readOnly}
+                                                                variant="outlined"
+                                                                placeholder={t("users.firstname")}
+                                                                fullWidth
+                                                                required
+                                                                error={Boolean(touched.firstName && errors.firstName)}
+                                                                {...getFieldProps("firstName")}
+                                                            />
+                                                        </Stack>
+                                                    </Grid>
+                                                </Grid>
+                                            </Box>
+                                            <Box mb={2}>
+                                                <Grid
+                                                    container
+                                                    spacing={{lg: 2, xs: 1}}
+                                                    alignItems="center">
+                                                    <Grid item xs={12} md={6}>
+                                                        <Stack>
+                                                            <Typography
+                                                                color="text.secondary"
+                                                                variant="body2"
+                                                                fontWeight={400}>
+                                                                {t("users.birthdate")}{" "}
+                                                                <Typography component="span" color="error">
+                                                                    *
+                                                                </Typography>
+                                                            </Typography>
+                                                            <DatePicker
+                                                                value={values.birthdate}
+                                                                onChange={(newValue: any) => {
+                                                                    setFieldValue("birthdate", newValue);
+                                                                }}
+                                                                InputProps={{
+                                                                    error: Boolean(touched.birthdate && errors.birthdate),
+                                                                    sx: {
+                                                                        button: {
+                                                                            p: 0
+                                                                        }
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </Stack>
+                                                    </Grid>
+                                                    <Grid item xs={12} md={6}>
+                                                        <Stack>
+                                                            <Typography
+                                                                color="text.secondary"
+                                                                variant="body2"
+                                                                fontWeight={400}>
+                                                                {t("users.lastname")}{" "}
+                                                                <Typography component="span" color="error">
+                                                                    *
+                                                                </Typography>
+                                                            </Typography>
+                                                            <TextField
+                                                                disabled={readOnly}
+                                                                {...getFieldProps("lastName")}
+                                                                variant="outlined"
+                                                                placeholder={t("users.lastname")}
+                                                                fullWidth
+                                                                required
+                                                                error={Boolean(touched.lastName && errors.lastName)}
+
+                                                            />
+                                                        </Stack>
+                                                    </Grid>
+                                                </Grid>
+                                            </Box>
+
+                                            <Typography
+                                                my={2}
+                                                variant="body2"
+                                                fontWeight={600}
+                                                fontSize={18}
+                                                color="text.primary">
+                                                {t("users.contact")}
+                                            </Typography>
+
+                                            {values.phones.map((phoneObject: any, index: number) => (
+                                                <Stack mb={2} key={index}>
                                                     <Typography
-                                                        textAlign={{lg: "right", xs: "left"}}
                                                         color="text.secondary"
                                                         variant="body2"
                                                         fontWeight={400}>
                                                         {t("users.phone")}
                                                     </Typography>
-                                                </Grid>
-                                                <Grid item xs={12} md={10}>
                                                     <Grid container spacing={2}>
                                                         <Grid item xs={12} md={4}>
                                                             <PhoneCountry
@@ -577,131 +597,138 @@ function ModifyUser() {
                                                             </IconButton>
                                                         </Grid>
                                                     </Grid>
-                                                </Grid>
-                                            </Grid>
-                                        </Box>
-                                    ))}
-                                    {!readOnly && <Box mb={4} ml={5}>
-                                        <Button
-                                            size={"small"}
-                                            onClick={() => {
-                                                setFieldValue(`phones`, [
-                                                    ...values.phones,
-                                                    {
-                                                        phone: "", dial: doctor_country
-                                                    }])
-                                            }}
-                                            startIcon={<AddIcon/>}>
-                                            {t("lieux.new.addNumber")}
-                                        </Button>
-                                    </Box>}
+                                                </Stack>
+                                            ))}
 
-                                </CardContent>
-                            </Card>
 
-                            {!readOnly && <>
-                                <Typography marginBottom={2} gutterBottom>
-                                    {t("users.password")}
-                                </Typography>
-                                <Card className="venue-card">
-                                    <CardContent>
-                                        <Box mb={2}>
-                                            <Grid
-                                                container
-                                                spacing={{lg: 2, xs: 1}}
-                                                alignItems="center">
-                                                <Grid item xs={12} lg={2}>
+                                            <Box mb={4}>
+                                                <Button
+                                                    disabled={readOnly}
+                                                    sx={{mb: 1}}
+                                                    size={"small"}
+                                                    onClick={() => {
+                                                        setFieldValue(`phones`, [
+                                                            ...values.phones,
+                                                            {
+                                                                phone: "", dial: doctor_country
+                                                            }])
+                                                    }}
+                                                    startIcon={<AddIcon/>}>
+                                                    {t("lieux.new.addNumber")}
+                                                </Button>
+
+                                                <Stack>
                                                     <Typography
-                                                        textAlign={{lg: "right", xs: "left"}}
                                                         color="text.secondary"
                                                         variant="body2"
                                                         fontWeight={400}>
-                                                        {t("users.oldPassword")}{" "}
+                                                        {t("users.mail")}{" "}
                                                         <Typography component="span" color="error">
                                                             *
                                                         </Typography>
                                                     </Typography>
-                                                </Grid>
-                                                <Grid item xs={12} lg={10}>
                                                     <TextField
                                                         disabled={readOnly}
-                                                        type="password"
                                                         variant="outlined"
-                                                        placeholder={t("users.oldPassword")}
+                                                        placeholder={t("exemple@mail.com")}
                                                         fullWidth
+                                                        error={Boolean(touched.email && errors.email)}
                                                         required
-                                                        error={Boolean(touched.oldPassword && errors.oldPassword)}
-                                                        {...getFieldProps("oldPassword")}
+                                                        {...getFieldProps("email")}
                                                     />
-                                                </Grid>
-                                            </Grid>
-                                        </Box>
-                                        <Box mb={2}>
-                                            <Grid
-                                                container
-                                                spacing={{lg: 2, xs: 1}}
-                                                alignItems="center">
-                                                <Grid item xs={12} lg={2}>
-                                                    <Typography
-                                                        textAlign={{lg: "right", xs: "left"}}
-                                                        color="text.secondary"
-                                                        variant="body2"
-                                                        fontWeight={400}>
-                                                        {t("users.password")}{" "}
-                                                        <Typography component="span" color="error">
-                                                            *
-                                                        </Typography>
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item xs={12} lg={10}>
-                                                    <TextField
-                                                        disabled={readOnly}
-                                                        type="password"
-                                                        variant="outlined"
-                                                        placeholder={t("users.password")}
-                                                        fullWidth
-                                                        required
-                                                        error={Boolean(touched.password && errors.password)}
-                                                        {...getFieldProps("password")}
-                                                    />
-                                                </Grid>
-                                            </Grid>
-                                        </Box>
-                                        <Box mb={2}>
-                                            <Grid
-                                                container
-                                                spacing={{lg: 2, xs: 1}}
-                                                alignItems="center">
-                                                <Grid item xs={12} lg={2}>
-                                                    <Typography
-                                                        textAlign={{lg: "right", xs: "left"}}
-                                                        color="text.secondary"
-                                                        variant="body2"
-                                                        fontWeight={400}>
-                                                        {t("users.confirm_password")}{" "}
-                                                        <Typography component="span" color="error">
-                                                            *
-                                                        </Typography>
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item xs={12} lg={10}>
-                                                    <TextField
-                                                        disabled={readOnly}
-                                                        type="password"
-                                                        variant="outlined"
-                                                        placeholder={t("users.confirm_password")}
-                                                        fullWidth
-                                                        required
-                                                        error={Boolean(touched.confirmPassword && errors.confirmPassword)}
-                                                        {...getFieldProps("confirmPassword")}
-                                                    />
-                                                </Grid>
-                                            </Grid>
-                                        </Box>
-                                    </CardContent>
-                                </Card>
-                            </>}
+                                                </Stack>
+                                            </Box>
 
+                                        </CardContent>
+                                    </Card>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    {!readOnly && <>
+                                        <Card className="venue-card">
+                                            <CardContent>
+                                                <Typography
+                                                    mt={1}
+                                                    variant="body2"
+                                                    fontWeight={600}
+                                                    fontSize={18}
+                                                    color="text.primary"
+                                                    sx={{mb: 2}}>
+                                                    {t("users.password")}
+                                                </Typography>
+                                                <Box mb={2}>
+                                                    <Stack>
+                                                        <Typography
+                                                            color="text.secondary"
+                                                            variant="body2"
+                                                            fontWeight={400}>
+                                                            {t("users.oldPassword")}{" "}
+                                                            <Typography component="span" color="error">
+                                                                *
+                                                            </Typography>
+                                                        </Typography>
+                                                        <TextField
+                                                            disabled={readOnly}
+                                                            type="password"
+                                                            variant="outlined"
+                                                            placeholder={t("users.oldPassword")}
+                                                            fullWidth
+                                                            required
+                                                            error={Boolean(touched.oldPassword && errors.oldPassword)}
+                                                            {...getFieldProps("oldPassword")}
+                                                        />
+                                                    </Stack>
+                                                </Box>
+                                                <Box mb={2}>
+                                                    <Stack>
+                                                        <Typography
+                                                            color="text.secondary"
+                                                            variant="body2"
+                                                            fontWeight={400}>
+                                                            {t("users.password")}{" "}
+                                                            <Typography component="span" color="error">
+                                                                *
+                                                            </Typography>
+                                                        </Typography>
+                                                        <TextField
+                                                            disabled={readOnly}
+                                                            type="password"
+                                                            variant="outlined"
+                                                            placeholder={t("users.password")}
+                                                            fullWidth
+                                                            required
+                                                            error={Boolean(touched.password && errors.password)}
+                                                            {...getFieldProps("password")}
+                                                        />
+                                                    </Stack>
+                                                </Box>
+                                                <Box mb={2}>
+                                                    <Stack>
+                                                        <Typography
+                                                            color="text.secondary"
+                                                            variant="body2"
+                                                            fontWeight={400}>
+                                                            {t("users.confirm_password")}{" "}
+                                                            <Typography component="span" color="error">
+                                                                *
+                                                            </Typography>
+                                                        </Typography>
+                                                        <TextField
+                                                            disabled={readOnly}
+                                                            type="password"
+                                                            variant="outlined"
+                                                            placeholder={t("users.confirm_password")}
+                                                            fullWidth
+                                                            required
+                                                            error={Boolean(touched.confirmPassword && errors.confirmPassword)}
+                                                            {...getFieldProps("confirmPassword")}
+                                                        />
+                                                    </Stack>
+                                                </Box>
+                                            </CardContent>
+                                        </Card>
+                                    </>}
+                                </Grid>
+                            </Grid>
 
                             <div style={{paddingBottom: "50px"}}></div>
                             <Stack
@@ -710,13 +737,13 @@ function ModifyUser() {
                                 spacing={2}
                                 direction={"row"}>
                                 <Button onClick={() => router.back()}>
-                                    {t("motif.dialog.cancel")}
+                                    {t("users.config.return")}
                                 </Button>
                                 {!readOnly && <LoadingButton
                                     {...{loading}}
                                     disabled={Object.keys(errors).length > 0}
                                     type="submit" variant="contained" color="primary">
-                                    {t("motif.dialog.save")}
+                                    {t("users.config.save")}
                                 </LoadingButton>}
                             </Stack>
                         </TabPanel>
@@ -751,9 +778,11 @@ function ModifyUser() {
                                                         }
                                                     )}
                                                     key={role[0]}>
-                                                    <Stack direction={"row"} alignItems={"center"} width={"100%"}
+                                                    <Stack direction={"row"} alignItems={"center"}
+                                                           width={"100%"}
                                                            justifyContent={"space-between"} spacing={2}>
-                                                        <Typography fontSize={14} fontWeight={600} variant='caption'>
+                                                        <Typography fontSize={14} fontWeight={600}
+                                                                    variant='caption'>
                                                             {startCase(role[0])}
                                                         </Typography>
 
@@ -803,7 +832,8 @@ function ModifyUser() {
                                             direction={{xs: 'column', md: 'row'}}
                                             justifyContent={"space-between"}
                                             alignItems={{xs: 'stretch', md: 'center'}}>
-                                            <Stack direction={"row"} alignItems={"center"} spacing={1} width={"100%"}>
+                                            <Stack direction={"row"} alignItems={"center"} spacing={1}
+                                                   width={"100%"}>
                                                 <Typography fontSize={16} fontWeight={600}>
                                                     {startCase(selectedFeature)}
                                                 </Typography>
@@ -868,7 +898,7 @@ function ModifyUser() {
                                 spacing={2}
                                 direction={"row"}>
                                 <Button onClick={() => router.back()}>
-                                    {t("motif.dialog.cancel")}
+                                    {t("users.config.return")}
                                 </Button>
                             </Stack>
                         </TabPanel>

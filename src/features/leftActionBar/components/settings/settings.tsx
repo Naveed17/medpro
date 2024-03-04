@@ -57,7 +57,7 @@ function Settings() {
                                     }
                                     key={item.name}
                                     {...(item.disable && {sx: {display: "none"}})}
-                                    className={router.pathname === item.href ? 'active' : ''}
+                                    className={router.pathname.includes(item.href) ? 'active' : ''}
                                     disablePadding>
                                     <ListItemButton
                                         onClick={() => router.push(`${item?.deep === "location" ? `${item.href.replace('[uuid]', '')}${locations && locations[0]}` : item.href}`)}

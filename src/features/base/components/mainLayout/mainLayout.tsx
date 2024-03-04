@@ -87,6 +87,7 @@ function MainLayout({...props}) {
     const [messages, updateMessages] = useState<any[]>([]);
     const [message, setMessage] = useState<{ user: string, message: string } | null>(null);
     const [hasMessage, setHasMessage] = useState(false);
+    const [isOffline, setIsOffline] = useState(false);
 
     const {data: user} = session as Session;
     const medical_entity = (user as UserDataResponse).medical_entity as MedicalEntityModel;
@@ -311,30 +312,10 @@ function MainLayout({...props}) {
         }
     }, [agendaConfig]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        if (typeof window !== "undefined") {
-            window.addEventListener("online", () => {
-                // when we're back online
-                closeSnackbar(noConnection);
-                setNoConnection(undefined);
-            });
-
-            window.addEventListener("offline", () => {
-                setNoConnection(enqueueSnackbar('Aucune connexion internet!', {
-                    key: "offline",
-                    variant: 'error',
-                    anchorOrigin: {horizontal: "center", vertical: "bottom"},
-                    persist: true
-                }));
-            });
-        }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
     const connectToStream = () => {
         // Connect to /api/sse as the SSE API source
-        const eventSource = new EventSource(`/api/sse`, {
-            withCredentials: true,
-        })
+        const eventSource = new EventSource(`/api/sse`);
+
         eventSource.onopen = () => {
             console.log('Open SSE connection');
         };
@@ -346,12 +327,15 @@ function MainLayout({...props}) {
         // In case of any error, close the event source
         // So that it attempts to connect again
         eventSource.onerror = (error) => {
-            eventSource.close();
+            console.log("error", error);
             if ((error as any)?.data) {
+                eventSource.close();
                 const errorData = (error as any).data && JSON.parse((error as any)?.data);
                 if (![404, 500, 502, 503, 504].includes(errorData?.status)) {
                     setTimeout(connectToStream, 1);
                 }
+            } else if ((error as any)?.type === "error") {
+                console.log("eventSource", eventSource.readyState);
             }
         };
 
@@ -359,6 +343,23 @@ function MainLayout({...props}) {
     }
 
     useEffect(() => {
+        if (typeof window !== "undefined") {
+            window.addEventListener("online", () => {
+                setIsOffline(false)
+                closeSnackbar(noConnection);
+                setNoConnection(undefined);
+            });
+
+            window.addEventListener("offline", () => {
+                setIsOffline(true)
+                setNoConnection(enqueueSnackbar('Aucune connexion internet!', {
+                    key: "offline",
+                    variant: 'error',
+                    anchorOrigin: {horizontal: "center", vertical: "bottom"},
+                    persist: true
+                }));
+            });
+        }
         // Initiate the first call to connect to SSE API
         const eventSource = connectToStream()
 
@@ -371,10 +372,8 @@ function MainLayout({...props}) {
     const client = useAbly();
 
     useConnectionStateListener((stateChange) => {
-        //console.log("current", stateChange.current);  // the new connection state
-        //console.log("error", stateChange.reason);  // the new connection state
-        if (["closing", "closed", "disconnected"].includes(stateChange.current))
-            client.connect()
+        if (["closing", "closed","disconnected"].includes(stateChange.current))
+            !isOffline && client.connect()
     });
 
     const {channel} = useChannel(medical_entity?.uuid, (message) => {
