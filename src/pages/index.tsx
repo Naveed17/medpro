@@ -179,7 +179,7 @@ function Home() {
                                     <Stack spacing={2}>
                                         {medical_entities?.map(medical_entity_data =>
                                             <Stack spacing={1} key={medical_entity_data.uuid}>
-                                                {medical_entity_data.isOwner && ["doctor_office", "group_practice", "medical_center"].includes(medical_entity_data?.type?.slug as string) &&
+                                                {/*{medical_entity_data.isOwner && ["doctor_office", "group_practice", "medical_center"].includes(medical_entity_data?.type?.slug as string) &&
                                                     <a
                                                         onClick={() => update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
                                                         className={styles.card}>
@@ -192,7 +192,7 @@ function Home() {
                                                                 color: "#3F4254"
                                                             }}>{medical_entity_data?.name}</p>
                                                         <ChevronRightIcon sx={{ml: 'auto', color: "text.secondary"}}/>
-                                                    </a>}
+                                                    </a>}*/}
 
                                                 <a key={medical_entity_data.uuid}
                                                    onClick={() => update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
