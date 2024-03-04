@@ -24,7 +24,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import {useSession} from "next-auth/react";
 import {Session} from "next-auth";
 import Icon from "@themes/urlIcon";
-import {AppointmentStatus} from "@features/calendar";
+import {agendaSelector, AppointmentStatus} from "@features/calendar";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import {useTranslation} from "next-i18next";
@@ -90,6 +90,8 @@ function BoardItem({...props}) {
 
     const {startTime: initTimer} = useAppSelector(timerSelector);
     const {next: is_next} = useAppSelector(dashLayoutSelector);
+    const {mode} = useAppSelector(agendaSelector);
+
     const localInitTimer = moment(`${initTimer}`, "HH:mm");
     const [time, setTime] = useState<number>(moment().utc().seconds(parseInt(localInitTimer.format("ss"), 0)).diff(localInitTimer, "seconds"));
     const [duration] = useState<number>(moment.duration(moment.utc().diff(moment(`${quote?.content.dayDate} ${quote?.content.startTime}`, "DD-MM-YYYY HH:mm"))).asMilliseconds());
@@ -180,11 +182,11 @@ function BoardItem({...props}) {
                                         {...(quote.content.startTime === "00:00" && {color: 'warning'})}
                                         variant={"contained"}
                                         size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button>}
-                                    <Typography
+                                    {mode === "normal" && <Typography
                                         {...(quote.content.status === 3 && {pl: 1})}
                                         variant='body2' fontWeight={600}>
                                         {quote.content.patient.firstName} {quote.content.patient.lastName}
-                                    </Typography>
+                                    </Typography>}
                                 </Stack>
 
 
@@ -358,17 +360,24 @@ function BoardItem({...props}) {
                                         <Tooltip
                                             title={commonTranslation("config.start", {ns: "waitingRoom"})}>
                                             <span>
-                                                 <CustomIconButton
-                                                     onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
-                                                         action: "START_CONSULTATION",
-                                                         row: quote.content,
-                                                         event
-                                                     })}
-                                                     variant="filled"
-                                                     color={"warning"}
-                                                     size={"small"}>
-                                                <PlayCircleIcon fontSize={"small"}/>
-                                            </CustomIconButton>
+                                                <IconButton
+                                                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => handleEvent({
+                                                        action: "START_CONSULTATION",
+                                                        row: quote.content,
+                                                        event
+                                                    })}
+                                                    size={"small"}
+                                                    sx={{
+                                                        p: .85,
+                                                        border: `1px solid ${theme.palette.divider}`,
+                                                        borderRadius: 1,
+                                                        ...(is_next && {
+                                                            background: theme.palette.primary.main,
+                                                            border: "none"
+                                                        }),
+                                                    }}>
+                                                    <IconUrl path={"ic-play-audio-black"}/>
+                                                </IconButton>
                                             </span>
                                         </Tooltip>}
                                 </>}

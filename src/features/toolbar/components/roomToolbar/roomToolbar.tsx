@@ -1,4 +1,4 @@
-import {Stack, useMediaQuery, Button, Tabs, Tab, Badge, Avatar} from '@mui/material'
+import {Stack, useMediaQuery, Button, Tabs, Tab, Badge, Avatar, useTheme} from '@mui/material'
 import {DrawerBottom} from '@features/drawerBottom';
 import {WaitingRoom} from '@features/leftActionBar'
 import Icon from '@themes/urlIcon'
@@ -14,6 +14,8 @@ import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
 import {onOpenPatientDrawer} from "@features/table";
 import {Session} from "next-auth";
 import {useSession} from "next-auth/react";
+import {agendaSelector, setNavigatorMode} from "@features/calendar";
+import {ToggleButtonStyled} from "@features/toolbar";
 
 function RoomToolbar({...props}) {
     const {
@@ -30,9 +32,11 @@ function RoomToolbar({...props}) {
     } = props;
     const isMobile = useMediaQuery((theme: any) => theme.breakpoints.down('sm'));
     const dispatch = useAppDispatch();
+    const theme = useTheme();
     const {data: session} = useSession();
 
     const {isWindowMax} = useAppSelector(minMaxWindowSelector);
+    const {mode} = useAppSelector(agendaSelector);
 
     const {data: user} = session as Session;
     const roles = (user as UserDataResponse).general_information.roles as Array<string>;
@@ -205,6 +209,19 @@ function RoomToolbar({...props}) {
                         }}/>
                 }
                 {roles.includes('ROLE_SECRETARY') && <MinMaxWindowButton/>}
+
+                <ToggleButtonStyled
+                    id="toggle-button"
+                    value="toggle"
+                    onClick={() => dispatch(setNavigatorMode(mode === "normal" ? "discreet" : "normal"))}
+                    className={"toggle-button"}
+                    sx={{
+                        ...(mode !== "normal" && {border: "none"}),
+                        background: mode !== "normal" ? theme.palette.primary.main : theme.palette.grey['A500']
+                    }}>
+                    <IconUrl width={19} height={19}
+                             path={"ic-eye-slash"} {...(mode !== "normal" && {color: "white"})}/>
+                </ToggleButtonStyled>
             </Stack>
 
         </Stack>

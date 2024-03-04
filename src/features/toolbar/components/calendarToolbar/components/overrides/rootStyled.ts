@@ -15,11 +15,6 @@ const RootStyled = styled("div")(({theme}) => ({
             textTransform: "capitalize"
         }
     },
-    "& .toggle-button": {
-        width: 34,
-        height: 34,
-        padding: 0
-    },
     [theme.breakpoints.up("sm")]: {
         flexDirection: "row",
         padding: theme.spacing(1.75, 0),
