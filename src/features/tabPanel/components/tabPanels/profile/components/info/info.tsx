@@ -152,13 +152,13 @@ function Info({ ...props }) {
         }
     }, [countries]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const { data: httpStatesResponse } = useRequestQuery(values.country ? {
+    const { data: httpStatesResponse, isLoading } = useRequestQuery(values.country ? {
         method: "GET",
         url: `/api/public/places/countries/${values.country}/state/${router.locale}`
     } : null, ReactQueryNoValidateConfig);
 
     const states = (httpStatesResponse as HttpResponse)?.data as any[] || [];
-    console.log(countriesData)
+
     if (!ready || loading)
         return <LoadingScreen button text={"loading-error"} />;
 
@@ -512,7 +512,7 @@ function Info({ ...props }) {
                                         }}
                                         sx={{ color: "text.secondary" }}
                                         options={states ? states : []}
-                                        loading={!!(values.region && states?.length === 0)}
+                                        loading={isLoading}
                                         getOptionLabel={(option) => option?.name ? option.name : ""}
                                         isOptionEqualToValue={(option: any, value) => option.name === value.name}
                                         renderOption={(props, option) => (
@@ -537,7 +537,7 @@ function Info({ ...props }) {
                                                         ...params.InputProps,
                                                         endAdornment: (
                                                             <React.Fragment>
-                                                                {values.region && states?.length === 0 ? <CircularProgress color="inherit" size={20} /> : null}
+                                                                {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
                                                                 {params.InputProps.endAdornment}
                                                             </React.Fragment>
                                                         ),
