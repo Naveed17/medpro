@@ -49,6 +49,18 @@ function InfoStep({...props}) {
                 </Stack>
                 <Stack width={1}>
                     <Typography gutterBottom>
+                        {t("dialog.last_name")}
+                        <Typography color='error' variant='caption'>*</Typography>
+                    </Typography>
+                    <TextField
+                        placeholder={t("dialog.last_name")}
+                        fullWidth
+                        {...getFieldProps('last_name')}
+                        error={Boolean(errors.name && touched.name)}
+                    />
+                </Stack>
+                <Stack width={1}>
+                    <Typography gutterBottom>
                         {t("dialog.first_name")}
                         <Typography color='error' variant='caption'>*</Typography>
                     </Typography>

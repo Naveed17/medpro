@@ -885,7 +885,6 @@ function ModifyUser() {
                                                         title: "users.config.no-data.permissions.title",
                                                         description: "users.config.no-data.permissions.description"
                                                     }}/>}
-
                                             </Collapse>
                                         </ListItem>
                                     </Paper>

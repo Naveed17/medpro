@@ -598,7 +598,8 @@
         "medical-imaging": "Imagerie médicale",
         "holidays": "Congé et absence",
         "users": "Utilisateur",
-        "data": "Importation"
+        "data": "Importation",
+        "insurance_agreement": "Insurance/Agreements"
       },
       "newCash": "Créer caisse",
       "name-cashBox": "Nom du caisse",
@@ -645,7 +646,8 @@
         "role_assignments": "Rôle & affectation",
         "end": "Fin",
         "user_name": "Nom d'utilisateur",
-        "first_name": "Nom & Prénom",
+        "first_name": "Prénom",
+        "last_name": "Nom",
         "phone": "Téléphone Mobile",
         "email": "Adresse mail",
         "password": "Mot de passe",

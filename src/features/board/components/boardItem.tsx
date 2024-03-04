@@ -181,11 +181,15 @@ function BoardItem({...props}) {
                                         {...(quote.content.startTime === "00:00" && {color: 'warning'})}
                                         variant={"contained"}
                                         size={"small"}> {quote.content.startTime === "00:00" ? 'SR' : 'AR'}-{index + 1}</Button>}
-                                    {mode === "normal" && <Typography
+                                    <Typography
+                                        {...(mode !== "normal" && {
+                                            className: "blur-text",
+                                            sx: {overflow: "hidden", lineHeight: 1}
+                                        })}
                                         {...(quote.content.status === 3 && {pl: 1})}
                                         variant='body2' fontWeight={600}>
                                         {quote.content.patient.firstName} {quote.content.patient.lastName}
-                                    </Typography>}
+                                    </Typography>
                                 </Stack>
 
 

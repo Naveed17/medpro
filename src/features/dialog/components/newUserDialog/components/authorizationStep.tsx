@@ -93,45 +93,8 @@ function AuthorizationStep({...props}) {
                 {t("dialog.role")}
             </Typography>
 
-            {!openFeatureCollapse &&
-                <>
-                    <RadioGroup
-                        className='role-input-group'
-                        {...getFieldProps("selectedRole")}>
-                        {profiles.map((profile: ProfileModel, index: number) => (
-                            <FormControlLabel
-                                className='role-label'
-                                value={profile.uuid}
-                                key={`${index}--${profile.uuid}`}
-                                control={<Radio disableRipple
-                                                checkedIcon={<IconUrl path="ic-radio-check"/>}/>}
-                                label={startCase(profile.name)}/>
-                        ))}
-                    </RadioGroup>
-                    <Button
-                        onClick={() => setFeatureCollapse(true)}
-                        startIcon={<Add/>} className='add-role' variant='contained' color='info'>
-                        {t("dialog.add_role")}
-                    </Button>
-                </>
-            }
-            <Paper sx={{p: 2, borderRadius: 2, display: openFeatureCollapse ? "block" : "none"}}>
-                <Stack direction={{xs: 'column', sm: 'row'}} alignItems={{xs: 'flex-start', sm: 'center'}}
-                       spacing={{xs: 1, sm: 2}}>
-                    <Typography minWidth={100}>
-                        {t("role_name")}
-                        <Typography variant="caption" color="error">
-                            *
-                        </Typography>
-                    </Typography>
-                    <TextField
-                        fullWidth
-                        value={values.role_name ?? ""}
-                        {...getFieldProps("role_name")}
-                        placeholder={t("role_name")}
-                        error={Boolean(touched.role_name && errors.role_name)}
-                    />
-                </Stack>
+            <Paper sx={{px: 2, pb: 2, borderRadius: 2}}>
+
                 <List sx={{pb: 0}}>
                     {Object.entries(values?.roles)?.map((role: any) => (
                         <ListItem
@@ -157,7 +120,8 @@ function AuthorizationStep({...props}) {
                             </Stack>
                             <Collapse in={role[0] === openCollapseFeature} onClick={(e) => e.stopPropagation()}>
                                 {role[1].map((featurePermission: any, index: number) =>
-                                    <Box key={featurePermission?.uuid} p={2} className="collapse-wrapper">
+                                    <Box key={`create-${index}-${featurePermission?.uuid}`} p={2}
+                                         className="collapse-wrapper">
                                         {featurePermission?.featureEntity &&
                                             <FormControlLabel
                                                 sx={{paddingTop: 2}}
@@ -179,9 +143,7 @@ function AuthorizationStep({...props}) {
                         </ListItem>
                     ))}
                 </List>
-
             </Paper>
-
         </DialogStyled>
     )
 }

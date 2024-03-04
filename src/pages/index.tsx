@@ -61,7 +61,8 @@ function Home() {
 
     if (!ready || loading) return (<LoadingScreen/>);
 
-    const medical_entities = (session?.data?.medical_entities?.reduce((entites: MedicalEntityModel[], data: any) => [...(entites ?? []), data?.medical_entity], []) ?? []) as MedicalEntityModel[];
+    const medical_entities = (session?.data?.medical_entities?.reduce((entites: MedicalEntityModel[], data: any) =>
+        [...(entites ?? []), {...data?.medical_entity, isOwner: data.is_owner}], []) ?? []) as MedicalEntityModel[];
     const hasMultiMedicalEntities = medical_entities.length > 1 ?? false;
     const hasSelectedEntity = session?.data?.medical_entity?.has_selected_entity ?? false;
     const features = session?.data?.medical_entities?.find((entity: MedicalEntityDefault) => entity.is_default)?.features;
@@ -167,19 +168,36 @@ function Home() {
                                 <CardContent>
                                     <Stack spacing={2}>
                                         {medical_entities?.map(medical_entity_data =>
-                                            <a key={medical_entity_data.uuid}
-                                               onClick={() => update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
-                                               className={styles.card}>
-                                                <Box component="img" width={50} height={50}
-                                                     src="/static/icons/Med-logo_.svg"/>
-                                                <p
-                                                    style={{
-                                                        fontSize: 16,
-                                                        fontWeight: 600,
-                                                        color: "#3F4254"
-                                                    }}>{medical_entity_data?.name}</p>
-                                                <ChevronRightIcon sx={{ml: 'auto', color: "text.secondary"}}/>
-                                            </a>)}
+                                            <Stack spacing={1} key={medical_entity_data.uuid}>
+                                                {medical_entity_data.isOwner && ["doctor_office", "group_practice", "medical_center"].includes(medical_entity_data?.type?.slug as string) &&
+                                                    <a
+                                                        onClick={() => update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
+                                                        className={styles.card}>
+                                                        <Box component="img" ml={-.2} width={55} height={55}
+                                                             src="/static/icons/ic-user.svg"/>
+                                                        <p
+                                                            style={{
+                                                                fontSize: 16,
+                                                                fontWeight: 600,
+                                                                color: "#3F4254"
+                                                            }}>{medical_entity_data?.name}</p>
+                                                        <ChevronRightIcon sx={{ml: 'auto', color: "text.secondary"}}/>
+                                                    </a>}
+
+                                                <a key={medical_entity_data.uuid}
+                                                   onClick={() => update({default_medical_entity: medical_entity_data.uuid}).then(() => router.push('/dashboard'))}
+                                                   className={styles.card}>
+                                                    <Box component="img" width={50} height={50}
+                                                         src="/static/icons/Med-logo_.svg"/>
+                                                    <p
+                                                        style={{
+                                                            fontSize: 16,
+                                                            fontWeight: 600,
+                                                            color: "#3F4254"
+                                                        }}>{medical_entity_data?.name}</p>
+                                                    <ChevronRightIcon sx={{ml: 'auto', color: "text.secondary"}}/>
+                                                </a>
+                                            </Stack>)}
                                         <Typography variant="body2" textAlign='center'>
                                             {t("login.sign_in_desc_1")}
                                             <br/>

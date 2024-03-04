@@ -90,7 +90,7 @@ function NewUserDialog({...props}) {
         form.append('is_public', "true");
         form.append('is_default', "true");
         form.append('firstname', values.first_name);
-        values.selectedRole.length > 0 && form.append('profile', values.selectedRole);
+        form.append('lastname', values.last_name);
         values.phones.length > 0 && form.append('phone', JSON.stringify(values.phones.map((phoneData: any) => ({
             code: phoneData.dial?.phone,
             value: phoneData.phone.replace(phoneData.dial?.phone as string, ""),
@@ -100,30 +100,7 @@ function NewUserDialog({...props}) {
             is_support: false
         }))));
         form.append('password', values.password);
-        triggerUserAdd({
-            method: "POST",
-            url: `${urlMedicalEntitySuffix}/users/${router.locale}`,
-            data: form
-        }, {
-            onSuccess: () => {
-                enqueueSnackbar(t("alert.add_user_success"), {variant: "success"});
-                setLoading(false);
-                dispatch(setStepperIndex(currentStep + 1))
-                invalidateQueries([`${urlMedicalEntitySuffix}/mehus/${router.locale}`]);
-            },
-            onError: () => {
-                setLoading(false);
-                enqueueSnackbar(t("alert.went_wrong"), {variant: "error"});
-            }
-        });
-    }
 
-    const handleCreateProfile = () => {
-        setLoading(true);
-        const form = new FormData();
-        const features: any = {};
-
-        form.append("name", values.role_name);
         Object.entries(values.roles).forEach((role: any) => {
             const hasFeaturePermissions = role[1].reduce((features: any[], feature: FeatureModel) => {
                 const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
@@ -134,7 +111,7 @@ function NewUserDialog({...props}) {
                     ...((feature?.hasOwnProperty('featureEntity') ? (feature?.featureEntity?.checked ? permissions : []) : permissions) ?? [])]
             }, []).length > 0;
 
-            if (hasFeaturePermissions) {
+            if (hasFeaturePermissions && features) {
                 features[role[0]] = role[1].reduce((features: FeatureModel[], feature: FeatureModel) => {
                     const permissions = feature?.permissions?.reduce((permissions: any[], permission: PermissionModel) =>
                         [...(permissions ?? []),
@@ -154,17 +131,21 @@ function NewUserDialog({...props}) {
         });
 
         form.append("features", JSON.stringify(features));
-        triggerProfileUpdate({
+        triggerUserAdd({
             method: "POST",
-            url: `${urlMedicalEntitySuffix}/profile/${router.locale}`,
+            url: `${urlMedicalEntitySuffix}/users/${router.locale}`,
             data: form
         }, {
             onSuccess: () => {
-                enqueueSnackbar(t("created-role"), {variant: "success"});
-                invalidateQueries([`${urlMedicalEntitySuffix}/profile/${router.locale}`]);
-                setFeatureCollapse(false);
+                enqueueSnackbar(t("alert.add_user_success"), {variant: "success"});
+                setLoading(false);
+                dispatch(setStepperIndex(currentStep + 1))
+                invalidateQueries([`${urlMedicalEntitySuffix}/mehus/${router.locale}`]);
             },
-            onSettled: () => setLoading(false)
+            onError: () => {
+                setLoading(false);
+                enqueueSnackbar(t("alert.went_wrong"), {variant: "error"});
+            }
         });
     }
 
@@ -200,13 +181,7 @@ function NewUserDialog({...props}) {
             } : {})
         }),
         Yup.object().shape({
-            selectedRole: Yup.string().when("$condition", (condition, schema) =>
-                openFeatureCollapse ? schema : schema.required()
-            ),
             ...(type === "authorization" ? {
-                role_name: Yup.string().when("$condition", (condition, schema) =>
-                    !openFeatureCollapse ? schema : schema.required()
-                ),
                 roles: Yup.object().shape(
                     features?.reduce((features: any, feature: any) => ({
                         ...(features ?? {}), ...{
@@ -242,17 +217,16 @@ function NewUserDialog({...props}) {
         initialValues: {
             name: '',
             first_name: '',
+            last_name: '',
             phones: [
                 {
                     phone: "", dial: doctor_country
                 }
             ],
             email: '',
-            selectedRole: "",
             generatePassword: false,
             resetPassword: true,
             roles: initFormData(),
-            role_name: '',
             department: "",
             assigned_doctors: [],
             password: '',
@@ -264,11 +238,7 @@ function NewUserDialog({...props}) {
                 return;
             }
             if (currentStep === stepperData.length - 2) {
-                if (openFeatureCollapse) {
-                    handleCreateProfile();
-                } else {
-                    handleCreateUser();
-                }
+                handleCreateUser();
             } else {
                 dispatch(setStepperIndex(currentStep + 1))
             }
@@ -331,11 +301,7 @@ function NewUserDialog({...props}) {
                     <DialogActions className='dialog-action'>
                         <Button
                             onClick={() => {
-                                if (openFeatureCollapse) {
-                                    setFeatureCollapse(false);
-                                } else {
-                                    onNextPreviStep();
-                                }
+                                onNextPreviStep();
                             }}
                             variant='text-black'>
                             {t(`dialog.${currentStep > 0 ? 'back' : 'cancel'}`)}

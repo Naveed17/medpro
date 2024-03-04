@@ -31,7 +31,7 @@ function TreeViewCheckbox({...props}) {
                            ...(!node.collapseIn && {mb: 1})
                        }}
                        alignItems={"center"}
-                       onClick={data.length === 1 && hasChildren ? handleNodeCheck : handleCollapseIn}>
+                       {...(!disabled && {onClick: (data.length === 1 && hasChildren ? handleNodeCheck : handleCollapseIn)})}>
                     <FormControlLabel
                         {
                             ...(hasChildren && {

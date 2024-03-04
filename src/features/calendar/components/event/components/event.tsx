@@ -180,17 +180,20 @@ function Event({...props}) {
                                             <span {...(appointment?.dur > 15 && {style: {paddingBottom: 4}})}>{"Motif: "}{appointment?.motif?.map((reason: ConsultationReasonModel) => reason.name).join(", ")}</span>}
                                     </Stack>
                                 )
-                                : mode === "normal" &&
+                                :
                                 <span
+                                    {...(mode !== "normal" && {className: "blur-text"})}
                                     style={{
                                         width: '100%',
-                                        paddingBottom: 4,
-                                        paddingTop: 4
+                                        ...(mode === "normal" && {
+                                            paddingBottom: 4,
+                                            paddingTop: 4
+                                        })
                                     }}>{event.event._def.title}</span>
                             }
                         </Typography>
                         {appointment?.isOnline && <Avatar
-                            className={"online-appointment"}
+                            className={`online-appointment`}
                             alt="Online appointment"
                             src="/static/icons/Med-logo_.svg"
                         />}
