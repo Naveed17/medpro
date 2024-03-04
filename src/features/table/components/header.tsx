@@ -5,12 +5,12 @@ import TableHead from "@mui/material/TableHead";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import { Checkbox } from "@mui/material";
-import { visuallyHidden } from "@mui/utils";
+import {Checkbox} from "@mui/material";
+import {visuallyHidden} from "@mui/utils";
 import CodeIcon from "@mui/icons-material/Code";
-import { capitalize } from 'lodash'
+import {capitalize} from 'lodash'
 
-function OHead({ ...props }) {
+function OHead({...props}) {
     const {
         order,
         orderBy,
@@ -76,9 +76,8 @@ function OHead({ ...props }) {
                                             headCell.align === "center"
                                                 ? "center !important"
                                                 : "flex-start",
-                                    }}
-                                >
-                                    {capitalize(t(`table.${headCell.label}`))}
+                                    }}>
+                                    {headCell.label !== "empty" && capitalize(t(`table.${headCell.label}`))}
                                     {orderBy === headCell.id ? (
                                         <Box component="span" sx={visuallyHidden}>
                                             {order === "desc"
