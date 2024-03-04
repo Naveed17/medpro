@@ -16,7 +16,6 @@ function OHead({...props}) {
         orderBy,
         onRequestSort,
         data,
-        handleConfig,
         t,
         numSelected,
         hideHeaderOnMobile,
