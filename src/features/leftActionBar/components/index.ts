@@ -12,3 +12,4 @@ export * from "./cashbox";
 export * from "./filterOverview";
 export * from "./inventory";
 export * from "./document";
+export * from './doctors'

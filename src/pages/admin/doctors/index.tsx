@@ -1,9 +1,9 @@
-import React, {ReactElement, useEffect} from "react";
+import React, {ReactElement, useEffect, useState} from "react";
 import {AdminLayout} from "@features/base";
 import {GetStaticProps} from "next";
 import {serverSideTranslations} from "next-i18next/serverSideTranslations";
 import {SubHeader} from "@features/subHeader";
-import {Box, LinearProgress} from "@mui/material";
+import {Box, LinearProgress, Stack, Button} from "@mui/material";
 import {DesktopContainer} from "@themes/desktopConainter";
 import {useTranslation} from "next-i18next";
 import {LoadingScreen} from "@features/loadingScreen";
@@ -14,6 +14,11 @@ import {useRouter} from "next/router";
 import {useMedicalEntitySuffix} from "@lib/hooks";
 import {sideBarSelector, toggleSideBar} from "@features/menu";
 import {useAppDispatch, useAppSelector} from "@lib/redux/hooks";
+import {MobileContainer} from "@themes/mobileContainer";
+import {DoctorsMobileCard, NoDataCard} from "@features/card";
+import {DrawerBottom} from "@features/drawerBottom";
+import IconUrl from "@themes/urlIcon";
+import {Doctors as DoctorsFilter} from '@features/leftActionBar'
 
 const headCells = [
     {
@@ -90,6 +95,8 @@ function Doctors() {
     const {t, ready, i18n} = useTranslation("doctors", {keyPrefix: "config"});
     const {opened: openSideBar} = useAppSelector(sideBarSelector);
 
+    const [filter, setFilter] = useState(false)
+
     const {data: httpUsersResponse} = useRequestQuery({
         method: "GET",
         url: `${urlMedicalEntitySuffix}/mehus/${router.locale}`
@@ -131,19 +138,63 @@ function Doctors() {
                 <DoctorToolbar {...{t, title: "sub-header.list_title"}} />
             </SubHeader>
             <Box className="container">
-                <DesktopContainer>
-                    <LinearProgress sx={{
-                        visibility: !httpUsersResponse ? "visible" : "hidden"
-                    }} color="warning"/>
-                    <Otable
-                        headers={headCells}
-                        handleEvent={handleTableEvent}
-                        rows={users}
-                        from={"doctors"}
-                        {...{t}}
-                    />
-                </DesktopContainer>
+                <LinearProgress sx={{
+                    visibility: !httpUsersResponse ? "visible" : "hidden"
+                }} color="warning"/>
+                {users.length > 0 ?
+                    <>
+                        <DesktopContainer>
+                            <Otable
+                                headers={headCells}
+                                handleEvent={handleTableEvent}
+                                rows={users}
+                                from={"doctors"}
+                                {...{t}}
+                            />
+                        </DesktopContainer>
+                        <MobileContainer>
+                            <Stack spacing={2}>
+                                {users.map((item) => (
+                                    <React.Fragment key={item.uuid}>
+                                        <DoctorsMobileCard {...{
+                                            t,
+                                            row: item,
+                                            edit: (prop: any) => console.log(prop)
+                                        }} />
+                                    </React.Fragment>
+                                ))}
+
+                            </Stack>
+                        </MobileContainer>
+                    </>
+                    : <NoDataCard ns={"doctors"} t={t} data={{
+                        mainIcon: "ic-user3",
+                        title: "no-data.title",
+                        description: "no-data.description",
+                    }}/>}
             </Box>
+            <MobileContainer>
+                <Button
+                    startIcon={<IconUrl path="ic-filter"/>}
+                    variant="filter"
+                    onClick={() => setFilter(true)}
+                    sx={{
+                        position: "fixed",
+                        bottom: 50,
+                        transform: "translateX(-50%)",
+                        left: "50%",
+                        zIndex: 999,
+
+                    }}>
+                    {t("filter.title")} (0)
+                </Button>
+            </MobileContainer>
+            <DrawerBottom
+                handleClose={() => setFilter(false)}
+                open={filter}
+                title={t("filter.title")}>
+                <DoctorsFilter/>
+            </DrawerBottom>
         </>
     )
 }
