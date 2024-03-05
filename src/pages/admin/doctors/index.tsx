@@ -1,9 +1,9 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useState } from "react";
 import { AdminLayout } from "@features/base";
 import { GetStaticProps } from "next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { SubHeader } from "@features/subHeader";
-import { Box, Stack } from "@mui/material";
+import { Box, Button, Stack } from "@mui/material";
 import { DesktopContainer } from "@themes/desktopConainter";
 import { useTranslation } from "next-i18next";
 import { LoadingScreen } from "@features/loadingScreen";
@@ -14,6 +14,9 @@ import { useRouter } from "next/router";
 import { useMedicalEntitySuffix } from "@lib/hooks";
 import { MobileContainer } from "@themes/mobileContainer";
 import { DoctorsMobileCard, NoDataCard } from "@features/card";
+import { DrawerBottom } from "@features/drawerBottom";
+import IconUrl from "@themes/urlIcon";
+import { Doctors as DoctorsFilter } from '@features/leftActionBar'
 
 const headCells = [
     {
@@ -85,7 +88,7 @@ const headCells = [
 function Doctors() {
     const router = useRouter();
     const { urlMedicalEntitySuffix } = useMedicalEntitySuffix();
-
+    const [filter, setFilter] = useState(false)
     const { t, ready } = useTranslation("doctors", { keyPrefix: "config" });
 
     const { data: httpUsersResponse } = useRequestQuery({
@@ -136,6 +139,28 @@ function Doctors() {
                         description: "no-data.description",
                     }} />}
             </Box>
+            <MobileContainer>
+                <Button
+                    startIcon={<IconUrl path="ic-filter" />}
+                    variant="filter"
+                    onClick={() => setFilter(true)}
+                    sx={{
+                        position: "fixed",
+                        bottom: 50,
+                        transform: "translateX(-50%)",
+                        left: "50%",
+                        zIndex: 999,
+
+                    }}>
+                    {t("filter.title")} (0)
+                </Button>
+            </MobileContainer>
+            <DrawerBottom
+                handleClose={() => setFilter(false)}
+                open={filter}
+                title={t("filter.title")}>
+                <DoctorsFilter />
+            </DrawerBottom>
         </>
     )
 }
